@@ -1,110 +1,234 @@
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Dark Journey - Abyss Pathways</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #2a2a2a;
+            color: #ddd;
+            margin: 0;
+            padding: 20px;
+        }
 
-canvas.width = 600;
-canvas.height = 400;
+        h1, h2 {
+            text-align: center;
+            color: #c0c0c0;
+        }
 
-let paddleWidth = 100;
-let paddleHeight = 10;
-let paddleX = (canvas.width - paddleWidth) / 2;
-let ballRadius = 10;
-let ballX = canvas.width / 2;
-let ballY = canvas.height / 2;
-let ballSpeedX = 2;
-let ballSpeedY = 2;
-let rightPressed = false;
-let leftPressed = false;
-let score = 0;
+        .container {
+            margin-top: 20px;
+            text-align: center;
+            background-color: #444;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
 
-// Draw paddle
-function drawPaddle() {
-  ctx.fillStyle = '#0095DD';
-  ctx.fillRect(paddleX, canvas.height - paddleHeight - 10, paddleWidth, paddleHeight);
-}
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            border: none;
+            background-color: #6a1b9a;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+        }
 
-// Draw ball
-function drawBall() {
-  ctx.beginPath();
-  ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
-  ctx.fillStyle = '#FF5733';
-  ctx.fill();
-  ctx.closePath();
-}
+        button:hover {
+            background-color: #9c27b0;
+        }
 
-// Draw score
-function drawScore() {
-  ctx.font = '16px Arial';
-  ctx.fillStyle = '#000';
-  ctx.fillText('Score: ' + score, 8, 20);
-}
+        .message {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
 
-// Move paddle
-function movePaddle() {
-  if (rightPressed && paddleX < canvas.width - paddleWidth) {
-    paddleX += 7;
-  } else if (leftPressed && paddleX > 0) {
-    paddleX -= 7;
-  }
-}
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 14px;
+        }
 
-// Keydown event
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Right' || e.key === 'ArrowRight') {
-    rightPressed = true;
-  } else if (e.key === 'Left' || e.key === 'ArrowLeft') {
-    leftPressed = true;
-  }
-});
+        .status {
+            font-size: 18px;
+            font-weight: bold;
+        }
 
-// Keyup event
-document.addEventListener('keyup', (e) => {
-  if (e.key === 'Right' || e.key === 'ArrowRight') {
-    rightPressed = false;
-  } else if (e.key === 'Left' || e.key === 'ArrowLeft') {
-    leftPressed = false;
-  }
-});
+        .how-to {
+            text-align: left;
+            margin: 10px auto;
+            padding: 10px;
+            background-color: #555;
+            border-radius: 8px;
+            width: 80%;
+        }
+    </style>
+</head>
+<body>
 
-// Update ball position
-function moveBall() {
-  ballX += ballSpeedX;
-  ballY += ballSpeedY;
+    <h1>The Dark Journey - Abyss Pathways</h1>
+    <div class="container">
+        <div class="message" id="message">
+            <p>Choose your difficulty to begin the journey:</p>
+            <button onclick="setDifficulty('easy')">Easy</button>
+            <button onclick="setDifficulty('normal')">Normal</button>
+            <button onclick="setDifficulty('hard')">Hard</button>
+        </div>
+    </div>
 
-  // Wall collisions
-  if (ballX + ballRadius > canvas.width || ballX - ballRadius < 0) {
-    ballSpeedX = -ballSpeedX;
-  }
+    <div class="how-to">
+        <h2>How to Play</h2>
+        <ul>
+            <li>Start by selecting a difficulty level.</li>
+            <li>Each turn, choose a path to explore. Paths affect your <strong>Health</strong>, <strong>Sanity</strong>, and <strong>Supplies</strong>.</li>
+            <li>If any stat drops to zero, your journey ends.</li>
+            <li>Use the sacrifice option to redistribute points between stats when needed.</li>
+            <li>Survive as many days as possible while exploring random paths!</li>
+        </ul>
+    </div>
 
-  if (ballY - ballRadius < 0) {
-    ballSpeedY = -ballSpeedY;
-  }
+    <footer>
+        <p>&copy; 2024 The Dark Journey Game | A path through darkness, madness, and the unknown</p>
+    </footer>
 
-  // Paddle collision
-  if (
-    ballY + ballRadius > canvas.height - paddleHeight - 10 &&
-    ballX > paddleX &&
-    ballX < paddleX + paddleWidth
-  ) {
-    ballSpeedY = -ballSpeedY;
-    score++;
-  }
+    <script>
+        let stage = 0;
+        let health = 100;
+        let sanity = 100;
+        let supplies = 50;
+        let days = 0;
+        let groupSize = 4;
+        let locationsVisited = [];
 
-  // Missed the ball
-  if (ballY + ballRadius > canvas.height) {
-    alert('Game Over! Your score: ' + score);
-    document.location.reload();
-  }
-}
+        const paths = [
+            { name: "The Devil's Doorway", health: -15, sanity: -20, supplies: -5, description: "A cursed, ominous archway that leads to nothing but despair." },
+            { name: "The Frozen Tundra", health: -25, sanity: -10, supplies: -20, description: "A bitter, cold wasteland, where the ice seems to sap your very soul." },
+            { name: "The Hollow Forest", health: -10, sanity: -15, supplies: 10, description: "A haunted forest, thick with shadows. Strange voices call from the trees." },
+            { name: "The Shattered Mountains", health: -30, sanity: -25, supplies: 5, description: "Sharp, jagged peaks echoing with the screams of lost souls. Treacherous." },
+            { name: "The Desert of No Return", health: -20, sanity: -30, supplies: -10, description: "A barren wasteland where hope is fleeting." },
+            { name: "The Abyssal Swamps", health: -15, sanity: -20, supplies: -15, description: "Murky waters filled with unseen dangers. The air is heavy with despair." },
+            { name: "The Black Rift", health: -50, sanity: -50, supplies: -25, description: "A tear in the fabric of reality, where horrors await." },
+            { name: "The Forgotten City", health: -20, sanity: -10, supplies: 20, description: "An ancient city where memories and time seem to warp." }
+        ];
 
-// Draw everything
-function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawPaddle();
-  drawBall();
-  drawScore();
-  movePaddle();
-  moveBall();
-  requestAnimationFrame(draw);
-}
+        function shufflePaths() {
+            return [...paths].sort(() => Math.random() - 0.5).slice(0, 3);
+        }
 
-draw();
+        function setDifficulty(level) {
+            if (level === 'easy') {
+                health = 200;
+                sanity = 200;
+                supplies = 100;
+            } else if (level === 'normal') {
+                health = 120;
+                sanity = 100;
+                supplies = 50;
+            } else if (level === 'hard') {
+                health = 100;
+                sanity = 80;
+                supplies = 40;
+            }
+
+            document.getElementById("message").innerHTML = `
+                <p>You have chosen <strong>${level.charAt(0).toUpperCase() + level.slice(1)}</strong> difficulty.</p>
+                <p>Health: ${health} | Sanity: ${sanity} | Supplies: ${supplies}</p>
+                <p><strong>Press Start to begin your journey.</strong></p>
+                <button onclick="startGame()">Start Journey</button>
+            `;
+        }
+
+        function startGame() {
+            stage = 1;
+            days = 0;
+            groupSize = 4;
+            locationsVisited = [];
+
+            showPaths();
+        }
+
+        function showPaths() {
+            let randomPaths = shufflePaths();
+
+            document.getElementById("message").innerHTML = `
+                <p>Your group ventures further into the Abyss. Choose your next path:</p>
+                ${randomPaths.map((path, index) => `
+                    <button onclick="choosePath('${path.name}', ${path.health}, ${path.sanity}, ${path.supplies}, '${path.description}')">
+                        ${path.name}
+                    </button>
+                `).join('')}
+            `;
+        }
+
+        function choosePath(name, healthChange, sanityChange, suppliesChange, description) {
+            days++;
+            health += healthChange;
+            sanity += sanityChange;
+            supplies += suppliesChange;
+            locationsVisited.push(name);
+
+            if (health <= 0 || sanity <= 0 || supplies <= 0) {
+                document.getElementById("message").innerHTML = `
+                    <p>You ventured into: <strong>${name}</strong></p>
+                    <p>${description}</p>
+                    <p>Your journey has ended. The Abyss has claimed you.</p>
+                    <button onclick="setDifficulty('easy')">Try Again</button>
+                `;
+                return;
+            }
+
+            document.getElementById("message").innerHTML = `
+                <p>You ventured into: <strong>${name}</strong></p>
+                <p>${description}</p>
+                <p>Health: ${health} | Sanity: ${sanity} | Supplies: ${supplies} | Days: ${days}</p>
+                <button onclick="continueJourney()">Continue</button>
+            `;
+        }
+
+        function continueJourney() {
+            if (health <= 0 || sanity <= 0 || supplies <= 0) {
+                document.getElementById("message").innerHTML = `
+                    <p>Your journey has ended. The Abyss has claimed you and your companions.</p>
+                    <button onclick="setDifficulty('easy')">Try Again</button>
+                `;
+            } else {
+                document.getElementById("message").innerHTML = `
+                    <p>The forces of the Abyss are relentless. Sacrifice wisely before choosing your next path:</p>
+                    <button onclick="sacrifice('health', 'sanity')">Sacrifice Health for Sanity</button>
+                    <button onclick="sacrifice('health', 'supplies')">Sacrifice Health for Supplies</button>
+                    <button onclick="sacrifice('sanity', 'health')">Sacrifice Sanity for Health</button>
+                    <button onclick="sacrifice('sanity', 'supplies')">Sacrifice Sanity for Supplies</button>
+                    <button onclick="sacrifice('supplies', 'health')">Sacrifice Supplies for Health</button>
+                    <button onclick="sacrifice('supplies', 'sanity')">Sacrifice Supplies for Sanity</button>
+                    <button onclick="showPaths()">Choose Next Path</button>
+                `;
+            }
+        }
+
+        function sacrifice(from, to) {
+            const sacrificeAmount = 10;
+
+            if (from === 'health' && health > sacrificeAmount) {
+                health -= sacrificeAmount;
+                if (to === 'sanity') sanity += sacrificeAmount;
+                if (to === 'supplies') supplies += sacrificeAmount;
+            } else if (from === 'sanity' && sanity > sacrificeAmount) {
+                sanity -= sacrificeAmount;
+                if (to === 'health') health += sacrificeAmount;
+                if (to === 'supplies') supplies += sacrificeAmount;
+            } else if (from === 'supplies' && supplies > sacrificeAmount) {
+                supplies -= sacrificeAmount;
+                if (to === 'health') health += sacrificeAmount;
+                if (to === 'sanity') sanity += sacrificeAmount;
+            }
+
+            continueJourney();
+        }
+    </script>
+
+</body>
+</html>
