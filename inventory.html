@@ -1,130 +1,161 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Used & Restored Gear Inventory</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-        header {
-            background-color: #333;
-            color: white;
-            text-align: center;
-            padding: 20px;
-        }
-        header h1 {
-            margin: 0;
-        }
-        .container {
-            padding: 20px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        table th, table td {
-            padding: 10px;
-            text-align: left;
-            border: 1px solid #ddd;
-        }
-        table th {
-            background-color: #333;
-            color: white;
-        }
-        table tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inventory Accordion View</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0; padding: 0;
+        background-color: #f4f4f4;
+    }
+
+    header {
+        background-color: #333;
+        color: white;
+        text-align: center;
+        padding: 20px;
+    }
+
+    header h1 { margin:0; font-size:2em; }
+    header p { margin:5px 0 0; color:#ccc; }
+
+    .container { padding: 20px; max-width: 900px; margin:auto; }
+
+    #searchInput {
+        width: 100%;
+        max-width: 400px;
+        padding: 10px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        font-size: 1em;
+    }
+
+    .item-row {
+        background:white;
+        margin-bottom:5px;
+        border-radius:5px;
+        box-shadow:0 0 5px rgba(0,0,0,0.1);
+        overflow:hidden;
+    }
+
+    .item-header {
+        display:flex;
+        justify-content: space-between;
+        align-items:center;
+        padding:12px 15px;
+        cursor:pointer;
+        background:#333;
+        color:white;
+    }
+
+    .item-header:hover {
+        background:#444;
+    }
+
+    .expand-button {
+        background:#555;
+        border:none;
+        color:white;
+        padding:5px 10px;
+        border-radius:3px;
+        cursor:pointer;
+        font-size:0.9em;
+    }
+
+    .item-details {
+        display:none;
+        padding:10px 15px;
+        background:#fafafa;
+        border-top:1px solid #ddd;
+    }
+
+    .item-details div {
+        padding:3px 0;
+    }
+
+    .item-details div span.key {
+        font-weight:bold;
+        display:inline-block;
+        width:180px;
+    }
+</style>
 </head>
 <body>
 
 <header>
     <h1>Used & Restored Gear Inventory</h1>
-    <p>Your trusted source for quality gear</p>
+    <p>Click "Expand" to view item details</p>
 </header>
 
 <div class="container">
-    <h2>Inventory Overview</h2>
-    <table id="inventoryTable">
-        <thead>
-            <tr>
-                <th>Timestamp</th>
-                <th>Item Name</th>
-                <th>Category</th>
-                <th>Brand</th>
-                <th>Model/Series</th>
-                <th>SKU/Item Number</th>
-                <th>Condition</th>
-                <th>Description</th>
-                <th>Purchase Date</th>
-                <th>Source</th>
-                <th>Purchase Price</th>
-                <th>Unique ID</th>
-                <th>Restoration Costs</th>
-                <th>Restoration Date</th>
-                <th>Technician/Restorer</th>
-                <th>Notes on Modifications or Repairs</th>
-                <th>Stock Level</th>
-                <th>Location</th>
-                <th>Date</th>
-                <th>Promo</th>
-                <th>Weight</th>
-                <th>Notes</th>
-                <th>Selling Price</th>
-                <th>Date Sold</th>
-                <th>Sales Channel</th>
-                <th>Customer Name/ID</th>
-                <th>Transaction ID</th>
-                <th>Payment Method</th>
-                <th>Special Notes</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Data will be dynamically inserted here -->
-        </tbody>
-    </table>
+    <input type="text" id="searchInput" placeholder="Search inventory...">
+    <div id="inventoryList">
+        <!-- Items will populate here -->
+    </div>
 </div>
 
 <script>
-    // Replace this URL with your Google Apps Script URL
-    const csvFilePath = 'https://script.google.com/macros/s/AKfycbw2ygas7GeNtrOUSVo2L8xMe3pHHyYZmHS936xmude6D70z6byyFnIaQtd1aOqSPl-ueg/exec';
+const csvFilePath = 'https://script.google.com/macros/s/AKfycbw2ygas7GeNtrOUSVo2L8xMe3pHHyYZmHS936xmude6D70z6byyFnIaQtd1aOqSPl-ueg/exec';
 
-    // Function to parse CSV data
-    function parseCSV(data) {
-        const rows = data.split('\n');
-        const tableBody = document.querySelector('#inventoryTable tbody');
+// Columns / headers
+const headers = ["Timestamp","Item Name","Category","Brand","Model/Series","SKU/Item Number","Condition","Description","Purchase Date","Source","Purchase Price","Unique ID","Restoration Costs","Restoration Date","Technician/Restorer","Notes on Modifications or Repairs","Stock Level","Location","Date","Promo","Weight","Notes","Selling Price","Date Sold","Sales Channel","Customer Name/ID","Transaction ID","Payment Method","Special Notes"];
 
-        rows.slice(1).forEach(row => {
-            const columns = row.split(',');
-            if (columns.length > 1) { // Avoid empty rows
-                const tr = document.createElement('tr');
-                columns.forEach(cell => {
-                    const td = document.createElement('td');
-                    td.textContent = cell.trim().replace(/"/g, ''); // Remove quotes
-                    tr.appendChild(td);
-                });
-                tableBody.appendChild(tr);
-            }
-        });
-    }
+function parseCSV(data){
+    const rows = data.split('\n');
+    const list = document.getElementById('inventoryList');
+    list.innerHTML = '';
 
-    // Fetch the CSV file and populate the table
-    fetch(csvFilePath)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok ' + response.statusText);
-            }
-            return response.text();
-        })
-        .then(data => parseCSV(data))
-        .catch(error => console.error('Error fetching the CSV file:', error));
+    rows.slice(1).forEach((row,i)=>{
+        const cols = row.split(',');
+        if(cols.length>1){
+            const itemName = cols[1].trim().replace(/"/g,'');
+            const itemRow = document.createElement('div');
+            itemRow.className = 'item-row';
+
+            // Header
+            const headerDiv = document.createElement('div');
+            headerDiv.className = 'item-header';
+            headerDiv.innerHTML = `<span>${itemName}</span> <button class="expand-button">Expand ▼</button>`;
+            itemRow.appendChild(headerDiv);
+
+            // Details
+            const detailsDiv = document.createElement('div');
+            detailsDiv.className = 'item-details';
+            cols.forEach((cell,index)=>{
+                const div = document.createElement('div');
+                div.innerHTML = `<span class="key">${headers[index]}:</span> ${cell.trim().replace(/"/g,'')}`;
+                detailsDiv.appendChild(div);
+            });
+            itemRow.appendChild(detailsDiv);
+
+            // Expand / collapse logic
+            headerDiv.querySelector('.expand-button').addEventListener('click', ()=>{
+                const visible = detailsDiv.style.display==='block';
+                detailsDiv.style.display = visible?'none':'block';
+                headerDiv.querySelector('.expand-button').textContent = visible?'Expand ▼':'Collapse ▲';
+            });
+
+            list.appendChild(itemRow);
+        }
+    });
+}
+
+// Search filter
+document.getElementById('searchInput').addEventListener('input', function(){
+    const filter = this.value.toLowerCase();
+    document.querySelectorAll('.item-row').forEach(row=>{
+        const name = row.querySelector('.item-header span').textContent.toLowerCase();
+        row.style.display = name.includes(filter)?'':'none';
+    });
+});
+
+fetch(csvFilePath)
+    .then(r=>r.text())
+    .then(data=>parseCSV(data))
+    .catch(err=>console.error('CSV fetch error:',err));
 </script>
 
 </body>
