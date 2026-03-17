@@ -131,17 +131,15 @@
 
     function parseCSV(data) {
     const rows = data.split('\n');
-    const headers = rows[0].split(','); // optional, if you want to use headers
-
-    products = []; // reset products array
+    products = []; // reset array
 
     rows.slice(1).forEach(row => {
         if (!row.trim()) return; // skip empty rows
 
         const columns = row.split(',');
 
-        // Safely get values with fallback
-        const getCol = (index, fallback = '') => columns[index] ? columns[index].trim() : fallback;
+        // Safe getter
+        const getCol = (index, fallback = '') => (columns[index] ? columns[index].trim() : fallback);
 
         const itemName = getCol(1, "No Item Name");
         const category = getCol(2, "No Category");
@@ -149,12 +147,12 @@
         const model = getCol(4, "No Model");
         const condition = getCol(6, "No Condition");
         const description = getCol(7, "No Description");
-
-        // Safe numeric parsing
-        const price = parseFloat(getCol(29, "0")) || 0;        // price column
-        const stockLevel = parseInt(getCol(8, "0")) || 0;      // stock column
         const promo = getCol(19, "");
         const weight = getCol(20, "0.0");
+
+        // Correct stock and price columns
+        const stockLevel = parseInt(getCol(16, "0")) || 0; // column 17
+        const price = parseFloat(getCol(29, "0")) || 0;     // column 30
 
         const product = {
             itemName,
