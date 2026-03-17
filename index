@@ -1,234 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Dark Journey - Abyss Pathways</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #2a2a2a;
-            color: #ddd;
-            margin: 0;
-            padding: 20px;
-        }
+<meta charset="UTF-8">
+<title>My Mini Hub</title>
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: black;
+    color: white;
+    overflow: hidden;
+}
 
-        h1, h2 {
-            text-align: center;
-            color: #c0c0c0;
-        }
+/* Top nav */
+#nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background: #111;
+    padding: 10px;
+    text-align: center;
+    z-index: 100;
+}
 
-        .container {
-            margin-top: 20px;
-            text-align: center;
-            background-color: #444;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        }
+button {
+    margin: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
+    background: #222;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
 
-        button {
-            padding: 10px 20px;
-            margin: 10px;
-            font-size: 16px;
-            border: none;
-            background-color: #6a1b9a;
-            color: white;
-            cursor: pointer;
-            border-radius: 5px;
-        }
+button:hover {
+    background: #555;
+}
 
-        button:hover {
-            background-color: #9c27b0;
-        }
+/* Sections */
+.section {
+    position: absolute;
+    top: 50px;
+    left: 0;
+    width: 100%;
+    height: calc(100% - 50px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+    transition: opacity 0.4s;
+}
 
-        .message {
-            font-size: 18px;
-            margin-bottom: 20px;
-        }
-
-        footer {
-            text-align: center;
-            margin-top: 40px;
-            font-size: 14px;
-        }
-
-        .status {
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        .how-to {
-            text-align: left;
-            margin: 10px auto;
-            padding: 10px;
-            background-color: #555;
-            border-radius: 8px;
-            width: 80%;
-        }
-    </style>
+.active {
+    display: flex;
+    opacity: 1;
+}
+</style>
 </head>
 <body>
 
-    <h1>The Dark Journey - Abyss Pathways</h1>
-    <div class="container">
-        <div class="message" id="message">
-            <p>Choose your difficulty to begin the journey:</p>
-            <button onclick="setDifficulty('easy')">Easy</button>
-            <button onclick="setDifficulty('normal')">Normal</button>
-            <button onclick="setDifficulty('hard')">Hard</button>
-        </div>
-    </div>
+<div id="nav">
+    <button onclick="showSection('home')">Home</button>
+    <button onclick="showSection('visual')">Visual</button>
+    <button onclick="showSection('about')">About</button>
+</div>
 
-    <div class="how-to">
-        <h2>How to Play</h2>
-        <ul>
-            <li>Start by selecting a difficulty level.</li>
-            <li>Each turn, choose a path to explore. Paths affect your <strong>Health</strong>, <strong>Sanity</strong>, and <strong>Supplies</strong>.</li>
-            <li>If any stat drops to zero, your journey ends.</li>
-            <li>Use the sacrifice option to redistribute points between stats when needed.</li>
-            <li>Survive as many days as possible while exploring random paths!</li>
-        </ul>
-    </div>
+<!-- Sections -->
+<div id="home" class="section active">
+    <div>🚀 Welcome to the Mini Hub!</div>
+</div>
 
-    <footer>
-        <p>&copy; 2024 The Dark Journey Game | A path through darkness, madness, and the unknown</p>
-    </footer>
+<div id="visual" class="section">
+    <canvas id="canvas"></canvas>
+</div>
 
-    <script>
-        let stage = 0;
-        let health = 100;
-        let sanity = 100;
-        let supplies = 50;
-        let days = 0;
-        let groupSize = 4;
-        let locationsVisited = [];
+<div id="about" class="section">
+    <div>This is the About section of your hub.</div>
+</div>
 
-        const paths = [
-            { name: "The Devil's Doorway", health: -15, sanity: -20, supplies: -5, description: "A cursed, ominous archway that leads to nothing but despair." },
-            { name: "The Frozen Tundra", health: -25, sanity: -10, supplies: -20, description: "A bitter, cold wasteland, where the ice seems to sap your very soul." },
-            { name: "The Hollow Forest", health: -10, sanity: -15, supplies: 10, description: "A haunted forest, thick with shadows. Strange voices call from the trees." },
-            { name: "The Shattered Mountains", health: -30, sanity: -25, supplies: 5, description: "Sharp, jagged peaks echoing with the screams of lost souls. Treacherous." },
-            { name: "The Desert of No Return", health: -20, sanity: -30, supplies: -10, description: "A barren wasteland where hope is fleeting." },
-            { name: "The Abyssal Swamps", health: -15, sanity: -20, supplies: -15, description: "Murky waters filled with unseen dangers. The air is heavy with despair." },
-            { name: "The Black Rift", health: -50, sanity: -50, supplies: -25, description: "A tear in the fabric of reality, where horrors await." },
-            { name: "The Forgotten City", health: -20, sanity: -10, supplies: 20, description: "An ancient city where memories and time seem to warp." }
-        ];
+<script>
+// Section navigation
+function showSection(id){
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+}
 
-        function shufflePaths() {
-            return [...paths].sort(() => Math.random() - 0.5).slice(0, 3);
-        }
+// Example visual effect in the Visual section
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
 
-        function setDifficulty(level) {
-            if (level === 'easy') {
-                health = 200;
-                sanity = 200;
-                supplies = 100;
-            } else if (level === 'normal') {
-                health = 120;
-                sanity = 100;
-                supplies = 50;
-            } else if (level === 'hard') {
-                health = 100;
-                sanity = 80;
-                supplies = 40;
-            }
+function resizeCanvas(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight - 50;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
 
-            document.getElementById("message").innerHTML = `
-                <p>You have chosen <strong>${level.charAt(0).toUpperCase() + level.slice(1)}</strong> difficulty.</p>
-                <p>Health: ${health} | Sanity: ${sanity} | Supplies: ${supplies}</p>
-                <p><strong>Press Start to begin your journey.</strong></p>
-                <button onclick="startGame()">Start Journey</button>
-            `;
-        }
+let t = 0;
+function animate() {
+    ctx.fillStyle = "black";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
 
-        function startGame() {
-            stage = 1;
-            days = 0;
-            groupSize = 4;
-            locationsVisited = [];
-
-            showPaths();
-        }
-
-        function showPaths() {
-            let randomPaths = shufflePaths();
-
-            document.getElementById("message").innerHTML = `
-                <p>Your group ventures further into the Abyss. Choose your next path:</p>
-                ${randomPaths.map((path, index) => `
-                    <button onclick="choosePath('${path.name}', ${path.health}, ${path.sanity}, ${path.supplies}, '${path.description}')">
-                        ${path.name}
-                    </button>
-                `).join('')}
-            `;
-        }
-
-        function choosePath(name, healthChange, sanityChange, suppliesChange, description) {
-            days++;
-            health += healthChange;
-            sanity += sanityChange;
-            supplies += suppliesChange;
-            locationsVisited.push(name);
-
-            if (health <= 0 || sanity <= 0 || supplies <= 0) {
-                document.getElementById("message").innerHTML = `
-                    <p>You ventured into: <strong>${name}</strong></p>
-                    <p>${description}</p>
-                    <p>Your journey has ended. The Abyss has claimed you.</p>
-                    <button onclick="setDifficulty('easy')">Try Again</button>
-                `;
-                return;
-            }
-
-            document.getElementById("message").innerHTML = `
-                <p>You ventured into: <strong>${name}</strong></p>
-                <p>${description}</p>
-                <p>Health: ${health} | Sanity: ${sanity} | Supplies: ${supplies} | Days: ${days}</p>
-                <button onclick="continueJourney()">Continue</button>
-            `;
-        }
-
-        function continueJourney() {
-            if (health <= 0 || sanity <= 0 || supplies <= 0) {
-                document.getElementById("message").innerHTML = `
-                    <p>Your journey has ended. The Abyss has claimed you and your companions.</p>
-                    <button onclick="setDifficulty('easy')">Try Again</button>
-                `;
-            } else {
-                document.getElementById("message").innerHTML = `
-                    <p>The forces of the Abyss are relentless. Sacrifice wisely before choosing your next path:</p>
-                    <button onclick="sacrifice('health', 'sanity')">Sacrifice Health for Sanity</button>
-                    <button onclick="sacrifice('health', 'supplies')">Sacrifice Health for Supplies</button>
-                    <button onclick="sacrifice('sanity', 'health')">Sacrifice Sanity for Health</button>
-                    <button onclick="sacrifice('sanity', 'supplies')">Sacrifice Sanity for Supplies</button>
-                    <button onclick="sacrifice('supplies', 'health')">Sacrifice Supplies for Health</button>
-                    <button onclick="sacrifice('supplies', 'sanity')">Sacrifice Supplies for Sanity</button>
-                    <button onclick="showPaths()">Choose Next Path</button>
-                `;
-            }
-        }
-
-        function sacrifice(from, to) {
-            const sacrificeAmount = 10;
-
-            if (from === 'health' && health > sacrificeAmount) {
-                health -= sacrificeAmount;
-                if (to === 'sanity') sanity += sacrificeAmount;
-                if (to === 'supplies') supplies += sacrificeAmount;
-            } else if (from === 'sanity' && sanity > sacrificeAmount) {
-                sanity -= sacrificeAmount;
-                if (to === 'health') health += sacrificeAmount;
-                if (to === 'supplies') supplies += sacrificeAmount;
-            } else if (from === 'supplies' && supplies > sacrificeAmount) {
-                supplies -= sacrificeAmount;
-                if (to === 'health') health += sacrificeAmount;
-                if (to === 'sanity') sanity += sacrificeAmount;
-            }
-
-            continueJourney();
-        }
-    </script>
+    for(let i=0;i<50;i++){
+        let x = canvas.width/2 + Math.sin(t + i) * 200;
+        let y = canvas.height/2 + Math.cos(t + i) * 200;
+        ctx.fillStyle = `hsl(${(i*20+t*10)%360},100%,60%)`;
+        ctx.fillRect(x,y,5,5);
+    }
+    t += 0.02;
+    requestAnimationFrame(animate);
+}
+animate();
+</script>
 
 </body>
 </html>
