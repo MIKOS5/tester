@@ -130,39 +130,50 @@
     let products = [];
 
     function parseCSV(data) {
-        const rows = data.split('\n');
-        rows.slice(1).forEach(row => {
-            const columns = row.split(',');
+    const rows = data.split('\n');
+    const headers = rows[0].split(','); // optional, if you want to use headers
 
-            if (columns.length > 1) {
-                const itemName = columns[1]?.trim() || "No Item Name";
-                const category = columns[2]?.trim() || "No Category";
-                const brand = columns[3]?.trim() || "No Brand";
-                const model = columns[4]?.trim() || "No Model";
-                const condition = columns[6]?.trim() || "No Condition";
-                const description = columns[7]?.trim() || "No Description";
-                const price = parseFloat(columns[29]?.trim() || "0.00"); // Adjusted to Column 30 for Price
-                const stockLevel = parseInt(columns[6]?.trim() || "0");
-                const promo = columns[19]?.trim() || "";
-                const weight = columns[20]?.trim() || "0.0";
+    products = []; // reset products array
 
-                const product = {
-                    itemName,
-                    category,
-                    brand,
-                    model,
-                    condition,
-                    description,
-                    price,
-                    stockLevel,
-                    promo,
-                    weight
-                };
-                products.push(product);
-            }
-        });
-        displayProducts(products);
-    }
+    rows.slice(1).forEach(row => {
+        if (!row.trim()) return; // skip empty rows
+
+        const columns = row.split(',');
+
+        // Safely get values with fallback
+        const getCol = (index, fallback = '') => columns[index] ? columns[index].trim() : fallback;
+
+        const itemName = getCol(1, "No Item Name");
+        const category = getCol(2, "No Category");
+        const brand = getCol(3, "No Brand");
+        const model = getCol(4, "No Model");
+        const condition = getCol(6, "No Condition");
+        const description = getCol(7, "No Description");
+
+        // Safe numeric parsing
+        const price = parseFloat(getCol(29, "0")) || 0;        // price column
+        const stockLevel = parseInt(getCol(8, "0")) || 0;      // stock column
+        const promo = getCol(19, "");
+        const weight = getCol(20, "0.0");
+
+        const product = {
+            itemName,
+            category,
+            brand,
+            model,
+            condition,
+            description,
+            price,
+            stockLevel,
+            promo,
+            weight
+        };
+
+        products.push(product);
+    });
+
+    displayProducts(products);
+}
 
     function displayProducts(products) {
         const productsContainer = document.getElementById('productsContainer');
