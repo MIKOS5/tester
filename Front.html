@@ -131,14 +131,28 @@
 
     function parseCSV(data) {
     const rows = data.split('\n');
-    products = []; // reset array
+    products = [];
+
+    function csvSplit(row) {
+        const regex = /(".*?"|[^",\s]+)(?=\s*,|\s*$)/g;
+        const result = [];
+        let match;
+        while ((match = regex.exec(row)) !== null) {
+            let val = match[0];
+            // remove surrounding quotes
+            if (val.startsWith('"') && val.endsWith('"')) {
+                val = val.slice(1, -1);
+            }
+            result.push(val);
+        }
+        return result;
+    }
 
     rows.slice(1).forEach(row => {
-        if (!row.trim()) return; // skip empty rows
+        if (!row.trim()) return;
 
-        const columns = row.split(',');
+        const columns = csvSplit(row);
 
-        // Safe getter
         const getCol = (index, fallback = '') => (columns[index] ? columns[index].trim() : fallback);
 
         const itemName = getCol(1, "No Item Name");
@@ -150,11 +164,10 @@
         const promo = getCol(19, "");
         const weight = getCol(20, "0.0");
 
-        // Correct stock and price columns
-        const stockLevel = parseInt(getCol(16, "0")) || 0; // column 17
-        const price = parseFloat(getCol(29, "0")) || 0;     // column 30
+        const stockLevel = parseInt(getCol(16, "0")) || 0;
+        const price = parseFloat(getCol(29, "0")) || 0;
 
-        const product = {
+        products.push({
             itemName,
             category,
             brand,
@@ -165,9 +178,7 @@
             stockLevel,
             promo,
             weight
-        };
-
-        products.push(product);
+        });
     });
 
     displayProducts(products);
