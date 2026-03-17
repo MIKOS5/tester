@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guitar Battle MVP</title>
+<style>
+    body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f4f4f4; }
+    header { background:#333; color:white; text-align:center; padding:20px; }
+    header h1 { margin:0; }
+    .container { max-width:900px; margin:30px auto; padding:20px; background:white; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.1);}
+    .battle { display:flex; flex-wrap:wrap; gap:20px; justify-content:center; }
+    .track { border:1px solid #ccc; padding:15px; width:300px; border-radius:8px; background:#fafafa; text-align:center; }
+    button { margin-top:10px; padding:8px 15px; border:none; border-radius:5px; background:#333; color:white; cursor:pointer; transition:0.2s; }
+    button:hover { background:#555; }
+    #leaderboard { margin-top:30px; }
+    #leaderboard h2 { text-align:center; color:#333; }
+    #leaderboard ul { list-style:none; padding:0; }
+    #leaderboard li { padding:5px 10px; border-bottom:1px solid #ddd; }
+</style>
+</head>
+<body>
+
+<header>
+    <h1>Guitar Battle MVP</h1>
+    <p>Vote for your favorite track!</p>
+</header>
+
+<div class="container">
+    <div class="battle" id="battle"></div>
+
+    <div id="leaderboard">
+        <h2>Leaderboard</h2>
+        <ul id="leaderboardList"></ul>
+    </div>
+</div>
+
+<script>
+    // Load tracks from local JSON file
+    fetch('tracks.json')
+        .then(response => response.json())
+        .then(data => {
+            const tracks = data.tracks;
+            startBattle(tracks);
+        })
+        .catch(err => console.error('Error loading tracks.json:', err));
+
+    let tracksGlobal = [];
+    let currentBattle = [];
+
+    function startBattle(tracks) {
+        tracksGlobal = tracks;
+        nextBattle();
+        renderLeaderboard();
+    }
+
+    function renderBattle() {
+        const battleDiv = document.getElementById('battle');
+        battleDiv.innerHTML = '';
+        currentBattle.forEach(idx => {
+            const track = tracksGlobal[idx];
+            const div = document.createElement('div');
+            div.className = 'track';
+            div.innerHTML = `
+                <h3>${track.title} - ${track.artist}</h3>
+                <audio controls src="${track.url}"></audio>
+                <br>
+                <button onclick="vote(${track.id})">Vote</button>
+            `;
+            battleDiv.appendChild(div);
+        });
+    }
+
+    function vote(trackId) {
+        const track = tracksGlobal.find(t => t.id === trackId);
+        track.votes++;
+        renderLeaderboard();
+        nextBattle();
+    }
+
+    function nextBattle() {
+        if(tracksGlobal.length < 2) return;
+        const idx1 = Math.floor(Math.random() * tracksGlobal.length);
+        let idx2 = Math.floor(Math.random() * tracksGlobal.length);
+        while(idx2 === idx1) idx2 = Math.floor(Math.random() * tracksGlobal.length);
+        currentBattle = [idx1, idx2];
+        renderBattle();
+    }
+
+    function renderLeaderboard() {
+        const lb = document.getElementById('leaderboardList');
+        lb.innerHTML = '';
+        tracksGlobal.sort((a,b) => b.votes - a.votes).forEach(track => {
+            const li = document.createElement('li');
+            li.textContent = `${track.title} - ${track.artist}: ${track.votes} votes`;
+            lb.appendChild(li);
+        });
+    }
+</script>
+
+</body>
+</html>
