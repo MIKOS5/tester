@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>SmallBall</title>
+</head>
+<body style="font-family: Arial; text-align:center; margin-top:50px;">
+
+<h1>⚾ Play Small Ball</h1>
+
+<button onclick="playGame()" style="font-size:24px; padding:10px 20px;">
+  Play Ball
+</button>
+
+<div id="result" style="margin-top:30px; font-size:20px;"></div>
+
+<script>
+async function playGame() {
+    let response = await fetch('/play');
+    let data = await response.json();
+
+    document.getElementById("result").innerHTML =
+        `<h2>${data.team1.name} ${data.team1.score} - ${data.team2.score} ${data.team2.name}</h2>`;
+}
+</script>
+
+</body>
+</html>
