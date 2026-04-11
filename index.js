@@ -1,4 +1,4 @@
-import { db, collection, getDocs, doc, updateDoc } from "./firebase.js";
+import { db, collection, getDocs, updateDoc, doc } from "./firebase.js";
 
 let battles = [];
 
@@ -9,20 +9,17 @@ function getVideoId(url) {
 
 function embed(url) {
   const id = getVideoId(url);
-  return `<iframe width="300" height="200"
-    src="https://www.youtube.com/embed/${id}">
-  </iframe>`;
+  return `<iframe width="280" height="180"
+    src="https://www.youtube.com/embed/${id}"
+    allowfullscreen></iframe>`;
 }
 
-// ⏱ Timer system
 function getTimeLeft(endTime) {
   const diff = endTime - Date.now();
   if (diff <= 0) return "ENDED";
-
   return Math.floor(diff / 1000) + "s";
 }
 
-// 🔥 Load battles
 async function loadBattles() {
   const snapshot = await getDocs(collection(db, "battles"));
 
@@ -33,12 +30,11 @@ async function loadBattles() {
   render();
 }
 
-// 🧱 Render UI
 function render() {
   const container = document.getElementById("battles");
   container.innerHTML = "";
 
-  battles.forEach(battle => {
+  battles.forEach(b => {
     const div = document.createElement("div");
 
     div.innerHTML = `
@@ -46,21 +42,19 @@ function render() {
 
       <div style="display:flex;gap:20px;">
         <div>
-          ${embed(battle.playerA)}
-          <button onclick="vote('${battle.id}', 'A')">Vote A</button>
-          <p>Votes: ${battle.votesA}</p>
+          ${embed(b.playerA)}
+          <button onclick="vote('${b.id}','A')">Vote A</button>
+          <p>Votes: ${b.votesA}</p>
         </div>
 
         <div>
-          ${embed(battle.playerB)}
-          <button onclick="vote('${battle.id}', 'B')">Vote B</button>
-          <p>Votes: ${battle.votesB}</p>
+          ${embed(b.playerB)}
+          <button onclick="vote('${b.id}','B')">Vote B</button>
+          <p>Votes: ${b.votesB}</p>
         </div>
       </div>
 
-      <h4 class="timer" id="timer-${battle.id}">
-        ⏱ Loading...
-      </h4>
+      <h4 id="timer-${b.id}">⏱ Loading...</h4>
       <hr>
     `;
 
@@ -68,18 +62,14 @@ function render() {
   });
 }
 
-// 🗳 Voting system
-window.vote = async function(battleId, side) {
+window.vote = async function (battleId, side) {
   const battle = battles.find(b => b.id === battleId);
-
   if (!battle) return;
-
-  const ref = doc(db, "battles", battleId);
 
   if (side === "A") battle.votesA++;
   if (side === "B") battle.votesB++;
 
-  await updateDoc(ref, {
+  await updateDoc(doc(db, "battles", battleId), {
     votesA: battle.votesA,
     votesB: battle.votesB
   });
@@ -87,20 +77,17 @@ window.vote = async function(battleId, side) {
   loadBattles();
 };
 
-// ⏱ Live timers
 function startTimers() {
   setInterval(() => {
-    battles.forEach(battle => {
-      const el = document.getElementById(`timer-${battle.id}`);
+    battles.forEach(b => {
+      const el = document.getElementById(`timer-${b.id}`);
       if (!el) return;
 
-      const timeLeft = getTimeLeft(battle.endTime);
+      const left = getTimeLeft(b.endTime);
+      el.innerText = left;
 
-      el.innerText = timeLeft;
-
-      // Auto-finish battle
-      if (timeLeft === "ENDED") {
-        updateDoc(doc(db, "battles", battle.id), {
+      if (left === "ENDED") {
+        updateDoc(doc(db, "battles", b.id), {
           status: "finished"
         });
       }
@@ -108,5 +95,4 @@ function startTimers() {
   }, 1000);
 }
 
-// 🚀 Init
 loadBattles().then(startTimers);
