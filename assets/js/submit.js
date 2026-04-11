@@ -1,26 +1,42 @@
 import { db, collection, addDoc, getDocs, updateDoc, doc } from "./firebase.js";
 
+// Main submit function (called from HTML button)
 window.submitLink = async function () {
   const link = document.getElementById("link").value;
   const status = document.getElementById("status");
 
-  if (!link.includes("youtube.com/watch")) {
-    status.innerText = "❌ Invalid link";
+  // Basic validation
+  if (!link || !link.includes("youtube.com/watch")) {
+    status.innerText = "❌ Invalid YouTube link";
     return;
   }
 
-  // 1. Save entry
-  const newEntry = await addDoc(collection(db, "entries"), {
-    videoUrl: link,
-    status: "pending"
-  });
+  try {
+    status.innerText = "Submitting...";
 
-  status.innerText = "Submitted ✔ Auto-matching...";
+    // 1. Create new entry
+    const newEntryRef = await addDoc(collection(db, "entries"), {
+      videoUrl: link,
+      status: "pending",
+      createdAt: Date.now()
+    });
 
-  // 2. Try to match immediately
-  await tryAutoMatch(newEntry.id);
+    const newEntryId = newEntryRef.id;
+
+    status.innerText = "Submitted ✔ Auto-matching...";
+
+    // 2. Try auto-match
+    await tryAutoMatch(newEntryId);
+
+    status.innerText = "🔥 Submitted & matched (if opponent found)";
+
+  } catch (err) {
+    console.error(err);
+    status.innerText = "❌ Error submitting";
+  }
 };
 
+// AUTO MATCH SYSTEM
 async function tryAutoMatch(newEntryId) {
 
   const snapshot = await getDocs(collection(db, "entries"));
@@ -30,7 +46,10 @@ async function tryAutoMatch(newEntryId) {
     .filter(e => e.status === "pending");
 
   // Need at least 2 players
-  if (pending.length < 2) return;
+  if (pending.length < 2) {
+    console.log("Waiting for opponent...");
+    return;
+  }
 
   // Find opponent (not self)
   const opponent = pending.find(p => p.id !== newEntryId);
@@ -46,11 +65,11 @@ async function tryAutoMatch(newEntryId) {
     votesA: 0,
     votesB: 0,
     startTime: now,
-    endTime: now + 180000,
+    endTime: now + (3 * 60 * 1000), // 3 minutes
     status: "active"
   });
 
-  // 4. Mark both as in battle
+  // 4. Mark both entries as in battle
   await updateDoc(doc(db, "entries", newEntryId), {
     status: "in_battle"
   });
