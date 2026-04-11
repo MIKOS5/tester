@@ -1,4 +1,6 @@
-function submitLink() {
+import { db, collection, addDoc } from "./firebase.js";
+
+window.submitLink = async function () {
   const link = document.getElementById("link").value;
   const status = document.getElementById("status");
 
@@ -7,8 +9,17 @@ function submitLink() {
     return;
   }
 
-  // Placeholder behavior
-  console.log("Submitted:", link);
+  try {
+    await addDoc(collection(db, "entries"), {
+      videoUrl: link,
+      wins: 0,
+      losses: 0,
+      createdAt: Date.now()
+    });
 
-  status.innerText = "✅ Submitted! (not saved yet)";
-}
+    status.innerText = "✅ Submitted to database!";
+  } catch (err) {
+    console.error(err);
+    status.innerText = "❌ Error saving";
+  }
+};
