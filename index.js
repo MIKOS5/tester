@@ -1,14 +1,18 @@
 import { db, collection, getDocs, updateDoc, doc } from "./firebase.js";
 
-let battles = [];
+let battles = {};
+let finishedBattles = new Set();
 
 function getVideoId(url) {
+  if (!url) return null;
   const match = url.match(/v=([^&]+)/);
   return match ? match[1] : null;
 }
 
 function embed(url) {
   const id = getVideoId(url);
+  if (!id) return "<p>Invalid video</p>";
+
   return `<iframe width="280" height="180"
     src="https://www.youtube.com/embed/${id}"
     allowfullscreen></iframe>`;
@@ -16,16 +20,20 @@ function embed(url) {
 
 function getTimeLeft(endTime) {
   const diff = endTime - Date.now();
-  if (diff <= 0) return "ENDED";
-  return Math.floor(diff / 1000) + "s";
+  if (diff <= 0) return 0;
+  return Math.floor(diff / 1000);
 }
 
 async function loadBattles() {
   const snapshot = await getDocs(collection(db, "battles"));
 
-  battles = snapshot.docs
-    .map(d => ({ id: d.id, ...d.data() }))
-    .filter(b => b.status === "active");
+  battles = {};
+  snapshot.docs.forEach(d => {
+    const b = { id: d.id, ...d.data() };
+    if (b.status === "active") {
+      battles[b.id] = b;
+    }
+  });
 
   render();
 }
@@ -34,7 +42,7 @@ function render() {
   const container = document.getElementById("battles");
   container.innerHTML = "";
 
-  battles.forEach(b => {
+  Object.values(battles).forEach(b => {
     const div = document.createElement("div");
 
     div.innerHTML = `
@@ -63,7 +71,7 @@ function render() {
 }
 
 window.vote = async function (battleId, side) {
-  const battle = battles.find(b => b.id === battleId);
+  const battle = battles[battleId];
   if (!battle) return;
 
   if (side === "A") battle.votesA++;
@@ -74,23 +82,34 @@ window.vote = async function (battleId, side) {
     votesB: battle.votesB
   });
 
-  loadBattles();
+  // no full reload (faster UI)
+  render();
 };
 
 function startTimers() {
-  setInterval(() => {
-    battles.forEach(b => {
+  setInterval(async () => {
+    Object.values(battles).forEach(async b => {
       const el = document.getElementById(`timer-${b.id}`);
       if (!el) return;
 
       const left = getTimeLeft(b.endTime);
-      el.innerText = left;
 
-      if (left === "ENDED") {
-        updateDoc(doc(db, "battles", b.id), {
-          status: "finished"
-        });
+      if (left <= 0) {
+        el.innerText = "ENDED";
+
+        // prevent multiple writes
+        if (!finishedBattles.has(b.id)) {
+          finishedBattles.add(b.id);
+
+          await updateDoc(doc(db, "battles", b.id), {
+            status: "finished"
+          });
+        }
+
+        return;
       }
+
+      el.innerText = left + "s";
     });
   }, 1000);
 }
