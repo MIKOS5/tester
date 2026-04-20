@@ -11,88 +11,73 @@
 body {
   margin: 0;
   font-family: 'Poppins', sans-serif;
-  background: linear-gradient(135deg,#fffaf5,#fef3e7);
+  background: #fffaf5;
   color: #333;
 }
 
 /* HEADER */
 header {
   text-align: center;
-  padding: 50px 20px;
+  padding: 40px;
 }
 
 .logo {
   font-family: 'Pacifico', cursive;
-  font-size: 42px;
+  font-size: 40px;
   color: #40cfcf;
-}
-
-.btn {
-  display: inline-block;
-  margin-top: 15px;
-  padding: 12px 24px;
-  background: #f5d742;
-  border-radius: 30px;
-  text-decoration: none;
-  color: #333;
-  font-weight: 600;
-}
-
-/* IG GRID */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 10px;
-  max-width: 900px;
-  margin: 20px auto;
-  padding: 10px;
-}
-
-.grid img {
-  width: 100%;
-  aspect-ratio: 1;
-  object-fit: cover;
-  border-radius: 12px;
-  transition: 0.3s;
-}
-
-.grid img:hover {
-  transform: scale(1.05);
 }
 
 /* MENU */
 .menu {
-  max-width: 900px;
+  max-width: 800px;
   margin: auto;
-  padding: 20px;
-}
-
-.category {
-  margin-bottom: 40px;
+  padding: 10px;
 }
 
 .item {
   display: flex;
   justify-content: space-between;
-  padding: 12px;
+  padding: 15px;
   border-bottom: 1px dashed #ddd;
   cursor: pointer;
-  transition: 0.2s;
 }
 
 .item:hover {
   background: #fff3cc;
 }
 
-.price {
-  color: #40cfcf;
-  font-weight: 600;
+/* CART */
+.cart {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+  padding: 15px;
 }
 
-/* CTA */
-.cta {
+.cart-items {
+  max-height: 120px;
+  overflow-y: auto;
+  font-size: 14px;
+}
+
+.total {
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.btn {
+  display: block;
+  margin-top: 10px;
+  padding: 12px;
+  background: #f5d742;
   text-align: center;
-  padding: 40px;
+  border-radius: 25px;
+  font-weight: 600;
+  text-decoration: none;
+  color: #333;
 }
 </style>
 </head>
@@ -101,72 +86,79 @@ header {
 
 <header>
   <div class="logo">buggsie</div>
-  <p>Fresh • Small Batch • Made with Love</p>
-
-  <a class="btn" href="https://www.instagram.com/buggsiebakingco" target="_blank">
-    View Instagram
-  </a>
+  <p>Tap to add • Build your order</p>
 </header>
 
-<!-- 📸 FAKE IG GRID (replace images with yours) -->
-<section>
-  <h2 style="text-align:center;">🍪 Fresh Bakes</h2>
+<div class="menu">
 
-  <div class="grid">
-    <img src="https://source.unsplash.com/300x300/?cookies">
-    <img src="https://source.unsplash.com/300x300/?brownies">
-    <img src="https://source.unsplash.com/300x300/?cupcakes">
-    <img src="https://source.unsplash.com/300x300/?dessert">
-    <img src="https://source.unsplash.com/300x300/?chocolate">
-    <img src="https://source.unsplash.com/300x300/?bakery">
-  </div>
-</section>
-
-<!-- 🛒 MENU -->
-<section class="menu">
-
-  <div class="category">
-    <h2>Cookies</h2>
-
-    <div class="item" onclick="order('Chocolate Chip Cookie - $3')">
-      <span>Chocolate Chip</span>
-      <span class="price">$3</span>
-    </div>
-
-    <div class="item" onclick="order('Snickerdoodle - $3')">
-      <span>Snickerdoodle</span>
-      <span class="price">$3</span>
-    </div>
-
-    <div class="item" onclick="order('6 Pack Cookies - $16')">
-      <span>6 Pack</span>
-      <span class="price">$16</span>
-    </div>
-
+  <div class="item" onclick="addItem('Chocolate Chip Cookie',3)">
+    <span>Chocolate Chip</span>
+    <span>$3</span>
   </div>
 
-  <div class="category">
-    <h2>Brownies</h2>
-
-    <div class="item" onclick="order('Fudge Brownie - $4')">
-      <span>Fudge Brownie</span>
-      <span class="price">$4</span>
-    </div>
-
+  <div class="item" onclick="addItem('Snickerdoodle',3)">
+    <span>Snickerdoodle</span>
+    <span>$3</span>
   </div>
 
-</section>
+  <div class="item" onclick="addItem('Fudge Brownie',4)">
+    <span>Fudge Brownie</span>
+    <span>$4</span>
+  </div>
 
-<!-- CTA -->
-<div class="cta">
-  <h2>Tap any item to order</h2>
-  <p>We’ll open Instagram DM with your order pre-filled</p>
+  <div class="item" onclick="addItem('6 Pack Cookies',16)">
+    <span>6 Pack</span>
+    <span>$16</span>
+  </div>
+
+</div>
+
+<!-- CART -->
+<div class="cart">
+  <div class="cart-items" id="cartItems"></div>
+  <div class="total" id="total">$0</div>
+  <a href="#" class="btn" onclick="sendOrder()">Send Order via Instagram</a>
 </div>
 
 <script>
-function order(item) {
-  const message = encodeURIComponent("Hi! I'd like to order: " + item);
-  window.open("https://www.instagram.com/direct/new/?text=" + message, "_blank");
+let cart = {};
+
+function addItem(name, price) {
+  if (!cart[name]) {
+    cart[name] = { qty: 1, price: price };
+  } else {
+    cart[name].qty++;
+  }
+  updateCart();
+}
+
+function updateCart() {
+  let output = "";
+  let total = 0;
+
+  for (let item in cart) {
+    let qty = cart[item].qty;
+    let price = cart[item].price;
+    total += qty * price;
+
+    output += `${item} x${qty} - $${qty * price}<br>`;
+  }
+
+  document.getElementById("cartItems").innerHTML = output;
+  document.getElementById("total").innerText = "Total: $" + total;
+}
+
+function sendOrder() {
+  let message = "Hi! I'd like to order:\n";
+
+  for (let item in cart) {
+    message += `${item} x${cart[item].qty}\n`;
+  }
+
+  message += "\nTotal: $" + document.getElementById("total").innerText.replace('Total: $','');
+
+  let url = "https://www.instagram.com/direct/new/?text=" + encodeURIComponent(message);
+  window.open(url, "_blank");
 }
 </script>
 
