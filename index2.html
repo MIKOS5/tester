@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Buggsie Baking Co.</title>
+<title>Buggsie Order Menu</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
@@ -12,72 +12,95 @@ body {
   margin: 0;
   font-family: 'Poppins', sans-serif;
   background: #fffaf5;
-  color: #333;
 }
 
-/* HEADER */
+/* HEADER (BIG FOR QR USERS) */
 header {
   text-align: center;
-  padding: 40px;
+  padding: 20px 10px;
+  background: linear-gradient(135deg, #40cfcf, #2fb3b3);
+  color: white;
 }
 
 .logo {
   font-family: 'Pacifico', cursive;
-  font-size: 40px;
-  color: #40cfcf;
+  font-size: 38px;
+}
+
+.sub {
+  font-size: 14px;
+  opacity: 0.9;
 }
 
 /* MENU */
 .menu {
-  max-width: 800px;
-  margin: auto;
   padding: 10px;
+  max-width: 700px;
+  margin: auto;
 }
 
 .item {
   display: flex;
   justify-content: space-between;
-  padding: 15px;
-  border-bottom: 1px dashed #ddd;
-  cursor: pointer;
+  align-items: center;
+  padding: 18px;
+  margin: 10px 0;
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+  font-size: 18px;
+  font-weight: 500;
 }
 
-.item:hover {
-  background: #fff3cc;
+.price {
+  color: #40cfcf;
+  font-weight: 700;
 }
 
-/* CART */
+/* BIG TAP BUTTON STYLE */
+.add-btn {
+  background: #f5d742;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+/* CART BAR (STICKY) */
 .cart {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   background: white;
+  border-top: 2px solid #eee;
+  padding: 12px;
   box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
-  padding: 15px;
 }
 
 .cart-items {
-  max-height: 120px;
-  overflow-y: auto;
   font-size: 14px;
+  max-height: 80px;
+  overflow-y: auto;
 }
 
 .total {
-  font-weight: bold;
-  margin-top: 10px;
+  font-weight: 700;
+  margin-top: 5px;
 }
 
-.btn {
+/* ORDER BUTTON */
+.order-btn {
   display: block;
   margin-top: 10px;
-  padding: 12px;
-  background: #f5d742;
+  padding: 14px;
   text-align: center;
-  border-radius: 25px;
-  font-weight: 600;
+  background: #40cfcf;
+  color: white;
+  border-radius: 14px;
   text-decoration: none;
-  color: #333;
+  font-weight: 700;
+  font-size: 16px;
 }
 </style>
 </head>
@@ -86,78 +109,87 @@ header {
 
 <header>
   <div class="logo">buggsie</div>
-  <p>Tap to add • Build your order</p>
+  <div class="sub">Tap items → Build your order → Send via Instagram</div>
 </header>
 
 <div class="menu">
 
-  <div class="item" onclick="addItem('Chocolate Chip Cookie',3)">
-    <span>Chocolate Chip</span>
-    <span>$3</span>
+  <div class="item">
+    Chocolate Chip Cookie
+    <span class="price">$3</span>
+    <button class="add-btn" onclick="add('Chocolate Chip Cookie',3)">+</button>
   </div>
 
-  <div class="item" onclick="addItem('Snickerdoodle',3)">
-    <span>Snickerdoodle</span>
-    <span>$3</span>
+  <div class="item">
+    Snickerdoodle
+    <span class="price">$3</span>
+    <button class="add-btn" onclick="add('Snickerdoodle',3)">+</button>
   </div>
 
-  <div class="item" onclick="addItem('Fudge Brownie',4)">
-    <span>Fudge Brownie</span>
-    <span>$4</span>
+  <div class="item">
+    Double Chocolate
+    <span class="price">$3.50</span>
+    <button class="add-btn" onclick="add('Double Chocolate',3.5)">+</button>
   </div>
 
-  <div class="item" onclick="addItem('6 Pack Cookies',16)">
-    <span>6 Pack</span>
-    <span>$16</span>
+  <div class="item">
+    6 Pack Cookies
+    <span class="price">$16</span>
+    <button class="add-btn" onclick="add('6 Pack Cookies',16)">+</button>
+  </div>
+
+  <div class="item">
+    Fudge Brownie
+    <span class="price">$4</span>
+    <button class="add-btn" onclick="add('Fudge Brownie',4)">+</button>
   </div>
 
 </div>
 
 <!-- CART -->
 <div class="cart">
-  <div class="cart-items" id="cartItems"></div>
-  <div class="total" id="total">$0</div>
-  <a href="#" class="btn" onclick="sendOrder()">Send Order via Instagram</a>
+  <div class="cart-items" id="cart"></div>
+  <div class="total" id="total">Total: $0</div>
+  <a class="order-btn" onclick="sendOrder()">Send Order to Instagram</a>
 </div>
 
 <script>
 let cart = {};
 
-function addItem(name, price) {
+function add(name, price) {
   if (!cart[name]) {
-    cart[name] = { qty: 1, price: price };
+    cart[name] = { qty: 1, price };
   } else {
     cart[name].qty++;
   }
-  updateCart();
+  update();
 }
 
-function updateCart() {
-  let output = "";
+function update() {
+  let text = "";
   let total = 0;
 
-  for (let item in cart) {
-    let qty = cart[item].qty;
-    let price = cart[item].price;
-    total += qty * price;
-
-    output += `${item} x${qty} - $${qty * price}<br>`;
+  for (let i in cart) {
+    let item = cart[i];
+    total += item.qty * item.price;
+    text += `${i} x${item.qty} ($${item.qty * item.price})<br>`;
   }
 
-  document.getElementById("cartItems").innerHTML = output;
-  document.getElementById("total").innerText = "Total: $" + total;
+  document.getElementById("cart").innerHTML = text;
+  document.getElementById("total").innerText = "Total: $" + total.toFixed(2);
 }
 
 function sendOrder() {
-  let message = "Hi! I'd like to order:\n";
+  let msg = "Hi! I'd like to order:\n\n";
 
-  for (let item in cart) {
-    message += `${item} x${cart[item].qty}\n`;
+  for (let i in cart) {
+    msg += `${i} x${cart[i].qty}\n`;
   }
 
-  message += "\nTotal: $" + document.getElementById("total").innerText.replace('Total: $','');
+  msg += "\nTotal: $" + document.getElementById("total").innerText.replace("Total: $","");
 
-  let url = "https://www.instagram.com/direct/new/?text=" + encodeURIComponent(message);
+  let url = "https://www.instagram.com/direct/new/?text=" + encodeURIComponent(msg);
+
   window.open(url, "_blank");
 }
 </script>
