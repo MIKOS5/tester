@@ -2,100 +2,56 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Buggsie X Order Menu</title>
+<title>Buggsie Order Menu</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
 
 <style>
-body {
-  margin: 0;
-  font-family: 'Poppins', sans-serif;
-  background: #fffaf5;
-}
+body { margin:0; font-family:'Poppins',sans-serif; background:#fffaf5; }
 
 header {
-  text-align: center;
-  padding: 20px 10px;
-  background: linear-gradient(135deg, #40cfcf, #2fb3b3);
-  color: white;
+  text-align:center; padding:20px;
+  background:linear-gradient(135deg,#40cfcf,#2fb3b3); color:white;
 }
+.logo { font-family:'Pacifico'; font-size:36px; }
 
-.logo {
-  font-family: 'Pacifico', cursive;
-  font-size: 38px;
-}
-
-.sub {
-  font-size: 14px;
-  opacity: 0.9;
-}
-
-.menu {
-  padding: 10px;
-  max-width: 700px;
-  margin: auto;
-}
+.menu { padding:10px; max-width:700px; margin:auto; }
 
 .item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 18px;
-  margin: 10px 0;
-  background: white;
-  border-radius: 14px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-  font-size: 18px;
-  font-weight: 500;
+  display:flex; justify-content:space-between; align-items:center;
+  padding:16px; margin:10px 0;
+  background:white; border-radius:14px;
+  box-shadow:0 5px 15px rgba(0,0,0,0.08);
 }
 
-.price {
-  color: #40cfcf;
-  font-weight: 700;
-}
-
-.add-btn {
-  background: #f5d742;
-  border: none;
-  padding: 10px 14px;
-  border-radius: 12px;
-  font-weight: 600;
+.controls button {
+  margin:0 4px; padding:6px 10px;
+  border:none; border-radius:8px;
+  background:#f5d742; font-weight:bold;
 }
 
 .cart {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: white;
-  border-top: 2px solid #eee;
-  padding: 12px;
-  box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+  position:fixed; bottom:0; left:0; right:0;
+  background:white; padding:12px;
+  box-shadow:0 -5px 20px rgba(0,0,0,0.1);
 }
 
-.cart-items {
-  font-size: 14px;
-  max-height: 80px;
-  overflow-y: auto;
-}
-
-.total {
-  font-weight: 700;
-  margin-top: 5px;
+input, select {
+  width:100%; padding:10px; margin:5px 0;
+  border-radius:10px; border:1px solid #ddd;
 }
 
 .order-btn {
-  display: block;
-  margin-top: 10px;
-  padding: 14px;
-  text-align: center;
-  background: #40cfcf;
-  color: white;
-  border-radius: 14px;
-  text-decoration: none;
-  font-weight: 700;
-  font-size: 16px;
+  display:block; margin-top:10px; padding:14px;
+  background:#40cfcf; color:white;
+  text-align:center; border-radius:14px;
+  font-weight:700;
+}
+
+.clear-btn {
+  margin-top:5px; text-align:center;
+  color:red; font-size:14px;
 }
 </style>
 </head>
@@ -104,59 +60,66 @@ header {
 
 <header>
   <div class="logo">buggsie</div>
-  <div class="sub">Tap items → Build your order → Text it</div>
+  <div>Build order → Fill info → Text it</div>
 </header>
 
-<div class="menu">
-
-  <div class="item">
-    Chocolate Chip Cookie
-    <span class="price">$3</span>
-    <button class="add-btn" onclick="add('Chocolate Chip Cookie',3)">+</button>
-  </div>
-
-  <div class="item">
-    Snickerdoodle
-    <span class="price">$3</span>
-    <button class="add-btn" onclick="add('Snickerdoodle',3)">+</button>
-  </div>
-
-  <div class="item">
-    Double Chocolate
-    <span class="price">$3.50</span>
-    <button class="add-btn" onclick="add('Double Chocolate',3.5)">+</button>
-  </div>
-
-  <div class="item">
-    6 Pack Cookies
-    <span class="price">$16</span>
-    <button class="add-btn" onclick="add('6 Pack Cookies',16)">+</button>
-  </div>
-
-  <div class="item">
-    Fudge Brownie
-    <span class="price">$4</span>
-    <button class="add-btn" onclick="add('Fudge Brownie',4)">+</button>
-  </div>
-
-</div>
+<div class="menu" id="menu"></div>
 
 <div class="cart">
-  <div class="cart-items" id="cart"></div>
-  <div class="total" id="total">Total: $0</div>
-  <a class="order-btn" onclick="sendOrder()">Text Order</a>
+  <input id="name" placeholder="Your name">
+  <input id="phoneInput" placeholder="Your phone (optional)">
+  
+  <select id="time">
+    <option value="">Pickup time</option>
+    <option>ASAP</option>
+    <option>In 30 mins</option>
+    <option>In 1 hour</option>
+    <option>Later (message us)</option>
+  </select>
+
+  <div id="cart"></div>
+  <div id="total">Total: $0</div>
+
+  <div class="order-btn" onclick="sendOrder()">Text Order</div>
+  <div class="clear-btn" onclick="clearCart()">Clear Cart</div>
 </div>
 
 <script>
-// ✅ Load saved cart
+let items = [
+  ["Chocolate Chip Cookie",3],
+  ["Snickerdoodle",3],
+  ["Double Chocolate",3.5],
+  ["6 Pack Cookies",16],
+  ["Fudge Brownie",4]
+];
+
 let cart = JSON.parse(localStorage.getItem("cart")) || {};
 
+function renderMenu() {
+  let html = "";
+  items.forEach(i=>{
+    html += `
+    <div class="item">
+      ${i[0]} ($${i[1]})
+      <div class="controls">
+        <button onclick="remove('${i[0]}')">-</button>
+        <button onclick="add('${i[0]}',${i[1]})">+</button>
+      </div>
+    </div>`;
+  });
+  document.getElementById("menu").innerHTML = html;
+}
+
 function add(name, price) {
-  if (!cart[name]) {
-    cart[name] = { qty: 1, price };
-  } else {
-    cart[name].qty++;
-  }
+  if (!cart[name]) cart[name] = {qty:0, price};
+  cart[name].qty++;
+  update();
+}
+
+function remove(name) {
+  if (!cart[name]) return;
+  cart[name].qty--;
+  if (cart[name].qty <= 0) delete cart[name];
   update();
 }
 
@@ -166,46 +129,54 @@ function update() {
 
   for (let i in cart) {
     let item = cart[i];
-    total += item.qty * item.price;
-    text += `${i} x${item.qty} ($${(item.qty * item.price).toFixed(2)})<br>`;
+    let cost = item.qty * item.price;
+    total += cost;
+    text += `${i} x${item.qty} ($${cost.toFixed(2)})<br>`;
   }
 
   document.getElementById("cart").innerHTML = text || "No items yet";
   document.getElementById("total").innerText = "Total: $" + total.toFixed(2);
 
-  // ✅ Save cart
   localStorage.setItem("cart", JSON.stringify(cart));
 }
 
-// ✅ SMS ORDER FUNCTION
+function clearCart(){
+  cart = {};
+  update();
+}
+
 function sendOrder() {
-  if (Object.keys(cart).length === 0) {
-    alert("Cart is empty!");
-    return;
-  }
+  let name = document.getElementById("name").value.trim();
+  let time = document.getElementById("time").value;
 
-  let name = prompt("Your name?");
-  if (!name) return;
+  if (!name) return alert("Enter your name");
+  if (!time) return alert("Select pickup time");
+  if (Object.keys(cart).length === 0) return alert("Cart empty");
 
-  let msg = `Hi! I'd like to order:\n\nName: ${name}\n\n`;
+  let msg = `Buggsie Order\n\nName: ${name}\nPickup: ${time}\n\n`;
 
   let total = 0;
-
   for (let i in cart) {
     let item = cart[i];
-    total += item.qty * item.price;
-    msg += `${i} x${item.qty} ($${(item.qty * item.price).toFixed(2)})\n`;
+    let cost = item.qty * item.price;
+    total += cost;
+    msg += `${i} x${item.qty} ($${cost.toFixed(2)})\n`;
   }
 
   msg += `\nTotal: $${total.toFixed(2)}`;
 
-  let phone = "13105615623"; // 🔴 PUT YOUR NUMBER HERE
-  let url = `sms:${phone}?&body=${encodeURIComponent(msg)}`;
+  let phone = "13105551234"; // CHANGE THIS
+  let sms = `sms:${phone}?&body=${encodeURIComponent(msg)}`;
 
-  window.location.href = url;
+  if (/Android|iPhone/i.test(navigator.userAgent)) {
+    window.location.href = sms;
+  } else {
+    navigator.clipboard.writeText(msg);
+    alert("Order copied! Paste into text/DM.");
+  }
 }
 
-// 🔁 Load cart on page open
+renderMenu();
 update();
 </script>
 
