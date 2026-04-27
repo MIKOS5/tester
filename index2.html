@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Buggsie x Order Menu</title>
+<title>Buggsie Order Menu</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
@@ -67,7 +67,6 @@ input, select {
 
 <div class="cart">
   <input id="name" placeholder="Your name">
-  <input id="phoneInput" placeholder="Your phone (optional)">
   
   <select id="time">
     <option value="">Pickup time</option>
@@ -94,6 +93,9 @@ let items = [
 ];
 
 let cart = JSON.parse(localStorage.getItem("cart")) || {};
+
+// 🔥 YOUR GOOGLE SHEETS WEBHOOK
+const WEBHOOK = "https://script.google.com/macros/s/AKfycbz6PJIekdzsKOBXu6331-q78hFx9LyuQqQ5ZCdtzbKfjlfmI3rWHj5i3CR6fzlt813u/exec";
 
 function renderMenu() {
   let html = "";
@@ -153,19 +155,35 @@ function sendOrder() {
   if (!time) return alert("Select pickup time");
   if (Object.keys(cart).length === 0) return alert("Cart empty");
 
-  let msg = `Buggsie Order\n\nName: ${name}\nPickup: ${time}\n\n`;
-
+  let itemsText = "";
   let total = 0;
+
   for (let i in cart) {
     let item = cart[i];
     let cost = item.qty * item.price;
     total += cost;
-    msg += `${i} x${item.qty} ($${cost.toFixed(2)})\n`;
+    itemsText += `${i} x${item.qty}, `;
   }
 
-  msg += `\nTotal: $${total.toFixed(2)}`;
+  let payload = {
+    name: name,
+    time: time,
+    items: itemsText,
+    total: total.toFixed(2)
+  };
 
-  let phone = "13105615623"; // CHANGE THIS
+  // 🔥 SEND TO GOOGLE SHEETS
+  fetch(WEBHOOK, {
+    method: "POST",
+    body: JSON.stringify(payload)
+  })
+  .then(()=>console.log("Saved to sheet"))
+  .catch(()=>console.log("Sheet error"));
+
+  // 📲 SMS MESSAGE
+  let msg = `Buggsie Order\n\nName: ${name}\nPickup: ${time}\n\n${itemsText}\nTotal: $${total.toFixed(2)}`;
+
+  let phone = "13105551234"; // 🔴 CHANGE THIS
   let sms = `sms:${phone}?&body=${encodeURIComponent(msg)}`;
 
   if (/Android|iPhone/i.test(navigator.userAgent)) {
@@ -174,6 +192,8 @@ function sendOrder() {
     navigator.clipboard.writeText(msg);
     alert("Order copied! Paste into text/DM.");
   }
+
+  clearCart();
 }
 
 renderMenu();
