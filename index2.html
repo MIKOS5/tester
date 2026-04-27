@@ -14,7 +14,6 @@ body {
   background: #fffaf5;
 }
 
-/* HEADER (BIG FOR QR USERS) */
 header {
   text-align: center;
   padding: 20px 10px;
@@ -32,7 +31,6 @@ header {
   opacity: 0.9;
 }
 
-/* MENU */
 .menu {
   padding: 10px;
   max-width: 700px;
@@ -57,7 +55,6 @@ header {
   font-weight: 700;
 }
 
-/* BIG TAP BUTTON STYLE */
 .add-btn {
   background: #f5d742;
   border: none;
@@ -66,7 +63,6 @@ header {
   font-weight: 600;
 }
 
-/* CART BAR (STICKY) */
 .cart {
   position: fixed;
   bottom: 0;
@@ -89,7 +85,6 @@ header {
   margin-top: 5px;
 }
 
-/* ORDER BUTTON */
 .order-btn {
   display: block;
   margin-top: 10px;
@@ -109,7 +104,7 @@ header {
 
 <header>
   <div class="logo">buggsie</div>
-  <div class="sub">Tap items → Build your order → Send via Instagram</div>
+  <div class="sub">Tap items → Build your order → Text it</div>
 </header>
 
 <div class="menu">
@@ -146,15 +141,15 @@ header {
 
 </div>
 
-<!-- CART -->
 <div class="cart">
   <div class="cart-items" id="cart"></div>
   <div class="total" id="total">Total: $0</div>
-  <a class="order-btn" onclick="sendOrder()">Send Order to Instagram</a>
+  <a class="order-btn" onclick="sendOrder()">Text Order</a>
 </div>
 
 <script>
-let cart = {};
+// ✅ Load saved cart
+let cart = JSON.parse(localStorage.getItem("cart")) || {};
 
 function add(name, price) {
   if (!cart[name]) {
@@ -172,26 +167,46 @@ function update() {
   for (let i in cart) {
     let item = cart[i];
     total += item.qty * item.price;
-    text += `${i} x${item.qty} ($${item.qty * item.price})<br>`;
+    text += `${i} x${item.qty} ($${(item.qty * item.price).toFixed(2)})<br>`;
   }
 
-  document.getElementById("cart").innerHTML = text;
+  document.getElementById("cart").innerHTML = text || "No items yet";
   document.getElementById("total").innerText = "Total: $" + total.toFixed(2);
+
+  // ✅ Save cart
+  localStorage.setItem("cart", JSON.stringify(cart));
 }
 
+// ✅ SMS ORDER FUNCTION
 function sendOrder() {
-  let msg = "Hi! I'd like to order:\n\n";
+  if (Object.keys(cart).length === 0) {
+    alert("Cart is empty!");
+    return;
+  }
+
+  let name = prompt("Your name?");
+  if (!name) return;
+
+  let msg = `Hi! I'd like to order:\n\nName: ${name}\n\n`;
+
+  let total = 0;
 
   for (let i in cart) {
-    msg += `${i} x${cart[i].qty}\n`;
+    let item = cart[i];
+    total += item.qty * item.price;
+    msg += `${i} x${item.qty} ($${(item.qty * item.price).toFixed(2)})\n`;
   }
 
-  msg += "\nTotal: $" + document.getElementById("total").innerText.replace("Total: $","");
+  msg += `\nTotal: $${total.toFixed(2)}`;
 
-  let url = "https://www.instagram.com/direct/t/17844954156665286/" + encodeURIComponent(msg);
+  let phone = "13105551234"; // 🔴 PUT YOUR NUMBER HERE
+  let url = `sms:${phone}?&body=${encodeURIComponent(msg)}`;
 
-  window.open(url, "_blank");
+  window.location.href = url;
 }
+
+// 🔁 Load cart on page open
+update();
 </script>
 
 </body>
