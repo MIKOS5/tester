@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
-<title>fSheets IRC Network</title>
+<title>Sheets IRC Network</title>
 
 <style>
 body {
@@ -55,10 +55,23 @@ body {
   cursor:pointer;
   border-right:1px solid #00ff99;
   white-space:nowrap;
+  position:relative;
 }
 
-.tab.active { background:#002200; }
+.tab.active { background:#003300; }
 .tab.dm { color:#ffcc00; }
+
+.badge {
+  position:absolute;
+  top:2px;
+  right:4px;
+  background:red;
+  color:white;
+  font-size:10px;
+  padding:2px 4px;
+  border-radius:10px;
+  display:none;
+}
 
 /* CHAT */
 #messages {
@@ -82,14 +95,7 @@ body {
   font-size:16px;
 }
 
-button {
-  padding:12px;
-  background:black;
-  border-left:1px solid #00ff99;
-  color:#00ff99;
-}
-
-/* MESSAGE */
+/* MESSAGE TYPES */
 .system { color:#888; }
 .me { color:#ffcc00; }
 .msg-line { color:#ddd; }
@@ -128,6 +134,8 @@ const API = "https://script.google.com/macros/s/AKfycbyGqdSRP9n1O8Mr53B65hkl2P10
 
 let nick = "";
 let current = "#general";
+
+// tabs: { name: {msgs:[], unread:0, dm:false} }
 let tabs = {};
 
 // ======================
@@ -137,24 +145,18 @@ async function enter() {
   nick = document.getElementById("nick").value.trim();
   if (!nick) return;
 
-  const res = await fetch(API,{
+  await fetch(API,{
     method:"POST",
     body:JSON.stringify({action:"join",nick,channel:"#general"})
   });
 
-  const data = await res.json();
-  if (data.error) {
-    alert(data.error);
-    return;
-  }
-
   document.getElementById("login").style.display="none";
   document.getElementById("app").style.display="flex";
 
-  addTab("#general");
+  openTab("#general", false);
   switchTab("#general");
 
-  setInterval(load,2000);
+  setInterval(load,1500);
   setInterval(heartbeat,20000);
 }
 
@@ -169,33 +171,35 @@ function heartbeat(){
 }
 
 // ======================
-// TABS
+// TAB SYSTEM
 // ======================
-function addTab(name, isDM=false){
+function openTab(name, dm=false){
   if(tabs[name]) return;
 
-  tabs[name]=[];
+  tabs[name] = { msgs:[], unread:0, dm };
 
   const tab=document.createElement("div");
-  tab.className="tab"+(isDM?" dm":"");
-  tab.textContent=name;
-  tab.onclick=()=>switchTab(name);
+  tab.className="tab"+(dm?" dm":"");
   tab.id="tab_"+name;
+  tab.innerHTML=`${name}<span class="badge"></span>`;
+  tab.onclick=()=>switchTab(name);
 
   document.getElementById("tabs").appendChild(tab);
 }
 
 function switchTab(name){
   current=name;
-
   document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
   document.getElementById("tab_"+name).classList.add("active");
 
-  load();
+  tabs[name].unread=0;
+  updateBadge(name);
+
+  render();
 }
 
 // ======================
-// SEND COMMANDS
+// SEND
 // ======================
 async function send(){
   const input=document.getElementById("msg");
@@ -204,7 +208,7 @@ async function send(){
 
   // HELP
   if(text==="/help"){
-    addSystem("/join #room | /msg user msg | /part | /me");
+    addSystem("Commands: /join /msg /part /me");
     input.value="";
     return;
   }
@@ -213,17 +217,16 @@ async function send(){
   if(text.startsWith("/msg ")){
     const parts=text.split(" ");
     const to=parts[1];
-    const message=parts.slice(2).join(" ");
+    const msg=parts.slice(2).join(" ");
 
-    const tabName="@"+to;
-    addTab(tabName,true);
+    openTab("@"+to,true);
 
     await fetch(API,{
       method:"POST",
-      body:JSON.stringify({action:"dm",from:nick,to:to,message})
+      body:JSON.stringify({action:"dm",from:nick,to,message:msg})
     });
 
-    switchTab(tabName);
+    switchTab("@"+to);
     input.value="";
     return;
   }
@@ -231,7 +234,8 @@ async function send(){
   // JOIN
   if(text.startsWith("/join ")){
     const ch=text.split(" ")[1];
-    addTab(ch);
+
+    openTab(ch);
 
     await fetch(API,{
       method:"POST",
@@ -250,8 +254,8 @@ async function send(){
       body:JSON.stringify({action:"part",nick,channel:current})
     });
 
-    delete tabs[current];
     document.getElementById("tab_"+current).remove();
+    delete tabs[current];
 
     switchTab(Object.keys(tabs)[0]);
     input.value="";
@@ -289,7 +293,7 @@ async function send(){
 }
 
 // ======================
-// LOAD
+// LOAD (SMART UPDATE)
 // ======================
 async function load(){
   const res = await fetch(API,{
@@ -302,7 +306,17 @@ async function load(){
   });
 
   const data = await res.json();
-  tabs[current]=data.messages;
+
+  const oldLen = tabs[current]?.msgs?.length || 0;
+  tabs[current].msgs = data.messages;
+
+  // unread logic if not active tab
+  if(current !== getActiveTab()){
+    if(data.messages.length > oldLen){
+      tabs[current].unread += (data.messages.length - oldLen);
+      updateBadge(current);
+    }
+  }
 
   render();
 }
@@ -314,7 +328,7 @@ function render(){
   const box=document.getElementById("messages");
   box.innerHTML="";
 
-  tabs[current].forEach(m=>{
+  (tabs[current]?.msgs || []).forEach(m=>{
     const div=document.createElement("div");
 
     if(m.type==="system"){
@@ -325,16 +339,10 @@ function render(){
       div.className="me";
       div.textContent="* "+m.nick+" "+m.msg;
     }
-    else{
-      let msg=m.msg;
-
-      if(msg.includes(nick)){
-        div.className="mention";
-      } else {
-        div.className="msg-line";
-      }
-
-      div.innerHTML=`<span class="nick">&lt;${m.nick}&gt;</span> ${msg}`;
+    else {
+      const mention = m.msg.includes(nick);
+      div.className = mention ? "mention" : "msg-line";
+      div.innerHTML=`<span class="nick">&lt;${m.nick}&gt;</span> ${m.msg}`;
     }
 
     box.appendChild(div);
@@ -344,14 +352,34 @@ function render(){
 }
 
 // ======================
-// SYSTEM
+// BADGE UPDATE
 // ======================
+function updateBadge(name){
+  const tab=document.getElementById("tab_"+name);
+  if(!tab) return;
+
+  const badge=tab.querySelector(".badge");
+  const count=tabs[name]?.unread || 0;
+
+  if(count>0){
+    badge.style.display="inline-block";
+    badge.textContent=count;
+  } else {
+    badge.style.display="none";
+  }
+}
+
+// ======================
+// UTIL
+// ======================
+function getActiveTab(){
+  return current;
+}
+
 function addSystem(msg){
-  const box=document.getElementById("messages");
-  const div=document.createElement("div");
-  div.className="system";
-  div.textContent="*** "+msg;
-  box.appendChild(div);
+  if(!tabs[current]) return;
+  tabs[current].msgs.push({type:"system",msg});
+  render();
 }
 
 </script>
