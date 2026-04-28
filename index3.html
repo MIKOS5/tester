@@ -1,148 +1,236 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Site Name</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stick Brawler World</title>
 
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #121212;
-            color: #fff;
-        }
+<style>
+body {
+    margin: 0;
+    background: #111;
+    color: white;
+    text-align: center;
+    font-family: Arial;
+}
 
-        header {
-            background: #1f1f1f;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        nav a {
-            color: #fff;
-            margin: 0 10px;
-            text-decoration: none;
-        }
-
-        nav a:hover {
-            color: #00bcd4;
-        }
-
-        .hero {
-            text-align: center;
-            padding: 60px 20px;
-            background: linear-gradient(to right, #00bcd4, #2196f3);
-        }
-
-        .hero h1 {
-            margin-bottom: 10px;
-        }
-
-        .section {
-            padding: 40px 20px;
-            text-align: center;
-        }
-
-        .cards {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 20px;
-        }
-
-        .card {
-            background: #1e1e1e;
-            padding: 20px;
-            border-radius: 10px;
-            width: 250px;
-        }
-
-        .card h3 {
-            margin-top: 0;
-        }
-
-        form {
-            max-width: 400px;
-            margin: auto;
-            display: flex;
-            flex-direction: column;
-        }
-
-        input, textarea, button {
-            margin: 10px 0;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-        }
-
-        button {
-            background: #00bcd4;
-            color: white;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background: #0097a7;
-        }
-
-        footer {
-            background: #1f1f1f;
-            text-align: center;
-            padding: 15px;
-            margin-top: 20px;
-        }
-    </style>
+canvas {
+    background: #222;
+    display: block;
+    margin: auto;
+    border: 2px solid #00bcd4;
+}
+</style>
 </head>
 <body>
 
-<header>
-    <h2>Your Brand</h2>
-    <nav>
-        <a href="#">Home</a>
-        <a href="#services">Services</a>
-        <a href="#contact">Contact</a>
-    </nav>
-</header>
+<h2>Stick Brawler</h2>
+<p>A/D Move | W Jump | F Tap = Light | Hold F = Heavy</p>
 
-<section class="hero">
-    <h1>Welcome to Your Site</h1>
-    <p>Simple, clean, and ready to build on</p>
-</section>
+<canvas id="game" width="900" height="400"></canvas>
 
-<section id="services" class="section">
-    <h2>What We Offer</h2>
-    <div class="cards">
-        <div class="card">
-            <h3>Service 1</h3>
-            <p>Description here</p>
-        </div>
-        <div class="card">
-            <h3>Service 2</h3>
-            <p>Description here</p>
-        </div>
-        <div class="card">
-            <h3>Service 3</h3>
-            <p>Description here</p>
-        </div>
-    </div>
-</section>
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
 
-<section id="contact" class="section">
-    <h2>Contact / Order</h2>
-    <form>
-        <input type="text" placeholder="Name" required>
-        <input type="email" placeholder="Email" required>
-        <textarea placeholder="Message or Order"></textarea>
-        <button type="submit">Submit</button>
-    </form>
-</section>
+let keys = {};
+document.addEventListener("keydown", e => keys[e.key.toLowerCase()] = true);
+document.addEventListener("keyup", e => keys[e.key.toLowerCase()] = false);
 
-<footer>
-    <p>© 2026 Your Name</p>
-</footer>
+const gravity = 0.6;
+const ground = 300;
+const worldWidth = 3000;
+
+let cameraX = 0;
+
+class Fighter {
+    constructor(x, color, isPlayer=false) {
+        this.x = x;
+        this.y = ground;
+        this.vy = 0;
+        this.hp = 100;
+        this.color = color;
+        this.isPlayer = isPlayer;
+        this.attackCooldown = 0;
+        this.hitFlash = 0;
+    }
+
+    draw() {
+        let drawX = this.x - cameraX;
+
+        ctx.strokeStyle = this.hitFlash > 0 ? "red" : this.color;
+
+        // head
+        ctx.beginPath();
+        ctx.arc(drawX, this.y - 50, 10, 0, Math.PI*2);
+        ctx.stroke();
+
+        // body
+        ctx.beginPath();
+        ctx.moveTo(drawX, this.y - 40);
+        ctx.lineTo(drawX, this.y);
+        ctx.stroke();
+
+        // arms
+        ctx.beginPath();
+        ctx.moveTo(drawX, this.y - 30);
+        ctx.lineTo(drawX - 15, this.y - 10);
+        ctx.moveTo(drawX, this.y - 30);
+        ctx.lineTo(drawX + 15, this.y - 10);
+        ctx.stroke();
+
+        // legs
+        ctx.beginPath();
+        ctx.moveTo(drawX, this.y);
+        ctx.lineTo(drawX - 10, this.y + 20);
+        ctx.moveTo(drawX, this.y);
+        ctx.lineTo(drawX + 10, this.y + 20);
+        ctx.stroke();
+
+        // health bar
+        ctx.fillStyle = "red";
+        ctx.fillRect(drawX - 25, this.y - 70, 50, 5);
+        ctx.fillStyle = "lime";
+        ctx.fillRect(drawX - 25, this.y - 70, 50 * (this.hp/100), 5);
+    }
+
+    update() {
+        this.vy += gravity;
+        this.y += this.vy;
+
+        if (this.y > ground) {
+            this.y = ground;
+            this.vy = 0;
+        }
+
+        if (this.attackCooldown > 0) this.attackCooldown--;
+        if (this.hitFlash > 0) this.hitFlash--;
+    }
+
+    attack(target, heavy=false) {
+        if (this.attackCooldown > 0) return;
+
+        let range = heavy ? 80 : 50;
+        let damage = heavy ? 10 : 3;
+
+        if (Math.abs(this.x - target.x) < range) {
+            target.hp -= damage;
+            target.hitFlash = 5;
+        }
+
+        this.attackCooldown = heavy ? 40 : 15;
+    }
+}
+
+const player = new Fighter(100, "white", true);
+let enemies = [];
+
+let attackHold = 0;
+
+// spawn enemies in waves
+function spawnWave(x) {
+    for (let i = 0; i < 3; i++) {
+        enemies.push(new Fighter(x + i * 60, ["orange","yellow","red"][i%3]));
+    }
+}
+
+let nextWaveX = 600;
+
+function update() {
+    // movement
+    if (keys["a"]) player.x -= 4;
+    if (keys["d"]) player.x += 4;
+
+    // clamp world
+    player.x = Math.max(0, Math.min(worldWidth, player.x));
+
+    if (keys["w"] && player.y === ground) {
+        player.vy = -12;
+    }
+
+    // attack system
+    if (keys["f"]) {
+        attackHold++;
+    } else if (attackHold > 0) {
+        let heavy = attackHold > 20;
+
+        enemies.forEach(e => {
+            if (e.hp > 0) player.attack(e, heavy);
+        });
+
+        attackHold = 0;
+    }
+
+    // camera follow
+    cameraX = player.x - canvas.width / 2;
+    cameraX = Math.max(0, Math.min(worldWidth - canvas.width, cameraX));
+
+    // spawn waves
+    if (player.x > nextWaveX) {
+        spawnWave(nextWaveX + 200);
+        nextWaveX += 500;
+    }
+
+    // enemy AI
+    enemies.forEach(e => {
+        if (e.hp <= 0) return;
+
+        if (e.x > player.x) e.x -= 2;
+        else e.x += 2;
+
+        if (Math.abs(e.x - player.x) < 50) {
+            if (e.attackCooldown === 0) {
+                player.hp -= 2;
+                player.hitFlash = 5;
+                e.attackCooldown = 30;
+            }
+        }
+
+        e.update();
+    });
+
+    player.update();
+}
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // ground
+    ctx.fillStyle = "#444";
+    ctx.fillRect(-cameraX, ground + 20, worldWidth, 5);
+
+    player.draw();
+
+    enemies.forEach(e => {
+        if (e.hp > 0) e.draw();
+    });
+
+    // UI
+    ctx.fillStyle = "white";
+    ctx.font = "16px Arial";
+    ctx.fillText("HP: " + Math.floor(player.hp), 20, 20);
+
+    // end conditions
+    if (player.hp <= 0) endGame("You Lose");
+    if (player.x >= worldWidth - 50) endGame("You Cleared The Level");
+}
+
+function endGame(text) {
+    ctx.fillStyle = "white";
+    ctx.font = "40px Arial";
+    ctx.fillText(text, canvas.width/2 - 150, 200);
+    cancelAnimationFrame(loop);
+}
+
+let loop;
+function gameLoop() {
+    update();
+    draw();
+    loop = requestAnimationFrame(gameLoop);
+}
+
+gameLoop();
+</script>
 
 </body>
 </html>
