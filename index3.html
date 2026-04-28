@@ -178,18 +178,12 @@ async function sendMsg() {
   const text = input.value.trim();
   if (!text || !nick) return;
 
-  // ================= IRC COMMANDS =================
-
   if (text.startsWith("/nick ")) {
     const newNick = text.split(" ")[1];
 
     const res = await fetch(API, {
       method: "POST",
-      body: JSON.stringify({
-        action: "nick",
-        oldNick: nick,
-        newNick
-      })
+      body: JSON.stringify({ action: "nick", oldNick: nick, newNick })
     });
 
     const data = await res.json();
@@ -206,11 +200,7 @@ async function sendMsg() {
 
     await fetch(API, {
       method: "POST",
-      body: JSON.stringify({
-        action: "join",
-        nick,
-        channel: newChannel
-      })
+      body: JSON.stringify({ action: "join", nick, channel: newChannel })
     });
 
     joinChannel(newChannel);
@@ -239,12 +229,7 @@ async function sendMsg() {
 
   await fetch(API, {
     method: "POST",
-    body: JSON.stringify({
-      action: "send",
-      nick,
-      channel,
-      message: `<${nick}> ${text}`
-    })
+    body: JSON.stringify({ action: "send", nick, channel, message: `<${nick}> ${text}` })
   });
 
   input.value = "";
@@ -258,8 +243,8 @@ async function loadMessages() {
   });
 
   const data = await res.json();
-  const box = document.getElementById("messages");
 
+  const box = document.getElementById("messages");
   box.innerHTML = "";
 
   data.messages.forEach(m => {
