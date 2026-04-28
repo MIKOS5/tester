@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>IRC Style Chat Room (REAL IRC MODE)</title>
+  <title>IRC Style Chat Room (REAL IRC SERVER MODE v2)</title>
   <style>
     body {
       margin: 0;
@@ -153,22 +153,27 @@ async function enterChat() {
   const n = document.getElementById("nickInput").value.trim();
   if (!n) return;
 
-  const res = await fetch(API, {
+  const check = await fetch(API, {
     method: "POST",
     body: JSON.stringify({ action: "checkNick", nick: n })
   });
 
-  const data = await res.json();
+  const checkData = await check.json();
 
-  if (data.exists) {
-    alert("Nick already taken");
+  if (checkData.exists) {
+    alert("Nickname already taken (server enforced)");
     return;
   }
+
+  await fetch(API, {
+    method: "POST",
+    body: JSON.stringify({ action: "registerNick", nick: n })
+  });
 
   nick = n;
   document.getElementById("loginBox").style.display = "none";
 
-  system("Welcome to IRC, " + nick);
+  system("Connected as " + nick);
   loadMsgs();
   setInterval(loadMsgs, 3000);
 }
@@ -184,8 +189,25 @@ async function sendMsg() {
 
   if (text.startsWith("/nick ")) {
     const newNick = text.split(" ")[1];
-    system("Nick change not fully server synced yet (client only)");
+
+    const res = await fetch(API, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "changeNick",
+        oldNick: nick,
+        newNick
+      })
+    });
+
+    const data = await res.json();
+
+    if (!data.ok) {
+      system("Nick change failed: " + data.error);
+      return;
+    }
+
     nick = newNick;
+    system("Nick changed to " + nick);
     input.value = "";
     return;
   }
@@ -199,7 +221,7 @@ async function sendMsg() {
   }
 
   if (text.startsWith("/me ")) {
-    await sendToServer("* " + nick + " " + text.replace("/me ", ""), true);
+    await sendToServer("* " + nick + " " + text.replace("/me ", ""));
     input.value = "";
     return;
   }
@@ -214,7 +236,7 @@ async function sendMsg() {
   input.value = "";
 }
 
-async function sendToServer(msg, isAction=false) {
+async function sendToServer(msg) {
   await fetch(API, {
     method: "POST",
     body: JSON.stringify({
@@ -244,9 +266,7 @@ async function loadMsgs() {
     const div = document.createElement("div");
     div.className = "msg";
 
-    if (m.startsWith("* ")) {
-      div.className = "msg action";
-    }
+    if (m.startsWith("* ")) div.classList.add("action");
 
     div.textContent = m;
     box.appendChild(div);
