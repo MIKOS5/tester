@@ -3,35 +3,35 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GitHub Style Chat Room</title>
+  <title>IRC Style Chat Room (Google Sheets Powered)</title>
   <style>
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #0d1117;
-      color: #c9d1d9;
+      background: #000;
+      color: #00ff99;
+      font-family: "Courier New", monospace;
       display: flex;
       height: 100vh;
     }
 
     .sidebar {
-      width: 220px;
-      background: #161b22;
+      width: 200px;
+      border-right: 1px solid #00ff99;
       padding: 10px;
-      border-right: 1px solid #30363d;
     }
 
     .sidebar h2 {
-      font-size: 16px;
+      font-size: 14px;
       margin-bottom: 10px;
     }
 
-    .room {
-      padding: 8px;
-      margin: 5px 0;
-      background: #21262d;
-      border-radius: 5px;
+    .channel {
+      padding: 5px;
       cursor: pointer;
+    }
+
+    .channel:hover {
+      background: #003322;
     }
 
     .chat {
@@ -42,8 +42,7 @@
 
     .header {
       padding: 10px;
-      background: #161b22;
-      border-bottom: 1px solid #30363d;
+      border-bottom: 1px solid #00ff99;
     }
 
     .messages {
@@ -53,102 +52,153 @@
     }
 
     .msg {
-      margin-bottom: 10px;
-      padding: 8px;
-      background: #21262d;
-      border-radius: 6px;
+      margin-bottom: 5px;
     }
 
-    .input-area {
+    .input-bar {
       display: flex;
+      border-top: 1px solid #00ff99;
       padding: 10px;
-      border-top: 1px solid #30363d;
-      background: #161b22;
     }
 
     input {
       flex: 1;
-      padding: 10px;
-      border: none;
-      border-radius: 5px;
-      background: #0d1117;
-      color: #c9d1d9;
+      background: black;
+      color: #00ff99;
+      border: 1px solid #00ff99;
+      padding: 8px;
+      font-family: monospace;
       outline: none;
     }
 
     button {
       margin-left: 10px;
-      padding: 10px 15px;
-      border: none;
-      background: #238636;
-      color: white;
-      border-radius: 5px;
+      background: black;
+      color: #00ff99;
+      border: 1px solid #00ff99;
+      padding: 8px 12px;
       cursor: pointer;
     }
 
     button:hover {
-      background: #2ea043;
+      background: #003322;
+    }
+
+    .login {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: black;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
     }
   </style>
 </head>
 <body>
 
-  <div class="sidebar">
-    <h2>Rooms</h2>
-    <div class="room" onclick="switchRoom('General')"># General</div>
-    <div class="room" onclick="switchRoom('Dev')"># Dev</div>
-    <div class="room" onclick="switchRoom('Random')"># Random</div>
+<div class="login" id="loginBox">
+  <h2>Enter Nickname</h2>
+  <input id="nickInput" placeholder="nick" />
+  <button onclick="enterChat()">Enter</button>
+</div>
+
+<div class="sidebar">
+  <h2>Channels</h2>
+  <div class="channel" onclick="switchChannel('#general')">#general</div>
+  <div class="channel" onclick="switchChannel('#dev')">#dev</div>
+  <div class="channel" onclick="switchChannel('#random')">#random</div>
+</div>
+
+<div class="chat">
+  <div class="header" id="channelName">#general</div>
+  <div class="messages" id="messages"></div>
+
+  <div class="input-bar">
+    <input id="msgInput" placeholder="type message..." />
+    <button onclick="sendMsg()">send</button>
   </div>
+</div>
 
-  <div class="chat">
-    <div class="header" id="roomTitle"># General</div>
-    <div class="messages" id="messages"></div>
+<script>
+const API = "https://script.google.com/macros/s/AKfycbzvOsbFEgRoPVwFgwkCkaMVag6mQWs3UCLiuixTgZXDraQzyPUgKn87E6kM8q0hX-wN/exec";
 
-    <div class="input-area">
-      <input id="input" placeholder="Type a message..." />
-      <button onclick="sendMessage()">Send</button>
-    </div>
-  </div>
+let nick = "";
+let channel = "#general";
 
-  <script>
-    let currentRoom = "General";
+function switchChannel(ch) {
+  channel = ch;
+  document.getElementById("channelName").textContent = ch;
+  loadMsgs();
+}
 
-    const storageKey = () => "chat_" + currentRoom;
+async function enterChat() {
+  const n = document.getElementById("nickInput").value.trim();
+  if (!n) return;
 
-    function loadMessages() {
-      const box = document.getElementById("messages");
-      box.innerHTML = "";
-      const data = JSON.parse(localStorage.getItem(storageKey()) || "[]");
-      data.forEach(m => {
-        const div = document.createElement("div");
-        div.className = "msg";
-        div.textContent = m;
-        box.appendChild(div);
-      });
-      box.scrollTop = box.scrollHeight;
-    }
+  const res = await fetch(API, {
+    method: "POST",
+    body: JSON.stringify({ action: "checkNick", nick: n })
+  });
 
-    function sendMessage() {
-      const input = document.getElementById("input");
-      const text = input.value.trim();
-      if (!text) return;
+  const data = await res.json();
 
-      const data = JSON.parse(localStorage.getItem(storageKey()) || "[]");
-      data.push("User: " + text);
-      localStorage.setItem(storageKey(), JSON.stringify(data));
+  if (data.exists) {
+    alert("Nickname already taken (IRC rule)");
+    return;
+  }
 
-      input.value = "";
-      loadMessages();
-    }
+  nick = n;
+  document.getElementById("loginBox").style.display = "none";
 
-    function switchRoom(room) {
-      currentRoom = room;
-      document.getElementById("roomTitle").textContent = "# " + room;
-      loadMessages();
-    }
+  loadMsgs();
+  setInterval(loadMsgs, 3000);
+}
 
-    loadMessages();
-  </script>
+async function sendMsg() {
+  const input = document.getElementById("msgInput");
+  const text = input.value.trim();
+  if (!text || !nick) return;
+
+  await fetch(API, {
+    method: "POST",
+    body: JSON.stringify({
+      action: "sendMessage",
+      nick,
+      channel,
+      message: text
+    })
+  });
+
+  input.value = "";
+  loadMsgs();
+}
+
+async function loadMsgs() {
+  const box = document.getElementById("messages");
+
+  const res = await fetch(API, {
+    method: "POST",
+    body: JSON.stringify({ action: "getMessages", channel })
+  });
+
+  const data = await res.json();
+
+  box.innerHTML = "";
+
+  data.messages.forEach(m => {
+    const div = document.createElement("div");
+    div.className = "msg";
+    div.textContent = m;
+    box.appendChild(div);
+  });
+
+  box.scrollTop = box.scrollHeight;
+}
+</script>
 
 </body>
 </html>
