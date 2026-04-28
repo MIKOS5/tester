@@ -1,66 +1,122 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>IRC Chat (Sheets Backend)</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sheets IRC Network</title>
 
-  <style>
-    body {
-      margin: 0;
-      background: black;
-      color: #00ff99;
-      font-family: monospace;
-    }
+<style>
+  body {
+    margin: 0;
+    background: #000;
+    color: #00ff99;
+    font-family: monospace;
+    display: flex;
+    height: 100vh;
+  }
 
-    #login {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      background: black;
-    }
+  /* LOGIN */
+  #login {
+    position: fixed;
+    inset: 0;
+    background: black;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
 
-    #chat {
-      display: none;
-      padding: 10px;
-    }
+  #login input {
+    padding: 10px;
+    background: black;
+    border: 1px solid #00ff99;
+    color: #00ff99;
+    width: 200px;
+    text-align: center;
+    outline: none;
+  }
 
-    #messages {
-      height: 85vh;
-      overflow-y: auto;
-      border: 1px solid #00ff99;
-      padding: 10px;
-      margin-bottom: 10px;
-    }
+  #login button {
+    margin-top: 10px;
+    padding: 8px 14px;
+    background: black;
+    border: 1px solid #00ff99;
+    color: #00ff99;
+    cursor: pointer;
+  }
 
-    input {
-      width: 100%;
-      padding: 10px;
-      background: black;
-      color: #00ff99;
-      border: 1px solid #00ff99;
-      font-family: monospace;
-      outline: none;
-    }
+  /* LAYOUT */
+  #app {
+    display: none;
+    width: 100%;
+  }
 
-    button {
-      margin-top: 10px;
-      padding: 8px 12px;
-      background: black;
-      color: #00ff99;
-      border: 1px solid #00ff99;
-      cursor: pointer;
-    }
+  /* SIDEBAR USERS */
+  #users {
+    width: 180px;
+    border-right: 1px solid #00ff99;
+    padding: 10px;
+    overflow-y: auto;
+  }
 
-    button:hover {
-      background: #003322;
-    }
+  #users h3 {
+    margin: 0 0 10px 0;
+    color: #00ff99;
+  }
 
-    .system {
-      color: #888;
-    }
-  </style>
+  .user {
+    color: #00ff99;
+    margin: 3px 0;
+  }
+
+  /* CHAT AREA */
+  #chat {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #header {
+    padding: 10px;
+    border-bottom: 1px solid #00ff99;
+    color: #00ff99;
+  }
+
+  #messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+  }
+
+  /* INPUT */
+  #inputBar {
+    display: flex;
+    border-top: 1px solid #00ff99;
+  }
+
+  #msg {
+    flex: 1;
+    padding: 10px;
+    background: black;
+    border: none;
+    color: #00ff99;
+    outline: none;
+  }
+
+  button.send {
+    background: black;
+    border-left: 1px solid #00ff99;
+    color: #00ff99;
+    padding: 10px 15px;
+    cursor: pointer;
+  }
+
+  /* MESSAGE TYPES */
+  .system { color: #888; }
+  .me { color: #ffcc00; }
+  .msg-line { color: #fff; }
+  .nick { color: #00ff99; }
+</style>
 </head>
 
 <body>
@@ -68,65 +124,122 @@
 <!-- LOGIN -->
 <div id="login">
   <div>Enter Nickname</div>
-  <input id="nick" placeholder="nick">
+  <input id="nick" placeholder="nick"/>
   <button onclick="enter()">Enter IRC</button>
 </div>
 
-<!-- CHAT -->
-<div id="chat">
-  <div id="messages"></div>
-  <input id="msg" placeholder="message..." onkeydown="if(event.key==='Enter') send()">
+<!-- APP -->
+<div id="app">
+
+  <!-- USERS -->
+  <div id="users">
+    <h3>Online</h3>
+    <div id="userList"></div>
+  </div>
+
+  <!-- CHAT -->
+  <div id="chat">
+    <div id="header">#general</div>
+
+    <div id="messages"></div>
+
+    <div id="inputBar">
+      <input id="msg" placeholder="type /help, /nick, /join, /me..." onkeydown="if(event.key==='Enter') send()"/>
+      <button class="send" onclick="send()">Send</button>
+    </div>
+  </div>
+
 </div>
 
 <script>
 
-// 🔴 YOUR UPDATED GOOGLE APPS SCRIPT URL
 const API = "https://script.google.com/macros/s/AKfycbyGqdSRP9n1O8Mr53B65hkl2P103xSAdVmKsqKf7MbZvg1KzB_3Z2VoFTTPPoI-vWSY/exec";
 
 let nick = "";
+let channel = "#general";
 
-// =========================
-// ENTER IRC
-// =========================
+// --------------------
+// ENTER CHAT
+// --------------------
 async function enter() {
   nick = document.getElementById("nick").value.trim();
   if (!nick) return;
 
   document.getElementById("login").style.display = "none";
-  document.getElementById("chat").style.display = "block";
+  document.getElementById("app").style.display = "flex";
 
-  await systemMsg(`${nick} joined the chat`);
+  await join(channel);
 
   load();
+  who();
+
   setInterval(load, 2000);
+  setInterval(who, 4000);
 }
 
-// =========================
-// SYSTEM MESSAGE
-// =========================
-async function systemMsg(msg) {
+// --------------------
+// JOIN CHANNEL
+// --------------------
+async function join(ch) {
+  channel = ch;
+  document.getElementById("header").textContent = ch;
+
   await fetch(API, {
     method: "POST",
     body: JSON.stringify({
-      action: "system",
-      message: msg
+      action: "join",
+      nick,
+      channel
     })
   });
 }
 
-// =========================
-// SEND MESSAGE
-// =========================
+// --------------------
+// SEND MESSAGE + COMMANDS
+// --------------------
 async function send() {
   const input = document.getElementById("msg");
   const text = input.value.trim();
   if (!text) return;
 
+  // /join
+  if (text.startsWith("/join ")) {
+    await join(text.split(" ")[1]);
+    input.value = "";
+    return;
+  }
+
+  // /nick
+  if (text.startsWith("/nick ")) {
+    nick = text.split(" ")[1];
+    input.value = "";
+    return;
+  }
+
+  // /me
+  if (text.startsWith("/me ")) {
+    await fetch(API, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "me",
+        nick,
+        channel,
+        message: text.substring(4)
+      })
+    });
+
+    input.value = "";
+    load();
+    return;
+  }
+
+  // normal message
   await fetch(API, {
     method: "POST",
     body: JSON.stringify({
       action: "send",
       nick,
+      channel,
       message: text
     })
   });
@@ -135,14 +248,15 @@ async function send() {
   load();
 }
 
-// =========================
+// --------------------
 // LOAD MESSAGES
-// =========================
+// --------------------
 async function load() {
   const res = await fetch(API, {
     method: "POST",
     body: JSON.stringify({
-      action: "get"
+      action: "get",
+      channel
     })
   });
 
@@ -154,15 +268,50 @@ async function load() {
   data.messages.forEach(m => {
     const div = document.createElement("div");
 
-    if (m.startsWith("***")) {
+    if (m.type === "system") {
       div.className = "system";
+      div.textContent = "*** " + m.msg;
     }
 
-    div.textContent = m;
+    else if (m.type === "me") {
+      div.className = "me";
+      div.textContent = `* ${m.nick} ${m.msg}`;
+    }
+
+    else {
+      div.className = "msg-line";
+      div.innerHTML = `<span class="nick">&lt;${m.nick}&gt;</span> ${m.msg}`;
+    }
+
     box.appendChild(div);
   });
 
   box.scrollTop = box.scrollHeight;
+}
+
+// --------------------
+// LIVE USERS
+// --------------------
+async function who() {
+  const res = await fetch(API, {
+    method: "POST",
+    body: JSON.stringify({
+      action: "who",
+      channel
+    })
+  });
+
+  const data = await res.json();
+
+  const list = document.getElementById("userList");
+  list.innerHTML = "";
+
+  data.users.forEach(u => {
+    const div = document.createElement("div");
+    div.className = "user";
+    div.textContent = u;
+    list.appendChild(div);
+  });
 }
 
 </script>
