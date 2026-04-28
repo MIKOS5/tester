@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
-<title>Sheets IRC Network</title>
+<title>vSheets IRC Network</title>
 
 <style>
 body {
@@ -34,41 +34,28 @@ body {
   background:black;
   border:1px solid #00ff99;
   color:#00ff99;
-  font-size:16px;
 }
 
 /* APP */
-#app { display:none; width:100%; height:100%; }
+#app { display:none; width:100%; height:100%; flex-direction:column; }
 
-/* SIDEBAR */
-#sidebar {
-  width:220px;
-  border-right:1px solid #00ff99;
-  padding:10px;
-  overflow-y:auto;
+/* TABS */
+#tabs {
+  display:flex;
+  border-bottom:1px solid #00ff99;
+  overflow-x:auto;
 }
 
-.channel { color:#ffcc00; cursor:pointer; padding:5px 0; }
-.user { padding:4px 0; }
+.tab {
+  padding:8px 12px;
+  cursor:pointer;
+  border-right:1px solid #00ff99;
+}
 
-h3 { margin:10px 0; font-size:13px; }
+.tab.active { background:#002200; }
+.tab.dm { color:#ffcc00; }
 
 /* CHAT */
-#chat {
-  flex:1;
-  display:flex;
-  flex-direction:column;
-}
-
-#header {
-  padding:10px;
-  border-bottom:1px solid #00ff99;
-  display:flex;
-  justify-content:space-between;
-}
-
-#menuBtn { display:none; cursor:pointer; }
-
 #messages {
   flex:1;
   overflow-y:auto;
@@ -86,14 +73,6 @@ h3 { margin:10px 0; font-size:13px; }
   background:black;
   border:none;
   color:#00ff99;
-  font-size:16px;
-}
-
-button.send {
-  padding:12px;
-  background:black;
-  border-left:1px solid #00ff99;
-  color:#00ff99;
 }
 
 /* MESSAGE */
@@ -101,23 +80,8 @@ button.send {
 .me { color:#ffcc00; }
 .msg-line { color:#ddd; }
 .nick { color:#00ff99; }
+.mention { background:#002200; }
 
-/* MOBILE */
-@media (max-width:700px) {
-  #sidebar {
-    position:absolute;
-    left:0;
-    top:0;
-    height:100%;
-    background:black;
-    transform:translateX(-100%);
-    transition:.3s;
-    z-index:10;
-  }
-
-  #sidebar.open { transform:translateX(0); }
-  #menuBtn { display:block; }
-}
 </style>
 </head>
 
@@ -131,28 +95,12 @@ button.send {
 
 <div id="app">
 
-  <div id="sidebar">
-    <h3>Online</h3>
-    <div id="userList"></div>
+  <div id="tabs"></div>
+  <div id="messages"></div>
 
-    <h3>Channels</h3>
-    <div id="channelList"></div>
-  </div>
-
-  <div id="chat">
-
-    <div id="header">
-      <span id="menuBtn" onclick="toggleMenu()">☰</span>
-      <span id="channelName">#general</span>
-    </div>
-
-    <div id="messages"></div>
-
-    <div id="inputBar">
-      <input id="msg" placeholder="type /help..." onkeydown="if(event.key==='Enter') send()"/>
-      <button class="send" onclick="send()">Send</button>
-    </div>
-
+  <div id="inputBar">
+    <input id="msg" placeholder="type /help..." onkeydown="if(event.key==='Enter') send()"/>
+    <button onclick="send()">Send</button>
   </div>
 
 </div>
@@ -162,88 +110,61 @@ button.send {
 const API = "https://script.google.com/macros/s/AKfycbyGqdSRP9n1O8Mr53B65hkl2P103xSAdVmKsqKf7MbZvg1KzB_3Z2VoFTTPPoI-vWSY/exec";
 
 let nick = "";
-let channel = "#general";
+let current = "#general";
+let tabs = {};
 
 // ENTER
 async function enter() {
   nick = document.getElementById("nick").value.trim();
   if (!nick) return;
 
-  const res = await fetch(API, {
+  const res = await fetch(API,{
     method:"POST",
-    body:JSON.stringify({
-      action:"join",
-      nick,
-      channel
-    })
+    body:JSON.stringify({action:"join",nick,channel:"#general"})
   });
 
   const data = await res.json();
 
-  if (data.error === "nick_in_use") {
-    alert("Nick already in use");
-    return;
-  }
-
-  if (data.error === "banned") {
-    alert("You are banned from this channel");
+  if (data.error) {
+    alert(data.error);
     return;
   }
 
   document.getElementById("login").style.display="none";
   document.getElementById("app").style.display="flex";
 
-  loop();
-}
-
-// LOOP
-function loop() {
-  load();
-  who();
-  loadChannels();
+  addTab("#general");
+  switchTab("#general");
 
   setInterval(load,2000);
-  setInterval(who,4000);
-  setInterval(loadChannels,5000);
 }
 
-// MENU
-function toggleMenu() {
-  document.getElementById("sidebar").classList.toggle("open");
+// ADD TAB
+function addTab(name, isDM=false){
+  if(tabs[name]) return;
+
+  tabs[name] = [];
+
+  const tab=document.createElement("div");
+  tab.className="tab"+(isDM?" dm":"");
+  tab.textContent=name;
+  tab.onclick=()=>switchTab(name);
+  tab.id="tab_"+name;
+
+  document.getElementById("tabs").appendChild(tab);
 }
 
-// JOIN
-async function join(ch) {
-  const res = await fetch(API,{
-    method:"POST",
-    body:JSON.stringify({
-      action:"join",
-      nick,
-      channel:ch
-    })
-  });
+// SWITCH TAB
+function switchTab(name){
+  current = name;
 
-  const data = await res.json();
-
-  if (data.error === "banned") {
-    addSystem("You are banned from "+ch);
-    return;
-  }
-
-  if (data.error === "nick_in_use") {
-    addSystem("Nick already in use");
-    return;
-  }
-
-  channel = ch;
-  document.getElementById("channelName").textContent = ch;
-
-  document.getElementById("sidebar").classList.remove("open");
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  document.getElementById("tab_"+name).classList.add("active");
 
   load();
 }
 
-// SEND COMMANDS
+// SEND
 async function send() {
   const input = document.getElementById("msg");
   const text = input.value.trim();
@@ -251,81 +172,61 @@ async function send() {
 
   // HELP
   if (text === "/help") {
-    addSystem("Commands: /nick /join /create /part /op /kick /ban /me /channels");
+    addSystem("Commands: /join /msg /part /nick /me");
     input.value="";
     return;
   }
 
-  // NICK
-  if (text.startsWith("/nick ")) {
-    nick = text.split(" ")[1];
-    addSystem("Nick changed to "+nick);
+  // DM
+  if (text.startsWith("/msg ")) {
+    const parts = text.split(" ");
+    const to = parts[1];
+    const message = parts.slice(2).join(" ");
+
+    const tabName = "@"+to;
+    addTab(tabName, true);
+
+    await fetch(API,{
+      method:"POST",
+      body:JSON.stringify({
+        action:"dm",
+        from:nick,
+        to:to,
+        message
+      })
+    });
+
+    switchTab(tabName);
     input.value="";
     return;
   }
 
   // JOIN
   if (text.startsWith("/join ")) {
-    await join(text.split(" ")[1]);
-    input.value="";
-    return;
-  }
-
-  // CREATE
-  if (text.startsWith("/create ")) {
     const ch = text.split(" ")[1];
+    addTab(ch);
 
     await fetch(API,{
       method:"POST",
-      body:JSON.stringify({action:"create",channel:ch})
+      body:JSON.stringify({action:"join",nick,channel:ch})
     });
 
-    await join(ch);
+    switchTab(ch);
     input.value="";
     return;
   }
 
-  // OP
-  if (text.startsWith("/op ")) {
+  // PART
+  if (text === "/part") {
     await fetch(API,{
       method:"POST",
-      body:JSON.stringify({
-        action:"op",
-        nick,
-        channel,
-        target:text.split(" ")[1]
-      })
+      body:JSON.stringify({action:"part",nick,channel:current})
     });
-    input.value="";
-    return;
-  }
 
-  // KICK
-  if (text.startsWith("/kick ")) {
-    await fetch(API,{
-      method:"POST",
-      body:JSON.stringify({
-        action:"kick",
-        nick,
-        channel,
-        target:text.split(" ")[1]
-      })
-    });
-    input.value="";
-    return;
-  }
+    delete tabs[current];
+    document.getElementById("tab_"+current).remove();
 
-  // BAN
-  if (text.startsWith("/ban ")) {
-    await fetch(API,{
-      method:"POST",
-      body:JSON.stringify({
-        action:"ban",
-        nick,
-        channel,
-        target:text.split(" ")[1]
-      })
-    });
+    switchTab(Object.keys(tabs)[0]);
     input.value="";
     return;
   }
@@ -337,18 +238,11 @@ async function send() {
       body:JSON.stringify({
         action:"me",
         nick,
-        channel,
+        channel:current,
         message:text.substring(4)
       })
     });
-    input.value="";
-    load();
-    return;
-  }
 
-  // CHANNELS
-  if (text === "/channels") {
-    loadChannels();
     input.value="";
     return;
   }
@@ -359,31 +253,39 @@ async function send() {
     body:JSON.stringify({
       action:"send",
       nick,
-      channel,
+      channel:current,
       message:text
     })
   });
 
   input.value="";
-  load();
 }
 
 // LOAD
 async function load() {
   const res = await fetch(API,{
     method:"POST",
-    body:JSON.stringify({action:"get",channel})
+    body:JSON.stringify({
+      action:"get",
+      channel:current,
+      nick
+    })
   });
 
   const data = await res.json();
+
+  tabs[current] = data.messages;
+
+  render();
+}
+
+// RENDER
+function render(){
   const box = document.getElementById("messages");
-
-  const nearBottom = box.scrollTop + box.clientHeight >= box.scrollHeight - 50;
-
   box.innerHTML="";
 
-  data.messages.forEach(m=>{
-    const div = document.createElement("div");
+  tabs[current].forEach(m=>{
+    const div=document.createElement("div");
 
     if (m.type==="system") {
       div.className="system";
@@ -394,63 +296,29 @@ async function load() {
       div.textContent="* "+m.nick+" "+m.msg;
     }
     else {
-      div.className="msg-line";
-      div.innerHTML=`<span class="nick">&lt;${m.nick}&gt;</span> ${m.msg}`;
+      let msg = m.msg;
+
+      if (msg.includes(nick)) {
+        div.className="mention";
+      } else {
+        div.className="msg-line";
+      }
+
+      div.innerHTML=`<span class="nick">&lt;${m.nick}&gt;</span> ${msg}`;
     }
 
     box.appendChild(div);
   });
 
-  if (nearBottom) box.scrollTop = box.scrollHeight;
+  box.scrollTop = box.scrollHeight;
 }
 
-// USERS
-async function who() {
-  const res = await fetch(API,{
-    method:"POST",
-    body:JSON.stringify({action:"who",channel})
-  });
-
-  const data = await res.json();
-  const box = document.getElementById("userList");
-
-  box.innerHTML="";
-
-  data.users.forEach(u=>{
-    const div=document.createElement("div");
-    div.className="user";
-    div.textContent=u;
-    box.appendChild(div);
-  });
-}
-
-// CHANNELS
-async function loadChannels() {
-  const res = await fetch(API,{
-    method:"POST",
-    body:JSON.stringify({action:"channels"})
-  });
-
-  const data = await res.json();
-  const box = document.getElementById("channelList");
-
-  box.innerHTML="";
-
-  data.channels.forEach(ch=>{
-    const div=document.createElement("div");
-    div.className="channel";
-    div.textContent=ch;
-    div.onclick=()=>join(ch);
-    box.appendChild(div);
-  });
-}
-
-// SYSTEM MSG
-function addSystem(msg) {
-  const box = document.getElementById("messages");
-  const div = document.createElement("div");
-  div.className = "system";
-  div.textContent = "*** " + msg;
+// SYSTEM
+function addSystem(msg){
+  const box=document.getElementById("messages");
+  const div=document.createElement("div");
+  div.className="system";
+  div.textContent="*** "+msg;
   box.appendChild(div);
 }
 
