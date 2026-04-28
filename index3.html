@@ -1,280 +1,154 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Stick Brawler FIXED</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GitHub Style Chat Room</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0d1117;
+      color: #c9d1d9;
+      display: flex;
+      height: 100vh;
+    }
 
-<style>
-body {
-    margin: 0;
-    background: #111;
-    color: white;
-    font-family: Arial;
-    text-align: center;
-}
-canvas {
-    background: #222;
-    display: block;
-    margin: auto;
-    border: 2px solid #00bcd4;
-}
-</style>
+    .sidebar {
+      width: 220px;
+      background: #161b22;
+      padding: 10px;
+      border-right: 1px solid #30363d;
+    }
+
+    .sidebar h2 {
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+
+    .room {
+      padding: 8px;
+      margin: 5px 0;
+      background: #21262d;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .chat {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      padding: 10px;
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+    }
+
+    .messages {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+    }
+
+    .msg {
+      margin-bottom: 10px;
+      padding: 8px;
+      background: #21262d;
+      border-radius: 6px;
+    }
+
+    .input-area {
+      display: flex;
+      padding: 10px;
+      border-top: 1px solid #30363d;
+      background: #161b22;
+    }
+
+    input {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      background: #0d1117;
+      color: #c9d1d9;
+      outline: none;
+    }
+
+    button {
+      margin-left: 10px;
+      padding: 10px 15px;
+      border: none;
+      background: #238636;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #2ea043;
+    }
+  </style>
 </head>
 <body>
 
-<h2>Stick Brawler (Fixed Weapons)</h2>
-<p>A/D move | W jump | F attack | E pickup</p>
+  <div class="sidebar">
+    <h2>Rooms</h2>
+    <div class="room" onclick="switchRoom('General')"># General</div>
+    <div class="room" onclick="switchRoom('Dev')"># Dev</div>
+    <div class="room" onclick="switchRoom('Random')"># Random</div>
+  </div>
 
-<canvas id="game" width="900" height="400"></canvas>
+  <div class="chat">
+    <div class="header" id="roomTitle"># General</div>
+    <div class="messages" id="messages"></div>
 
-<script>
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
+    <div class="input-area">
+      <input id="input" placeholder="Type a message..." />
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
 
-let keys = {};
-document.addEventListener("keydown", e => keys[e.key.toLowerCase()] = true);
-document.addEventListener("keyup", e => keys[e.key.toLowerCase()] = false);
+  <script>
+    let currentRoom = "General";
 
-const gravity = 0.6;
-const ground = 300;
-const worldWidth = 3000;
+    const storageKey = () => "chat_" + currentRoom;
 
-let cameraX = 0;
-
-class Player {
-    constructor() {
-        this.x = 100;
-        this.y = ground;
-        this.vy = 0;
-        this.hp = 100;
-        this.maxHP = 100;
-
-        this.weapon = null;
-
-        this.attackCooldown = 0;
-        this.hitFlash = 0;
+    function loadMessages() {
+      const box = document.getElementById("messages");
+      box.innerHTML = "";
+      const data = JSON.parse(localStorage.getItem(storageKey()) || "[]");
+      data.forEach(m => {
+        const div = document.createElement("div");
+        div.className = "msg";
+        div.textContent = m;
+        box.appendChild(div);
+      });
+      box.scrollTop = box.scrollHeight;
     }
 
-    draw() {
-        let dx = this.x - cameraX;
+    function sendMessage() {
+      const input = document.getElementById("input");
+      const text = input.value.trim();
+      if (!text) return;
 
-        ctx.strokeStyle = this.hitFlash ? "red" : "white";
+      const data = JSON.parse(localStorage.getItem(storageKey()) || "[]");
+      data.push("User: " + text);
+      localStorage.setItem(storageKey(), JSON.stringify(data));
 
-        ctx.beginPath();
-        ctx.arc(dx, this.y - 50, 10, 0, Math.PI * 2);
-        ctx.moveTo(dx, this.y - 40);
-        ctx.lineTo(dx, this.y);
-        ctx.stroke();
-
-        // weapon visual
-        if (this.weapon) {
-            ctx.strokeStyle = "cyan";
-            ctx.beginPath();
-            ctx.moveTo(dx + 10, this.y - 30);
-            ctx.lineTo(dx + 40, this.y - 30);
-            ctx.stroke();
-        }
-
-        // HP bar
-        ctx.fillStyle = "red";
-        ctx.fillRect(dx - 25, this.y - 70, 50, 5);
-        ctx.fillStyle = "lime";
-        ctx.fillRect(dx - 25, this.y - 70, 50 * (this.hp / this.maxHP), 5);
+      input.value = "";
+      loadMessages();
     }
 
-    update() {
-        this.vy += gravity;
-        this.y += this.vy;
-
-        if (this.y > ground) {
-            this.y = ground;
-            this.vy = 0;
-        }
-
-        if (this.attackCooldown > 0) this.attackCooldown--;
-        if (this.hitFlash > 0) this.hitFlash--;
+    function switchRoom(room) {
+      currentRoom = room;
+      document.getElementById("roomTitle").textContent = "# " + room;
+      loadMessages();
     }
 
-    attack(enemy, heavy=false) {
-        if (this.attackCooldown > 0) return;
-
-        let range = this.weapon ? 90 : 50;
-        let dmg = this.weapon ? 10 : 3;
-
-        if (heavy) {
-            range += 30;
-            dmg += 5;
-        }
-
-        if (Math.abs(this.x - enemy.x) < range) {
-            enemy.hp -= dmg;
-            enemy.hitFlash = 5;
-        }
-
-        this.attackCooldown = heavy ? 35 : 15;
-    }
-}
-
-class Enemy {
-    constructor(x) {
-        this.x = x;
-        this.y = ground;
-        this.vy = 0;
-        this.hp = 60;
-        this.hitFlash = 0;
-        this.attackCooldown = 0;
-    }
-
-    draw() {
-        let dx = this.x - cameraX;
-
-        ctx.strokeStyle = this.hitFlash ? "red" : "orange";
-        ctx.beginPath();
-        ctx.arc(dx, this.y - 50, 10, 0, Math.PI * 2);
-        ctx.moveTo(dx, this.y - 40);
-        ctx.lineTo(dx, this.y);
-        ctx.stroke();
-    }
-
-    update() {
-        this.vy += gravity;
-        this.y += this.vy;
-
-        if (this.y > ground) {
-            this.y = ground;
-            this.vy = 0;
-        }
-
-        if (this.attackCooldown > 0) this.attackCooldown--;
-        if (this.hitFlash > 0) this.hitFlash--;
-    }
-}
-
-class Pickup {
-    constructor(x, type) {
-        this.x = x;
-        this.y = ground;
-        this.type = type; // "weapon" or "health"
-    }
-
-    draw() {
-        let dx = this.x - cameraX;
-        ctx.fillStyle = this.type === "weapon" ? "cyan" : "lime";
-        ctx.fillRect(dx - 10, this.y - 10, 20, 20);
-    }
-}
-
-// GAME STATE
-const player = new Player();
-let enemies = [];
-let pickups = [];
-
-let attackHold = false;
-let holdFrames = 0;
-
-// spawn enemies + weapons
-function spawnWave(x) {
-    enemies.push(new Enemy(x));
-    enemies.push(new Enemy(x + 80));
-
-    pickups.push(new Pickup(x + 40, "weapon"));
-    pickups.push(new Pickup(x + 120, "health"));
-}
-
-spawnWave(500);
-
-// INPUT FIX (IMPORTANT)
-document.addEventListener("keydown", e => {
-    if (e.key.toLowerCase() === "f") {
-        attackHold = true;
-    }
-});
-
-document.addEventListener("keyup", e => {
-    if (e.key.toLowerCase() === "f") {
-        let heavy = holdFrames > 20;
-
-        enemies.forEach(e => {
-            if (e.hp > 0) player.attack(e, heavy);
-        });
-
-        holdFrames = 0;
-        attackHold = false;
-    }
-});
-
-function update() {
-    // movement
-    if (keys["a"]) player.x -= 4;
-    if (keys["d"]) player.x += 4;
-
-    if (keys["w"] && player.y === ground) {
-        player.vy = -12;
-    }
-
-    // pickup (E)
-    if (keys["e"]) {
-        pickups.forEach((p, i) => {
-            if (Math.abs(player.x - p.x) < 40) {
-                if (p.type === "weapon") {
-                    player.weapon = true;
-                }
-                if (p.type === "health") {
-                    player.hp = Math.min(player.maxHP, player.hp + 25);
-                }
-                pickups.splice(i, 1);
-            }
-        });
-    }
-
-    // hold attack tracking
-    if (attackHold) holdFrames++;
-
-    // enemies AI
-    enemies.forEach(e => {
-        if (e.hp <= 0) return;
-
-        if (e.x > player.x) e.x -= 2;
-        else e.x += 2;
-
-        if (Math.abs(e.x - player.x) < 50 && e.attackCooldown === 0) {
-            player.hp -= 2;
-            player.hitFlash = 5;
-            e.attackCooldown = 30;
-        }
-
-        e.update();
-    });
-
-    player.update();
-
-    // camera follow
-    cameraX = Math.max(0, player.x - 450);
-}
-
-function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // ground
-    ctx.fillStyle = "#444";
-    ctx.fillRect(-cameraX, ground + 20, worldWidth, 5);
-
-    player.draw();
-    enemies.forEach(e => e.hp > 0 && e.draw());
-    pickups.forEach(p => p.draw());
-
-    ctx.fillStyle = "white";
-    ctx.fillText("HP: " + player.hp, 20, 20);
-}
-
-function loop() {
-    update();
-    draw();
-    requestAnimationFrame(loop);
-}
-
-loop();
-</script>
+    loadMessages();
+  </script>
 
 </body>
 </html>
