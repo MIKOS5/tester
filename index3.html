@@ -2,180 +2,133 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
 <title>Sheets IRC Network</title>
 
 <style>
-  body {
-    margin: 0;
-    background: #000;
-    color: #00ff99;
-    font-family: monospace;
-    height: 100vh;
-    display: flex;
-    overflow: hidden;
-  }
+body {
+  margin:0;
+  background:#000;
+  color:#00ff99;
+  font-family:monospace;
+  height:100vh;
+  display:flex;
+  overflow:hidden;
+}
 
-  /* LOGIN */
-  #login {
-    position: fixed;
-    inset: 0;
-    background: #000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-  }
+/* LOGIN */
+#login {
+  position:fixed;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  background:black;
+}
 
-  #login input, #login button {
-    padding: 12px;
-    width: 220px;
-    margin-top: 10px;
-    background: black;
-    border: 1px solid #00ff99;
-    color: #00ff99;
-    font-size: 16px;
-  }
+#login input, #login button {
+  padding:12px;
+  margin-top:10px;
+  width:220px;
+  background:black;
+  border:1px solid #00ff99;
+  color:#00ff99;
+  font-size:16px;
+}
 
-  /* APP */
-  #app {
-    display: none;
-    width: 100%;
-    height: 100%;
-  }
+/* APP */
+#app { display:none; width:100%; height:100%; }
 
-  /* SIDEBAR */
+/* SIDEBAR */
+#sidebar {
+  width:220px;
+  border-right:1px solid #00ff99;
+  padding:10px;
+  overflow-y:auto;
+}
+
+.channel { color:#ffcc00; cursor:pointer; padding:5px 0; }
+.user { padding:4px 0; }
+
+h3 { margin:10px 0; font-size:13px; }
+
+/* CHAT */
+#chat {
+  flex:1;
+  display:flex;
+  flex-direction:column;
+}
+
+#header {
+  padding:10px;
+  border-bottom:1px solid #00ff99;
+  display:flex;
+  justify-content:space-between;
+}
+
+#menuBtn { display:none; cursor:pointer; }
+
+#messages {
+  flex:1;
+  overflow-y:auto;
+  padding:10px;
+}
+
+#inputBar {
+  display:flex;
+  border-top:1px solid #00ff99;
+}
+
+#msg {
+  flex:1;
+  padding:12px;
+  background:black;
+  border:none;
+  color:#00ff99;
+  font-size:16px;
+}
+
+button.send {
+  padding:12px;
+  background:black;
+  border-left:1px solid #00ff99;
+  color:#00ff99;
+}
+
+/* MESSAGE */
+.system { color:#888; }
+.me { color:#ffcc00; }
+.msg-line { color:#ddd; }
+.nick { color:#00ff99; }
+
+/* MOBILE */
+@media (max-width:700px) {
   #sidebar {
-    width: 220px;
-    border-right: 1px solid #00ff99;
-    padding: 10px;
-    overflow-y: auto;
+    position:absolute;
+    left:0;
+    top:0;
+    height:100%;
+    background:black;
+    transform:translateX(-100%);
+    transition:.3s;
+    z-index:10;
   }
 
-  .hidden {
-    display: none;
-  }
-
-  h3 {
-    margin: 10px 0;
-    font-size: 13px;
-  }
-
-  .user, .channel {
-    padding: 5px 0;
-    font-size: 14px;
-  }
-
-  .channel {
-    color: #ffcc00;
-    cursor: pointer;
-  }
-
-  /* CHAT */
-  #chat {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-
-  #header {
-    padding: 10px;
-    border-bottom: 1px solid #00ff99;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  #menuBtn {
-    display: none;
-    cursor: pointer;
-  }
-
-  #messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 10px;
-  }
-
-  #inputBar {
-    display: flex;
-    border-top: 1px solid #00ff99;
-  }
-
-  #msg {
-    flex: 1;
-    padding: 12px;
-    background: black;
-    border: none;
-    color: #00ff99;
-    font-size: 16px;
-  }
-
-  button.send {
-    padding: 12px;
-    background: black;
-    border-left: 1px solid #00ff99;
-    color: #00ff99;
-    font-size: 16px;
-  }
-
-  .system { color: #888; }
-  .me { color: #ffcc00; }
-  .msg-line { color: #ddd; }
-
-  .nick { color: #00ff99; }
-
-  #hint {
-    font-size: 11px;
-    color: #555;
-    padding: 5px;
-  }
-
-  /* 📱 MOBILE MODE */
-  @media (max-width: 700px) {
-
-    #sidebar {
-      position: absolute;
-      left: 0;
-      top: 0;
-      height: 100%;
-      background: black;
-      z-index: 10;
-      transform: translateX(-100%);
-      transition: transform 0.3s;
-    }
-
-    #sidebar.open {
-      transform: translateX(0);
-    }
-
-    #menuBtn {
-      display: block;
-      font-size: 18px;
-    }
-
-    #header {
-      font-size: 14px;
-    }
-
-    #messages {
-      font-size: 14px;
-    }
-  }
-
+  #sidebar.open { transform:translateX(0); }
+  #menuBtn { display:block; }
+}
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
 <div id="login">
   <div>Enter Nickname</div>
-  <input id="nick" placeholder="nick"/>
+  <input id="nick"/>
   <button onclick="enter()">Enter IRC</button>
 </div>
 
-<!-- APP -->
 <div id="app">
 
   <div id="sidebar">
@@ -187,6 +140,7 @@
   </div>
 
   <div id="chat">
+
     <div id="header">
       <span id="menuBtn" onclick="toggleMenu()">☰</span>
       <span id="channelName">#general</span>
@@ -194,12 +148,11 @@
 
     <div id="messages"></div>
 
-    <div id="hint">/nick /join /create /op /kick /ban</div>
-
     <div id="inputBar">
-      <input id="msg" placeholder="message..." onkeydown="if(event.key==='Enter') send()"/>
+      <input id="msg" placeholder="type /help..." onkeydown="if(event.key==='Enter') send()"/>
       <button class="send" onclick="send()">Send</button>
     </div>
+
   </div>
 
 </div>
@@ -216,18 +169,42 @@ async function enter() {
   nick = document.getElementById("nick").value.trim();
   if (!nick) return;
 
-  document.getElementById("login").style.display = "none";
-  document.getElementById("app").style.display = "flex";
+  const res = await fetch(API, {
+    method:"POST",
+    body:JSON.stringify({
+      action:"join",
+      nick,
+      channel
+    })
+  });
 
-  await join(channel);
+  const data = await res.json();
 
+  if (data.error === "nick_in_use") {
+    alert("Nick already in use");
+    return;
+  }
+
+  if (data.error === "banned") {
+    alert("You are banned from this channel");
+    return;
+  }
+
+  document.getElementById("login").style.display="none";
+  document.getElementById("app").style.display="flex";
+
+  loop();
+}
+
+// LOOP
+function loop() {
   load();
   who();
   loadChannels();
 
-  setInterval(load, 2000);
-  setInterval(who, 4000);
-  setInterval(loadChannels, 5000);
+  setInterval(load,2000);
+  setInterval(who,4000);
+  setInterval(loadChannels,5000);
 }
 
 // MENU
@@ -237,114 +214,244 @@ function toggleMenu() {
 
 // JOIN
 async function join(ch) {
-  channel = ch;
-  document.getElementById("channelName").textContent = ch;
-
-  await fetch(API, {
-    method: "POST",
-    body: JSON.stringify({
-      action: "join",
+  const res = await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"join",
       nick,
-      channel
+      channel:ch
     })
   });
 
+  const data = await res.json();
+
+  if (data.error === "banned") {
+    addSystem("You are banned from "+ch);
+    return;
+  }
+
+  if (data.error === "nick_in_use") {
+    addSystem("Nick already in use");
+    return;
+  }
+
+  channel = ch;
+  document.getElementById("channelName").textContent = ch;
+
   document.getElementById("sidebar").classList.remove("open");
+
+  load();
 }
 
-// SEND (same commands as before)
+// SEND COMMANDS
 async function send() {
   const input = document.getElementById("msg");
   const text = input.value.trim();
   if (!text) return;
 
-  await fetch(API, {
-    method: "POST",
-    body: JSON.stringify({
-      action: "send",
+  // HELP
+  if (text === "/help") {
+    addSystem("Commands: /nick /join /create /part /op /kick /ban /me /channels");
+    input.value="";
+    return;
+  }
+
+  // NICK
+  if (text.startsWith("/nick ")) {
+    nick = text.split(" ")[1];
+    addSystem("Nick changed to "+nick);
+    input.value="";
+    return;
+  }
+
+  // JOIN
+  if (text.startsWith("/join ")) {
+    await join(text.split(" ")[1]);
+    input.value="";
+    return;
+  }
+
+  // CREATE
+  if (text.startsWith("/create ")) {
+    const ch = text.split(" ")[1];
+
+    await fetch(API,{
+      method:"POST",
+      body:JSON.stringify({action:"create",channel:ch})
+    });
+
+    await join(ch);
+    input.value="";
+    return;
+  }
+
+  // OP
+  if (text.startsWith("/op ")) {
+    await fetch(API,{
+      method:"POST",
+      body:JSON.stringify({
+        action:"op",
+        nick,
+        channel,
+        target:text.split(" ")[1]
+      })
+    });
+    input.value="";
+    return;
+  }
+
+  // KICK
+  if (text.startsWith("/kick ")) {
+    await fetch(API,{
+      method:"POST",
+      body:JSON.stringify({
+        action:"kick",
+        nick,
+        channel,
+        target:text.split(" ")[1]
+      })
+    });
+    input.value="";
+    return;
+  }
+
+  // BAN
+  if (text.startsWith("/ban ")) {
+    await fetch(API,{
+      method:"POST",
+      body:JSON.stringify({
+        action:"ban",
+        nick,
+        channel,
+        target:text.split(" ")[1]
+      })
+    });
+    input.value="";
+    return;
+  }
+
+  // ME
+  if (text.startsWith("/me ")) {
+    await fetch(API,{
+      method:"POST",
+      body:JSON.stringify({
+        action:"me",
+        nick,
+        channel,
+        message:text.substring(4)
+      })
+    });
+    input.value="";
+    load();
+    return;
+  }
+
+  // CHANNELS
+  if (text === "/channels") {
+    loadChannels();
+    input.value="";
+    return;
+  }
+
+  // NORMAL
+  await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"send",
       nick,
       channel,
-      message: text
+      message:text
     })
   });
 
-  input.value = "";
+  input.value="";
   load();
 }
 
 // LOAD
 async function load() {
-  const res = await fetch(API, {
-    method: "POST",
-    body: JSON.stringify({ action: "get", channel })
+  const res = await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({action:"get",channel})
   });
 
   const data = await res.json();
-
   const box = document.getElementById("messages");
-  box.innerHTML = "";
 
-  data.messages.forEach(m => {
+  const nearBottom = box.scrollTop + box.clientHeight >= box.scrollHeight - 50;
+
+  box.innerHTML="";
+
+  data.messages.forEach(m=>{
     const div = document.createElement("div");
 
-    if (m.type === "system") {
-      div.className = "system";
-      div.textContent = "*** " + m.msg;
+    if (m.type==="system") {
+      div.className="system";
+      div.textContent="*** "+m.msg;
     }
-    else if (m.type === "me") {
-      div.className = "me";
-      div.textContent = "* " + m.nick + " " + m.msg;
+    else if (m.type==="me") {
+      div.className="me";
+      div.textContent="* "+m.nick+" "+m.msg;
     }
     else {
-      div.className = "msg-line";
-      div.innerHTML = `<span class="nick">&lt;${m.nick}&gt;</span> ${m.msg}`;
+      div.className="msg-line";
+      div.innerHTML=`<span class="nick">&lt;${m.nick}&gt;</span> ${m.msg}`;
     }
 
     box.appendChild(div);
   });
 
-  box.scrollTop = box.scrollHeight;
+  if (nearBottom) box.scrollTop = box.scrollHeight;
 }
 
 // USERS
 async function who() {
-  const res = await fetch(API, {
-    method: "POST",
-    body: JSON.stringify({ action: "who", channel })
+  const res = await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({action:"who",channel})
   });
 
   const data = await res.json();
-
   const box = document.getElementById("userList");
-  box.innerHTML = "";
 
-  data.users.forEach(u => {
-    const div = document.createElement("div");
-    div.className = "user";
-    div.textContent = u;
+  box.innerHTML="";
+
+  data.users.forEach(u=>{
+    const div=document.createElement("div");
+    div.className="user";
+    div.textContent=u;
     box.appendChild(div);
   });
 }
 
 // CHANNELS
 async function loadChannels() {
-  const res = await fetch(API, {
-    method: "POST",
-    body: JSON.stringify({ action: "channels" })
+  const res = await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({action:"channels"})
   });
 
   const data = await res.json();
-
   const box = document.getElementById("channelList");
-  box.innerHTML = "";
 
-  data.channels.forEach(ch => {
-    const div = document.createElement("div");
-    div.className = "channel";
-    div.textContent = ch;
-    div.onclick = () => join(ch);
+  box.innerHTML="";
+
+  data.channels.forEach(ch=>{
+    const div=document.createElement("div");
+    div.className="channel";
+    div.textContent=ch;
+    div.onclick=()=>join(ch);
     box.appendChild(div);
   });
+}
+
+// SYSTEM MSG
+function addSystem(msg) {
+  const box = document.getElementById("messages");
+  const div = document.createElement("div");
+  div.className = "system";
+  div.textContent = "*** " + msg;
+  box.appendChild(div);
 }
 
 </script>
