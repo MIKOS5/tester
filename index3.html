@@ -3,28 +3,53 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Stick Brawler Weapons</title>
+<title>Stick Brawler: Fighters</title>
 
 <style>
 body {
     margin: 0;
     background: #111;
     color: white;
-    text-align: center;
     font-family: Arial;
+    text-align: center;
 }
+
 canvas {
     background: #222;
     display: block;
     margin: auto;
     border: 2px solid #00bcd4;
 }
+
+#menu {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+button {
+    padding: 10px 20px;
+    margin: 10px;
+    font-size: 18px;
+    cursor: pointer;
+}
 </style>
 </head>
 <body>
 
-<h2>Stick Brawler</h2>
-<p>A/D Move | W Jump | F Attack | E Pick Up</p>
+<!-- CHARACTER SELECT -->
+<div id="menu">
+    <h1>Choose Fighter</h1>
+    <button onclick="startGame('speed')">⚡ Speed Fighter</button>
+    <button onclick="startGame('tank')">🛡 Tank Fighter</button>
+    <button onclick="startGame('balanced')">⚖ Balanced Fighter</button>
+</div>
 
 <canvas id="game" width="900" height="400"></canvas>
 
@@ -41,44 +66,105 @@ const ground = 300;
 const worldWidth = 3000;
 
 let cameraX = 0;
+let gameStarted = false;
 
-class Fighter {
-    constructor(x, color) {
+let player, enemies = [], pickups = [];
+
+let attackHold = 0;
+let nextWaveX = 600;
+
+// -------- CHARACTER BUILDS --------
+function createPlayer(type) {
+    let stats = {
+        speed: { hp: 80, speed: 6, dmg: 2, dash: true },
+        tank: { hp: 140, speed: 3, dmg: 4, dash: false },
+        balanced: { hp: 100, speed: 4, dmg: 3, dash: true }
+    };
+
+    let s = stats[type];
+
+    return {
+        x: 100,
+        y: ground,
+        vy: 0,
+        hp: s.hp,
+        speed: s.speed,
+        dmg: s.dmg,
+        dash: s.dash,
+        dashCooldown: 0,
+        weapon: null,
+        attackCooldown: 0,
+        hitFlash: 0,
+        draw() {
+            let dx = this.x - cameraX;
+
+            ctx.strokeStyle = this.hitFlash ? "red" : "white";
+
+            ctx.beginPath();
+            ctx.arc(dx, this.y - 50, 10, 0, Math.PI*2);
+            ctx.moveTo(dx, this.y - 40);
+            ctx.lineTo(dx, this.y);
+            ctx.stroke();
+
+            ctx.fillStyle = "red";
+            ctx.fillRect(dx - 25, this.y - 70, 50, 5);
+            ctx.fillStyle = "lime";
+            ctx.fillRect(dx - 25, this.y - 70, 50 * (this.hp/this.maxHP), 5);
+        },
+        update() {
+            this.vy += gravity;
+            this.y += this.vy;
+
+            if (this.y > ground) {
+                this.y = ground;
+                this.vy = 0;
+            }
+
+            if (this.attackCooldown > 0) this.attackCooldown--;
+            if (this.dashCooldown > 0) this.dashCooldown--;
+            if (this.hitFlash > 0) this.hitFlash--;
+        },
+        attack(target, heavy=false) {
+            if (this.attackCooldown > 0) return;
+
+            let range = heavy ? 80 : 50;
+            let dmg = this.dmg + (heavy ? 5 : 0);
+
+            if (this.weapon) {
+                range += 30;
+                dmg += 5;
+            }
+
+            if (Math.abs(this.x - target.x) < range) {
+                target.hp -= dmg;
+                target.hitFlash = 5;
+            }
+
+            this.attackCooldown = heavy ? 40 : 15;
+        }
+    };
+}
+
+// -------- ENEMY --------
+class Enemy {
+    constructor(x) {
         this.x = x;
         this.y = ground;
         this.vy = 0;
-        this.hp = 100;
-        this.color = color;
+        this.hp = 60;
         this.attackCooldown = 0;
         this.hitFlash = 0;
-        this.weapon = null;
     }
 
     draw() {
         let dx = this.x - cameraX;
-        ctx.strokeStyle = this.hitFlash ? "red" : this.color;
 
-        // stick
+        ctx.strokeStyle = this.hitFlash ? "red" : "orange";
         ctx.beginPath();
         ctx.arc(dx, this.y - 50, 10, 0, Math.PI*2);
         ctx.moveTo(dx, this.y - 40);
         ctx.lineTo(dx, this.y);
         ctx.stroke();
-
-        // weapon
-        if (this.weapon) {
-            ctx.strokeStyle = "cyan";
-            ctx.beginPath();
-            ctx.moveTo(dx, this.y - 30);
-            ctx.lineTo(dx + 20, this.y - 30);
-            ctx.stroke();
-        }
-
-        // HP bar
-        ctx.fillStyle = "red";
-        ctx.fillRect(dx - 25, this.y - 70, 50, 5);
-        ctx.fillStyle = "lime";
-        ctx.fillRect(dx - 25, this.y - 70, 50 * (this.hp/100), 5);
     }
 
     update() {
@@ -93,100 +179,65 @@ class Fighter {
         if (this.attackCooldown > 0) this.attackCooldown--;
         if (this.hitFlash > 0) this.hitFlash--;
     }
-
-    attack(target, heavy=false) {
-        if (this.attackCooldown > 0) return;
-
-        let range = this.weapon ? 90 : (heavy ? 80 : 50);
-        let damage = this.weapon ? 12 : (heavy ? 10 : 3);
-
-        if (Math.abs(this.x - target.x) < range) {
-            target.hp -= damage;
-            target.hitFlash = 5;
-        }
-
-        this.attackCooldown = heavy ? 40 : 15;
-    }
 }
 
-class Pickup {
-    constructor(x, type) {
-        this.x = x;
-        this.y = ground;
-        this.type = type;
-    }
+// -------- GAME START --------
+function startGame(type) {
+    document.getElementById("menu").style.display = "none";
 
-    draw() {
-        let dx = this.x - cameraX;
-        ctx.fillStyle = this.type === "health" ? "lime" : "cyan";
-        ctx.fillRect(dx - 10, this.y - 10, 20, 20);
-    }
+    player = createPlayer(type);
+    player.maxHP = player.hp;
+
+    enemies = [];
+    pickups = [];
+
+    spawnWave(600);
+
+    gameStarted = true;
+    loop();
 }
 
-const player = new Fighter(100, "white");
-let enemies = [];
-let pickups = [];
-
-let attackHold = 0;
-let nextWaveX = 600;
-
+// -------- WAVES --------
 function spawnWave(x) {
     for (let i = 0; i < 3; i++) {
-        enemies.push(new Fighter(x + i*60, ["orange","yellow","red"][i%3]));
+        enemies.push(new Enemy(x + i * 70));
     }
 }
 
-function update() {
-    // movement
-    if (keys["a"]) player.x -= 4;
-    if (keys["d"]) player.x += 4;
+// -------- INPUT --------
+function handleInput() {
+    if (!gameStarted) return;
 
-    player.x = Math.max(0, Math.min(worldWidth, player.x));
+    // move
+    if (keys["a"]) player.x -= player.speed;
+    if (keys["d"]) player.x += player.speed;
 
-    if (keys["w"] && player.y === ground) player.vy = -12;
+    // jump
+    if (keys["w"] && player.y === ground) {
+        player.vy = -12;
+    }
+
+    // DASH (special)
+    if (player.dash && keys["shift"] && player.dashCooldown === 0) {
+        player.x += 80;
+        player.dashCooldown = 60;
+    }
 
     // attack
     if (keys["f"]) attackHold++;
     else if (attackHold > 0) {
         let heavy = attackHold > 20;
-        enemies.forEach(e => e.hp > 0 && player.attack(e, heavy));
+
+        enemies.forEach(e => {
+            if (e.hp > 0) player.attack(e, heavy);
+        });
+
         attackHold = 0;
     }
 
-    // pickup (E)
-    if (keys["e"]) {
-        pickups.forEach((p, i) => {
-            if (Math.abs(player.x - p.x) < 40) {
-                if (p.type === "health") {
-                    player.hp = Math.min(100, player.hp + 25);
-                } else {
-                    player.weapon = p.type;
-                }
-                pickups.splice(i,1);
-            }
-        });
-    }
-
-    // camera
-    cameraX = Math.max(0, Math.min(worldWidth - canvas.width, player.x - 450));
-
-    // spawn waves
-    if (player.x > nextWaveX) {
-        spawnWave(nextWaveX + 200);
-        nextWaveX += 500;
-    }
-
-    // enemy AI + drops
+    // enemy AI
     enemies.forEach(e => {
-        if (e.hp <= 0) {
-            if (!e.dropped) {
-                if (Math.random() < 0.5) {
-                    pickups.push(new Pickup(e.x, Math.random() < 0.5 ? "health" : "bat"));
-                }
-                e.dropped = true;
-            }
-            return;
-        }
+        if (e.hp <= 0) return;
 
         if (e.x > player.x) e.x -= 2;
         else e.x += 2;
@@ -201,8 +252,18 @@ function update() {
     });
 
     player.update();
+
+    // camera
+    cameraX = Math.max(0, Math.min(worldWidth - canvas.width, player.x - 450));
+
+    // wave spawn
+    if (player.x > nextWaveX) {
+        spawnWave(nextWaveX + 200);
+        nextWaveX += 600;
+    }
 }
 
+// -------- DRAW --------
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -210,33 +271,31 @@ function draw() {
     ctx.fillStyle = "#444";
     ctx.fillRect(-cameraX, ground + 20, worldWidth, 5);
 
-    player.draw();
-
+    if (player) player.draw();
     enemies.forEach(e => e.hp > 0 && e.draw());
-    pickups.forEach(p => p.draw());
 
-    ctx.fillStyle = "white";
-    ctx.fillText("HP: " + Math.floor(player.hp), 20, 20);
+    if (gameStarted) {
+        ctx.fillStyle = "white";
+        ctx.fillText("HP: " + Math.floor(player.hp), 20, 20);
+    }
 
-    if (player.hp <= 0) endGame("You Lose");
-    if (player.x >= worldWidth - 50) endGame("Level Cleared");
+    if (player && player.hp <= 0) {
+        ctx.fillStyle = "white";
+        ctx.font = "40px Arial";
+        ctx.fillText("You Lose", 350, 200);
+        gameStarted = false;
+    }
 }
 
-function endGame(text) {
-    ctx.fillStyle = "white";
-    ctx.font = "40px Arial";
-    ctx.fillText(text, 300, 200);
-    cancelAnimationFrame(loop);
-}
+// -------- LOOP --------
+function loop() {
+    if (!gameStarted) return;
 
-let loop;
-function gameLoop() {
-    update();
+    handleInput();
     draw();
-    loop = requestAnimationFrame(gameLoop);
-}
 
-gameLoop();
+    requestAnimationFrame(loop);
+}
 </script>
 
 </body>
