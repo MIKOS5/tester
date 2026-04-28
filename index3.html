@@ -1,36 +1,32 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>IRC Chat</title>
+  <title>Simple IRC Chat</title>
   <style>
     body {
       margin:0;
       background:black;
       color:#00ff99;
       font-family: monospace;
-      display:flex;
-      height:100vh;
     }
 
     #login {
-      position:absolute;
+      position:fixed;
       inset:0;
       display:flex;
       flex-direction:column;
-      align-items:center;
       justify-content:center;
-      background:black;
+      align-items:center;
     }
 
     #chat {
       display:none;
-      width:100%;
+      padding:10px;
     }
 
     #messages {
-      height:90vh;
+      height:85vh;
       overflow-y:auto;
-      padding:10px;
     }
 
     input {
@@ -45,38 +41,24 @@
 <body>
 
 <div id="login">
-  <input id="nickInput" placeholder="Enter nick">
-  <button onclick="enterIRC()">Enter IRC</button>
+  <input id="nick" placeholder="nickname">
+  <button onclick="enter()">Enter Chat</button>
 </div>
 
 <div id="chat">
   <div id="messages"></div>
-  <input id="msgInput" placeholder="message..." onkeydown="if(event.key==='Enter')send()">
+  <input id="msg" placeholder="message..." onkeydown="if(event.key==='Enter')send()">
 </div>
 
 <script>
-const API = "https://script.google.com/macros/s/AKfycbyFyUXbYcM4I3QHRuuV5Um060U5iGeKWO-fWsDrweI-JHvenfvu0wQqG90zK-G9to69/exec";
+const API = "https://script.google.com/macros/s/AKfycbyGqdSRP9n1O8Mr53B65hkl2P103xSAdVmKsqKf7MbZvg1KzB_3Z2VoFTTPPoI-vWSY/exec";
 
 let nick = "";
-let channel = "#general";
 
-async function enterIRC() {
-  const n = document.getElementById("nickInput").value;
+async function enter() {
+  nick = document.getElementById("nick").value.trim();
+  if (!nick) return;
 
-  const res = await fetch(API, {
-    method:"POST",
-    body: JSON.stringify({ action:"checkNick", nick:n })
-  });
-
-  const data = await res.json();
-  if (data.exists) return alert("Nick taken");
-
-  await fetch(API, {
-    method:"POST",
-    body: JSON.stringify({ action:"register", nick:n })
-  });
-
-  nick = n;
   document.getElementById("login").style.display="none";
   document.getElementById("chat").style.display="block";
 
@@ -85,19 +67,18 @@ async function enterIRC() {
 }
 
 async function send() {
-  const input = document.getElementById("msgInput");
+  const msg = document.getElementById("msg");
 
   await fetch(API, {
     method:"POST",
     body: JSON.stringify({
       action:"send",
       nick,
-      channel,
-      message: input.value
+      message: msg.value
     })
   });
 
-  input.value="";
+  msg.value="";
   load();
 }
 
@@ -105,15 +86,14 @@ async function load() {
   const res = await fetch(API, {
     method:"POST",
     body: JSON.stringify({
-      action:"get",
-      channel
+      action:"get"
     })
   });
 
   const data = await res.json();
 
   const box = document.getElementById("messages");
-  box.innerHTML="";
+  box.innerHTML = "";
 
   data.messages.forEach(m=>{
     const d = document.createElement("div");
