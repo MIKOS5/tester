@@ -62,15 +62,11 @@
   }
 
   h3 {
-    margin: 10px 0;
     font-size: 13px;
-    color: #00ff99;
+    margin: 10px 0;
   }
 
-  .user {
-    color: #00ff99;
-    padding: 2px 0;
-  }
+  .user { color: #00ff99; padding: 2px 0; }
 
   .channel {
     color: #ffcc00;
@@ -92,7 +88,6 @@
   #header {
     padding: 8px 10px;
     border-bottom: 1px solid #00ff99;
-    background: #000;
   }
 
   #messages {
@@ -124,7 +119,7 @@
     cursor: pointer;
   }
 
-  /* MESSAGE TYPES */
+  /* MESSAGE */
   .system { color: #888; }
   .me { color: #ffcc00; }
   .msg-line { color: #ddd; }
@@ -168,7 +163,9 @@
 
     <div id="messages"></div>
 
-    <div id="hint">/nick /join /create /me /part /channels /help</div>
+    <div id="hint">
+      /nick /join /create /part /op /kick /ban /me /channels /help
+    </div>
 
     <div id="inputBar">
       <input id="msg" placeholder="type message..." onkeydown="if(event.key==='Enter') send()"/>
@@ -187,7 +184,7 @@ let nick = "";
 let channel = "#general";
 
 // =========================
-// ENTER IRC
+// ENTER
 // =========================
 async function enter() {
   nick = document.getElementById("nick").value.trim();
@@ -208,7 +205,7 @@ async function enter() {
 }
 
 // =========================
-// JOIN CHANNEL
+// JOIN
 // =========================
 async function join(ch) {
   channel = ch;
@@ -225,7 +222,7 @@ async function join(ch) {
 }
 
 // =========================
-// SEND + COMMANDS
+// SEND ROUTER
 // =========================
 async function send() {
   const input = document.getElementById("msg");
@@ -234,19 +231,19 @@ async function send() {
 
   // HELP
   if (text === "/help") {
-    addSystem("Commands: /nick /join /create /me /part /channels");
+    addSystem("Commands: /nick /join /create /part /op /kick /ban /me /channels");
     input.value = "";
     return;
   }
 
-  // CHANNEL LIST REFRESH
+  // CHANNEL LIST
   if (text === "/channels") {
     loadChannels();
     input.value = "";
     return;
   }
 
-  // CREATE CHANNEL
+  // CREATE
   if (text.startsWith("/create ")) {
     const ch = text.split(" ")[1];
 
@@ -270,14 +267,6 @@ async function send() {
     return;
   }
 
-  // NICK
-  if (text.startsWith("/nick ")) {
-    nick = text.split(" ")[1];
-    addSystem("Nick changed to " + nick);
-    input.value = "";
-    return;
-  }
-
   // PART
   if (text === "/part") {
     await fetch(API, {
@@ -286,6 +275,59 @@ async function send() {
         action: "part",
         nick,
         channel
+      })
+    });
+
+    input.value = "";
+    return;
+  }
+
+  // OP
+  if (text.startsWith("/op ")) {
+    const target = text.split(" ")[1];
+
+    await fetch(API, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "op",
+        channel,
+        target
+      })
+    });
+
+    input.value = "";
+    return;
+  }
+
+  // KICK
+  if (text.startsWith("/kick ")) {
+    const target = text.split(" ")[1];
+
+    await fetch(API, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "kick",
+        nick,
+        channel,
+        target
+      })
+    });
+
+    input.value = "";
+    return;
+  }
+
+  // BAN
+  if (text.startsWith("/ban ")) {
+    const target = text.split(" ")[1];
+
+    await fetch(API, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "ban",
+        nick,
+        channel,
+        target
       })
     });
 
@@ -307,6 +349,14 @@ async function send() {
 
     input.value = "";
     load();
+    return;
+  }
+
+  // NICK
+  if (text.startsWith("/nick ")) {
+    nick = text.split(" ")[1];
+    addSystem("Nick changed to " + nick);
+    input.value = "";
     return;
   }
 
@@ -340,7 +390,7 @@ async function load() {
   const data = await res.json();
 
   const box = document.getElementById("messages");
-  const nearBottom = box.scrollTop + box.clientHeight >= box.scrollHeight - 40;
+  const nearBottom = box.scrollTop + box.clientHeight >= box.scrollHeight - 50;
 
   box.innerHTML = "";
 
@@ -419,7 +469,7 @@ async function loadChannels() {
 }
 
 // =========================
-// SYSTEM MESSAGE
+// SYSTEM MSG
 // =========================
 function addSystem(msg) {
   const box = document.getElementById("messages");
