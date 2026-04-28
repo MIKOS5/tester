@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>xSheets IRC Network</title>
+<title>Sheets IRC Network</title>
 
 <style>
   body {
@@ -20,7 +20,7 @@
   #login {
     position: fixed;
     inset: 0;
-    background: black;
+    background: #000;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -29,10 +29,10 @@
 
   #login input {
     padding: 10px;
+    width: 200px;
     background: black;
     border: 1px solid #00ff99;
     color: #00ff99;
-    width: 200px;
     text-align: center;
     outline: none;
   }
@@ -53,9 +53,9 @@
     height: 100%;
   }
 
-  /* LEFT PANEL */
-  #left {
-    width: 180px;
+  /* SIDEBAR */
+  #sidebar {
+    width: 200px;
     border-right: 1px solid #00ff99;
     padding: 10px;
     overflow-y: auto;
@@ -63,16 +63,19 @@
 
   h3 {
     margin: 10px 0;
-    font-size: 14px;
+    font-size: 13px;
+    color: #00ff99;
   }
 
-  .user, .channel {
+  .user {
+    color: #00ff99;
     padding: 2px 0;
-    cursor: pointer;
   }
 
   .channel {
     color: #ffcc00;
+    cursor: pointer;
+    padding: 2px 0;
   }
 
   .channel:hover {
@@ -89,6 +92,7 @@
   #header {
     padding: 8px 10px;
     border-bottom: 1px solid #00ff99;
+    background: #000;
   }
 
   #messages {
@@ -120,7 +124,7 @@
     cursor: pointer;
   }
 
-  /* MESSAGE STYLES */
+  /* MESSAGE TYPES */
   .system { color: #888; }
   .me { color: #ffcc00; }
   .msg-line { color: #ddd; }
@@ -146,8 +150,8 @@
 <!-- APP -->
 <div id="app">
 
-  <!-- LEFT PANEL -->
-  <div id="left">
+  <!-- SIDEBAR -->
+  <div id="sidebar">
 
     <h3>Online</h3>
     <div id="userList"></div>
@@ -164,10 +168,10 @@
 
     <div id="messages"></div>
 
-    <div id="hint">/nick /join /me /channels /help</div>
+    <div id="hint">/nick /join /create /me /part /channels /help</div>
 
     <div id="inputBar">
-      <input id="msg" placeholder="message..." onkeydown="if(event.key==='Enter') send()"/>
+      <input id="msg" placeholder="type message..." onkeydown="if(event.key==='Enter') send()"/>
       <button class="send" onclick="send()">Send</button>
     </div>
 
@@ -182,9 +186,9 @@ const API = "https://script.google.com/macros/s/AKfycbyGqdSRP9n1O8Mr53B65hkl2P10
 let nick = "";
 let channel = "#general";
 
-// --------------------
-// ENTER
-// --------------------
+// =========================
+// ENTER IRC
+// =========================
 async function enter() {
   nick = document.getElementById("nick").value.trim();
   if (!nick) return;
@@ -203,9 +207,9 @@ async function enter() {
   setInterval(loadChannels, 5000);
 }
 
-// --------------------
+// =========================
 // JOIN CHANNEL
-// --------------------
+// =========================
 async function join(ch) {
   channel = ch;
   document.getElementById("header").textContent = ch;
@@ -220,36 +224,76 @@ async function join(ch) {
   });
 }
 
-// --------------------
+// =========================
 // SEND + COMMANDS
-// --------------------
+// =========================
 async function send() {
   const input = document.getElementById("msg");
   const text = input.value.trim();
   if (!text) return;
 
-  // /join
-  if (text.startsWith("/join ")) {
-    await join(text.split(" ")[1]);
+  // HELP
+  if (text === "/help") {
+    addSystem("Commands: /nick /join /create /me /part /channels");
     input.value = "";
     return;
   }
 
-  // /nick
-  if (text.startsWith("/nick ")) {
-    nick = text.split(" ")[1];
-    input.value = "";
-    return;
-  }
-
-  // /channels refresh
+  // CHANNEL LIST REFRESH
   if (text === "/channels") {
     loadChannels();
     input.value = "";
     return;
   }
 
-  // /me
+  // CREATE CHANNEL
+  if (text.startsWith("/create ")) {
+    const ch = text.split(" ")[1];
+
+    await fetch(API, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "create",
+        channel: ch
+      })
+    });
+
+    await join(ch);
+    input.value = "";
+    return;
+  }
+
+  // JOIN
+  if (text.startsWith("/join ")) {
+    await join(text.split(" ")[1]);
+    input.value = "";
+    return;
+  }
+
+  // NICK
+  if (text.startsWith("/nick ")) {
+    nick = text.split(" ")[1];
+    addSystem("Nick changed to " + nick);
+    input.value = "";
+    return;
+  }
+
+  // PART
+  if (text === "/part") {
+    await fetch(API, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "part",
+        nick,
+        channel
+      })
+    });
+
+    input.value = "";
+    return;
+  }
+
+  // ME
   if (text.startsWith("/me ")) {
     await fetch(API, {
       method: "POST",
@@ -266,7 +310,7 @@ async function send() {
     return;
   }
 
-  // normal message
+  // NORMAL MESSAGE
   await fetch(API, {
     method: "POST",
     body: JSON.stringify({
@@ -281,9 +325,9 @@ async function send() {
   load();
 }
 
-// --------------------
+// =========================
 // LOAD MESSAGES
-// --------------------
+// =========================
 async function load() {
   const res = await fetch(API, {
     method: "POST",
@@ -296,6 +340,8 @@ async function load() {
   const data = await res.json();
 
   const box = document.getElementById("messages");
+  const nearBottom = box.scrollTop + box.clientHeight >= box.scrollHeight - 40;
+
   box.innerHTML = "";
 
   data.messages.forEach(m => {
@@ -317,12 +363,12 @@ async function load() {
     box.appendChild(div);
   });
 
-  box.scrollTop = box.scrollHeight;
+  if (nearBottom) box.scrollTop = box.scrollHeight;
 }
 
-// --------------------
+// =========================
 // USERS
-// --------------------
+// =========================
 async function who() {
   const res = await fetch(API, {
     method: "POST",
@@ -345,9 +391,9 @@ async function who() {
   });
 }
 
-// --------------------
-// CHANNEL LIST (LIVE)
-// --------------------
+// =========================
+// CHANNELS
+// =========================
 async function loadChannels() {
   const res = await fetch(API, {
     method: "POST",
@@ -370,6 +416,17 @@ async function loadChannels() {
 
     box.appendChild(div);
   });
+}
+
+// =========================
+// SYSTEM MESSAGE
+// =========================
+function addSystem(msg) {
+  const box = document.getElementById("messages");
+  const div = document.createElement("div");
+  div.className = "system";
+  div.textContent = "*** " + msg;
+  box.appendChild(div);
 }
 
 </script>
