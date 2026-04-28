@@ -1,280 +1,136 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>IRC Style Chat Room (REAL IRC SERVER MODE v2)</title>
-  <style>
-    body {
-      margin: 0;
-      background: #000;
-      color: #00ff99;
-      font-family: "Courier New", monospace;
-      display: flex;
-      height: 100vh;
-    }
-
-    .sidebar {
-      width: 200px;
-      border-right: 1px solid #00ff99;
-      padding: 10px;
-    }
-
-    .channel {
-      padding: 5px;
-      cursor: pointer;
-    }
-
-    .channel:hover {
-      background: #003322;
-    }
-
-    .chat {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .header {
-      padding: 10px;
-      border-bottom: 1px solid #00ff99;
-    }
-
-    .messages {
-      flex: 1;
-      padding: 10px;
-      overflow-y: auto;
-    }
-
-    .msg {
-      margin-bottom: 5px;
-      white-space: pre-wrap;
-    }
-
-    .system {
-      color: #888;
-    }
-
-    .action {
-      color: #00ffff;
-      font-style: italic;
-    }
-
-    .input-bar {
-      display: flex;
-      border-top: 1px solid #00ff99;
-      padding: 10px;
-    }
-
-    input {
-      flex: 1;
-      background: black;
-      color: #00ff99;
-      border: 1px solid #00ff99;
-      padding: 8px;
-      font-family: monospace;
-      outline: none;
-    }
-
-    button {
-      margin-left: 10px;
-      background: black;
-      color: #00ff99;
-      border: 1px solid #00ff99;
-      padding: 8px 12px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #003322;
-    }
-
-    .login {
-      position: absolute;
-      inset: 0;
-      background: black;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-    }
-
-    .login input {
-      margin-top: 10px;
-    }
-  </style>
-</head>
-<body>
-
-<div class="login" id="loginBox">
-  <div>Enter Nickname</div>
-  <input id="nickInput" placeholder="nick" />
-  <button onclick="enterChat()">Enter IRC</button>
-</div>
-
-<div class="sidebar">
-  <div><b>Channels</b></div>
-  <div class="channel" onclick="switchChannel('#general')">#general</div>
-  <div class="channel" onclick="switchChannel('#dev')">#dev</div>
-  <div class="channel" onclick="switchChannel('#random')">#random</div>
-</div>
-
-<div class="chat">
-  <div class="header" id="channelName">#general</div>
-  <div class="messages" id="messages"></div>
-
-  <div class="input-bar">
-    <input id="msgInput" placeholder="Type /help for commands..." />
-    <button onclick="sendMsg()">send</button>
-  </div>
-</div>
-
-<script>
-const API = "https://script.google.com/macros/s/AKfycbzvOsbFEgRoPVwFgwkCkaMVag6mQWs3UCLiuixTgZXDraQzyPUgKn87E6kM8q0hX-wN/exec";
+const API = "YOUR_APPS_SCRIPT_URL";
 
 let nick = "";
 let channel = "#general";
-
-function system(msg) {
-  const box = document.getElementById("messages");
-  const div = document.createElement("div");
-  div.className = "msg system";
-  div.textContent = msg;
-  box.appendChild(div);
-}
-
-function switchChannel(ch) {
-  channel = ch;
-  document.getElementById("channelName").textContent = ch;
-  loadMsgs();
-}
 
 async function enterChat() {
   const n = document.getElementById("nickInput").value.trim();
   if (!n) return;
 
-  const check = await fetch(API, {
+  const res = await fetch(API, {
     method: "POST",
     body: JSON.stringify({ action: "checkNick", nick: n })
   });
 
-  const checkData = await check.json();
+  const data = await res.json();
 
-  if (checkData.exists) {
-    alert("Nickname already taken (server enforced)");
+  if (data.exists) {
+    alert("Nick taken");
     return;
   }
 
   await fetch(API, {
     method: "POST",
-    body: JSON.stringify({ action: "registerNick", nick: n })
+    body: JSON.stringify({ action: "register", nick: n })
   });
 
   nick = n;
   document.getElementById("loginBox").style.display = "none";
 
-  system("Connected as " + nick);
-  loadMsgs();
-  setInterval(loadMsgs, 3000);
+  load();
+  setInterval(load, 2500); // pseudo real-time IRC lag
 }
 
+// =========================
+// IRC COMMANDS
+// =========================
 async function sendMsg() {
   const input = document.getElementById("msgInput");
   const text = input.value.trim();
-  if (!text || !nick) return;
+  if (!text) return;
 
-  // =========================
-  // IRC COMMANDS
-  // =========================
-
+  // /nick
   if (text.startsWith("/nick ")) {
     const newNick = text.split(" ")[1];
 
     const res = await fetch(API, {
       method: "POST",
       body: JSON.stringify({
-        action: "changeNick",
+        action: "nick",
         oldNick: nick,
         newNick
       })
     });
 
     const data = await res.json();
-
-    if (!data.ok) {
-      system("Nick change failed: " + data.error);
-      return;
-    }
+    if (!data.ok) return alert(data.error);
 
     nick = newNick;
-    system("Nick changed to " + nick);
     input.value = "";
     return;
   }
 
+  // /join
   if (text.startsWith("/join ")) {
-    const newChannel = text.split(" ")[1];
-    switchChannel(newChannel);
-    system("Joined " + newChannel);
+    channel = text.split(" ")[1];
+
+    await fetch(API, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "join",
+        nick,
+        channel
+      })
+    });
+
+    input.value = "";
+    load();
+    return;
+  }
+
+  // /who
+  if (text === "/who") {
+    const res = await fetch(API, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "who",
+        channel
+      })
+    });
+
+    const data = await res.json();
+    alert("Users: " + data.users.join(", "));
     input.value = "";
     return;
   }
 
-  if (text.startsWith("/me ")) {
-    await sendToServer("* " + nick + " " + text.replace("/me ", ""));
-    input.value = "";
-    return;
-  }
-
-  if (text === "/help") {
-    system("Commands: /nick /join /me");
-    input.value = "";
-    return;
-  }
-
-  await sendToServer("<" + nick + "> " + text);
-  input.value = "";
-}
-
-async function sendToServer(msg) {
+  // normal message
   await fetch(API, {
     method: "POST",
     body: JSON.stringify({
-      action: "sendMessage",
+      action: "send",
       nick,
       channel,
-      message: msg
+      message: text
     })
   });
 
-  loadMsgs();
+  input.value = "";
+  load();
 }
 
-async function loadMsgs() {
-  const box = document.getElementById("messages");
-
+// =========================
+// LOAD MESSAGES
+// =========================
+async function load() {
   const res = await fetch(API, {
     method: "POST",
-    body: JSON.stringify({ action: "getMessages", channel })
+    body: JSON.stringify({
+      action: "get",
+      channel
+    })
   });
 
   const data = await res.json();
 
+  const box = document.getElementById("messages");
   box.innerHTML = "";
 
   data.messages.forEach(m => {
     const div = document.createElement("div");
-    div.className = "msg";
-
-    if (m.startsWith("* ")) div.classList.add("action");
-
     div.textContent = m;
     box.appendChild(div);
   });
 
   box.scrollTop = box.scrollHeight;
 }
-</script>
-
-</body>
-</html>
