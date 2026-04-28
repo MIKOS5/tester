@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Sheets IRC Network</title>
+<title>xSheets IRC Network</title>
 
 <style>
   body {
@@ -53,21 +53,30 @@
     height: 100%;
   }
 
-  /* USERS */
-  #users {
-    width: 170px;
+  /* LEFT PANEL */
+  #left {
+    width: 180px;
     border-right: 1px solid #00ff99;
     padding: 10px;
     overflow-y: auto;
   }
 
-  #users h3 {
-    margin: 0 0 10px;
+  h3 {
+    margin: 10px 0;
+    font-size: 14px;
   }
 
-  .user {
+  .user, .channel {
     padding: 2px 0;
-    color: #00ff99;
+    cursor: pointer;
+  }
+
+  .channel {
+    color: #ffcc00;
+  }
+
+  .channel:hover {
+    color: #fff;
   }
 
   /* CHAT */
@@ -80,7 +89,6 @@
   #header {
     padding: 8px 10px;
     border-bottom: 1px solid #00ff99;
-    background: #000;
   }
 
   #messages {
@@ -118,7 +126,6 @@
   .msg-line { color: #ddd; }
   .nick { color: #00ff99; }
 
-  /* INPUT HINT */
   #hint {
     font-size: 12px;
     color: #555;
@@ -139,24 +146,31 @@
 <!-- APP -->
 <div id="app">
 
-  <!-- USERS -->
-  <div id="users">
+  <!-- LEFT PANEL -->
+  <div id="left">
+
     <h3>Online</h3>
     <div id="userList"></div>
+
+    <h3>Channels</h3>
+    <div id="channelList"></div>
+
   </div>
 
   <!-- CHAT -->
   <div id="chat">
+
     <div id="header">#general</div>
 
     <div id="messages"></div>
 
-    <div id="hint">Commands: /nick /join /me /help /channels</div>
+    <div id="hint">/nick /join /me /channels /help</div>
 
     <div id="inputBar">
-      <input id="msg" placeholder="type message..." onkeydown="if(event.key==='Enter') send()"/>
+      <input id="msg" placeholder="message..." onkeydown="if(event.key==='Enter') send()"/>
       <button class="send" onclick="send()">Send</button>
     </div>
+
   </div>
 
 </div>
@@ -167,7 +181,6 @@ const API = "https://script.google.com/macros/s/AKfycbyGqdSRP9n1O8Mr53B65hkl2P10
 
 let nick = "";
 let channel = "#general";
-let autoScroll = true;
 
 // --------------------
 // ENTER
@@ -183,9 +196,11 @@ async function enter() {
 
   load();
   who();
+  loadChannels();
 
   setInterval(load, 2000);
   setInterval(who, 4000);
+  setInterval(loadChannels, 5000);
 }
 
 // --------------------
@@ -213,36 +228,28 @@ async function send() {
   const text = input.value.trim();
   if (!text) return;
 
-  // HELP
-  if (text === "/help") {
-    addSystem("Commands: /nick /join /me /channels");
-    input.value = "";
-    return;
-  }
-
-  // CHANNEL LIST (simple UI output)
-  if (text === "/channels") {
-    addSystem("Use /join #channel-name");
-    input.value = "";
-    return;
-  }
-
-  // JOIN
+  // /join
   if (text.startsWith("/join ")) {
     await join(text.split(" ")[1]);
     input.value = "";
     return;
   }
 
-  // NICK
+  // /nick
   if (text.startsWith("/nick ")) {
     nick = text.split(" ")[1];
-    addSystem("You are now " + nick);
     input.value = "";
     return;
   }
 
-  // ME
+  // /channels refresh
+  if (text === "/channels") {
+    loadChannels();
+    input.value = "";
+    return;
+  }
+
+  // /me
   if (text.startsWith("/me ")) {
     await fetch(API, {
       method: "POST",
@@ -259,7 +266,7 @@ async function send() {
     return;
   }
 
-  // NORMAL MESSAGE
+  // normal message
   await fetch(API, {
     method: "POST",
     body: JSON.stringify({
@@ -289,9 +296,6 @@ async function load() {
   const data = await res.json();
 
   const box = document.getElementById("messages");
-
-  const nearBottom = box.scrollTop + box.clientHeight >= box.scrollHeight - 50;
-
   box.innerHTML = "";
 
   data.messages.forEach(m => {
@@ -313,7 +317,7 @@ async function load() {
     box.appendChild(div);
   });
 
-  if (nearBottom) box.scrollTop = box.scrollHeight;
+  box.scrollTop = box.scrollHeight;
 }
 
 // --------------------
@@ -330,26 +334,42 @@ async function who() {
 
   const data = await res.json();
 
-  const list = document.getElementById("userList");
-  list.innerHTML = "";
+  const box = document.getElementById("userList");
+  box.innerHTML = "";
 
   data.users.forEach(u => {
     const div = document.createElement("div");
     div.className = "user";
     div.textContent = u;
-    list.appendChild(div);
+    box.appendChild(div);
   });
 }
 
 // --------------------
-// SYSTEM MESSAGE LOCAL
+// CHANNEL LIST (LIVE)
 // --------------------
-function addSystem(msg) {
-  const box = document.getElementById("messages");
-  const div = document.createElement("div");
-  div.className = "system";
-  div.textContent = "*** " + msg;
-  box.appendChild(div);
+async function loadChannels() {
+  const res = await fetch(API, {
+    method: "POST",
+    body: JSON.stringify({
+      action: "channels"
+    })
+  });
+
+  const data = await res.json();
+
+  const box = document.getElementById("channelList");
+  box.innerHTML = "";
+
+  data.channels.forEach(ch => {
+    const div = document.createElement("div");
+    div.className = "channel";
+    div.textContent = ch;
+
+    div.onclick = () => join(ch);
+
+    box.appendChild(div);
+  });
 }
 
 </script>
