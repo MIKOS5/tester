@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retro IRC Messenger</title>
+
+<style>
+body {
+  margin:0;
+  font-family:Tahoma, Verdana;
+  background:#c0c0c0;
+}
+
+/* WINDOW FRAME */
+.window {
+  width:100%;
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+
+/* TITLE BAR */
+.titlebar {
+  background:linear-gradient(to right,#000080,#1084d0);
+  color:white;
+  padding:6px;
+  font-weight:bold;
+  display:flex;
+  justify-content:space-between;
+}
+
+.titlebar span { cursor:pointer; }
+
+/* MAIN */
+.main {
+  flex:1;
+  display:flex;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width:200px;
+  background:#d4d0c8;
+  border-right:2px solid #808080;
+  padding:6px;
+}
+
+.section {
+  margin-bottom:10px;
+}
+
+.section h4 {
+  margin:4px 0;
+  font-size:12px;
+  color:#000080;
+}
+
+/* BUTTON STYLE (WIN98) */
+.btn {
+  background:#d4d0c8;
+  border:2px outset white;
+  padding:3px 6px;
+  margin:2px 0;
+  cursor:pointer;
+  font-size:12px;
+}
+
+.btn:active {
+  border:2px inset white;
+}
+
+/* CHAT AREA */
+.chat {
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  background:white;
+}
+
+/* HEADER */
+.header {
+  background:#d4d0c8;
+  border-bottom:2px solid #808080;
+  padding:5px;
+  font-size:13px;
+}
+
+/* MESSAGES */
+#messages {
+  flex:1;
+  overflow-y:auto;
+  padding:8px;
+  font-size:13px;
+  background:white;
+}
+
+/* INPUT */
+.inputBar {
+  display:flex;
+  border-top:2px solid #808080;
+}
+
+#msg {
+  flex:1;
+  padding:6px;
+  border:none;
+  font-size:14px;
+}
+
+.sendBtn {
+  width:80px;
+}
+
+/* MESSAGE STYLES */
+.system { color:#808080; font-style:italic; }
+.me { color:#800080; }
+.nick { color:#0000ff; font-weight:bold; }
+.msg-line { color:black; }
+.mention { background:yellow; }
+
+/* LOGIN */
+#login {
+  position:fixed;
+  inset:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:#c0c0c0;
+}
+
+.loginBox {
+  background:#d4d0c8;
+  padding:20px;
+  border:3px outset white;
+  text-align:center;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<div id="login">
+  <div class="loginBox">
+    <div>Screen Name</div>
+    <input id="nick"><br><br>
+    <button class="btn" onclick="enter()">Sign On</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="window" id="app" style="display:none;">
+
+  <div class="titlebar">
+    <div>Sheets IRC Messenger</div>
+    <span onclick="alert('Minimize not implemented 😄')">_</span>
+  </div>
+
+  <div class="main">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+
+      <div class="section">
+        <h4>Channels</h4>
+        <div id="channelList"></div>
+        <button class="btn" onclick="createChannel()">+ New</button>
+      </div>
+
+      <div class="section">
+        <h4>Online</h4>
+        <div id="userList"></div>
+      </div>
+
+    </div>
+
+    <!-- CHAT -->
+    <div class="chat">
+
+      <div class="header" id="channelName">#general</div>
+
+      <div id="messages"></div>
+
+      <div class="inputBar">
+        <input id="msg" onkeydown="if(event.key==='Enter') send()">
+        <button class="btn sendBtn" onclick="send()">Send</button>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<script>
+
+const API = "https://script.google.com/macros/s/AKfycbyGqdSRP9n1O8Mr53B65hkl2P103xSAdVmKsqKf7MbZvg1KzB_3Z2VoFTTPPoI-vWSY/exec";
+
+let nick="";
+let channel="#general";
+
+// ENTER
+async function enter(){
+  nick=document.getElementById("nick").value.trim();
+  if(!nick) return;
+
+  await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({action:"join",nick,channel})
+  });
+
+  document.getElementById("login").style.display="none";
+  document.getElementById("app").style.display="flex";
+
+  loop();
+}
+
+// LOOP
+function loop(){
+  load();
+  who();
+  channels();
+
+  setInterval(load,1500);
+  setInterval(who,3000);
+  setInterval(channels,5000);
+}
+
+// SEND
+async function send(){
+  const input=document.getElementById("msg");
+  const text=input.value.trim();
+  if(!text) return;
+
+  if(text.startsWith("/join ")){
+    join(text.split(" ")[1]);
+    input.value="";
+    return;
+  }
+
+  if(text.startsWith("/me ")){
+    await fetch(API,{
+      method:"POST",
+      body:JSON.stringify({
+        action:"me",
+        nick,
+        channel,
+        message:text.substring(4)
+      })
+    });
+    input.value="";
+    return;
+  }
+
+  await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"send",
+      nick,
+      channel,
+      message:text
+    })
+  });
+
+  input.value="";
+}
+
+// JOIN
+async function join(ch){
+  channel=ch;
+
+  await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({action:"join",nick,channel})
+  });
+
+  document.getElementById("channelName").textContent=ch;
+}
+
+// CREATE CHANNEL
+async function createChannel(){
+  const name=prompt("Enter channel name (#room):");
+  if(!name) return;
+
+  await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({action:"create",channel:name})
+  });
+
+  join(name);
+}
+
+// LOAD MESSAGES
+async function load(){
+  const res=await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({action:"get",channel,nick})
+  });
+
+  const data=await res.json();
+  const box=document.getElementById("messages");
+
+  box.innerHTML="";
+
+  data.messages.forEach(m=>{
+    const div=document.createElement("div");
+
+    if(m.type==="system"){
+      div.className="system";
+      div.textContent="*** "+m.msg;
+    }
+    else if(m.type==="me"){
+      div.className="me";
+      div.textContent="* "+m.nick+" "+m.msg;
+    }
+    else{
+      const mention=m.msg.includes(nick);
+      div.className=mention?"mention":"msg-line";
+      div.innerHTML=`<span class="nick">${m.nick}:</span> ${m.msg}`;
+    }
+
+    box.appendChild(div);
+  });
+
+  box.scrollTop=box.scrollHeight;
+}
+
+// USERS
+async function who(){
+  const res=await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({action:"who",channel})
+  });
+
+  const data=await res.json();
+  const box=document.getElementById("userList");
+
+  box.innerHTML="";
+  data.users.forEach(u=>{
+    const d=document.createElement("div");
+    d.textContent=u;
+    box.appendChild(d);
+  });
+}
+
+// CHANNEL LIST
+async function channels(){
+  const res=await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({action:"channels"})
+  });
+
+  const data=await res.json();
+  const box=document.getElementById("channelList");
+
+  box.innerHTML="";
+
+  data.channels.forEach(ch=>{
+    const btn=document.createElement("div");
+    btn.className="btn";
+    btn.textContent=ch;
+    btn.onclick=()=>join(ch);
+    box.appendChild(btn);
+  });
+}
+
+</script>
+
+</body>
+</html>
