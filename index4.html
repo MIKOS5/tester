@@ -3,14 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AIM Style IRC</title>
+<title>Sheets IRC Messenger</title>
 
 <style>
 body {
   margin:0;
   font-family:Tahoma;
-  background:#008080;
-  overflow:hidden;
+  background:#c0c0c0;
 }
 
 /* LOGIN */
@@ -20,7 +19,6 @@ body {
   display:flex;
   justify-content:center;
   align-items:center;
-  background:#008080;
 }
 
 .box {
@@ -29,83 +27,105 @@ body {
   border:3px outset white;
 }
 
+/* MAIN */
+#app {
+  display:none;
+  height:100vh;
+  display:flex;
+}
+
+/* SIDEBAR */
+#sidebar {
+  width:200px;
+  background:#d4d0c8;
+  border-right:2px solid gray;
+  padding:6px;
+}
+
+.section { margin-bottom:10px; }
+
 .btn {
   background:#d4d0c8;
   border:2px outset white;
-  padding:5px 10px;
+  padding:4px;
+  margin:2px 0;
   cursor:pointer;
 }
-.btn:active { border:2px inset white; }
 
-/* DESKTOP */
-#desktop {
-  display:none;
-  width:100%;
-  height:100vh;
-  position:relative;
-}
-
-/* CHANNEL WINDOW (MAIN) */
-#mainWin {
-  position:absolute;
-  top:20px;
-  left:20px;
-  width:420px;
-  height:400px;
-  background:#d4d0c8;
-  border:3px outset white;
+/* CHAT */
+#chat {
+  flex:1;
   display:flex;
   flex-direction:column;
 }
 
-/* IM WINDOWS */
-.im {
-  position:absolute;
-  width:300px;
-  height:260px;
+#header {
   background:#d4d0c8;
-  border:3px outset white;
-  display:flex;
-  flex-direction:column;
+  padding:5px;
+  border-bottom:2px solid gray;
 }
 
-/* TITLE BAR */
-.title {
-  background:linear-gradient(to right,#000080,#1084d0);
-  color:white;
-  padding:4px;
-  cursor:move;
-  display:flex;
-  justify-content:space-between;
-}
-
-/* CONTENT */
-.messages {
+#messages {
   flex:1;
   overflow-y:auto;
+  padding:8px;
   background:white;
-  padding:5px;
-  font-size:13px;
 }
 
-.inputBar {
+#inputBar {
   display:flex;
 }
 
-input {
+#msg {
   flex:1;
+  padding:6px;
   border:none;
-  padding:5px;
 }
 
+/* MESSAGE STYLES */
 .system { color:gray; }
 .nick { color:blue; font-weight:bold; }
+.me { color:purple; }
+.mention { background:yellow; }
 
+/* DISCORD COMMAND UI */
+#slashUI {
+  position:absolute;
+  bottom:60px;
+  left:220px;
+  width:300px;
+  background:#2b2d31;
+  color:white;
+  border-radius:8px;
+  display:none;
+  font-size:13px;
+  box-shadow:0 0 10px rgba(0,0,0,.5);
+}
+
+.slashItem {
+  padding:8px;
+  cursor:pointer;
+  border-bottom:1px solid #444;
+}
+
+.slashItem:hover {
+  background:#404249;
+}
+
+.argBox {
+  padding:6px;
+}
+
+.argInput {
+  width:100%;
+  margin:3px 0;
+}
 </style>
 </head>
 
 <body>
 
+<!-- LOGIN -->
 <div id="login">
   <div class="box">
     Screen Name<br>
@@ -114,64 +134,88 @@ input {
   </div>
 </div>
 
-<div id="desktop">
+<!-- APP -->
+<div id="app">
 
-  <!-- MAIN CHANNEL -->
-  <div id="mainWin">
-    <div class="title">#general</div>
-    <div class="messages" id="mainMsgs"></div>
-    <div class="inputBar">
-      <input id="mainInput" onkeydown="if(event.key==='Enter') sendChannel()">
-      <button class="btn" onclick="sendChannel()">Send</button>
+  <div id="sidebar">
+    <div class="section">
+      <b>Channels</b>
+      <div id="channelList"></div>
+    </div>
+
+    <div class="section">
+      <b>Users</b>
+      <div id="userList"></div>
+    </div>
+  </div>
+
+  <div id="chat">
+    <div id="header">#general</div>
+    <div id="messages"></div>
+
+    <div id="inputBar">
+      <input id="msg" placeholder="/ to open commands"
+        onkeydown="if(event.key==='Enter') send()">
+      <button class="btn" onclick="send()">Send</button>
     </div>
   </div>
 
 </div>
 
+<div id="slashUI"></div>
+
 <script>
 
-const API="https://script.google.com/macros/s/AKfycbyGqdSRP9n1O8Mr53B65hkl2P103xSAdVmKsqKf7MbZvg1KzB_3Z2VoFTTPPoI-vWSY/exec";
+const API = "https://script.google.com/macros/s/AKfycbyGqdSRP9n1O8Mr53B65hkl2P103xSAdVmKsqKf7MbZvg1KzB_3Z2VoFTTPPoI-vWSY/exec";
 
 let nick="";
-let ims={}; // open IM windows
+let channel="#general";
 
-// LOGIN
+// ENTER
 async function enter(){
   nick=document.getElementById("nick").value.trim();
   if(!nick) return;
 
   await fetch(API,{
     method:"POST",
-    body:JSON.stringify({action:"join",nick,channel:"#general"})
+    body:JSON.stringify({action:"join",nick,channel})
   });
 
   document.getElementById("login").style.display="none";
-  document.getElementById("desktop").style.display="block";
+  document.getElementById("app").style.display="flex";
 
   loop();
 }
 
 // LOOP
 function loop(){
-  loadChannel();
-  loadDMs();
+  load();
+  who();
+  channels();
 
-  setInterval(loadChannel,1500);
-  setInterval(loadDMs,1500);
+  setInterval(load,1500);
+  setInterval(who,3000);
+  setInterval(channels,5000);
 }
 
-// CHANNEL SEND
-async function sendChannel(){
-  const input=document.getElementById("mainInput");
+// SEND
+async function send(){
+  const input=document.getElementById("msg");
   const text=input.value.trim();
   if(!text) return;
+
+  if(text.startsWith("/")){
+    handleCommand(text);
+    input.value="";
+    return;
+  }
 
   await fetch(API,{
     method:"POST",
     body:JSON.stringify({
       action:"send",
       nick,
-      channel:"#general",
+      channel,
       message:text
     })
   });
@@ -179,113 +223,119 @@ async function sendChannel(){
   input.value="";
 }
 
-// LOAD CHANNEL
-async function loadChannel(){
+// COMMAND HANDLER
+async function handleCommand(cmd){
+
+  if(cmd.startsWith("/join ")){
+    channel=cmd.split(" ")[1];
+    await fetch(API,{method:"POST",body:JSON.stringify({action:"join",nick,channel})});
+  }
+
+  if(cmd.startsWith("/create ")){
+    const ch=cmd.split(" ")[1];
+    await fetch(API,{method:"POST",body:JSON.stringify({action:"create",channel:ch})});
+  }
+
+  if(cmd==="/part"){
+    await fetch(API,{method:"POST",body:JSON.stringify({action:"part",nick,channel})});
+  }
+
+  if(cmd.startsWith("/me ")){
+    await fetch(API,{
+      method:"POST",
+      body:JSON.stringify({
+        action:"me",
+        nick,
+        channel,
+        message:cmd.substring(4)
+      })
+    });
+  }
+
+  if(cmd.startsWith("/msg ")){
+    const parts=cmd.split(" ");
+    await fetch(API,{
+      method:"POST",
+      body:JSON.stringify({
+        action:"dm",
+        from:nick,
+        to:parts[1],
+        message:parts.slice(2).join(" ")
+      })
+    });
+  }
+}
+
+// LOAD
+async function load(){
   const res=await fetch(API,{
     method:"POST",
-    body:JSON.stringify({action:"get",channel:"#general",nick})
+    body:JSON.stringify({action:"get",channel,nick})
   });
 
   const data=await res.json();
-  const box=document.getElementById("mainMsgs");
+  const box=document.getElementById("messages");
 
   box.innerHTML="";
+
   data.messages.forEach(m=>{
     const d=document.createElement("div");
-    d.innerHTML=`<span class="nick">${m.nick}:</span> ${m.msg}`;
+
+    if(m.type==="system"){
+      d.className="system";
+      d.textContent="*** "+m.msg;
+    }
+    else if(m.type==="me"){
+      d.className="me";
+      d.textContent="* "+m.nick+" "+m.msg;
+    }
+    else{
+      d.className=m.msg.includes(nick)?"mention":"";
+      d.innerHTML=`<span class="nick">${m.nick}:</span> ${m.msg}`;
+    }
+
     box.appendChild(d);
   });
 
   box.scrollTop=box.scrollHeight;
 }
 
-// LOAD DMs
-async function loadDMs(){
+// USERS
+async function who(){
   const res=await fetch(API,{
     method:"POST",
-    body:JSON.stringify({action:"get",channel:"@"+nick,nick})
+    body:JSON.stringify({action:"who",channel})
   });
 
   const data=await res.json();
+  const box=document.getElementById("userList");
 
-  data.messages.forEach(m=>{
-    openIM(m.nick);
-    addIM(m.nick, m.nick+": "+m.msg);
+  box.innerHTML="";
+  data.users.forEach(u=>{
+    const d=document.createElement("div");
+    d.textContent=u;
+    box.appendChild(d);
   });
 }
 
-// OPEN IM WINDOW
-function openIM(user){
-  if(ims[user]) return;
-
-  const win=document.createElement("div");
-  win.className="im";
-  win.style.top=50+Object.keys(ims).length*20+"px";
-  win.style.left=200+Object.keys(ims).length*20+"px";
-
-  win.innerHTML=`
-    <div class="title">${user}
-      <span onclick="this.closest('.im').remove()">X</span>
-    </div>
-    <div class="messages"></div>
-    <div class="inputBar">
-      <input onkeydown="if(event.key==='Enter') sendIM('${user}',this)">
-      <button class="btn" onclick="sendIM('${user}',this.previousElementSibling)">Send</button>
-    </div>
-  `;
-
-  makeDraggable(win);
-
-  document.getElementById("desktop").appendChild(win);
-  ims[user]=win;
-}
-
-// ADD MESSAGE TO IM
-function addIM(user,msg){
-  const box=ims[user].querySelector(".messages");
-  const d=document.createElement("div");
-  d.textContent=msg;
-  box.appendChild(d);
-  box.scrollTop=box.scrollHeight;
-}
-
-// SEND IM
-async function sendIM(user,input){
-  const text=input.value.trim();
-  if(!text) return;
-
-  await fetch(API,{
+// CHANNELS
+async function channels(){
+  const res=await fetch(API,{
     method:"POST",
-    body:JSON.stringify({
-      action:"dm",
-      from:nick,
-      to:user,
-      message:text
-    })
+    body:JSON.stringify({action:"channels"})
   });
 
-  addIM(user,"me: "+text);
-  input.value="";
-}
+  const data=await res.json();
+  const box=document.getElementById("channelList");
 
-// DRAG WINDOWS
-function makeDraggable(el){
-  const bar=el.querySelector(".title");
-  let offsetX, offsetY, dragging=false;
-
-  bar.onmousedown=(e)=>{
-    dragging=true;
-    offsetX=e.clientX - el.offsetLeft;
-    offsetY=e.clientY - el.offsetTop;
-  };
-
-  document.onmouseup=()=>dragging=false;
-
-  document.onmousemove=(e)=>{
-    if(!dragging) return;
-    el.style.left=(e.clientX-offsetX)+"px";
-    el.style.top=(e.clientY-offsetY)+"px";
-  };
+  box.innerHTML="";
+  data.channels.forEach(ch=>{
+    const b=document.createElement("div");
+    b.className="btn";
+    b.textContent=ch;
+    b.onclick=()=>{channel=ch;};
+    box.appendChild(b);
+  });
 }
 
 </script>
