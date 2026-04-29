@@ -3,9 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>xRetro Messenger</title>
-
-<link rel="manifest" href="manifest.json">
+<title>Sheets IRC - Fast Sync</title>
 
 <style>
 body {
@@ -30,75 +28,60 @@ body {
   border:3px outset white;
 }
 
-/* DESKTOP */
-#desktop {
+/* CHAT */
+#app {
   display:none;
-  width:100%;
   height:100vh;
-  position:relative;
-}
-
-/* MAIN CHAT */
-#main {
-  position:absolute;
-  top:20px;
-  left:20px;
-  width:420px;
-  height:400px;
-  background:#d4d0c8;
-  border:3px outset white;
   display:flex;
-  flex-direction:column;
 }
 
-.title {
-  background:linear-gradient(to right,#000080,#1084d0);
-  color:white;
+#sidebar {
+  width:200px;
+  background:#d4d0c8;
+  border-right:2px solid gray;
+  padding:6px;
+}
+
+.btn {
+  background:#d4d0c8;
+  border:2px outset white;
   padding:4px;
-  cursor:move;
-  display:flex;
-  justify-content:space-between;
+  margin:2px 0;
+  cursor:pointer;
 }
 
-.messages {
+#chat {
   flex:1;
-  background:white;
-  overflow-y:auto;
-  padding:5px;
-}
-
-.inputBar {
-  display:flex;
-}
-
-input {
-  flex:1;
-  border:none;
-  padding:5px;
-}
-
-/* IM WINDOWS */
-.im {
-  position:absolute;
-  width:300px;
-  height:260px;
-  background:#d4d0c8;
-  border:3px outset white;
   display:flex;
   flex-direction:column;
 }
 
-/* MESSAGE STYLES */
+#header {
+  background:#d4d0c8;
+  padding:6px;
+  border-bottom:2px solid gray;
+}
+
+#messages {
+  flex:1;
+  overflow-y:auto;
+  padding:8px;
+  background:white;
+}
+
+#inputBar {
+  display:flex;
+}
+
+#msg {
+  flex:1;
+  padding:8px;
+  border:none;
+}
+
 .nick { color:blue; font-weight:bold; }
 .me { color:purple; }
 .system { color:gray; }
-
-/* TYPING */
-.typing {
-  font-size:11px;
-  color:green;
-  padding:2px 5px;
-}
 
 </style>
 </head>
@@ -108,69 +91,74 @@ input {
 <!-- LOGIN -->
 <div id="login">
   <div class="box">
-    Screen Name<br>
+    Nickname<br>
     <input id="nick"><br><br>
-    <button onclick="enter()">Sign On</button>
+    <button onclick="enter()">Enter IRC</button>
   </div>
 </div>
 
-<!-- DESKTOP -->
-<div id="desktop">
+<!-- APP -->
+<div id="app">
 
-  <div id="main">
-    <div class="title">#general</div>
-    <div class="messages" id="mainMsgs"></div>
+  <div id="sidebar">
+    <b>Channels</b>
+    <div id="channels"></div>
+    <hr>
+    <b>Users</b>
+    <div id="users"></div>
+  </div>
 
-    <div class="typing" id="typing"></div>
+  <div id="chat">
 
-    <div class="inputBar">
-      <input id="mainInput"
-        onkeydown="if(event.key==='Enter') sendChannel()"
-        oninput="sendTyping()">
-      <button onclick="sendChannel()">Send</button>
+    <div id="header">#general</div>
+
+    <div id="messages"></div>
+
+    <div id="inputBar">
+      <input id="msg" onkeydown="if(event.key==='Enter') send()">
+      <button onclick="send()">Send</button>
     </div>
+
   </div>
 
 </div>
-
-<audio id="ping" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
 
 <script>
 
 const API = "https://script.google.com/macros/s/AKfycbyGqdSRP9n1O8Mr53B65hkl2P103xSAdVmKsqKf7MbZvg1KzB_3Z2VoFTTPPoI-vWSY/exec";
 
 let nick="";
-let ims={};
-let lastMsgCount=0;
+let channel="#general";
+let lastTime=0;
 
-// LOGIN
+// ---------------- LOGIN ----------------
 async function enter(){
   nick=document.getElementById("nick").value.trim();
   if(!nick) return;
 
   await fetch(API,{
     method:"POST",
-    body:JSON.stringify({action:"join",nick,channel:"#general"})
+    body:JSON.stringify({action:"join",nick,channel})
   });
 
   document.getElementById("login").style.display="none";
-  document.getElementById("desktop").style.display="block";
+  document.getElementById("app").style.display="flex";
 
   loop();
 }
 
-// LOOP
+// ---------------- LOOP ----------------
 function loop(){
-  loadChannel();
-  loadDMs();
+  sync();
 
-  setInterval(loadChannel,1500);
-  setInterval(loadDMs,1500);
+  setInterval(sync,500);   // FAST SYNC (key upgrade)
+  setInterval(who,3000);
+  setInterval(channels,5000);
 }
 
-// SEND CHANNEL
-async function sendChannel(){
-  const input=document.getElementById("mainInput");
+// ---------------- SEND ----------------
+async function send(){
+  const input=document.getElementById("msg");
   const text=input.value.trim();
   if(!text) return;
 
@@ -179,7 +167,7 @@ async function sendChannel(){
     body:JSON.stringify({
       action:"send",
       nick,
-      channel:"#general",
+      channel,
       message:text
     })
   });
@@ -187,139 +175,96 @@ async function sendChannel(){
   input.value="";
 }
 
-// LOAD CHANNEL
-async function loadChannel(){
+// ---------------- SMART SYNC ----------------
+async function sync(){
   const res=await fetch(API,{
     method:"POST",
-    body:JSON.stringify({action:"get",channel:"#general"})
+    body:JSON.stringify({
+      action:"get",
+      channel,
+      nick,
+      lastTime
+    })
   });
 
   const data=await res.json();
-  const box=document.getElementById("mainMsgs");
+  const box=document.getElementById("messages");
 
-  if(data.messages.length > lastMsgCount){
-    document.getElementById("ping").play();
-  }
-
-  lastMsgCount = data.messages.length;
-
-  box.innerHTML="";
   data.messages.forEach(m=>{
     const d=document.createElement("div");
 
-    if(m.type==="me"){
+    if(m.type==="system"){
+      d.className="system";
+      d.textContent="*** "+m.msg;
+    }
+    else if(m.type==="me"){
       d.className="me";
       d.textContent="* "+m.nick+" "+m.msg;
-    } else {
+    }
+    else{
       d.innerHTML=`<span class="nick">${m.nick}:</span> ${m.msg}`;
     }
 
     box.appendChild(d);
+
+    // update cursor
+    lastTime = Math.max(lastTime, new Date(m.time).getTime());
   });
 
-  box.scrollTop=box.scrollHeight;
+  const nearBottom =
+    box.scrollTop + box.clientHeight >= box.scrollHeight - 50;
+
+  if(nearBottom){
+    box.scrollTop=box.scrollHeight;
+  }
 }
 
-// LOAD DMs
-async function loadDMs(){
+// ---------------- USERS ----------------
+async function who(){
   const res=await fetch(API,{
     method:"POST",
-    body:JSON.stringify({action:"get",channel:"@"+nick})
+    body:JSON.stringify({action:"who",channel})
   });
 
   const data=await res.json();
 
-  data.messages.forEach(m=>{
-    openIM(m.nick);
-    addIM(m.nick, m.nick+": "+m.msg);
+  const box=document.getElementById("users");
+  box.innerHTML="";
+
+  data.users.forEach(u=>{
+    const d=document.createElement("div");
+    d.textContent=u;
+    box.appendChild(d);
   });
 }
 
-// OPEN IM WINDOW
-function openIM(user){
-  if(ims[user]) return;
-
-  const win=document.createElement("div");
-  win.className="im";
-  win.style.top=50+Object.keys(ims).length*20+"px";
-  win.style.left=200+Object.keys(ims).length*20+"px";
-
-  win.innerHTML=`
-    <div class="title">${user}
-      <span onclick="this.closest('.im').remove()">X</span>
-    </div>
-    <div class="messages"></div>
-    <div class="inputBar">
-      <input onkeydown="if(event.key==='Enter') sendIM('${user}',this)">
-      <button onclick="sendIM('${user}',this.previousElementSibling)">Send</button>
-    </div>
-  `;
-
-  makeDraggable(win);
-
-  document.getElementById("desktop").appendChild(win);
-  ims[user]=win;
-}
-
-// SEND IM
-async function sendIM(user,input){
-  const text=input.value.trim();
-  if(!text) return;
-
-  await fetch(API,{
+// ---------------- CHANNELS ----------------
+async function channels(){
+  const res=await fetch(API,{
     method:"POST",
-    body:JSON.stringify({
-      action:"dm",
-      from:nick,
-      to:user,
-      message:text
-    })
+    body:JSON.stringify({action:"channels"})
   });
 
-  addIM(user,"me: "+text);
-  input.value="";
+  const data=await res.json();
+
+  const box=document.getElementById("channels");
+  box.innerHTML="";
+
+  data.channels.forEach(ch=>{
+    const b=document.createElement("div");
+    b.className="btn";
+    b.textContent=ch;
+    b.onclick=()=>switchChannel(ch);
+    box.appendChild(b);
+  });
 }
 
-// ADD IM MSG
-function addIM(user,msg){
-  const box=ims[user].querySelector(".messages");
-  const d=document.createElement("div");
-  d.textContent=msg;
-  box.appendChild(d);
-  box.scrollTop=box.scrollHeight;
-}
-
-// DRAG WINDOWS
-function makeDraggable(el){
-  const bar=el.querySelector(".title");
-  let offsetX, offsetY, drag=false;
-
-  bar.onmousedown=(e)=>{
-    drag=true;
-    offsetX=e.clientX - el.offsetLeft;
-    offsetY=e.clientY - el.offsetTop;
-  };
-
-  document.onmouseup=()=>drag=false;
-
-  document.onmousemove=(e)=>{
-    if(!drag) return;
-    el.style.left=(e.clientX-offsetX)+"px";
-    el.style.top=(e.clientY-offsetY)+"px";
-  };
-}
-
-// TYPING INDICATOR
-let typingTimer;
-
-function sendTyping(){
-  clearTimeout(typingTimer);
-
-  document.getElementById("typing").textContent="typing...";
-
-  typingTimer=setTimeout(()=>{
-    document.getElementById("typing").textContent="";
-  },1000);
+// ---------------- SWITCH CHANNEL ----------------
+async function switchChannel(ch){
+  channel=ch;
+  document.getElementById("header").textContent=ch;
+  document.getElementById("messages").innerHTML="";
+  lastTime=0;
 }
 
 </script>
