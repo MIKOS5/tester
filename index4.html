@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sheets IRC - Fast Sync</title>
+<title>Sheets IRC Network</title>
 
 <style>
 body {
@@ -28,18 +28,20 @@ body {
   border:3px outset white;
 }
 
-/* CHAT */
+/* APP */
 #app {
   display:none;
   height:100vh;
   display:flex;
 }
 
+/* SIDEBAR */
 #sidebar {
   width:200px;
   background:#d4d0c8;
   border-right:2px solid gray;
   padding:6px;
+  overflow-y:auto;
 }
 
 .btn {
@@ -50,6 +52,7 @@ body {
   cursor:pointer;
 }
 
+/* CHAT */
 #chat {
   flex:1;
   display:flex;
@@ -79,9 +82,17 @@ body {
   border:none;
 }
 
+/* TEXT STYLES */
 .nick { color:blue; font-weight:bold; }
 .me { color:purple; }
 .system { color:gray; }
+
+/* STATUS */
+#status {
+  font-size:11px;
+  padding:4px;
+  background:#ddd;
+}
 
 </style>
 </head>
@@ -103,7 +114,9 @@ body {
   <div id="sidebar">
     <b>Channels</b>
     <div id="channels"></div>
+
     <hr>
+
     <b>Users</b>
     <div id="users"></div>
   </div>
@@ -111,6 +124,8 @@ body {
   <div id="chat">
 
     <div id="header">#general</div>
+
+    <div id="status">connecting...</div>
 
     <div id="messages"></div>
 
@@ -127,18 +142,30 @@ body {
 
 const API = "https://script.google.com/macros/s/AKfycbyGqdSRP9n1O8Mr53B65hkl2P103xSAdVmKsqKf7MbZvg1KzB_3Z2VoFTTPPoI-vWSY/exec";
 
-let nick="";
-let channel="#general";
-let lastTime=0;
+let nick = "";
+let channel = "#general";
+let lastTime = 0;
 
-// ---------------- LOGIN ----------------
+let lastActivity = Date.now();
+let fastMode = true;
+
+// ---------------- ACTIVITY TRACKING ----------------
+document.addEventListener("mousemove", () => lastActivity = Date.now());
+document.addEventListener("keydown", () => lastActivity = Date.now());
+document.addEventListener("touchstart", () => lastActivity = Date.now());
+
+// ---------------- ENTER ----------------
 async function enter(){
   nick=document.getElementById("nick").value.trim();
   if(!nick) return;
 
   await fetch(API,{
     method:"POST",
-    body:JSON.stringify({action:"join",nick,channel})
+    body:JSON.stringify({
+      action:"join",
+      nick,
+      channel
+    })
   });
 
   document.getElementById("login").style.display="none";
@@ -147,13 +174,16 @@ async function enter(){
   loop();
 }
 
-// ---------------- LOOP ----------------
+// ---------------- MAIN LOOP ----------------
 function loop(){
-  sync();
+  smartSync();
 
-  setInterval(sync,500);   // FAST SYNC (key upgrade)
-  setInterval(who,3000);
-  setInterval(channels,5000);
+  setInterval(() => {
+    smartSync();
+    who();
+  }, 400);
+
+  setInterval(channels, 5000);
 }
 
 // ---------------- SEND ----------------
@@ -175,9 +205,14 @@ async function send(){
   input.value="";
 }
 
-// ---------------- SMART SYNC ----------------
-async function sync(){
-  const res=await fetch(API,{
+// ---------------- SMART SYNC ENGINE ----------------
+async function smartSync(){
+
+  const idleTime = Date.now() - lastActivity;
+
+  fastMode = idleTime < 4000;
+
+  const res = await fetch(API,{
     method:"POST",
     body:JSON.stringify({
       action:"get",
@@ -187,11 +222,16 @@ async function sync(){
     })
   });
 
-  const data=await res.json();
-  const box=document.getElementById("messages");
+  const data = await res.json();
+  const box = document.getElementById("messages");
 
-  data.messages.forEach(m=>{
-    const d=document.createElement("div");
+  if(data.messages.length > 0){
+    document.getElementById("status").textContent = "live";
+  }
+
+  data.messages.forEach(m => {
+
+    const d = document.createElement("div");
 
     if(m.type==="system"){
       d.className="system";
@@ -202,12 +242,11 @@ async function sync(){
       d.textContent="* "+m.nick+" "+m.msg;
     }
     else{
-      d.innerHTML=`<span class="nick">${m.nick}:</span> ${m.msg}`;
+      d.innerHTML = `<span class="nick">${m.nick}:</span> ${m.msg}`;
     }
 
     box.appendChild(d);
 
-    // update cursor
     lastTime = Math.max(lastTime, new Date(m.time).getTime());
   });
 
@@ -215,8 +254,15 @@ async function sync(){
     box.scrollTop + box.clientHeight >= box.scrollHeight - 50;
 
   if(nearBottom){
-    box.scrollTop=box.scrollHeight;
+    box.scrollTop = box.scrollHeight;
   }
+
+  // adaptive delay
+  await sleep(fastMode ? 300 : 2000);
+}
+
+function sleep(ms){
+  return new Promise(r => setTimeout(r, ms));
 }
 
 // ---------------- USERS ----------------
