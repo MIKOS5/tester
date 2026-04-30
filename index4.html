@@ -72,6 +72,21 @@ body {
   background:white;
 }
 
+/* CANVAS PANEL */
+#canvasWrap {
+  height:200px;
+  background:#eee;
+  border-top:2px solid gray;
+}
+
+#drawCanvas {
+  width:100%;
+  height:100%;
+  touch-action:none;
+  cursor:crosshair;
+}
+
+/* INPUT */
 #inputBar {
   display:flex;
 }
@@ -82,24 +97,21 @@ body {
   border:none;
 }
 
-/* TEXT STYLES */
+/* TEXT */
 .nick { color:blue; font-weight:bold; }
 .me { color:purple; }
 .system { color:gray; }
 
-/* STATUS */
 #status {
   font-size:11px;
   padding:4px;
   background:#ddd;
 }
-
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
 <div id="login">
   <div class="box">
     Nickname<br>
@@ -108,7 +120,6 @@ body {
   </div>
 </div>
 
-<!-- APP -->
 <div id="app">
 
   <div id="sidebar">
@@ -129,8 +140,13 @@ body {
 
     <div id="messages"></div>
 
+    <!-- 🎨 DRAW AREA -->
+    <div id="canvasWrap">
+      <canvas id="drawCanvas"></canvas>
+    </div>
+
     <div id="inputBar">
-      <input id="msg" onkeydown="if(event.key==='Enter') send()">
+      <input id="msg" placeholder="type /clearcanvas..." onkeydown="if(event.key==='Enter') send()">
       <button onclick="send()">Send</button>
     </div>
 
@@ -146,14 +162,6 @@ let nick = "";
 let channel = "#general";
 let lastTime = 0;
 
-let lastActivity = Date.now();
-let fastMode = true;
-
-// ---------------- ACTIVITY TRACKING ----------------
-document.addEventListener("mousemove", () => lastActivity = Date.now());
-document.addEventListener("keydown", () => lastActivity = Date.now());
-document.addEventListener("touchstart", () => lastActivity = Date.now());
-
 // ---------------- ENTER ----------------
 async function enter(){
   nick=document.getElementById("nick").value.trim();
@@ -161,29 +169,24 @@ async function enter(){
 
   await fetch(API,{
     method:"POST",
-    body:JSON.stringify({
-      action:"join",
-      nick,
-      channel
-    })
+    body:JSON.stringify({action:"join",nick,channel})
   });
 
   document.getElementById("login").style.display="none";
   document.getElementById("app").style.display="flex";
 
+  initCanvas();
   loop();
 }
 
-// ---------------- MAIN LOOP ----------------
+// ---------------- LOOP ----------------
 function loop(){
-  smartSync();
-
-  setInterval(() => {
+  setInterval(()=>{
     smartSync();
     who();
-  }, 400);
-
-  setInterval(channels, 5000);
+    channels();
+    syncDraw();
+  },800);
 }
 
 // ---------------- SEND ----------------
@@ -191,6 +194,16 @@ async function send(){
   const input=document.getElementById("msg");
   const text=input.value.trim();
   if(!text) return;
+
+  if(text === "/clearcanvas"){
+    await fetch(API,{
+      method:"POST",
+      body:JSON.stringify({action:"clearDraw",channel})
+    });
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    input.value="";
+    return;
+  }
 
   await fetch(API,{
     method:"POST",
@@ -205,33 +218,19 @@ async function send(){
   input.value="";
 }
 
-// ---------------- SMART SYNC ENGINE ----------------
+// ---------------- CHAT ----------------
 async function smartSync(){
-
-  const idleTime = Date.now() - lastActivity;
-
-  fastMode = idleTime < 4000;
-
   const res = await fetch(API,{
     method:"POST",
-    body:JSON.stringify({
-      action:"get",
-      channel,
-      nick,
-      lastTime
-    })
+    body:JSON.stringify({action:"get",channel})
   });
 
   const data = await res.json();
   const box = document.getElementById("messages");
+  box.innerHTML="";
 
-  if(data.messages.length > 0){
-    document.getElementById("status").textContent = "live";
-  }
-
-  data.messages.forEach(m => {
-
-    const d = document.createElement("div");
+  data.messages.forEach(m=>{
+    const d=document.createElement("div");
 
     if(m.type==="system"){
       d.className="system";
@@ -242,27 +241,13 @@ async function smartSync(){
       d.textContent="* "+m.nick+" "+m.msg;
     }
     else{
-      d.innerHTML = `<span class="nick">${m.nick}:</span> ${m.msg}`;
+      d.innerHTML=`<span class="nick">${m.nick}:</span> ${m.msg}`;
     }
 
     box.appendChild(d);
-
-    lastTime = Math.max(lastTime, new Date(m.time).getTime());
   });
 
-  const nearBottom =
-    box.scrollTop + box.clientHeight >= box.scrollHeight - 50;
-
-  if(nearBottom){
-    box.scrollTop = box.scrollHeight;
-  }
-
-  // adaptive delay
-  await sleep(fastMode ? 300 : 2000);
-}
-
-function sleep(ms){
-  return new Promise(r => setTimeout(r, ms));
+  box.scrollTop = box.scrollHeight;
 }
 
 // ---------------- USERS ----------------
@@ -273,7 +258,6 @@ async function who(){
   });
 
   const data=await res.json();
-
   const box=document.getElementById("users");
   box.innerHTML="";
 
@@ -292,7 +276,6 @@ async function channels(){
   });
 
   const data=await res.json();
-
   const box=document.getElementById("channels");
   box.innerHTML="";
 
@@ -305,12 +288,83 @@ async function channels(){
   });
 }
 
-// ---------------- SWITCH CHANNEL ----------------
-async function switchChannel(ch){
+// ---------------- SWITCH ----------------
+function switchChannel(ch){
   channel=ch;
   document.getElementById("header").textContent=ch;
   document.getElementById("messages").innerHTML="";
-  lastTime=0;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+}
+
+// ---------------- 🎨 DRAW SYSTEM ----------------
+let canvas, ctx, drawing=false;
+
+function initCanvas(){
+  canvas=document.getElementById("drawCanvas");
+  ctx=canvas.getContext("2d");
+
+  resizeCanvas();
+
+  canvas.addEventListener("mousedown",startDraw);
+  canvas.addEventListener("mousemove",draw);
+  canvas.addEventListener("mouseup",()=>drawing=false);
+
+  canvas.addEventListener("touchstart",startDraw);
+  canvas.addEventListener("touchmove",drawTouch);
+  canvas.addEventListener("touchend",()=>drawing=false);
+}
+
+function resizeCanvas(){
+  canvas.width=canvas.offsetWidth;
+  canvas.height=canvas.offsetHeight;
+}
+
+function startDraw(e){
+  drawing=true;
+}
+
+async function draw(e){
+  if(!drawing) return;
+
+  const rect=canvas.getBoundingClientRect();
+  const x=e.clientX-rect.left;
+  const y=e.clientY-rect.top;
+
+  ctx.fillRect(x,y,2,2);
+
+  await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"draw",
+      channel,
+      nick,
+      x,y,
+      color:"#000"
+    })
+  });
+}
+
+async function drawTouch(e){
+  if(!drawing) return;
+  const t=e.touches[0];
+  draw({clientX:t.clientX,clientY:t.clientY});
+}
+
+// ---------------- SYNC DRAW ----------------
+async function syncDraw(){
+  const res = await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({action:"getDraw",channel})
+  });
+
+  const data = await res.json();
+
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  data.points.forEach(p=>{
+    ctx.fillStyle=p.color;
+    ctx.fillRect(p.x,p.y,2,2);
+  });
 }
 
 </script>
