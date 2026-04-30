@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sheets IRC Network</title>
+<title>Pro Collaborative Whiteboard IRC</title>
 
 <style>
 body {
@@ -65,6 +65,12 @@ body {
   border-bottom:2px solid gray;
 }
 
+#status {
+  font-size:11px;
+  padding:4px;
+  background:#ddd;
+}
+
 #messages {
   flex:1;
   overflow-y:auto;
@@ -72,17 +78,28 @@ body {
   background:white;
 }
 
-/* DRAW CANVAS */
+/* DRAW AREA */
 #drawBox {
-  height:200px;
+  height:260px;
   border-top:2px solid gray;
   background:white;
+  position:relative;
 }
 
 canvas {
   width:100%;
   height:100%;
   cursor:crosshair;
+}
+
+/* CURSORS */
+.cursor {
+  position:absolute;
+  font-size:11px;
+  pointer-events:none;
+  transform: translate(-2px, -2px);
+  color:red;
+  font-weight:bold;
 }
 
 /* INPUT */
@@ -100,13 +117,6 @@ canvas {
 .nick { color:blue; font-weight:bold; }
 .me { color:purple; }
 .system { color:gray; }
-
-/* STATUS */
-#status {
-  font-size:11px;
-  padding:4px;
-  background:#ddd;
-}
 </style>
 </head>
 
@@ -116,7 +126,7 @@ canvas {
   <div class="box">
     Nickname<br>
     <input id="nick"><br><br>
-    <button onclick="enter()">Enter IRC</button>
+    <button onclick="enter()">Enter</button>
   </div>
 </div>
 
@@ -152,56 +162,51 @@ canvas {
 
 <script>
 
-const API = "https://script.google.com/macros/s/AKfycbyGqdSRP9n1O8Mr53B65hkl2P103xSAdVmKsqKf7MbZvg1KzB_3Z2VoFTTPPoI-vWSY/exec";
+const API = "YOUR_SCRIPT_URL";
 
 let nick = "";
 let channel = "#general";
-let lastTime = 0;
 let lastDrawTime = 0;
+let lastCursorTime = 0;
 
-// CANVAS
+// ---------------- CANVAS ----------------
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-canvas.width = canvas.offsetWidth;
-canvas.height = canvas.offsetHeight;
-
-let drawing = false;
+function resizeCanvas(){
+  canvas.width = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
+}
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
 
 // ---------------- ENTER ----------------
 async function enter(){
   nick=document.getElementById("nick").value.trim();
   if(!nick) return;
 
-  const res = await fetch(API,{
+  await fetch(API,{
     method:"POST",
     body:JSON.stringify({action:"join",nick,channel})
   });
 
-  const data = await res.json();
-
-  if(data.error){
-    alert(data.error);
-    return;
-  }
-
   document.getElementById("login").style.display="none";
   document.getElementById("app").style.display="flex";
-
-  document.getElementById("status").textContent = "online";
+  document.getElementById("status").textContent="online";
 
   loop();
 }
 
 // ---------------- LOOP ----------------
 function loop(){
-  setInterval(syncMessages, 800);
-  setInterval(syncDraw, 300);
+  setInterval(syncMessages, 1000);
+  setInterval(syncDraw, 250);
+  setInterval(syncCursors, 120);
   setInterval(who, 2000);
   setInterval(channels, 5000);
 }
 
-// ---------------- SEND ----------------
+// ---------------- SEND CHAT ----------------
 async function send(){
   const input=document.getElementById("msg");
   const text=input.value.trim();
@@ -209,12 +214,7 @@ async function send(){
 
   await fetch(API,{
     method:"POST",
-    body:JSON.stringify({
-      action:"send",
-      nick,
-      channel,
-      message:text
-    })
+    body:JSON.stringify({action:"send",nick,channel,message:text})
   });
 
   input.value="";
@@ -222,78 +222,80 @@ async function send(){
 
 // ---------------- MESSAGES ----------------
 async function syncMessages(){
-  try {
-    const res = await fetch(API,{
-      method:"POST",
-      body:JSON.stringify({action:"get",channel})
-    });
+  const res = await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({action:"get",channel})
+  });
 
-    const data = await res.json();
+  const data = await res.json();
+  const box=document.getElementById("messages");
 
-    const box=document.getElementById("messages");
-    box.innerHTML="";
+  box.innerHTML="";
 
-    data.messages.forEach(m=>{
-      const d=document.createElement("div");
+  (data.messages || []).forEach(m=>{
+    const d=document.createElement("div");
 
-      if(m.type==="system"){
-        d.className="system";
-        d.textContent="*** "+m.msg;
-      }
-      else if(m.type==="me"){
-        d.className="me";
-        d.textContent="* "+m.nick+" "+m.msg;
-      }
-      else{
-        d.innerHTML=`<span class="nick">${m.nick}:</span> ${m.msg}`;
-      }
+    if(m.type==="system"){
+      d.className="system";
+      d.textContent="*** "+m.msg;
+    } else {
+      d.innerHTML=`<span class="nick">${m.nick}:</span> ${m.msg}`;
+    }
 
-      box.appendChild(d);
-    });
+    box.appendChild(d);
+  });
 
-    document.getElementById("status").textContent = "live";
-
-  } catch {
-    document.getElementById("status").textContent = "reconnecting...";
-  }
+  document.getElementById("status").textContent="live";
 }
 
-// ---------------- DRAWING ----------------
-canvas.addEventListener("mousedown", ()=> drawing=true);
-canvas.addEventListener("mouseup", ()=> drawing=false);
-canvas.addEventListener("mouseleave", ()=> drawing=false);
+// ---------------- DRAW ----------------
+let drawing=false;
 
-canvas.addEventListener("mousemove", async e=>{
+canvas.addEventListener("mousedown",()=>drawing=true);
+canvas.addEventListener("mouseup",()=>drawing=false);
+canvas.addEventListener("mouseleave",()=>drawing=false);
+
+canvas.addEventListener("mousemove", async (e)=>{
+
+  const rect=canvas.getBoundingClientRect();
+  const x=e.clientX-rect.left;
+  const y=e.clientY-rect.top;
+
+  // send cursor
+  fetch(API,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"cursor",
+      channel,
+      nick,
+      x,y
+    })
+  });
+
   if(!drawing) return;
 
-  const rect = canvas.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
+  draw(x,y,"black");
 
-  drawPoint(x,y,"black");
-
-  await fetch(API,{
+  fetch(API,{
     method:"POST",
     body:JSON.stringify({
       action:"draw",
       channel,
       nick,
-      x,
-      y,
+      x,y,
       color:"black"
     })
   });
 });
 
-function drawPoint(x,y,color){
+function draw(x,y,color){
   ctx.fillStyle=color;
   ctx.fillRect(x,y,2,2);
 }
 
 // ---------------- SYNC DRAW ----------------
 async function syncDraw(){
-
-  const res = await fetch(API,{
+  const res=await fetch(API,{
     method:"POST",
     body:JSON.stringify({
       action:"getDraw",
@@ -302,11 +304,36 @@ async function syncDraw(){
     })
   });
 
-  const data = await res.json();
+  const data=await res.json();
 
-  data.points.forEach(p=>{
-    drawPoint(p.x, p.y, p.color);
-    lastDrawTime = Math.max(lastDrawTime, new Date(p.time).getTime());
+  (data.points || []).forEach(p=>{
+    draw(p.x,p.y,p.color);
+    lastDrawTime=Math.max(lastDrawTime, new Date(p.time).getTime());
+  });
+}
+
+// ---------------- LIVE CURSORS ----------------
+async function syncCursors(){
+
+  const res=await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"getCursors",
+      channel
+    })
+  });
+
+  const data=await res.json();
+
+  document.querySelectorAll(".cursor").forEach(e=>e.remove());
+
+  (data.cursors || []).forEach(c=>{
+    const el=document.createElement("div");
+    el.className="cursor";
+    el.textContent=c.nick;
+    el.style.left=c.x+"px";
+    el.style.top=c.y+"px";
+    document.getElementById("drawBox").appendChild(el);
   });
 }
 
@@ -322,7 +349,7 @@ async function who(){
   const box=document.getElementById("users");
   box.innerHTML="";
 
-  data.users.forEach(u=>{
+  (data.users || []).forEach(u=>{
     const d=document.createElement("div");
     d.textContent=u;
     box.appendChild(d);
@@ -341,7 +368,7 @@ async function channels(){
   const box=document.getElementById("channels");
   box.innerHTML="";
 
-  data.channels.forEach(ch=>{
+  (data.channels || []).forEach(ch=>{
     const b=document.createElement("div");
     b.className="btn";
     b.textContent=ch;
@@ -350,15 +377,13 @@ async function channels(){
   });
 }
 
-// ---------------- SWITCH CHANNEL ----------------
-async function switchChannel(ch){
+// ---------------- SWITCH ----------------
+function switchChannel(ch){
   channel=ch;
   document.getElementById("header").textContent=ch;
-
   document.getElementById("messages").innerHTML="";
   ctx.clearRect(0,0,canvas.width,canvas.height);
-
-  lastDrawTime = 0;
+  lastDrawTime=0;
 }
 
 </script>
