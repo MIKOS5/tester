@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>xSheets IRC Network</title>
+<title>Sheets IRC Network</title>
 
 <style>
 body {
@@ -72,7 +72,7 @@ body {
   background:white;
 }
 
-/* CANVAS PANEL */
+/* CANVAS */
 #canvasWrap {
   height:200px;
   background:#eee;
@@ -112,6 +112,7 @@ body {
 
 <body>
 
+<!-- LOGIN -->
 <div id="login">
   <div class="box">
     Nickname<br>
@@ -120,6 +121,7 @@ body {
   </div>
 </div>
 
+<!-- APP -->
 <div id="app">
 
   <div id="sidebar">
@@ -140,7 +142,7 @@ body {
 
     <div id="messages"></div>
 
-    <!-- 🎨 DRAW AREA -->
+    <!-- DRAW -->
     <div id="canvasWrap">
       <canvas id="drawCanvas"></canvas>
     </div>
@@ -160,7 +162,7 @@ const API = "https://script.google.com/macros/s/AKfycbyGqdSRP9n1O8Mr53B65hkl2P10
 
 let nick = "";
 let channel = "#general";
-let lastTime = 0;
+let lastDrawTime = 0;
 
 // ---------------- ENTER ----------------
 async function enter(){
@@ -182,7 +184,7 @@ async function enter(){
 // ---------------- LOOP ----------------
 function loop(){
   setInterval(()=>{
-    smartSync();
+    load();
     who();
     channels();
     syncDraw();
@@ -201,6 +203,7 @@ async function send(){
       body:JSON.stringify({action:"clearDraw",channel})
     });
     ctx.clearRect(0,0,canvas.width,canvas.height);
+    lastDrawTime = 0;
     input.value="";
     return;
   }
@@ -219,7 +222,7 @@ async function send(){
 }
 
 // ---------------- CHAT ----------------
-async function smartSync(){
+async function load(){
   const res = await fetch(API,{
     method:"POST",
     body:JSON.stringify({action:"get",channel})
@@ -294,6 +297,7 @@ function switchChannel(ch){
   document.getElementById("header").textContent=ch;
   document.getElementById("messages").innerHTML="";
   ctx.clearRect(0,0,canvas.width,canvas.height);
+  lastDrawTime = 0;
 }
 
 // ---------------- 🎨 DRAW SYSTEM ----------------
@@ -319,7 +323,7 @@ function resizeCanvas(){
   canvas.height=canvas.offsetHeight;
 }
 
-function startDraw(e){
+function startDraw(){
   drawing=true;
 }
 
@@ -330,7 +334,7 @@ async function draw(e){
   const x=e.clientX-rect.left;
   const y=e.clientY-rect.top;
 
-  ctx.fillRect(x,y,2,2);
+  drawPixel(x,y,"#000");
 
   await fetch(API,{
     method:"POST",
@@ -338,32 +342,40 @@ async function draw(e){
       action:"draw",
       channel,
       nick,
-      x,y,
+      x,
+      y,
       color:"#000"
     })
   });
 }
 
-async function drawTouch(e){
+function drawTouch(e){
   if(!drawing) return;
   const t=e.touches[0];
   draw({clientX:t.clientX,clientY:t.clientY});
 }
 
-// ---------------- SYNC DRAW ----------------
+function drawPixel(x,y,color){
+  ctx.fillStyle=color;
+  ctx.fillRect(x,y,2,2);
+}
+
+// ---------------- SYNC DRAW (FIXED) ----------------
 async function syncDraw(){
   const res = await fetch(API,{
     method:"POST",
-    body:JSON.stringify({action:"getDraw",channel})
+    body:JSON.stringify({
+      action:"getDraw",
+      channel,
+      since:lastDrawTime
+    })
   });
 
   const data = await res.json();
 
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-
   data.points.forEach(p=>{
-    ctx.fillStyle=p.color;
-    ctx.fillRect(p.x,p.y,2,2);
+    drawPixel(p.x,p.y,p.color);
+    lastDrawTime = Math.max(lastDrawTime, new Date(p.time).getTime());
   });
 }
 
