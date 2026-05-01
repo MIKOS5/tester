@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pixel Wall IRC</title>
+<title>Territory Pixel War IRC</title>
 
 <style>
 body {
@@ -41,6 +41,7 @@ body {
   background:#d4d0c8;
   border-right:2px solid gray;
   padding:6px;
+  overflow-y:auto;
 }
 
 /* MAIN */
@@ -53,8 +54,8 @@ body {
 /* CANVAS */
 #canvasWrap {
   flex:1;
-  background:#222;
   overflow:auto;
+  background:#222;
 }
 
 canvas {
@@ -72,15 +73,42 @@ canvas {
   align-items:center;
 }
 
+/* COLORS */
 .color {
   width:20px;
   height:20px;
-  cursor:pointer;
   border:2px solid white;
+  cursor:pointer;
+}
+
+/* CHAT */
+#chat {
+  height:180px;
+  background:white;
+  overflow-y:auto;
+  padding:6px;
+}
+
+.nick { color:blue; font-weight:bold; }
+
+/* INPUT */
+#inputBar {
+  display:flex;
+}
+
+#msg {
+  flex:1;
+  padding:6px;
+  border:none;
 }
 
 /* STATUS */
 #status {
+  font-size:11px;
+}
+
+/* LEADERBOARD */
+#leaderboard {
   font-size:12px;
 }
 </style>
@@ -99,8 +127,8 @@ canvas {
 <div id="app">
 
   <div id="sidebar">
-    <b>Pixel Wall</b><br>
-    Shared Canvas
+    <b>Leaderboard</b>
+    <div id="leaderboard"></div>
   </div>
 
   <div id="main">
@@ -119,6 +147,13 @@ canvas {
       <span id="status">ready</span>
     </div>
 
+    <div id="chat"></div>
+
+    <div id="inputBar">
+      <input id="msg" onkeydown="if(event.key==='Enter') send()">
+      <button onclick="send()">Send</button>
+    </div>
+
   </div>
 
 </div>
@@ -128,26 +163,28 @@ canvas {
 const API = "YOUR_APPS_SCRIPT_URL";
 
 let nick="";
-let channel="#pixel";
+let channel="#territory";
 
-const GRID = 200; // size
-const SIZE = 4;   // pixel size
+const GRID = 200;
+const SIZE = 4;
 
-let lastTime = 0;
-let cooldown = 1000; // 1 sec
+let lastPixelTime = 0;
+let lastChatTime = 0;
+let cooldown = 1000;
+
+let color = "black";
 
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
 canvas.width = GRID;
 canvas.height = GRID;
-
 canvas.style.width = (GRID * SIZE) + "px";
 canvas.style.height = (GRID * SIZE) + "px";
 
-let color = "black";
+const ownership = {}; // key = x,y
 
-/* ENTER */
+// ---------------- ENTER ----------------
 async function enter(){
   nick = document.getElementById("nick").value.trim();
   if(!nick) return;
@@ -163,33 +200,36 @@ async function enter(){
   loop();
 }
 
-/* LOOP */
+// ---------------- LOOP ----------------
 function loop(){
-  setInterval(sync, 400);
+  setInterval(syncPixels, 400);
+  setInterval(syncChat, 1000);
+  setInterval(updateScores, 2000);
 }
 
-/* CLICK PLACE PIXEL */
+// ---------------- PIXEL CLICK ----------------
 canvas.addEventListener("click", async e => {
 
   const now = Date.now();
-  if(now - lastTime < cooldown){
+
+  if(now - lastPixelTime < cooldown){
     document.getElementById("status").textContent="cooldown...";
     return;
   }
 
   const rect = canvas.getBoundingClientRect();
 
-  const x = Math.floor((e.clientX - rect.left) / SIZE);
-  const y = Math.floor((e.clientY - rect.top) / SIZE);
+  const x = Math.floor((e.clientX - rect.left)/SIZE);
+  const y = Math.floor((e.clientY - rect.top)/SIZE);
 
-  drawPixel(x,y,color);
+  drawPixel(x,y,color,nick);
 
-  lastTime = now;
+  lastPixelTime = now;
 
   await fetch(API,{
     method:"POST",
     body:JSON.stringify({
-      action:"draw",
+      action:"placePixel",
       channel,
       nick,
       x,
@@ -200,35 +240,102 @@ canvas.addEventListener("click", async e => {
 
 });
 
-/* DRAW LOCAL */
-function drawPixel(x,y,color){
-  ctx.fillStyle=color;
+// ---------------- DRAW ----------------
+function drawPixel(x,y,color,owner){
+
+  const key = x + "," + y;
+
+  ownership[key] = owner;
+
+  ctx.fillStyle = color;
   ctx.fillRect(x, y, 1, 1);
 }
 
-/* SYNC */
-async function sync(){
+// ---------------- SYNC PIXELS ----------------
+async function syncPixels(){
 
   const res = await fetch(API,{
     method:"POST",
     body:JSON.stringify({
-      action:"getDraw",
+      action:"getPixels",
       channel,
-      since:lastTime
+      since:lastPixelTime
     })
   });
 
   const data = await res.json();
 
-  (data.points || []).forEach(p=>{
-    drawPixel(p.x, p.y, p.color);
-    lastTime = Math.max(lastTime, new Date(p.time).getTime());
+  (data.pixels || []).forEach(p=>{
+    drawPixel(p.x,p.y,p.color,p.owner);
+    lastPixelTime = Math.max(lastPixelTime, new Date(p.time).getTime());
   });
 
   document.getElementById("status").textContent="live";
 }
 
-/* COLOR */
+// ---------------- CHAT ----------------
+async function send(){
+  const input=document.getElementById("msg");
+  const text=input.value.trim();
+  if(!text) return;
+
+  await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({action:"send",nick,channel,message:text})
+  });
+
+  input.value="";
+}
+
+async function syncChat(){
+
+  const res = await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({action:"get",channel})
+  });
+
+  const data = await res.json();
+  const box = document.getElementById("chat");
+
+  box.innerHTML="";
+
+  (data.messages || []).forEach(m=>{
+    const d=document.createElement("div");
+
+    if(m.type==="system"){
+      d.textContent="*** "+m.msg;
+    } else {
+      d.innerHTML=`<span class="nick">${m.nick}:</span> ${m.msg}`;
+    }
+
+    box.appendChild(d);
+  });
+}
+
+// ---------------- LEADERBOARD ----------------
+async function updateScores(){
+
+  const res = await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({action:"getScores",channel})
+  });
+
+  const data = await res.json();
+
+  const scores = Object.entries(data.scores || {})
+    .sort((a,b)=>b[1]-a[1])
+    .slice(0,10);
+
+  const box = document.getElementById("leaderboard");
+
+  box.innerHTML = "";
+
+  scores.forEach(([name,score])=>{
+    box.innerHTML += name + ": " + score + "<br>";
+  });
+}
+
+// ---------------- COLOR ----------------
 function setColor(c){
   color = c;
 }
