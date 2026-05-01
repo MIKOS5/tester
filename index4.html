@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>mPro IRC Marble Betting Room</title>
+<title>Pro Marble Betting Arena</title>
 
 <style>
 body {
   margin:0;
   font-family:Tahoma;
-  background:#0a7f7f;
+  background:#0b6f6f;
   overflow:hidden;
 }
 
@@ -37,7 +37,7 @@ body {
 
 /* SIDEBAR */
 #sidebar {
-  width:220px;
+  width:200px;
   background:#d4d0c8;
   border-right:2px solid gray;
   padding:6px;
@@ -52,7 +52,7 @@ body {
   cursor:pointer;
 }
 
-/* CHAT */
+/* CHAT AREA */
 #chat {
   flex:1;
   display:flex;
@@ -74,33 +74,70 @@ body {
 #messages {
   flex:1;
   overflow-y:auto;
-  padding:8px;
   background:white;
+  padding:8px;
 }
 
-/* MARBLE ARENA */
+/* ARENA */
 #arena {
-  height:240px;
-  background:#111;
+  height:260px;
+  background:linear-gradient(#111,#222);
   position:relative;
   overflow:hidden;
+  border-top:2px solid #333;
+  border-bottom:2px solid #333;
 }
 
+/* track lines */
+.track-line {
+  position:absolute;
+  width:100%;
+  height:1px;
+  background:#333;
+  opacity:0.6;
+}
+
+/* finish line */
+.finish {
+  position:absolute;
+  right:20px;
+  top:0;
+  width:4px;
+  height:100%;
+  background:lime;
+  box-shadow:0 0 10px lime;
+}
+
+/* marbles */
 .marble {
   position:absolute;
-  width:16px;
-  height:16px;
+  width:18px;
+  height:18px;
   border-radius:50%;
+  box-shadow:0 0 6px rgba(0,0,0,0.5);
 }
 
-/* BETTING */
+/* BET UI */
 #betting {
-  background:#222;
+  background:#111;
   color:white;
-  padding:6px;
+  padding:8px;
   font-size:12px;
+  display:flex;
+  gap:6px;
+  align-items:center;
 }
 
+#bet {
+  width:40px;
+}
+
+.winner {
+  color:gold;
+  font-weight:bold;
+}
+
+/* INPUT */
 #inputBar {
   display:flex;
 }
@@ -124,7 +161,7 @@ body {
   <div class="box">
     Nickname<br>
     <input id="nick"><br><br>
-    <button onclick="enter()">Enter</button>
+    <button onclick="enter()">Enter Arena</button>
   </div>
 </div>
 
@@ -141,19 +178,21 @@ body {
 
   <div id="chat">
 
-    <div id="header">#marbles</div>
-    <div id="status">connecting...</div>
+    <div id="header">#marble-arena</div>
+    <div id="status">loading...</div>
 
     <div id="messages"></div>
 
-    <!-- MARBLE ARENA -->
-    <div id="arena"></div>
+    <!-- ARENA -->
+    <div id="arena">
+      <div class="finish"></div>
+    </div>
 
-    <!-- BETTING PANEL -->
+    <!-- BETTING -->
     <div id="betting">
-      Bet on marble (1–4): 
-      <input id="bet" style="width:40px">
-      <button onclick="placeBet()">Bet</button>
+      Bet (1-4):
+      <input id="bet">
+      <button onclick="placeBet()">Place Bet</button>
       <span id="betStatus"></span>
     </div>
 
@@ -167,19 +206,20 @@ body {
 
 <script>
 
-const API = "https://script.google.com/macros/s/AKfycbyGqdSRP9n1O8Mr53B65hkl2P103xSAdVmKsqKf7MbZvg1KzB_3Z2VoFTTPPoI-vWSY/exec";
+const API = "YOUR_WEB_APP_URL_HERE";
 
-let nick = "";
-let channel = "#marbles";
+let nick="";
+let channel="#marbles";
 
-let lastMsgTime = 0;
-let betChoice = null;
+/* race state */
+let marbles=[];
+let bet=null;
+let raceActive=false;
+let winner=null;
 
-/* =========================
-   ENTER
-========================= */
+/* ================= ENTER ================= */
 async function enter(){
-  nick = document.getElementById("nick").value.trim();
+  nick=document.getElementById("nick").value.trim();
   if(!nick) return;
 
   await fetch(API,{
@@ -190,25 +230,20 @@ async function enter(){
   document.getElementById("login").style.display="none";
   document.getElementById("app").style.display="flex";
 
-  loop();
+  startLoop();
+  startRace();
 }
 
-/* =========================
-   LOOP (optimized)
-========================= */
-function loop(){
-  setInterval(syncMessages, 1200);
-  setInterval(syncUsers, 3000);
-  setInterval(runMarbleSim, 150);
+/* ================= LOOP ================= */
+function startLoop(){
+  setInterval(syncMessages,1200);
+  setInterval(syncUsers,3000);
 }
 
-/* =========================
-   CHAT
-========================= */
+/* ================= CHAT ================= */
 async function send(){
   const input=document.getElementById("msg");
-  const text=input.value.trim();
-  if(!text) return;
+  if(!input.value.trim()) return;
 
   await fetch(API,{
     method:"POST",
@@ -216,7 +251,7 @@ async function send(){
       action:"send",
       nick,
       channel,
-      message:text
+      message:input.value
     })
   });
 
@@ -224,35 +259,31 @@ async function send(){
 }
 
 async function syncMessages(){
-  const res = await fetch(API,{
+  const res=await fetch(API,{
     method:"POST",
     body:JSON.stringify({action:"get",channel})
   });
 
-  const data = await res.json();
-  const box = document.getElementById("messages");
+  const data=await res.json();
+  const box=document.getElementById("messages");
 
   box.innerHTML="";
 
-  (data.messages || []).forEach(m=>{
+  (data.messages||[]).forEach(m=>{
     const d=document.createElement("div");
-
     if(m.type==="system"){
       d.className="system";
       d.textContent="*** "+m.msg;
     } else {
-      d.innerHTML = `<span class="nick">${m.nick}:</span> ${escapeHtml(m.msg)}`;
+      d.innerHTML=`<span class="nick">${m.nick}:</span> ${m.msg}`;
     }
-
     box.appendChild(d);
   });
 
   document.getElementById("status").textContent="live";
 }
 
-/* =========================
-   USERS
-========================= */
+/* ================= USERS ================= */
 async function syncUsers(){
   const res=await fetch(API,{
     method:"POST",
@@ -271,128 +302,87 @@ async function syncUsers(){
   });
 }
 
-/* =========================
-   BETTING
-========================= */
+/* ================= BETTING ================= */
 function placeBet(){
-  const val = document.getElementById("bet").value;
-  betChoice = parseInt(val);
+  if(raceActive) return;
 
-  document.getElementById("betStatus").textContent =
-    "Bet placed on marble #" + betChoice;
+  const val=parseInt(document.getElementById("bet").value);
+  if(val<1 || val>4) return;
+
+  bet=val;
+  document.getElementById("betStatus").textContent="Bet locked: "+bet;
 }
 
-/* =========================
-   MARBLE RACE ENGINE
-========================= */
+/* ================= RACE SYSTEM ================= */
 
-let marbles = [];
-let finishOrder = [];
-let running = false;
+function startRace(){
+  const arena=document.getElementById("arena");
+  arena.querySelectorAll(".marble").forEach(m=>m.remove());
 
-function initRace(){
-  const arena = document.getElementById("arena");
-  arena.innerHTML = "";
-
-  marbles = [];
-  finishOrder = [];
-  running = true;
+  marbles=[];
+  winner=null;
+  raceActive=true;
 
   for(let i=0;i<4;i++){
-    const m = document.createElement("div");
+    const m=document.createElement("div");
     m.className="marble";
-    m.style.background = randomColor();
+    m.style.background=randomColor();
+    m.style.top=(40+i*50)+"px";
     m.style.left="0px";
-    m.style.top = (40 + i*40) + "px";
 
     arena.appendChild(m);
 
     marbles.push({
       el:m,
       x:0,
-      speed:2 + Math.random()*3,
-      id:i+1
+      speed:1.5+Math.random()*2.5,
+      id:i+1,
+      boost:Math.random()*0.3
     });
   }
+
+  requestAnimationFrame(updateRace);
 }
 
-/* auto restart every ~15 sec */
-setInterval(()=>{
-  initRace();
-},15000);
+/* smooth physics */
+function updateRace(){
 
-/* physics loop */
-function runMarbleSim(){
-  if(!running) return;
+  if(!raceActive) return;
 
-  const arenaWidth = document.getElementById("arena").offsetWidth;
+  const arenaWidth=document.getElementById("arena").offsetWidth;
 
   marbles.forEach(m=>{
-    m.x += m.speed + Math.random()*1.5;
-    m.el.style.left = m.x + "px";
 
-    if(m.x >= arenaWidth - 20 && !m.finished){
-      m.finished = true;
-      finishOrder.push(m.id);
+    if(m.id===winner) return;
 
-      if(finishOrder.length === 1){
-        document.getElementById("betStatus").textContent =
-          "Winner: Marble " + m.id;
+    m.speed += m.boost;
+    m.speed *= 0.99; // friction feel
+
+    m.x += m.speed;
+
+    m.el.style.left=m.x+"px";
+
+    if(m.x >= arenaWidth-25 && !winner){
+      winner=m.id;
+      raceActive=false;
+
+      document.getElementById("betStatus").innerHTML =
+        `<span class="winner">Winner: Marble ${winner}</span>`;
+
+      if(bet===winner){
+        document.getElementById("betStatus").innerHTML += " 🎉 YOU WON!";
       }
 
-      if(betChoice === m.id && finishOrder.length === 1){
-        document.getElementById("betStatus").textContent += " 🎉 YOU WON BET!";
-      }
+      setTimeout(startRace, 3000);
     }
   });
+
+  requestAnimationFrame(updateRace);
 }
 
-/* start first race */
-initRace();
-
-/* =========================
-   CHANNEL SWITCH
-========================= */
-function switchChannel(ch){
-  channel = ch;
-  document.getElementById("header").textContent = ch;
-  document.getElementById("messages").innerHTML="";
-}
-
-/* =========================
-   CHANNELS
-========================= */
-async function channels(){
-  const res=await fetch(API,{
-    method:"POST",
-    body:JSON.stringify({action:"channels"})
-  });
-
-  const data=await res.json();
-
-  const box=document.getElementById("channels");
-  box.innerHTML="";
-
-  (data.channels||[]).forEach(ch=>{
-    const b=document.createElement("div");
-    b.className="btn";
-    b.textContent=ch;
-    b.onclick=()=>switchChannel(ch);
-    box.appendChild(b);
-  });
-}
-
-setInterval(channels,5000);
-
-/* =========================
-   UTIL
-========================= */
+/* ================= UTILS ================= */
 function randomColor(){
-  return `hsl(${Math.random()*360},80%,50%)`;
-}
-
-function escapeHtml(t){
-  return t.replace(/[&<>"']/g,"m");
+  return `hsl(${Math.random()*360},80%,55%)`;
 }
 
 </script>
