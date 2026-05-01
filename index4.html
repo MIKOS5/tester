@@ -3,18 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Territory Pixel War IRC</title>
+<title>Territory War IRC</title>
 
 <style>
-body {
+body{
   margin:0;
   font-family:Tahoma;
-  background:#008080;
+  background:#111;
+  color:#eee;
   overflow:hidden;
 }
 
 /* LOGIN */
-#login {
+#login{
   position:fixed;
   inset:0;
   display:flex;
@@ -22,94 +23,94 @@ body {
   align-items:center;
 }
 
-.box {
-  background:#d4d0c8;
+.box{
+  background:#222;
   padding:20px;
-  border:3px outset white;
+  border:2px solid #555;
 }
 
 /* APP */
-#app {
+#app{
   display:none;
   height:100vh;
   display:flex;
 }
 
 /* SIDEBAR */
-#sidebar {
+#sidebar{
   width:200px;
-  background:#d4d0c8;
-  border-right:2px solid gray;
+  background:#181818;
+  border-right:1px solid #333;
   padding:6px;
-  overflow-y:auto;
 }
 
-/* MAIN */
-#main {
+.btn{
+  background:#333;
+  padding:5px;
+  margin:3px 0;
+  cursor:pointer;
+  text-align:center;
+}
+
+.btn:hover{
+  background:#555;
+}
+
+/* CHAT */
+#chat{
   flex:1;
   display:flex;
   flex-direction:column;
 }
 
-/* CANVAS */
-#canvasWrap {
-  flex:1;
-  overflow:auto;
+#header{
+  padding:6px;
   background:#222;
 }
 
-canvas {
-  image-rendering: pixelated;
+#messages{
+  flex:1;
+  overflow-y:auto;
+  padding:8px;
+  background:#000;
+}
+
+.nick{ color:#4af; }
+
+/* CANVAS */
+#canvasBox{
+  height:300px;
+  background:#111;
+  border-top:1px solid #333;
+  position:relative;
+}
+
+canvas{
+  width:100%;
+  height:100%;
   cursor:crosshair;
 }
 
-/* TOOLS */
-#tools {
-  background:#111;
-  color:white;
-  padding:6px;
-  display:flex;
-  gap:6px;
-  align-items:center;
-}
-
-/* COLORS */
-.color {
-  width:20px;
-  height:20px;
-  border:2px solid white;
-  cursor:pointer;
-}
-
-/* CHAT */
-#chat {
-  height:180px;
-  background:white;
-  overflow-y:auto;
-  padding:6px;
-}
-
-.nick { color:blue; font-weight:bold; }
-
 /* INPUT */
-#inputBar {
+#inputBar{
   display:flex;
 }
 
-#msg {
+#msg{
   flex:1;
-  padding:6px;
+  padding:8px;
   border:none;
+  outline:none;
 }
 
-/* STATUS */
-#status {
-  font-size:11px;
-}
-
-/* LEADERBOARD */
-#leaderboard {
+/* HUD */
+#hud{
+  position:absolute;
+  top:5px;
+  left:5px;
   font-size:12px;
+  background:rgba(0,0,0,0.5);
+  padding:5px;
 }
 </style>
 </head>
@@ -127,30 +128,25 @@ canvas {
 <div id="app">
 
   <div id="sidebar">
-    <b>Leaderboard</b>
-    <div id="leaderboard"></div>
+    <b>Players</b>
+    <div id="users"></div>
+    <hr>
+    <button class="btn" onclick="clearBoard()">Clear Map</button>
   </div>
 
-  <div id="main">
+  <div id="chat">
 
-    <div id="canvasWrap">
+    <div id="header">🌍 Territory War</div>
+
+    <div id="messages"></div>
+
+    <div id="canvasBox">
       <canvas id="canvas"></canvas>
+      <div id="hud"></div>
     </div>
-
-    <div id="tools">
-      Color:
-      <div class="color" style="background:red" onclick="setColor('red')"></div>
-      <div class="color" style="background:blue" onclick="setColor('blue')"></div>
-      <div class="color" style="background:green" onclick="setColor('green')"></div>
-      <div class="color" style="background:black" onclick="setColor('black')"></div>
-
-      <span id="status">ready</span>
-    </div>
-
-    <div id="chat"></div>
 
     <div id="inputBar">
-      <input id="msg" onkeydown="if(event.key==='Enter') send()">
+      <input id="msg" placeholder="chat..." onkeydown="if(event.key==='Enter')send()">
       <button onclick="send()">Send</button>
     </div>
 
@@ -160,33 +156,38 @@ canvas {
 
 <script>
 
-const API = "YOUR_APPS_SCRIPT_URL";
+const API="https://script.google.com/macros/s/YOUR_DEPLOYMENT_URL/exec";
 
 let nick="";
 let channel="#territory";
+let lastTime=0;
 
-const GRID = 200;
-const SIZE = 4;
+// CANVAS
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
 
-let lastPixelTime = 0;
-let lastChatTime = 0;
-let cooldown = 1000;
+let gridSize=6;
+let territory={}; // key "x,y" -> owner
 
-let color = "black";
+function resize(){
+  canvas.width=canvas.offsetWidth;
+  canvas.height=canvas.offsetHeight;
+}
+resize();
+window.addEventListener("resize",resize);
 
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+// COLORS PER PLAYER
+function getColor(name){
+  let hash=0;
+  for(let i=0;i<name.length;i++){
+    hash=name.charCodeAt(i)+((hash<<5)-hash);
+  }
+  return `hsl(${hash%360},70%,50%)`;
+}
 
-canvas.width = GRID;
-canvas.height = GRID;
-canvas.style.width = (GRID * SIZE) + "px";
-canvas.style.height = (GRID * SIZE) + "px";
-
-const ownership = {}; // key = x,y
-
-// ---------------- ENTER ----------------
+// ENTER
 async function enter(){
-  nick = document.getElementById("nick").value.trim();
+  nick=document.getElementById("nick").value.trim();
   if(!nick) return;
 
   await fetch(API,{
@@ -200,144 +201,142 @@ async function enter(){
   loop();
 }
 
-// ---------------- LOOP ----------------
+// LOOP
 function loop(){
-  setInterval(syncPixels, 400);
-  setInterval(syncChat, 1000);
-  setInterval(updateScores, 2000);
+  setInterval(syncMessages,1000);
+  setInterval(syncTerritory,400);
+  setInterval(who,2000);
 }
 
-// ---------------- PIXEL CLICK ----------------
-canvas.addEventListener("click", async e => {
-
-  const now = Date.now();
-
-  if(now - lastPixelTime < cooldown){
-    document.getElementById("status").textContent="cooldown...";
-    return;
-  }
-
-  const rect = canvas.getBoundingClientRect();
-
-  const x = Math.floor((e.clientX - rect.left)/SIZE);
-  const y = Math.floor((e.clientY - rect.top)/SIZE);
-
-  drawPixel(x,y,color,nick);
-
-  lastPixelTime = now;
-
-  await fetch(API,{
-    method:"POST",
-    body:JSON.stringify({
-      action:"placePixel",
-      channel,
-      nick,
-      x,
-      y,
-      color
-    })
-  });
-
-});
-
-// ---------------- DRAW ----------------
-function drawPixel(x,y,color,owner){
-
-  const key = x + "," + y;
-
-  ownership[key] = owner;
-
-  ctx.fillStyle = color;
-  ctx.fillRect(x, y, 1, 1);
-}
-
-// ---------------- SYNC PIXELS ----------------
-async function syncPixels(){
-
-  const res = await fetch(API,{
-    method:"POST",
-    body:JSON.stringify({
-      action:"getPixels",
-      channel,
-      since:lastPixelTime
-    })
-  });
-
-  const data = await res.json();
-
-  (data.pixels || []).forEach(p=>{
-    drawPixel(p.x,p.y,p.color,p.owner);
-    lastPixelTime = Math.max(lastPixelTime, new Date(p.time).getTime());
-  });
-
-  document.getElementById("status").textContent="live";
-}
-
-// ---------------- CHAT ----------------
+// CHAT
 async function send(){
   const input=document.getElementById("msg");
-  const text=input.value.trim();
-  if(!text) return;
+  if(!input.value) return;
 
   await fetch(API,{
     method:"POST",
-    body:JSON.stringify({action:"send",nick,channel,message:text})
+    body:JSON.stringify({
+      action:"send",
+      nick,
+      channel,
+      message:input.value
+    })
   });
 
   input.value="";
 }
 
-async function syncChat(){
-
-  const res = await fetch(API,{
+// SYNC CHAT
+async function syncMessages(){
+  const res=await fetch(API,{
     method:"POST",
     body:JSON.stringify({action:"get",channel})
   });
 
-  const data = await res.json();
-  const box = document.getElementById("chat");
-
+  const data=await res.json();
+  const box=document.getElementById("messages");
   box.innerHTML="";
 
-  (data.messages || []).forEach(m=>{
+  (data.messages||[]).forEach(m=>{
     const d=document.createElement("div");
-
-    if(m.type==="system"){
-      d.textContent="*** "+m.msg;
-    } else {
-      d.innerHTML=`<span class="nick">${m.nick}:</span> ${m.msg}`;
-    }
-
+    d.innerHTML=`<span class="nick">${m.nick}:</span> ${m.msg}`;
     box.appendChild(d);
   });
 }
 
-// ---------------- LEADERBOARD ----------------
-async function updateScores(){
+// DRAW TERRITORY
+canvas.addEventListener("click", async e=>{
+  const rect=canvas.getBoundingClientRect();
 
-  const res = await fetch(API,{
+  const x=Math.floor((e.clientX-rect.left)/gridSize);
+  const y=Math.floor((e.clientY-rect.top)/gridSize);
+
+  await fetch(API,{
     method:"POST",
-    body:JSON.stringify({action:"getScores",channel})
+    body:JSON.stringify({
+      action:"claim",
+      channel,
+      nick,
+      x,
+      y
+    })
+  });
+});
+
+// SYNC TERRITORY
+async function syncTerritory(){
+
+  const res=await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"getTerritory",
+      channel
+    })
   });
 
-  const data = await res.json();
+  const data=await res.json();
 
-  const scores = Object.entries(data.scores || {})
+  territory={};
+
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  let scores={};
+
+  (data.cells||[]).forEach(c=>{
+    const key=c.x+","+c.y;
+    territory[key]=c.owner;
+
+    ctx.fillStyle=getColor(c.owner);
+    ctx.fillRect(c.x*gridSize, c.y*gridSize, gridSize, gridSize);
+
+    scores[c.owner]=(scores[c.owner]||0)+1;
+  });
+
+  updateHUD(scores);
+}
+
+// HUD (scoreboard)
+function updateHUD(scores){
+
+  let text="🏆 Territory<br>";
+
+  Object.entries(scores)
     .sort((a,b)=>b[1]-a[1])
-    .slice(0,10);
+    .forEach(([name,val])=>{
+      text+=`${name}: ${val}<br>`;
+    });
 
-  const box = document.getElementById("leaderboard");
+  document.getElementById("hud").innerHTML=text;
+}
 
-  box.innerHTML = "";
+// USERS
+async function who(){
+  const res=await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({action:"who",channel})
+  });
 
-  scores.forEach(([name,score])=>{
-    box.innerHTML += name + ": " + score + "<br>";
+  const data=await res.json();
+
+  const box=document.getElementById("users");
+  box.innerHTML="";
+
+  (data.users||[]).forEach(u=>{
+    const d=document.createElement("div");
+    d.textContent=u;
+    box.appendChild(d);
   });
 }
 
-// ---------------- COLOR ----------------
-function setColor(c){
-  color = c;
+// CLEAR
+async function clearBoard(){
+  await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"clearTerritory",
+      channel
+    })
+  });
 }
 
 </script>
