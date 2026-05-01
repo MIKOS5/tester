@@ -1,181 +1,37 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GeoRisk FIXED</title>
-
-<style>
-body { margin:0; font-family:Arial; }
-#map { height:100vh; width:100%; }
-
-#ui {
-  position:absolute;
-  top:10px;
-  left:10px;
-  background:white;
-  padding:10px;
-  border-radius:8px;
-  z-index:999;
-  box-shadow:0 2px 8px rgba(0,0,0,0.2);
-}
-
-button { margin-top:5px; }
-</style>
-</head>
-
-<body>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <div id="map"></div>
 
-<div id="ui">
-  Nick: <input id="nick"><br>
-  <button onclick="join()">Join</button><br><br>
-  <b id="status">Not connected</b>
-</div>
+<style>
+#map { height:100vh; width:100%; }
+</style>
 
 <script>
+let map = L.map('map').setView([33.8, -118.3], 12);
 
-const API = "https://script.google.com/macros/s/AKfycbyGqdSRP9n1O8Mr53B65hkl2P103xSAdVmKsqKf7MbZvg1KzB_3Z2VoFTTPPoI-vWSY/exec";
+// base map (free tiles)
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap'
+}).addTo(map);
 
-let nick = "";
-let map;
+// click to claim territory
+map.on('click', async (e) => {
 
-// FIX: store by ID safely
-let territories = {};
-
-// ---------------- INIT MAP ----------------
-function initMap() {
-
-  map = new google.maps.Map(document.getElementById("map"), {
-    center: { lat: 33.8, lng: -118.3 },
-    zoom: 12,
-    disableDefaultUI: true
-  });
-
-  map.addListener("click", (e) => {
-    if (!nick) return;
-
-    const id = gridId(e.latLng);
-
-    claim(id, e.latLng.lat(), e.latLng.lng());
-  });
-
-  setInterval(sync, 2500);
-}
-
-// ---------------- GRID SYSTEM ----------------
-function gridId(latlng){
-  const x = Math.floor(latlng.lat() * 50);
-  const y = Math.floor(latlng.lng() * 50);
-  return x + "_" + y;
-}
-
-// ---------------- JOIN ----------------
-function join(){
-  nick = document.getElementById("nick").value.trim();
   if (!nick) return;
 
-  document.getElementById("status").textContent =
-    "Online as " + nick;
-}
+  const id = Math.floor(e.latlng.lat*50) + "_" + Math.floor(e.latlng.lng*50);
 
-// ---------------- CLAIM ----------------
-async function claim(id, lat, lng){
-
-  try {
-    await fetch(API,{
-      method:"POST",
-      body:JSON.stringify({
-        action:"claim",
-        nick,
-        id,
-        lat,
-        lng
-      })
-    });
-  } catch(e){
-    console.log("claim error", e);
-  }
-}
-
-// ---------------- DRAW TERRITORY ----------------
-function drawTerritory(t){
-
-  const key = t.id;
-
-  // REMOVE OLD RECTANGLE
-  if (territories[key]) {
-    territories[key].setMap(null);
-  }
-
-  const color = stringColor(t.owner);
-
-  const rect = new google.maps.Rectangle({
-    strokeColor: color,
-    strokeOpacity: 0.8,
-    strokeWeight: 1,
-    fillColor: color,
-    fillOpacity: 0.35,
-    map,
-    bounds: {
-      north: Number(t.lat) + 0.01,
-      south: Number(t.lat) - 0.01,
-      east: Number(t.lng) + 0.01,
-      west: Number(t.lng) - 0.01
-    }
+  await fetch(API, {
+    method:"POST",
+    body:JSON.stringify({
+      action:"claim",
+      nick,
+      id,
+      lat:e.latlng.lat,
+      lng:e.latlng.lng
+    })
   });
 
-  territories[key] = rect;
-}
-
-// ---------------- COLOR ----------------
-function stringColor(str){
-  if (!str) return "#cccccc";
-
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash);
-  }
-
-  let color = "#";
-
-  for (let i = 0; i < 3; i++) {
-    const value = (hash >> (i * 8)) & 255;
-    color += ("00" + value.toString(16)).slice(-2);
-  }
-
-  return color;
-}
-
-// ---------------- SYNC TERRITORIES ----------------
-async function sync(){
-
-  if (!map) return;
-
-  try {
-
-    const res = await fetch(API,{
-      method:"POST",
-      body:JSON.stringify({
-        action:"getTerritories"
-      })
-    });
-
-    const data = await res.json();
-
-    if (!data.territories) return;
-
-    data.territories.forEach(drawTerritory);
-
-  } catch(e){
-    console.log("sync error", e);
-  }
-}
-
+});
 </script>
-
-<!-- GOOGLE MAPS -->
-<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
-
-</body>
-</html>
