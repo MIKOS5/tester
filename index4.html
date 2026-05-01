@@ -1,344 +1,148 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>XTerritory War IRC</title>
+<title>GeoRisk</title>
 
 <style>
-body{
-  margin:0;
-  font-family:Tahoma;
-  background:#111;
-  color:#eee;
-  overflow:hidden;
-}
-
-/* LOGIN */
-#login{
-  position:fixed;
-  inset:0;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-}
-
-.box{
-  background:#222;
-  padding:20px;
-  border:2px solid #555;
-}
-
-/* APP */
-#app{
-  display:none;
-  height:100vh;
-  display:flex;
-}
-
-/* SIDEBAR */
-#sidebar{
-  width:200px;
-  background:#181818;
-  border-right:1px solid #333;
-  padding:6px;
-}
-
-.btn{
-  background:#333;
-  padding:5px;
-  margin:3px 0;
-  cursor:pointer;
-  text-align:center;
-}
-
-.btn:hover{
-  background:#555;
-}
-
-/* CHAT */
-#chat{
-  flex:1;
-  display:flex;
-  flex-direction:column;
-}
-
-#header{
-  padding:6px;
-  background:#222;
-}
-
-#messages{
-  flex:1;
-  overflow-y:auto;
-  padding:8px;
-  background:#000;
-}
-
-.nick{ color:#4af; }
-
-/* CANVAS */
-#canvasBox{
-  height:300px;
-  background:#111;
-  border-top:1px solid #333;
-  position:relative;
-}
-
-canvas{
-  width:100%;
-  height:100%;
-  cursor:crosshair;
-}
-
-/* INPUT */
-#inputBar{
-  display:flex;
-}
-
-#msg{
-  flex:1;
-  padding:8px;
-  border:none;
-  outline:none;
-}
-
-/* HUD */
-#hud{
+body { margin:0; font-family:Arial; }
+#map { height:100vh; width:100%; }
+#ui {
   position:absolute;
-  top:5px;
-  left:5px;
-  font-size:12px;
-  background:rgba(0,0,0,0.5);
-  padding:5px;
+  top:10px;
+  left:10px;
+  background:white;
+  padding:10px;
+  border-radius:8px;
 }
 </style>
 </head>
 
 <body>
 
-<div id="login">
-  <div class="box">
-    Nickname<br>
-    <input id="nick"><br><br>
-    <button onclick="enter()">Enter</button>
-  </div>
-</div>
+<div id="map"></div>
 
-<div id="app">
-
-  <div id="sidebar">
-    <b>Players</b>
-    <div id="users"></div>
-    <hr>
-    <button class="btn" onclick="clearBoard()">Clear Map</button>
-  </div>
-
-  <div id="chat">
-
-    <div id="header">🌍 Territory War</div>
-
-    <div id="messages"></div>
-
-    <div id="canvasBox">
-      <canvas id="canvas"></canvas>
-      <div id="hud"></div>
-    </div>
-
-    <div id="inputBar">
-      <input id="msg" placeholder="chat..." onkeydown="if(event.key==='Enter')send()">
-      <button onclick="send()">Send</button>
-    </div>
-
-  </div>
-
+<div id="ui">
+  Nick: <input id="nick"><br>
+  <button onclick="join()">Join</button><br><br>
+  <b id="status">Not connected</b>
 </div>
 
 <script>
 
-const API="https://script.google.com/macros/s/AKfycbyGqdSRP9n1O8Mr53B65hkl2P103xSAdVmKsqKf7MbZvg1KzB_3Z2VoFTTPPoI-vWSY/exec";
+const API = "YOUR_SCRIPT_URL";
+let nick = "";
 
-let nick="";
-let channel="#territory";
-let lastTime=0;
+let map;
+let territories = {};
 
-// CANVAS
-const canvas=document.getElementById("canvas");
-const ctx=canvas.getContext("2d");
+// ---------------- INIT MAP ----------------
+function initMap() {
 
-let gridSize=6;
-let territory={}; // key "x,y" -> owner
-
-function resize(){
-  canvas.width=canvas.offsetWidth;
-  canvas.height=canvas.offsetHeight;
-}
-resize();
-window.addEventListener("resize",resize);
-
-// COLORS PER PLAYER
-function getColor(name){
-  let hash=0;
-  for(let i=0;i<name.length;i++){
-    hash=name.charCodeAt(i)+((hash<<5)-hash);
-  }
-  return `hsl(${hash%360},70%,50%)`;
-}
-
-// ENTER
-async function enter(){
-  nick=document.getElementById("nick").value.trim();
-  if(!nick) return;
-
-  await fetch(API,{
-    method:"POST",
-    body:JSON.stringify({action:"join",nick,channel})
+  map = new google.maps.Map(document.getElementById("map"), {
+    center: { lat: 33.8, lng: -118.3 },
+    zoom: 12
   });
 
-  document.getElementById("login").style.display="none";
-  document.getElementById("app").style.display="flex";
+  map.addListener("click", (e)=>{
+    if (!nick) return;
+
+    const id = gridId(e.latLng);
+
+    claim(id, e.latLng.lat(), e.latLng.lng());
+  });
 
   loop();
 }
 
-// LOOP
-function loop(){
-  setInterval(syncMessages,1000);
-  setInterval(syncTerritory,400);
-  setInterval(who,2000);
+// ---------------- GRID ID ----------------
+function gridId(latlng){
+  return Math.floor(latlng.lat()*50) + "_" + Math.floor(latlng.lng()*50);
 }
 
-// CHAT
-async function send(){
-  const input=document.getElementById("msg");
-  if(!input.value) return;
-
-  await fetch(API,{
-    method:"POST",
-    body:JSON.stringify({
-      action:"send",
-      nick,
-      channel,
-      message:input.value
-    })
-  });
-
-  input.value="";
+// ---------------- JOIN ----------------
+function join(){
+  nick = document.getElementById("nick").value;
+  document.getElementById("status").textContent = "Online as " + nick;
 }
 
-// SYNC CHAT
-async function syncMessages(){
-  const res=await fetch(API,{
-    method:"POST",
-    body:JSON.stringify({action:"get",channel})
-  });
+// ---------------- CLAIM ----------------
+async function claim(id, lat, lng){
 
-  const data=await res.json();
-  const box=document.getElementById("messages");
-  box.innerHTML="";
-
-  (data.messages||[]).forEach(m=>{
-    const d=document.createElement("div");
-    d.innerHTML=`<span class="nick">${m.nick}:</span> ${m.msg}`;
-    box.appendChild(d);
-  });
-}
-
-// DRAW TERRITORY
-canvas.addEventListener("click", async e=>{
-  const rect=canvas.getBoundingClientRect();
-
-  const x=Math.floor((e.clientX-rect.left)/gridSize);
-  const y=Math.floor((e.clientY-rect.top)/gridSize);
-
-  await fetch(API,{
+  const res = await fetch(API,{
     method:"POST",
     body:JSON.stringify({
       action:"claim",
-      channel,
       nick,
-      x,
-      y
-    })
-  });
-});
-
-// SYNC TERRITORY
-async function syncTerritory(){
-
-  const res=await fetch(API,{
-    method:"POST",
-    body:JSON.stringify({
-      action:"getTerritory",
-      channel
+      id,
+      lat,
+      lng
     })
   });
 
-  const data=await res.json();
+  const data = await res.json();
+  console.log(data);
+}
 
-  territory={};
+// ---------------- DRAW TERRITORIES ----------------
+function drawTerritory(t){
 
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+  if (territories[t.id]) {
+    territories[t.id].setMap(null);
+  }
 
-  let scores={};
+  const color = stringColor(t.owner);
 
-  (data.cells||[]).forEach(c=>{
-    const key=c.x+","+c.y;
-    territory[key]=c.owner;
-
-    ctx.fillStyle=getColor(c.owner);
-    ctx.fillRect(c.x*gridSize, c.y*gridSize, gridSize, gridSize);
-
-    scores[c.owner]=(scores[c.owner]||0)+1;
+  const rect = new google.maps.Rectangle({
+    strokeColor: color,
+    fillColor: color,
+    fillOpacity: 0.35,
+    map,
+    bounds: {
+      north: t.lat + 0.01,
+      south: t.lat - 0.01,
+      east: t.lng + 0.01,
+      west: t.lng - 0.01
+    }
   });
 
-  updateHUD(scores);
+  territories[t.id] = rect;
 }
 
-// HUD (scoreboard)
-function updateHUD(scores){
-
-  let text="🏆 Territory<br>";
-
-  Object.entries(scores)
-    .sort((a,b)=>b[1]-a[1])
-    .forEach(([name,val])=>{
-      text+=`${name}: ${val}<br>`;
-    });
-
-  document.getElementById("hud").innerHTML=text;
+// ---------------- COLOR HASH ----------------
+function stringColor(str){
+  if(!str) return "#ccc";
+  let hash = 0;
+  for (let i=0;i<str.length;i++){
+    hash = str.charCodeAt(i) + ((hash<<5)-hash);
+  }
+  return "#"+((hash>>24)&255).toString(16).padStart(2,'0')+
+              ((hash>>16)&255).toString(16).padStart(2,'0')+
+              ((hash>>8)&255).toString(16).padStart(2,'0');
 }
 
-// USERS
-async function who(){
-  const res=await fetch(API,{
+// ---------------- SYNC ----------------
+async function sync(){
+
+  const res = await fetch(API,{
     method:"POST",
-    body:JSON.stringify({action:"who",channel})
+    body:JSON.stringify({action:"getTerritories"})
   });
 
-  const data=await res.json();
+  const data = await res.json();
 
-  const box=document.getElementById("users");
-  box.innerHTML="";
-
-  (data.users||[]).forEach(u=>{
-    const d=document.createElement("div");
-    d.textContent=u;
-    box.appendChild(d);
-  });
+  data.territories.forEach(drawTerritory);
 }
 
-// CLEAR
-async function clearBoard(){
-  await fetch(API,{
-    method:"POST",
-    body:JSON.stringify({
-      action:"clearTerritory",
-      channel
-    })
-  });
+// ---------------- LOOP ----------------
+function loop(){
+  setInterval(sync, 2000);
 }
 
+</script>
+
+<script async
+src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap">
 </script>
 
 </body>
