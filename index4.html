@@ -8,8 +8,12 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <style>
-body { margin:0; font-family:Arial; }
+body {
+  margin:0;
+  font-family:Arial;
+}
 
+/* MAP */
 #map {
   height:100vh;
   width:100%;
@@ -24,23 +28,24 @@ body { margin:0; font-family:Arial; }
   padding:10px;
   border-radius:8px;
   z-index:999;
-  width:180px;
+  width:200px;
+  box-shadow:0 2px 10px rgba(0,0,0,0.25);
 }
 
-button {
+input, button {
   width:100%;
-  margin-top:5px;
-}
-
-/* GRID STYLE OVERLAY */
-.grid-cell {
-  stroke: rgba(0,0,0,0.15);
-  fill-opacity: 0.35;
+  margin-top:6px;
+  padding:6px;
 }
 
 #status {
   font-size:12px;
-  margin-top:5px;
+  margin-top:6px;
+}
+
+/* TILE STYLE */
+.leaflet-interactive {
+  stroke-width: 1 !important;
 }
 </style>
 </head>
@@ -50,62 +55,65 @@ button {
 <div id="map"></div>
 
 <div id="ui">
-  Nick:<br>
-  <input id="nick"><br>
+  <b>🌍 xRisk MMO</b><br>
+  Nick:
+  <input id="nick" placeholder="enter name">
   <button onclick="join()">Join Game</button>
 
-  <div id="status">Not connected</div>
+  <div id="status">Offline</div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
 
-const API = "https://script.google.com/macros/s/AKfycbyGqdSRP9n1O8Mr53B65hkl2P103xSAdVmKsqKf7MbZvg1KzB_3Z2VoFTTPPoI-vWSY/exec";
+const API = "YOUR_GOOGLE_SCRIPT_URL_HERE";
 
 let nick = "";
 let map;
-let gridSize = 0.02; // territory size (bigger = fewer tiles)
+let gridSize = 0.02;
 let tiles = {};
 
-// ---------------- INIT MAP ----------------
+// ---------------- MAP INIT ----------------
 map = L.map('map').setView([33.8, -118.3], 12);
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19
 }).addTo(map);
 
 // ---------------- CLICK TO CLAIM ----------------
-map.on('click', async (e)=> {
-  if(!nick) return;
+map.on('click', async (e) => {
+  if (!nick) return;
 
   const id = getTileId(e.latlng);
 
   await fetch(API, {
-    method:"POST",
+    method: "POST",
     body: JSON.stringify({
-      action:"claim",
+      action: "claim",
       id,
       lat: e.latlng.lat,
       lng: e.latlng.lng,
       nick
     })
   });
+
+  sync();
 });
 
-// ---------------- GRID SYSTEM ----------------
+// ---------------- TILE SYSTEM ----------------
 function getTileId(latlng){
   const x = Math.floor(latlng.lat / gridSize);
   const y = Math.floor(latlng.lng / gridSize);
   return x + "_" + y;
 }
 
-function getTileBounds(id){
+function getBounds(id){
   const [x,y] = id.split("_").map(Number);
 
   return [
     [x * gridSize, y * gridSize],
-    [(x+1) * gridSize, (y+1) * gridSize]
+    [(x + 1) * gridSize, (y + 1) * gridSize]
   ];
 }
 
@@ -117,22 +125,25 @@ function join(){
   document.getElementById("status").innerText = "Online: " + nick;
 
   sync();
-  setInterval(sync, 2000);
+  setInterval(sync, 2500);
 }
 
 // ---------------- DRAW TILE ----------------
 function drawTile(t){
 
-  if(tiles[t.id]){
+  if (tiles[t.id]) {
     map.removeLayer(tiles[t.id]);
   }
 
   const color = hashColor(t.owner);
 
-  const rect = L.rectangle(getTileBounds(t.id), {
+  const bounds = getBounds(t.id);
+
+  const rect = L.rectangle(bounds, {
     color: color,
     weight: 1,
-    fillOpacity: 0.35
+    fillColor: color,
+    fillOpacity: 0.4
   }).addTo(map);
 
   rect.bindPopup(
@@ -142,33 +153,37 @@ function drawTile(t){
   tiles[t.id] = rect;
 }
 
-// ---------------- COLOR HASH ----------------
+// ---------------- COLOR ----------------
 function hashColor(str){
   if(!str) return "#cccccc";
 
   let hash = 0;
-  for(let i=0;i<str.length;i++){
+  for (let i=0;i<str.length;i++){
     hash = str.charCodeAt(i) + ((hash<<5)-hash);
   }
 
-  let c = (hash & 0x00FFFFFF).toString(16).toUpperCase();
-  return "#" + "00000".substring(0,6-c.length) + c;
+  let hex = (hash & 0x00FFFFFF).toString(16).toUpperCase();
+  return "#" + "000000".substring(0, 6 - hex.length) + hex;
 }
 
 // ---------------- SYNC ----------------
 async function sync(){
 
   try {
-    const res = await fetch(API,{
-      method:"POST",
-      body: JSON.stringify({action:"getTerritories"})
+    const res = await fetch(API, {
+      method: "POST",
+      body: JSON.stringify({ action: "getTerritories" })
     });
 
     const data = await res.json();
 
+    // CLEAR OLD (fix overlap bug)
+    Object.values(tiles).forEach(t => map.removeLayer(t));
+    tiles = {};
+
     (data.territories || []).forEach(drawTile);
 
-  } catch(e){
+  } catch (e) {
     console.log("sync error", e);
   }
 }
