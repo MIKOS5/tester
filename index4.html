@@ -3,12 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GeoRisk MMO</title>
+<title>xGeoRisk MMO (Polished)</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 
 <style>
-body { margin:0; font-family:Arial; overflow:hidden; }
+body {
+  margin:0;
+  font-family:Arial;
+  overflow:hidden;
+}
 
 #map {
   height:100vh;
@@ -23,22 +27,25 @@ body { margin:0; font-family:Arial; overflow:hidden; }
   padding:10px;
   border-radius:10px;
   z-index:9999;
-  box-shadow:0 2px 10px rgba(0,0,0,0.2);
   width:180px;
+  box-shadow:0 3px 12px rgba(0,0,0,0.25);
 }
 
-button { margin-top:5px; width:100%; }
+input, button {
+  width:100%;
+  margin-top:5px;
+  padding:5px;
+}
 
 #status {
   font-size:12px;
   margin-top:6px;
 }
 
-#stats {
-  font-size:11px;
+small {
+  display:block;
   margin-top:6px;
-  border-top:1px solid #ddd;
-  padding-top:5px;
+  color:#555;
 }
 </style>
 </head>
@@ -49,29 +56,26 @@ button { margin-top:5px; width:100%; }
 
 <div id="ui">
   Nick:
-  <input id="nick"><br>
-  <button onclick="join()">Join MMO</button>
+  <input id="nick">
+  <button onclick="join()">Join Game</button>
+
   <div id="status">Offline</div>
 
-  <div id="stats">
-    💰 Income: <span id="income">0</span><br>
-    🏳 Territories: <span id="count">0</span>
-  </div>
+  <small>Click tiles to capture/attack</small>
 </div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
 
-const API = "YOUR_APPS_SCRIPT_URL_HERE";
+const API = "YOUR_GOOGLE_SCRIPT_URL_HERE";
 
 let nick = "";
 let map;
 
-// world state
-const tiles = {};
-let lastState = {};
-let income = 0;
+// store tiles
+const territories = {};
+const gridLines = [];
 
 // ---------------- MAP ----------------
 map = L.map('map', {
@@ -82,121 +86,157 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '&copy; OpenStreetMap'
 }).addTo(map);
 
+// ---------------- GRID SYSTEM ----------------
+const STEP = 0.02;
+
+// draw fixed grid (polished + clean)
+function drawGrid() {
+
+  // remove old lines
+  gridLines.forEach(l => map.removeLayer(l));
+  gridLines.length = 0;
+
+  const b = map.getBounds();
+
+  const north = b.getNorth();
+  const south = b.getSouth();
+  const east  = b.getEast();
+  const west  = b.getWest();
+
+  // vertical lines
+  for (let lng = west; lng < east; lng += STEP) {
+    const line = L.polyline([[south,lng],[north,lng]], {
+      color:"#999",
+      weight:1,
+      opacity:0.3
+    }).addTo(map);
+
+    gridLines.push(line);
+  }
+
+  // horizontal lines
+  for (let lat = south; lat < north; lat += STEP) {
+    const line = L.polyline([[lat,west],[lat,east]], {
+      color:"#999",
+      weight:1,
+      opacity:0.3
+    }).addTo(map);
+
+    gridLines.push(line);
+  }
+}
+
+// refresh grid on movement
+map.on("moveend", drawGrid);
+map.on("zoomend", drawGrid);
+drawGrid();
+
 // ---------------- JOIN ----------------
 function join(){
   nick = document.getElementById("nick").value.trim();
   if(!nick) return;
 
   document.getElementById("status").innerText =
-    "Online: " + nick;
+    "Online as " + nick;
 }
 
-// ---------------- GRID ID ----------------
-function id(lat,lng){
-  return Math.floor(lat*40) + "_" + Math.floor(lng*40);
+// ---------------- SNAP GRID ----------------
+function snap(lat, lng){
+  return {
+    lat: Math.round(lat / STEP) * STEP,
+    lng: Math.round(lng / STEP) * STEP
+  };
 }
 
-// ---------------- CLAIM / ATTACK ----------------
-map.on("click", async (e)=>{
+// ---------------- TILE ID ----------------
+function tileId(lat, lng){
+  return Math.floor(lat * 50) + "_" + Math.floor(lng * 50);
+}
 
-  if(!nick) return;
+// ---------------- CLICK ACTION ----------------
+map.on("click", async (e) => {
 
-  const tileId = id(e.latlng.lat, e.latlng.lng);
+  if (!nick) return;
 
-  await fetch(API,{
+  const s = snap(e.latlng.lat, e.latlng.lng);
+  const id = tileId(s.lat, s.lng);
+
+  await fetch(API, {
     method:"POST",
     body:JSON.stringify({
       action:"claim",
       nick,
-      id: tileId,
-      lat:e.latlng.lat,
-      lng:e.latlng.lng
+      id,
+      lat:s.lat,
+      lng:s.lng
     })
   });
 });
 
 // ---------------- RENDER TILE ----------------
-function render(t){
+function renderTile(t){
 
   const key = t.id;
 
-  const color = ownerColor(t.owner);
+  const color = hashColor(t.owner);
 
   const bounds = [
-    [t.lat - 0.012, t.lng - 0.012],
-    [t.lat + 0.012, t.lng + 0.012]
+    [t.lat - STEP/2, t.lng - STEP/2],
+    [t.lat + STEP/2, t.lng + STEP/2]
   ];
 
-  if(tiles[key]){
-    map.removeLayer(tiles[key]);
+  if (territories[key]) {
+    map.removeLayer(territories[key]);
   }
 
   const rect = L.rectangle(bounds, {
     color: color,
     weight: 1,
+    fillColor: color,
     fillOpacity: 0.45
   }).addTo(map);
 
-  tiles[key] = rect;
+  territories[key] = rect;
 }
 
-// ---------------- OWNER COLOR ----------------
-function ownerColor(owner){
-  if(!owner) return "#ddd";
+// ---------------- COLOR ----------------
+function hashColor(str){
+  if(!str) return "#ccc";
 
   let h = 0;
-  for(let i=0;i<owner.length;i++){
-    h = owner.charCodeAt(i) + ((h<<5)-h);
+  for(let i=0;i<str.length;i++){
+    h = str.charCodeAt(i) + ((h<<5)-h);
   }
 
   let c = "#";
   for(let i=0;i<3;i++){
-    c += ("00" + ((h>>(i*8))&255).toString(16)).slice(-2);
+    c += ("00" + ((h>>(i*8)) & 255).toString(16)).slice(-2);
   }
 
   return c;
 }
 
-// ---------------- GAME STATE SYNC ----------------
+// ---------------- SYNC WORLD ----------------
 async function sync(){
 
-  const res = await fetch(API,{
-    method:"POST",
-    body:JSON.stringify({action:"getTerritories"})
-  });
+  try {
 
-  const data = await res.json();
+    const res = await fetch(API,{
+      method:"POST",
+      body:JSON.stringify({action:"getTerritories"})
+    });
 
-  const list = data.territories || [];
+    const data = await res.json();
 
-  let count = 0;
+    (data.territories || []).forEach(renderTile);
 
-  list.forEach(t=>{
-    render(t);
-
-    if(t.owner === nick) count++;
-  });
-
-  document.getElementById("count").innerText = count;
-}
-
-// ---------------- ECONOMY SYSTEM ----------------
-function tickEconomy(){
-
-  income = 0;
-
-  Object.values(lastState).forEach(t=>{
-    if(t.owner === nick){
-      income += 1;
-    }
-  });
-
-  document.getElementById("income").innerText = income;
+  } catch(e){
+    console.log("sync error", e);
+  }
 }
 
 // ---------------- LOOP ----------------
 setInterval(sync, 2000);
-setInterval(tickEconomy, 3000);
 
 </script>
 
