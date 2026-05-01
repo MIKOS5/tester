@@ -3,59 +3,48 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>⚔️ xRisk FULL WAR MODE</title>
+<title>⚔️ MMO WAR SYSTEM</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <style>
-body {
-  margin:0;
-  font-family:Arial;
-  background:#111;
-}
+body { margin:0; font-family:Arial; background:#111; }
 
-/* MAP */
-#map {
-  height:100vh;
-  width:100%;
-}
+#map { height:100vh; width:100%; }
 
-/* UI */
 #ui {
   position:absolute;
   top:10px;
   left:10px;
-  background:rgba(255,255,255,0.95);
+  background:white;
   padding:12px;
   border-radius:10px;
+  width:240px;
   z-index:999;
-  width:220px;
-  box-shadow:0 5px 20px rgba(0,0,0,0.3);
 }
 
 input, button {
   width:100%;
   margin-top:6px;
   padding:6px;
-  font-size:14px;
 }
 
-button {
-  cursor:pointer;
-}
-
-#status {
-  margin-top:8px;
+#log {
+  position:absolute;
+  bottom:10px;
+  left:10px;
+  background:rgba(0,0,0,0.8);
+  color:white;
+  padding:10px;
+  width:300px;
+  height:140px;
+  overflow:auto;
   font-size:12px;
-  color:#333;
 }
 
-#stats {
-  margin-top:8px;
+.stat {
   font-size:12px;
-  background:#f3f3f3;
-  padding:6px;
-  border-radius:6px;
+  margin-top:5px;
 }
 </style>
 </head>
@@ -65,20 +54,18 @@ button {
 <div id="map"></div>
 
 <div id="ui">
-  <b>⚔️ FULL WAR MODE</b>
+  <b>⚔️ MMO WAR</b>
 
-  <input id="nick" placeholder="Enter Commander Name">
-  <button onclick="join()">Join War</button>
+  <input id="nick" placeholder="Commander name">
+  <button onclick="join()">Join Empire</button>
 
-  <button onclick="collect()">💰 Collect Income</button>
+  <button onclick="collect()">💰 Collect</button>
 
-  <div id="status">Offline</div>
-
-  <div id="stats">
-    Coins: <span id="coins">0</span><br>
-    Owned: <span id="owned">0</span>
-  </div>
+  <div class="stat" id="status">Offline</div>
+  <div class="stat">Coins: <span id="coins">0</span></div>
 </div>
+
+<div id="log"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -86,34 +73,28 @@ button {
 
 const API = "https://script.google.com/macros/s/AKfycbyGqdSRP9n1O8Mr53B65hkl2P103xSAdVmKsqKf7MbZvg1KzB_3Z2VoFTTPPoI-vWSY/exec";
 
-let nick = "";
 let map;
-let grid = 0.02;
+let nick="";
+let tiles={};
+let faction="";
 
-let tiles = {};
-let lastSync = 0;
-let coins = 0;
-
-// =========================
-// INIT MAP
-// =========================
-map = L.map('map').setView([33.8, -118.3], 12);
+// MAP
+map = L.map('map').setView([33.8,-118.3],12);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-  maxZoom: 19
+  maxZoom:19
 }).addTo(map);
 
-// =========================
-// CLICK TO ATTACK / CLAIM
-// =========================
-map.on('click', async (e) => {
+// CLICK
+map.on('click', async (e)=>{
+
   if(!nick) return;
 
-  const id = getId(e.latlng);
+  const id = Math.floor(e.latlng.lat*50)+"_"+Math.floor(e.latlng.lng*50);
 
-  const res = await fetch(API,{
+  await fetch(API,{
     method:"POST",
-    body: JSON.stringify({
+    body:JSON.stringify({
       action:"claim",
       id,
       lat:e.latlng.lat,
@@ -122,145 +103,93 @@ map.on('click', async (e) => {
     })
   });
 
-  const data = await res.json();
-  console.log("WAR:", data);
-
   sync();
 });
 
-// =========================
-// GRID ID SYSTEM
-// =========================
-function getId(latlng){
-  const x = Math.floor(latlng.lat / grid);
-  const y = Math.floor(latlng.lng / grid);
-  return x + "_" + y;
-}
-
-// =========================
 // JOIN
-// =========================
 async function join(){
-  nick = document.getElementById("nick").value.trim();
-  if(!nick) return;
 
-  await fetch(API,{
+  nick = document.getElementById("nick").value;
+
+  const res = await fetch(API,{
     method:"POST",
     body:JSON.stringify({action:"join",nick})
   });
 
-  document.getElementById("status").innerText = "Commander: " + nick;
+  const data = await res.json();
+  faction = data.faction;
+
+  document.getElementById("status").innerText =
+    "Faction: " + faction;
 
   sync();
-  setInterval(sync, 2500);
+  setInterval(sync,2000);
 }
 
-// =========================
-// COLLECT ECONOMY
-// =========================
+// COLLECT
 async function collect(){
-
   const res = await fetch(API,{
     method:"POST",
     body:JSON.stringify({action:"collect",nick})
   });
 
   const data = await res.json();
-
-  coins = data.coins || coins;
-  document.getElementById("coins").innerText = coins;
+  document.getElementById("coins").innerText = data.coins;
 }
 
-// =========================
 // DRAW TILE
-// =========================
 function draw(t){
 
-  const id = t.id;
-
-  if(tiles[id]){
-    map.removeLayer(tiles[id]);
+  if(tiles[t.id]){
+    map.removeLayer(tiles[t.id]);
   }
 
-  const color = colorHash(t.owner);
+  const color = hash(t.owner);
 
-  const bounds = [
-    [t.lat, t.lng],
-    [t.lat + grid, t.lng + grid]
-  ];
-
-  const rect = L.rectangle(bounds,{
-    color:color,
-    weight:1,
-    fillColor:color,
-    fillOpacity:0.45
+  const rect = L.rectangle([
+    [t.lat,t.lng],
+    [t.lat+0.02,t.lng+0.02]
+  ],{
+    color,
+    fillOpacity:0.4
   }).addTo(map);
 
-  rect.bindPopup(
-    `👑 ${t.owner || "Neutral"}<br>⚔️ Troops: ${t.troops || 0}`
-  );
-
-  tiles[id] = rect;
+  tiles[t.id]=rect;
 }
 
-// =========================
-// COLOR SYSTEM
-// =========================
-function colorHash(str){
-  if(!str) return "#777";
+// COLOR
+function hash(s){
+  if(!s) return "#666";
 
   let h=0;
-  for(let i=0;i<str.length;i++){
-    h = str.charCodeAt(i) + ((h<<5)-h);
+  for(let i=0;i<s.length;i++){
+    h=s.charCodeAt(i)+((h<<5)-h);
   }
 
-  let c = (h & 0x00FFFFFF).toString(16).toUpperCase();
-  return "#" + "000000".substring(0,6-c.length) + c;
+  return "#"+((h&0xffffff).toString(16).padStart(6,"0"));
 }
 
-// =========================
-// SYNC (FIXED + OPTIMIZED)
-// =========================
+// LOG
+function addLog(msg){
+  const div=document.getElementById("log");
+  div.innerHTML += msg + "<br>";
+  div.scrollTop=div.scrollHeight;
+}
+
+// SYNC
 async function sync(){
 
-  try {
-    const res = await fetch(API,{
-      method:"POST",
-      body:JSON.stringify({
-        action:"getTerritories",
-        since:lastSync
-      })
-    });
-
-    const data = await res.json();
-
-    if(data.serverTime){
-      lastSync = data.serverTime;
-    }
-
-    const list = data.territories || [];
-
-    list.forEach(draw);
-
-    updateOwned(list);
-
-  } catch(err){
-    console.log("sync error", err);
-  }
-}
-
-// =========================
-// OWNED COUNT
-// =========================
-function updateOwned(list){
-
-  let count = 0;
-
-  list.forEach(t=>{
-    if(t.owner === nick) count++;
+  const res = await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({action:"getTerritories"})
   });
 
-  document.getElementById("owned").innerText = count;
+  const data = await res.json();
+
+  Object.values(tiles).forEach(t=>map.removeLayer(t));
+  tiles={};
+
+  data.territories.forEach(draw);
 }
 
 </script>
