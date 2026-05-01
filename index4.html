@@ -3,246 +3,220 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GeoRisk MMO War</title>
+<title>Risk MMO v2 War System</title>
 
 <style>
 body {
   margin:0;
+  background:#111;
   font-family:Arial;
   overflow:hidden;
-  background:#111;
   color:white;
 }
 
-/* UI */
 #ui {
   position:fixed;
   top:10px;
   left:10px;
-  background:rgba(0,0,0,0.7);
+  background:rgba(0,0,0,0.75);
   padding:10px;
   border-radius:10px;
   z-index:10;
+  width:180px;
 }
 
 input, button {
-  padding:5px;
+  width:100%;
   margin-top:5px;
+  padding:6px;
 }
 
-/* CANVAS WORLD */
-#world {
-  position:absolute;
-  top:0;
-  left:0;
+canvas {
+  display:block;
 }
 </style>
 </head>
 
 <body>
 
-<canvas id="world"></canvas>
+<canvas id="game"></canvas>
 
 <div id="ui">
   Nick:<br>
   <input id="nick"><br>
   <button onclick="join()">Join War</button>
-  <button onclick="resetView()">Reset View</button>
+
+  <div id="stats">
+    🪖 Troops: <span id="troops">0</span><br>
+    🌍 Tiles: <span id="tiles">0</span>
+  </div>
 
   <div id="status">offline</div>
 </div>
 
 <script>
 
-const API = "https://script.google.com/macros/s/AKfycbyGqdSRP9n1O8Mr53B65hkl2P103xSAdVmKsqKf7MbZvg1KzB_3Z2VoFTTPPoI-vWSY/exec";
+const API = "YOUR_GOOGLE_SCRIPT_URL";
+
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+window.onresize = () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+};
+
+/* WORLD */
+const SIZE = 40;
+const W = 120;
+const H = 80;
 
 let nick = "";
 
-/* WORLD SETTINGS */
-const GRID_SIZE = 40;
-const WORLD_W = 200;
-const WORLD_H = 200;
+/* STATE */
+let grid = {};   // owner
+let troops = {}; // troop count per tile
+let cooldown = {};
 
-let scale = 6;
-let offsetX = 0;
-let offsetY = 0;
+/* CAMERA */
+let camX = 0;
+let camY = 0;
+let scale = 8;
 
-/* canvas */
-const canvas = document.getElementById("world");
-const ctx = canvas.getContext("2d");
-
-function resize(){
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-window.addEventListener("resize", resize);
-resize();
-
-/* TERRITORY MAP */
-let grid = {}; // "x_y" => owner
-
-/* =========================
-   JOIN
-========================= */
+/* ---------------- JOIN ---------------- */
 async function join(){
   nick = document.getElementById("nick").value;
   if(!nick) return;
 
+  document.getElementById("status").innerText = "ONLINE: " + nick;
+
   await fetch(API,{
     method:"POST",
-    body:JSON.stringify({
-      action:"join",
-      nick,
-      channel:"world"
-    })
+    body:JSON.stringify({action:"join",nick,channel:"world"})
   });
-
-  document.getElementById("status").innerText = "ONLINE: " + nick;
 
   loop();
 }
 
-/* =========================
-   WORLD GRID ID
-========================= */
-function cellId(x,y){
+/* ---------------- CELL ID ---------------- */
+function id(x,y){
   return x + "_" + y;
 }
 
-/* =========================
-   CLICK TO CLAIM
-========================= */
+/* ---------------- CLICK = ATTACK ---------------- */
 canvas.addEventListener("click",(e)=>{
 
   if(!nick) return;
 
-  const x = Math.floor((e.clientX - offsetX) / scale);
-  const y = Math.floor((e.clientY - offsetY) / scale);
+  const x = Math.floor((e.clientX - camX)/scale);
+  const y = Math.floor((e.clientY - camY)/scale);
 
-  const id = cellId(x,y);
+  const key = id(x,y);
+
+  if(cooldown[key] && Date.now() < cooldown[key]) return;
+
+  cooldown[key] = Date.now() + 1000; // 1 sec cooldown
 
   fetch(API,{
     method:"POST",
     body:JSON.stringify({
-      action:"claim",
+      action:"attack",
       nick,
-      id,
-      lat:x,
-      lng:y
+      x,y
     })
   });
 });
 
-/* =========================
-   PAN (drag world)
-========================= */
-let dragging = false;
-let lastX, lastY;
-
-canvas.addEventListener("mousedown",(e)=>{
-  dragging = true;
-  lastX = e.clientX;
-  lastY = e.clientY;
-});
-
-canvas.addEventListener("mouseup",()=>dragging=false);
-
-canvas.addEventListener("mousemove",(e)=>{
-  if(!dragging) return;
-
-  offsetX += e.clientX - lastX;
-  offsetY += e.clientY - lastY;
-
-  lastX = e.clientX;
-  lastY = e.clientY;
-});
-
-/* =========================
-   ZOOM
-========================= */
-canvas.addEventListener("wheel",(e)=>{
-  scale += e.deltaY * -0.01;
-  scale = Math.min(20, Math.max(2, scale));
-});
-
-/* =========================
-   DRAW WORLD GRID
-========================= */
+/* ---------------- DRAW WORLD ---------------- */
 function draw(){
 
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
-  for(let x=0;x<WORLD_W;x++){
-    for(let y=0;y<WORLD_H;y++){
+  let myTiles = 0;
+  let myTroops = 0;
 
-      const id = cellId(x,y);
-      const owner = grid[id];
+  for(let x=0;x<W;x++){
+    for(let y=0;y<H;y++){
 
-      const px = x * scale + offsetX;
-      const py = y * scale + offsetY;
+      const key = id(x,y);
+      const owner = grid[key];
+      const t = troops[key] || 0;
+
+      const px = x*scale + camX;
+      const py = y*scale + camY;
 
       if(px < -50 || py < -50 || px > canvas.width+50 || py > canvas.height+50)
         continue;
 
+      // color
       ctx.fillStyle = owner ? color(owner) : "#222";
-
       ctx.fillRect(px,py,scale,scale);
 
       ctx.strokeStyle = "#000";
       ctx.strokeRect(px,py,scale,scale);
+
+      // troop number
+      if(t > 0){
+        ctx.fillStyle = "white";
+        ctx.font = "10px Arial";
+        ctx.fillText(t, px+2, py+10);
+      }
+
+      if(owner === nick){
+        myTiles++;
+        myTroops += t;
+      }
     }
   }
+
+  document.getElementById("troops").innerText = myTroops;
+  document.getElementById("tiles").innerText = myTiles;
 }
 
-/* =========================
-   COLOR HASH
-========================= */
+/* ---------------- COLOR ---------------- */
 function color(str){
-  let hash = 0;
+  let h = 0;
   for(let i=0;i<str.length;i++){
-    hash = str.charCodeAt(i) + ((hash<<5)-hash);
+    h = str.charCodeAt(i) + ((h<<5)-h);
   }
-  return "#" + ((hash>>16)&255).toString(16).padStart(2,'0')
-               + ((hash>>8)&255).toString(16).padStart(2,'0')
-               + (hash&255).toString(16).padStart(2,'0');
+
+  return "#" + ((h>>16)&255).toString(16).padStart(2,'0')
+             + ((h>>8)&255).toString(16).padStart(2,'0')
+             + (h&255).toString(16).padStart(2,'0');
 }
 
-/* =========================
-   SYNC FROM SERVER
-========================= */
+/* ---------------- SYNC ---------------- */
 async function sync(){
 
   const res = await fetch(API,{
     method:"POST",
-    body:JSON.stringify({
-      action:"getPixels",
-      channel:"world"
-    })
+    body:JSON.stringify({action:"getWorld"})
   });
 
   const data = await res.json();
 
-  grid = {};
-
-  (data.pixels || []).forEach(p=>{
-    const id = cellId(p.x,p.y);
-    grid[id] = p.owner;
-  });
+  grid = data.grid || {};
+  troops = data.troops || {};
 }
 
-/* =========================
-   LOOP
-========================= */
+/* ---------------- ECONOMY ---------------- */
+function economyTick(){
+
+  for(let k in grid){
+    if(grid[k] === nick){
+      troops[k] = (troops[k] || 0) + 1;
+    }
+  }
+}
+
+/* ---------------- LOOP ---------------- */
 function loop(){
   setInterval(sync, 1000);
-  setInterval(draw, 16); // smooth 60fps render
-}
-
-/* reset view */
-function resetView(){
-  scale = 6;
-  offsetX = 0;
-  offsetY = 0;
+  setInterval(draw, 16);
+  setInterval(economyTick, 2000);
 }
 
 </script>
