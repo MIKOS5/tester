@@ -3,16 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pro IRC Whiteboard Battle</title>
+<title>Pro IRC Marble Betting Room</title>
 
 <style>
 body {
   margin:0;
   font-family:Tahoma;
-  background:#008080;
+  background:#0a7f7f;
   overflow:hidden;
 }
 
+/* LOGIN */
 #login {
   position:fixed;
   inset:0;
@@ -27,12 +28,14 @@ body {
   border:3px outset white;
 }
 
+/* APP */
 #app {
   display:none;
   height:100vh;
   display:flex;
 }
 
+/* SIDEBAR */
 #sidebar {
   width:220px;
   background:#d4d0c8;
@@ -44,11 +47,12 @@ body {
 .btn {
   background:#d4d0c8;
   border:2px outset white;
-  padding:4px;
-  margin:2px 0;
+  padding:5px;
+  margin:3px 0;
   cursor:pointer;
 }
 
+/* CHAT */
 #chat {
   flex:1;
   display:flex;
@@ -74,25 +78,27 @@ body {
   background:white;
 }
 
-#drawBox {
-  height:280px;
-  border-top:2px solid gray;
-  background:white;
+/* MARBLE ARENA */
+#arena {
+  height:240px;
+  background:#111;
   position:relative;
+  overflow:hidden;
 }
 
-canvas {
-  width:100%;
-  height:100%;
-  cursor:crosshair;
-}
-
-.cursor {
+.marble {
   position:absolute;
-  font-size:11px;
-  pointer-events:none;
-  color:red;
-  font-weight:bold;
+  width:16px;
+  height:16px;
+  border-radius:50%;
+}
+
+/* BETTING */
+#betting {
+  background:#222;
+  color:white;
+  padding:6px;
+  font-size:12px;
 }
 
 #inputBar {
@@ -105,20 +111,15 @@ canvas {
   border:none;
 }
 
+/* TEXT */
 .nick { color:blue; font-weight:bold; }
 .system { color:gray; }
-.me { color:purple; }
-
-/* HP BAR */
-.hp {
-  font-size:11px;
-  color:green;
-}
 </style>
 </head>
 
 <body>
 
+<!-- LOGIN -->
 <div id="login">
   <div class="box">
     Nickname<br>
@@ -127,6 +128,7 @@ canvas {
   </div>
 </div>
 
+<!-- APP -->
 <div id="app">
 
   <div id="sidebar">
@@ -135,20 +137,24 @@ canvas {
     <hr>
     <b>Users</b>
     <div id="users"></div>
-    <hr>
-    <b>Battle HP</b>
-    <div id="hp"></div>
   </div>
 
   <div id="chat">
 
-    <div id="header">#general</div>
+    <div id="header">#marbles</div>
     <div id="status">connecting...</div>
 
     <div id="messages"></div>
 
-    <div id="drawBox">
-      <canvas id="canvas"></canvas>
+    <!-- MARBLE ARENA -->
+    <div id="arena"></div>
+
+    <!-- BETTING PANEL -->
+    <div id="betting">
+      Bet on marble (1–4): 
+      <input id="bet" style="width:40px">
+      <button onclick="placeBet()">Bet</button>
+      <span id="betStatus"></span>
     </div>
 
     <div id="inputBar">
@@ -157,30 +163,21 @@ canvas {
     </div>
 
   </div>
-
 </div>
 
 <script>
 
-const API = "https://script.google.com/macros/s/AKfycbyGqdSRP9n1O8Mr53B65hkl2P103xSAdVmKsqKf7MbZvg1KzB_3Z2VoFTTPPoI-vWSY/exec";
+const API = "YOUR_WEB_APP_URL_HERE";
 
 let nick = "";
-let channel = "#general";
+let channel = "#marbles";
 
-let lastStroke = 0;
-let lastCursorSend = 0;
+let lastMsgTime = 0;
+let betChoice = null;
 
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
-
-function resize(){
-  canvas.width = canvas.offsetWidth;
-  canvas.height = canvas.offsetHeight;
-}
-resize();
-window.addEventListener("resize", resize);
-
-// ---------------- ENTER ----------------
+/* =========================
+   ENTER
+========================= */
 async function enter(){
   nick = document.getElementById("nick").value.trim();
   if(!nick) return;
@@ -196,20 +193,22 @@ async function enter(){
   loop();
 }
 
-// ---------------- LOOP ----------------
+/* =========================
+   LOOP (optimized)
+========================= */
 function loop(){
-  setInterval(getMessages, 800);
-  setInterval(getStrokes, 250);
-  setInterval(getCursors, 200);
-  setInterval(getUsers, 2000);
-  setInterval(getChannels, 5000);
-  setInterval(getHP, 2000);
+  setInterval(syncMessages, 1200);
+  setInterval(syncUsers, 3000);
+  setInterval(runMarbleSim, 150);
 }
 
-// ---------------- CHAT ----------------
+/* =========================
+   CHAT
+========================= */
 async function send(){
   const input=document.getElementById("msg");
-  if(!input.value.trim()) return;
+  const text=input.value.trim();
+  if(!text) return;
 
   await fetch(API,{
     method:"POST",
@@ -217,209 +216,164 @@ async function send(){
       action:"send",
       nick,
       channel,
-      message:input.value
+      message:text
     })
   });
 
   input.value="";
 }
 
-// ---------------- CHAT RENDER ----------------
-async function getMessages(){
-  const r=await fetch(API,{
+async function syncMessages(){
+  const res = await fetch(API,{
     method:"POST",
     body:JSON.stringify({action:"get",channel})
   });
 
-  const d=await r.json();
-  const box=document.getElementById("messages");
+  const data = await res.json();
+  const box = document.getElementById("messages");
 
   box.innerHTML="";
 
-  (d.messages||[]).forEach(m=>{
-    const div=document.createElement("div");
+  (data.messages || []).forEach(m=>{
+    const d=document.createElement("div");
 
     if(m.type==="system"){
-      div.className="system";
-      div.textContent=m.msg;
+      d.className="system";
+      d.textContent="*** "+m.msg;
     } else {
-      div.innerHTML=`<span class="nick">${m.nick}</span>: ${m.msg}`;
+      d.innerHTML = `<span class="nick">${m.nick}:</span> ${escapeHtml(m.msg)}`;
     }
 
-    box.appendChild(div);
+    box.appendChild(d);
   });
+
+  document.getElementById("status").textContent="live";
 }
 
-// ---------------- DRAWING ----------------
-let drawing=false;
-let stroke=[];
-
-canvas.addEventListener("mousedown",()=>{drawing=true; stroke=[]});
-canvas.addEventListener("mouseup",sendStroke);
-canvas.addEventListener("mouseleave",sendStroke);
-
-canvas.addEventListener("mousemove",(e)=>{
-
-  const r=canvas.getBoundingClientRect();
-  const x=e.clientX-r.left;
-  const y=e.clientY-r.top;
-
-  sendCursor(x,y);
-
-  if(!drawing) return;
-
-  stroke.push({x,y});
-
-  if(stroke.length>1){
-    ctx.beginPath();
-    ctx.moveTo(stroke[stroke.length-2].x,stroke[stroke.length-2].y);
-    ctx.lineTo(x,y);
-    ctx.stroke();
-  }
-});
-
-// ---------------- SEND STROKE ----------------
-async function sendStroke(){
-  if(stroke.length<2) return;
-  drawing=false;
-
-  await fetch(API,{
-    method:"POST",
-    body:JSON.stringify({
-      action:"drawStroke",
-      channel,
-      nick,
-      points:stroke,
-      color:"#000"
-    })
-  });
-
-  stroke=[];
-}
-
-// ---------------- SYNC STROKES ----------------
-async function getStrokes(){
-
-  const r=await fetch(API,{
-    method:"POST",
-    body:JSON.stringify({
-      action:"getStrokes",
-      channel,
-      since:lastStroke
-    })
-  });
-
-  const d=await r.json();
-
-  (d.strokes||[]).forEach(s=>{
-    drawStroke(s.points);
-    lastStroke=Math.max(lastStroke,new Date(s.time).getTime());
-  });
-}
-
-function drawStroke(p){
-  if(!p||p.length<2) return;
-
-  ctx.beginPath();
-  ctx.moveTo(p[0].x,p[0].y);
-
-  for(let i=1;i<p.length;i++){
-    ctx.lineTo(p[i].x,p[i].y);
-  }
-
-  ctx.stroke();
-}
-
-// ---------------- CURSORS ----------------
-async function sendCursor(x,y){
-
-  const now=Date.now();
-  if(now-lastCursorSend<100) return;
-  lastCursorSend=now;
-
-  fetch(API,{
-    method:"POST",
-    body:JSON.stringify({action:"cursor",nick,channel,x,y})
-  });
-}
-
-async function getCursors(){
-
-  const r=await fetch(API,{
-    method:"POST",
-    body:JSON.stringify({action:"getCursors",channel})
-  });
-
-  const d=await r.json();
-
-  document.querySelectorAll(".cursor").forEach(e=>e.remove());
-
-  (d.cursors||[]).forEach(c=>{
-    if(c.nick===nick) return;
-
-    const el=document.createElement("div");
-    el.className="cursor";
-    el.textContent=c.nick;
-    el.style.left=c.x+"px";
-    el.style.top=c.y+"px";
-    document.getElementById("drawBox").appendChild(el);
-  });
-}
-
-// ---------------- USERS + HP BATTLE ----------------
-async function getUsers(){
-
-  const r=await fetch(API,{
+/* =========================
+   USERS
+========================= */
+async function syncUsers(){
+  const res=await fetch(API,{
     method:"POST",
     body:JSON.stringify({action:"who",channel})
   });
 
-  const d=await r.json();
+  const data=await res.json();
 
   const box=document.getElementById("users");
   box.innerHTML="";
 
-  (d.users||[]).forEach(u=>{
-    const div=document.createElement("div");
-    div.textContent=u;
-    box.appendChild(div);
+  (data.users||[]).forEach(u=>{
+    const d=document.createElement("div");
+    d.textContent=u;
+    box.appendChild(d);
   });
 }
 
-// ---------------- HP SYSTEM ----------------
-async function getHP(){
-  const r=await fetch(API,{
-    method:"POST",
-    body:JSON.stringify({action:"getHP",channel})
-  });
+/* =========================
+   BETTING
+========================= */
+function placeBet(){
+  const val = document.getElementById("bet").value;
+  betChoice = parseInt(val);
 
-  const d=await r.json();
+  document.getElementById("betStatus").textContent =
+    "Bet placed on marble #" + betChoice;
+}
 
-  const box=document.getElementById("hp");
-  box.innerHTML="";
+/* =========================
+   MARBLE RACE ENGINE
+========================= */
 
-  (d.hp||[]).forEach(p=>{
-    const div=document.createElement("div");
-    div.className="hp";
-    div.textContent=`${p.nick}: ${p.hp}`;
-    box.appendChild(div);
+let marbles = [];
+let finishOrder = [];
+let running = false;
+
+function initRace(){
+  const arena = document.getElementById("arena");
+  arena.innerHTML = "";
+
+  marbles = [];
+  finishOrder = [];
+  running = true;
+
+  for(let i=0;i<4;i++){
+    const m = document.createElement("div");
+    m.className="marble";
+    m.style.background = randomColor();
+    m.style.left="0px";
+    m.style.top = (40 + i*40) + "px";
+
+    arena.appendChild(m);
+
+    marbles.push({
+      el:m,
+      x:0,
+      speed:2 + Math.random()*3,
+      id:i+1
+    });
+  }
+}
+
+/* auto restart every ~15 sec */
+setInterval(()=>{
+  initRace();
+},15000);
+
+/* physics loop */
+function runMarbleSim(){
+  if(!running) return;
+
+  const arenaWidth = document.getElementById("arena").offsetWidth;
+
+  marbles.forEach(m=>{
+    m.x += m.speed + Math.random()*1.5;
+    m.el.style.left = m.x + "px";
+
+    if(m.x >= arenaWidth - 20 && !m.finished){
+      m.finished = true;
+      finishOrder.push(m.id);
+
+      if(finishOrder.length === 1){
+        document.getElementById("betStatus").textContent =
+          "Winner: Marble " + m.id;
+      }
+
+      if(betChoice === m.id && finishOrder.length === 1){
+        document.getElementById("betStatus").textContent += " 🎉 YOU WON BET!";
+      }
+    }
   });
 }
 
-// ---------------- CHANNELS ----------------
-async function getChannels(){
+/* start first race */
+initRace();
 
-  const r=await fetch(API,{
+/* =========================
+   CHANNEL SWITCH
+========================= */
+function switchChannel(ch){
+  channel = ch;
+  document.getElementById("header").textContent = ch;
+  document.getElementById("messages").innerHTML="";
+}
+
+/* =========================
+   CHANNELS
+========================= */
+async function channels(){
+  const res=await fetch(API,{
     method:"POST",
     body:JSON.stringify({action:"channels"})
   });
 
-  const d=await r.json();
+  const data=await res.json();
 
   const box=document.getElementById("channels");
   box.innerHTML="";
 
-  (d.channels||[]).forEach(ch=>{
+  (data.channels||[]).forEach(ch=>{
     const b=document.createElement("div");
     b.className="btn";
     b.textContent=ch;
@@ -428,12 +382,17 @@ async function getChannels(){
   });
 }
 
-function switchChannel(ch){
-  channel=ch;
-  document.getElementById("header").textContent=ch;
-  document.getElementById("messages").innerHTML="";
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  lastStroke=0;
+setInterval(channels,5000);
+
+/* =========================
+   UTIL
+========================= */
+function randomColor(){
+  return `hsl(${Math.random()*360},80%,50%)`;
+}
+
+function escapeHtml(t){
+  return t.replace(/[&<>"']/g,"m");
 }
 
 </script>
