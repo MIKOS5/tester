@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>XPro Marble Betting Arena</title>
+<title>Pixel Wall IRC</title>
 
 <style>
 body {
   margin:0;
   font-family:Tahoma;
-  background:#0b6f6f;
+  background:#008080;
   overflow:hidden;
 }
 
@@ -41,185 +41,115 @@ body {
   background:#d4d0c8;
   border-right:2px solid gray;
   padding:6px;
-  overflow-y:auto;
 }
 
-.btn {
-  background:#d4d0c8;
-  border:2px outset white;
-  padding:5px;
-  margin:3px 0;
-  cursor:pointer;
-}
-
-/* CHAT AREA */
-#chat {
+/* MAIN */
+#main {
   flex:1;
   display:flex;
   flex-direction:column;
 }
 
-#header {
-  background:#d4d0c8;
-  padding:6px;
-  border-bottom:2px solid gray;
-}
-
-#status {
-  font-size:11px;
-  padding:4px;
-  background:#ddd;
-}
-
-#messages {
+/* CANVAS */
+#canvasWrap {
   flex:1;
-  overflow-y:auto;
-  background:white;
-  padding:8px;
+  background:#222;
+  overflow:auto;
 }
 
-/* ARENA */
-#arena {
-  height:260px;
-  background:linear-gradient(#111,#222);
-  position:relative;
-  overflow:hidden;
-  border-top:2px solid #333;
-  border-bottom:2px solid #333;
+canvas {
+  image-rendering: pixelated;
+  cursor:crosshair;
 }
 
-/* track lines */
-.track-line {
-  position:absolute;
-  width:100%;
-  height:1px;
-  background:#333;
-  opacity:0.6;
-}
-
-/* finish line */
-.finish {
-  position:absolute;
-  right:20px;
-  top:0;
-  width:4px;
-  height:100%;
-  background:lime;
-  box-shadow:0 0 10px lime;
-}
-
-/* marbles */
-.marble {
-  position:absolute;
-  width:18px;
-  height:18px;
-  border-radius:50%;
-  box-shadow:0 0 6px rgba(0,0,0,0.5);
-}
-
-/* BET UI */
-#betting {
+/* TOOLS */
+#tools {
   background:#111;
   color:white;
-  padding:8px;
-  font-size:12px;
+  padding:6px;
   display:flex;
   gap:6px;
   align-items:center;
 }
 
-#bet {
-  width:40px;
+.color {
+  width:20px;
+  height:20px;
+  cursor:pointer;
+  border:2px solid white;
 }
 
-.winner {
-  color:gold;
-  font-weight:bold;
+/* STATUS */
+#status {
+  font-size:12px;
 }
-
-/* INPUT */
-#inputBar {
-  display:flex;
-}
-
-#msg {
-  flex:1;
-  padding:8px;
-  border:none;
-}
-
-/* TEXT */
-.nick { color:blue; font-weight:bold; }
-.system { color:gray; }
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
 <div id="login">
   <div class="box">
     Nickname<br>
     <input id="nick"><br><br>
-    <button onclick="enter()">Enter Arena</button>
+    <button onclick="enter()">Enter</button>
   </div>
 </div>
 
-<!-- APP -->
 <div id="app">
 
   <div id="sidebar">
-    <b>Channels</b>
-    <div id="channels"></div>
-    <hr>
-    <b>Users</b>
-    <div id="users"></div>
+    <b>Pixel Wall</b><br>
+    Shared Canvas
   </div>
 
-  <div id="chat">
+  <div id="main">
 
-    <div id="header">#marble-arena</div>
-    <div id="status">loading...</div>
-
-    <div id="messages"></div>
-
-    <!-- ARENA -->
-    <div id="arena">
-      <div class="finish"></div>
+    <div id="canvasWrap">
+      <canvas id="canvas"></canvas>
     </div>
 
-    <!-- BETTING -->
-    <div id="betting">
-      Bet (1-4):
-      <input id="bet">
-      <button onclick="placeBet()">Place Bet</button>
-      <span id="betStatus"></span>
-    </div>
+    <div id="tools">
+      Color:
+      <div class="color" style="background:red" onclick="setColor('red')"></div>
+      <div class="color" style="background:blue" onclick="setColor('blue')"></div>
+      <div class="color" style="background:green" onclick="setColor('green')"></div>
+      <div class="color" style="background:black" onclick="setColor('black')"></div>
 
-    <div id="inputBar">
-      <input id="msg" onkeydown="if(event.key==='Enter') send()">
-      <button onclick="send()">Send</button>
+      <span id="status">ready</span>
     </div>
 
   </div>
+
 </div>
 
 <script>
 
-const API = "https://script.google.com/macros/s/AKfycbyGqdSRP9n1O8Mr53B65hkl2P103xSAdVmKsqKf7MbZvg1KzB_3Z2VoFTTPPoI-vWSY/exec";
+const API = "YOUR_APPS_SCRIPT_URL";
 
 let nick="";
-let channel="#marbles";
+let channel="#pixel";
 
-/* race state */
-let marbles=[];
-let bet=null;
-let raceActive=false;
-let winner=null;
+const GRID = 200; // size
+const SIZE = 4;   // pixel size
 
-/* ================= ENTER ================= */
+let lastTime = 0;
+let cooldown = 1000; // 1 sec
+
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+canvas.width = GRID;
+canvas.height = GRID;
+
+canvas.style.width = (GRID * SIZE) + "px";
+canvas.style.height = (GRID * SIZE) + "px";
+
+let color = "black";
+
+/* ENTER */
 async function enter(){
-  nick=document.getElementById("nick").value.trim();
+  nick = document.getElementById("nick").value.trim();
   if(!nick) return;
 
   await fetch(API,{
@@ -230,159 +160,77 @@ async function enter(){
   document.getElementById("login").style.display="none";
   document.getElementById("app").style.display="flex";
 
-  startLoop();
-  startRace();
+  loop();
 }
 
-/* ================= LOOP ================= */
-function startLoop(){
-  setInterval(syncMessages,1200);
-  setInterval(syncUsers,3000);
+/* LOOP */
+function loop(){
+  setInterval(sync, 400);
 }
 
-/* ================= CHAT ================= */
-async function send(){
-  const input=document.getElementById("msg");
-  if(!input.value.trim()) return;
+/* CLICK PLACE PIXEL */
+canvas.addEventListener("click", async e => {
+
+  const now = Date.now();
+  if(now - lastTime < cooldown){
+    document.getElementById("status").textContent="cooldown...";
+    return;
+  }
+
+  const rect = canvas.getBoundingClientRect();
+
+  const x = Math.floor((e.clientX - rect.left) / SIZE);
+  const y = Math.floor((e.clientY - rect.top) / SIZE);
+
+  drawPixel(x,y,color);
+
+  lastTime = now;
 
   await fetch(API,{
     method:"POST",
     body:JSON.stringify({
-      action:"send",
-      nick,
+      action:"draw",
       channel,
-      message:input.value
+      nick,
+      x,
+      y,
+      color
     })
   });
 
-  input.value="";
+});
+
+/* DRAW LOCAL */
+function drawPixel(x,y,color){
+  ctx.fillStyle=color;
+  ctx.fillRect(x, y, 1, 1);
 }
 
-async function syncMessages(){
-  const res=await fetch(API,{
+/* SYNC */
+async function sync(){
+
+  const res = await fetch(API,{
     method:"POST",
-    body:JSON.stringify({action:"get",channel})
+    body:JSON.stringify({
+      action:"getDraw",
+      channel,
+      since:lastTime
+    })
   });
 
-  const data=await res.json();
-  const box=document.getElementById("messages");
+  const data = await res.json();
 
-  box.innerHTML="";
-
-  (data.messages||[]).forEach(m=>{
-    const d=document.createElement("div");
-    if(m.type==="system"){
-      d.className="system";
-      d.textContent="*** "+m.msg;
-    } else {
-      d.innerHTML=`<span class="nick">${m.nick}:</span> ${m.msg}`;
-    }
-    box.appendChild(d);
+  (data.points || []).forEach(p=>{
+    drawPixel(p.x, p.y, p.color);
+    lastTime = Math.max(lastTime, new Date(p.time).getTime());
   });
 
   document.getElementById("status").textContent="live";
 }
 
-/* ================= USERS ================= */
-async function syncUsers(){
-  const res=await fetch(API,{
-    method:"POST",
-    body:JSON.stringify({action:"who",channel})
-  });
-
-  const data=await res.json();
-
-  const box=document.getElementById("users");
-  box.innerHTML="";
-
-  (data.users||[]).forEach(u=>{
-    const d=document.createElement("div");
-    d.textContent=u;
-    box.appendChild(d);
-  });
-}
-
-/* ================= BETTING ================= */
-function placeBet(){
-  if(raceActive) return;
-
-  const val=parseInt(document.getElementById("bet").value);
-  if(val<1 || val>4) return;
-
-  bet=val;
-  document.getElementById("betStatus").textContent="Bet locked: "+bet;
-}
-
-/* ================= RACE SYSTEM ================= */
-
-function startRace(){
-  const arena=document.getElementById("arena");
-  arena.querySelectorAll(".marble").forEach(m=>m.remove());
-
-  marbles=[];
-  winner=null;
-  raceActive=true;
-
-  for(let i=0;i<4;i++){
-    const m=document.createElement("div");
-    m.className="marble";
-    m.style.background=randomColor();
-    m.style.top=(40+i*50)+"px";
-    m.style.left="0px";
-
-    arena.appendChild(m);
-
-    marbles.push({
-      el:m,
-      x:0,
-      speed:1.5+Math.random()*2.5,
-      id:i+1,
-      boost:Math.random()*0.3
-    });
-  }
-
-  requestAnimationFrame(updateRace);
-}
-
-/* smooth physics */
-function updateRace(){
-
-  if(!raceActive) return;
-
-  const arenaWidth=document.getElementById("arena").offsetWidth;
-
-  marbles.forEach(m=>{
-
-    if(m.id===winner) return;
-
-    m.speed += m.boost;
-    m.speed *= 0.99; // friction feel
-
-    m.x += m.speed;
-
-    m.el.style.left=m.x+"px";
-
-    if(m.x >= arenaWidth-25 && !winner){
-      winner=m.id;
-      raceActive=false;
-
-      document.getElementById("betStatus").innerHTML =
-        `<span class="winner">Winner: Marble ${winner}</span>`;
-
-      if(bet===winner){
-        document.getElementById("betStatus").innerHTML += " 🎉 YOU WON!";
-      }
-
-      setTimeout(startRace, 3000);
-    }
-  });
-
-  requestAnimationFrame(updateRace);
-}
-
-/* ================= UTILS ================= */
-function randomColor(){
-  return `hsl(${Math.random()*360},80%,55%)`;
+/* COLOR */
+function setColor(c){
+  color = c;
 }
 
 </script>
