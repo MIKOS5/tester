@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pro Collaborative Whiteboard IRC</title>
+<title>xPro Collaborative Whiteboard IRC</title>
 
 <style>
 body {
@@ -78,7 +78,7 @@ body {
   background:white;
 }
 
-/* DRAW AREA */
+/* DRAW */
 #drawBox {
   height:260px;
   border-top:2px solid gray;
@@ -92,14 +92,23 @@ canvas {
   cursor:crosshair;
 }
 
-/* CURSORS */
+/* CURSOR */
 .cursor {
   position:absolute;
   font-size:11px;
   pointer-events:none;
   transform: translate(-2px, -2px);
-  color:red;
   font-weight:bold;
+}
+
+/* TOOLBAR */
+#toolbar {
+  padding:4px;
+  background:#eee;
+  border-bottom:1px solid gray;
+  display:flex;
+  gap:6px;
+  align-items:center;
 }
 
 /* INPUT */
@@ -122,6 +131,7 @@ canvas {
 
 <body>
 
+<!-- LOGIN -->
 <div id="login">
   <div class="box">
     Nickname<br>
@@ -130,6 +140,7 @@ canvas {
   </div>
 </div>
 
+<!-- APP -->
 <div id="app">
 
   <div id="sidebar">
@@ -147,41 +158,60 @@ canvas {
 
     <div id="messages"></div>
 
+    <!-- TOOLBAR -->
+    <div id="toolbar">
+      🎨 <input type="color" id="color" value="#000000">
+      ✏️ <input type="range" id="size" min="1" max="10" value="2">
+
+      <button onclick="tool='draw'">Draw</button>
+      <button onclick="tool='erase'">Erase</button>
+      <button onclick="clearBoard()">Clear</button>
+    </div>
+
+    <!-- CANVAS -->
     <div id="drawBox">
       <canvas id="canvas"></canvas>
     </div>
 
+    <!-- CHAT INPUT -->
     <div id="inputBar">
       <input id="msg" onkeydown="if(event.key==='Enter') send()">
       <button onclick="send()">Send</button>
     </div>
 
   </div>
-
 </div>
 
 <script>
 
-const API = "https://script.google.com/macros/s/AKfycbyGqdSRP9n1O8Mr53B65hkl2P103xSAdVmKsqKf7MbZvg1KzB_3Z2VoFTTPPoI-vWSY/exec";
+const API = "YOUR_SCRIPT_URL_HERE";
 
 let nick = "";
 let channel = "#general";
 let lastStrokeTime = 0;
 
-// ---------------- CANVAS ----------------
+let tool = "draw";
+let color = "#000000";
+let size = 2;
+
+/* CANVAS */
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-function resizeCanvas(){
+function resize(){
   canvas.width = canvas.offsetWidth;
   canvas.height = canvas.offsetHeight;
 }
-resizeCanvas();
-window.addEventListener("resize", resizeCanvas);
+resize();
+window.addEventListener("resize", resize);
 
-// ---------------- ENTER ----------------
+/* TOOL SETTINGS */
+document.getElementById("color").oninput = e => color = e.target.value;
+document.getElementById("size").oninput = e => size = e.target.value;
+
+/* ENTER */
 async function enter(){
-  nick=document.getElementById("nick").value.trim();
+  nick = document.getElementById("nick").value.trim();
   if(!nick) return;
 
   await fetch(API,{
@@ -191,21 +221,20 @@ async function enter(){
 
   document.getElementById("login").style.display="none";
   document.getElementById("app").style.display="flex";
-  document.getElementById("status").textContent="online";
 
   loop();
 }
 
-// ---------------- LOOP ----------------
+/* LOOP */
 function loop(){
   setInterval(syncMessages, 1000);
-  setInterval(syncStrokes, 400);
+  setInterval(syncStrokes, 250);
   setInterval(syncCursors, 150);
   setInterval(who, 2000);
   setInterval(channels, 5000);
 }
 
-// ---------------- CHAT ----------------
+/* CHAT */
 async function send(){
   const input=document.getElementById("msg");
   const text=input.value.trim();
@@ -219,6 +248,7 @@ async function send(){
   input.value="";
 }
 
+/* MESSAGES */
 async function syncMessages(){
   const res = await fetch(API,{
     method:"POST",
@@ -230,7 +260,7 @@ async function syncMessages(){
 
   box.innerHTML="";
 
-  (data.messages || []).forEach(m=>{
+  (data.messages||[]).forEach(m=>{
     const d=document.createElement("div");
 
     if(m.type==="system"){
@@ -246,25 +276,25 @@ async function syncMessages(){
   document.getElementById("status").textContent="live";
 }
 
-// ---------------- DRAW (STROKES) ----------------
-let drawing = false;
-let currentStroke = [];
+/* DRAWING */
+let drawing=false;
+let stroke=[];
 
-canvas.addEventListener("mousedown", ()=>{
-  drawing = true;
-  currentStroke = [];
+canvas.addEventListener("mousedown",()=>{
+  drawing=true;
+  stroke=[];
 });
 
-canvas.addEventListener("mouseup", sendStroke);
-canvas.addEventListener("mouseleave", sendStroke);
+canvas.addEventListener("mouseup",sendStroke);
+canvas.addEventListener("mouseleave",sendStroke);
 
-canvas.addEventListener("mousemove", (e)=>{
+canvas.addEventListener("mousemove",(e)=>{
 
   const rect=canvas.getBoundingClientRect();
   const x=e.clientX-rect.left;
   const y=e.clientY-rect.top;
 
-  // send cursor
+  // cursor update (throttled)
   fetch(API,{
     method:"POST",
     body:JSON.stringify({
@@ -277,14 +307,16 @@ canvas.addEventListener("mousemove", (e)=>{
 
   if(!drawing) return;
 
-  currentStroke.push({x,y});
-  drawLocal(currentStroke);
+  stroke.push({x,y});
+  drawLocal(stroke);
+
 });
 
+/* SEND STROKE */
 function sendStroke(){
-  if(!drawing || currentStroke.length < 2) return;
+  if(stroke.length<2) return;
 
-  drawing = false;
+  drawing=false;
 
   fetch(API,{
     method:"POST",
@@ -292,30 +324,33 @@ function sendStroke(){
       action:"drawStroke",
       channel,
       nick,
-      points: currentStroke,
-      color:"#000"
+      points:stroke,
+      color: tool==="erase" ? "#ffffff" : color,
+      size:size
     })
   });
 
-  currentStroke = [];
+  stroke=[];
 }
 
-// draw smooth line
-function drawLocal(points){
-  if(points.length < 2) return;
+/* LOCAL DRAW */
+function drawLocal(p){
+  if(p.length<2) return;
 
   ctx.beginPath();
-  ctx.moveTo(points[points.length-2].x, points[points.length-2].y);
-  ctx.lineTo(points[points.length-1].x, points[points.length-1].y);
-  ctx.strokeStyle = "#000";
-  ctx.lineWidth = 2;
+  ctx.moveTo(p[p.length-2].x, p[p.length-2].y);
+  ctx.lineTo(p[p.length-1].x, p[p.length-1].y);
+
+  ctx.strokeStyle = tool==="erase" ? "#fff" : color;
+  ctx.lineWidth = size;
+  ctx.lineCap = "round";
   ctx.stroke();
 }
 
-// ---------------- SYNC STROKES ----------------
+/* SYNC STROKES */
 async function syncStrokes(){
 
-  const res = await fetch(API,{
+  const res=await fetch(API,{
     method:"POST",
     body:JSON.stringify({
       action:"getStrokes",
@@ -324,16 +359,16 @@ async function syncStrokes(){
     })
   });
 
-  const data = await res.json();
+  const data=await res.json();
 
-  (data.strokes || []).forEach(s=>{
-    drawStroke(s.points, s.color);
+  (data.strokes||[]).forEach(s=>{
+    drawStroke(s.points, s.color, s.size);
     lastStrokeTime = Math.max(lastStrokeTime, new Date(s.time).getTime());
   });
 }
 
-function drawStroke(points, color){
-  if(points.length < 2) return;
+function drawStroke(points,color,size=2){
+  if(points.length<2) return;
 
   ctx.beginPath();
   ctx.moveTo(points[0].x, points[0].y);
@@ -342,12 +377,26 @@ function drawStroke(points, color){
     ctx.lineTo(points[i].x, points[i].y);
   }
 
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 2;
+  ctx.strokeStyle=color;
+  ctx.lineWidth=size;
+  ctx.lineCap="round";
   ctx.stroke();
 }
 
-// ---------------- CURSORS ----------------
+/* CLEAR BOARD */
+async function clearBoard(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"clearDraw",
+      channel
+    })
+  });
+}
+
+/* CURSORS */
 async function syncCursors(){
 
   const res=await fetch(API,{
@@ -359,19 +408,22 @@ async function syncCursors(){
 
   document.querySelectorAll(".cursor").forEach(e=>e.remove());
 
-  (data.cursors || []).forEach(c=>{
-    if(c.nick === nick) return;
+  (data.cursors||[]).forEach(c=>{
+
+    if(c.nick===nick) return;
 
     const el=document.createElement("div");
     el.className="cursor";
     el.textContent=c.nick;
     el.style.left=c.x+"px";
     el.style.top=c.y+"px";
+    el.style.color="hsl("+(c.nick.length*70%360)+",100%,40%)";
+
     document.getElementById("drawBox").appendChild(el);
   });
 }
 
-// ---------------- USERS ----------------
+/* USERS */
 async function who(){
   const res=await fetch(API,{
     method:"POST",
@@ -383,14 +435,14 @@ async function who(){
   const box=document.getElementById("users");
   box.innerHTML="";
 
-  (data.users || []).forEach(u=>{
+  (data.users||[]).forEach(u=>{
     const d=document.createElement("div");
     d.textContent=u;
     box.appendChild(d);
   });
 }
 
-// ---------------- CHANNELS ----------------
+/* CHANNELS */
 async function channels(){
   const res=await fetch(API,{
     method:"POST",
@@ -402,7 +454,7 @@ async function channels(){
   const box=document.getElementById("channels");
   box.innerHTML="";
 
-  (data.channels || []).forEach(ch=>{
+  (data.channels||[]).forEach(ch=>{
     const b=document.createElement("div");
     b.className="btn";
     b.textContent=ch;
@@ -411,16 +463,15 @@ async function channels(){
   });
 }
 
-// ---------------- SWITCH ----------------
+/* SWITCH CHANNEL */
 function switchChannel(ch){
   channel=ch;
-
   document.getElementById("header").textContent=ch;
   document.getElementById("messages").innerHTML="";
-
   ctx.clearRect(0,0,canvas.width,canvas.height);
-
-  lastStrokeTime = 0;
+  lastStrokeTime=0;
 }
 
 </script>
+</body>
+</html>
