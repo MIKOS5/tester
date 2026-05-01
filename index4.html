@@ -166,8 +166,7 @@ const API = "https://script.google.com/macros/s/AKfycbyGqdSRP9n1O8Mr53B65hkl2P10
 
 let nick = "";
 let channel = "#general";
-let lastDrawTime = 0;
-let lastCursorTime = 0;
+let lastStrokeTime = 0;
 
 // ---------------- CANVAS ----------------
 const canvas = document.getElementById("canvas");
@@ -200,13 +199,13 @@ async function enter(){
 // ---------------- LOOP ----------------
 function loop(){
   setInterval(syncMessages, 1000);
-  setInterval(syncDraw, 250);
-  setInterval(syncCursors, 120);
+  setInterval(syncStrokes, 400);
+  setInterval(syncCursors, 150);
   setInterval(who, 2000);
   setInterval(channels, 5000);
 }
 
-// ---------------- SEND CHAT ----------------
+// ---------------- CHAT ----------------
 async function send(){
   const input=document.getElementById("msg");
   const text=input.value.trim();
@@ -220,7 +219,6 @@ async function send(){
   input.value="";
 }
 
-// ---------------- MESSAGES ----------------
 async function syncMessages(){
   const res = await fetch(API,{
     method:"POST",
@@ -248,14 +246,19 @@ async function syncMessages(){
   document.getElementById("status").textContent="live";
 }
 
-// ---------------- DRAW ----------------
-let drawing=false;
+// ---------------- DRAW (STROKES) ----------------
+let drawing = false;
+let currentStroke = [];
 
-canvas.addEventListener("mousedown",()=>drawing=true);
-canvas.addEventListener("mouseup",()=>drawing=false);
-canvas.addEventListener("mouseleave",()=>drawing=false);
+canvas.addEventListener("mousedown", ()=>{
+  drawing = true;
+  currentStroke = [];
+});
 
-canvas.addEventListener("mousemove", async (e)=>{
+canvas.addEventListener("mouseup", sendStroke);
+canvas.addEventListener("mouseleave", sendStroke);
+
+canvas.addEventListener("mousemove", (e)=>{
 
   const rect=canvas.getBoundingClientRect();
   const x=e.clientX-rect.left;
@@ -274,53 +277,82 @@ canvas.addEventListener("mousemove", async (e)=>{
 
   if(!drawing) return;
 
-  draw(x,y,"black");
+  currentStroke.push({x,y});
+  drawLocal(currentStroke);
+});
+
+function sendStroke(){
+  if(!drawing || currentStroke.length < 2) return;
+
+  drawing = false;
 
   fetch(API,{
     method:"POST",
     body:JSON.stringify({
-      action:"draw",
+      action:"drawStroke",
       channel,
       nick,
-      x,y,
-      color:"black"
+      points: currentStroke,
+      color:"#000"
     })
   });
-});
 
-function draw(x,y,color){
-  ctx.fillStyle=color;
-  ctx.fillRect(x,y,2,2);
+  currentStroke = [];
 }
 
-// ---------------- SYNC DRAW ----------------
-async function syncDraw(){
-  const res=await fetch(API,{
+// draw smooth line
+function drawLocal(points){
+  if(points.length < 2) return;
+
+  ctx.beginPath();
+  ctx.moveTo(points[points.length-2].x, points[points.length-2].y);
+  ctx.lineTo(points[points.length-1].x, points[points.length-1].y);
+  ctx.strokeStyle = "#000";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+}
+
+// ---------------- SYNC STROKES ----------------
+async function syncStrokes(){
+
+  const res = await fetch(API,{
     method:"POST",
     body:JSON.stringify({
-      action:"getDraw",
+      action:"getStrokes",
       channel,
-      since:lastDrawTime
+      since:lastStrokeTime
     })
   });
 
-  const data=await res.json();
+  const data = await res.json();
 
-  (data.points || []).forEach(p=>{
-    draw(p.x,p.y,p.color);
-    lastDrawTime=Math.max(lastDrawTime, new Date(p.time).getTime());
+  (data.strokes || []).forEach(s=>{
+    drawStroke(s.points, s.color);
+    lastStrokeTime = Math.max(lastStrokeTime, new Date(s.time).getTime());
   });
 }
 
-// ---------------- LIVE CURSORS ----------------
+function drawStroke(points, color){
+  if(points.length < 2) return;
+
+  ctx.beginPath();
+  ctx.moveTo(points[0].x, points[0].y);
+
+  for(let i=1;i<points.length;i++){
+    ctx.lineTo(points[i].x, points[i].y);
+  }
+
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  ctx.stroke();
+}
+
+// ---------------- CURSORS ----------------
 async function syncCursors(){
 
   const res=await fetch(API,{
     method:"POST",
-    body:JSON.stringify({
-      action:"getCursors",
-      channel
-    })
+    body:JSON.stringify({action:"getCursors",channel})
   });
 
   const data=await res.json();
@@ -328,6 +360,8 @@ async function syncCursors(){
   document.querySelectorAll(".cursor").forEach(e=>e.remove());
 
   (data.cursors || []).forEach(c=>{
+    if(c.nick === nick) return;
+
     const el=document.createElement("div");
     el.className="cursor";
     el.textContent=c.nick;
@@ -380,13 +414,13 @@ async function channels(){
 // ---------------- SWITCH ----------------
 function switchChannel(ch){
   channel=ch;
+
   document.getElementById("header").textContent=ch;
   document.getElementById("messages").innerHTML="";
+
   ctx.clearRect(0,0,canvas.width,canvas.height);
-  lastDrawTime=0;
+
+  lastStrokeTime = 0;
 }
 
 </script>
-
-</body>
-</html>
