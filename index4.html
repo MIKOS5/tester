@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>knkj⚔️ RTS MMO</title>
+<title>⚔️ RTS MMO (Stable UI)</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
@@ -28,7 +28,7 @@ body {
   background:#1a1f2a;
   padding:12px;
   border-radius:10px;
-  z-index:999;
+  z-index:9999;
 }
 
 input, button, textarea {
@@ -43,6 +43,7 @@ button {
   background:#2d6cdf;
   color:white;
   font-weight:bold;
+  cursor:pointer;
 }
 
 #log {
@@ -50,18 +51,21 @@ button {
   bottom:10px;
   left:10px;
   width:320px;
-  height:160px;
+  height:140px;
   overflow:auto;
   background:#1a1f2a;
   padding:10px;
   border-radius:10px;
   font-size:12px;
-  z-index:999;
+  z-index:9999;
 }
 
-.popup-btn {
+.popupBtn {
   margin-top:6px;
-  background:#ff4d4d;
+  background:#444;
+  color:white;
+  padding:5px;
+  cursor:pointer;
 }
 </style>
 </head>
@@ -72,15 +76,12 @@ button {
 
 <div id="ui">
   <b>⚔️ RTS MMO</b>
-  <input id="nick" placeholder="Commander name">
+  <input id="nick" placeholder="Name">
   <button onclick="join()">Join</button>
 
   <div id="status">Offline</div>
 
-  <hr>
-
   <textarea id="noteInput" placeholder="Write territory note..."></textarea>
-  <button onclick="saveNote()">Save Note</button>
 </div>
 
 <div id="log"></div>
@@ -93,167 +94,135 @@ const API = "https://script.google.com/macros/s/AKfycbyGqdSRP9n1O8Mr53B65hkl2P10
 
 let map;
 let nick = "";
-let bases = {};
-let selected = null;
+let tiles = {};   // IMPORTANT: persistent
+let selectedTile = null;
 
-// FIX: prevent popup auto closing behavior issues
-map = L.map('map', {
-  closePopupOnClick: false
-}).setView([33.8,-118.3],12);
+// ================= MAP =================
+map = L.map('map').setView([33.8,-118.3], 12);
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-  maxZoom:19
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19
 }).addTo(map);
 
-// ---------------- TILE ID ----------------
+// ================= TILE ID =================
 function tileId(latlng){
   return Math.floor(latlng.lat*50)+"_"+Math.floor(latlng.lng*50);
 }
 
-// ---------------- CLICK ----------------
-map.on('click', async (e)=>{
+function bounds(id){
+  let [x,y] = id.split("_").map(Number);
+  return [
+    [x/50, y/50],
+    [(x+1)/50, (y+1)/50]
+  ];
+}
+
+// ================= JOIN =================
+async function join(){
+  nick = document.getElementById("nick").value;
+  if(!nick) return;
+
+  document.getElementById("status").innerText = "Online";
+
+  sync();
+  setInterval(sync, 3000);
+}
+
+// ================= CLICK =================
+map.on("click", async (e)=>{
 
   if(!nick) return;
 
-  const id = tileId(e.latlng);
+  let id = tileId(e.latlng);
+
+  let note = document.getElementById("noteInput").value;
 
   await fetch(API,{
     method:"POST",
-    body:JSON.stringify({
+    body: JSON.stringify({
       action:"claim",
       id,
       lat:e.latlng.lat,
       lng:e.latlng.lng,
-      nick
+      nick,
+      note
     })
   });
 
   sync();
 });
 
-// ---------------- JOIN ----------------
-async function join(){
-  nick = document.getElementById("nick").value.trim();
-  if(!nick) return;
+// ================= DRAW TILE =================
+function drawTile(t){
 
-  await fetch(API,{
-    method:"POST",
-    body:JSON.stringify({action:"join",nick})
+  if(tiles[t.id]){
+    map.removeLayer(tiles[t.id]);
+  }
+
+  let rect = L.rectangle(bounds(t.id), {
+    color: color(t.owner),
+    weight: 1,
+    fillOpacity: 0.35
+  }).addTo(map);
+
+  // FIX: persistent popup with manual reopen
+  rect.on("click", ()=>{
+
+    selectedTile = t;
+
+    rect.bindPopup(`
+      <b>Owner:</b> ${t.owner || "None"}<br>
+      <b>Troops:</b> ${t.strength}<br>
+      <b>Note:</b> ${t.note || "none"}<br><br>
+
+      <button onclick="attack('${t.id}')">⚔ Attack</button>
+    `).openPopup();
   });
 
-  document.getElementById("status").innerText="Online";
-
-  sync();
-  setInterval(sync,2500);
+  tiles[t.id] = rect;
 }
 
-// ---------------- ATTACK ----------------
+// ================= ATTACK =================
 async function attack(id){
+
   await fetch(API,{
     method:"POST",
-    body:JSON.stringify({
+    body: JSON.stringify({
       action:"claim",
       id,
       nick
     })
   });
 
+  log("⚔ Attack sent");
   sync();
 }
 
-// ---------------- NOTE ----------------
-async function saveNote(){
-  if(!selected) return;
-
-  const note = document.getElementById("noteInput").value;
-
-  await fetch(API,{
-    method:"POST",
-    body:JSON.stringify({
-      action:"note",
-      id:selected,
-      note
-    })
-  });
-
-  log("📝 Note saved");
-  sync();
+// ================= COLOR =================
+function color(name){
+  if(!name) return "#555";
+  let h = 0;
+  for(let i=0;i<name.length;i++) h = name.charCodeAt(i)+((h<<5)-h);
+  return "#"+((h & 0xFFFFFF).toString(16).padStart(6,"0"));
 }
 
-// ---------------- DRAW BASE ----------------
-function draw(b){
-
-  if(bases[b.id]){
-    map.removeLayer(bases[b.id]);
-  }
-
-  const color = hash(b.owner);
-
-  const rect = L.rectangle([
-    [b.lat,b.lng],
-    [b.lat+0.02,b.lng+0.02]
-  ],{
-    color,
-    fillColor:color,
-    fillOpacity:0.4,
-    weight:1
-  }).addTo(map);
-
-  const popupHTML = `
-    <b>${b.owner || "Neutral"}</b><br>
-    🪖 Troops: ${b.strength}<br>
-    📝 Note: ${b.note || "none"}<br><br>
-
-    <button onclick="attack('${b.id}')" class="popup-btn">
-      ⚔️ Attack
-    </button>
-  `;
-
-  rect.bindPopup(popupHTML, {
-    autoClose:false,
-    closeOnClick:false
-  });
-
-  rect.on("click", ()=>{
-    selected = b.id;
-    document.getElementById("noteInput").value = b.note || "";
-  });
-
-  bases[b.id]=rect;
-}
-
-// ---------------- SYNC ----------------
+// ================= SYNC =================
 async function sync(){
 
   const res = await fetch(API,{
     method:"POST",
-    body:JSON.stringify({action:"getWorld"})
+    body: JSON.stringify({action:"getWorld"})
   });
 
   const data = await res.json();
 
-  Object.values(bases).forEach(b=>map.removeLayer(b));
-  bases={};
-
-  (data.tiles || []).forEach(draw);
+  // IMPORTANT: DO NOT CLEAR EVERYTHING → prevents popup flicker
+  (data.tiles || []).forEach(drawTile);
 }
 
-// ---------------- HASH COLOR ----------------
-function hash(str){
-  if(!str) return "#666";
-
-  let h=0;
-  for(let i=0;i<str.length;i++){
-    h=str.charCodeAt(i)+((h<<5)-h);
-  }
-
-  return "#"+((h&0xffffff).toString(16).padStart(6,"0"));
-}
-
-// ---------------- LOG ----------------
+// ================= LOG =================
 function log(msg){
-  const div=document.getElementById("log");
-  div.innerHTML += "• "+msg+"<br>";
+  document.getElementById("log").innerHTML += "• "+msg+"<br>";
 }
 
 </script>
