@@ -3,33 +3,40 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>⚔️h Clash of Nations MMO RTS</title>
+<title>⚔️ AAA RTS MMO</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <style>
 body {
   margin:0;
+  overflow:hidden;
   font-family:Arial;
   background:#0b0f14;
   color:white;
 }
 
+/* MAP */
 #map {
-  height:100vh;
-  width:100%;
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  bottom:0;
+  z-index:0;
 }
 
+/* UI */
 #ui {
   position:absolute;
   top:10px;
   left:10px;
-  width:260px;
-  background:#1a1f2a;
+  width:270px;
+  background:rgba(20,25,35,0.95);
   padding:12px;
-  border-radius:10px;
-  z-index:999;
-  box-shadow:0 10px 30px rgba(0,0,0,0.4);
+  border-radius:12px;
+  z-index:9999;
+  backdrop-filter: blur(6px);
 }
 
 input, button {
@@ -44,33 +51,19 @@ button {
   background:#2d6cdf;
   color:white;
   font-weight:bold;
-  cursor:pointer;
-}
-
-button:hover {
-  background:#3d7cff;
-}
-
-#status {
-  margin-top:8px;
-  font-size:12px;
-}
-
-#info {
-  margin-top:10px;
-  font-size:12px;
 }
 
 #log {
   position:absolute;
   bottom:10px;
   left:10px;
-  width:320px;
+  width:340px;
   height:160px;
   overflow:auto;
-  background:#1a1f2a;
+  background:rgba(20,25,35,0.9);
   padding:10px;
   border-radius:10px;
+  z-index:9999;
   font-size:12px;
 }
 </style>
@@ -81,17 +74,14 @@ button:hover {
 <div id="map"></div>
 
 <div id="ui">
-  <b>⚔️ Clash of Nations</b>
+  <b>⚔️ AAA RTS MMO</b>
 
-  <input id="nick" placeholder="Commander name">
+  <input id="nick" placeholder="Commander">
 
-  <button onclick="join()">Join Empire</button>
+  <button onclick="join()">Join War</button>
 
   <div id="status">Offline</div>
-
-  <div id="info">
-    Selected: <span id="selected">None</span>
-  </div>
+  <div>Selected: <span id="selected">None</span></div>
 </div>
 
 <div id="log"></div>
@@ -100,78 +90,61 @@ button:hover {
 
 <script>
 
-const API = "https://script.google.com/macros/s/AKfycbyGqdSRP9n1O8Mr53B65hkl2P103xSAdVmKsqKf7MbZvg1KzB_3Z2VoFTTPPoI-vWSY/exec";
+const API="YOUR_SCRIPT_URL";
 
-let map;
-let nick="";
-let bases = {};
-let currentBases = {};
-let armies = [];
-let selectedBase = null;
+let map,nick="";
+let bases={},current={},armies=[];
+let selected=null;
 
 // ================= MAP =================
-map = L.map('map').setView([33.8,-118.3],12);
+map=L.map("map").setView([33.8,-118.3],12);
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{
   maxZoom:19
 }).addTo(map);
 
 // ================= TILE =================
-function tileId(latlng){
+function id(latlng){
   return Math.floor(latlng.lat*50)+"_"+Math.floor(latlng.lng*50);
 }
 
-function tileToLatLng(id){
-  const [x,y]=id.split("_").map(Number);
-  return [x/50, y/50];
-}
-
-// ================= CLICK SYSTEM =================
-map.on('click', async (e)=>{
+// ================= CLICK =================
+map.on("click",async e=>{
 
   if(!nick) return;
 
-  const id = tileId(e.latlng);
+  const t=id(e.latlng);
 
-  // SELECT BASE
-  if(!selectedBase){
-
-    const base = currentBases[id];
-
-    if(base && base.owner === nick){
-      selectedBase = id;
-      document.getElementById("selected").innerText = id;
+  if(!selected){
+    if(current[t]?.owner===nick){
+      selected=t;
       log("🟢 Base selected");
-    } else {
-      log("❌ Select your own base");
+      document.getElementById("selected").innerText=t;
     }
-
     return;
   }
 
-  // SEND ARMY
   await fetch(API,{
     method:"POST",
     body:JSON.stringify({
       action:"train",
       nick,
-      from:selectedBase,
-      to:id,
+      from:selected,
+      to:t,
       size:10
     })
   });
 
   log("🚀 Army sent");
 
-  selectedBase = null;
-  document.getElementById("selected").innerText = "None";
+  selected=null;
+  document.getElementById("selected").innerText="None";
 });
 
 // ================= JOIN =================
 async function join(){
 
   nick=document.getElementById("nick").value.trim();
-  if(!nick) return;
 
   await fetch(API,{
     method:"POST",
@@ -180,49 +153,36 @@ async function join(){
 
   document.getElementById("status").innerText="Online";
 
-  log("Joined game");
+  setInterval(sync,2000);
+  setInterval(()=>fetch(API,{
+    method:"POST",
+    body:JSON.stringify({action:"tick"})
+  }),3000);
 
   sync();
-
-  setInterval(sync,2000);
-
-  // world tick loop
-  setInterval(()=>{
-    fetch(API,{
-      method:"POST",
-      body:JSON.stringify({action:"tick"})
-    });
-  },3000);
 }
 
-// ================= DRAW BASE =================
+// ================= BASE =================
 function drawBase(b){
 
-  if(bases[b.id]){
-    map.removeLayer(bases[b.id]);
-  }
+  if(bases[b.id]) map.removeLayer(bases[b.id]);
 
-  const color = hash(b.owner);
+  const c=color(b.owner);
 
-  const rect = L.rectangle([
+  const rect=L.rectangle([
     [b.lat,b.lng],
     [b.lat+0.02,b.lng+0.02]
   ],{
-    color,
-    fillColor:color,
-    fillOpacity:0.4,
+    color:c,
+    fillColor:c,
+    fillOpacity:0.35,
     weight:1
   }).addTo(map);
-
-  rect.bindPopup(
-    "<b>"+(b.owner||"Neutral")+"</b><br>"+
-    "🪖 "+b.troops+" troops"
-  );
 
   bases[b.id]=rect;
 }
 
-// ================= DRAW ARMIES =================
+// ================= ARMIES (SMOOTH AAA STYLE) =================
 function drawArmies(data){
 
   armies.forEach(a=>{
@@ -234,24 +194,29 @@ function drawArmies(data){
 
   data.forEach(a=>{
 
-    const from = tileToLatLng(a.from);
-    const to = tileToLatLng(a.to);
+    const from=current[a.from];
+    const to=current[a.to];
 
-    const lat = from[0] + (to[0]-from[0])*(a.progress/100);
-    const lng = from[1] + (to[1]-from[1])*(a.progress/100);
+    if(!from||!to)return;
 
-    const color = hash(a.owner);
+    const p=a.progress/100;
 
-    const line = L.polyline([from,[lat,lng]],{
-      color,
-      weight:4,
-      dashArray:"6,6"
+    const lat=from.lat+(to.lat-from.lat)*p;
+    const lng=from.lng+(to.lng-from.lng)*p;
+
+    const c=color(a.owner);
+
+    const line=L.polyline([[from.lat,from.lng],[lat,lng]],{
+      color:c,
+      weight:3,
+      opacity:0.8,
+      dashArray:"5,8"
     }).addTo(map);
 
-    const dot = L.circleMarker([lat,lng],{
-      radius:6,
-      color:"#fff",
-      fillColor:color,
+    const dot=L.circleMarker([lat,lng],{
+      radius:5,
+      color:c,
+      fillColor:c,
       fillOpacity:1
     }).addTo(map);
 
@@ -260,56 +225,41 @@ function drawArmies(data){
 }
 
 // ================= COLOR =================
-function hash(str){
-  if(!str) return "#666";
-
+function color(s){
+  if(!s) return "#777";
   let h=0;
-  for(let i=0;i<str.length;i++){
-    h=str.charCodeAt(i)+((h<<5)-h);
+  for(let i=0;i<s.length;i++){
+    h=s.charCodeAt(i)+((h<<5)-h);
   }
-
   return "#"+((h&0xffffff).toString(16).padStart(6,"0"));
 }
 
 // ================= SYNC =================
 async function sync(){
 
-  try{
+  const res=await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({action:"getWorld"})
+  });
 
-    const res=await fetch(API,{
-      method:"POST",
-      body:JSON.stringify({action:"getWorld"})
-    });
+  const d=await res.json();
 
-    const data=await res.json();
+  current={};
 
-    // BASES
-    Object.values(bases).forEach(b=>map.removeLayer(b));
-    bases={};
-    currentBases={};
+  Object.values(bases).forEach(b=>map.removeLayer(b));
+  bases={};
 
-    data.bases.forEach(b=>{
-      currentBases[b.id]=b;
-      drawBase(b);
-    });
+  d.bases.forEach(b=>{
+    current[b.id]=b;
+    drawBase(b);
+  });
 
-    // ARMIES
-    if(data.armies){
-      drawArmies(data.armies);
-    }
-
-  }catch(e){
-    console.log(e);
-  }
+  drawArmies(d.armies||[]);
 }
 
 // ================= LOG =================
-function log(msg){
-
-  const div=document.getElementById("log");
-
-  div.innerHTML+="• "+msg+"<br>";
-  div.scrollTop=div.scrollHeight;
+function log(m){
+  document.getElementById("log").innerHTML+="• "+m+"<br>";
 }
 
 </script>
