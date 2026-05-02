@@ -3,33 +3,33 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RTS MMO CORE v1</title>
+<title>⚔️ RTS MMO BASE</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <style>
-body{margin:0;font-family:Arial;}
-#map{height:100vh;width:100%;}
-#ui{
+body { margin:0; font-family:Arial; background:#0b0f14; color:white; }
+#map { height:100vh; width:100%; }
+
+#ui {
   position:absolute;
   top:10px;
   left:10px;
-  background:#222;
-  color:white;
+  background:#1a1f2a;
   padding:10px;
-  border-radius:8px;
   z-index:999;
+  border-radius:8px;
+  width:220px;
 }
-button,input{width:100%;margin-top:5px;padding:6px;}
-#log{
+button, input { width:100%; margin-top:6px; padding:6px; }
+#log {
   position:absolute;
   bottom:10px;
   left:10px;
-  background:#111;
-  color:white;
+  background:#1a1f2a;
   padding:10px;
-  width:250px;
-  height:120px;
+  width:300px;
+  height:140px;
   overflow:auto;
   font-size:12px;
 }
@@ -41,10 +41,9 @@ button,input{width:100%;margin-top:5px;padding:6px;}
 <div id="map"></div>
 
 <div id="ui">
-  <b>RTS CORE v1</b>
   <input id="nick" placeholder="name">
   <button onclick="join()">Join</button>
-  <div id="status">Offline</div>
+  <div>Status: <span id="status">offline</span></div>
 </div>
 
 <div id="log"></div>
@@ -53,30 +52,43 @@ button,input{width:100%;margin-top:5px;padding:6px;}
 
 <script>
 
-const API="YOUR_SCRIPT_URL";
+const API = "YOUR_SCRIPT_URL_HERE";
 
 let map;
 let nick="";
 let tiles={};
+const GRID = 0.02;
 
-// ================= MAP =================
-map=L.map("map").setView([33.8,-118.3],12);
+// ---------------- MAP ----------------
+map = L.map('map').setView([33.8,-118.3],12);
 
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+  maxZoom:19
+}).addTo(map);
 
-// ================= ID =================
-function id(l){
-  return Math.floor(l.lat*50)+"_"+Math.floor(l.lng*50);
+// ---------------- TILE ID ----------------
+function id(latlng){
+  const x = Math.floor(latlng.lat / GRID);
+  const y = Math.floor(latlng.lng / GRID);
+  return x + "_" + y;
 }
 
-// ================= CLICK =================
-map.on("click",async e=>{
+function bounds(tile){
+  const [x,y]=tile.split("_").map(Number);
+  return [
+    [x*GRID, y*GRID],
+    [(x+1)*GRID, (y+1)*GRID]
+  ];
+}
 
-  if(!nick)return;
+// ---------------- CLICK ----------------
+map.on('click', async (e)=>{
 
-  const tileId=id(e.latlng);
+  if(!nick) return;
 
-  const r=await fetch(API,{
+  const tileId = id(e.latlng);
+
+  await fetch(API,{
     method:"POST",
     body:JSON.stringify({
       action:"claim",
@@ -87,63 +99,75 @@ map.on("click",async e=>{
     })
   });
 
-  const d=await r.json();
-  log(d.result);
-
   sync();
 });
 
-// ================= JOIN =================
-function join(){
+// ---------------- JOIN ----------------
+async function join(){
+
   nick=document.getElementById("nick").value;
-  document.getElementById("status").innerText="Online";
-  sync();
-  setInterval(sync,2000);
-}
+  if(!nick) return;
 
-// ================= SYNC =================
-async function sync(){
-
-  const r=await fetch(API,{
+  await fetch(API,{
     method:"POST",
-    body:JSON.stringify({action:"getWorld"})
+    body:JSON.stringify({action:"join",nick})
   });
 
-  const d=await r.json();
+  document.getElementById("status").innerText="online";
 
-  Object.values(tiles).forEach(t=>map.removeLayer(t));
-  tiles={};
-
-  d.tiles.forEach(draw);
+  sync();
+  setInterval(sync,3000);
 }
 
-// ================= DRAW =================
+// ---------------- DRAW ----------------
 function draw(t){
+
+  if(tiles[t.id]) map.removeLayer(tiles[t.id]);
 
   const color = hash(t.owner);
 
-  const rect=L.rectangle([
-    [t.lat,t.lng],
-    [t.lat+0.02,t.lng+0.02]
-  ],{
+  const r = L.rectangle(bounds(t.id),{
     color,
     fillColor:color,
     fillOpacity:0.4
   }).addTo(map);
 
-  tiles[t.id]=rect;
+  r.bindPopup(
+    `Owner: ${t.owner || "none"}<br>Troops: ${t.troops}`
+  );
+
+  tiles[t.id]=r;
 }
 
-// ================= COLOR =================
-function hash(s){
+// ---------------- SYNC ----------------
+async function sync(){
+
+  const res = await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({action:"getWorld"})
+  });
+
+  const data = await res.json();
+
+  Object.values(tiles).forEach(t=>map.removeLayer(t));
+  tiles={};
+
+  (data.bases||[]).forEach(draw);
+}
+
+// ---------------- COLOR ----------------
+function hash(str){
+  if(!str) return "#555";
+
   let h=0;
-  for(let i=0;i<s.length;i++){
-    h=s.charCodeAt(i)+((h<<5)-h);
+  for(let i=0;i<str.length;i++){
+    h=str.charCodeAt(i)+((h<<5)-h);
   }
+
   return "#"+((h&0xffffff).toString(16).padStart(6,"0"));
 }
 
-// ================= LOG =================
+// ---------------- LOG ----------------
 function log(m){
   document.getElementById("log").innerHTML+="• "+m+"<br>";
 }
