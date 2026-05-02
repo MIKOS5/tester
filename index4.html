@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>⚔️ Territory RTS MMO</title>
+<title>knkj⚔️ RTS MMO</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
@@ -31,7 +31,7 @@ body {
   z-index:999;
 }
 
-input, button {
+input, button, textarea {
   width:100%;
   margin-top:6px;
   padding:8px;
@@ -42,25 +42,26 @@ input, button {
 button {
   background:#2d6cdf;
   color:white;
-  cursor:pointer;
-}
-
-button:hover {
-  background:#3d7cff;
+  font-weight:bold;
 }
 
 #log {
   position:absolute;
   bottom:10px;
   left:10px;
-  width:300px;
-  height:140px;
+  width:320px;
+  height:160px;
   overflow:auto;
   background:#1a1f2a;
   padding:10px;
   border-radius:10px;
   font-size:12px;
   z-index:999;
+}
+
+.popup-btn {
+  margin-top:6px;
+  background:#ff4d4d;
 }
 </style>
 </head>
@@ -71,12 +72,15 @@ button:hover {
 
 <div id="ui">
   <b>⚔️ RTS MMO</b>
-
-  <input id="nick" placeholder="Name">
-
+  <input id="nick" placeholder="Commander name">
   <button onclick="join()">Join</button>
 
   <div id="status">Offline</div>
+
+  <hr>
+
+  <textarea id="noteInput" placeholder="Write territory note..."></textarea>
+  <button onclick="saveNote()">Save Note</button>
 </div>
 
 <div id="log"></div>
@@ -88,23 +92,25 @@ button:hover {
 const API = "https://script.google.com/macros/s/AKfycbyGqdSRP9n1O8Mr53B65hkl2P103xSAdVmKsqKf7MbZvg1KzB_3Z2VoFTTPPoI-vWSY/exec";
 
 let map;
-let nick="";
-let tiles = {};
-let current = {};
+let nick = "";
+let bases = {};
+let selected = null;
 
-// ================= MAP =================
-map = L.map('map').setView([33.8,-118.3],12);
+// FIX: prevent popup auto closing behavior issues
+map = L.map('map', {
+  closePopupOnClick: false
+}).setView([33.8,-118.3],12);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
   maxZoom:19
 }).addTo(map);
 
-// ================= TILE ID =================
+// ---------------- TILE ID ----------------
 function tileId(latlng){
   return Math.floor(latlng.lat*50)+"_"+Math.floor(latlng.lng*50);
 }
 
-// ================= CLICK =================
+// ---------------- CLICK ----------------
 map.on('click', async (e)=>{
 
   if(!nick) return;
@@ -125,9 +131,8 @@ map.on('click', async (e)=>{
   sync();
 });
 
-// ================= JOIN =================
+// ---------------- JOIN ----------------
 async function join(){
-
   nick = document.getElementById("nick").value.trim();
   if(!nick) return;
 
@@ -136,64 +141,14 @@ async function join(){
     body:JSON.stringify({action:"join",nick})
   });
 
-  document.getElementById("status").innerText = "Online";
-
-  log("Joined as " + nick);
+  document.getElementById("status").innerText="Online";
 
   sync();
-  setInterval(sync,2000);
+  setInterval(sync,2500);
 }
 
-// ================= SYNC =================
-async function sync(){
-
-  const res = await fetch(API,{
-    method:"POST",
-    body:JSON.stringify({action:"getWorld"})
-  });
-
-  const data = await res.json();
-
-  Object.values(tiles).forEach(t => map.removeLayer(t));
-  tiles = {};
-  current = {};
-
-  (data.tiles || []).forEach(drawTile);
-}
-
-// ================= DRAW TILE =================
-function drawTile(t){
-
-  current[t.id] = t;
-
-  const color = t.owner ? hash(t.owner) : "#666";
-
-  const rect = L.rectangle([
-    [t.lat, t.lng],
-    [t.lat+0.02, t.lng+0.02]
-  ],{
-    color,
-    fillColor:color,
-    fillOpacity:0.4
-  }).addTo(map);
-
-  rect.bindPopup(`
-    <b>Owner:</b> ${t.owner || "None"}<br>
-    <b>Troops:</b> ${t.strength || 0}<br>
-    <b>Notes:</b> <span id="note_${t.id}">${t.note || "none"}</span><br><br>
-
-    <button onclick="attack('${t.id}')">⚔️ Attack</button><br><br>
-
-    <input id="input_${t.id}" placeholder="Add note">
-    <button onclick="addNote('${t.id}')">Add Note</button>
-  `);
-
-  tiles[t.id] = rect;
-}
-
-// ================= ATTACK =================
+// ---------------- ATTACK ----------------
 async function attack(id){
-
   await fetch(API,{
     method:"POST",
     body:JSON.stringify({
@@ -203,41 +158,102 @@ async function attack(id){
     })
   });
 
-  log("Attack sent: " + id);
   sync();
 }
 
-// ================= ADD NOTE =================
-async function addNote(id){
+// ---------------- NOTE ----------------
+async function saveNote(){
+  if(!selected) return;
 
-  const val = document.getElementById("input_"+id).value;
+  const note = document.getElementById("noteInput").value;
 
   await fetch(API,{
     method:"POST",
     body:JSON.stringify({
       action:"note",
-      id,
-      note:val,
-      nick
+      id:selected,
+      note
     })
   });
 
-  log("Note added");
+  log("📝 Note saved");
   sync();
 }
 
-// ================= COLOR =================
+// ---------------- DRAW BASE ----------------
+function draw(b){
+
+  if(bases[b.id]){
+    map.removeLayer(bases[b.id]);
+  }
+
+  const color = hash(b.owner);
+
+  const rect = L.rectangle([
+    [b.lat,b.lng],
+    [b.lat+0.02,b.lng+0.02]
+  ],{
+    color,
+    fillColor:color,
+    fillOpacity:0.4,
+    weight:1
+  }).addTo(map);
+
+  const popupHTML = `
+    <b>${b.owner || "Neutral"}</b><br>
+    🪖 Troops: ${b.strength}<br>
+    📝 Note: ${b.note || "none"}<br><br>
+
+    <button onclick="attack('${b.id}')" class="popup-btn">
+      ⚔️ Attack
+    </button>
+  `;
+
+  rect.bindPopup(popupHTML, {
+    autoClose:false,
+    closeOnClick:false
+  });
+
+  rect.on("click", ()=>{
+    selected = b.id;
+    document.getElementById("noteInput").value = b.note || "";
+  });
+
+  bases[b.id]=rect;
+}
+
+// ---------------- SYNC ----------------
+async function sync(){
+
+  const res = await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({action:"getWorld"})
+  });
+
+  const data = await res.json();
+
+  Object.values(bases).forEach(b=>map.removeLayer(b));
+  bases={};
+
+  (data.tiles || []).forEach(draw);
+}
+
+// ---------------- HASH COLOR ----------------
 function hash(str){
+  if(!str) return "#666";
+
   let h=0;
   for(let i=0;i<str.length;i++){
     h=str.charCodeAt(i)+((h<<5)-h);
   }
+
   return "#"+((h&0xffffff).toString(16).padStart(6,"0"));
 }
 
-// ================= LOG =================
+// ---------------- LOG ----------------
 function log(msg){
-  document.getElementById("log").innerHTML += "• "+msg+"<br>";
+  const div=document.getElementById("log");
+  div.innerHTML += "• "+msg+"<br>";
 }
 
 </script>
