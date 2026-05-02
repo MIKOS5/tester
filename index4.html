@@ -3,67 +3,34 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>⚔️ AAA RTS MMO</title>
+<title>RTS MMO CORE v1</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <style>
-body {
-  margin:0;
-  overflow:hidden;
-  font-family:Arial;
-  background:#0b0f14;
-  color:white;
-}
-
-/* MAP */
-#map {
-  position:absolute;
-  top:0;
-  left:0;
-  right:0;
-  bottom:0;
-  z-index:0;
-}
-
-/* UI */
-#ui {
+body{margin:0;font-family:Arial;}
+#map{height:100vh;width:100%;}
+#ui{
   position:absolute;
   top:10px;
   left:10px;
-  width:270px;
-  background:rgba(20,25,35,0.95);
-  padding:12px;
-  border-radius:12px;
-  z-index:9999;
-  backdrop-filter: blur(6px);
-}
-
-input, button {
-  width:100%;
-  margin-top:6px;
-  padding:8px;
-  border:none;
-  border-radius:6px;
-}
-
-button {
-  background:#2d6cdf;
+  background:#222;
   color:white;
-  font-weight:bold;
+  padding:10px;
+  border-radius:8px;
+  z-index:999;
 }
-
-#log {
+button,input{width:100%;margin-top:5px;padding:6px;}
+#log{
   position:absolute;
   bottom:10px;
   left:10px;
-  width:340px;
-  height:160px;
-  overflow:auto;
-  background:rgba(20,25,35,0.9);
+  background:#111;
+  color:white;
   padding:10px;
-  border-radius:10px;
-  z-index:9999;
+  width:250px;
+  height:120px;
+  overflow:auto;
   font-size:12px;
 }
 </style>
@@ -74,14 +41,10 @@ button {
 <div id="map"></div>
 
 <div id="ui">
-  <b>⚔️ AAA RTS MMO</b>
-
-  <input id="nick" placeholder="Commander">
-
-  <button onclick="join()">Join War</button>
-
+  <b>RTS CORE v1</b>
+  <input id="nick" placeholder="name">
+  <button onclick="join()">Join</button>
   <div id="status">Offline</div>
-  <div>Selected: <span id="selected">None</span></div>
 </div>
 
 <div id="log"></div>
@@ -92,169 +55,92 @@ button {
 
 const API="YOUR_SCRIPT_URL";
 
-let map,nick="";
-let bases={},current={},armies=[];
-let selected=null;
+let map;
+let nick="";
+let tiles={};
 
 // ================= MAP =================
 map=L.map("map").setView([33.8,-118.3],12);
 
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{
-  maxZoom:19
-}).addTo(map);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
 
-// ================= TILE =================
-function id(latlng){
-  return Math.floor(latlng.lat*50)+"_"+Math.floor(latlng.lng*50);
+// ================= ID =================
+function id(l){
+  return Math.floor(l.lat*50)+"_"+Math.floor(l.lng*50);
 }
 
 // ================= CLICK =================
 map.on("click",async e=>{
 
-  if(!nick) return;
+  if(!nick)return;
 
-  const t=id(e.latlng);
+  const tileId=id(e.latlng);
 
-  if(!selected){
-    if(current[t]?.owner===nick){
-      selected=t;
-      log("🟢 Base selected");
-      document.getElementById("selected").innerText=t;
-    }
-    return;
-  }
-
-  await fetch(API,{
+  const r=await fetch(API,{
     method:"POST",
     body:JSON.stringify({
-      action:"train",
-      nick,
-      from:selected,
-      to:t,
-      size:10
+      action:"claim",
+      id:tileId,
+      lat:e.latlng.lat,
+      lng:e.latlng.lng,
+      nick
     })
   });
 
-  log("🚀 Army sent");
+  const d=await r.json();
+  log(d.result);
 
-  selected=null;
-  document.getElementById("selected").innerText="None";
+  sync();
 });
 
 // ================= JOIN =================
-async function join(){
-
-  nick=document.getElementById("nick").value.trim();
-
-  await fetch(API,{
-    method:"POST",
-    body:JSON.stringify({action:"join",nick})
-  });
-
+function join(){
+  nick=document.getElementById("nick").value;
   document.getElementById("status").innerText="Online";
-
-  setInterval(sync,2000);
-  setInterval(()=>fetch(API,{
-    method:"POST",
-    body:JSON.stringify({action:"tick"})
-  }),3000);
-
   sync();
-}
-
-// ================= BASE =================
-function drawBase(b){
-
-  if(bases[b.id]) map.removeLayer(bases[b.id]);
-
-  const c=color(b.owner);
-
-  const rect=L.rectangle([
-    [b.lat,b.lng],
-    [b.lat+0.02,b.lng+0.02]
-  ],{
-    color:c,
-    fillColor:c,
-    fillOpacity:0.35,
-    weight:1
-  }).addTo(map);
-
-  bases[b.id]=rect;
-}
-
-// ================= ARMIES (SMOOTH AAA STYLE) =================
-function drawArmies(data){
-
-  armies.forEach(a=>{
-    map.removeLayer(a.line);
-    map.removeLayer(a.dot);
-  });
-
-  armies=[];
-
-  data.forEach(a=>{
-
-    const from=current[a.from];
-    const to=current[a.to];
-
-    if(!from||!to)return;
-
-    const p=a.progress/100;
-
-    const lat=from.lat+(to.lat-from.lat)*p;
-    const lng=from.lng+(to.lng-from.lng)*p;
-
-    const c=color(a.owner);
-
-    const line=L.polyline([[from.lat,from.lng],[lat,lng]],{
-      color:c,
-      weight:3,
-      opacity:0.8,
-      dashArray:"5,8"
-    }).addTo(map);
-
-    const dot=L.circleMarker([lat,lng],{
-      radius:5,
-      color:c,
-      fillColor:c,
-      fillOpacity:1
-    }).addTo(map);
-
-    armies.push({line,dot});
-  });
-}
-
-// ================= COLOR =================
-function color(s){
-  if(!s) return "#777";
-  let h=0;
-  for(let i=0;i<s.length;i++){
-    h=s.charCodeAt(i)+((h<<5)-h);
-  }
-  return "#"+((h&0xffffff).toString(16).padStart(6,"0"));
+  setInterval(sync,2000);
 }
 
 // ================= SYNC =================
 async function sync(){
 
-  const res=await fetch(API,{
+  const r=await fetch(API,{
     method:"POST",
     body:JSON.stringify({action:"getWorld"})
   });
 
-  const d=await res.json();
+  const d=await r.json();
 
-  current={};
+  Object.values(tiles).forEach(t=>map.removeLayer(t));
+  tiles={};
 
-  Object.values(bases).forEach(b=>map.removeLayer(b));
-  bases={};
+  d.tiles.forEach(draw);
+}
 
-  d.bases.forEach(b=>{
-    current[b.id]=b;
-    drawBase(b);
-  });
+// ================= DRAW =================
+function draw(t){
 
-  drawArmies(d.armies||[]);
+  const color = hash(t.owner);
+
+  const rect=L.rectangle([
+    [t.lat,t.lng],
+    [t.lat+0.02,t.lng+0.02]
+  ],{
+    color,
+    fillColor:color,
+    fillOpacity:0.4
+  }).addTo(map);
+
+  tiles[t.id]=rect;
+}
+
+// ================= COLOR =================
+function hash(s){
+  let h=0;
+  for(let i=0;i<s.length;i++){
+    h=s.charCodeAt(i)+((h<<5)-h);
+  }
+  return "#"+((h&0xffffff).toString(16).padStart(6,"0"));
 }
 
 // ================= LOG =================
