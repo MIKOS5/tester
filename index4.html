@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>⚔️x Clash of Nations MMO RTS</title>
+<title>⚔️ Clash of Nations MMO RTS</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
@@ -64,7 +64,6 @@ button:hover {
   margin-top:10px;
   font-size:12px;
   line-height:1.4;
-  opacity:0.9;
 }
 
 /* WAR LOG */
@@ -72,8 +71,8 @@ button:hover {
   position:absolute;
   bottom:10px;
   left:10px;
-  width:300px;
-  height:150px;
+  width:320px;
+  height:160px;
   overflow:auto;
   background:#1a1f2a;
   padding:10px;
@@ -116,7 +115,7 @@ let map;
 let nick="";
 let faction="";
 let bases={};
-let lastSync=0;
+let armies=[];
 
 // =========================
 // MAP INIT
@@ -128,7 +127,19 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
 }).addTo(map);
 
 // =========================
-// CLICK TO CLAIM / ATTACK
+// TILE SYSTEM
+// =========================
+function tileId(latlng){
+  return Math.floor(latlng.lat*50)+"_"+Math.floor(latlng.lng*50);
+}
+
+function tileToLatLng(id){
+  const [x,y]=id.split("_").map(Number);
+  return [x/50, y/50];
+}
+
+// =========================
+// CLICK ACTION
 // =========================
 map.on('click', async (e)=>{
 
@@ -136,7 +147,7 @@ map.on('click', async (e)=>{
 
   const id = tileId(e.latlng);
 
-  await fetch(API,{
+  const res = await fetch(API,{
     method:"POST",
     body:JSON.stringify({
       action:"claim",
@@ -147,15 +158,12 @@ map.on('click', async (e)=>{
     })
   });
 
+  const data = await res.json();
+
+  log("Action: "+data.result);
+
   sync();
 });
-
-// =========================
-// TILE ID SYSTEM
-// =========================
-function tileId(latlng){
-  return Math.floor(latlng.lat*50)+"_"+Math.floor(latlng.lng*50);
-}
 
 // =========================
 // JOIN
@@ -172,17 +180,24 @@ async function join(){
 
   const data=await res.json();
 
-  faction=data.faction||"Unknown";
+  faction=data.faction || "Unknown";
 
-  document.getElementById("status").innerText =
-    "Online";
-
+  document.getElementById("status").innerText="Online";
   document.getElementById("faction").innerText=faction;
 
   log("Joined faction: "+faction);
 
   sync();
-  setInterval(sync,2500);
+
+  setInterval(sync,2000);
+
+  // RTS loop
+  setInterval(()=>{
+    fetch(API,{
+      method:"POST",
+      body:JSON.stringify({action:"tick"})
+    });
+  },3000);
 }
 
 // =========================
@@ -199,27 +214,27 @@ async function collect(){
 
   document.getElementById("coins").innerText=data.coins||0;
 
-  log("Collected "+(data.coins||0)+" coins");
+  log("Collected coins: "+data.coins);
 }
 
 // =========================
 // DRAW BASE
 // =========================
-function draw(b){
+function drawBase(b){
 
   if(bases[b.id]){
     map.removeLayer(bases[b.id]);
   }
 
-  const color=hash(b.owner);
+  const color = hash(b.owner);
 
-  const rect=L.rectangle([
+  const rect = L.rectangle([
     [b.lat,b.lng],
     [b.lat+0.02,b.lng+0.02]
   ],{
     color,
     fillColor:color,
-    fillOpacity:0.35,
+    fillOpacity:0.4,
     weight:1
   }).addTo(map);
 
@@ -233,7 +248,46 @@ function draw(b){
 }
 
 // =========================
-// FACTION COLORS
+// DRAW ARMIES
+// =========================
+function drawArmies(data){
+
+  // clear old
+  armies.forEach(a=>{
+    map.removeLayer(a.line);
+    map.removeLayer(a.dot);
+  });
+
+  armies=[];
+
+  data.forEach(a=>{
+
+    const from = tileToLatLng(a.from);
+    const to = tileToLatLng(a.to);
+
+    const lat = from[0] + (to[0]-from[0])*(a.progress/100);
+    const lng = from[1] + (to[1]-from[1])*(a.progress/100);
+
+    const color = hash(a.owner);
+
+    const line = L.polyline([from,[lat,lng]],{
+      color,
+      weight:3
+    }).addTo(map);
+
+    const dot = L.circleMarker([lat,lng],{
+      radius:5,
+      color,
+      fillColor:color,
+      fillOpacity:1
+    }).addTo(map);
+
+    armies.push({line,dot});
+  });
+}
+
+// =========================
+// COLOR
 // =========================
 function hash(str){
   if(!str) return "#666";
@@ -247,7 +301,7 @@ function hash(str){
 }
 
 // =========================
-// SYNC WORLD
+// SYNC
 // =========================
 async function sync(){
 
@@ -255,21 +309,20 @@ async function sync(){
 
     const res=await fetch(API,{
       method:"POST",
-      body:JSON.stringify({
-        action:"getTerritories",
-        since:lastSync
-      })
+      body:JSON.stringify({action:"getWorld"})
     });
 
     const data=await res.json();
 
-    lastSync=data.serverTime||Date.now();
+    // bases
+    Object.values(bases).forEach(b=>map.removeLayer(b));
+    bases={};
 
-    if(data.territories){
+    data.bases.forEach(drawBase);
 
-      for(const b of data.territories){
-        draw(b);
-      }
+    // armies
+    if(data.armies){
+      drawArmies(data.armies);
     }
 
   }catch(e){
@@ -283,6 +336,7 @@ async function sync(){
 function log(msg){
 
   const div=document.getElementById("log");
+
   div.innerHTML+="• "+msg+"<br>";
   div.scrollTop=div.scrollHeight;
 }
