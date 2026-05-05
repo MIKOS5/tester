@@ -2,105 +2,87 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Completely Useless Website</title>
+<title>Unstable Form</title>
 
 <style>
 body {
     font-family: Arial, sans-serif;
-    background: #f2f2f2;
+    background: #fafafa;
     text-align: center;
-    padding: 40px;
+    padding: 50px;
 }
 
-h1 {
-    font-size: 32px;
-}
-
-button {
-    padding: 10px 20px;
+input, textarea {
+    width: 300px;
+    padding: 10px;
     margin: 10px;
-    cursor: pointer;
+    font-size: 16px;
 }
 
-#progress {
-    width: 80%;
-    height: 25px;
-    background: #ccc;
-    margin: 20px auto;
-    position: relative;
-}
-
-#bar {
-    height: 100%;
-    width: 100%;
-    background: limegreen;
-}
-
-#searchResult {
-    margin-top: 15px;
-    font-style: italic;
+#status {
+    color: red;
+    height: 20px;
 }
 </style>
 </head>
 
 <body>
 
-<h1>Welcome to the Opposite of Useful</h1>
+<h1>Totally Reliable Form</h1>
+<p>Please enter your information carefully.</p>
 
-<p>Everything here works... just not how you want.</p>
+<input id="name" placeholder="Your Name"><br>
+<textarea id="message" placeholder="Your Message"></textarea><br>
 
-<!-- BUTTON THAT DOESN'T HELP -->
-<button onclick="doNothing()">Do Something Important</button>
+<div id="status"></div>
 
-<!-- SEARCH THAT AVOIDS ANSWER -->
-<div>
-    <input type="text" id="searchBox" placeholder="Search anything...">
-    <button onclick="fakeSearch()">Search</button>
-    <div id="searchResult"></div>
-</div>
-
-<!-- PROGRESS BAR THAT GOES BACKWARDS -->
-<div id="progress">
-    <div id="bar"></div>
-</div>
-
-<!-- APOLOGY BUTTON -->
-<button onclick="apologize()">Fix Everything</button>
+<button onclick="submitForm()">Submit</button>
 
 <script>
-// useless button
-function doNothing() {
-    alert("Done. (Nothing happened)");
-}
+const inputs = [document.getElementById("name"), document.getElementById("message")];
+const status = document.getElementById("status");
 
-// fake search
-function fakeSearch() {
-    const input = document.getElementById("searchBox").value;
-    const responses = [
-        "Instead of '" + input + "', have you tried not knowing?",
-        "No results found. But emotionally, maybe yes.",
-        "We deliberately avoided searching for that.",
-        "Result hidden for your convenience.",
-        "You were close. But also very far."
-    ];
+// sabotage typing
+inputs.forEach(input => {
+    input.addEventListener("input", () => {
+        let value = input.value;
 
-    document.getElementById("searchResult").innerText =
-        responses[Math.floor(Math.random() * responses.length)];
-}
+        // randomly delete last character
+        if (Math.random() < 0.3 && value.length > 0) {
+            input.value = value.slice(0, -1);
+            status.innerText = "Oops, dropped something...";
+        }
 
-// backwards progress bar
-let width = 100;
-setInterval(() => {
-    width -= Math.random() * 5;
+        // randomly scramble a character
+        if (Math.random() < 0.2 && value.length > 2) {
+            let arr = input.value.split("");
+            let i = Math.floor(Math.random() * arr.length);
+            arr[i] = String.fromCharCode(97 + Math.floor(Math.random() * 26));
+            input.value = arr.join("");
+            status.innerText = "Autocorrect improved your input.";
+        }
 
-    if (width < 0) width = 100;
+        // occasionally wipe everything
+        if (Math.random() < 0.05) {
+            input.value = "";
+            status.innerText = "Input lost. Please try again.";
+        }
 
-    document.getElementById("bar").style.width = width + "%";
-}, 500);
+        // fake validation
+        if (Math.random() < 0.2) {
+            status.innerText = "Invalid... but we won’t explain why.";
+        }
+    });
+});
 
-// apology button
-function apologize() {
-    alert("We’re sorry.\n\nWe will not improve.");
+// fake submit
+function submitForm() {
+    status.innerText = "Submitting...";
+
+    setTimeout(() => {
+        status.innerText = "Submission failed successfully.";
+        alert("Your data has not been saved.");
+    }, 1500);
 }
 </script>
 
