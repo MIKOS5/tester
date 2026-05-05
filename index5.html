@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>tracking...</title>
+<title>tracking target...</title>
 <style>
 body { margin:0; overflow:hidden; background:black; color:#0f0; font-family: monospace; }
 #terminal { position:absolute; width:100%; height:100%; padding:20px; }
-#map { position:absolute; bottom:10px; right:10px; width:300px; height:200px; border:2px solid red; }
+#map { position:absolute; bottom:10px; right:10px; width:320px; height:220px; border:2px solid red; transition: all 1s ease; }
 .red { color:red; }
 </style>
 </head>
@@ -19,7 +19,7 @@ body { margin:0; overflow:hidden; background:black; color:#0f0; font-family: mon
 const terminal = document.getElementById("terminal");
 const map = document.getElementById("map");
 
-function typeLine(text, speed=20) {
+function typeLine(text, speed=18) {
   let i = 0;
   const line = document.createElement("div");
   terminal.appendChild(line);
@@ -32,50 +32,75 @@ function typeLine(text, speed=20) {
 
 function rand(min,max){return Math.random()*(max-min)+min}
 
-// ===== START WITH WIDE RANDOM LOCATION =====
-let targetLat = rand(-90,90);
-let targetLon = rand(-180,180);
+// ===== FAKE REGION TARGET (consistent illusion) =====
+const baseLat = 34.05 + rand(-0.05,0.05); // LA-ish anchor
+const baseLon = -118.25 + rand(-0.05,0.05);
 
-let currentLat = targetLat + rand(-1,1);
-let currentLon = targetLon + rand(-1,1);
+let zoomLevel = 0.5; // wide
+let currentLat = baseLat + rand(-1,1);
+let currentLon = baseLon + rand(-1,1);
 
 function updateMap() {
-  map.src = `https://www.openstreetmap.org/export/embed.html?bbox=${currentLon-0.01}%2C${currentLat-0.01}%2C${currentLon+0.01}%2C${currentLat+0.01}&layer=mapnik&marker=${currentLat}%2C${currentLon}`;
+  map.src = `https://www.openstreetmap.org/export/embed.html?bbox=${currentLon-zoomLevel}%2C${currentLat-zoomLevel}%2C${currentLon+zoomLevel}%2C${currentLat+zoomLevel}&layer=mapnik&marker=${currentLat}%2C${currentLon}`;
 }
 
-function refineCoords() {
-  currentLat += (targetLat - currentLat) * 0.2;
-  currentLon += (targetLon - currentLon) * 0.2;
+function refine() {
+  currentLat += (baseLat - currentLat) * 0.25;
+  currentLon += (baseLon - currentLon) * 0.25;
 
-  currentLat += rand(-0.001,0.001);
-  currentLon += rand(-0.001,0.001);
+  zoomLevel *= 0.7; // zoom in tighter each step
 
   updateMap();
-
   typeLine(`lat: ${currentLat.toFixed(5)} | lon: ${currentLon.toFixed(5)}`);
 }
 
+// ===== FAKE DATA ENRICHMENT =====
+const fakeStreets = [
+  "Maple Ave","Sunset Blvd","Oak Street","Cedar Lane","Pine Drive"
+];
+
+const fakeISP = [
+  "ComNet Fiber","WestLink Broadband","Pacific DataNet"
+];
+
 // ===== SEQUENCE =====
-typeLine("initializing trace...");
-setTimeout(()=> typeLine("scanning network..."),1500);
-setTimeout(()=> typeLine("signal acquired..."),3000);
-setTimeout(()=> typeLine("refining location..."),4500);
+typeLine("initializing global trace...");
+setTimeout(()=> typeLine("fingerprinting device..."),1500);
+setTimeout(()=> typeLine("timezone detected: " + Intl.DateTimeFormat().resolvedOptions().timeZone),3000);
+setTimeout(()=> typeLine("isp: " + fakeISP[Math.floor(Math.random()*fakeISP.length)]),4500);
+setTimeout(()=> typeLine("routing through nodes..."),6000);
+setTimeout(()=> typeLine("signal acquired..."),7500);
+setTimeout(()=> typeLine("refining location..."),9000);
 
-// start refining loop
+// refinement loop
 setTimeout(()=>{
-  setInterval(refineCoords, 2000);
-},5000);
+  const interval = setInterval(refine, 2000);
 
-// ===== FINAL LOCK =====
-setTimeout(()=>{
-  typeLine("lock achieved");
-  const warn = document.createElement("div");
-  warn.className = "red";
-  warn.textContent = "we see you";
-  terminal.appendChild(warn);
-},20000);
+  setTimeout(()=>{
+    clearInterval(interval);
 
-// ===== WHISPER =====
+    typeLine("street match: " + fakeStreets[Math.floor(Math.random()*fakeStreets.length)]);
+    typeLine("accuracy: < 1 meter");
+
+    let countdown = 5;
+    const cd = setInterval(()=>{
+      typeLine("lock in " + countdown + "...");
+      countdown--;
+      if(countdown < 0) {
+        clearInterval(cd);
+
+        const warn = document.createElement("div");
+        warn.className = "red";
+        warn.textContent = "location locked";
+        terminal.appendChild(warn);
+      }
+    },1000);
+
+  },12000);
+
+},10000);
+
+// ===== WHISPER SYNC =====
 let enabled=false;
 document.addEventListener("click",()=>enabled=true);
 
@@ -89,8 +114,8 @@ function whisper(text){
 
 setInterval(()=>{
   if(!enabled) return;
-  whisper("locking on...");
-},5000);
+  whisper("closer...");
+},4000);
 
 updateMap();
 </script>
