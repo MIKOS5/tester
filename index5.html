@@ -3,121 +3,173 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>???</title>
+<title>DO NOT TRUST THIS PAGE</title>
 <style>
 body {
-  margin: 0;
-  font-family: Comic Sans MS, cursive;
-  background: linear-gradient(270deg, red, blue, lime, purple);
-  background-size: 800% 800%;
-  animation: bgShift 10s infinite alternate;
-  overflow: hidden;
+  margin:0;
+  overflow:hidden;
+  font-family: monospace;
+  background:black;
+  color:lime;
 }
 
-@keyframes bgShift {
-  0% {background-position: 0% 50%;}
-  100% {background-position: 100% 50%;}
+#terminal {
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  padding:10px;
+  overflow:auto;
 }
 
-.marquee {
-  position: absolute;
-  white-space: nowrap;
-  font-size: 2rem;
-  animation: scroll 5s linear infinite;
+.glitch {
+  animation: glitch 0.2s infinite;
 }
 
-@keyframes scroll {
-  from { transform: translateX(100vw); }
-  to { transform: translateX(-100%); }
+@keyframes glitch {
+  0% { transform: translate(1px, -1px); }
+  50% { transform: translate(-1px, 1px); }
+  100% { transform: translate(1px, 1px); }
 }
 
-button {
-  position: absolute;
-  padding: 15px;
-  font-size: 1.2rem;
-  cursor: pointer;
+.fake-btn {
+  position:absolute;
+  padding:10px;
+  background:red;
+  color:white;
+  cursor:pointer;
 }
 
-#weirdBox {
-  position: absolute;
-  width: 100px;
-  height: 100px;
-  background: yellow;
-  animation: spin 2s infinite linear;
+.eye {
+  position:absolute;
+  width:80px;
+  height:80px;
+  border-radius:50%;
+  background:white;
 }
 
-@keyframes spin {
-  from { transform: rotate(0deg) scale(1); }
-  to { transform: rotate(360deg) scale(1.5); }
-}
-
-img {
-  position: absolute;
-  width: 120px;
-  animation: float 6s infinite ease-in-out;
-}
-
-@keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-40px); }
-  100% { transform: translateY(0px); }
+.pupil {
+  width:30px;
+  height:30px;
+  background:black;
+  border-radius:50%;
+  position:absolute;
+  top:25px;
+  left:25px;
 }
 
 </style>
 </head>
 <body>
 
-<div class="marquee">WELCOME TO THE VOID 👁️ CLICK EVERYTHING 👁️</div>
-
-<div id="weirdBox"></div>
-
-<button onclick="spawnMadness()">DO NOT CLICK</button>
+<div id="terminal"></div>
 
 <script>
-const sounds = [
-  'https://www.soundjay.com/button/beep-07.wav',
-  'https://www.soundjay.com/button/beep-10.wav'
+const terminal = document.getElementById("terminal");
+
+function typeLine(text, speed=20) {
+  let i = 0;
+  const line = document.createElement("div");
+  terminal.appendChild(line);
+
+  const interval = setInterval(() => {
+    line.textContent += text[i];
+    i++;
+    if (i >= text.length) clearInterval(interval);
+  }, speed);
+}
+
+const messages = [
+  "Initializing...",
+  "Accessing user device...",
+  "Reading thoughts...",
+  "Just kidding... or am I?",
+  "Why are you still here?",
+  "You clicked something you shouldn't have."
 ];
 
-function randomPos(el) {
-  el.style.top = Math.random() * window.innerHeight + 'px';
-  el.style.left = Math.random() * window.innerWidth + 'px';
+let index = 0;
+setInterval(() => {
+  typeLine(messages[index % messages.length]);
+  index++;
+}, 2000);
+
+// FAKE BUTTONS THAT RUN AWAY
+function spawnButton() {
+  const btn = document.createElement("div");
+  btn.className = "fake-btn";
+  btn.textContent = "CLICK ME";
+  document.body.appendChild(btn);
+
+  move(btn);
+
+  btn.onmouseover = () => move(btn);
 }
 
-setInterval(() => {
-  const box = document.getElementById('weirdBox');
-  randomPos(box);
-}, 800);
-
-function spawnMadness() {
-  document.body.style.transform = 'rotate(' + (Math.random()*360) + 'deg)';
-
-  for (let i = 0; i < 10; i++) {
-    const img = document.createElement('img');
-    img.src = 'https://placekitten.com/' + (100 + i) + '/' + (100 + i);
-    randomPos(img);
-    document.body.appendChild(img);
-  }
-
-  const audio = new Audio(sounds[Math.floor(Math.random()*sounds.length)]);
-  audio.play();
-
-  document.title = Math.random().toString(36).substring(2);
+function move(el) {
+  el.style.top = Math.random() * window.innerHeight + "px";
+  el.style.left = Math.random() * window.innerWidth + "px";
 }
 
+setInterval(spawnButton, 1500);
+
+// EYES THAT FOLLOW CURSOR
+function createEye() {
+  const eye = document.createElement("div");
+  eye.className = "eye";
+
+  const pupil = document.createElement("div");
+  pupil.className = "pupil";
+
+  eye.appendChild(pupil);
+  document.body.appendChild(eye);
+
+  eye.style.top = Math.random()*window.innerHeight+"px";
+  eye.style.left = Math.random()*window.innerWidth+"px";
+
+  document.addEventListener("mousemove", e => {
+    const rect = eye.getBoundingClientRect();
+    const dx = e.clientX - (rect.left + 40);
+    const dy = e.clientY - (rect.top + 40);
+    const angle = Math.atan2(dy, dx);
+
+    pupil.style.transform = `translate(${Math.cos(angle)*10}px, ${Math.sin(angle)*10}px)`;
+  });
+}
+
+setInterval(createEye, 2000);
+
+// SCREEN SHAKE + GLITCH
 setInterval(() => {
-  document.body.style.filter = `hue-rotate(${Math.random()*360}deg)`;
+  document.body.classList.add("glitch");
+  setTimeout(()=>document.body.classList.remove("glitch"),200);
+}, 3000);
+
+// RANDOM FULLSCREEN MESSAGE
+setInterval(() => {
+  const msg = document.createElement("div");
+  msg.textContent = "YOU SHOULDN'T BE HERE";
+  msg.style.position = "absolute";
+  msg.style.fontSize = "50px";
+  msg.style.color = "red";
+  msg.style.top = Math.random()*window.innerHeight+"px";
+  msg.style.left = Math.random()*window.innerWidth+"px";
+  document.body.appendChild(msg);
+}, 2500);
+
+// RANDOM PAGE ROTATION
+setInterval(() => {
+  document.body.style.transform = `rotate(${Math.random()*5-2.5}deg)`;
 }, 500);
 
-setInterval(() => {
-  const text = document.createElement('div');
-  text.textContent = ['WHY', 'HELLO', 'RUN', 'ERROR', '???'][Math.floor(Math.random()*5)];
-  text.style.position = 'absolute';
-  text.style.fontSize = Math.random()*40 + 'px';
-  text.style.color = 'white';
-  randomPos(text);
-  document.body.appendChild(text);
-}, 700);
+// FAKE CRASH MODE
+setTimeout(() => {
+  terminal.innerHTML = "";
+  typeLine("FATAL ERROR...");
+  setTimeout(()=>typeLine("Just kidding :)"),2000);
+}, 15000);
+
 </script>
 
 </body>
