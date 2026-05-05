@@ -2,114 +2,164 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>locating...</title>
+<title>Signal Acquired</title>
 <style>
-body { margin:0; overflow:hidden; background:black; color:#0f0; font-family: monospace; }
-#terminal { position:absolute; width:100%; height:100%; padding:20px; }
-#map { position:absolute; bottom:10px; right:10px; width:320px; height:220px; border:2px solid red; }
-.red { color:red; }
+    body {
+        margin: 0;
+        background: black;
+        color: #00ff9f;
+        font-family: "Courier New", monospace;
+        overflow: hidden;
+    }
+
+    #container {
+        padding: 20px;
+    }
+
+    .glitch {
+        font-size: 28px;
+        animation: flicker 0.2s infinite;
+    }
+
+    @keyframes flicker {
+        0% { opacity: 1; }
+        50% { opacity: 0.3; }
+        100% { opacity: 1; }
+    }
+
+    #coords {
+        margin-top: 20px;
+        font-size: 18px;
+    }
+
+    #log {
+        margin-top: 20px;
+        height: 200px;
+        overflow: hidden;
+        font-size: 14px;
+    }
+
+    .line {
+        opacity: 0;
+        animation: fadeIn 2s forwards;
+    }
+
+    @keyframes fadeIn {
+        to { opacity: 1; }
+    }
+
+    #overlay {
+        position: fixed;
+        inset: 0;
+        background: radial-gradient(circle, transparent 60%, black 100%);
+        pointer-events: none;
+    }
 </style>
 </head>
 <body>
-<div id="terminal"></div>
-<iframe id="map"></iframe>
+
+<div id="container">
+    <div class="glitch">INITIALIZING TRACE...</div>
+    <div id="coords">Locating...</div>
+    <div id="log"></div>
+</div>
+
+<div id="overlay"></div>
 
 <script>
-const terminal = document.getElementById("terminal");
-const map = document.getElementById("map");
+let lat = 0;
+let lon = 0;
+let targetLat = 0;
+let targetLon = 0;
 
-function typeLine(text, speed=18) {
-  let i = 0;
-  const line = document.createElement("div");
-  terminal.appendChild(line);
-  const interval = setInterval(() => {
-    line.textContent += text[i];
-    i++;
-    if (i >= text.length) clearInterval(interval);
-  }, speed);
+const coordsEl = document.getElementById("coords");
+const logEl = document.getElementById("log");
+
+// creepy whisper
+function whisper(text) {
+    const msg = new SpeechSynthesisUtterance(text);
+    msg.volume = 0.2;
+    msg.rate = 0.6;
+    msg.pitch = 0.5;
+    speechSynthesis.speak(msg);
 }
 
-function updateMap(lat, lon, zoom=0.01) {
-  map.src = `https://www.openstreetmap.org/export/embed.html?bbox=${lon-zoom}%2C${lat-zoom}%2C${lon+zoom}%2C${lat+zoom}&layer=mapnik&marker=${lat}%2C${lon}`;
+// add log lines
+function addLog(text) {
+    const div = document.createElement("div");
+    div.className = "line";
+    div.textContent = "> " + text;
+    logEl.appendChild(div);
+
+    if (logEl.children.length > 10) {
+        logEl.removeChild(logEl.firstChild);
+    }
 }
 
-// ===== START =====
-typeLine("initializing...");
-setTimeout(()=> typeLine("requesting location permission..."),1500);
+// refine coordinates slowly
+function updateCoords() {
+    lat += (targetLat - lat) * 0.05;
+    lon += (targetLon - lon) * 0.05;
 
-// ===== REAL LOCATION ATTEMPT =====
-setTimeout(()=>{
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(pos => {
-      const lat = pos.coords.latitude;
-      const lon = pos.coords.longitude;
+    coordsEl.textContent =
+        "Lat: " + lat.toFixed(6) +
+        " | Lon: " + lon.toFixed(6);
 
-      typeLine("permission granted");
-      typeLine("coordinates acquired");
-      typeLine(`lat: ${lat.toFixed(5)}`);
-      typeLine(`lon: ${lon.toFixed(5)}`);
-
-      updateMap(lat, lon);
-
-      // fake enhancement
-      setTimeout(()=>{
-        typeLine("refining accuracy...");
-      },2000);
-
-      setTimeout(()=>{
-        typeLine("accuracy: < 5 meters");
-      },4000);
-
-      setTimeout(()=>{
-        const warn = document.createElement("div");
-        warn.className = "red";
-        warn.textContent = "location locked";
-        terminal.appendChild(warn);
-      },6000);
-
-    }, err => {
-      typeLine("permission denied");
-      fallbackFake();
-    });
-  } else {
-    fallbackFake();
-  }
-},3000);
-
-// ===== FALLBACK FAKE =====
-function fallbackFake() {
-  typeLine("switching to network trace...");
-
-  let lat = 34.05 + (Math.random()-0.5);
-  let lon = -118.25 + (Math.random()-0.5);
-
-  updateMap(lat, lon, 0.5);
-
-  setTimeout(()=>{
-    typeLine("approximate location acquired");
-    typeLine(`lat: ${lat.toFixed(5)}`);
-    typeLine(`lon: ${lon.toFixed(5)}`);
-  },2000);
+    requestAnimationFrame(updateCoords);
 }
 
-// ===== WHISPERS =====
-let enabled=false;
-document.addEventListener("click",()=>enabled=true);
+// get real location
+navigator.geolocation.getCurrentPosition(pos => {
+    targetLat = pos.coords.latitude;
+    targetLon = pos.coords.longitude;
 
-function whisper(text){
-  const u=new SpeechSynthesisUtterance(text);
-  u.volume=0.2;
-  u.rate=0.6;
-  u.pitch=0.4;
-  speechSynthesis.speak(u);
-}
+    // start far away
+    lat = targetLat + (Math.random() * 10 - 5);
+    lon = targetLon + (Math.random() * 10 - 5);
 
-setInterval(()=>{
-  if(!enabled) return;
-  whisper("we see you...");
-},5000);
+    addLog("Signal detected...");
+    setTimeout(() => addLog("Refining position..."), 2000);
+    setTimeout(() => addLog("Cross-referencing data..."), 4000);
+    setTimeout(() => addLog("Identity pattern found."), 7000);
 
+    setTimeout(() => whisper("we see you"), 5000);
+    setTimeout(() => whisper("don’t move"), 9000);
+
+}, () => {
+    addLog("Location access denied.");
+    whisper("you can't hide");
+});
+
+// random creepy logs
+const messages = [
+    "Tracking movement...",
+    "Heartbeat pattern irregular...",
+    "Device recognized.",
+    "You’ve been here before.",
+    "Signal interference detected.",
+    "Watching...",
+    "Still there?",
+    "Why are you reading this?"
+];
+
+setInterval(() => {
+    const msg = messages[Math.floor(Math.random() * messages.length)];
+    addLog(msg);
+}, 3000);
+
+// start animation
+updateCoords();
+
+// flicker title text over time
+setTimeout(() => {
+    document.querySelector(".glitch").textContent = "SIGNAL LOCKED";
+}, 10000);
+
+setTimeout(() => {
+    document.querySelector(".glitch").textContent = "YOU ARE NOT ALONE";
+    whisper("you are not alone");
+}, 15000);
 </script>
+
 </body>
 </html>
