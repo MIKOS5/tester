@@ -3,32 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>we know where you are</title>
+<title>tracking...</title>
 <style>
-body {
-  margin:0;
-  overflow:hidden;
-  background:black;
-  color:#0f0;
-  font-family: monospace;
-}
-
-#terminal {
-  position:absolute;
-  width:100%;
-  height:100%;
-  padding:20px;
-}
-
-#map {
-  position:absolute;
-  bottom:10px;
-  right:10px;
-  width:300px;
-  height:200px;
-  border:2px solid red;
-}
-
+body { margin:0; overflow:hidden; background:black; color:#0f0; font-family: monospace; }
+#terminal { position:absolute; width:100%; height:100%; padding:20px; }
+#map { position:absolute; bottom:10px; right:10px; width:300px; height:200px; border:2px solid red; }
 .red { color:red; }
 </style>
 </head>
@@ -44,7 +23,6 @@ function typeLine(text, speed=20) {
   let i = 0;
   const line = document.createElement("div");
   terminal.appendChild(line);
-
   const interval = setInterval(() => {
     line.textContent += text[i];
     i++;
@@ -54,35 +32,48 @@ function typeLine(text, speed=20) {
 
 function rand(min,max){return Math.random()*(max-min)+min}
 
-// ===== FAKE COORDINATES =====
-const coords = {
-  lat: rand(-90,90).toFixed(5),
-  lon: rand(-180,180).toFixed(5)
-};
+// ===== START WITH WIDE RANDOM LOCATION =====
+let targetLat = rand(-90,90);
+let targetLon = rand(-180,180);
 
-// ===== MAP (USING OPENSTREETMAP EMBED) =====
-map.src = `https://www.openstreetmap.org/export/embed.html?bbox=${coords.lon-0.01}%2C${coords.lat-0.01}%2C${coords.lon+0.01}%2C${coords.lat+0.01}&layer=mapnik&marker=${coords.lat}%2C${coords.lon}`;
+let currentLat = targetLat + rand(-1,1);
+let currentLon = targetLon + rand(-1,1);
 
-// ===== FAKE SCAN =====
-setTimeout(()=> typeLine("initializing location trace..."),1000);
-setTimeout(()=> typeLine("bypassing vpn..."),2500);
-setTimeout(()=> typeLine("locking coordinates..."),4000);
+function updateMap() {
+  map.src = `https://www.openstreetmap.org/export/embed.html?bbox=${currentLon-0.01}%2C${currentLat-0.01}%2C${currentLon+0.01}%2C${currentLat+0.01}&layer=mapnik&marker=${currentLat}%2C${currentLon}`;
+}
 
-setTimeout(()=> typeLine(`latitude: ${coords.lat}`),5500);
-setTimeout(()=> typeLine(`longitude: ${coords.lon}`),7000);
+function refineCoords() {
+  currentLat += (targetLat - currentLat) * 0.2;
+  currentLon += (targetLon - currentLon) * 0.2;
 
-setTimeout(()=> typeLine("rendering satellite view..."),8500);
+  currentLat += rand(-0.001,0.001);
+  currentLon += rand(-0.001,0.001);
 
-// ===== EXTRA FAKE DETAILS =====
-setTimeout(()=> typeLine("accuracy: 3 meters"),10000);
-setTimeout(()=> typeLine("signal strength: strong"),11500);
+  updateMap();
 
+  typeLine(`lat: ${currentLat.toFixed(5)} | lon: ${currentLon.toFixed(5)}`);
+}
+
+// ===== SEQUENCE =====
+typeLine("initializing trace...");
+setTimeout(()=> typeLine("scanning network..."),1500);
+setTimeout(()=> typeLine("signal acquired..."),3000);
+setTimeout(()=> typeLine("refining location..."),4500);
+
+// start refining loop
 setTimeout(()=>{
+  setInterval(refineCoords, 2000);
+},5000);
+
+// ===== FINAL LOCK =====
+setTimeout(()=>{
+  typeLine("lock achieved");
   const warn = document.createElement("div");
   warn.className = "red";
-  warn.textContent = "this isn't your location... but what if it was";
+  warn.textContent = "we see you";
   terminal.appendChild(warn);
-},13000);
+},20000);
 
 // ===== WHISPER =====
 let enabled=false;
@@ -91,16 +82,17 @@ document.addEventListener("click",()=>enabled=true);
 function whisper(text){
   const u=new SpeechSynthesisUtterance(text);
   u.volume=0.2;
-  u.rate=0.7;
+  u.rate=0.6;
   u.pitch=0.4;
   speechSynthesis.speak(u);
 }
 
 setInterval(()=>{
   if(!enabled) return;
-  whisper("we found you...");
-},6000);
+  whisper("locking on...");
+},5000);
 
+updateMap();
 </script>
 </body>
 </html>
