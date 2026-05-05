@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>you shouldn't be here</title>
+<title>it knows</title>
 <style>
 body {
   margin:0;
@@ -18,25 +18,12 @@ body {
   width:100%;
   height:100%;
   padding:10px;
-  overflow:hidden;
 }
 
-.glitch {
-  animation: glitch 0.1s infinite;
-}
-
-@keyframes glitch {
-  0% { transform: translate(2px,-2px); }
-  50% { transform: translate(-2px,2px); }
-  100% { transform: translate(2px,2px); }
-}
-
-.shadow {
+.face {
   position:absolute;
-  width:100px;
-  height:200px;
-  background:rgba(0,0,0,0.9);
-  filter: blur(10px);
+  width:200px;
+  opacity:0;
 }
 
 </style>
@@ -59,95 +46,87 @@ function typeLine(text, speed=15) {
   }, speed);
 }
 
-// ===== CREEPY MESSAGES =====
+// ===== WHISPERS WITH DIRECTION =====
+let audioEnabled = false;
+document.addEventListener("click", ()=> audioEnabled = true);
+
+function whisper(text, panValue=0) {
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  const utter = new SpeechSynthesisUtterance(text);
+
+  const synth = window.speechSynthesis;
+  utter.volume = 0.2;
+  utter.rate = 0.6 + Math.random()*0.4;
+  utter.pitch = 0.3 + Math.random()*0.3;
+
+  synth.speak(utter);
+}
+
+const whispers = [
+  "i am behind you",
+  "don't turn around",
+  "you hear that",
+  "stay still",
+  "it sees you",
+  "closer now"
+];
+
+setInterval(()=>{
+  if(!audioEnabled) return;
+  whisper(whispers[Math.floor(Math.random()*whispers.length)]);
+}, 3000);
+
+// ===== SILENCE THEN JUMP WHISPER =====
+setInterval(()=>{
+  if(!audioEnabled) return;
+  speechSynthesis.cancel();
+  setTimeout(()=>{
+    whisper("HEY...",0);
+  },2000);
+},15000);
+
+// ===== RARE FACE FLASH =====
+function flashFace() {
+  const img = document.createElement("img");
+  img.src = "https://i.imgur.com/8yKXsgF.png"; // creepy face
+  img.className = "face";
+  img.style.top = Math.random()*window.innerHeight+"px";
+  img.style.left = Math.random()*window.innerWidth+"px";
+  document.body.appendChild(img);
+
+  img.style.opacity = 1;
+  setTimeout(()=> img.remove(), 100);
+}
+
+setInterval(()=>{
+  if(Math.random() < 0.1) flashFace();
+}, 2000);
+
+// ===== TEXT REACTS TO MOUSE =====
+document.addEventListener("mousemove", e=>{
+  if(Math.random() < 0.02) {
+    typeLine("stop moving");
+  }
+});
+
+// ===== TERMINAL MESSAGES =====
 const msgs = [
-  "...",
-  "why are you still here",
-  "this page isn't real",
-  "close it",
-  "you missed it",
-  "look behind you",
-  "it saw you",
-  "don't move"
+  "you opened it",
+  "it noticed",
+  "too late now",
+  "stay quiet",
+  "don't look away"
 ];
 
 setInterval(()=>{
   typeLine(msgs[Math.floor(Math.random()*msgs.length)]);
-},1800);
-
-// ===== WHISPERS =====
-let enabled = false;
-document.addEventListener("click", ()=> enabled = true);
-
-function whisper(text) {
-  const u = new SpeechSynthesisUtterance(text);
-  u.volume = 0.15;
-  u.rate = 0.7 + Math.random()*0.4;
-  u.pitch = 0.3 + Math.random()*0.4;
-  speechSynthesis.speak(u);
-}
-
-const whispers = [
-  "he's here",
-  "don't turn around",
-  "i'm in your room",
-  "you left something open",
-  "i can see you",
-  "stay quiet"
-];
-
-setInterval(()=>{
-  if(!enabled) return;
-  whisper(whispers[Math.floor(Math.random()*whispers.length)]);
-},3500);
-
-// ===== SHADOW FIGURES =====
-function spawnShadow() {
-  const s = document.createElement("div");
-  s.className = "shadow";
-  s.style.top = Math.random()*window.innerHeight+"px";
-  s.style.left = Math.random()*window.innerWidth+"px";
-  document.body.appendChild(s);
-
-  setTimeout(()=>{
-    s.remove();
-  }, 800);
-}
-
-setInterval(spawnShadow, 2000);
-
-// ===== RANDOM SCREAM FLASH =====
-setInterval(()=>{
-  if(Math.random() < 0.15) {
-    document.body.style.background = "white";
-    setTimeout(()=> document.body.style.background="black", 100);
-  }
 }, 2000);
 
-// ===== TEXT THAT FOLLOWS CURSOR =====
-const follower = document.createElement("div");
-follower.style.position = "absolute";
-follower.style.color = "red";
-follower.textContent = "RUN";
-document.body.appendChild(follower);
-
-document.addEventListener("mousemove", e=>{
-  follower.style.top = (e.clientY+15)+"px";
-  follower.style.left = (e.clientX+15)+"px";
-});
-
-// ===== PAGE DISTORTION =====
-setInterval(()=>{
-  document.body.style.transform = `scale(${1 + Math.random()*0.05}) rotate(${Math.random()*2-1}deg)`;
-}, 400);
-
-// ===== FAKE TAKEOVER =====
+// ===== FULL SILENCE EVENT =====
 setTimeout(()=>{
+  speechSynthesis.cancel();
   terminal.innerHTML = "";
-  typeLine("ACCESS GRANTED");
-  setTimeout(()=> typeLine("camera enabled"),1000);
-  setTimeout(()=> typeLine("just kidding... or am I"),2000);
-}, 12000);
+}, 20000);
 
 </script>
 </body>
