@@ -1,165 +1,71 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Signal Acquired</title>
-<style>
-    body {
-        margin: 0;
-        background: black;
-        color: #00ff9f;
-        font-family: "Courier New", monospace;
-        overflow: hidden;
-    }
+let viewerCount = 1;
+const viewerBox = document.createElement("div");
 
-    #container {
-        padding: 20px;
-    }
+viewerBox.style.position = "fixed";
+viewerBox.style.top = "10px";
+viewerBox.style.right = "20px";
+viewerBox.style.color = "#ff3b3b";
+viewerBox.style.fontSize = "14px";
+viewerBox.style.textAlign = "right";
+viewerBox.innerHTML = "Viewers: 1";
 
-    .glitch {
-        font-size: 28px;
-        animation: flicker 0.2s infinite;
-    }
+document.body.appendChild(viewerBox);
 
-    @keyframes flicker {
-        0% { opacity: 1; }
-        50% { opacity: 0.3; }
-        100% { opacity: 1; }
-    }
+const viewerNames = [];
 
-    #coords {
-        margin-top: 20px;
-        font-size: 18px;
-    }
+// generate fake viewer ID
+function generateViewer() {
+    const id = "Viewer_" + Math.floor(Math.random() * 9999);
+    viewerNames.push(id);
+    viewerCount++;
 
-    #log {
-        margin-top: 20px;
-        height: 200px;
-        overflow: hidden;
-        font-size: 14px;
-    }
-
-    .line {
-        opacity: 0;
-        animation: fadeIn 2s forwards;
-    }
-
-    @keyframes fadeIn {
-        to { opacity: 1; }
-    }
-
-    #overlay {
-        position: fixed;
-        inset: 0;
-        background: radial-gradient(circle, transparent 60%, black 100%);
-        pointer-events: none;
-    }
-</style>
-</head>
-<body>
-
-<div id="container">
-    <div class="glitch">INITIALIZING TRACE...</div>
-    <div id="coords">Locating...</div>
-    <div id="log"></div>
-</div>
-
-<div id="overlay"></div>
-
-<script>
-let lat = 0;
-let lon = 0;
-let targetLat = 0;
-let targetLon = 0;
-
-const coordsEl = document.getElementById("coords");
-const logEl = document.getElementById("log");
-
-// creepy whisper
-function whisper(text) {
-    const msg = new SpeechSynthesisUtterance(text);
-    msg.volume = 0.2;
-    msg.rate = 0.6;
-    msg.pitch = 0.5;
-    speechSynthesis.speak(msg);
+    updateViewerDisplay();
+    addLog(id + " connected");
 }
 
-// add log lines
-function addLog(text) {
-    const div = document.createElement("div");
-    div.className = "line";
-    div.textContent = "> " + text;
-    logEl.appendChild(div);
-
-    if (logEl.children.length > 10) {
-        logEl.removeChild(logEl.firstChild);
-    }
+// update display
+function updateViewerDisplay() {
+    viewerBox.innerHTML =
+        "Viewers: " + viewerCount + "<br>" +
+        viewerNames.slice(-3).join("<br>");
 }
 
-// refine coordinates slowly
-function updateCoords() {
-    lat += (targetLat - lat) * 0.05;
-    lon += (targetLon - lon) * 0.05;
-
-    coordsEl.textContent =
-        "Lat: " + lat.toFixed(6) +
-        " | Lon: " + lon.toFixed(6);
-
-    requestAnimationFrame(updateCoords);
-}
-
-// get real location
-navigator.geolocation.getCurrentPosition(pos => {
-    targetLat = pos.coords.latitude;
-    targetLon = pos.coords.longitude;
-
-    // start far away
-    lat = targetLat + (Math.random() * 10 - 5);
-    lon = targetLon + (Math.random() * 10 - 5);
-
-    addLog("Signal detected...");
-    setTimeout(() => addLog("Refining position..."), 2000);
-    setTimeout(() => addLog("Cross-referencing data..."), 4000);
-    setTimeout(() => addLog("Identity pattern found."), 7000);
-
-    setTimeout(() => whisper("we see you"), 5000);
-    setTimeout(() => whisper("don’t move"), 9000);
-
-}, () => {
-    addLog("Location access denied.");
-    whisper("you can't hide");
-});
-
-// random creepy logs
-const messages = [
-    "Tracking movement...",
-    "Heartbeat pattern irregular...",
-    "Device recognized.",
-    "You’ve been here before.",
-    "Signal interference detected.",
-    "Watching...",
-    "Still there?",
-    "Why are you reading this?"
-];
-
+// simulate viewers joining
 setInterval(() => {
-    const msg = messages[Math.floor(Math.random() * messages.length)];
-    addLog(msg);
-}, 3000);
+    if (viewerCount < 8) {
+        generateViewer();
+    }
+}, 4000);
 
-// start animation
-updateCoords();
+// random viewer activity
+setInterval(() => {
+    if (viewerNames.length === 0) return;
 
-// flicker title text over time
+    const viewer = viewerNames[Math.floor(Math.random() * viewerNames.length)];
+    const actions = [
+        "is watching you",
+        "is typing...",
+        "is closer than you think",
+        "knows where you are",
+        "is still here",
+        "is not alone either"
+    ];
+
+    const action = actions[Math.floor(Math.random() * actions.length)];
+    addLog(viewer + " " + action);
+
+    // occasional whisper tied to viewers
+    if (Math.random() < 0.3) {
+        whisper("they are watching");
+    }
+
+}, 5000);
+
+// escalation moment
 setTimeout(() => {
-    document.querySelector(".glitch").textContent = "SIGNAL LOCKED";
-}, 10000);
+    addLog("Multiple viewers detected.");
+    whisper("you are being observed");
 
-setTimeout(() => {
-    document.querySelector(".glitch").textContent = "YOU ARE NOT ALONE";
-    whisper("you are not alone");
-}, 15000);
-</script>
-
-</body>
-</html>
+    viewerBox.style.color = "#ff0000";
+    viewerBox.style.fontSize = "16px";
+}, 12000);
