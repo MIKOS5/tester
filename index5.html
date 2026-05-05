@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>tracking target...</title>
+<title>locating...</title>
 <style>
 body { margin:0; overflow:hidden; background:black; color:#0f0; font-family: monospace; }
 #terminal { position:absolute; width:100%; height:100%; padding:20px; }
-#map { position:absolute; bottom:10px; right:10px; width:320px; height:220px; border:2px solid red; transition: all 1s ease; }
+#map { position:absolute; bottom:10px; right:10px; width:320px; height:220px; border:2px solid red; }
 .red { color:red; }
 </style>
 </head>
@@ -30,77 +30,70 @@ function typeLine(text, speed=18) {
   }, speed);
 }
 
-function rand(min,max){return Math.random()*(max-min)+min}
-
-// ===== FAKE REGION TARGET (consistent illusion) =====
-const baseLat = 34.05 + rand(-0.05,0.05); // LA-ish anchor
-const baseLon = -118.25 + rand(-0.05,0.05);
-
-let zoomLevel = 0.5; // wide
-let currentLat = baseLat + rand(-1,1);
-let currentLon = baseLon + rand(-1,1);
-
-function updateMap() {
-  map.src = `https://www.openstreetmap.org/export/embed.html?bbox=${currentLon-zoomLevel}%2C${currentLat-zoomLevel}%2C${currentLon+zoomLevel}%2C${currentLat+zoomLevel}&layer=mapnik&marker=${currentLat}%2C${currentLon}`;
+function updateMap(lat, lon, zoom=0.01) {
+  map.src = `https://www.openstreetmap.org/export/embed.html?bbox=${lon-zoom}%2C${lat-zoom}%2C${lon+zoom}%2C${lat+zoom}&layer=mapnik&marker=${lat}%2C${lon}`;
 }
 
-function refine() {
-  currentLat += (baseLat - currentLat) * 0.25;
-  currentLon += (baseLon - currentLon) * 0.25;
+// ===== START =====
+typeLine("initializing...");
+setTimeout(()=> typeLine("requesting location permission..."),1500);
 
-  zoomLevel *= 0.7; // zoom in tighter each step
-
-  updateMap();
-  typeLine(`lat: ${currentLat.toFixed(5)} | lon: ${currentLon.toFixed(5)}`);
-}
-
-// ===== FAKE DATA ENRICHMENT =====
-const fakeStreets = [
-  "Maple Ave","Sunset Blvd","Oak Street","Cedar Lane","Pine Drive"
-];
-
-const fakeISP = [
-  "ComNet Fiber","WestLink Broadband","Pacific DataNet"
-];
-
-// ===== SEQUENCE =====
-typeLine("initializing global trace...");
-setTimeout(()=> typeLine("fingerprinting device..."),1500);
-setTimeout(()=> typeLine("timezone detected: " + Intl.DateTimeFormat().resolvedOptions().timeZone),3000);
-setTimeout(()=> typeLine("isp: " + fakeISP[Math.floor(Math.random()*fakeISP.length)]),4500);
-setTimeout(()=> typeLine("routing through nodes..."),6000);
-setTimeout(()=> typeLine("signal acquired..."),7500);
-setTimeout(()=> typeLine("refining location..."),9000);
-
-// refinement loop
+// ===== REAL LOCATION ATTEMPT =====
 setTimeout(()=>{
-  const interval = setInterval(refine, 2000);
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(pos => {
+      const lat = pos.coords.latitude;
+      const lon = pos.coords.longitude;
 
-  setTimeout(()=>{
-    clearInterval(interval);
+      typeLine("permission granted");
+      typeLine("coordinates acquired");
+      typeLine(`lat: ${lat.toFixed(5)}`);
+      typeLine(`lon: ${lon.toFixed(5)}`);
 
-    typeLine("street match: " + fakeStreets[Math.floor(Math.random()*fakeStreets.length)]);
-    typeLine("accuracy: < 1 meter");
+      updateMap(lat, lon);
 
-    let countdown = 5;
-    const cd = setInterval(()=>{
-      typeLine("lock in " + countdown + "...");
-      countdown--;
-      if(countdown < 0) {
-        clearInterval(cd);
+      // fake enhancement
+      setTimeout(()=>{
+        typeLine("refining accuracy...");
+      },2000);
 
+      setTimeout(()=>{
+        typeLine("accuracy: < 5 meters");
+      },4000);
+
+      setTimeout(()=>{
         const warn = document.createElement("div");
         warn.className = "red";
         warn.textContent = "location locked";
         terminal.appendChild(warn);
-      }
-    },1000);
+      },6000);
 
-  },12000);
+    }, err => {
+      typeLine("permission denied");
+      fallbackFake();
+    });
+  } else {
+    fallbackFake();
+  }
+},3000);
 
-},10000);
+// ===== FALLBACK FAKE =====
+function fallbackFake() {
+  typeLine("switching to network trace...");
 
-// ===== WHISPER SYNC =====
+  let lat = 34.05 + (Math.random()-0.5);
+  let lon = -118.25 + (Math.random()-0.5);
+
+  updateMap(lat, lon, 0.5);
+
+  setTimeout(()=>{
+    typeLine("approximate location acquired");
+    typeLine(`lat: ${lat.toFixed(5)}`);
+    typeLine(`lon: ${lon.toFixed(5)}`);
+  },2000);
+}
+
+// ===== WHISPERS =====
 let enabled=false;
 document.addEventListener("click",()=>enabled=true);
 
@@ -114,10 +107,9 @@ function whisper(text){
 
 setInterval(()=>{
   if(!enabled) return;
-  whisper("closer...");
-},4000);
+  whisper("we see you...");
+},5000);
 
-updateMap();
 </script>
 </body>
 </html>
