@@ -2,224 +2,106 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Signal Trace</title>
+<title>Completely Useless Website</title>
 
 <style>
 body {
-    margin: 0;
-    background: black;
-    color: #00ff9f;
-    font-family: "Courier New", monospace;
-    overflow: hidden;
+    font-family: Arial, sans-serif;
+    background: #f2f2f2;
+    text-align: center;
+    padding: 40px;
 }
 
-#container {
-    padding: 20px;
+h1 {
+    font-size: 32px;
 }
 
-.glitch {
-    font-size: 28px;
-    animation: flicker 0.15s infinite;
+button {
+    padding: 10px 20px;
+    margin: 10px;
+    cursor: pointer;
 }
 
-@keyframes flicker {
-    0% { opacity: 1; }
-    50% { opacity: 0.3; }
-    100% { opacity: 1; }
+#progress {
+    width: 80%;
+    height: 25px;
+    background: #ccc;
+    margin: 20px auto;
+    position: relative;
 }
 
-#coords {
-    margin-top: 20px;
-    font-size: 18px;
+#bar {
+    height: 100%;
+    width: 100%;
+    background: limegreen;
 }
 
-#log {
-    margin-top: 20px;
-    height: 220px;
-    overflow: hidden;
-    font-size: 14px;
-}
-
-.line {
-    opacity: 0;
-    animation: fadeIn 1.5s forwards;
-}
-
-@keyframes fadeIn {
-    to { opacity: 1; }
-}
-
-#overlay {
-    position: fixed;
-    inset: 0;
-    background: radial-gradient(circle, transparent 60%, black 100%);
-    pointer-events: none;
+#searchResult {
+    margin-top: 15px;
+    font-style: italic;
 }
 </style>
 </head>
 
 <body>
 
-<div id="container">
-    <div class="glitch">INITIALIZING TRACE...</div>
-    <div id="coords">Searching signal...</div>
-    <div id="log"></div>
+<h1>Welcome to the Opposite of Useful</h1>
+
+<p>Everything here works... just not how you want.</p>
+
+<!-- BUTTON THAT DOESN'T HELP -->
+<button onclick="doNothing()">Do Something Important</button>
+
+<!-- SEARCH THAT AVOIDS ANSWER -->
+<div>
+    <input type="text" id="searchBox" placeholder="Search anything...">
+    <button onclick="fakeSearch()">Search</button>
+    <div id="searchResult"></div>
 </div>
 
-<div id="overlay"></div>
+<!-- PROGRESS BAR THAT GOES BACKWARDS -->
+<div id="progress">
+    <div id="bar"></div>
+</div>
+
+<!-- APOLOGY BUTTON -->
+<button onclick="apologize()">Fix Everything</button>
 
 <script>
-// ----------------------
-// FAKE COORDINATES SYSTEM
-// ----------------------
-let lat = (Math.random() * 180 - 90);
-let lon = (Math.random() * 360 - 180);
-
-let targetLat = lat + (Math.random() * 0.01 - 0.005);
-let targetLon = lon + (Math.random() * 0.01 - 0.005);
-
-const coordsEl = document.getElementById("coords");
-const logEl = document.getElementById("log");
-
-function updateCoords() {
-    lat += (targetLat - lat) * 0.02;
-    lon += (targetLon - lon) * 0.02;
-
-    coordsEl.textContent =
-        "Lat: " + lat.toFixed(6) +
-        " | Lon: " + lon.toFixed(6);
-
-    requestAnimationFrame(updateCoords);
+// useless button
+function doNothing() {
+    alert("Done. (Nothing happened)");
 }
 
-// ----------------------
-// LOG SYSTEM
-// ----------------------
-function addLog(text) {
-    const div = document.createElement("div");
-    div.className = "line";
-    div.textContent = "> " + text;
-    logEl.appendChild(div);
-
-    if (logEl.children.length > 12) {
-        logEl.removeChild(logEl.firstChild);
-    }
-}
-
-// ----------------------
-// WHISPER SYSTEM
-// ----------------------
-function whisper(text) {
-    const msg = new SpeechSynthesisUtterance(text);
-    msg.volume = 0.2;
-    msg.rate = 0.6;
-    msg.pitch = 0.5;
-    speechSynthesis.speak(msg);
-}
-
-// ----------------------
-// MULTIPLE VIEWERS SYSTEM
-// ----------------------
-let viewerCount = 1;
-const viewerBox = document.createElement("div");
-
-viewerBox.style.position = "fixed";
-viewerBox.style.top = "10px";
-viewerBox.style.right = "20px";
-viewerBox.style.color = "#ff3b3b";
-viewerBox.style.fontSize = "14px";
-viewerBox.style.textAlign = "right";
-viewerBox.innerHTML = "Viewers: 1";
-
-document.body.appendChild(viewerBox);
-
-const viewerNames = [];
-
-function generateViewer() {
-    const id = "Viewer_" + Math.floor(Math.random() * 9999);
-    viewerNames.push(id);
-    viewerCount++;
-    updateViewerDisplay();
-    addLog(id + " connected");
-}
-
-function updateViewerDisplay() {
-    viewerBox.innerHTML =
-        "Viewers: " + viewerCount + "<br>" +
-        viewerNames.slice(-3).join("<br>");
-}
-
-// viewers joining
-setInterval(() => {
-    if (viewerCount < 10) {
-        generateViewer();
-    }
-}, 3500);
-
-// viewer behavior
-setInterval(() => {
-    if (viewerNames.length === 0) return;
-
-    const viewer = viewerNames[Math.floor(Math.random() * viewerNames.length)];
-
-    const actions = [
-        "is watching",
-        "is typing...",
-        "is closer than expected",
-        "is still here",
-        "is observing silently",
-        "knows your pattern"
+// fake search
+function fakeSearch() {
+    const input = document.getElementById("searchBox").value;
+    const responses = [
+        "Instead of '" + input + "', have you tried not knowing?",
+        "No results found. But emotionally, maybe yes.",
+        "We deliberately avoided searching for that.",
+        "Result hidden for your convenience.",
+        "You were close. But also very far."
     ];
 
-    addLog(viewer + " " + actions[Math.floor(Math.random() * actions.length)]);
+    document.getElementById("searchResult").innerText =
+        responses[Math.floor(Math.random() * responses.length)];
+}
 
-    if (Math.random() < 0.25) {
-        whisper("they are watching");
-    }
-
-}, 4500);
-
-// ----------------------
-// RANDOM LOGS
-// ----------------------
-const messages = [
-    "Signal detected...",
-    "Refining trace...",
-    "Cross-referencing...",
-    "Pattern recognized.",
-    "Anomaly detected.",
-    "You’ve been here before.",
-    "Still active...",
-    "Do not disconnect.",
-    "Why are you still here?"
-];
-
+// backwards progress bar
+let width = 100;
 setInterval(() => {
-    addLog(messages[Math.floor(Math.random() * messages.length)]);
-}, 3000);
+    width -= Math.random() * 5;
 
-// ----------------------
-// ESCALATION TIMELINE
-// ----------------------
-setTimeout(() => {
-    addLog("Multiple viewers detected.");
-    whisper("you are being observed");
-    viewerBox.style.color = "#ff0000";
-}, 10000);
+    if (width < 0) width = 100;
 
-setTimeout(() => {
-    document.querySelector(".glitch").textContent = "SIGNAL LOCKED";
-}, 14000);
+    document.getElementById("bar").style.width = width + "%";
+}, 500);
 
-setTimeout(() => {
-    document.querySelector(".glitch").textContent = "YOU ARE NOT ALONE";
-    whisper("you are not alone");
-}, 20000);
-
-// ----------------------
-// START
-// ----------------------
-updateCoords();
+// apology button
+function apologize() {
+    alert("We’re sorry.\n\nWe will not improve.");
+}
 </script>
 
 </body>
