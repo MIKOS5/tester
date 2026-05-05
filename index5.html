@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>we know you</title>
+<title>we know where you are</title>
 <style>
 body {
   margin:0;
@@ -20,15 +20,25 @@ body {
   padding:20px;
 }
 
-.red { color:red; }
+#map {
+  position:absolute;
+  bottom:10px;
+  right:10px;
+  width:300px;
+  height:200px;
+  border:2px solid red;
+}
 
+.red { color:red; }
 </style>
 </head>
 <body>
 <div id="terminal"></div>
+<iframe id="map"></iframe>
 
 <script>
 const terminal = document.getElementById("terminal");
+const map = document.getElementById("map");
 
 function typeLine(text, speed=20) {
   let i = 0;
@@ -42,67 +52,37 @@ function typeLine(text, speed=20) {
   }, speed);
 }
 
-// ===== SAFE FAKE PERSONAL DATA GENERATOR =====
-function fakeIP() {
-  return `${rand(10,255)}.${rand(0,255)}.${rand(0,255)}.${rand(0,255)}`;
-}
+function rand(min,max){return Math.random()*(max-min)+min}
 
-function fakeLocation() {
-  const cities = ["Los Angeles", "Chicago", "Houston", "Miami", "Seattle"];
-  return cities[Math.floor(Math.random()*cities.length)];
-}
-
-function fakeName() {
-  const first = ["Alex","Jordan","Taylor","Morgan","Casey"];
-  const last = ["Smith","Johnson","Reyes","Carter","Lee"];
-  return first[Math.floor(Math.random()*first.length)] + " " + last[Math.floor(Math.random()*last.length)];
-}
-
-function rand(min,max){return Math.floor(Math.random()*(max-min+1))+min}
-
-const profile = {
-  name: fakeName(),
-  ip: fakeIP(),
-  location: fakeLocation(),
-  device: navigator.userAgent,
-  time: new Date().toLocaleTimeString()
+// ===== FAKE COORDINATES =====
+const coords = {
+  lat: rand(-90,90).toFixed(5),
+  lon: rand(-180,180).toFixed(5)
 };
 
-// ===== DISPLAY FAKE "PERSONAL" INFO =====
-setTimeout(()=>{
-  typeLine("scanning...");
-},1000);
+// ===== MAP (USING OPENSTREETMAP EMBED) =====
+map.src = `https://www.openstreetmap.org/export/embed.html?bbox=${coords.lon-0.01}%2C${coords.lat-0.01}%2C${coords.lon+0.01}%2C${coords.lat+0.01}&layer=mapnik&marker=${coords.lat}%2C${coords.lon}`;
 
-setTimeout(()=>{
-  typeLine("collecting user data...");
-},2500);
+// ===== FAKE SCAN =====
+setTimeout(()=> typeLine("initializing location trace..."),1000);
+setTimeout(()=> typeLine("bypassing vpn..."),2500);
+setTimeout(()=> typeLine("locking coordinates..."),4000);
 
-setTimeout(()=>{
-  typeLine("name: " + profile.name);
-},4000);
+setTimeout(()=> typeLine(`latitude: ${coords.lat}`),5500);
+setTimeout(()=> typeLine(`longitude: ${coords.lon}`),7000);
 
-setTimeout(()=>{
-  typeLine("ip address: " + profile.ip);
-},5500);
+setTimeout(()=> typeLine("rendering satellite view..."),8500);
 
-setTimeout(()=>{
-  typeLine("location: " + profile.location);
-},7000);
-
-setTimeout(()=>{
-  typeLine("device: " + profile.device.substring(0,60) + "...");
-},8500);
-
-setTimeout(()=>{
-  typeLine("last activity: " + profile.time);
-},10000);
+// ===== EXTRA FAKE DETAILS =====
+setTimeout(()=> typeLine("accuracy: 3 meters"),10000);
+setTimeout(()=> typeLine("signal strength: strong"),11500);
 
 setTimeout(()=>{
   const warn = document.createElement("div");
   warn.className = "red";
-  warn.textContent = "this is not real... but it feels real, doesn't it?";
+  warn.textContent = "this isn't your location... but what if it was";
   terminal.appendChild(warn);
-},12000);
+},13000);
 
 // ===== WHISPER =====
 let enabled=false;
@@ -118,7 +98,7 @@ function whisper(text){
 
 setInterval(()=>{
   if(!enabled) return;
-  whisper("we're watching...");
+  whisper("we found you...");
 },6000);
 
 </script>
