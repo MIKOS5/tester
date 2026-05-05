@@ -2,100 +2,170 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Untouchable Input</title>
+<title>Impossible Form</title>
 
 <style>
 body {
     font-family: Arial, sans-serif;
-    height: 100vh;
-    margin: 0;
-    background: #f5f5f5;
+    background: #f2f2f2;
     overflow: hidden;
+    margin: 0;
 }
 
 h1 {
     text-align: center;
-    margin-top: 40px;
+    margin-top: 30px;
 }
 
-#inputBox {
+.field {
     position: absolute;
-    width: 250px;
+    width: 220px;
     padding: 10px;
-    font-size: 16px;
-    top: 200px;
-    left: 50%;
-    transform: translateX(-50%);
-    transition: top 0.1s, left 0.1s;
+    font-size: 14px;
+    transition: top 0.08s, left 0.08s, width 0.2s;
 }
 
-#hint {
+#status {
+    position: fixed;
+    bottom: 20px;
+    width: 100%;
     text-align: center;
-    margin-top: 20px;
-    color: #666;
+    color: red;
+    font-weight: bold;
+}
+button {
+    position: absolute;
+    padding: 10px 20px;
 }
 </style>
 </head>
 
 <body>
 
-<h1>Try to click the input</h1>
-<p id="hint">It doesn’t want to be found.</p>
+<h1>Fill Out This Simple Form</h1>
 
-<input id="inputBox" placeholder="Type here...">
+<input class="field" id="mainInput" placeholder="Your message...">
+<button id="submitBtn">Submit</button>
+
+<div id="status"></div>
 
 <script>
-const input = document.getElementById("inputBox");
+const main = document.getElementById("mainInput");
+const submitBtn = document.getElementById("submitBtn");
+const status = document.getElementById("status");
 
-let pos = {
-    x: window.innerWidth / 2,
-    y: 200
-};
+let fields = [main];
 
-// update position
-function moveInput(x, y) {
-    input.style.left = x + "px";
-    input.style.top = y + "px";
-    pos.x = x;
-    pos.y = y;
+// initial positions
+function randomPos(el) {
+    el.style.left = Math.random() * (window.innerWidth - 250) + "px";
+    el.style.top = Math.random() * (window.innerHeight - 100) + "px";
 }
 
-// distance check
+// spawn decoy inputs
+function spawnDecoy() {
+    const decoy = document.createElement("input");
+    decoy.className = "field";
+    decoy.placeholder = "Totally real field";
+    decoy.value = "";
+
+    document.body.appendChild(decoy);
+    fields.push(decoy);
+    randomPos(decoy);
+
+    // decoys also lie
+    decoy.addEventListener("input", () => {
+        if (Math.random() < 0.5) {
+            decoy.value = decoy.value.slice(0, -1);
+            status.innerText = "That input disagrees with you.";
+        }
+    });
+}
+
+// movement + sabotage
 document.addEventListener("mousemove", (e) => {
-    const rect = input.getBoundingClientRect();
+    fields.forEach(f => {
+        const rect = f.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
 
-    const inputCenterX = rect.left + rect.width / 2;
-    const inputCenterY = rect.top + rect.height / 2;
+        const dx = e.clientX - cx;
+        const dy = e.clientY - cy;
+        const dist = Math.sqrt(dx*dx + dy*dy);
 
-    const dx = e.clientX - inputCenterX;
-    const dy = e.clientY - inputCenterY;
+        // RUN AWAY
+        if (dist < 150) {
+            let angle = Math.atan2(dy, dx);
 
-    const distance = Math.sqrt(dx * dx + dy * dy);
+            let flee = 120 + Math.random() * 80;
 
-    // if mouse gets close, flee
-    if (distance < 120) {
-        let angle = Math.atan2(dy, dx);
+            let newX = rect.left - Math.cos(angle) * flee;
+            let newY = rect.top - Math.sin(angle) * flee;
 
-        let fleeDistance = 80 + Math.random() * 60;
+            newX = Math.max(0, Math.min(window.innerWidth - 240, newX));
+            newY = Math.max(0, Math.min(window.innerHeight - 60, newY));
 
-        let newX = pos.x - Math.cos(angle) * fleeDistance;
-        let newY = pos.y - Math.sin(angle) * fleeDistance;
+            f.style.left = newX + "px";
+            f.style.top = newY + "px";
 
-        // keep inside screen bounds
-        newX = Math.max(0, Math.min(window.innerWidth - 260, newX));
-        newY = Math.max(0, Math.min(window.innerHeight - 50, newY));
+            // SHRINK WHEN TOO CLOSE
+            f.style.width = "120px";
+        } else {
+            f.style.width = "220px";
+        }
+    });
+});
 
-        moveInput(newX, newY);
+// typing sabotage
+main.addEventListener("input", () => {
+    if (Math.random() < 0.4 && main.value.length > 0) {
+        main.value = main.value.slice(0, -1);
+        status.innerText = "Something removed your words.";
+    }
+
+    if (Math.random() < 0.2) {
+        main.value = "";
+        status.innerText = "Input reset by consensus.";
+    }
+
+    // spawn chaos decoys
+    if (Math.random() < 0.15) {
+        spawnDecoy();
+        status.innerText = "Another field has joined the conversation.";
     }
 });
 
-// also randomly jumps on its own
+// teleport fields every few seconds
 setInterval(() => {
-    let newX = Math.random() * (window.innerWidth - 260);
-    let newY = Math.random() * (window.innerHeight - 100);
-
-    moveInput(newX, newY);
+    fields.forEach(f => {
+        if (Math.random() < 0.5) {
+            randomPos(f);
+        }
+    });
 }, 2500);
+
+// fake submit button escape + betrayal
+submitBtn.addEventListener("mouseover", () => {
+    submitBtn.style.left = Math.random() * (window.innerWidth - 100) + "px";
+    submitBtn.style.top = Math.random() * (window.innerHeight - 50) + "px";
+});
+
+submitBtn.addEventListener("click", () => {
+    status.innerText = "Submitting...";
+
+    setTimeout(() => {
+        status.innerText = "Success (ignored). Nothing was saved.";
+        alert("Form submitted successfully.\n(We are not listening.)");
+    }, 1200);
+});
+
+// initial placement
+randomPos(main);
+randomPos(submitBtn);
+
+// start with a couple decoys
+spawnDecoy();
+setTimeout(spawnDecoy, 2000);
 </script>
 
 </body>
