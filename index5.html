@@ -1,3 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Signal Trace</title>
+
+<style>
+body {
+    margin: 0;
+    background: black;
+    color: #00ff9f;
+    font-family: "Courier New", monospace;
+    overflow: hidden;
+}
+
+#container {
+    padding: 20px;
+}
+
+.glitch {
+    font-size: 28px;
+    animation: flicker 0.15s infinite;
+}
+
+@keyframes flicker {
+    0% { opacity: 1; }
+    50% { opacity: 0.3; }
+    100% { opacity: 1; }
+}
+
+#coords {
+    margin-top: 20px;
+    font-size: 18px;
+}
+
+#log {
+    margin-top: 20px;
+    height: 220px;
+    overflow: hidden;
+    font-size: 14px;
+}
+
+.line {
+    opacity: 0;
+    animation: fadeIn 1.5s forwards;
+}
+
+@keyframes fadeIn {
+    to { opacity: 1; }
+}
+
+#overlay {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle, transparent 60%, black 100%);
+    pointer-events: none;
+}
+</style>
+</head>
+
+<body>
+
+<div id="container">
+    <div class="glitch">INITIALIZING TRACE...</div>
+    <div id="coords">Searching signal...</div>
+    <div id="log"></div>
+</div>
+
+<div id="overlay"></div>
+
+<script>
+// ----------------------
+// FAKE COORDINATES SYSTEM
+// ----------------------
+let lat = (Math.random() * 180 - 90);
+let lon = (Math.random() * 360 - 180);
+
+let targetLat = lat + (Math.random() * 0.01 - 0.005);
+let targetLon = lon + (Math.random() * 0.01 - 0.005);
+
+const coordsEl = document.getElementById("coords");
+const logEl = document.getElementById("log");
+
+function updateCoords() {
+    lat += (targetLat - lat) * 0.02;
+    lon += (targetLon - lon) * 0.02;
+
+    coordsEl.textContent =
+        "Lat: " + lat.toFixed(6) +
+        " | Lon: " + lon.toFixed(6);
+
+    requestAnimationFrame(updateCoords);
+}
+
+// ----------------------
+// LOG SYSTEM
+// ----------------------
+function addLog(text) {
+    const div = document.createElement("div");
+    div.className = "line";
+    div.textContent = "> " + text;
+    logEl.appendChild(div);
+
+    if (logEl.children.length > 12) {
+        logEl.removeChild(logEl.firstChild);
+    }
+}
+
+// ----------------------
+// WHISPER SYSTEM
+// ----------------------
+function whisper(text) {
+    const msg = new SpeechSynthesisUtterance(text);
+    msg.volume = 0.2;
+    msg.rate = 0.6;
+    msg.pitch = 0.5;
+    speechSynthesis.speak(msg);
+}
+
+// ----------------------
+// MULTIPLE VIEWERS SYSTEM
+// ----------------------
 let viewerCount = 1;
 const viewerBox = document.createElement("div");
 
@@ -13,59 +135,92 @@ document.body.appendChild(viewerBox);
 
 const viewerNames = [];
 
-// generate fake viewer ID
 function generateViewer() {
     const id = "Viewer_" + Math.floor(Math.random() * 9999);
     viewerNames.push(id);
     viewerCount++;
-
     updateViewerDisplay();
     addLog(id + " connected");
 }
 
-// update display
 function updateViewerDisplay() {
     viewerBox.innerHTML =
         "Viewers: " + viewerCount + "<br>" +
         viewerNames.slice(-3).join("<br>");
 }
 
-// simulate viewers joining
+// viewers joining
 setInterval(() => {
-    if (viewerCount < 8) {
+    if (viewerCount < 10) {
         generateViewer();
     }
-}, 4000);
+}, 3500);
 
-// random viewer activity
+// viewer behavior
 setInterval(() => {
     if (viewerNames.length === 0) return;
 
     const viewer = viewerNames[Math.floor(Math.random() * viewerNames.length)];
+
     const actions = [
-        "is watching you",
+        "is watching",
         "is typing...",
-        "is closer than you think",
-        "knows where you are",
+        "is closer than expected",
         "is still here",
-        "is not alone either"
+        "is observing silently",
+        "knows your pattern"
     ];
 
-    const action = actions[Math.floor(Math.random() * actions.length)];
-    addLog(viewer + " " + action);
+    addLog(viewer + " " + actions[Math.floor(Math.random() * actions.length)]);
 
-    // occasional whisper tied to viewers
-    if (Math.random() < 0.3) {
+    if (Math.random() < 0.25) {
         whisper("they are watching");
     }
 
-}, 5000);
+}, 4500);
 
-// escalation moment
+// ----------------------
+// RANDOM LOGS
+// ----------------------
+const messages = [
+    "Signal detected...",
+    "Refining trace...",
+    "Cross-referencing...",
+    "Pattern recognized.",
+    "Anomaly detected.",
+    "You’ve been here before.",
+    "Still active...",
+    "Do not disconnect.",
+    "Why are you still here?"
+];
+
+setInterval(() => {
+    addLog(messages[Math.floor(Math.random() * messages.length)]);
+}, 3000);
+
+// ----------------------
+// ESCALATION TIMELINE
+// ----------------------
 setTimeout(() => {
     addLog("Multiple viewers detected.");
     whisper("you are being observed");
-
     viewerBox.style.color = "#ff0000";
-    viewerBox.style.fontSize = "16px";
-}, 12000);
+}, 10000);
+
+setTimeout(() => {
+    document.querySelector(".glitch").textContent = "SIGNAL LOCKED";
+}, 14000);
+
+setTimeout(() => {
+    document.querySelector(".glitch").textContent = "YOU ARE NOT ALONE";
+    whisper("you are not alone");
+}, 20000);
+
+// ----------------------
+// START
+// ----------------------
+updateCoords();
+</script>
+
+</body>
+</html>
