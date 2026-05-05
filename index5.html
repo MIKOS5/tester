@@ -23,10 +23,7 @@ body {
   overflow:auto;
 }
 
-.glitch {
-  animation: glitch 0.2s infinite;
-}
-
+.glitch { animation: glitch 0.2s infinite; }
 @keyframes glitch {
   0% { transform: translate(1px, -1px); }
   50% { transform: translate(-1px, 1px); }
@@ -41,23 +38,8 @@ body {
   cursor:pointer;
 }
 
-.eye {
-  position:absolute;
-  width:80px;
-  height:80px;
-  border-radius:50%;
-  background:white;
-}
-
-.pupil {
-  width:30px;
-  height:30px;
-  background:black;
-  border-radius:50%;
-  position:absolute;
-  top:25px;
-  left:25px;
-}
+.eye { position:absolute; width:80px; height:80px; border-radius:50%; background:white; }
+.pupil { width:30px; height:30px; background:black; border-radius:50%; position:absolute; top:25px; left:25px; }
 
 </style>
 </head>
@@ -72,7 +54,6 @@ function typeLine(text, speed=20) {
   let i = 0;
   const line = document.createElement("div");
   terminal.appendChild(line);
-
   const interval = setInterval(() => {
     line.textContent += text[i];
     i++;
@@ -83,10 +64,10 @@ function typeLine(text, speed=20) {
 const messages = [
   "Initializing...",
   "Accessing user device...",
-  "Reading thoughts...",
-  "Just kidding... or am I?",
-  "Why are you still here?",
-  "You clicked something you shouldn't have."
+  "Listening...",
+  "You can hear me, can't you?",
+  "Don't look behind you.",
+  "Stay."
 ];
 
 let index = 0;
@@ -95,15 +76,52 @@ setInterval(() => {
   index++;
 }, 2000);
 
+// ===== VOICE WHISPERS =====
+let voices = [];
+speechSynthesis.onvoiceschanged = () => {
+  voices = speechSynthesis.getVoices();
+};
+
+function whisper(text) {
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.volume = 0.2; // quiet
+  utter.rate = 0.85 + Math.random() * 0.2; // slightly unstable
+  utter.pitch = 0.5 + Math.random() * 0.3; // deeper creepy tone
+
+  if (voices.length > 0) {
+    utter.voice = voices[Math.floor(Math.random() * voices.length)];
+  }
+
+  speechSynthesis.speak(utter);
+}
+
+const whisperLines = [
+  "hello...",
+  "can you hear me...",
+  "why did you open this...",
+  "stay with me...",
+  "don't click that...",
+  "i see you..."
+];
+
+// browsers require interaction before audio — trigger on first click
+let audioEnabled = false;
+document.addEventListener("click", () => {
+  audioEnabled = true;
+});
+
+setInterval(() => {
+  if (!audioEnabled) return;
+  whisper(whisperLines[Math.floor(Math.random() * whisperLines.length)]);
+}, 4000);
+
 // FAKE BUTTONS THAT RUN AWAY
 function spawnButton() {
   const btn = document.createElement("div");
   btn.className = "fake-btn";
   btn.textContent = "CLICK ME";
   document.body.appendChild(btn);
-
   move(btn);
-
   btn.onmouseover = () => move(btn);
 }
 
@@ -118,10 +136,8 @@ setInterval(spawnButton, 1500);
 function createEye() {
   const eye = document.createElement("div");
   eye.className = "eye";
-
   const pupil = document.createElement("div");
   pupil.className = "pupil";
-
   eye.appendChild(pupil);
   document.body.appendChild(eye);
 
@@ -133,7 +149,6 @@ function createEye() {
     const dx = e.clientX - (rect.left + 40);
     const dy = e.clientY - (rect.top + 40);
     const angle = Math.atan2(dy, dx);
-
     pupil.style.transform = `translate(${Math.cos(angle)*10}px, ${Math.sin(angle)*10}px)`;
   });
 }
@@ -146,7 +161,7 @@ setInterval(() => {
   setTimeout(()=>document.body.classList.remove("glitch"),200);
 }, 3000);
 
-// RANDOM FULLSCREEN MESSAGE
+// RANDOM WARNING TEXT
 setInterval(() => {
   const msg = document.createElement("div");
   msg.textContent = "YOU SHOULDN'T BE HERE";
