@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>it knows</title>
+<title>we know you</title>
 <style>
 body {
   margin:0;
@@ -17,14 +17,10 @@ body {
   position:absolute;
   width:100%;
   height:100%;
-  padding:10px;
+  padding:20px;
 }
 
-.face {
-  position:absolute;
-  width:200px;
-  opacity:0;
-}
+.red { color:red; }
 
 </style>
 </head>
@@ -34,7 +30,7 @@ body {
 <script>
 const terminal = document.getElementById("terminal");
 
-function typeLine(text, speed=15) {
+function typeLine(text, speed=20) {
   let i = 0;
   const line = document.createElement("div");
   terminal.appendChild(line);
@@ -46,87 +42,84 @@ function typeLine(text, speed=15) {
   }, speed);
 }
 
-// ===== WHISPERS WITH DIRECTION =====
-let audioEnabled = false;
-document.addEventListener("click", ()=> audioEnabled = true);
-
-function whisper(text, panValue=0) {
-  const ctx = new (window.AudioContext || window.webkitAudioContext)();
-  const utter = new SpeechSynthesisUtterance(text);
-
-  const synth = window.speechSynthesis;
-  utter.volume = 0.2;
-  utter.rate = 0.6 + Math.random()*0.4;
-  utter.pitch = 0.3 + Math.random()*0.3;
-
-  synth.speak(utter);
+// ===== SAFE FAKE PERSONAL DATA GENERATOR =====
+function fakeIP() {
+  return `${rand(10,255)}.${rand(0,255)}.${rand(0,255)}.${rand(0,255)}`;
 }
 
-const whispers = [
-  "i am behind you",
-  "don't turn around",
-  "you hear that",
-  "stay still",
-  "it sees you",
-  "closer now"
-];
-
-setInterval(()=>{
-  if(!audioEnabled) return;
-  whisper(whispers[Math.floor(Math.random()*whispers.length)]);
-}, 3000);
-
-// ===== SILENCE THEN JUMP WHISPER =====
-setInterval(()=>{
-  if(!audioEnabled) return;
-  speechSynthesis.cancel();
-  setTimeout(()=>{
-    whisper("HEY...",0);
-  },2000);
-},15000);
-
-// ===== RARE FACE FLASH =====
-function flashFace() {
-  const img = document.createElement("img");
-  img.src = "https://i.imgur.com/8yKXsgF.png"; // creepy face
-  img.className = "face";
-  img.style.top = Math.random()*window.innerHeight+"px";
-  img.style.left = Math.random()*window.innerWidth+"px";
-  document.body.appendChild(img);
-
-  img.style.opacity = 1;
-  setTimeout(()=> img.remove(), 100);
+function fakeLocation() {
+  const cities = ["Los Angeles", "Chicago", "Houston", "Miami", "Seattle"];
+  return cities[Math.floor(Math.random()*cities.length)];
 }
 
-setInterval(()=>{
-  if(Math.random() < 0.1) flashFace();
-}, 2000);
+function fakeName() {
+  const first = ["Alex","Jordan","Taylor","Morgan","Casey"];
+  const last = ["Smith","Johnson","Reyes","Carter","Lee"];
+  return first[Math.floor(Math.random()*first.length)] + " " + last[Math.floor(Math.random()*last.length)];
+}
 
-// ===== TEXT REACTS TO MOUSE =====
-document.addEventListener("mousemove", e=>{
-  if(Math.random() < 0.02) {
-    typeLine("stop moving");
-  }
-});
+function rand(min,max){return Math.floor(Math.random()*(max-min+1))+min}
 
-// ===== TERMINAL MESSAGES =====
-const msgs = [
-  "you opened it",
-  "it noticed",
-  "too late now",
-  "stay quiet",
-  "don't look away"
-];
+const profile = {
+  name: fakeName(),
+  ip: fakeIP(),
+  location: fakeLocation(),
+  device: navigator.userAgent,
+  time: new Date().toLocaleTimeString()
+};
 
-setInterval(()=>{
-  typeLine(msgs[Math.floor(Math.random()*msgs.length)]);
-}, 2000);
-
-// ===== FULL SILENCE EVENT =====
+// ===== DISPLAY FAKE "PERSONAL" INFO =====
 setTimeout(()=>{
-  speechSynthesis.cancel();
-  terminal.innerHTML = "";
-}, 20000);
+  typeLine("scanning...");
+},1000);
+
+setTimeout(()=>{
+  typeLine("collecting user data...");
+},2500);
+
+setTimeout(()=>{
+  typeLine("name: " + profile.name);
+},4000);
+
+setTimeout(()=>{
+  typeLine("ip address: " + profile.ip);
+},5500);
+
+setTimeout(()=>{
+  typeLine("location: " + profile.location);
+},7000);
+
+setTimeout(()=>{
+  typeLine("device: " + profile.device.substring(0,60) + "...");
+},8500);
+
+setTimeout(()=>{
+  typeLine("last activity: " + profile.time);
+},10000);
+
+setTimeout(()=>{
+  const warn = document.createElement("div");
+  warn.className = "red";
+  warn.textContent = "this is not real... but it feels real, doesn't it?";
+  terminal.appendChild(warn);
+},12000);
+
+// ===== WHISPER =====
+let enabled=false;
+document.addEventListener("click",()=>enabled=true);
+
+function whisper(text){
+  const u=new SpeechSynthesisUtterance(text);
+  u.volume=0.2;
+  u.rate=0.7;
+  u.pitch=0.4;
+  speechSynthesis.speak(u);
+}
+
+setInterval(()=>{
+  if(!enabled) return;
+  whisper("we're watching...");
+},6000);
 
 </script>
 </body>
