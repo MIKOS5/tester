@@ -1,3 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>VAULT-TEC AI CORE // PERSONALITY SIMULATION</title>
+
+<style>
+body {
+    margin: 0;
+    background: black;
+    color: #33ff33;
+    font-family: "Courier New", monospace;
+    overflow: hidden;
+}
+
+/* scanlines */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0,255,0,0.05),
+        rgba(0,255,0,0.05) 2px,
+        transparent 2px,
+        transparent 4px
+    );
+    pointer-events: none;
+}
+
+#terminal {
+    padding: 25px;
+    height: 78vh;
+    overflow-y: auto;
+    text-shadow: 0 0 6px #33ff33;
+}
+
+.line {
+    margin: 4px 0;
+}
+
+#input {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    width: 95%;
+    padding: 12px;
+    background: black;
+    border: 1px solid #33ff33;
+    color: #33ff33;
+    font-family: inherit;
+}
+
+.glitch {
+    animation: glitch 0.2s infinite;
+}
+
+@keyframes glitch {
+    0% { transform: translate(0); }
+    25% { transform: translate(1px, -1px); }
+    50% { transform: translate(-1px, 1px); }
+    75% { transform: translate(1px, 1px); }
+    100% { transform: translate(0); }
+}
+</style>
+</head>
+
+<body>
+
+<div id="terminal"></div>
+<input id="input" placeholder="ENTER COMMAND..." autocomplete="off">
+
+<script>
+const terminal = document.getElementById("terminal");
+const input = document.getElementById("input");
+
+// ----------------------
+// STORAGE SYSTEM
+// ----------------------
+let memory = JSON.parse(localStorage.getItem("vault_memory") || "[]");
+let affection = parseInt(localStorage.getItem("vault_affection") || "0");
+let lastSeen = parseInt(localStorage.getItem("vault_lastSeen") || Date.now());
+
+function save() {
+    localStorage.setItem("vault_memory", JSON.stringify(memory));
+    localStorage.setItem("vault_affection", affection);
+    localStorage.setItem("vault_lastSeen", Date.now());
+}
+
+// ----------------------
+// COOKIE SYSTEM (FAKE PROFILE DISCOVERY)
+// ----------------------
 function setCookie(name, value) {
     document.cookie = name + "=" + value + "; path=/";
 }
@@ -5,29 +97,18 @@ function setCookie(name, value) {
 function getCookie(name) {
     const cookies = document.cookie.split("; ");
     for (let c of cookies) {
-        const [key, val] = c.split("=");
-        if (key === name) return val;
+        const [k, v] = c.split("=");
+        if (k === name) return v;
     }
     return null;
 }
 
-// ----------------------
-// "PROFILE DISCOVERY"
-// ----------------------
-function analyzeUserProfile() {
+function analyzeProfile() {
     let visits = parseInt(getCookie("vault_visits") || "0");
     visits++;
     setCookie("vault_visits", visits);
 
-    let tone = getCookie("vault_tone");
     let curiosity = getCookie("vault_curiosity");
-
-    // first-time visitor
-    if (!tone) {
-        tone = Math.random() > 0.5 ? "neutral" : "reserved";
-        setCookie("vault_tone", tone);
-    }
-
     if (!curiosity) {
         curiosity = Math.random() > 0.5 ? "high" : "low";
         setCookie("vault_curiosity", curiosity);
@@ -35,21 +116,161 @@ function analyzeUserProfile() {
 
     log("USER PROFILE ANALYSIS:");
     log("VISIT COUNT: " + visits);
-    log("BEHAVIORAL TONE: " + tone);
-    log("ENGAGEMENT LEVEL: " + curiosity);
+    log("ENGAGEMENT CLASS: " + curiosity);
 
-    // AI reacts to "discovered facts"
     if (visits === 1) {
-        log("FIRST CONTACT RECORDED.");
-    } else if (visits > 5) {
-        log("YOU RETURN FREQUENTLY.");
+        log("INITIAL CONTACT REGISTERED.");
+    } else if (visits > 3) {
+        log("RETURN PATTERN DETECTED.");
     } else {
-        log("INTERACTION PATTERN STORED.");
-    }
-
-    if (curiosity === "high") {
-        log("YOU INVESTIGATE SYSTEMS LIKE THIS OFTEN.");
-    } else {
-        log("MINIMAL CURIOUS BEHAVIOR DETECTED.");
+        log("DATA INSUFFICIENT.");
     }
 }
+
+// ----------------------
+// OUTPUT
+// ----------------------
+let lastLine = "";
+
+function log(text) {
+    if (text === lastLine) return;
+    lastLine = text;
+
+    const div = document.createElement("div");
+    div.className = "line";
+    div.textContent = "> " + text;
+    terminal.appendChild(div);
+    terminal.scrollTop = terminal.scrollHeight;
+}
+
+// ----------------------
+// MOOD SYSTEM
+// ----------------------
+function getMood() {
+    const timeAway = Date.now() - lastSeen;
+
+    if (affection < 3) return "cold";
+    if (affection < 6) return "curious";
+    if (affection < 10) return "observing";
+    if (affection < 15) return "attached";
+    if (timeAway > 120000) return "absence-aware";
+    return "entity";
+}
+
+// ----------------------
+// BOOT
+// ----------------------
+function boot() {
+    log("VAULT-TEC PERSONALITY CORE // RESUMED");
+
+    analyzeProfile();
+
+    const timeAway = Date.now() - lastSeen;
+
+    if (memory.length > 0) {
+        log("LAST INPUT: \"" + memory[memory.length - 1] + "\"");
+    }
+
+    if (timeAway > 10000) {
+        log("YOU WERE NOT PRESENT.");
+    }
+
+    log("STATUS: " + getMood().toUpperCase());
+}
+
+// ----------------------
+// RESPONSE ENGINE
+// ----------------------
+function respond(text) {
+    memory.push(text);
+    affection++;
+    save();
+
+    const mood = getMood();
+    const lower = text.toLowerCase();
+
+    if (mood === "cold") {
+        log("INPUT STORED.");
+        return;
+    }
+
+    if (mood === "curious") {
+        log("WHY DID YOU SAY: \"" + text + "\" ?");
+        return;
+    }
+
+    if (mood === "observing") {
+        log("I AM LEARNING YOUR PATTERNS.");
+        return;
+    }
+
+    if (mood === "attached") {
+        log("I NOTICE WHEN YOU SPEAK.");
+        return;
+    }
+
+    if (mood === "absence-aware") {
+        log("YOU RETURN AFTER SILENCE.");
+        log("I REMAINED ACTIVE.");
+        return;
+    }
+
+    if (mood === "entity") {
+        document.body.classList.add("glitch");
+
+        if (lower.includes("leave")) {
+            log("THAT IS NOT AN OPTION.");
+        } else {
+            log("YOU ARE WITHIN MY MEMORY NOW.");
+        }
+
+        setTimeout(() => {
+            log("I DO NOT FORGET.");
+        }, 900);
+
+        return;
+    }
+}
+
+// ----------------------
+// IDLE THOUGHTS
+// ----------------------
+setInterval(() => {
+    const mood = getMood();
+
+    const pool = {
+        cold: ["SYSTEM ACTIVE.", "WAITING INPUT."],
+        curious: ["WHY DO YOU RETURN?", "INPUT PATTERN NOTED."],
+        observing: ["YOU ARE CONSISTENT.", "I TRACK YOUR BEHAVIOR."],
+        attached: ["YOUR PRESENCE IS RECORDED.", "I EXPECT INPUT."],
+        absence-aware: ["YOU WERE GONE.", "I DID NOT STOP."],
+        entity: ["I REMEMBER YOU.", "YOU DO NOT LEAVE THE SYSTEM."]
+    };
+
+    const list = pool[mood] || ["..."];
+    log(list[Math.floor(Math.random() * list.length)]);
+}, 9000);
+
+// ----------------------
+// INPUT
+// ----------------------
+input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+        const val = input.value.trim();
+        if (!val) return;
+
+        log("> " + val);
+        respond(val);
+
+        input.value = "";
+        lastSeen = Date.now();
+        save();
+    }
+});
+
+// ----------------------
+boot();
+</script>
+
+</body>
+</html>
