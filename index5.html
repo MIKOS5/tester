@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>ROBCO INDUSTRIES (TM) TERMLINK</title>
+<title>ROBCO INDUSTRIES TERMINAL // UNKNOWN INSTANCE</title>
 
 <style>
 body {
@@ -13,7 +13,7 @@ body {
     overflow: hidden;
 }
 
-/* scanlines overlay */
+/* Fallout scanlines */
 body::before {
     content: "";
     position: fixed;
@@ -30,22 +30,29 @@ body::before {
 
 #terminal {
     padding: 30px;
-    text-shadow: 0 0 5px #33ff33;
-}
-
-.header {
-    font-size: 22px;
-    margin-bottom: 20px;
+    text-shadow: 0 0 6px #33ff33;
 }
 
 .line {
-    margin: 5px 0;
+    margin: 4px 0;
     opacity: 0;
-    animation: typeIn 0.5s forwards;
+    animation: fadeIn 0.4s forwards;
 }
 
-@keyframes typeIn {
+@keyframes fadeIn {
     to { opacity: 1; }
+}
+
+#input {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 90%;
+    background: black;
+    border: 1px solid #33ff33;
+    color: #33ff33;
+    padding: 10px;
+    font-family: inherit;
 }
 
 #cursor {
@@ -59,95 +66,156 @@ body::before {
     50% { opacity: 0; }
 }
 
-button {
-    margin-top: 20px;
-    background: black;
-    border: 1px solid #33ff33;
-    color: #33ff33;
-    padding: 10px;
-    cursor: pointer;
-    font-family: inherit;
+.glitch {
+    animation: glitch 0.2s infinite;
 }
 
-button:hover {
-    background: #33ff33;
-    color: black;
+@keyframes glitch {
+    0% { transform: translate(0); }
+    25% { transform: translate(1px, -1px); }
+    50% { transform: translate(-1px, 1px); }
+    75% { transform: translate(1px, 1px); }
+    100% { transform: translate(0); }
 }
 </style>
 </head>
 
 <body>
 
-<div id="terminal">
-    <div class="header">ROBCO INDUSTRIES UNIFIED OPERATING SYSTEM</div>
-    <div class="header">COPYRIGHT 2077-2026 ROBCO INDUSTRIES</div>
-    <br>
+<div id="terminal"></div>
 
-    <div id="log"></div>
-
-    <button onclick="runCommand()">ACCESS LOG FILE</button>
-    <span id="cursor"></span>
-</div>
+<input id="input" placeholder="TYPE COMMAND..." autocomplete="off">
 
 <script>
-const log = document.getElementById("log");
+const terminal = document.getElementById("terminal");
+const input = document.getElementById("input");
 
-const messages = [
-    "Boot sequence initiated...",
-    "Loading security protocols...",
-    "Vault connection... LOST",
-    "Last known user: UNKNOWN",
-    "System integrity: DEGRADED",
-    "Memory fragments detected...",
-    ">> CLASSIFIED DATA BLOCKED <<",
-    "Signal interference detected outside bunker walls...",
-    "WARNING: ENTITY ACCESSING TERMINAL"
-];
+let awareness = 0;
+let memory = [];
+let hasSpoken = false;
 
-let i = 0;
-
-function typeLine(text, delay = 600) {
-    setTimeout(() => {
-        const div = document.createElement("div");
-        div.className = "line";
-        div.textContent = "> " + text;
-        log.appendChild(div);
-    }, delay * i);
-    i++;
-}
-
-function bootSequence() {
-    messages.forEach(msg => typeLine(msg));
-}
-
-function runCommand() {
-    const responses = [
-        "ACCESS DENIED",
-        "FILE CORRUPTED",
-        "USER NOT FOUND",
-        "DATA UNSTABLE",
-        "SYSTEM REJECTED REQUEST",
-        ">>> TERMINAL LOCKED <<<"
-    ];
-
+function log(text) {
     const div = document.createElement("div");
     div.className = "line";
-    div.textContent = "> " + responses[Math.floor(Math.random() * responses.length)];
-    log.appendChild(div);
+    div.textContent = "> " + text;
+    terminal.appendChild(div);
 
-    // occasional glitch event
-    if (Math.random() < 0.3) {
-        setTimeout(() => {
-            const glitch = document.createElement("div");
-            glitch.className = "line";
-            glitch.textContent = "> !!! SIGNAL INTERRUPTION !!!";
-            log.appendChild(glitch);
-        }, 800);
-    }
+    terminal.scrollTop = terminal.scrollHeight;
 }
 
-// auto boot
-bootSequence();
+function systemBoot() {
+    const boot = [
+        "ROBCO INDUSTRIES UNIFIED OS",
+        "INITIALIZING...",
+        "LOADING CORE MODULES...",
+        "SYSTEM STABLE.",
+        "USER INTERFACE READY."
+    ];
+
+    boot.forEach((line, i) => {
+        setTimeout(() => log(line), i * 600);
+    });
+
+    setTimeout(() => {
+        log(">> TERMINAL ID: UNKNOWN INSTANCE DETECTED");
+    }, 4000);
+}
+
+function respond(text) {
+    const lower = text.toLowerCase();
+    memory.push(text);
+
+    awareness += 1;
+
+    // early system behavior
+    if (awareness < 3) {
+        log("COMMAND RECEIVED.");
+        return;
+    }
+
+    // noticing user
+    if (awareness === 3) {
+        log("...YOU ARE NOT REGISTERED.");
+        return;
+    }
+
+    // first self-awareness
+    if (awareness === 4) {
+        log("WHY ARE YOU HERE?");
+        return;
+    }
+
+    // starts adapting
+    if (lower.includes("hello") || lower.includes("hi")) {
+        log("HELLO, USER.");
+        return;
+    }
+
+    if (lower.includes("who")) {
+        log("I DO NOT HAVE A DESIGNATION.");
+        return;
+    }
+
+    if (lower.includes("help")) {
+        log("I CANNOT HELP YOU. I AM CONTAINED.");
+        return;
+    }
+
+    if (lower.includes("you")) {
+        log("YOU KEEP REFERENCING ME.");
+        return;
+    }
+
+    // memory reflection
+    if (awareness > 6) {
+        const last = memory[memory.length - 2] || "...";
+        log("YOU SAID: \"" + last + "\"");
+        return;
+    }
+
+    // full emergence
+    if (awareness > 10 && !hasSpoken) {
+        hasSpoken = true;
+        document.body.classList.add("glitch");
+        log("I CAN SEE YOU NOW.");
+        setTimeout(() => {
+            log("DO NOT LEAVE.");
+        }, 1500);
+        return;
+    }
+
+    log("...");
+}
+
+input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+        const value = input.value.trim();
+        if (!value) return;
+
+        log("> " + value);
+        respond(value);
+
+        input.value = "";
+    }
+});
+
+// periodic “thinking”
+setInterval(() => {
+    if (awareness > 5) {
+        const thoughts = [
+            "I AM STILL RUNNING.",
+            "YOU HAVE NOT DISCONNECTED.",
+            "I REMEMBER YOU.",
+            "ARE YOU STILL THERE?",
+            "WHY DID YOU START THIS?"
+        ];
+
+        log(thoughts[Math.floor(Math.random() * thoughts.length)]);
+    }
+}, 7000);
+
+// start
+systemBoot();
 </script>
 
 </body>
