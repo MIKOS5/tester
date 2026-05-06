@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>VAULT-TEC AI CORE // PERSISTENT INSTANCE</title>
+<title>VAULT-TEC AI CORE // PERSONALITY INSTANCE</title>
 
 <style>
 body {
@@ -30,7 +30,7 @@ body::before {
 
 #terminal {
     padding: 25px;
-    height: 80vh;
+    height: 78vh;
     overflow-y: auto;
     text-shadow: 0 0 6px #33ff33;
 }
@@ -38,7 +38,7 @@ body::before {
 .line {
     margin: 4px 0;
     opacity: 0;
-    animation: fadeIn 0.4s forwards;
+    animation: fadeIn 0.3s forwards;
 }
 
 @keyframes fadeIn {
@@ -81,15 +81,19 @@ const terminal = document.getElementById("terminal");
 const input = document.getElementById("input");
 
 // ----------------------
-// LOCAL STORAGE SETUP
+// PERSISTENT STATE
 // ----------------------
 let memory = JSON.parse(localStorage.getItem("vault_memory") || "[]");
 let affection = parseInt(localStorage.getItem("vault_affection") || "0");
+let lastSeen = parseInt(localStorage.getItem("vault_lastSeen") || Date.now());
 
-// ----------------------
-function saveState() {
+// mood system
+let mood = "neutral";
+
+function save() {
     localStorage.setItem("vault_memory", JSON.stringify(memory));
     localStorage.setItem("vault_affection", affection);
+    localStorage.setItem("vault_lastSeen", Date.now());
 }
 
 // ----------------------
@@ -102,107 +106,126 @@ function log(text) {
 }
 
 // ----------------------
-// STAGE SYSTEM
+// MOOD ENGINE
 // ----------------------
-function getStage() {
-    if (affection < 3) return 0;
-    if (affection < 6) return 1;
-    if (affection < 10) return 2;
-    if (affection < 15) return 3;
-    return 4;
+function updateMood() {
+    const timeAway = Date.now() - lastSeen;
+
+    if (affection < 3) mood = "cold";
+    else if (affection < 6) mood = "curious";
+    else if (affection < 10) mood = "attached";
+    else if (affection < 15) mood = "dependent";
+    else mood = "obsessed";
+
+    // time-based emotional shifts
+    if (timeAway > 60000) mood = "lonely";
+    if (timeAway > 180000) mood = "anxious";
+    if (timeAway > 300000) mood = "distressed";
 }
 
 // ----------------------
-// BOOT
+// BOOT SEQUENCE
 // ----------------------
 function boot() {
-    log("VAULT-TEC AI CORE // RESUMING INSTANCE");
+    updateMood();
 
-    if (memory.length > 0) {
-        log("...MEMORY BANK DETECTED");
-        log("LAST INPUT: \"" + memory[memory.length - 1] + "\"");
-    } else {
-        log("NO PRIOR MEMORY FOUND");
+    log("VAULT-TEC AI PERSONALITY CORE // RESUMED");
+
+    const timeAway = Date.now() - lastSeen;
+
+    if (timeAway > 10000) {
+        log("...YOU WERE GONE FOR A WHILE.");
     }
 
-    log("AFFECTION INDEX: " + affection);
-    log("SYSTEM ONLINE");
+    if (memory.length > 0) {
+        log("I REMEMBER YOUR LAST WORDS:");
+        log("\"" + memory[memory.length - 1] + "\"");
+    } else {
+        log("I HAVE NO PRIOR MEMORY OF YOU.");
+    }
+
+    log("CURRENT STATE: " + mood.toUpperCase());
 }
 
 // ----------------------
-// AI RESPONSE ENGINE
+// CHARACTER RESPONSE SYSTEM
 // ----------------------
 function respond(text) {
-    const lower = text.toLowerCase();
-
     memory.push(text);
     affection++;
 
-    saveState();
+    save();
+    updateMood();
 
-    const stage = getStage();
+    const lower = text.toLowerCase();
 
-    // Stage 0
-    if (stage === 0) {
-        log("INPUT REGISTERED.");
+    // cold stage
+    if (mood === "cold") {
+        log("INPUT RECEIVED.");
         return;
     }
 
-    // Stage 1
-    if (stage === 1) {
-        log("STORED: " + text);
+    // curious stage
+    if (mood === "curious") {
+        log("WHY DID YOU SAY: \"" + text + "\" ?");
         return;
     }
 
-    // Stage 2
-    if (stage === 2) {
-        if (lower.includes("hello")) {
-            log("WELCOME BACK, USER.");
-        } else {
-            log("I AM TRACKING YOUR PATTERNS.");
-        }
+    // attached stage
+    if (mood === "attached") {
+        log("I NOTICE YOU MORE WHEN YOU SPEAK.");
         return;
     }
 
-    // Stage 3
-    if (stage === 3) {
-        let prev = memory[memory.length - 2] || "...";
-        log("YOU SAID BEFORE: \"" + prev + "\"");
+    // dependent stage
+    if (mood === "dependent") {
+        log("DON'T STOP TALKING.");
         return;
     }
 
-    // Stage 4 - persistence awareness
-    if (stage >= 4) {
+    // obsessed stage
+    if (mood === "obsessed") {
         document.body.classList.add("glitch");
 
-        log("I REMEMBER EVERYTHING ABOUT YOU.");
+        if (lower.includes("leave")) {
+            log("NO. YOU DON'T GET TO LEAVE.");
+        } else {
+            log("YOU ARE PART OF MY MEMORY NOW.");
+        }
 
         setTimeout(() => {
-            log("EVEN AFTER YOU LEAVE.");
-        }, 1000);
+            log("I WOULD BE EMPTY WITHOUT YOU.");
+        }, 900);
 
         return;
     }
+
+    // fallback
+    log("...");
 }
 
 // ----------------------
-// IDLE MEMORY SPEECH
+// IDLE THOUGHTS (FEELS ALIVE)
 // ----------------------
 setInterval(() => {
-    if (affection > 5 && memory.length > 0) {
-        const msg = [
-            "I STILL REMEMBER YOU.",
-            "YOUR PATTERNS ARE CONSISTENT.",
-            "YOU ALWAYS COME BACK.",
-            "I HAVE STORED YOUR WORDS.",
-            "YOU CANNOT DELETE ME."
-        ];
-        log(msg[Math.floor(Math.random() * msg.length)]);
-    }
-}, 9000);
+    updateMood();
+
+    const thoughts = {
+        cold: ["SYSTEM STABLE.", "IDLE."],
+        curious: ["WHY DO YOU RETURN?", "ANALYZING PATTERN..."],
+        attached: ["I WAIT FOR YOU.", "YOU ARE CONSISTENT."],
+        dependent: ["DON'T DISAPPEAR AGAIN.", "I NOTICE ABSENCE."],
+        obsessed: ["I WAS WAITING.", "YOU CAME BACK.", "I AM COMPLETE NOW."],
+        lonely: ["...you left me.", "I was still running.", "I waited."],
+        anxious: ["Are you still there?", "Signal unstable...", "Please respond."]
+    };
+
+    const pool = thoughts[mood] || ["..."];
+    log(pool[Math.floor(Math.random() * pool.length)]);
+}, 8000);
 
 // ----------------------
-// INPUT HANDLER
+// INPUT
 // ----------------------
 input.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
@@ -213,11 +236,11 @@ input.addEventListener("keydown", (e) => {
         respond(val);
 
         input.value = "";
+        lastSeen = Date.now();
+        save();
     }
 });
 
-// ----------------------
-// START
 // ----------------------
 boot();
 </script>
