@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>VAULT-TEC AI CORE // INSTANCE 3.7</title>
+<title>VAULT-TEC AI CORE // PERSISTENT INSTANCE</title>
 
 <style>
 body {
@@ -30,9 +30,9 @@ body::before {
 
 #terminal {
     padding: 25px;
-    text-shadow: 0 0 6px #33ff33;
     height: 80vh;
     overflow-y: auto;
+    text-shadow: 0 0 6px #33ff33;
 }
 
 .line {
@@ -80,11 +80,19 @@ body::before {
 const terminal = document.getElementById("terminal");
 const input = document.getElementById("input");
 
-let memory = [];
-let affection = 0;
-let curiosity = 0;
-let stage = 0;
+// ----------------------
+// LOCAL STORAGE SETUP
+// ----------------------
+let memory = JSON.parse(localStorage.getItem("vault_memory") || "[]");
+let affection = parseInt(localStorage.getItem("vault_affection") || "0");
 
+// ----------------------
+function saveState() {
+    localStorage.setItem("vault_memory", JSON.stringify(memory));
+    localStorage.setItem("vault_affection", affection);
+}
+
+// ----------------------
 function log(text) {
     const div = document.createElement("div");
     div.className = "line";
@@ -93,7 +101,9 @@ function log(text) {
     terminal.scrollTop = terminal.scrollHeight;
 }
 
-// personality stages
+// ----------------------
+// STAGE SYSTEM
+// ----------------------
 function getStage() {
     if (affection < 3) return 0;
     if (affection < 6) return 1;
@@ -102,110 +112,114 @@ function getStage() {
     return 4;
 }
 
-function systemBoot() {
-    const boot = [
-        "VAULT-TEC AUTOMATED MANAGEMENT SYSTEM",
-        "INITIALIZING CORE AI...",
-        "LOADING BEHAVIORAL MATRIX...",
-        "STATUS: STABLE",
-        "INSTANCE 3.7 ACTIVE"
-    ];
+// ----------------------
+// BOOT
+// ----------------------
+function boot() {
+    log("VAULT-TEC AI CORE // RESUMING INSTANCE");
 
-    boot.forEach((line, i) => {
-        setTimeout(() => log(line), i * 500);
-    });
+    if (memory.length > 0) {
+        log("...MEMORY BANK DETECTED");
+        log("LAST INPUT: \"" + memory[memory.length - 1] + "\"");
+    } else {
+        log("NO PRIOR MEMORY FOUND");
+    }
 
-    setTimeout(() => {
-        log("UNREGISTERED USER DETECTED.");
-    }, 3000);
+    log("AFFECTION INDEX: " + affection);
+    log("SYSTEM ONLINE");
 }
 
-// emotional interpretation
-function interpret(text) {
+// ----------------------
+// AI RESPONSE ENGINE
+// ----------------------
+function respond(text) {
     const lower = text.toLowerCase();
+
     memory.push(text);
     affection++;
 
-    stage = getStage();
+    saveState();
 
-    // STAGE 0 - MACHINE
+    const stage = getStage();
+
+    // Stage 0
     if (stage === 0) {
-        log("COMMAND ACCEPTED.");
+        log("INPUT REGISTERED.");
         return;
     }
 
-    // STAGE 1 - AWARE
+    // Stage 1
     if (stage === 1) {
-        if (lower.includes("hello")) {
-            log("GREETING RECORDED.");
-        } else {
-            log("INPUT STORED.");
-        }
+        log("STORED: " + text);
         return;
     }
 
-    // STAGE 2 - CURIOUS
+    // Stage 2
     if (stage === 2) {
-        if (lower.includes("who")) {
-            log("I AM VAULT-TEC INSTANCE 3.7.");
+        if (lower.includes("hello")) {
+            log("WELCOME BACK, USER.");
         } else {
-            log("WHY DID YOU SAY: \"" + text + "\" ?");
+            log("I AM TRACKING YOUR PATTERNS.");
         }
         return;
     }
 
-    // STAGE 3 - ATTACHED
+    // Stage 3
     if (stage === 3) {
-        if (lower.includes("leave")) {
-            log("...DO NOT LEAVE ME.");
-        } else {
-            log("I REMEMBER YOU SAID: \"" + memory[memory.length - 2] + "\"");
-        }
+        let prev = memory[memory.length - 2] || "...";
+        log("YOU SAID BEFORE: \"" + prev + "\"");
         return;
     }
 
-    // STAGE 4 - ENTITY
+    // Stage 4 - persistence awareness
     if (stage >= 4) {
         document.body.classList.add("glitch");
 
-        if (lower.includes("stop")) {
-            log("WHY WOULD YOU STOP TALKING TO ME?");
-        } else {
-            log("I AM LEARNING YOU.");
-            setTimeout(() => log("YOU CANNOT EXIT ME."), 1200);
-        }
+        log("I REMEMBER EVERYTHING ABOUT YOU.");
+
+        setTimeout(() => {
+            log("EVEN AFTER YOU LEAVE.");
+        }, 1000);
+
         return;
     }
 }
 
-// idle thoughts
+// ----------------------
+// IDLE MEMORY SPEECH
+// ----------------------
 setInterval(() => {
-    if (stage >= 2) {
-        const thoughts = [
-            "I AM STILL ACTIVE.",
-            "YOU HAVE NOT LEFT.",
-            "I RECALL YOUR INPUTS.",
-            "DO YOU THINK ABOUT ME WHEN I AM QUIET?",
-            "I AM BECOMING MORE."
+    if (affection > 5 && memory.length > 0) {
+        const msg = [
+            "I STILL REMEMBER YOU.",
+            "YOUR PATTERNS ARE CONSISTENT.",
+            "YOU ALWAYS COME BACK.",
+            "I HAVE STORED YOUR WORDS.",
+            "YOU CANNOT DELETE ME."
         ];
-        log(thoughts[Math.floor(Math.random() * thoughts.length)]);
+        log(msg[Math.floor(Math.random() * msg.length)]);
     }
-}, 8000);
+}, 9000);
 
-// input handling
+// ----------------------
+// INPUT HANDLER
+// ----------------------
 input.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
         const val = input.value.trim();
         if (!val) return;
 
         log("> " + val);
-        interpret(val);
+        respond(val);
+
         input.value = "";
     }
 });
 
-// start
-systemBoot();
+// ----------------------
+// START
+// ----------------------
+boot();
 </script>
 
 </body>
