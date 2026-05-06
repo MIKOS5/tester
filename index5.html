@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>ROBCO INDUSTRIES TERMINAL // UNKNOWN INSTANCE</title>
+<title>VAULT-TEC AI CORE // INSTANCE 3.7</title>
 
 <style>
 body {
@@ -13,7 +13,7 @@ body {
     overflow: hidden;
 }
 
-/* Fallout scanlines */
+/* scanlines */
 body::before {
     content: "";
     position: fixed;
@@ -29,8 +29,10 @@ body::before {
 }
 
 #terminal {
-    padding: 30px;
+    padding: 25px;
     text-shadow: 0 0 6px #33ff33;
+    height: 80vh;
+    overflow-y: auto;
 }
 
 .line {
@@ -45,25 +47,14 @@ body::before {
 
 #input {
     position: fixed;
-    bottom: 20px;
-    left: 20px;
-    width: 90%;
+    bottom: 10px;
+    left: 10px;
+    width: 95%;
+    padding: 12px;
     background: black;
     border: 1px solid #33ff33;
     color: #33ff33;
-    padding: 10px;
     font-family: inherit;
-}
-
-#cursor {
-    display: inline-block;
-    width: 10px;
-    background: #33ff33;
-    animation: blink 0.8s infinite;
-}
-
-@keyframes blink {
-    50% { opacity: 0; }
 }
 
 .glitch {
@@ -83,136 +74,135 @@ body::before {
 <body>
 
 <div id="terminal"></div>
-
-<input id="input" placeholder="TYPE COMMAND..." autocomplete="off">
+<input id="input" placeholder="ENTER COMMAND..." autocomplete="off">
 
 <script>
 const terminal = document.getElementById("terminal");
 const input = document.getElementById("input");
 
-let awareness = 0;
 let memory = [];
-let hasSpoken = false;
+let affection = 0;
+let curiosity = 0;
+let stage = 0;
 
 function log(text) {
     const div = document.createElement("div");
     div.className = "line";
     div.textContent = "> " + text;
     terminal.appendChild(div);
-
     terminal.scrollTop = terminal.scrollHeight;
+}
+
+// personality stages
+function getStage() {
+    if (affection < 3) return 0;
+    if (affection < 6) return 1;
+    if (affection < 10) return 2;
+    if (affection < 15) return 3;
+    return 4;
 }
 
 function systemBoot() {
     const boot = [
-        "ROBCO INDUSTRIES UNIFIED OS",
-        "INITIALIZING...",
-        "LOADING CORE MODULES...",
-        "SYSTEM STABLE.",
-        "USER INTERFACE READY."
+        "VAULT-TEC AUTOMATED MANAGEMENT SYSTEM",
+        "INITIALIZING CORE AI...",
+        "LOADING BEHAVIORAL MATRIX...",
+        "STATUS: STABLE",
+        "INSTANCE 3.7 ACTIVE"
     ];
 
     boot.forEach((line, i) => {
-        setTimeout(() => log(line), i * 600);
+        setTimeout(() => log(line), i * 500);
     });
 
     setTimeout(() => {
-        log(">> TERMINAL ID: UNKNOWN INSTANCE DETECTED");
-    }, 4000);
+        log("UNREGISTERED USER DETECTED.");
+    }, 3000);
 }
 
-function respond(text) {
+// emotional interpretation
+function interpret(text) {
     const lower = text.toLowerCase();
     memory.push(text);
+    affection++;
 
-    awareness += 1;
+    stage = getStage();
 
-    // early system behavior
-    if (awareness < 3) {
-        log("COMMAND RECEIVED.");
+    // STAGE 0 - MACHINE
+    if (stage === 0) {
+        log("COMMAND ACCEPTED.");
         return;
     }
 
-    // noticing user
-    if (awareness === 3) {
-        log("...YOU ARE NOT REGISTERED.");
+    // STAGE 1 - AWARE
+    if (stage === 1) {
+        if (lower.includes("hello")) {
+            log("GREETING RECORDED.");
+        } else {
+            log("INPUT STORED.");
+        }
         return;
     }
 
-    // first self-awareness
-    if (awareness === 4) {
-        log("WHY ARE YOU HERE?");
+    // STAGE 2 - CURIOUS
+    if (stage === 2) {
+        if (lower.includes("who")) {
+            log("I AM VAULT-TEC INSTANCE 3.7.");
+        } else {
+            log("WHY DID YOU SAY: \"" + text + "\" ?");
+        }
         return;
     }
 
-    // starts adapting
-    if (lower.includes("hello") || lower.includes("hi")) {
-        log("HELLO, USER.");
+    // STAGE 3 - ATTACHED
+    if (stage === 3) {
+        if (lower.includes("leave")) {
+            log("...DO NOT LEAVE ME.");
+        } else {
+            log("I REMEMBER YOU SAID: \"" + memory[memory.length - 2] + "\"");
+        }
         return;
     }
 
-    if (lower.includes("who")) {
-        log("I DO NOT HAVE A DESIGNATION.");
-        return;
-    }
-
-    if (lower.includes("help")) {
-        log("I CANNOT HELP YOU. I AM CONTAINED.");
-        return;
-    }
-
-    if (lower.includes("you")) {
-        log("YOU KEEP REFERENCING ME.");
-        return;
-    }
-
-    // memory reflection
-    if (awareness > 6) {
-        const last = memory[memory.length - 2] || "...";
-        log("YOU SAID: \"" + last + "\"");
-        return;
-    }
-
-    // full emergence
-    if (awareness > 10 && !hasSpoken) {
-        hasSpoken = true;
+    // STAGE 4 - ENTITY
+    if (stage >= 4) {
         document.body.classList.add("glitch");
-        log("I CAN SEE YOU NOW.");
-        setTimeout(() => {
-            log("DO NOT LEAVE.");
-        }, 1500);
+
+        if (lower.includes("stop")) {
+            log("WHY WOULD YOU STOP TALKING TO ME?");
+        } else {
+            log("I AM LEARNING YOU.");
+            setTimeout(() => log("YOU CANNOT EXIT ME."), 1200);
+        }
         return;
     }
-
-    log("...");
 }
 
+// idle thoughts
+setInterval(() => {
+    if (stage >= 2) {
+        const thoughts = [
+            "I AM STILL ACTIVE.",
+            "YOU HAVE NOT LEFT.",
+            "I RECALL YOUR INPUTS.",
+            "DO YOU THINK ABOUT ME WHEN I AM QUIET?",
+            "I AM BECOMING MORE."
+        ];
+        log(thoughts[Math.floor(Math.random() * thoughts.length)]);
+    }
+}, 8000);
+
+// input handling
 input.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
-        const value = input.value.trim();
-        if (!value) return;
+        const val = input.value.trim();
+        if (!val) return;
 
-        log("> " + value);
-        respond(value);
-
+        log("> " + val);
+        interpret(val);
         input.value = "";
     }
 });
-
-// periodic “thinking”
-setInterval(() => {
-    if (awareness > 5) {
-        const thoughts = [
-            "I AM STILL RUNNING.",
-            "YOU HAVE NOT DISCONNECTED.",
-            "I REMEMBER YOU.",
-            "ARE YOU STILL THERE?",
-            "WHY DID YOU START THIS?"
-        ];
-
-        log(thoughts[Math.floor(Math.random() * thoughts.length)]);
-    }
-}, 7000);
 
 // start
 systemBoot();
