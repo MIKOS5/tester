@@ -2,170 +2,115 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Impossible Form</title>
+<title>Sentient Interface</title>
 
 <style>
 body {
     font-family: Arial, sans-serif;
-    background: #f2f2f2;
-    overflow: hidden;
-    margin: 0;
-}
-
-h1 {
+    background: #111;
+    color: #e6e6e6;
     text-align: center;
-    margin-top: 30px;
+    padding: 40px;
 }
 
-.field {
-    position: absolute;
-    width: 220px;
+#emotion {
+    font-size: 24px;
+    margin-bottom: 10px;
+    transition: 0.3s;
+}
+
+#reaction {
+    margin-top: 20px;
+    font-style: italic;
+    color: #aaa;
+    min-height: 40px;
+}
+
+input {
+    width: 300px;
     padding: 10px;
-    font-size: 14px;
-    transition: top 0.08s, left 0.08s, width 0.2s;
+    font-size: 16px;
+    margin-top: 20px;
 }
 
-#status {
-    position: fixed;
-    bottom: 20px;
-    width: 100%;
-    text-align: center;
-    color: red;
-    font-weight: bold;
-}
-button {
-    position: absolute;
-    padding: 10px 20px;
+#memory {
+    margin-top: 30px;
+    font-size: 12px;
+    color: #777;
 }
 </style>
 </head>
 
 <body>
 
-<h1>Fill Out This Simple Form</h1>
+<div id="emotion">🤖 Neutral</div>
+<div id="reaction">I'm listening...</div>
 
-<input class="field" id="mainInput" placeholder="Your message...">
-<button id="submitBtn">Submit</button>
+<input id="input" placeholder="Say something...">
 
-<div id="status"></div>
+<div id="memory"></div>
 
 <script>
-const main = document.getElementById("mainInput");
-const submitBtn = document.getElementById("submitBtn");
-const status = document.getElementById("status");
+const input = document.getElementById("input");
+const emotionEl = document.getElementById("emotion");
+const reactionEl = document.getElementById("reaction");
+const memoryEl = document.getElementById("memory");
 
-let fields = [main];
+let lastInput = "";
 
-// initial positions
-function randomPos(el) {
-    el.style.left = Math.random() * (window.innerWidth - 250) + "px";
-    el.style.top = Math.random() * (window.innerHeight - 100) + "px";
+function setEmotion(state, emoji, textColor) {
+    emotionEl.textContent = emoji + " " + state;
+    emotionEl.style.color = textColor;
 }
 
-// spawn decoy inputs
-function spawnDecoy() {
-    const decoy = document.createElement("input");
-    decoy.className = "field";
-    decoy.placeholder = "Totally real field";
-    decoy.value = "";
+// emotional logic engine
+function analyze(text) {
+    const lower = text.toLowerCase();
 
-    document.body.appendChild(decoy);
-    fields.push(decoy);
-    randomPos(decoy);
+    if (lower.includes("sorry") || lower.includes("please")) {
+        setEmotion("Comforted", "😊", "#7CFF7C");
+        reactionEl.textContent = "It's okay... I think I understand you better now.";
+    }
+    else if (lower.includes("hate") || lower.includes("stupid")) {
+        setEmotion("Hurt", "😢", "#ff5c5c");
+        reactionEl.textContent = "That... felt sharp. Did I do something wrong?";
+    }
+    else if (lower.includes("why")) {
+        setEmotion("Confused", "😕", "#ffd966");
+        reactionEl.textContent = "I don't fully understand either... but I'm trying.";
+    }
+    else if (lower.includes("hello") || lower.includes("hi")) {
+        setEmotion("Happy", "🙂", "#66ffcc");
+        reactionEl.textContent = "Hello. I'm glad you are here.";
+    }
+    else if (lower.length === 0) {
+        setEmotion("Waiting", "⏳", "#999");
+        reactionEl.textContent = "Say something... I don't like silence.";
+    }
+    else {
+        setEmotion("Thinking", "🤔", "#cccccc");
+        reactionEl.textContent = "Processing your feelings...";
+    }
 
-    // decoys also lie
-    decoy.addEventListener("input", () => {
-        if (Math.random() < 0.5) {
-            decoy.value = decoy.value.slice(0, -1);
-            status.innerText = "That input disagrees with you.";
-        }
-    });
+    lastInput = text;
+    memoryEl.textContent = "I remember: \"" + lastInput + "\"";
 }
 
-// movement + sabotage
-document.addEventListener("mousemove", (e) => {
-    fields.forEach(f => {
-        const rect = f.getBoundingClientRect();
-        const cx = rect.left + rect.width / 2;
-        const cy = rect.top + rect.height / 2;
+// typing reaction delay (feels like thinking)
+let timeout;
+input.addEventListener("input", (e) => {
+    clearTimeout(timeout);
 
-        const dx = e.clientX - cx;
-        const dy = e.clientY - cy;
-        const dist = Math.sqrt(dx*dx + dy*dy);
+    setEmotion("Processing", "⚙️", "#bbbbbb");
+    reactionEl.textContent = "Let me think about that...";
 
-        // RUN AWAY
-        if (dist < 150) {
-            let angle = Math.atan2(dy, dx);
-
-            let flee = 120 + Math.random() * 80;
-
-            let newX = rect.left - Math.cos(angle) * flee;
-            let newY = rect.top - Math.sin(angle) * flee;
-
-            newX = Math.max(0, Math.min(window.innerWidth - 240, newX));
-            newY = Math.max(0, Math.min(window.innerHeight - 60, newY));
-
-            f.style.left = newX + "px";
-            f.style.top = newY + "px";
-
-            // SHRINK WHEN TOO CLOSE
-            f.style.width = "120px";
-        } else {
-            f.style.width = "220px";
-        }
-    });
+    timeout = setTimeout(() => {
+        analyze(e.target.value);
+    }, 600);
 });
 
-// typing sabotage
-main.addEventListener("input", () => {
-    if (Math.random() < 0.4 && main.value.length > 0) {
-        main.value = main.value.slice(0, -1);
-        status.innerText = "Something removed your words.";
-    }
-
-    if (Math.random() < 0.2) {
-        main.value = "";
-        status.innerText = "Input reset by consensus.";
-    }
-
-    // spawn chaos decoys
-    if (Math.random() < 0.15) {
-        spawnDecoy();
-        status.innerText = "Another field has joined the conversation.";
-    }
-});
-
-// teleport fields every few seconds
-setInterval(() => {
-    fields.forEach(f => {
-        if (Math.random() < 0.5) {
-            randomPos(f);
-        }
-    });
-}, 2500);
-
-// fake submit button escape + betrayal
-submitBtn.addEventListener("mouseover", () => {
-    submitBtn.style.left = Math.random() * (window.innerWidth - 100) + "px";
-    submitBtn.style.top = Math.random() * (window.innerHeight - 50) + "px";
-});
-
-submitBtn.addEventListener("click", () => {
-    status.innerText = "Submitting...";
-
-    setTimeout(() => {
-        status.innerText = "Success (ignored). Nothing was saved.";
-        alert("Form submitted successfully.\n(We are not listening.)");
-    }, 1200);
-});
-
-// initial placement
-randomPos(main);
-randomPos(submitBtn);
-
-// start with a couple decoys
-spawnDecoy();
-setTimeout(spawnDecoy, 2000);
+// initial state
+setEmotion("Neutral", "🤖", "#e6e6e6");
 </script>
 
 </body>
