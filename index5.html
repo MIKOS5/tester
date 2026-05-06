@@ -2,89 +2,152 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>My Awesome Homepage 1999</title>
+<title>ROBCO INDUSTRIES (TM) TERMLINK</title>
 
 <style>
 body {
-    background: url('https://i.imgur.com/3ZQ3Z9v.png');
-    font-family: "Comic Sans MS", cursive;
-    text-align: center;
-    color: yellow;
-}
-
-/* flashing text */
-.flash {
-    animation: flash 0.5s infinite;
-    font-size: 28px;
-}
-
-@keyframes flash {
-    0% { color: yellow; }
-    50% { color: red; }
-    100% { color: blue; }
-}
-
-.box {
+    margin: 0;
     background: black;
-    border: 5px dashed lime;
-    margin: 20px auto;
-    width: 70%;
-    padding: 20px;
+    color: #33ff33;
+    font-family: "Courier New", monospace;
+    overflow: hidden;
 }
 
-marquee {
-    font-size: 20px;
-    color: cyan;
+/* scanlines overlay */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0,255,0,0.05),
+        rgba(0,255,0,0.05) 2px,
+        transparent 2px,
+        transparent 4px
+    );
+    pointer-events: none;
+}
+
+#terminal {
+    padding: 30px;
+    text-shadow: 0 0 5px #33ff33;
+}
+
+.header {
+    font-size: 22px;
+    margin-bottom: 20px;
+}
+
+.line {
+    margin: 5px 0;
+    opacity: 0;
+    animation: typeIn 0.5s forwards;
+}
+
+@keyframes typeIn {
+    to { opacity: 1; }
+}
+
+#cursor {
+    display: inline-block;
+    width: 10px;
+    background: #33ff33;
+    animation: blink 0.8s infinite;
+}
+
+@keyframes blink {
+    50% { opacity: 0; }
 }
 
 button {
+    margin-top: 20px;
+    background: black;
+    border: 1px solid #33ff33;
+    color: #33ff33;
     padding: 10px;
-    margin-top: 10px;
-    font-family: Comic Sans MS;
+    cursor: pointer;
+    font-family: inherit;
 }
 
-#counter {
-    font-size: 18px;
-    color: white;
+button:hover {
+    background: #33ff33;
+    color: black;
 }
 </style>
 </head>
 
 <body>
 
-<div class="flash">WELCOME TO MY HOMEPAGE!!!!</div>
+<div id="terminal">
+    <div class="header">ROBCO INDUSTRIES UNIFIED OPERATING SYSTEM</div>
+    <div class="header">COPYRIGHT 2077-2026 ROBCO INDUSTRIES</div>
+    <br>
 
-<marquee behavior="alternate">🔥 BEST SITE ON THE INTERNET 🔥 UNDER CONSTRUCTION 🚧</marquee>
+    <div id="log"></div>
 
-<div class="box">
-    <h2>About Me</h2>
-    <p>Hello!!! I like computers and cats and cool web stuff!!!</p>
-</div>
-
-<div class="box">
-    <h2>My Guestbook</h2>
-    <p>Leave a message (it will be lost forever)</p>
-    <button onclick="alert('Thanks for signing my guestbook!!!')">Sign Guestbook</button>
-</div>
-
-<div class="box">
-    <h2>Visitor Counter</h2>
-    <div id="counter">Visitors: 000001</div>
-</div>
-
-<div class="box">
-    <h2>UNDER CONSTRUCTION</h2>
-    <img src="https://media.giphy.com/media/3o7aD2saalBwwftBIY/giphy.gif" width="120">
+    <button onclick="runCommand()">ACCESS LOG FILE</button>
+    <span id="cursor"></span>
 </div>
 
 <script>
-let count = 1;
+const log = document.getElementById("log");
 
-setInterval(() => {
-    count++;
-    document.getElementById("counter").innerText =
-        "Visitors: " + String(count).padStart(6, "0");
-}, 1000);
+const messages = [
+    "Boot sequence initiated...",
+    "Loading security protocols...",
+    "Vault connection... LOST",
+    "Last known user: UNKNOWN",
+    "System integrity: DEGRADED",
+    "Memory fragments detected...",
+    ">> CLASSIFIED DATA BLOCKED <<",
+    "Signal interference detected outside bunker walls...",
+    "WARNING: ENTITY ACCESSING TERMINAL"
+];
+
+let i = 0;
+
+function typeLine(text, delay = 600) {
+    setTimeout(() => {
+        const div = document.createElement("div");
+        div.className = "line";
+        div.textContent = "> " + text;
+        log.appendChild(div);
+    }, delay * i);
+    i++;
+}
+
+function bootSequence() {
+    messages.forEach(msg => typeLine(msg));
+}
+
+function runCommand() {
+    const responses = [
+        "ACCESS DENIED",
+        "FILE CORRUPTED",
+        "USER NOT FOUND",
+        "DATA UNSTABLE",
+        "SYSTEM REJECTED REQUEST",
+        ">>> TERMINAL LOCKED <<<"
+    ];
+
+    const div = document.createElement("div");
+    div.className = "line";
+    div.textContent = "> " + responses[Math.floor(Math.random() * responses.length)];
+    log.appendChild(div);
+
+    // occasional glitch event
+    if (Math.random() < 0.3) {
+        setTimeout(() => {
+            const glitch = document.createElement("div");
+            glitch.className = "line";
+            glitch.textContent = "> !!! SIGNAL INTERRUPTION !!!";
+            log.appendChild(glitch);
+        }, 800);
+    }
+}
+
+// auto boot
+bootSequence();
 </script>
 
 </body>
