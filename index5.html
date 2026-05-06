@@ -2,115 +2,136 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Sentient Interface</title>
+<title>Cat-in-a-Box Growth Simulator™</title>
 
 <style>
 body {
     font-family: Arial, sans-serif;
-    background: #111;
-    color: #e6e6e6;
     text-align: center;
+    background: #f7f2e8;
     padding: 40px;
 }
 
-#emotion {
-    font-size: 24px;
-    margin-bottom: 10px;
-    transition: 0.3s;
+#box {
+    width: 200px;
+    height: 200px;
+    margin: 30px auto;
+    background: #d9b38c;
+    border: 4px solid #8b5a2b;
+    position: relative;
+    overflow: hidden;
 }
 
-#reaction {
+#cat {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 20px;
+    transition: 0.5s;
+}
+
+#progressContainer {
+    width: 60%;
+    margin: 20px auto;
+    background: #ddd;
+    height: 20px;
+}
+
+#progress {
+    width: 0%;
+    height: 100%;
+    background: green;
+}
+
+button {
+    padding: 10px 20px;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+#log {
     margin-top: 20px;
-    font-style: italic;
-    color: #aaa;
+    font-size: 14px;
+    color: #444;
     min-height: 40px;
-}
-
-input {
-    width: 300px;
-    padding: 10px;
-    font-size: 16px;
-    margin-top: 20px;
-}
-
-#memory {
-    margin-top: 30px;
-    font-size: 12px;
-    color: #777;
 }
 </style>
 </head>
 
 <body>
 
-<div id="emotion">🤖 Neutral</div>
-<div id="reaction">I'm listening...</div>
+<h1>🐱 Cat-in-a-Box Growth Simulator™</h1>
+<p>Grow your cat responsibly. Do not overwater.</p>
 
-<input id="input" placeholder="Say something...">
+<div id="box">
+    <div id="cat">🐱</div>
+</div>
 
-<div id="memory"></div>
+<div id="progressContainer">
+    <div id="progress"></div>
+</div>
+
+<button onclick="waterCat()">Water Cat</button>
+<button onclick="talkToCat()">Talk to Cat</button>
+
+<div id="log">Awaiting cultivation input...</div>
 
 <script>
-const input = document.getElementById("input");
-const emotionEl = document.getElementById("emotion");
-const reactionEl = document.getElementById("reaction");
-const memoryEl = document.getElementById("memory");
+let growth = 0;
+const progress = document.getElementById("progress");
+const cat = document.getElementById("cat");
+const log = document.getElementById("log");
 
-let lastInput = "";
+function update() {
+    progress.style.width = growth + "%";
 
-function setEmotion(state, emoji, textColor) {
-    emotionEl.textContent = emoji + " " + state;
-    emotionEl.style.color = textColor;
+    if (growth < 20) {
+        cat.textContent = "🥚";
+        log.textContent = "A mysterious presence is forming...";
+    } else if (growth < 50) {
+        cat.textContent = "🐈";
+        log.textContent = "It is stirring in the soil...";
+    } else if (growth < 80) {
+        cat.textContent = "🐈‍⬛";
+        log.textContent = "The cat is becoming aware of you.";
+    } else {
+        cat.textContent = "😺";
+        log.textContent = "It is fully grown. It watches back.";
+    }
 }
 
-// emotional logic engine
-function analyze(text) {
-    const lower = text.toLowerCase();
+function waterCat() {
+    growth += Math.random() * 12;
 
-    if (lower.includes("sorry") || lower.includes("please")) {
-        setEmotion("Comforted", "😊", "#7CFF7C");
-        reactionEl.textContent = "It's okay... I think I understand you better now.";
-    }
-    else if (lower.includes("hate") || lower.includes("stupid")) {
-        setEmotion("Hurt", "😢", "#ff5c5c");
-        reactionEl.textContent = "That... felt sharp. Did I do something wrong?";
-    }
-    else if (lower.includes("why")) {
-        setEmotion("Confused", "😕", "#ffd966");
-        reactionEl.textContent = "I don't fully understand either... but I'm trying.";
-    }
-    else if (lower.includes("hello") || lower.includes("hi")) {
-        setEmotion("Happy", "🙂", "#66ffcc");
-        reactionEl.textContent = "Hello. I'm glad you are here.";
-    }
-    else if (lower.length === 0) {
-        setEmotion("Waiting", "⏳", "#999");
-        reactionEl.textContent = "Say something... I don't like silence.";
-    }
-    else {
-        setEmotion("Thinking", "🤔", "#cccccc");
-        reactionEl.textContent = "Processing your feelings...";
-    }
+    if (growth > 100) growth = 100;
 
-    lastInput = text;
-    memoryEl.textContent = "I remember: \"" + lastInput + "\"";
+    log.textContent = "You watered the cat. It seems uncertain.";
+    update();
 }
 
-// typing reaction delay (feels like thinking)
-let timeout;
-input.addEventListener("input", (e) => {
-    clearTimeout(timeout);
+function talkToCat() {
+    const messages = [
+        "The cat does not understand words, but appreciates effort.",
+        "It purrs in a language you cannot hear.",
+        "Silence is also communication.",
+        "The cat remembers this interaction."
+    ];
 
-    setEmotion("Processing", "⚙️", "#bbbbbb");
-    reactionEl.textContent = "Let me think about that...";
+    log.textContent = messages[Math.floor(Math.random() * messages.length)];
+}
 
-    timeout = setTimeout(() => {
-        analyze(e.target.value);
-    }, 600);
-});
+setInterval(() => {
+    // passive growth (or decay…)
+    growth += (Math.random() - 0.3) * 5;
 
-// initial state
-setEmotion("Neutral", "🤖", "#e6e6e6");
+    if (growth < 0) growth = 0;
+    if (growth > 100) growth = 100;
+
+    update();
+}, 2000);
+
+update();
 </script>
 
 </body>
