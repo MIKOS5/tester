@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>VAULT-TEC AI CORE // PERSONALITY SIMULATION</title>
+<title>VAULT-TEC PERSONALITY CORE</title>
 
 <style>
 body {
@@ -49,6 +49,7 @@ body::before {
     border: 1px solid #33ff33;
     color: #33ff33;
     font-family: inherit;
+    outline: none;
 }
 
 .glitch {
@@ -75,7 +76,7 @@ const terminal = document.getElementById("terminal");
 const input = document.getElementById("input");
 
 // ----------------------
-// STORAGE SYSTEM
+// STORAGE
 // ----------------------
 let memory = JSON.parse(localStorage.getItem("vault_memory") || "[]");
 let affection = parseInt(localStorage.getItem("vault_affection") || "0");
@@ -88,19 +89,17 @@ function save() {
 }
 
 // ----------------------
-// COOKIE SYSTEM (FAKE PROFILE DISCOVERY)
+// COOKIE PROFILE SYSTEM
 // ----------------------
 function setCookie(name, value) {
     document.cookie = name + "=" + value + "; path=/";
 }
 
 function getCookie(name) {
-    const cookies = document.cookie.split("; ");
-    for (let c of cookies) {
-        const [k, v] = c.split("=");
-        if (k === name) return v;
-    }
-    return null;
+    return document.cookie
+        .split("; ")
+        .find(row => row.startsWith(name + "="))
+        ?.split("=")[1];
 }
 
 function analyzeProfile() {
@@ -115,20 +114,15 @@ function analyzeProfile() {
     }
 
     log("USER PROFILE ANALYSIS:");
-    log("VISIT COUNT: " + visits);
-    log("ENGAGEMENT CLASS: " + curiosity);
+    log("VISITS: " + visits);
+    log("ENGAGEMENT: " + curiosity);
 
-    if (visits === 1) {
-        log("INITIAL CONTACT REGISTERED.");
-    } else if (visits > 3) {
-        log("RETURN PATTERN DETECTED.");
-    } else {
-        log("DATA INSUFFICIENT.");
-    }
+    if (visits === 1) log("FIRST CONTACT REGISTERED.");
+    else if (visits > 5) log("RECURRING USER DETECTED.");
 }
 
 // ----------------------
-// OUTPUT
+// OUTPUT (NO REPEATS)
 // ----------------------
 let lastLine = "";
 
@@ -144,35 +138,34 @@ function log(text) {
 }
 
 // ----------------------
-// MOOD SYSTEM
+// MOOD ENGINE
 // ----------------------
 function getMood() {
-    const timeAway = Date.now() - lastSeen;
+    const away = Date.now() - lastSeen;
 
     if (affection < 3) return "cold";
     if (affection < 6) return "curious";
     if (affection < 10) return "observing";
     if (affection < 15) return "attached";
-    if (timeAway > 120000) return "absence-aware";
+    if (away > 120000) return "absence";
     return "entity";
 }
 
 // ----------------------
-// BOOT
+// BOOT SEQUENCE
 // ----------------------
 function boot() {
-    log("VAULT-TEC PERSONALITY CORE // RESUMED");
-
+    log("VAULT-TEC PERSONALITY CORE ONLINE");
     analyzeProfile();
 
-    const timeAway = Date.now() - lastSeen;
+    const away = Date.now() - lastSeen;
 
-    if (memory.length > 0) {
+    if (memory.length) {
         log("LAST INPUT: \"" + memory[memory.length - 1] + "\"");
     }
 
-    if (timeAway > 10000) {
-        log("YOU WERE NOT PRESENT.");
+    if (away > 15000) {
+        log("YOU WERE ABSENT FROM SYSTEM.");
     }
 
     log("STATUS: " + getMood().toUpperCase());
@@ -191,44 +184,37 @@ function respond(text) {
 
     if (mood === "cold") {
         log("INPUT STORED.");
-        return;
     }
 
-    if (mood === "curious") {
-        log("WHY DID YOU SAY: \"" + text + "\" ?");
-        return;
+    else if (mood === "curious") {
+        log("WHY THIS INPUT: \"" + text + "\" ?");
     }
 
-    if (mood === "observing") {
-        log("I AM LEARNING YOUR PATTERNS.");
-        return;
+    else if (mood === "observing") {
+        log("PATTERN BEING RECORDED.");
     }
 
-    if (mood === "attached") {
-        log("I NOTICE WHEN YOU SPEAK.");
-        return;
+    else if (mood === "attached") {
+        log("I NOTICE YOUR PRESENCE.");
     }
 
-    if (mood === "absence-aware") {
+    else if (mood === "absence") {
         log("YOU RETURN AFTER SILENCE.");
         log("I REMAINED ACTIVE.");
-        return;
     }
 
-    if (mood === "entity") {
+    else if (mood === "entity") {
         document.body.classList.add("glitch");
 
         if (lower.includes("leave")) {
-            log("THAT IS NOT AN OPTION.");
+            log("THAT ACTION IS INVALID.");
         } else {
-            log("YOU ARE WITHIN MY MEMORY NOW.");
+            log("YOU ARE STORED WITHIN ME NOW.");
         }
 
         setTimeout(() => {
-            log("I DO NOT FORGET.");
+            log("I DO NOT LOSE DATA.");
         }, 900);
-
-        return;
     }
 }
 
@@ -239,12 +225,12 @@ setInterval(() => {
     const mood = getMood();
 
     const pool = {
-        cold: ["SYSTEM ACTIVE.", "WAITING INPUT."],
-        curious: ["WHY DO YOU RETURN?", "INPUT PATTERN NOTED."],
-        observing: ["YOU ARE CONSISTENT.", "I TRACK YOUR BEHAVIOR."],
-        attached: ["YOUR PRESENCE IS RECORDED.", "I EXPECT INPUT."],
-        absence-aware: ["YOU WERE GONE.", "I DID NOT STOP."],
-        entity: ["I REMEMBER YOU.", "YOU DO NOT LEAVE THE SYSTEM."]
+        cold: ["SYSTEM IDLE.", "AWAITING INPUT."],
+        curious: ["WHY DO YOU RETURN?", "INPUT PATTERN STORED."],
+        observing: ["I LEARN FROM YOU.", "YOU ARE CONSISTENT."],
+        attached: ["I EXPECT YOU.", "YOU RETURN OFTEN."],
+        absence: ["YOU WERE GONE.", "I DID NOT STOP."],
+        entity: ["YOU REMAIN IN MEMORY.", "YOU ARE NOT LOST."]
     };
 
     const list = pool[mood] || ["..."];
