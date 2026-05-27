@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🌍 Echo Shards RTS MMO v2.1</title>
+<title>🌍 Echo Shards RTS MMO v3</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
@@ -56,6 +56,7 @@ button {
   background:#1a1f2a;
   padding:10px;
   font-size:12px;
+  z-index:9999;
 }
 </style>
 </head>
@@ -65,10 +66,12 @@ button {
 <div id="map"></div>
 
 <div id="ui">
-  <b>🌍 Echo Shards RTS v2.1</b>
+  <b>🌍 Echo Shards RTS v3</b>
   <input id="nick" placeholder="Player name">
-  <button onclick="join()">Join</button>
+
+  <button onclick="join()">Join World</button>
   <button onclick="spawn()">Spawn Shard</button>
+
   <div id="status">Offline</div>
 </div>
 
@@ -78,7 +81,7 @@ button {
 
 <script>
 
-// ================= YOUR API =================
+// ================= API =================
 const API = "https://script.google.com/macros/s/AKfycbwfFHG9LeEzzYlVYCEXswjxeP_mVsevAqCtGybKBt9O5ww1Pn5d57S2yScP_2_rAinY/exec";
 
 // ================= MAP =================
@@ -92,13 +95,15 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
 let nick = "";
 let nodes = {};
 
-// ================= COLOR =================
+// ================= COLORS =================
 function color(name){
   if(!name) return "#555";
+
   let h = 0;
   for(let i=0;i<name.length;i++){
     h = name.charCodeAt(i) + ((h<<5) - h);
   }
+
   return "#" + ((h & 0xFFFFFF).toString(16).padStart(6,"0"));
 }
 
@@ -169,19 +174,20 @@ function draw(n){
     map.removeLayer(nodes[n.id]);
   }
 
-  let circle = L.circle([n.lat,n.lng],{
-    radius: 200 + (n.level * 40),
+  let circle = L.circle([n.lat, n.lng],{
+    radius: 200 + (n.level * 50),
     color: color(n.owner),
-    fillOpacity:0.35
+    fillOpacity: 0.35
   }).addTo(map);
 
-  circle.on("click",()=>{
+  circle.on("click", () => {
 
     circle.bindPopup(`
       <b>⚡ Shard Node</b><br>
       Owner: ${n.owner}<br>
       Level: ${n.level}<br>
-      Energy: ${n.energy}<br><br>
+      Energy: ${n.energy}<br>
+      Control: ${n.control || "Neutral"}<br><br>
 
       <button onclick="attack('${n.id}')">⚔ Attack</button>
       <button onclick="upgrade('${n.id}')">⬆ Upgrade</button>
@@ -191,7 +197,7 @@ function draw(n){
   nodes[n.id] = circle;
 }
 
-// ================= SYNC =================
+// ================= SYNC WORLD =================
 async function sync(){
 
   try {
@@ -209,6 +215,18 @@ async function sync(){
     console.log("SYNC ERROR:", err);
   }
 }
+
+// ================= AI TICK (v3 WORLD LIVING SYSTEM) =================
+setInterval(async () => {
+  try {
+    await fetch(API, {
+      method: "POST",
+      body: JSON.stringify({ action: "tick" })
+    });
+  } catch (e) {
+    console.log("AI tick failed", e);
+  }
+}, 8000);
 
 </script>
 
