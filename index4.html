@@ -201,22 +201,31 @@ function draw(n){
     map.removeLayer(nodes[n.id]);
   }
 
-  let circle = L.circle([n.lat, n.lng], {
-    radius: 200 + (Number(n.level || 1) * 50),
-    color: "#4cc3ff",
-    fillOpacity: 0.3
+  let intensity = 200 + (Number(n.level || 1) * 80);
+
+  let colorMap = {
+    "VOID": "#7a2cff",
+    "ORDER": "#2cc7ff",
+    "CHAOS": "#ff2c6d",
+    "Neutral": "#555"
+  };
+
+  let circle = L.circle([Number(n.lat), Number(n.lng)], {
+    radius: intensity,
+    color: colorMap[n.owner] || "#888",
+    fillOpacity: 0.35
   }).addTo(map);
 
   circle.on("click", () => {
 
     circle.bindPopup(`
-      <b>⚡ Echo Shard</b><br>
-      Owner: ${n.owner}<br>
+      <b>⚡ Territory Node</b><br>
+      Faction: ${n.owner}<br>
       Level: ${n.level}<br>
-      Energy: ${n.energy}<br><br>
-
-      <button onclick="attack('${n.id}')">⚔ Attack</button>
-      <button onclick="upgrade('${n.id}')">⬆ Upgrade</button>
+      Energy: ${n.energy}<br>
+      <hr>
+      <button onclick="attack('${n.id}')">⚔ Raid</button>
+      <button onclick="upgrade('${n.id}')">⬆ Fortify</button>
     `).openPopup();
   });
 
