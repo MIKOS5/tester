@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🌍 Echo Shards</title>
+<title>🌍 Echo Shards v4.5 RTS Pressure Engine</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
@@ -66,7 +66,7 @@ button {
 <div id="map"></div>
 
 <div id="ui">
-  <b>🌍 Echo Shards RTS v3</b>
+  <b>🌍 Echo Shards v4.5</b>
 
   <input id="nick" placeholder="Player name">
 
@@ -83,7 +83,7 @@ button {
 <script>
 
 ////////////////////////////////////////////////////////////////////////////////
-// 🔥 YOUR LIVE API (EMBEDDED)
+// 🔥 API
 ////////////////////////////////////////////////////////////////////////////////
 
 const API = "https://script.google.com/macros/s/AKfycbwfFHG9LeEzzYlVYCEXswjxeP_mVsevAqCtGybKBt9O5ww1Pn5d57S2yScP_2_rAinY/exec";
@@ -106,13 +106,11 @@ let nick = "";
 let nodes = {};
 
 ////////////////////////////////////////////////////////////////////////////////
-// FETCH (CRITICAL FIX - NO HEADERS, NO CORS PRE-FLIGHT)
+// SAFE POST (NO CORS PRE-FLIGHT)
 ////////////////////////////////////////////////////////////////////////////////
 
 async function post(payload){
-
   const form = new FormData();
-
   for (let k in payload){
     form.append(k, payload[k]);
   }
@@ -145,20 +143,15 @@ async function spawn(){
 
   let c = map.getCenter();
 
-  try {
-    await post({
-      action:"spawn",
-      id: crypto.randomUUID(),
-      lat: c.lat,
-      lng: c.lng,
-      owner: nick
-    });
+  await post({
+    action:"spawn",
+    id: crypto.randomUUID(),
+    lat: c.lat,
+    lng: c.lng,
+    owner: nick
+  });
 
-    sync();
-
-  } catch(e){
-    console.log("SPAWN ERROR:", e);
-  }
+  sync();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -166,7 +159,6 @@ async function spawn(){
 ////////////////////////////////////////////////////////////////////////////////
 
 async function attack(id){
-
   await post({
     action:"attack",
     id,
@@ -181,7 +173,6 @@ async function attack(id){
 ////////////////////////////////////////////////////////////////////////////////
 
 async function upgrade(id){
-
   await post({
     action:"upgrade",
     id,
@@ -192,18 +183,26 @@ async function upgrade(id){
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// DRAW NODE
+// DRAW (v4.5 PRESSURE VISUAL SYSTEM)
 ////////////////////////////////////////////////////////////////////////////////
 
 function draw(n){
 
   if(nodes[n.id]){
     map.removeLayer(nodes[n.id]);
+    delete nodes[n.id];
   }
 
-  let intensity = 200 + (Number(n.level || 1) * 80);
+  let level = Number(n.level || 1);
+  let energy = Number(n.energy || 0);
 
-  let colorMap = {
+  // 🌍 pressure-based size
+  let intensity = 140 + (level * 70);
+
+  // ⚡ energy glow
+  let opacity = 0.15 + (energy / 200);
+
+  const colorMap = {
     "VOID": "#7a2cff",
     "ORDER": "#2cc7ff",
     "CHAOS": "#ff2c6d",
@@ -213,21 +212,20 @@ function draw(n){
   let circle = L.circle([Number(n.lat), Number(n.lng)], {
     radius: intensity,
     color: colorMap[n.owner] || "#888",
-    fillOpacity: 0.35
+    fillOpacity: opacity
   }).addTo(map);
 
-  circle.on("click", () => {
+  circle.bindPopup(`
+    <b>⚡ Territory Node</b><br>
+    Faction: ${n.owner}<br>
+    Level: ${level}<br>
+    Energy: ${energy}<br>
+    <hr>
+    <button onclick="attack('${n.id}')">⚔ Raid</button>
+    <button onclick="upgrade('${n.id}')">⬆ Fortify</button>
+  `);
 
-    circle.bindPopup(`
-      <b>⚡ Territory Node</b><br>
-      Faction: ${n.owner}<br>
-      Level: ${n.level}<br>
-      Energy: ${n.energy}<br>
-      <hr>
-      <button onclick="attack('${n.id}')">⚔ Raid</button>
-      <button onclick="upgrade('${n.id}')">⬆ Fortify</button>
-    `).openPopup();
-  });
+  circle.on("click", () => circle.openPopup());
 
   nodes[n.id] = circle;
 }
@@ -239,22 +237,19 @@ function draw(n){
 async function sync(){
 
   try {
-    const res = await post({
-      action:"getWorld"
-    });
-
+    const res = await post({ action:"getWorld" });
     const text = await res.text();
     const data = JSON.parse(text);
 
     (data.nodes || []).forEach(draw);
 
-  } catch(e){
-    console.log("SYNC ERROR:", e);
+  } catch(err){
+    console.log("SYNC ERROR:", err);
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// AI TICK (WORLD LIVES WITHOUT PLAYERS)
+// WORLD AI TICK
 ////////////////////////////////////////////////////////////////////////////////
 
 setInterval(() => {
