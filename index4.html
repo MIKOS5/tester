@@ -3,34 +3,61 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Echo </title>
+<title>🌍 Echo Shards RTS MMO v3 FIXED</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <style>
-body { margin:0; font-family:Arial; background:#0b0f14; color:white; }
-#map { height:100vh; width:100%; }
+body {
+  margin:0;
+  font-family:Arial;
+  background:#0b0f14;
+  color:white;
+}
+
+#map {
+  height:100vh;
+  width:100%;
+}
 
 #ui {
   position:absolute;
   top:10px;
   left:10px;
-  width:240px;
+  width:260px;
   background:#1a1f2a;
-  padding:10px;
-  border-radius:8px;
+  padding:12px;
+  border-radius:10px;
   z-index:9999;
 }
 
-button, input {
+input, button {
   width:100%;
   margin-top:6px;
   padding:8px;
-  border-radius:6px;
   border:none;
+  border-radius:6px;
 }
 
-button { background:#2d6cdf; color:white; font-weight:bold; }
+button {
+  background:#2d6cdf;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+#log {
+  position:absolute;
+  bottom:10px;
+  left:10px;
+  width:320px;
+  height:120px;
+  overflow:auto;
+  background:#1a1f2a;
+  padding:10px;
+  font-size:12px;
+  z-index:9999;
+}
 </style>
 </head>
 
@@ -39,23 +66,66 @@ button { background:#2d6cdf; color:white; font-weight:bold; }
 <div id="map"></div>
 
 <div id="ui">
-  <input id="nick" placeholder="Name">
-  <button onclick="join()">Join</button>
+  <b>🌍 Echo Shards RTS v3</b>
+
+  <input id="nick" placeholder="Player name">
+
+  <button onclick="join()">Join World</button>
   <button onclick="spawn()">Spawn Shard</button>
+
   <div id="status">Offline</div>
 </div>
+
+<div id="log"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
 
+////////////////////////////////////////////////////////////////////////////////
+// 🔥 YOUR LIVE API (EMBEDDED)
+////////////////////////////////////////////////////////////////////////////////
+
 const API = "https://script.google.com/macros/s/AKfycbwfFHG9LeEzzYlVYCEXswjxeP_mVsevAqCtGybKBt9O5ww1Pn5d57S2yScP_2_rAinY/exec";
 
+////////////////////////////////////////////////////////////////////////////////
+// MAP
+////////////////////////////////////////////////////////////////////////////////
+
 let map = L.map('map').setView([33.8,-118.3], 11);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ maxZoom:19 }).addTo(map);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+  maxZoom:19
+}).addTo(map);
+
+////////////////////////////////////////////////////////////////////////////////
+// STATE
+////////////////////////////////////////////////////////////////////////////////
 
 let nick = "";
 let nodes = {};
+
+////////////////////////////////////////////////////////////////////////////////
+// FETCH (CRITICAL FIX - NO HEADERS, NO CORS PRE-FLIGHT)
+////////////////////////////////////////////////////////////////////////////////
+
+async function post(payload){
+
+  const form = new FormData();
+
+  for (let k in payload){
+    form.append(k, payload[k]);
+  }
+
+  return fetch(API, {
+    method: "POST",
+    body: form
+  });
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// JOIN
+////////////////////////////////////////////////////////////////////////////////
 
 function join(){
   nick = document.getElementById("nick").value;
@@ -67,31 +137,36 @@ function join(){
   setInterval(sync, 3000);
 }
 
-// ================= IMPORTANT FIX =================
-// NO HEADERS → avoids CORS preflight completely
-
-async function post(payload){
-  return fetch(API, {
-    method: "POST",
-    body: JSON.stringify(payload)
-  });
-}
+////////////////////////////////////////////////////////////////////////////////
+// SPAWN
+////////////////////////////////////////////////////////////////////////////////
 
 async function spawn(){
+
   let c = map.getCenter();
 
-  await post({
-    action:"spawn",
-    id: crypto.randomUUID(),
-    lat: c.lat,
-    lng: c.lng,
-    owner: nick
-  });
+  try {
+    await post({
+      action:"spawn",
+      id: crypto.randomUUID(),
+      lat: c.lat,
+      lng: c.lng,
+      owner: nick
+    });
 
-  sync();
+    sync();
+
+  } catch(e){
+    console.log("SPAWN ERROR:", e);
+  }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// ATTACK
+////////////////////////////////////////////////////////////////////////////////
+
 async function attack(id){
+
   await post({
     action:"attack",
     id,
@@ -101,7 +176,12 @@ async function attack(id){
   sync();
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// UPGRADE
+////////////////////////////////////////////////////////////////////////////////
+
 async function upgrade(id){
+
   await post({
     action:"upgrade",
     id,
@@ -111,43 +191,64 @@ async function upgrade(id){
   sync();
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// DRAW NODE
+////////////////////////////////////////////////////////////////////////////////
+
 function draw(n){
 
-  if(nodes[n.id]) map.removeLayer(nodes[n.id]);
+  if(nodes[n.id]){
+    map.removeLayer(nodes[n.id]);
+  }
 
-  let c = L.circle([n.lat,n.lng],{
-    radius: 200 + (Number(n.level||1)*50),
-    color: "#44aaff",
+  let circle = L.circle([n.lat, n.lng], {
+    radius: 200 + (Number(n.level || 1) * 50),
+    color: "#4cc3ff",
     fillOpacity: 0.3
   }).addTo(map);
 
-  c.on("click", ()=>{
-    c.bindPopup(`
-      <b>Shard</b><br>
+  circle.on("click", () => {
+
+    circle.bindPopup(`
+      <b>⚡ Echo Shard</b><br>
       Owner: ${n.owner}<br>
-      Level: ${n.level}<br><br>
-      <button onclick="attack('${n.id}')">Attack</button>
-      <button onclick="upgrade('${n.id}')">Upgrade</button>
+      Level: ${n.level}<br>
+      Energy: ${n.energy}<br><br>
+
+      <button onclick="attack('${n.id}')">⚔ Attack</button>
+      <button onclick="upgrade('${n.id}')">⬆ Upgrade</button>
     `).openPopup();
   });
 
-  nodes[n.id] = c;
+  nodes[n.id] = circle;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// SYNC WORLD
+////////////////////////////////////////////////////////////////////////////////
+
 async function sync(){
+
   try {
-    const res = await post({ action:"getWorld" });
-    const data = JSON.parse(await res.text());
+    const res = await post({
+      action:"getWorld"
+    });
+
+    const text = await res.text();
+    const data = JSON.parse(text);
 
     (data.nodes || []).forEach(draw);
 
   } catch(e){
-    console.log("SYNC FAIL", e);
+    console.log("SYNC ERROR:", e);
   }
 }
 
-// AI tick
-setInterval(()=>{
+////////////////////////////////////////////////////////////////////////////////
+// AI TICK (WORLD LIVES WITHOUT PLAYERS)
+////////////////////////////////////////////////////////////////////////////////
+
+setInterval(() => {
   post({ action:"tick" });
 }, 8000);
 
