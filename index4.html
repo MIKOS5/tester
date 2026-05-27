@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🌍 Echo Shards v4.5 RTS Pressure Engine</title>
+<title>🌍 Echo Shards RTS v10</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
@@ -51,7 +51,7 @@ button {
   bottom:10px;
   left:10px;
   width:320px;
-  height:120px;
+  height:130px;
   overflow:auto;
   background:#1a1f2a;
   padding:10px;
@@ -66,13 +66,10 @@ button {
 <div id="map"></div>
 
 <div id="ui">
-  <b>🌍 Echo Shards v4.5</b>
-
+  <b>🌍 Echo Shards v10 RTS</b>
   <input id="nick" placeholder="Player name">
-
   <button onclick="join()">Join World</button>
-  <button onclick="spawn()">Spawn Shard</button>
-
+  <button onclick="spawn()">Spawn Node</button>
   <div id="status">Offline</div>
 </div>
 
@@ -82,49 +79,57 @@ button {
 
 <script>
 
-////////////////////////////////////////////////////////////////////////////////
-// 🔥 API
-////////////////////////////////////////////////////////////////////////////////
-
+// ================= API =================
 const API = "https://script.google.com/macros/s/AKfycbwfFHG9LeEzzYlVYCEXswjxeP_mVsevAqCtGybKBt9O5ww1Pn5d57S2yScP_2_rAinY/exec";
 
-////////////////////////////////////////////////////////////////////////////////
-// MAP
-////////////////////////////////////////////////////////////////////////////////
-
-let map = L.map('map').setView([33.8,-118.3], 11);
+// ================= MAP =================
+const map = L.map('map').setView([33.8,-118.3], 11);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
   maxZoom:19
 }).addTo(map);
 
-////////////////////////////////////////////////////////////////////////////////
-// STATE
-////////////////////////////////////////////////////////////////////////////////
-
+// ================= STATE =================
 let nick = "";
 let nodes = {};
 
-////////////////////////////////////////////////////////////////////////////////
-// SAFE POST (NO CORS PRE-FLIGHT)
-////////////////////////////////////////////////////////////////////////////////
-
-async function post(payload){
-  const form = new FormData();
-  for (let k in payload){
-    form.append(k, payload[k]);
-  }
-
-  return fetch(API, {
-    method: "POST",
-    body: form
-  });
+// ================= COLOR SYSTEM =================
+function color(owner){
+  if(!owner) return "#555";
+  const mapc = {
+    "VOID":"#7a2cff",
+    "ORDER":"#2cc7ff",
+    "CHAOS":"#ff2c6d",
+    "Neutral":"#444"
+  };
+  return mapc[owner] || "#999";
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// JOIN
-////////////////////////////////////////////////////////////////////////////////
+// ================= LOG =================
+function log(msg){
+  const el = document.getElementById("log");
+  el.innerHTML = "• " + msg + "<br>" + el.innerHTML;
+}
 
+// ================= SAFE FETCH =================
+async function post(data){
+  const res = await fetch(API, {
+    method:"POST",
+    body: JSON.stringify(data)
+  });
+
+  const text = await res.text();
+
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    log("⚠ JSON parse error");
+    console.log(text);
+    return {};
+  }
+}
+
+// ================= JOIN =================
 function join(){
   nick = document.getElementById("nick").value;
   if(!nick) return;
@@ -133,32 +138,29 @@ function join(){
 
   sync();
   setInterval(sync, 3000);
+  log("Joined world: " + nick);
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// SPAWN
-////////////////////////////////////////////////////////////////////////////////
-
+// ================= SPAWN =================
 async function spawn(){
 
-  let c = map.getCenter();
+  const c = map.getCenter();
 
   await post({
     action:"spawn",
     id: crypto.randomUUID(),
-    lat: c.lat,
-    lng: c.lng,
-    owner: nick
+    lat:c.lat,
+    lng:c.lng,
+    owner:nick
   });
 
   sync();
+  log("Spawned node");
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// ATTACK
-////////////////////////////////////////////////////////////////////////////////
-
+// ================= ATTACK =================
 async function attack(id){
+
   await post({
     action:"attack",
     id,
@@ -166,13 +168,12 @@ async function attack(id){
   });
 
   sync();
+  log("Raid sent");
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// UPGRADE
-////////////////////////////////////////////////////////////////////////////////
-
+// ================= UPGRADE =================
 async function upgrade(id){
+
   await post({
     action:"upgrade",
     id,
@@ -180,80 +181,64 @@ async function upgrade(id){
   });
 
   sync();
+  log("Fortified node");
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// DRAW (v4.5 PRESSURE VISUAL SYSTEM)
-////////////////////////////////////////////////////////////////////////////////
-
+// ================= DRAW NODE =================
 function draw(n){
+
+  if(!n.id) return;
 
   if(nodes[n.id]){
     map.removeLayer(nodes[n.id]);
-    delete nodes[n.id];
   }
 
-  let level = Number(n.level || 1);
-  let energy = Number(n.energy || 0);
-
-  // 🌍 pressure-based size
-  let intensity = 140 + (level * 70);
-
-  // ⚡ energy glow
-  let opacity = 0.15 + (energy / 200);
-
-  const colorMap = {
-    "VOID": "#7a2cff",
-    "ORDER": "#2cc7ff",
-    "CHAOS": "#ff2c6d",
-    "Neutral": "#555"
-  };
+  let intensity = 200 + (Number(n.level || 1) * 80);
 
   let circle = L.circle([Number(n.lat), Number(n.lng)], {
-    radius: intensity,
-    color: colorMap[n.owner] || "#888",
-    fillOpacity: opacity
+    radius:intensity,
+    color:color(n.owner),
+    fillOpacity:0.35
   }).addTo(map);
 
-  circle.bindPopup(`
-    <b>⚡ Territory Node</b><br>
-    Faction: ${n.owner}<br>
-    Level: ${level}<br>
-    Energy: ${energy}<br>
-    <hr>
-    <button onclick="attack('${n.id}')">⚔ Raid</button>
-    <button onclick="upgrade('${n.id}')">⬆ Fortify</button>
-  `);
+  circle.on("click", () => {
 
-  circle.on("click", () => circle.openPopup());
+    circle.bindPopup(`
+      <b>⚡ Node</b><br>
+      Owner: ${n.owner}<br>
+      Level: ${n.level}<br>
+      Energy: ${n.energy}<br><br>
+
+      <button onclick="attack('${n.id}')">⚔ Raid</button>
+      <button onclick="upgrade('${n.id}')">⬆ Fortify</button>
+    `).openPopup();
+
+  });
 
   nodes[n.id] = circle;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// SYNC WORLD
-////////////////////////////////////////////////////////////////////////////////
-
+// ================= SYNC WORLD =================
 async function sync(){
 
-  try {
-    const res = await post({ action:"getWorld" });
-    const text = await res.text();
-    const data = JSON.parse(text);
+  const data = await post({ action:"getWorld" });
 
-    (data.nodes || []).forEach(draw);
+  if(!data || !data.nodes) return;
 
-  } catch(err){
-    console.log("SYNC ERROR:", err);
-  }
+  // optional cleanup (prevents ghost nodes)
+  Object.keys(nodes).forEach(k => {
+    map.removeLayer(nodes[k]);
+  });
+  nodes = {};
+
+  data.nodes.forEach(draw);
+
+  log("World synced");
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// WORLD AI TICK
-////////////////////////////////////////////////////////////////////////////////
-
-setInterval(() => {
-  post({ action:"tick" });
+// ================= AI TICK =================
+setInterval(async () => {
+  await post({ action:"tick" });
 }, 8000);
 
 </script>
