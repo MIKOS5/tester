@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🌍 Echo Shards RTS MMO v3</title>
+<title>🌍 Echo Shards RTS MMO v3 (FIXED)</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
@@ -66,7 +66,7 @@ button {
 <div id="map"></div>
 
 <div id="ui">
-  <b>🌍 Echo Shards RTS v3</b>
+  <b>🌍 Echo Shards RTS v3 FIXED</b>
   <input id="nick" placeholder="Player name">
 
   <button onclick="join()">Join World</button>
@@ -95,7 +95,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
 let nick = "";
 let nodes = {};
 
-// ================= COLORS =================
+// ================= COLOR =================
 function color(name){
   if(!name) return "#555";
 
@@ -118,53 +118,67 @@ function join(){
   setInterval(sync, 2500);
 }
 
+// ================= FETCH HELPER =================
+async function postData(payload){
+  return fetch(API,{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json"
+    },
+    body: JSON.stringify(payload)
+  });
+}
+
 // ================= SPAWN =================
 async function spawn(){
 
   let c = map.getCenter();
 
-  await fetch(API,{
-    method:"POST",
-    body: JSON.stringify({
+  try {
+    await postData({
       action:"spawn",
       id: crypto.randomUUID(),
       lat: c.lat,
       lng: c.lng,
       owner: nick
-    })
-  });
+    });
 
-  sync();
+    sync();
+  } catch(e){
+    console.log("SPAWN ERROR:", e);
+  }
 }
 
 // ================= ATTACK =================
 async function attack(id){
 
-  await fetch(API,{
-    method:"POST",
-    body: JSON.stringify({
+  try {
+    await postData({
       action:"attack",
       id,
       nick
-    })
-  });
+    });
 
-  sync();
+    sync();
+  } catch(e){
+    console.log("ATTACK ERROR:", e);
+  }
 }
 
 // ================= UPGRADE =================
 async function upgrade(id){
 
-  await fetch(API,{
-    method:"POST",
-    body: JSON.stringify({
+  try {
+    await postData({
       action:"upgrade",
       id,
       nick
-    })
-  });
+    });
 
-  sync();
+    sync();
+  } catch(e){
+    console.log("UPGRADE ERROR:", e);
+  }
 }
 
 // ================= DRAW NODE =================
@@ -175,7 +189,7 @@ function draw(n){
   }
 
   let circle = L.circle([n.lat, n.lng],{
-    radius: 200 + (n.level * 50),
+    radius: 200 + (Number(n.level || 1) * 50),
     color: color(n.owner),
     fillOpacity: 0.35
   }).addTo(map);
@@ -201,12 +215,13 @@ function draw(n){
 async function sync(){
 
   try {
-    const res = await fetch(API,{
-      method:"POST",
-      body: JSON.stringify({ action:"getWorld" })
+    const res = await postData({
+      action:"getWorld"
     });
 
     const text = await res.text();
+    console.log("RAW RESPONSE:", text);
+
     const data = JSON.parse(text);
 
     (data.nodes || []).forEach(draw);
@@ -215,18 +230,6 @@ async function sync(){
     console.log("SYNC ERROR:", err);
   }
 }
-
-// ================= AI TICK (v3 WORLD LIVING SYSTEM) =================
-setInterval(async () => {
-  try {
-    await fetch(API, {
-      method: "POST",
-      body: JSON.stringify({ action: "tick" })
-    });
-  } catch (e) {
-    console.log("AI tick failed", e);
-  }
-}, 8000);
 
 </script>
 
