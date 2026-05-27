@@ -51,7 +51,7 @@ button {
   bottom:10px;
   left:10px;
   width:320px;
-  height:130px;
+  height:140px;
   overflow:auto;
   background:#1a1f2a;
   padding:10px;
@@ -66,7 +66,7 @@ button {
 <div id="map"></div>
 
 <div id="ui">
-  <b>🌍 Echo Shards v10 RTS</b>
+  <b>🌍 Echo Shards RTS v10</b>
   <input id="nick" placeholder="Player name">
   <button onclick="join()">Join World</button>
   <button onclick="spawn()">Spawn Node</button>
@@ -83,27 +83,15 @@ button {
 const API = "https://script.google.com/macros/s/AKfycbwfFHG9LeEzzYlVYCEXswjxeP_mVsevAqCtGybKBt9O5ww1Pn5d57S2yScP_2_rAinY/exec";
 
 // ================= MAP =================
-const map = L.map('map').setView([33.8,-118.3], 11);
+const map = L.map('map').setView([33.8, -118.3], 11);
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-  maxZoom:19
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19
 }).addTo(map);
 
 // ================= STATE =================
 let nick = "";
 let nodes = {};
-
-// ================= COLOR SYSTEM =================
-function color(owner){
-  if(!owner) return "#555";
-  const mapc = {
-    "VOID":"#7a2cff",
-    "ORDER":"#2cc7ff",
-    "CHAOS":"#ff2c6d",
-    "Neutral":"#444"
-  };
-  return mapc[owner] || "#999";
-}
 
 // ================= LOG =================
 function log(msg){
@@ -111,26 +99,43 @@ function log(msg){
   el.innerHTML = "• " + msg + "<br>" + el.innerHTML;
 }
 
-// ================= SAFE FETCH =================
-async function post(data){
-  const res = await fetch(API, {
-    method:"POST",
-    body: JSON.stringify(data)
-  });
+// ================= COLORS =================
+function color(owner){
+  if(!owner) return "#555";
 
-  const text = await res.text();
+  const mapc = {
+    "VOID":"#7a2cff",
+    "ORDER":"#2cc7ff",
+    "CHAOS":"#ff2c6d",
+    "Neutral":"#444"
+  };
+
+  return mapc[owner] || "#999";
+}
+
+// ================= SAFE POST =================
+async function post(data){
 
   try {
+    const res = await fetch(API, {
+      method: "POST",
+      body: JSON.stringify(data)
+    });
+
+    const text = await res.text();
+
     return JSON.parse(text);
-  } catch (e) {
-    log("⚠ JSON parse error");
-    console.log(text);
+
+  } catch (err) {
+    log("❌ Network error");
+    console.log(err);
     return {};
   }
 }
 
 // ================= JOIN =================
 function join(){
+
   nick = document.getElementById("nick").value;
   if(!nick) return;
 
@@ -138,7 +143,8 @@ function join(){
 
   sync();
   setInterval(sync, 3000);
-  log("Joined world: " + nick);
+
+  log("Joined as " + nick);
 }
 
 // ================= SPAWN =================
@@ -155,7 +161,7 @@ async function spawn(){
   });
 
   sync();
-  log("Spawned node");
+  log("Node spawned");
 }
 
 // ================= ATTACK =================
@@ -184,7 +190,7 @@ async function upgrade(id){
   log("Fortified node");
 }
 
-// ================= DRAW NODE =================
+// ================= DRAW =================
 function draw(n){
 
   if(!n.id) return;
@@ -196,9 +202,9 @@ function draw(n){
   let intensity = 200 + (Number(n.level || 1) * 80);
 
   let circle = L.circle([Number(n.lat), Number(n.lng)], {
-    radius:intensity,
-    color:color(n.owner),
-    fillOpacity:0.35
+    radius: intensity,
+    color: color(n.owner),
+    fillOpacity: 0.35
   }).addTo(map);
 
   circle.on("click", () => {
@@ -218,17 +224,18 @@ function draw(n){
   nodes[n.id] = circle;
 }
 
-// ================= SYNC WORLD =================
+// ================= SYNC =================
 async function sync(){
 
   const data = await post({ action:"getWorld" });
 
   if(!data || !data.nodes) return;
 
-  // optional cleanup (prevents ghost nodes)
-  Object.keys(nodes).forEach(k => {
-    map.removeLayer(nodes[k]);
+  // FULL CLEAN REDRAW (prevents ghost bugs)
+  Object.keys(nodes).forEach(id => {
+    map.removeLayer(nodes[id]);
   });
+
   nodes = {};
 
   data.nodes.forEach(draw);
@@ -237,8 +244,8 @@ async function sync(){
 }
 
 // ================= AI TICK =================
-setInterval(async () => {
-  await post({ action:"tick" });
+setInterval(() => {
+  post({ action:"tick" });
 }, 8000);
 
 </script>
