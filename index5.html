@@ -1,259 +1,344 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>RADIO OS HYBRID</title>
+<meta charset="UTF-8">
+<title>RADIO OS v1</title>
 
-  <style>
-    body {
-      font-family: Arial;
-      background: #0b0b0b;
-      color: white;
-      padding: 20px;
-    }
+<style>
+/* =========================
+   GLOBAL DESKTOP UI
+========================= */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #0b0f14;
+  color: #ffffff;
+  display: flex;
+  height: 100vh;
+}
 
-    h1 { color: #1e88e5; }
+/* =========================
+   LEFT WIDGET BAR
+========================= */
+.sidebar {
+  width: 320px;
+  background: #111826;
+  padding: 15px;
+  box-sizing: border-box;
+  border-right: 1px solid #1f2a3a;
+}
 
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
+.sidebar h2 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
+input, select, button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  border-radius: 6px;
+  border: none;
+  font-size: 14px;
+}
 
-    th, td {
-      border: 1px solid #333;
-      padding: 8px;
-      font-size: 13px;
-    }
+button {
+  background: #1e88e5;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+}
 
-    th { background: #1e88e5; }
+button:hover {
+  background: #1565c0;
+}
 
-    tr:hover {
-      background: #222;
-      cursor: pointer;
-    }
+/* =========================
+   MAIN AREA
+========================= */
+.main {
+  flex: 1;
+  padding: 20px;
+  overflow: auto;
+}
 
-    input, select, button {
-      padding: 8px;
-      margin-top: 6px;
-      width: 100%;
-      border: none;
-      border-radius: 6px;
-    }
+/* TABLE */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 14px;
+}
 
-    button {
-      background: #1e88e5;
-      color: white;
-      cursor: pointer;
-    }
+th, td {
+  padding: 10px;
+  border-bottom: 1px solid #1f2a3a;
+  text-align: left;
+}
 
-    button:hover { background: #1565c0; }
+tr:hover {
+  background: #182233;
+  cursor: pointer;
+}
 
-    .status {
-      margin-top: 10px;
-      color: #aaa;
-      font-size: 12px;
-    }
-  </style>
+/* PLAYER */
+audio {
+  width: 100%;
+  margin-top: 15px;
+}
+
+/* STATUS */
+.status {
+  margin-top: 10px;
+  color: #aaa;
+}
+
+/* TOP ACTION BAR */
+.topbar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.smallbtn {
+  width: auto;
+  padding: 8px 12px;
+}
+</style>
 </head>
 
 <body>
 
-<h1>🎧 RADIO OS HYBRID</h1>
+<!-- ================= SIDEBAR ================= -->
+<div class="sidebar">
 
-<div class="grid">
+  <h2>📻 RADIO OS v1</h2>
 
-  <!-- =======================
-       STATIONS PANEL
-  ======================== -->
-  <div>
-    <h3>📡 Stations</h3>
+  <input id="genre" placeholder="Genre (rock, jazz, pop)" />
 
-    <input id="genre" placeholder="genre filter (rock, jazz...)" />
+  <button onclick="applyFilter()">Apply Genre</button>
 
-    <button onclick="loadStations()">Load Stations</button>
+  <button onclick="nextPage()">Next 50 ➜</button>
+  <button onclick="prevPage()">⬅ Prev 50</button>
 
-    <select id="stationList"></select>
+  <hr>
 
-    <button onclick="playStation()">▶ Play Station</button>
-    <button onclick="saveFavorite()">⭐ Save Favorite</button>
+  <button onclick="loadFavorites()">⭐ Load Favorites</button>
 
-    <audio id="player" controls style="width:100%;margin-top:10px;"></audio>
-
-    <div class="status" id="stationStatus"></div>
-  </div>
-
-  <!-- =======================
-       FAVORITES PANEL
-  ======================== -->
-  <div>
-    <h3>⭐ Favorites (Sheets)</h3>
-
-    <button onclick="loadFavorites()">🔄 Load Favorites</button>
-
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Country</th>
-          <th>Genre</th>
-        </tr>
-      </thead>
-      <tbody id="favTable"></tbody>
-    </table>
-
-    <div class="status" id="favStatus"></div>
-  </div>
-
+  <div class="status" id="status">Loading...</div>
 </div>
 
-<!-- =========================
-🎧 FLOATING WIDGET (SIMPLE)
-========================= -->
+<!-- ================= MAIN ================= -->
+<div class="main">
 
-<div id="widget" style="
-position:fixed;
-bottom:20px;
-right:20px;
-background:#111;
-padding:10px;
-border-radius:10px;
-width:250px;
-box-shadow:0 0 20px rgba(0,0,0,0.5);
-">
+  <div class="topbar">
+    <button class="smallbtn" onclick="loadStations()">🔄 Refresh Stations</button>
+    <button class="smallbtn" onclick="showStations()">📻 Stations</button>
+    <button class="smallbtn" onclick="showFavs()">⭐ Favorites</button>
+  </div>
 
-  <b>🎧 Quick Player</b>
+  <h3 id="viewTitle">Stations</h3>
 
-  <button onclick="loadStations()">Reload Stations</button>
-  <button onclick="loadFavorites()">Load Fav</button>
+  <!-- TABLE -->
+  <table id="table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Country</th>
+        <th>Genre</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <audio id="player" controls autoplay></audio>
 
 </div>
 
 <script>
 
+/* =========================
+   CONFIG
+========================= */
 const API = "https://all.api.radio-browser.info/json/stations/search";
 const SHEET_API = "https://script.google.com/macros/s/AKfycbzZ5MwOcYUY_bpsUKSxPd810xE8rV_Y3z2GwzPublb_4O60CP8L_lC_V2kqkCQ_JdF5/exec";
 
 let stations = [];
+let favorites = [];
+let page = 0;
+let currentGenre = "";
+let mode = "stations";
+const limit = 50;
 
-// =========================
-// LOAD STATIONS (RESTORED)
-// =========================
+/* =========================
+   LOAD STATIONS
+========================= */
 async function loadStations() {
-  const genre = document.getElementById("genre").value;
+  mode = "stations";
 
-  let url = `${API}?countrycode=US&limit=50&hidebroken=true`;
-  if (genre) url += `&tag=${genre}`;
+  const offset = page * limit;
+  let url = `${API}?countrycode=US&limit=${limit}&offset=${offset}&hidebroken=true`;
 
-  setStationStatus("Loading stations...");
+  if (currentGenre) url += `&tag=${encodeURIComponent(currentGenre)}`;
+
+  setStatus("Loading stations...");
 
   const res = await fetch(url);
   stations = await res.json();
 
-  const list = document.getElementById("stationList");
-  list.innerHTML = "";
-
-  stations.forEach((s, i) => {
-    let opt = document.createElement("option");
-    opt.value = i;
-    opt.textContent = s.name;
-    list.appendChild(opt);
-  });
-
-  setStationStatus(`Loaded ${stations.length} stations`);
+  renderTable(stations, "stations");
 }
 
-// =========================
-// PLAY STATION
-// =========================
-function playStation() {
-  const s = stations[stationList.value];
+/* =========================
+   FAVORITES (FIXED API HANDLING)
+========================= */
+async function loadFavorites() {
+  setStatus("Loading favorites...");
+
+  const res = await fetch(SHEET_API + "?action=get");
+  const text = await res.text();
+
+  let data = [];
+
+  try {
+    const json = JSON.parse(text);
+    data = json.data || json;
+  } catch (e) {
+    data = parseTSV(text);
+  }
+
+  favorites = data;
+
+  mode = "favorites";
+  renderTable(favorites, "favorites");
+
+  setStatus(`Loaded ${favorites.length} favorites`);
+}
+
+/* =========================
+   SAVE FAVORITE
+========================= */
+async function saveFavorite(index) {
+  const s = stations[index];
   if (!s) return;
-
-  player.src = s.url_resolved || s.url;
-  player.play();
-}
-
-// =========================
-// SAVE FAVORITE
-// =========================
-async function saveFavorite() {
-  const s = stations[stationList.value];
 
   await fetch(SHEET_API, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {"Content-Type":"application/json"},
     body: JSON.stringify({
       action: "save",
       id: s.stationuuid,
       name: s.name,
       url: s.url_resolved || s.url,
       country: s.country,
-      genre: document.getElementById("genre").value,
+      genre: currentGenre || "all",
       time: new Date().toISOString()
     })
   });
 
-  setFavStatus("⭐ Saved!");
+  setStatus("⭐ Saved");
 }
 
-// =========================
-// LOAD FAVORITES TABLE
-// =========================
-async function loadFavorites() {
-  setFavStatus("Loading...");
+/* =========================
+   TABLE RENDER
+========================= */
+function renderTable(list, type) {
+  const tbody = document.querySelector("#table tbody");
+  tbody.innerHTML = "";
 
-  const res = await fetch(SHEET_API + "?action=get");
-  const data = await res.json();
-
-  const table = document.getElementById("favTable");
-  table.innerHTML = "";
-
-  if (!data.ok || !data.data.length) {
-    setFavStatus("No favorites found");
+  if (!list || !list.length) {
+    setStatus("No data found");
     return;
   }
 
-  data.data.forEach(row => {
+  list.forEach((s, i) => {
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
-      <td>${row.name}</td>
-      <td>${row.country}</td>
-      <td>${row.genre}</td>
+      <td>${s.name || ""}</td>
+      <td>${s.country || ""}</td>
+      <td>${s.genre || s.tags || ""}</td>
+      <td>
+        <button onclick="play(${i})">▶</button>
+        ${type === "stations"
+          ? `<button onclick="saveFavorite(${i})">⭐</button>`
+          : ""
+        }
+      </td>
     `;
 
-    tr.onclick = () => {
-      // PLAY FAVORITE DIRECTLY
-      player.src = row.url;
-      player.play();
-    };
-
-    table.appendChild(tr);
+    tbody.appendChild(tr);
   });
-
-  setFavStatus(`Loaded ${data.data.length} favorites`);
 }
 
-// =========================
-// STATUS HELPERS
-// =========================
-function setStationStatus(t) {
-  document.getElementById("stationStatus").innerText = t;
+/* =========================
+   PLAY ENGINE (FIXED)
+========================= */
+function play(i) {
+  const item = (mode === "stations") ? stations[i] : favorites[i];
+  if (!item) return;
+
+  const player = document.getElementById("player");
+  player.src = item.url_resolved || item.url;
+  player.play();
 }
 
-function setFavStatus(t) {
-  document.getElementById("favStatus").innerText = t;
+/* =========================
+   FILTER + PAGINATION
+========================= */
+function applyFilter() {
+  currentGenre = document.getElementById("genre").value.trim();
+  page = 0;
+  loadStations();
 }
 
-// INIT
+function nextPage() {
+  page++;
+  loadStations();
+}
+
+function prevPage() {
+  if (page > 0) page--;
+  loadStations();
+}
+
+/* =========================
+   VIEW SWITCH
+========================= */
+function showStations() {
+  loadStations();
+}
+
+function showFavs() {
+  loadFavorites();
+}
+
+/* =========================
+   HELPERS
+========================= */
+function setStatus(msg) {
+  document.getElementById("status").textContent = msg;
+}
+
+function parseTSV(text) {
+  return text.trim().split("\n").map(l => {
+    const p = l.split("\t");
+    return {
+      id: p[0],
+      name: p[1],
+      url: p[2],
+      country: p[3],
+      genre: p[4],
+      time: p[5]
+    };
+  });
+}
+
+/* =========================
+   INIT
+========================= */
 loadStations();
-loadFavorites();
 
 </script>
 
