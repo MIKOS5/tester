@@ -250,6 +250,7 @@ let stations = [];
 let allStations = [];
 let currentList = [];
 let currentIndex = -1;
+
 let page = 0;
 const limit = 50;
 
@@ -257,7 +258,7 @@ let favorites = [];
 let favoriteIds = new Set();
 let isPlaying = false;
 
-/* ================= FIXED FAVORITES ================= */
+/* ================= FAVORITES ================= */
 
 function saveFavorites(){
   localStorage.setItem("radio_favorites", JSON.stringify(favorites));
@@ -324,20 +325,27 @@ function clearFavorites(){
 
 async function loadStations(){
 
-  setStatus("Loading...");
+  setStatus("Loading stations...");
 
-  const res = await fetch(
-    `${API}?countrycode=US&limit=${limit}&offset=${page*limit}&hidebroken=true`
-  );
+  try{
 
-  const data = await res.json();
+    const res = await fetch(
+      `${API}?countrycode=US&limit=${limit}&offset=${page*limit}&hidebroken=true`
+    );
 
-  stations = data;
-  allStations = [...data];
-  currentList = stations;
+    const data = await res.json();
 
-  render();
-  setStatus(`Loaded ${stations.length}`);
+    stations = data;
+    allStations = data;
+    currentList = stations;
+
+    render();
+
+    setStatus(`Loaded ${stations.length} stations (Page ${page+1})`);
+
+  }catch(err){
+    setStatus("Failed loading stations");
+  }
 }
 
 /* ================= PLAYER ================= */
@@ -358,7 +366,6 @@ function playStation(id){
   player.play();
 
   isPlaying = true;
-
   document.getElementById("playBtn").textContent = "⏸";
 
   document.getElementById("npName").textContent = item.name;
@@ -385,17 +392,32 @@ function togglePlay(){
 
 function nextStation(){
   if(!currentList.length) return;
-  currentIndex = (currentIndex+1)%currentList.length;
+  currentIndex = (currentIndex + 1) % currentList.length;
   playStation(currentList[currentIndex].stationuuid);
 }
 
 function prevStation(){
   if(!currentList.length) return;
-  currentIndex = (currentIndex-1+currentList.length)%currentList.length;
+  currentIndex = (currentIndex - 1 + currentList.length) % currentList.length;
   playStation(currentList[currentIndex].stationuuid);
 }
 
-/* FILTER */
+/* ================= PAGINATION FIX ================= */
+
+function nextPage(){
+  page++;
+  loadStations();
+}
+
+function prevPage(){
+  if(page > 0){
+    page--;
+    loadStations();
+  }
+}
+
+/* ================= FILTER ================= */
+
 function applyFilter(){
 
   const g = document.getElementById("genre").value.toLowerCase();
@@ -411,7 +433,8 @@ function applyFilter(){
   render();
 }
 
-/* RENDER */
+/* ================= RENDER ================= */
+
 function render(){
 
   const tbody = document.querySelector("#table tbody");
@@ -439,6 +462,9 @@ function render(){
 
   document.getElementById("count").textContent =
     `${currentList.length} stations`;
+
+  document.getElementById("pageInfo").textContent =
+    `Page ${page + 1}`;
 }
 
 /* STATUS */
