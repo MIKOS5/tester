@@ -2,29 +2,33 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>📻RADIOWAVE📻</title>
 
 <style>
 /* =========================
-   GLOBAL MOBILE-FIRST UI
+   GLOBAL UI
 ========================= */
 body {
   margin: 0;
   font-family: Arial, sans-serif;
   background: #0b0f14;
   color: #fff;
-  font-size: 16px;
+  display: flex;
+  height: 100vh;
 }
 
 /* =========================
-   TOP CONTROLS (ANDROID FRIENDLY)
+   SIDEBAR (RADIO CONSOLE)
 ========================= */
 .sidebar {
-  padding: 12px;
+  width: 280px;
   background: #111826;
-  border-bottom: 1px solid #1f2a3a;
+  border-right: 1px solid #1f2a3a;
+  padding: 14px;
+  box-sizing: border-box;
+  overflow-y: auto;
 }
 
 h2 {
@@ -32,17 +36,15 @@ h2 {
   font-size: 20px;
 }
 
-/* INPUTS */
-input, select, button {
+input, button {
   width: 100%;
-  padding: 14px;
+  padding: 12px;
   margin-top: 10px;
   border-radius: 10px;
   border: none;
-  font-size: 16px;
+  font-size: 15px;
 }
 
-/* BIG TOUCH BUTTONS */
 button {
   background: #1e88e5;
   color: white;
@@ -55,52 +57,53 @@ button:active {
 }
 
 /* =========================
-   MAIN LIST (CARD STYLE)
+   PLAYER BOX
 ========================= */
-.main {
+.player-box {
+  margin-top: 14px;
   padding: 12px;
-  padding-bottom: 120px; /* space for player */
-}
-
-.card {
-  background: #121a28;
-  padding: 12px;
-  margin-bottom: 10px;
+  background: #0f1722;
   border-radius: 12px;
   border: 1px solid #1f2a3a;
 }
 
-.card-title {
-  font-size: 16px;
-  font-weight: bold;
-  margin-bottom: 6px;
-}
-
-.card-meta {
+.now-playing {
   font-size: 13px;
-  color: #aaa;
-  margin-bottom: 10px;
+  color: #9ecbff;
+  margin-bottom: 8px;
 }
 
-/* ACTION ROW */
-.actions {
+.controls {
   display: flex;
-  gap: 10px;
+  gap: 8px;
+  margin-top: 8px;
 }
 
-.actions button {
+.controls button {
   flex: 1;
-  padding: 12px;
+  padding: 10px;
   font-size: 14px;
 }
 
+input[type="range"] {
+  width: 100%;
+  margin-top: 10px;
+}
+
 /* =========================
-   TOP BAR
+   MAIN AREA
 ========================= */
+.main {
+  flex: 1;
+  padding: 14px;
+  overflow-y: auto;
+}
+
+/* TOP BAR */
 .topbar {
   display: flex;
   gap: 8px;
-  padding: 10px 0;
+  margin-bottom: 10px;
 }
 
 .smallbtn {
@@ -110,27 +113,61 @@ button:active {
 }
 
 /* =========================
-   FIXED PLAYER (ANDROID STYLE)
+   STATION CARDS
 ========================= */
-.player-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: #0f1722;
-  border-top: 1px solid #1f2a3a;
+.card {
+  background: #121a28;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 12px;
+  border: 1px solid #1f2a3a;
+}
+
+.card-title {
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.card-meta {
+  font-size: 12px;
+  color: #aaa;
+  margin-top: 4px;
+}
+
+.card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.card-actions button {
+  flex: 1;
   padding: 10px;
+  font-size: 13px;
 }
 
-audio {
-  width: 100%;
-}
-
-/* STATUS */
+/* =========================
+   STATUS
+========================= */
 .status {
   font-size: 12px;
   color: #aaa;
-  margin-top: 8px;
+  margin-top: 10px;
+}
+
+/* =========================
+   MOBILE ADAPTATION
+========================= */
+@media (max-width: 768px) {
+  body {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #1f2a3a;
+  }
 }
 </style>
 </head>
@@ -139,15 +176,34 @@ audio {
 
 <!-- ================= SIDEBAR ================= -->
 <div class="sidebar">
-  <h2>RADIOWAVE</h2>
+
+  <h2>📻 RADIOWAVE</h2>
 
   <input id="genre" placeholder="Genre (rock, jazz, pop)" />
-
   <button onclick="applyFilter()">Apply Genre</button>
 
   <div class="topbar">
     <button class="smallbtn" onclick="loadStations()">Refresh</button>
     <button class="smallbtn" onclick="loadFavorites()">Favorites</button>
+  </div>
+
+  <!-- 🎧 PLAYER -->
+  <div class="player-box">
+
+    <div id="nowPlaying" class="now-playing">
+      🎵 Not playing
+    </div>
+
+    <audio id="player"></audio>
+
+    <div class="controls">
+      <button onclick="playPause()">▶/⏸</button>
+      <button onclick="stopAudio()">⏹</button>
+    </div>
+
+    <input type="range" min="0" max="1" step="0.01"
+           value="1" onchange="setVolume(this.value)">
+
   </div>
 
   <div class="status" id="status">Loading...</div>
@@ -160,13 +216,11 @@ audio {
 
 </div>
 
-<!-- ================= PLAYER ================= -->
-<div class="player-bar">
-  <audio id="player" controls autoplay></audio>
-</div>
-
 <script>
 
+/* =========================
+   CONFIG
+========================= */
 const API = "https://all.api.radio-browser.info/json/stations/search";
 const SHEET_API = "https://script.google.com/macros/s/AKfycbzZ5MwOcYUY_bpsUKSxPd810xE8rV_Y3z2GwzPublb_4O60CP8L_lC_V2kqkCQ_JdF5/exec";
 
@@ -204,15 +258,14 @@ async function loadFavorites() {
   const data = await res.json().catch(() => []);
 
   favorites = data.data || data;
-
   mode = "favorites";
-  render(favorites);
 
+  render(favorites);
   setStatus(`Favorites: ${favorites.length}`);
 }
 
 /* =========================
-   SAVE
+   SAVE FAVORITE
 ========================= */
 async function saveFavorite(i) {
   const s = stations[i];
@@ -236,7 +289,7 @@ async function saveFavorite(i) {
 }
 
 /* =========================
-   RENDER CARDS (ANDROID UI)
+   RENDER CARDS
 ========================= */
 function render(list) {
   const el = document.getElementById("list");
@@ -247,11 +300,11 @@ function render(list) {
     div.className = "card";
 
     div.innerHTML = `
-      <div class="card-title">${s.name || "Unknown"}</div>
+      <div class="card-title">${s.name || "Unknown Station"}</div>
       <div class="card-meta">
         ${s.country || ""} • ${s.genre || s.tags || ""}
       </div>
-      <div class="actions">
+      <div class="card-actions">
         <button onclick="play(${i})">▶ Play</button>
         ${mode === "stations"
           ? `<button onclick="saveFavorite(${i})">⭐ Save</button>`
@@ -265,15 +318,38 @@ function render(list) {
 }
 
 /* =========================
-   PLAY
+   PLAY ENGINE
 ========================= */
 function play(i) {
   const item = (mode === "stations") ? stations[i] : favorites[i];
   if (!item) return;
 
   const player = document.getElementById("player");
+  const label = document.getElementById("nowPlaying");
+
   player.src = item.url_resolved || item.url;
   player.play();
+
+  label.textContent = `🎵 ${item.name}`;
+}
+
+/* =========================
+   PLAYER CONTROLS
+========================= */
+function playPause() {
+  const p = document.getElementById("player");
+  p.paused ? p.play() : p.pause();
+}
+
+function stopAudio() {
+  const p = document.getElementById("player");
+  p.pause();
+  p.currentTime = 0;
+  document.getElementById("nowPlaying").textContent = "🎵 Not playing";
+}
+
+function setVolume(v) {
+  document.getElementById("player").volume = v;
 }
 
 /* =========================
