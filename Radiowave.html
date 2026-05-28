@@ -1,0 +1,1500 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8" />
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+/>
+
+<title>📻 RadioWave</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link
+  href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+  rel="stylesheet"
+/>
+
+<style>
+
+:root{
+
+  --bg:#0a0f18;
+  --panel:#121826;
+  --panel2:#182233;
+
+  --line:#263246;
+
+  --text:#ffffff;
+  --muted:#94a3b8;
+
+  --blue:#2793ff;
+  --blue2:#1767d8;
+
+  --green:#17c964;
+
+  --shadow:
+    0 10px 30px rgba(0,0,0,.35);
+
+}
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+
+  margin:0;
+
+  font-family:
+    Inter,
+    system-ui,
+    sans-serif;
+
+  background:
+    radial-gradient(
+      circle at top,
+      #15243b,
+      #0a0f18 45%
+    );
+
+  color:var(--text);
+
+  display:flex;
+
+  height:100vh;
+
+  overflow:hidden;
+
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+
+.sidebar{
+
+  width:320px;
+
+  background:
+    rgba(18,24,38,.92);
+
+  border-right:
+    1px solid var(--line);
+
+  backdrop-filter:blur(14px);
+
+  padding:20px;
+
+  overflow:auto;
+
+  box-shadow:var(--shadow);
+
+}
+
+.logo{
+
+  font-size:28px;
+
+  font-weight:800;
+
+  margin-bottom:4px;
+
+  letter-spacing:-1px;
+
+}
+
+.logo span{
+  color:var(--blue);
+}
+
+.subtitle{
+
+  color:var(--muted);
+
+  font-size:13px;
+
+  margin-bottom:20px;
+
+}
+
+/* =========================
+   SEARCH
+========================= */
+
+.search-wrap{
+
+  display:flex;
+
+  gap:10px;
+
+}
+
+input{
+
+  width:100%;
+
+  border:none;
+
+  outline:none;
+
+  background:#0f1724;
+
+  color:white;
+
+  border-radius:14px;
+
+  padding:14px;
+
+  font-size:14px;
+
+  border:1px solid #1f2a3a;
+
+  transition:.2s;
+
+}
+
+input:focus{
+
+  border-color:var(--blue);
+
+  box-shadow:
+    0 0 0 3px rgba(39,147,255,.15);
+
+}
+
+/* =========================
+   BUTTONS
+========================= */
+
+button{
+
+  border:none;
+
+  border-radius:14px;
+
+  padding:13px 14px;
+
+  font-weight:700;
+
+  cursor:pointer;
+
+  color:white;
+
+  background:
+    linear-gradient(
+      180deg,
+      var(--blue),
+      var(--blue2)
+    );
+
+  transition:
+    transform .12s,
+    opacity .15s;
+
+  box-shadow:
+    0 4px 14px rgba(0,0,0,.25);
+
+}
+
+button:hover{
+
+  transform:translateY(-1px);
+
+  opacity:.95;
+
+}
+
+button:active{
+  transform:scale(.98);
+}
+
+.side-buttons{
+
+  display:grid;
+
+  grid-template-columns:1fr 1fr;
+
+  gap:10px;
+
+  margin-top:14px;
+
+}
+
+.main-btn{
+
+  width:100%;
+
+  margin-top:12px;
+
+}
+
+/* =========================
+   PLAYER
+========================= */
+
+.radio-player{
+
+  margin-top:22px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #182233,
+      #111827
+    );
+
+  border-radius:22px;
+
+  border:1px solid #263246;
+
+  padding:18px;
+
+  box-shadow:var(--shadow);
+
+}
+
+.player-top{
+
+  display:flex;
+
+  align-items:center;
+
+  gap:14px;
+
+}
+
+.station-art{
+
+  width:58px;
+  height:58px;
+
+  border-radius:16px;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--blue),
+      #6d5dfc
+    );
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  font-size:26px;
+
+  flex-shrink:0;
+
+}
+
+.now-playing{
+
+  flex:1;
+  min-width:0;
+}
+
+#npName{
+
+  font-size:16px;
+
+  font-weight:700;
+
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+
+}
+
+#npMeta{
+
+  margin-top:4px;
+
+  color:var(--muted);
+
+  font-size:12px;
+
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+
+}
+
+.live{
+
+  margin-top:12px;
+
+  display:inline-flex;
+
+  align-items:center;
+
+  gap:6px;
+
+  font-size:12px;
+
+  color:var(--green);
+
+}
+
+.live-dot{
+
+  width:8px;
+  height:8px;
+
+  background:var(--green);
+
+  border-radius:50%;
+
+  animation:pulse 1.5s infinite;
+}
+
+@keyframes pulse{
+
+  0%{
+    transform:scale(1);
+    opacity:1;
+  }
+
+  50%{
+    transform:scale(1.7);
+    opacity:.5;
+  }
+
+  100%{
+    transform:scale(1);
+    opacity:1;
+  }
+
+}
+
+.controls{
+
+  display:grid;
+
+  grid-template-columns:
+    repeat(4,1fr);
+
+  gap:10px;
+
+  margin-top:16px;
+
+}
+
+.controls button{
+
+  padding:12px;
+
+  font-size:16px;
+
+}
+
+/* =========================
+   VOLUME
+========================= */
+
+.volume-wrap{
+
+  margin-top:18px;
+
+}
+
+.volume-wrap label{
+
+  display:block;
+
+  font-size:12px;
+
+  color:var(--muted);
+
+  margin-bottom:6px;
+
+}
+
+input[type="range"]{
+
+  padding:0;
+
+  background:none;
+
+  border:none;
+
+}
+
+/* =========================
+   STATUS
+========================= */
+
+.status{
+
+  margin-top:18px;
+
+  font-size:13px;
+
+  color:var(--muted);
+
+}
+
+/* =========================
+   MAIN
+========================= */
+
+.main{
+
+  flex:1;
+
+  padding:22px;
+
+  overflow:auto;
+
+}
+
+.topbar{
+
+  display:flex;
+
+  justify-content:space-between;
+
+  align-items:center;
+
+  margin-bottom:18px;
+
+  gap:14px;
+
+}
+
+.page-title{
+
+  font-size:28px;
+
+  font-weight:800;
+
+  letter-spacing:-1px;
+
+}
+
+.count{
+
+  color:var(--muted);
+
+  font-size:14px;
+
+}
+
+/* =========================
+   TABLE
+========================= */
+
+.table-wrap{
+
+  background:
+    rgba(18,24,38,.92);
+
+  border-radius:24px;
+
+  overflow:hidden;
+
+  border:1px solid var(--line);
+
+  box-shadow:var(--shadow);
+
+}
+
+table{
+
+  width:100%;
+
+  border-collapse:collapse;
+
+}
+
+th{
+
+  background:#101725;
+
+  color:#8fb6ff;
+
+  font-size:12px;
+
+  letter-spacing:.7px;
+
+  text-transform:uppercase;
+
+  text-align:left;
+
+  padding:18px;
+
+}
+
+td{
+
+  padding:18px;
+
+  border-top:1px solid #1c2737;
+
+}
+
+tr{
+
+  transition:.15s;
+}
+
+tr:hover{
+
+  background:#182233;
+
+}
+
+.station-name{
+
+  font-weight:700;
+
+}
+
+.station-tags{
+
+  color:var(--muted);
+
+  font-size:13px;
+
+}
+
+.action-buttons{
+
+  display:flex;
+
+  gap:8px;
+
+}
+
+.small-btn{
+
+  width:auto;
+
+  padding:10px 14px;
+
+  font-size:13px;
+
+}
+
+/* =========================
+   MOBILE CARDS
+========================= */
+
+#mobileList{
+  display:none;
+}
+
+.card{
+
+  background:
+    rgba(18,24,38,.95);
+
+  border:1px solid var(--line);
+
+  border-radius:18px;
+
+  padding:16px;
+
+  margin-bottom:14px;
+
+  box-shadow:var(--shadow);
+
+}
+
+.card-title{
+
+  font-weight:700;
+
+  font-size:16px;
+
+}
+
+.card-meta{
+
+  margin-top:6px;
+
+  color:var(--muted);
+
+  font-size:13px;
+
+}
+
+.card-buttons{
+
+  display:flex;
+
+  gap:10px;
+
+  margin-top:14px;
+
+}
+
+.card-buttons button{
+  flex:1;
+}
+
+/* =========================
+   SCROLLBAR
+========================= */
+
+::-webkit-scrollbar{
+  width:10px;
+}
+
+::-webkit-scrollbar-thumb{
+
+  background:#243246;
+
+  border-radius:20px;
+
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width:900px){
+
+  body{
+    flex-direction:column;
+    height:auto;
+  }
+
+  .sidebar{
+
+    width:100%;
+
+    border-right:none;
+
+    border-bottom:1px solid var(--line);
+
+  }
+
+  .main{
+    padding:14px;
+  }
+
+  .table-wrap{
+    display:none;
+  }
+
+  #mobileList{
+    display:block;
+  }
+
+  .controls{
+
+    grid-template-columns:
+      repeat(2,1fr);
+
+  }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- =========================
+     SIDEBAR
+========================= -->
+
+<div class="sidebar">
+
+  <div class="logo">
+    📻 Radio<span>Wave</span>
+  </div>
+
+  <div class="subtitle">
+    Stream live radio stations worldwide
+  </div>
+
+  <div class="search-wrap">
+    <input
+      id="genre"
+      placeholder="Search genre..."
+    />
+  </div>
+
+  <button
+    class="main-btn"
+    onclick="applyFilter()"
+  >
+    🔎 Search Stations
+  </button>
+
+  <div class="side-buttons">
+
+    <button onclick="prevPage()">
+      ⬅ Prev
+    </button>
+
+    <button onclick="nextPage()">
+      Next ➜
+    </button>
+
+    <button onclick="loadStations()">
+      🔄 Refresh
+    </button>
+
+    <button onclick="loadFavorites()">
+      ⭐ Favorites
+    </button>
+
+  </div>
+
+  <!-- PLAYER -->
+
+  <div class="radio-player">
+
+    <div class="player-top">
+
+      <div class="station-art">
+        📻
+      </div>
+
+      <div class="now-playing">
+
+        <div id="npName">
+          Not Playing
+        </div>
+
+        <div id="npMeta">
+          Select a station
+        </div>
+
+        <div class="live">
+          <div class="live-dot"></div>
+          LIVE RADIO
+        </div>
+
+      </div>
+
+    </div>
+
+    <audio id="player"></audio>
+
+    <div class="controls">
+
+      <button onclick="prevStation()">
+        ⏮
+      </button>
+
+      <button id="playBtn" onclick="togglePlay()">
+        ▶
+      </button>
+
+      <button onclick="nextStation()">
+        ⏭
+      </button>
+
+      <button onclick="toggleFavCurrent()">
+        ⭐
+      </button>
+
+    </div>
+
+    <div class="volume-wrap">
+
+      <label>
+        Volume
+      </label>
+
+      <input
+        type="range"
+        min="0"
+        max="1"
+        step="0.01"
+        value="1"
+        onchange="setVolume(this.value)"
+      />
+
+    </div>
+
+  </div>
+
+  <div class="status" id="status">
+    Loading stations...
+  </div>
+
+</div>
+
+<!-- =========================
+     MAIN
+========================= -->
+
+<div class="main">
+
+  <div class="topbar">
+
+    <div>
+
+      <div class="page-title">
+        United States Radio
+      </div>
+
+      <div class="count" id="count">
+        0 stations loaded
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- TABLE -->
+
+  <div class="table-wrap">
+
+    <table id="table">
+
+      <thead>
+
+        <tr>
+          <th>Station</th>
+          <th>Country</th>
+          <th>Genre</th>
+          <th>Actions</th>
+        </tr>
+
+      </thead>
+
+      <tbody></tbody>
+
+    </table>
+
+  </div>
+
+  <!-- MOBILE -->
+
+  <div id="mobileList"></div>
+
+</div>
+
+<script>
+
+/* =========================
+   API
+========================= */
+
+const API =
+  "https://all.api.radio-browser.info/json/stations/search";
+
+const SHEET_API =
+  "https://script.google.com/macros/s/AKfycbzZ5MwOcYUY_bpsUKSxPd810xE8rV_Y3z2GwzPublb_4O60CP8L_lC_V2kqkCQ_JdF5/exec";
+
+/* =========================
+   STATE
+========================= */
+
+let stations = [];
+let allStations = [];
+
+let favorites = [];
+
+let favoriteIds =
+  new Set();
+
+let currentList = [];
+
+let currentIndex = -1;
+
+let page = 0;
+
+const limit = 50;
+
+let isPlaying = false;
+
+/* =========================
+   LOAD STATIONS
+========================= */
+
+async function loadStations(){
+
+  setStatus("Loading stations...");
+
+  try{
+
+    const offset =
+      page * limit;
+
+    const res =
+      await fetch(
+        `${API}?countrycode=US&limit=${limit}&offset=${offset}&hidebroken=true`
+      );
+
+    const data =
+      await res.json();
+
+    stations = data;
+    allStations = [...data];
+
+    currentList = stations;
+
+    render();
+
+    setStatus(
+      `Loaded ${stations.length} stations`
+    );
+
+  }catch(err){
+
+    console.error(err);
+
+    setStatus(
+      "Failed to load stations"
+    );
+
+  }
+
+}
+
+/* =========================
+   FAVORITES
+========================= */
+
+async function loadFavorites(){
+
+  setStatus(
+    "Loading favorites..."
+  );
+
+  try{
+
+    const res =
+      await fetch(
+        SHEET_API + "?action=get"
+      );
+
+    const data =
+      await res.json()
+      .catch(()=>[]);
+
+    favorites =
+      data.data || data;
+
+    favoriteIds =
+      new Set(
+        favorites.map(
+          f => f.id || f.stationuuid
+        )
+      );
+
+    currentList = favorites;
+
+    render();
+
+    setStatus(
+      `Favorites loaded (${favorites.length})`
+    );
+
+  }catch(err){
+
+    setStatus(
+      "Failed loading favorites"
+    );
+
+  }
+
+}
+
+/* =========================
+   PLAY STATION
+========================= */
+
+function playStation(id){
+
+  const item =
+    currentList.find(s =>
+      s.stationuuid === id ||
+      s.id === id
+    );
+
+  if(!item){
+    return;
+  }
+
+  currentIndex =
+    currentList.findIndex(s =>
+      s.stationuuid === id ||
+      s.id === id
+    );
+
+  const player =
+    document.getElementById("player");
+
+  player.src =
+    item.url_resolved ||
+    item.url ||
+    "";
+
+  player.play();
+
+  isPlaying = true;
+
+  document.getElementById(
+    "playBtn"
+  ).textContent = "⏸";
+
+  player.onerror = () => {
+    setStatus(
+      "❌ Stream unavailable"
+    );
+  };
+
+  player.onplaying = () => {
+    setStatus(
+      "🎵 Live radio playing"
+    );
+  };
+
+  updateNowPlaying();
+
+}
+
+/* =========================
+   NOW PLAYING
+========================= */
+
+function updateNowPlaying(){
+
+  const item =
+    currentList[currentIndex];
+
+  if(!item) return;
+
+  document.getElementById(
+    "npName"
+  ).textContent =
+    item.name || "Unknown";
+
+  document.getElementById(
+    "npMeta"
+  ).textContent =
+    `${item.country || ""} • ${item.tags || "Radio"}`;
+
+}
+
+/* =========================
+   PLAY / PAUSE
+========================= */
+
+function togglePlay(){
+
+  const player =
+    document.getElementById("player");
+
+  const btn =
+    document.getElementById("playBtn");
+
+  if(!player.src) return;
+
+  if(isPlaying){
+
+    player.pause();
+
+    isPlaying = false;
+
+    btn.textContent = "▶";
+
+    setStatus("Paused");
+
+  }else{
+
+    player.play();
+
+    isPlaying = true;
+
+    btn.textContent = "⏸";
+
+    setStatus("Playing");
+
+  }
+
+}
+
+/* =========================
+   NEXT / PREV
+========================= */
+
+function nextStation(){
+
+  if(!currentList.length) return;
+
+  currentIndex =
+    (currentIndex + 1)
+    % currentList.length;
+
+  const item =
+    currentList[currentIndex];
+
+  playStation(
+    item.stationuuid || item.id
+  );
+
+}
+
+function prevStation(){
+
+  if(!currentList.length) return;
+
+  currentIndex =
+    (currentIndex - 1 + currentList.length)
+    % currentList.length;
+
+  const item =
+    currentList[currentIndex];
+
+  playStation(
+    item.stationuuid || item.id
+  );
+
+}
+
+/* =========================
+   FAVORITE
+========================= */
+
+async function toggleFavorite(s){
+
+  const id =
+    s.stationuuid || s.id;
+
+  if(!id) return;
+
+  const exists =
+    favoriteIds.has(id);
+
+  if(exists){
+
+    setStatus(
+      "Already saved"
+    );
+
+    return;
+
+  }
+
+  await fetch(SHEET_API,{
+
+    method:"POST",
+
+    body:new URLSearchParams({
+
+      action:"save",
+
+      id:id,
+
+      name:s.name || "",
+
+      url:
+        s.url_resolved ||
+        s.url ||
+        "",
+
+      country:
+        s.country || "",
+
+      genre:
+        s.tags || "",
+
+      time:
+        new Date().toISOString()
+
+    })
+
+  });
+
+  favoriteIds.add(id);
+
+  setStatus(
+    "⭐ Added to favorites"
+  );
+
+  render();
+
+}
+
+function toggleFavCurrent(){
+
+  const item =
+    currentList[currentIndex];
+
+  if(!item) return;
+
+  toggleFavorite(item);
+
+}
+
+/* =========================
+   FILTER
+========================= */
+
+function applyFilter(){
+
+  const g =
+    document.getElementById("genre")
+    .value
+    .toLowerCase();
+
+  if(!g){
+
+    stations =
+      [...allStations];
+
+  }else{
+
+    stations =
+      allStations.filter(s =>
+        (s.tags || "")
+        .toLowerCase()
+        .includes(g)
+      );
+
+  }
+
+  currentList = stations;
+
+  render();
+
+  setStatus(
+    `Found ${stations.length} stations`
+  );
+
+}
+
+/* =========================
+   PAGINATION
+========================= */
+
+function nextPage(){
+
+  page++;
+
+  loadStations();
+
+}
+
+function prevPage(){
+
+  if(page > 0){
+    page--;
+  }
+
+  loadStations();
+
+}
+
+/* =========================
+   VOLUME
+========================= */
+
+function setVolume(v){
+
+  document.getElementById(
+    "player"
+  ).volume = v;
+
+}
+
+/* =========================
+   RENDER
+========================= */
+
+function render(){
+
+  renderTable();
+
+  renderMobile();
+
+  document.getElementById(
+    "count"
+  ).textContent =
+    `${currentList.length} stations loaded`;
+
+}
+
+/* =========================
+   TABLE
+========================= */
+
+function renderTable(){
+
+  const tbody =
+    document.querySelector(
+      "#table tbody"
+    );
+
+  tbody.innerHTML = "";
+
+  currentList.forEach(s => {
+
+    const id =
+      s.stationuuid || s.id;
+
+    const isFav =
+      favoriteIds.has(id);
+
+    const tr =
+      document.createElement("tr");
+
+    tr.innerHTML = `
+
+      <td>
+
+        <div class="station-name">
+          ${s.name || "Unknown"}
+        </div>
+
+      </td>
+
+      <td>
+        ${s.country || ""}
+      </td>
+
+      <td>
+
+        <div class="station-tags">
+          ${s.tags || "Radio"}
+        </div>
+
+      </td>
+
+      <td>
+
+        <div class="action-buttons">
+
+          <button
+            class="small-btn"
+            onclick="playStation('${id}')"
+          >
+            ▶ Play
+          </button>
+
+          <button
+            class="small-btn"
+            onclick='toggleFavorite(${JSON.stringify(s)})'
+          >
+            ${isFav ? "⭐ Saved" : "☆ Favorite"}
+          </button>
+
+        </div>
+
+      </td>
+
+    `;
+
+    tbody.appendChild(tr);
+
+  });
+
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+function renderMobile(){
+
+  const el =
+    document.getElementById(
+      "mobileList"
+    );
+
+  el.innerHTML = "";
+
+  currentList.forEach(s => {
+
+    const id =
+      s.stationuuid || s.id;
+
+    const isFav =
+      favoriteIds.has(id);
+
+    const div =
+      document.createElement("div");
+
+    div.className = "card";
+
+    div.innerHTML = `
+
+      <div class="card-title">
+        ${s.name || "Unknown"}
+      </div>
+
+      <div class="card-meta">
+        ${s.country || ""} • ${s.tags || "Radio"}
+      </div>
+
+      <div class="card-buttons">
+
+        <button
+          onclick="playStation('${id}')"
+        >
+          ▶ Play
+        </button>
+
+        <button
+          onclick='toggleFavorite(${JSON.stringify(s)})'
+        >
+          ${isFav ? "⭐ Saved" : "☆ Favorite"}
+        </button>
+
+      </div>
+
+    `;
+
+    el.appendChild(div);
+
+  });
+
+}
+
+/* =========================
+   STATUS
+========================= */
+
+function setStatus(t){
+
+  document.getElementById(
+    "status"
+  ).textContent = t;
+
+}
+
+/* =========================
+   ENTER KEY SEARCH
+========================= */
+
+document
+.getElementById("genre")
+.addEventListener(
+  "keydown",
+  e => {
+
+    if(e.key === "Enter"){
+
+      applyFilter();
+
+    }
+
+  }
+);
+
+/* =========================
+   INIT
+========================= */
+
+loadStations();
+
+</script>
+
+</body>
+</html>
+```
