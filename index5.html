@@ -246,7 +246,9 @@ async function loadFavorites() {
   const data = await res.json().catch(()=>[]);
 
   favorites = data.data || data;
-  favoriteIds = new Set(favorites.map(f => f.id));
+
+  // FIXED: consistent ID mapping
+  favoriteIds = new Set(favorites.map(f => f.id || f.stationuuid));
 
   mode = "favorites";
   currentList = favorites;
@@ -258,13 +260,20 @@ async function loadFavorites() {
 
 /* PLAY */
 function playStation(id) {
+  const item = currentList.find(s => s.stationuuid === id);
+
+  if (!item) {
+    console.log("Station not found:", id);
+    return;
+  }
+
   currentIndex = currentList.findIndex(s => s.stationuuid === id);
-  const item = currentList[currentIndex];
-  if (!item) return;
 
   const player = document.getElementById("player");
   player.src = item.url_resolved || item.url;
   player.play();
+
+  isPlaying = true;
 
   updateNowPlaying();
 }
@@ -307,7 +316,7 @@ function prevStation() {
   playStation(currentList[currentIndex].stationuuid);
 }
 
-/* ⭐ FIXED FAVORITE (SAFE + SIMPLE) */
+/* ⭐ FAVORITE */
 async function toggleFavorite(s) {
   if (!s || !s.stationuuid) return;
 
@@ -336,7 +345,7 @@ async function toggleFavorite(s) {
   render();
 }
 
-/* FAVORITE CURRENT */
+/* CURRENT FAVORITE */
 function toggleFavCurrent() {
   const item = currentList[currentIndex];
   if (!item) return;
@@ -370,7 +379,7 @@ function render() {
   renderMobile();
 }
 
-/* TABLE */
+/* TABLE (FIXED BUTTONS) */
 function renderTable() {
   const tbody = document.querySelector("#table tbody");
   tbody.innerHTML = "";
@@ -386,6 +395,7 @@ function renderTable() {
       <td>${s.tags || ""}</td>
       <td>
         <button onclick="playStation('${s.stationuuid}')">▶</button>
+        <button onclick="toggleFavorite(currentList.find(x => x.stationuuid==='${s.stationuuid}'))">
           ${isFav ? "⭐" : "☆"}
         </button>
       </td>
