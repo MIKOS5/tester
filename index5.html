@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>📻RADIOWAVE</title>
+<title>📻RADIOWAVE📻</title>
 
 <style>
 body {
@@ -16,7 +16,7 @@ body {
   height: 100vh;
 }
 
-/* ================= SIDEBAR ================= */
+/* SIDEBAR */
 .sidebar {
   width: 240px;
   background: #111826;
@@ -25,9 +25,7 @@ body {
   border-right: 1px solid #1f2a3a;
 }
 
-h2 {
-  margin: 0 0 10px;
-}
+h2 { margin: 0 0 10px; }
 
 input, button {
   width: 100%;
@@ -49,14 +47,13 @@ button:hover {
   background: #1565c0;
 }
 
-/* ================= MAIN ================= */
+/* MAIN */
 .main {
   flex: 1;
   padding: 16px;
   overflow: auto;
 }
 
-/* TOP BAR */
 .topbar {
   display: flex;
   gap: 10px;
@@ -69,7 +66,7 @@ button:hover {
   font-size: 13px;
 }
 
-/* ================= TABLE MODE (DESKTOP) ================= */
+/* TABLE */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -84,7 +81,7 @@ tr:hover {
   background: #182233;
 }
 
-/* ================= CARD MODE (MOBILE) ================= */
+/* MOBILE CARDS */
 .card {
   background: #121a28;
   padding: 12px;
@@ -129,11 +126,9 @@ audio {
   margin-top: 10px;
 }
 
-/* ================= RESPONSIVE SWITCH ================= */
+/* RESPONSIVE */
 @media (max-width: 768px) {
-  body {
-    flex-direction: column;
-  }
+  body { flex-direction: column; }
 
   .sidebar {
     width: 100%;
@@ -141,19 +136,7 @@ audio {
     border-bottom: 1px solid #1f2a3a;
   }
 
-  table {
-    display: none; /* hide table on mobile */
-  }
-
-  #mobileList {
-    display: block;
-  }
-}
-
-@media (min-width: 769px) {
-  #mobileList {
-    display: none;
-  }
+  table { display: none; }
 }
 </style>
 </head>
@@ -164,10 +147,14 @@ audio {
 <div class="sidebar">
   <h2>RADIOWAVE</h2>
 
-  <input id="search" placeholder="Search stations..." oninput="filterList()" />
   <input id="genre" placeholder="Genre filter" />
 
   <button onclick="applyFilter()">Apply Genre</button>
+
+  <!-- PAGINATION -->
+  <button onclick="prevPage()">⬅ Prev 50</button>
+  <button onclick="nextPage()">Next 50 ➜</button>
+
   <button onclick="loadStations()">Refresh</button>
   <button onclick="loadFavorites()">Favorites</button>
 
@@ -182,20 +169,20 @@ audio {
     <button class="smallbtn" onclick="loadFavorites()">Favs</button>
   </div>
 
-  <!-- DESKTOP TABLE -->
+  <!-- TABLE -->
   <table id="table">
     <thead>
       <tr>
         <th>Name</th>
         <th>Country</th>
         <th>Genre</th>
-        <th>Action</th>
+        <th>Play</th>
       </tr>
     </thead>
     <tbody></tbody>
   </table>
 
-  <!-- MOBILE CARDS -->
+  <!-- MOBILE -->
   <div id="mobileList"></div>
 
 </div>
@@ -213,20 +200,29 @@ const SHEET_API = "https://script.google.com/macros/s/AKfycbzZ5MwOcYUY_bpsUKSxPd
 let stations = [];
 let favorites = [];
 let mode = "stations";
-let activeIndex = -1;
+let activeStationId = null;
 
-/* ================= LOAD ================= */
+let page = 0;
+const limit = 50;
+
+/* LOAD STATIONS */
 async function loadStations() {
   mode = "stations";
   setStatus("Loading stations...");
 
-  const res = await fetch(`${API}?countrycode=US&limit=50&hidebroken=true`);
+  const offset = page * limit;
+
+  const res = await fetch(
+    `${API}?countrycode=US&limit=${limit}&offset=${offset}&hidebroken=true`
+  );
+
   stations = await res.json();
+  activeStationId = null;
 
   render();
 }
 
-/* ================= FAVORITES ================= */
+/* FAVORITES */
 async function loadFavorites() {
   setStatus("Loading favorites...");
 
@@ -240,23 +236,38 @@ async function loadFavorites() {
   setStatus(`Favorites: ${favorites.length}`);
 }
 
-/* ================= PLAY ================= */
-function play(i) {
+/* PLAY FIXED (NO PAGE BUGS) */
+function playStation(id) {
   const list = mode === "stations" ? stations : favorites;
-  const item = list[i];
+  const item = list.find(s => s.stationuuid === id);
 
   if (!item) return;
 
-  activeIndex = i;
+  activeStationId = id;
 
   const player = document.getElementById("player");
   player.src = item.url_resolved || item.url;
   player.play();
 
-  render(); // refresh highlight
+  render();
 }
 
-/* ================= FILTER ================= */
+/* PAGINATION */
+function nextPage() {
+  page++;
+  loadStations();
+  setStatus("Page " + (page + 1));
+}
+
+function prevPage() {
+  if (page > 0) {
+    page--;
+    loadStations();
+    setStatus("Page " + (page + 1));
+  }
+}
+
+/* FILTER */
 function applyFilter() {
   const g = document.getElementById("genre").value.trim().toLowerCase();
   stations = stations.filter(s =>
@@ -265,40 +276,27 @@ function applyFilter() {
   render();
 }
 
-/* ================= SEARCH ================= */
-function filterList() {
-  const q = document.getElementById("search").value.toLowerCase();
-
-  const list = mode === "stations" ? stations : favorites;
-
-  const filtered = list.filter(s =>
-    (s.name || "").toLowerCase().includes(q)
-  );
-
-  render(filtered);
-}
-
-/* ================= RENDER ================= */
-function render(customList = null) {
-  const list = customList || (mode === "stations" ? stations : favorites);
-
-  renderTable(list);
-  renderMobile(list);
+/* RENDER */
+function render() {
+  renderTable();
+  renderMobile();
 }
 
 /* TABLE */
-function renderTable(list) {
+function renderTable() {
   const tbody = document.querySelector("#table tbody");
   tbody.innerHTML = "";
 
-  list.forEach((s, i) => {
+  const list = mode === "stations" ? stations : favorites;
+
+  list.forEach(s => {
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
       <td>${s.name || ""}</td>
       <td>${s.country || ""}</td>
       <td>${s.tags || ""}</td>
-      <td><button onclick="play(${i})">▶</button></td>
+      <td><button onclick="playStation('${s.stationuuid}')">▶</button></td>
     `;
 
     tbody.appendChild(tr);
@@ -306,18 +304,20 @@ function renderTable(list) {
 }
 
 /* MOBILE CARDS */
-function renderMobile(list) {
+function renderMobile() {
   const el = document.getElementById("mobileList");
   el.innerHTML = "";
 
-  list.forEach((s, i) => {
+  const list = mode === "stations" ? stations : favorites;
+
+  list.forEach(s => {
     const div = document.createElement("div");
-    div.className = "card" + (i === activeIndex ? " active" : "");
+    div.className = "card" + (s.stationuuid === activeStationId ? " active" : "");
 
     div.innerHTML = `
-      <div class="card-title">${s.name}</div>
+      <div class="card-title">${s.name || ""}</div>
       <div class="card-meta">${s.country || ""} • ${s.tags || ""}</div>
-      <button onclick="play(${i})">▶ Play</button>
+      <button onclick="playStation('${s.stationuuid}')">▶ Play</button>
     `;
 
     el.appendChild(div);
