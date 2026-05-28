@@ -4,19 +4,19 @@
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
 <title>📻 RadioWave Pro (Offline)</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 
 <style>
 
-/* ===== YOUR CSS UNCHANGED ===== */
 :root{
   --bg:#09111d;
   --panel:#111827;
-  --panel2:#182233;
   --line:#253347;
   --text:#ffffff;
   --muted:#93a4bb;
@@ -38,17 +38,169 @@ body{
   overflow:hidden;
 }
 
-/* keep ALL your existing CSS exactly as-is */
-</style>
+/* SIDEBAR */
+.sidebar{
+  width:330px;
+  background:rgba(17,24,39,.92);
+  backdrop-filter:blur(16px);
+  border-right:1px solid var(--line);
+  padding:22px;
+  overflow:auto;
+  box-shadow:var(--shadow);
+}
 
+.logo{
+  font-size:32px;
+  font-weight:800;
+}
+
+.logo span{color:var(--blue);}
+
+.subtitle{
+  color:var(--muted);
+  font-size:13px;
+  margin-bottom:20px;
+}
+
+/* INPUT */
+.search{
+  width:100%;
+  padding:14px;
+  border-radius:14px;
+  border:1px solid #1e293b;
+  background:#0e1725;
+  color:white;
+}
+
+/* BUTTONS */
+button{
+  border:none;
+  border-radius:12px;
+  padding:12px;
+  font-weight:700;
+  cursor:pointer;
+  color:white;
+  background:linear-gradient(180deg,var(--blue),var(--blue2));
+  transition:.15s;
+}
+
+button:hover{transform:translateY(-1px);}
+
+.main-btn{width:100%; margin-top:10px;}
+
+.grid-buttons{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:12px;
+}
+
+/* PLAYER */
+.radio-player{
+  margin-top:20px;
+  padding:16px;
+  border-radius:18px;
+  background:linear-gradient(180deg,#182233,#121926);
+  border:1px solid var(--line);
+}
+
+.station-icon{
+  width:55px;height:55px;
+  border-radius:14px;
+  background:linear-gradient(135deg,var(--blue),#6a5cff);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.controls{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin-top:14px;
+}
+
+/* MAIN */
+.main{
+  flex:1;
+  padding:24px;
+  overflow:auto;
+}
+
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:18px;
+}
+
+.page-title{
+  font-size:30px;
+  font-weight:800;
+}
+
+/* TABLE */
+.table-wrap{
+  border-radius:18px;
+  overflow:hidden;
+  border:1px solid var(--line);
+  background:rgba(17,24,39,.92);
+}
+
+th{
+  text-align:left;
+  padding:16px;
+  font-size:12px;
+  color:#8eb5ff;
+  background:#0f1725;
+}
+
+td{
+  padding:16px;
+  border-top:1px solid #1d2938;
+}
+
+/* MOBILE */
+#mobileList{display:none;}
+
+.card{
+  background:rgba(17,24,39,.94);
+  padding:16px;
+  border-radius:16px;
+  margin-bottom:12px;
+  border:1px solid var(--line);
+}
+
+.card-buttons{
+  display:flex;
+  gap:10px;
+  margin-top:10px;
+}
+
+/* STATUS */
+.status{
+  margin-top:16px;
+  font-size:13px;
+  color:var(--muted);
+}
+
+/* MOBILE */
+@media(max-width:900px){
+  body{flex-direction:column;}
+  .sidebar{width:100%;}
+  .table-wrap{display:none;}
+  #mobileList{display:block;}
+}
+
+</style>
 </head>
 
 <body>
 
+<!-- SIDEBAR -->
 <div class="sidebar">
 
   <div class="logo">📻 Radio<span>Wave</span></div>
-  <div class="subtitle">Offline JSON Radio Player</div>
+  <div class="subtitle">Offline Pro Radio System</div>
 
   <input id="genre" class="search" placeholder="Search genre..." />
 
@@ -57,23 +209,17 @@ body{
   <div class="grid-buttons">
     <button onclick="prevPage()">⬅ Prev</button>
     <button onclick="nextPage()">Next ➜</button>
-    <button onclick="loadStations()">🔄 Reload</button>
-    <button onclick="loadFavorites()">⭐ Favorites</button>
+    <button onclick="loadStations()">🔄 Refresh</button>
+    <button onclick="loadFavorites()">⭐ Local Fav</button>
   </div>
 
   <div class="radio-player">
 
-    <div class="player-header">
+    <div style="display:flex;gap:10px;align-items:center;">
       <div class="station-icon">📻</div>
-
       <div>
         <div id="npName">Not Playing</div>
-        <div id="npMeta">Select a station</div>
-
-        <div class="live">
-          <div class="live-dot"></div>
-          LIVE RADIO
-        </div>
+        <div id="npMeta">Select station</div>
       </div>
     </div>
 
@@ -86,27 +232,25 @@ body{
       <button onclick="toggleFavCurrent()">⭐</button>
     </div>
 
-    <div class="volume">
-      <label>Volume</label>
-      <input type="range" min="0" max="1" step="0.01"
-        onchange="setVolume(this.value)"/>
-    </div>
-
   </div>
 
   <div class="status" id="status">Loading...</div>
 
+  <button style="margin-top:10px;background:#ff3b3b" onclick="clearFavorites()">
+    🗑 Clear Favorites
+  </button>
+
 </div>
 
+<!-- MAIN -->
 <div class="main">
 
   <div class="topbar">
     <div>
-      <div class="page-title">United States Radio</div>
-      <div class="count" id="count">0 stations</div>
+      <div class="page-title">US Radio</div>
+      <div id="count" class="status">0 stations</div>
     </div>
-
-    <div class="page-box" id="pageInfo">Page 1</div>
+    <div id="pageInfo" class="status">Page 1</div>
   </div>
 
   <div class="table-wrap">
@@ -116,7 +260,7 @@ body{
           <th>Station</th>
           <th>Country</th>
           <th>Genre</th>
-          <th>Actions</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -129,252 +273,162 @@ body{
 
 <script>
 
-/* =========================
-   OFFLINE STORAGE KEYS
-========================= */
+/* API */
+const API = "https://all.api.radio-browser.info/json/stations/search";
 
-const CACHE_KEY = "radiowave_stations_v1";
-const FAV_KEY   = "radiowave_favorites_v1";
-
-/* =========================
-   API (OPTIONAL ONLY FOR FIRST LOAD)
-========================= */
-
-const API =
-"https://all.api.radio-browser.info/json/stations/search";
-
-/* =========================
-   STATE
-========================= */
-
+/* STATE */
 let stations = [];
 let allStations = [];
-let favorites = [];
-let favoriteIds = new Set();
 let currentList = [];
 let currentIndex = -1;
 let page = 0;
 const limit = 50;
+
+let favorites = [];
+let favoriteIds = new Set();
 let isPlaying = false;
 
-/* =========================
-   JSON STORAGE HELPERS
-========================= */
+/* ================= OFFLINE FAVORITES ================= */
 
-function saveJSON(key, data){
-  localStorage.setItem(key, JSON.stringify(data));
+function saveFavoritesLocal(){
+  localStorage.setItem("radio_favorites", JSON.stringify(favorites));
 }
-
-function loadJSON(key){
-  try{
-    return JSON.parse(localStorage.getItem(key));
-  }catch(e){
-    return null;
-  }
-}
-
-/* =========================
-   STATIONS (ONLINE + OFFLINE CACHE)
-========================= */
-
-async function loadStations(){
-
-  setStatus("Loading stations...");
-
-  try{
-
-    const res = await fetch(
-      `${API}?countrycode=US&limit=${limit}&offset=${page*limit}&hidebroken=true`
-    );
-
-    const data = await res.json();
-
-    stations = data;
-    allStations = [...data];
-    currentList = data;
-
-    saveJSON(CACHE_KEY, data);
-
-    render();
-    setStatus("Stations loaded (online)");
-
-  }catch(err){
-
-    const cache = loadJSON(CACHE_KEY);
-
-    if(cache){
-
-      stations = cache;
-      allStations = [...cache];
-      currentList = cache;
-
-      render();
-
-      setStatus("Offline mode (cached stations)");
-
-    } else {
-
-      setStatus("No stations available offline");
-
-    }
-  }
-}
-
-/* =========================
-   FAVORITES (FULL OFFLINE JSON)
-========================= */
 
 function loadFavorites(){
 
-  const data = loadJSON(FAV_KEY) || [];
+  const data = localStorage.getItem("radio_favorites");
 
-  favorites = data;
+  favorites = data ? JSON.parse(data) : [];
 
   favoriteIds = new Set(
-    favorites.map(f => f.id)
+    favorites.map(f => f.stationuuid || f.id)
   );
 
   currentList = favorites;
 
   render();
-
-  setStatus(`Loaded ${favorites.length} favorites`);
+  setStatus(`Loaded ${favorites.length} local favorites`);
 }
 
-function saveFavorite(s){
+function toggleFavorite(s){
 
   const id = s.stationuuid || s.id;
   if(!id) return;
 
-  const exists = favoriteIds.has(id);
-  if(exists){
+  if(favoriteIds.has(id)){
     setStatus("Already in favorites");
     return;
   }
 
-  favorites.push({
-    id,
-    name: s.name || "",
-    url: s.url_resolved || s.url || "",
-    country: s.country || "",
-    tags: s.tags || ""
-  });
-
+  favorites.push(s);
   favoriteIds.add(id);
 
-  saveJSON(FAV_KEY, favorites);
+  saveFavoritesLocal();
 
   setStatus("⭐ Saved offline");
   render();
 }
 
-/* =========================
-   PLAYER
-========================= */
+function clearFavorites(){
+  favorites = [];
+  favoriteIds = new Set();
+  saveFavoritesLocal();
+  render();
+  setStatus("Favorites cleared");
+}
+
+/* ================= STATIONS ================= */
+
+async function loadStations(){
+
+  setStatus("Loading...");
+
+  const res = await fetch(
+    `${API}?countrycode=US&limit=${limit}&offset=${page*limit}&hidebroken=true`
+  );
+
+  const data = await res.json();
+
+  stations = data;
+  allStations = [...data];
+  currentList = stations;
+
+  render();
+  setStatus(`Loaded ${stations.length} stations`);
+}
+
+/* ================= PLAYER ================= */
 
 function playStation(id){
 
   const item = currentList.find(s =>
-    (s.stationuuid || s.id) === id
+    s.stationuuid === id || s.id === id
   );
 
   if(!item) return;
 
-  currentIndex = currentList.findIndex(s =>
-    (s.stationuuid || s.id) === id
-  );
+  currentIndex = currentList.indexOf(item);
 
   const player = document.getElementById("player");
 
-  player.src = item.url_resolved || item.url || "";
+  player.src = item.url_resolved || item.url;
   player.play();
 
   isPlaying = true;
   document.getElementById("playBtn").textContent = "⏸";
 
-  updateNowPlaying();
-}
-
-function updateNowPlaying(){
-
-  const item = currentList[currentIndex];
-  if(!item) return;
-
-  document.getElementById("npName").textContent = item.name || "Unknown";
+  document.getElementById("npName").textContent = item.name;
   document.getElementById("npMeta").textContent =
     `${item.country || ""} • ${item.tags || ""}`;
+
 }
 
-/* =========================
-   CONTROLS
-========================= */
-
+/* controls */
 function togglePlay(){
-
   const p = document.getElementById("player");
-  const b = document.getElementById("playBtn");
-
   if(!p.src) return;
 
   if(isPlaying){
     p.pause();
     isPlaying = false;
-    b.textContent = "▶";
-  } else {
+    document.getElementById("playBtn").textContent = "▶";
+  }else{
     p.play();
     isPlaying = true;
-    b.textContent = "⏸";
+    document.getElementById("playBtn").textContent = "⏸";
   }
 }
 
 function nextStation(){
   if(!currentList.length) return;
-  currentIndex = (currentIndex + 1) % currentList.length;
-  playStation(currentList[currentIndex].stationuuid || currentList[currentIndex].id);
+  currentIndex = (currentIndex+1)%currentList.length;
+  playStation(currentList[currentIndex].stationuuid);
 }
 
 function prevStation(){
   if(!currentList.length) return;
-  currentIndex = (currentIndex - 1 + currentList.length) % currentList.length;
-  playStation(currentList[currentIndex].stationuuid || currentList[currentIndex].id);
+  currentIndex = (currentIndex-1+currentList.length)%currentList.length;
+  playStation(currentList[currentIndex].stationuuid);
 }
 
-function toggleFavCurrent(){
-  const item = currentList[currentIndex];
-  if(item) saveFavorite(item);
-}
-
-function setVolume(v){
-  document.getElementById("player").volume = v;
-}
-
-/* =========================
-   FILTER
-========================= */
+/* ================= FILTER ================= */
 
 function applyFilter(){
 
   const g = document.getElementById("genre").value.toLowerCase();
 
-  currentList = !g
-    ? [...allStations]
-    : allStations.filter(s =>
-        (s.tags || "").toLowerCase().includes(g)
-      );
+  if(!g){
+    currentList = allStations;
+  }else{
+    currentList = allStations.filter(s =>
+      (s.tags || "").toLowerCase().includes(g)
+    );
+  }
 
   render();
 }
 
-/* =========================
-   PAGING
-========================= */
-
-function nextPage(){ page++; loadStations(); }
-function prevPage(){ if(page>0) page--; loadStations(); }
-
-/* =========================
-   RENDER
-========================= */
+/* ================= RENDER ================= */
 
 function render(){
 
@@ -383,16 +437,16 @@ function render(){
 
   currentList.forEach(s => {
 
-    const id = s.stationuuid || s.id;
+    const id = s.stationuuid;
 
     tbody.innerHTML += `
       <tr>
-        <td>${s.name || "Unknown"}</td>
+        <td>${s.name}</td>
         <td>${s.country || ""}</td>
         <td>${s.tags || ""}</td>
         <td>
           <button onclick="playStation('${id}')">▶</button>
-          <button onclick='saveFavorite(${JSON.stringify(s)})'>⭐</button>
+          <button onclick='toggleFavorite(${JSON.stringify(s)})'>⭐</button>
         </td>
       </tr>
     `;
@@ -400,21 +454,14 @@ function render(){
 
   document.getElementById("count").textContent =
     `${currentList.length} stations`;
-
 }
 
-/* =========================
-   STATUS
-========================= */
-
+/* status */
 function setStatus(t){
   document.getElementById("status").textContent = t;
 }
 
-/* =========================
-   INIT
-========================= */
-
+/* init */
 loadStations();
 
 </script>
