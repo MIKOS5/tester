@@ -2,150 +2,187 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>📻RADIOWAVE📻</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>📻RADIOWAVE</title>
 
 <style>
-/* =========================
-   GLOBAL DESKTOP UI (BIGGER)
-========================= */
 body {
   margin: 0;
   font-family: Arial, sans-serif;
   background: #0b0f14;
-  color: #ffffff;
+  color: #fff;
   display: flex;
   height: 100vh;
-  font-size: 20px; /* ⬆ base font bigger */
 }
 
-/* =========================
-   LEFT WIDGET BAR
-========================= */
+/* ================= SIDEBAR ================= */
 .sidebar {
-  width: 200px; /* ⬆ wider panel */
+  width: 240px;
   background: #111826;
-  padding: 18px;
+  padding: 16px;
   box-sizing: border-box;
   border-right: 1px solid #1f2a3a;
 }
 
-.sidebar h2 {
-  font-size: 22px; /* ⬆ title bigger */
-  margin-bottom: 12px;
+h2 {
+  margin: 0 0 10px;
 }
 
-input, select, button {
+input, button {
   width: 100%;
-  padding: 10px;      /* ⬆ bigger touch targets */
+  padding: 12px;
   margin-top: 10px;
   border-radius: 8px;
   border: none;
-  font-size: 10px;    /* ⬆ input text bigger */
+  font-size: 14px;
 }
 
-   #genre {
-  width: 88%;   /* adjust: 60%–95% */
-}
-   
 button {
   background: #1e88e5;
   color: white;
-  cursor: pointer;
   font-weight: bold;
+  cursor: pointer;
 }
 
 button:hover {
   background: #1565c0;
 }
 
-/* =========================
-   MAIN AREA
-========================= */
+/* ================= MAIN ================= */
 .main {
   flex: 1;
-  padding: 24px;
+  padding: 16px;
   overflow: auto;
 }
 
+/* TOP BAR */
 .topbar {
   display: flex;
-  gap: 12px;
-  margin-bottom: 14px;
+  gap: 10px;
+  margin-bottom: 10px;
 }
 
 .smallbtn {
-  width: auto;
-  padding: 10px 14px;
-  font-size: 14px;
+  flex: 1;
+  padding: 10px;
+  font-size: 13px;
 }
 
-/* TABLE (BIG IMPROVEMENT) */
+/* ================= TABLE MODE (DESKTOP) ================= */
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 12px;
-  font-size: 15px; /* ⬆ table readability */
 }
 
 th, td {
-  padding: 14px; /* ⬆ row spacing */
+  padding: 12px;
   border-bottom: 1px solid #1f2a3a;
-  text-align: left;
 }
 
 tr:hover {
   background: #182233;
-  cursor: pointer;
+}
+
+/* ================= CARD MODE (MOBILE) ================= */
+.card {
+  background: #121a28;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  border: 1px solid #1f2a3a;
+}
+
+.card.active {
+  border: 2px solid #1e88e5;
+}
+
+.card-title {
+  font-weight: bold;
+}
+
+.card-meta {
+  font-size: 12px;
+  color: #aaa;
+  margin: 6px 0;
 }
 
 /* PLAYER */
+.player-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #0f1722;
+  border-top: 1px solid #1f2a3a;
+  padding: 10px;
+}
+
 audio {
   width: 100%;
-  margin-top: 18px;
 }
 
 /* STATUS */
 .status {
-  margin-top: 12px;
+  font-size: 12px;
   color: #aaa;
-  font-size: 14px;
+  margin-top: 10px;
+}
+
+/* ================= RESPONSIVE SWITCH ================= */
+@media (max-width: 768px) {
+  body {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #1f2a3a;
+  }
+
+  table {
+    display: none; /* hide table on mobile */
+  }
+
+  #mobileList {
+    display: block;
+  }
+}
+
+@media (min-width: 769px) {
+  #mobileList {
+    display: none;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<!-- ================= SIDEBAR ================= -->
+<!-- SIDEBAR -->
 <div class="sidebar">
-
   <h2>RADIOWAVE</h2>
 
-  <input id="genre" placeholder="Genre (rock, jazz, pop)" />
+  <input id="search" placeholder="Search stations..." oninput="filterList()" />
+  <input id="genre" placeholder="Genre filter" />
 
   <button onclick="applyFilter()">Apply Genre</button>
-
-  <button onclick="nextPage()">Next 50 ➜</button>
-  <button onclick="prevPage()">⬅ Prev 50</button>
-
-  <hr>
-
-  <button onclick="loadFavorites()">⭐ Load Favorites</button>
+  <button onclick="loadStations()">Refresh</button>
+  <button onclick="loadFavorites()">Favorites</button>
 
   <div class="status" id="status">Loading...</div>
 </div>
 
-<!-- ================= MAIN ================= -->
+<!-- MAIN -->
 <div class="main">
 
   <div class="topbar">
-    <button class="smallbtn" onclick="loadStations()">🔄 Refresh Stations</button>
-    <button class="smallbtn" onclick="showStations()">📻 Stations</button>
-    <button class="smallbtn" onclick="showFavs()">⭐ Favorites</button>
+    <button class="smallbtn" onclick="loadStations()">Stations</button>
+    <button class="smallbtn" onclick="loadFavorites()">Favs</button>
   </div>
 
-  <h3 id="viewTitle">Stations</h3>
-
-  <!-- TABLE -->
+  <!-- DESKTOP TABLE -->
   <table id="table">
     <thead>
       <tr>
@@ -158,105 +195,101 @@ audio {
     <tbody></tbody>
   </table>
 
-  <audio id="player" controls autoplay></audio>
+  <!-- MOBILE CARDS -->
+  <div id="mobileList"></div>
 
+</div>
+
+<!-- PLAYER -->
+<div class="player-bar">
+  <audio id="player" controls autoplay></audio>
 </div>
 
 <script>
 
-/* =========================
-   CONFIG
-========================= */
 const API = "https://all.api.radio-browser.info/json/stations/search";
 const SHEET_API = "https://script.google.com/macros/s/AKfycbzZ5MwOcYUY_bpsUKSxPd810xE8rV_Y3z2GwzPublb_4O60CP8L_lC_V2kqkCQ_JdF5/exec";
 
 let stations = [];
 let favorites = [];
-let page = 0;
-let currentGenre = "";
 let mode = "stations";
-const limit = 50;
+let activeIndex = -1;
 
-/* =========================
-   LOAD STATIONS
-========================= */
+/* ================= LOAD ================= */
 async function loadStations() {
   mode = "stations";
-
-  const offset = page * limit;
-  let url = `${API}?countrycode=US&limit=${limit}&offset=${offset}&hidebroken=true`;
-
-  if (currentGenre) url += `&tag=${encodeURIComponent(currentGenre)}`;
-
   setStatus("Loading stations...");
 
-  const res = await fetch(url);
+  const res = await fetch(`${API}?countrycode=US&limit=50&hidebroken=true`);
   stations = await res.json();
 
-  renderTable(stations, "stations");
+  render();
 }
 
-/* =========================
-   FAVORITES (FIXED API HANDLING)
-========================= */
+/* ================= FAVORITES ================= */
 async function loadFavorites() {
   setStatus("Loading favorites...");
 
   const res = await fetch(SHEET_API + "?action=get");
-  const text = await res.text();
-
-  let data = [];
-
-  try {
-    const json = JSON.parse(text);
-    data = json.data || json;
-  } catch (e) {
-    data = parseTSV(text);
-  }
-
-  favorites = data;
+  const data = await res.json().catch(()=>[]);
+  favorites = data.data || data;
 
   mode = "favorites";
-  renderTable(favorites, "favorites");
+  render();
 
-  setStatus(`Loaded ${favorites.length} favorites`);
+  setStatus(`Favorites: ${favorites.length}`);
 }
 
-/* =========================
-   SAVE FAVORITE
-========================= */
-async function saveFavorite(index) {
-  const s = stations[index];
-  if (!s) return;
+/* ================= PLAY ================= */
+function play(i) {
+  const list = mode === "stations" ? stations : favorites;
+  const item = list[i];
 
-  await fetch(SHEET_API, {
-    method: "POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({
-      action: "save",
-      id: s.stationuuid,
-      name: s.name,
-      url: s.url_resolved || s.url,
-      country: s.country,
-      genre: currentGenre || "all",
-      time: new Date().toISOString()
-    })
-  });
+  if (!item) return;
 
-  setStatus("⭐ Saved");
+  activeIndex = i;
+
+  const player = document.getElementById("player");
+  player.src = item.url_resolved || item.url;
+  player.play();
+
+  render(); // refresh highlight
 }
 
-/* =========================
-   TABLE RENDER
-========================= */
-function renderTable(list, type) {
+/* ================= FILTER ================= */
+function applyFilter() {
+  const g = document.getElementById("genre").value.trim().toLowerCase();
+  stations = stations.filter(s =>
+    (s.tags || "").toLowerCase().includes(g)
+  );
+  render();
+}
+
+/* ================= SEARCH ================= */
+function filterList() {
+  const q = document.getElementById("search").value.toLowerCase();
+
+  const list = mode === "stations" ? stations : favorites;
+
+  const filtered = list.filter(s =>
+    (s.name || "").toLowerCase().includes(q)
+  );
+
+  render(filtered);
+}
+
+/* ================= RENDER ================= */
+function render(customList = null) {
+  const list = customList || (mode === "stations" ? stations : favorites);
+
+  renderTable(list);
+  renderMobile(list);
+}
+
+/* TABLE */
+function renderTable(list) {
   const tbody = document.querySelector("#table tbody");
   tbody.innerHTML = "";
-
-  if (!list || !list.length) {
-    setStatus("No data found");
-    return;
-  }
 
   list.forEach((s, i) => {
     const tr = document.createElement("tr");
@@ -264,91 +297,42 @@ function renderTable(list, type) {
     tr.innerHTML = `
       <td>${s.name || ""}</td>
       <td>${s.country || ""}</td>
-      <td>${s.genre || s.tags || ""}</td>
-      <td>
-        <button onclick="play(${i})">▶</button>
-        ${type === "stations"
-          ? `<button onclick="saveFavorite(${i})">⭐</button>`
-          : ""
-        }
-      </td>
+      <td>${s.tags || ""}</td>
+      <td><button onclick="play(${i})">▶</button></td>
     `;
 
     tbody.appendChild(tr);
   });
 }
 
-/* =========================
-   PLAY ENGINE (FIXED)
-========================= */
-function play(i) {
-  const item = (mode === "stations") ? stations[i] : favorites[i];
-  if (!item) return;
+/* MOBILE CARDS */
+function renderMobile(list) {
+  const el = document.getElementById("mobileList");
+  el.innerHTML = "";
 
-  const player = document.getElementById("player");
-  player.src = item.url_resolved || item.url;
-  player.play();
-}
+  list.forEach((s, i) => {
+    const div = document.createElement("div");
+    div.className = "card" + (i === activeIndex ? " active" : "");
 
-/* =========================
-   FILTER + PAGINATION
-========================= */
-function applyFilter() {
-  currentGenre = document.getElementById("genre").value.trim();
-  page = 0;
-  loadStations();
-}
+    div.innerHTML = `
+      <div class="card-title">${s.name}</div>
+      <div class="card-meta">${s.country || ""} • ${s.tags || ""}</div>
+      <button onclick="play(${i})">▶ Play</button>
+    `;
 
-function nextPage() {
-  page++;
-  loadStations();
-}
-
-function prevPage() {
-  if (page > 0) page--;
-  loadStations();
-}
-
-/* =========================
-   VIEW SWITCH
-========================= */
-function showStations() {
-  loadStations();
-}
-
-function showFavs() {
-  loadFavorites();
-}
-
-/* =========================
-   HELPERS
-========================= */
-function setStatus(msg) {
-  document.getElementById("status").textContent = msg;
-}
-
-function parseTSV(text) {
-  return text.trim().split("\n").map(l => {
-    const p = l.split("\t");
-    return {
-      id: p[0],
-      name: p[1],
-      url: p[2],
-      country: p[3],
-      genre: p[4],
-      time: p[5]
-    };
+    el.appendChild(div);
   });
 }
 
-/* =========================
-   INIT
-========================= */
+/* STATUS */
+function setStatus(t) {
+  document.getElementById("status").textContent = t;
+}
+
+/* INIT */
 loadStations();
 
 </script>
 
 </body>
 </html>
-
-make Andriod friendly page, 
