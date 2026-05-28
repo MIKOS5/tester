@@ -151,7 +151,6 @@ audio {
 
   <button onclick="applyFilter()">Apply Genre</button>
 
-  <!-- PAGINATION -->
   <button onclick="prevPage()">⬅ Prev 50</button>
   <button onclick="nextPage()">Next 50 ➜</button>
 
@@ -169,20 +168,18 @@ audio {
     <button class="smallbtn" onclick="loadFavorites()">Favs</button>
   </div>
 
-  <!-- TABLE -->
   <table id="table">
     <thead>
       <tr>
         <th>Name</th>
         <th>Country</th>
         <th>Genre</th>
-        <th>Play</th>
+        <th>Play / Fav</th>
       </tr>
     </thead>
     <tbody></tbody>
   </table>
 
-  <!-- MOBILE -->
   <div id="mobileList"></div>
 
 </div>
@@ -199,6 +196,8 @@ const SHEET_API = "https://script.google.com/macros/s/AKfycbzZ5MwOcYUY_bpsUKSxPd
 
 let stations = [];
 let favorites = [];
+let favoriteIds = new Set();
+
 let mode = "stations";
 let activeStationId = null;
 
@@ -228,7 +227,9 @@ async function loadFavorites() {
 
   const res = await fetch(SHEET_API + "?action=get");
   const data = await res.json().catch(()=>[]);
+
   favorites = data.data || data;
+  favoriteIds = new Set(favorites.map(f => f.stationuuid));
 
   mode = "favorites";
   render();
@@ -236,7 +237,7 @@ async function loadFavorites() {
   setStatus(`Favorites: ${favorites.length}`);
 }
 
-/* PLAY FIXED (NO PAGE BUGS) */
+/* PLAY */
 function playStation(id) {
   const list = mode === "stations" ? stations : favorites;
   const item = list.find(s => s.stationuuid === id);
@@ -252,24 +253,50 @@ function playStation(id) {
   render();
 }
 
+/* ⭐ FAVORITE TOGGLE */
+async function toggleFavorite(s) {
+  const exists = favoriteIds.has(s.stationuuid);
+
+  if (!exists) {
+    await fetch(SHEET_API, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        action: "save",
+        id: s.stationuuid,
+        name: s.name,
+        url: s.url_resolved || s.url,
+        country: s.country,
+        genre: s.tags || "all",
+        time: new Date().toISOString()
+      })
+    });
+
+    favoriteIds.add(s.stationuuid);
+    setStatus("⭐ Added to favorites");
+  } else {
+    setStatus("Already in favorites");
+  }
+
+  render();
+}
+
 /* PAGINATION */
 function nextPage() {
   page++;
   loadStations();
-  setStatus("Page " + (page + 1));
 }
 
 function prevPage() {
   if (page > 0) {
     page--;
     loadStations();
-    setStatus("Page " + (page + 1));
   }
 }
 
 /* FILTER */
 function applyFilter() {
-  const g = document.getElementById("genre").value.trim().toLowerCase();
+  const g = document.getElementById("genre").value.toLowerCase();
   stations = stations.filter(s =>
     (s.tags || "").toLowerCase().includes(g)
   );
@@ -290,20 +317,27 @@ function renderTable() {
   const list = mode === "stations" ? stations : favorites;
 
   list.forEach(s => {
+    const isFav = favoriteIds.has(s.stationuuid);
+
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
       <td>${s.name || ""}</td>
       <td>${s.country || ""}</td>
       <td>${s.tags || ""}</td>
-      <td><button onclick="playStation('${s.stationuuid}')">▶</button></td>
+      <td>
+        <button onclick="playStation('${s.stationuuid}')">▶</button>
+        <button onclick='toggleFavorite(${JSON.stringify(s)})'>
+          ${isFav ? "⭐" : "☆"}
+        </button>
+      </td>
     `;
 
     tbody.appendChild(tr);
   });
 }
 
-/* MOBILE CARDS */
+/* MOBILE */
 function renderMobile() {
   const el = document.getElementById("mobileList");
   el.innerHTML = "";
@@ -311,6 +345,8 @@ function renderMobile() {
   const list = mode === "stations" ? stations : favorites;
 
   list.forEach(s => {
+    const isFav = favoriteIds.has(s.stationuuid);
+
     const div = document.createElement("div");
     div.className = "card" + (s.stationuuid === activeStationId ? " active" : "");
 
@@ -318,6 +354,9 @@ function renderMobile() {
       <div class="card-title">${s.name || ""}</div>
       <div class="card-meta">${s.country || ""} • ${s.tags || ""}</div>
       <button onclick="playStation('${s.stationuuid}')">▶ Play</button>
+      <button onclick='toggleFavorite(${JSON.stringify(s)})'>
+        ${isFav ? "⭐ Favorited" : "☆ Favorite"}
+      </button>
     `;
 
     el.appendChild(div);
