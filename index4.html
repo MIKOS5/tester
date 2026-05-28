@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>🌍 Echo Shards v11 — Living World Simulator</title>
+<title>🌍 Echo Shards v12 — WAR VISUAL SYSTEM</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
@@ -23,11 +23,12 @@ body{
   height:100vh;
 }
 
+/* ================= UI ================= */
 #ui{
   position:absolute;
   top:10px;
   left:10px;
-  width:300px;
+  width:320px;
   background:#151b26;
   padding:12px;
   border-radius:10px;
@@ -50,36 +51,38 @@ button{
   font-weight:bold;
 }
 
-button:hover{
-  filter:brightness(1.1);
-}
-
 #log{
   position:absolute;
   bottom:10px;
   left:10px;
   width:360px;
-  height:180px;
+  height:200px;
   overflow:auto;
   background:#151b26;
   padding:10px;
   border-radius:10px;
-  z-index:9999;
   font-size:12px;
+  z-index:9999;
 }
 
-#worldstats{
+/* ================= WAR UI ================= */
+#warbar{
   margin-top:10px;
   font-size:13px;
-  line-height:1.5;
+  line-height:1.6;
 }
 
-.badge{
-  display:inline-block;
-  padding:3px 8px;
-  border-radius:6px;
-  font-size:11px;
-  margin-right:4px;
+.bar{
+  height:8px;
+  background:#222;
+  border-radius:5px;
+  overflow:hidden;
+  margin-bottom:6px;
+}
+
+.fill{
+  height:100%;
+  width:0%;
 }
 
 </style>
@@ -91,7 +94,7 @@ button:hover{
 
 <div id="ui">
 
-  <h2>🌍 Echo Shards v11</h2>
+  <h2>🌍 Echo Shards v12</h2>
 
   <input id="nick" placeholder="Commander Name">
 
@@ -101,15 +104,17 @@ button:hover{
     <option>CHAOS</option>
   </select>
 
-  <button onclick="join()">Join World</button>
-  <button onclick="spawn()">Spawn Capital</button>
+  <button onclick="join()">Join War</button>
+  <button onclick="spawn()">Deploy Capital</button>
 
   <div id="status">OFFLINE</div>
 
-  <div id="worldstats">
-    <div>🌎 Nodes: <span id="nodeCount">0</span></div>
-    <div>⚔ Wars: <span id="warCount">0</span></div>
-    <div>👑 Dominant: <span id="dominant">NONE</span></div>
+  <div id="warbar">
+    ⚔ WAR INTENSITY
+    <div class="bar"><div id="warFill" class="fill" style="background:#ff2c2c"></div></div>
+
+    🌍 GLOBAL BALANCE
+    <div id="balance"></div>
   </div>
 
 </div>
@@ -120,136 +125,57 @@ button:hover{
 
 <script>
 
-// =====================================================
-// API
-// =====================================================
-
 const API = "https://script.google.com/macros/s/AKfycbwfFHG9LeEzzYlVYCEXswjxeP_mVsevAqCtGybKBt9O5ww1Pn5d57S2yScP_2_rAinY/exec";
-
-// =====================================================
-// MAP
-// =====================================================
 
 const map = L.map('map').setView([34.05,-118.24], 5);
 
-L.tileLayer(
-  'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-  {
-    maxZoom:19
-  }
-).addTo(map);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-// =====================================================
-// GAME STATE
-// =====================================================
+let nick="";
+let faction="VOID";
 
-let nick = "";
-let faction = "VOID";
+let nodes={};
+let heatLayers=[];
+let attackLines=[];
 
-let nodes = {};
-let influenceLines = [];
-let armies = [];
-
-let syncLoop = null;
-
-// =====================================================
-// COLORS
-// =====================================================
-
-function factionColor(name){
-
-  const colors = {
-    "VOID":"#7a2cff",
-    "ORDER":"#2cc7ff",
-    "CHAOS":"#ff2c6d",
-    "Neutral":"#777"
-  };
-
-  return colors[name] || "#999";
+/* ================= COLORS ================= */
+function col(f){
+  return {
+    VOID:"#7a2cff",
+    ORDER:"#2cc7ff",
+    CHAOS:"#ff2c6d"
+  }[f] || "#777";
 }
 
-// =====================================================
-// LOG
-// =====================================================
-
-function log(msg){
-
-  const el = document.getElementById("log");
-
-  el.innerHTML =
-    "• " + msg + "<br>" + el.innerHTML;
-
-  while(el.innerHTML.length > 10000){
-    el.innerHTML = el.innerHTML.slice(0,9000);
-  }
+/* ================= LOG ================= */
+function log(m){
+  const el=document.getElementById("log");
+  el.innerHTML="• "+m+"<br>"+el.innerHTML;
 }
 
-// =====================================================
-// NETWORK
-// =====================================================
-
-async function post(data){
-
-  try{
-
-    const res = await fetch(API,{
-      method:"POST",
-      body:JSON.stringify(data)
-    });
-
-    const text = await res.text();
-
-    return JSON.parse(text);
-
-  }catch(err){
-
-    console.log(err);
-    log("❌ Network Error");
-
-    return {};
-  }
+/* ================= FETCH ================= */
+async function post(d){
+  const r=await fetch(API,{method:"POST",body:JSON.stringify(d)});
+  return await r.json();
 }
 
-// =====================================================
-// JOIN
-// =====================================================
-
+/* ================= JOIN ================= */
 function join(){
+  nick=document.getElementById("nick").value;
+  faction=document.getElementById("faction").value;
 
-  nick = document.getElementById("nick").value.trim();
+  document.getElementById("status").innerText="🟢 WAR ACTIVE";
 
-  if(!nick){
-    alert("Enter commander name");
-    return;
-  }
-
-  faction =
-    document.getElementById("faction").value;
-
-  document.getElementById("status").innerHTML =
-    "🟢 ONLINE";
-
-  log("Commander joined: " + nick);
-
+  setInterval(sync,3000);
   sync();
 
-  if(syncLoop) clearInterval(syncLoop);
-
-  syncLoop = setInterval(sync,3000);
+  log("Commander "+nick+" entered war");
 }
 
-// =====================================================
-// SPAWN
-// =====================================================
-
+/* ================= SPAWN ================= */
 async function spawn(){
 
-  if(!nick){
-    alert("Join first");
-    return;
-  }
-
-  const c = map.getCenter();
+  const c=map.getCenter();
 
   await post({
     action:"spawn",
@@ -259,16 +185,87 @@ async function spawn(){
     owner:faction
   });
 
-  log("🏰 Capital deployed");
-
   sync();
 }
 
-// =====================================================
-// ATTACK
-// =====================================================
+/* ================= ATTACK EFFECT ================= */
+function attackFX(a,b,f){
 
+  const line=L.polyline([a,b],{
+    color:col(f),
+    weight:2,
+    opacity:0.7
+  }).addTo(map);
+
+  attackLines.push(line);
+
+  setTimeout(()=>map.removeLayer(line),1200);
+}
+
+/* ================= NODE DRAW ================= */
+function draw(n){
+
+  if(nodes[n.id]) map.removeLayer(nodes[n.id]);
+
+  const lvl=Number(n.level||1);
+  const energy=Number(n.energy||0);
+
+  const r=200+(lvl*120);
+
+  /* CORE ZONE */
+  const circle=L.circle([n.lat,n.lng],{
+    radius:r,
+    color:col(n.owner),
+    fillOpacity:0.35
+  }).addTo(map);
+
+  /* WAR HEAT GLOW */
+  const heat=L.circle([n.lat,n.lng],{
+    radius:r*2.2,
+    color:col(n.owner),
+    fillOpacity:0.05,
+    opacity:0.2
+  }).addTo(map);
+
+  heatLayers.push(heat);
+
+  /* FRONTLINE AURA */
+  if(energy>80){
+    const front=L.circle([n.lat,n.lng],{
+      radius:r*3,
+      color:"#ffcc00",
+      fillOpacity:0,
+      opacity:0.15,
+      dashArray:"5,6"
+    }).addTo(map);
+
+    heatLayers.push(front);
+  }
+
+  circle.on("click",()=>{
+
+    circle.bindPopup(`
+      <b>⚔ WAR NODE</b><br>
+      Faction: ${n.owner}<br>
+      Level: ${lvl}<br>
+      Energy: ${energy}<br><br>
+
+      <button onclick="attack('${n.id}')">⚔ Strike</button>
+      <button onclick="upgrade('${n.id}')">⬆ Fortify</button>
+    `).openPopup();
+
+  });
+
+  nodes[n.id]=circle;
+}
+
+/* ================= ATTACK ================= */
 async function attack(id){
+
+  const n=nodes[id];
+  if(!n) return;
+
+  const target=n.getLatLng();
 
   await post({
     action:"attack",
@@ -276,326 +273,57 @@ async function attack(id){
     nick:faction
   });
 
-  log("⚔ Raid launched");
+  attackFX(map.getCenter(),target,faction);
 
-  animateAttack(id);
-
-  sync();
+  log("⚔ attack launched");
 }
 
-// =====================================================
-// UPGRADE
-// =====================================================
-
+/* ================= UPGRADE ================= */
 async function upgrade(id){
-
-  await post({
-    action:"upgrade",
-    id
-  });
-
-  log("⬆ Territory fortified");
-
+  await post({action:"upgrade",id});
   sync();
 }
 
-// =====================================================
-// ATTACK EFFECT
-// =====================================================
-
-function animateAttack(id){
-
-  const n = nodes[id];
-
-  if(!n) return;
-
-  const pulse = L.circle(
-    n.getLatLng(),
-    {
-      radius:1000,
-      color:"#ffffff",
-      fillOpacity:0.1
-    }
-  ).addTo(map);
-
-  let r = 1000;
-
-  const fx = setInterval(()=>{
-
-    r += 700;
-
-    pulse.setRadius(r);
-
-    if(r > 6000){
-      map.removeLayer(pulse);
-      clearInterval(fx);
-    }
-
-  },50);
-}
-
-// =====================================================
-// DRAW NODE
-// =====================================================
-
-function drawNode(n){
-
-  if(!n.id) return;
-
-  if(nodes[n.id]){
-    map.removeLayer(nodes[n.id]);
-  }
-
-  const lvl =
-    Number(n.level || 1);
-
-  const energy =
-    Number(n.energy || 0);
-
-  const radius =
-    200 + (lvl * 120);
-
-  const circle = L.circle(
-    [Number(n.lat), Number(n.lng)],
-    {
-      radius:radius,
-      color:factionColor(n.owner),
-      fillColor:factionColor(n.owner),
-      fillOpacity:0.30,
-      weight:2
-    }
-  ).addTo(map);
-
-  // influence ring
-
-  const influence = L.circle(
-    [Number(n.lat), Number(n.lng)],
-    {
-      radius:radius * 2.5,
-      color:factionColor(n.owner),
-      fillOpacity:0,
-      opacity:0.15,
-      dashArray:"6,8"
-    }
-  ).addTo(map);
-
-  influenceLines.push(influence);
-
-  circle.on("click",()=>{
-
-    circle.bindPopup(`
-      <div style="color:black">
-
-      <h3>⚡ Territory Node</h3>
-
-      <b>Faction:</b> ${n.owner}<br>
-      <b>Level:</b> ${lvl}<br>
-      <b>Energy:</b> ${energy}<br>
-
-      <hr>
-
-      <button onclick="attack('${n.id}')">
-      ⚔ Raid
-      </button>
-
-      <button onclick="upgrade('${n.id}')">
-      ⬆ Fortify
-      </button>
-
-      </div>
-    `).openPopup();
-  });
-
-  nodes[n.id] = circle;
-}
-
-// =====================================================
-// DRAW CONNECTIONS
-// =====================================================
-
-function drawConnections(data){
-
-  for(let i=0;i<data.length;i++){
-
-    const a = data[i];
-
-    for(let j=i+1;j<data.length;j++){
-
-      const b = data[j];
-
-      const dist =
-        Math.hypot(
-          a.lat - b.lat,
-          a.lng - b.lng
-        );
-
-      if(dist < 2){
-
-        const line = L.polyline(
-          [
-            [a.lat,a.lng],
-            [b.lat,b.lng]
-          ],
-          {
-            color:
-              a.owner === b.owner
-              ? factionColor(a.owner)
-              : "#666",
-            weight:1,
-            opacity:0.3
-          }
-        ).addTo(map);
-
-        influenceLines.push(line);
-      }
-    }
-  }
-}
-
-// =====================================================
-// WORLD STATS
-// =====================================================
-
-function updateStats(data){
-
-  document.getElementById("nodeCount").innerText =
-    data.length;
-
-  let counts = {};
-
-  data.forEach(n=>{
-
-    counts[n.owner] =
-      (counts[n.owner] || 0) + 1;
-  });
-
-  let top = "NONE";
-  let max = 0;
-
-  Object.keys(counts).forEach(f=>{
-
-    if(counts[f] > max){
-      max = counts[f];
-      top = f;
-    }
-  });
-
-  document.getElementById("dominant").innerText =
-    top;
-
-  document.getElementById("warCount").innerText =
-    Math.floor(data.length / 4);
-}
-
-// =====================================================
-// CLEAN MAP
-// =====================================================
-
-function clearMap(){
-
-  Object.keys(nodes).forEach(k=>{
-    map.removeLayer(nodes[k]);
-  });
-
-  nodes = {};
-
-  influenceLines.forEach(l=>{
-    map.removeLayer(l);
-  });
-
-  influenceLines = [];
-}
-
-// =====================================================
-// SYNC WORLD
-// =====================================================
-
+/* ================= SYNC ================= */
 async function sync(){
 
-  const data =
-    await post({
-      action:"getWorld"
-    });
+  const data=await post({action:"getWorld"});
 
   if(!data.nodes) return;
 
-  clearMap();
+  Object.values(nodes).forEach(n=>map.removeLayer(n));
+  heatLayers.forEach(h=>map.removeLayer(h));
 
-  data.nodes.forEach(drawNode);
+  nodes={};
+  heatLayers=[];
 
-  drawConnections(data.nodes);
+  let counts={};
 
-  updateStats(data.nodes);
-
-  log("🌎 World Synced");
-}
-
-// =====================================================
-// RANDOM WORLD EVENTS
-// =====================================================
-
-const events = [
-
-  "☄ Meteor Storm",
-  "🌌 Void Rift",
-  "⚡ Energy Surge",
-  "🔥 Chaos Uprising",
-  "🛡 Order Shield Pulse",
-  "👾 Rogue AI Swarm",
-  "🌊 Tidal Collapse",
-  "🌍 Population Migration"
-
-];
-
-setInterval(()=>{
-
-  if(Math.random() < 0.35){
-
-    const e =
-      events[
-        Math.floor(Math.random()*events.length)
-      ];
-
-    log(e);
-  }
-
-},12000);
-
-// =====================================================
-// AUTO AI ACTIVITY
-// =====================================================
-
-setInterval(async ()=>{
-
-  await post({
-    action:"tick"
+  data.nodes.forEach(n=>{
+    draw(n);
+    counts[n.owner]=(counts[n.owner]||0)+1;
   });
 
-},8000);
+  /* WAR INTENSITY */
+  const total=data.nodes.length;
+  const chaos=(counts["CHAOS"]||0)/total;
+  const order=(counts["ORDER"]||0)/total;
+  const voidf=(counts["VOID"]||0)/total;
 
-// =====================================================
-// MAP CLICK SPAWN
-// =====================================================
+  const war=Math.abs(chaos-order)+voidf;
 
-map.on("click", async (e)=>{
+  document.getElementById("warFill").style.width=(war*100)+"%";
 
-  if(!nick) return;
+  document.getElementById("balance").innerHTML=
+    `VOID ${Math.round(voidf*100)}% | ORDER ${Math.round(order*100)}% | CHAOS ${Math.round(chaos*100)}%`;
 
-  if(Math.random() < 0.25){
+  log("🌍 war sync");
+}
 
-    await post({
-      action:"spawn",
-      id:crypto.randomUUID(),
-      lat:e.latlng.lat,
-      lng:e.latlng.lng,
-      owner:faction
-    });
-
-    log("📍 Forward Outpost Created");
-
-    sync();
-  }
-});
+/* ================= AUTO WAR ================= */
+setInterval(async ()=>{
+  await post({action:"tick"});
+},7000);
 
 </script>
 
