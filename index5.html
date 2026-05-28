@@ -4,14 +4,15 @@
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>📻 RadioWave Pro</title>
+<title>📻 RadioWave Pro (Offline)</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 
 <style>
-/* (UNCHANGED — your full CSS stays exactly the same) */
+
+/* ===== YOUR CSS UNCHANGED ===== */
 :root{
   --bg:#09111d;
   --panel:#111827;
@@ -22,10 +23,10 @@
   --blue:#2793ff;
   --blue2:#1869d9;
   --green:#17c964;
-  --shadow: 0 10px 30px rgba(0,0,0,.35);
+  --shadow:0 10px 30px rgba(0,0,0,.35);
 }
 
-*{ box-sizing:border-box; }
+*{box-sizing:border-box;}
 
 body{
   margin:0;
@@ -37,8 +38,9 @@ body{
   overflow:hidden;
 }
 
-/* --- keep ALL your existing CSS exactly as-is --- */
+/* keep ALL your existing CSS exactly as-is */
 </style>
+
 </head>
 
 <body>
@@ -46,20 +48,21 @@ body{
 <div class="sidebar">
 
   <div class="logo">📻 Radio<span>Wave</span></div>
-  <div class="subtitle">Live streaming radio dashboard</div>
+  <div class="subtitle">Offline JSON Radio Player</div>
 
-  <input id="genre" class="search" placeholder="Search by genre..."/>
+  <input id="genre" class="search" placeholder="Search genre..." />
 
-  <button class="main-btn" onclick="applyFilter()">🔎 Search Stations</button>
+  <button class="main-btn" onclick="applyFilter()">🔎 Search</button>
 
   <div class="grid-buttons">
     <button onclick="prevPage()">⬅ Prev</button>
     <button onclick="nextPage()">Next ➜</button>
-    <button onclick="loadStations()">🔄 Refresh</button>
+    <button onclick="loadStations()">🔄 Reload</button>
     <button onclick="loadFavorites()">⭐ Favorites</button>
   </div>
 
   <div class="radio-player">
+
     <div class="player-header">
       <div class="station-icon">📻</div>
 
@@ -85,12 +88,14 @@ body{
 
     <div class="volume">
       <label>Volume</label>
-      <input type="range" min="0" max="1" step="0.01" value="1"
+      <input type="range" min="0" max="1" step="0.01"
         onchange="setVolume(this.value)"/>
     </div>
+
   </div>
 
-  <div class="status" id="status">Loading stations...</div>
+  <div class="status" id="status">Loading...</div>
+
 </div>
 
 <div class="main">
@@ -98,7 +103,7 @@ body{
   <div class="topbar">
     <div>
       <div class="page-title">United States Radio</div>
-      <div class="count" id="count">0 stations loaded</div>
+      <div class="count" id="count">0 stations</div>
     </div>
 
     <div class="page-box" id="pageInfo">Page 1</div>
@@ -119,25 +124,24 @@ body{
   </div>
 
   <div id="mobileList"></div>
+
 </div>
 
 <script>
 
 /* =========================
-   API
+   OFFLINE STORAGE KEYS
+========================= */
+
+const CACHE_KEY = "radiowave_stations_v1";
+const FAV_KEY   = "radiowave_favorites_v1";
+
+/* =========================
+   API (OPTIONAL ONLY FOR FIRST LOAD)
 ========================= */
 
 const API =
 "https://all.api.radio-browser.info/json/stations/search";
-
-const SHEET_API =
-"https://script.google.com/macros/s/AKfycbzZ5MwOcYUY_bpsUKSxPd810xE8rV_Y3z2GwzPublb_4O60CP8L_lC_V2kqkCQ_JdF5/exec";
-
-/* =========================
-   OFFLINE JSON CACHE (NEW)
-========================= */
-
-const CACHE_KEY = "radiowave_offline_stations_v1";
 
 /* =========================
    STATE
@@ -154,31 +158,23 @@ const limit = 50;
 let isPlaying = false;
 
 /* =========================
-   SAVE CACHE (NEW)
+   JSON STORAGE HELPERS
 ========================= */
 
-function saveCache(data){
-  try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-  } catch(e){}
+function saveJSON(key, data){
+  localStorage.setItem(key, JSON.stringify(data));
 }
 
-/* =========================
-   LOAD CACHE (NEW)
-========================= */
-
-function loadCache(){
-  try {
-    const raw = localStorage.getItem(CACHE_KEY);
-    if(!raw) return null;
-    return JSON.parse(raw);
-  } catch(e){
+function loadJSON(key){
+  try{
+    return JSON.parse(localStorage.getItem(key));
+  }catch(e){
     return null;
   }
 }
 
 /* =========================
-   LOAD STATIONS (UPDATED ONLY ADD CACHE)
+   STATIONS (ONLINE + OFFLINE CACHE)
 ========================= */
 
 async function loadStations(){
@@ -187,98 +183,106 @@ async function loadStations(){
 
   try{
 
-    const offset = page * limit;
-
-    const res =
-      await fetch(
-        `${API}?countrycode=US&limit=${limit}&offset=${offset}&hidebroken=true`
-      );
+    const res = await fetch(
+      `${API}?countrycode=US&limit=${limit}&offset=${page*limit}&hidebroken=true`
+    );
 
     const data = await res.json();
 
     stations = data;
     allStations = [...data];
-    currentList = stations;
+    currentList = data;
 
-    /* ✅ SAVE OFFLINE CACHE */
-    saveCache(data);
+    saveJSON(CACHE_KEY, data);
 
     render();
-
-    setStatus(`Loaded ${stations.length} stations`);
+    setStatus("Stations loaded (online)");
 
   }catch(err){
 
-    /* ✅ OFFLINE FALLBACK */
-    const cached = loadCache();
+    const cache = loadJSON(CACHE_KEY);
 
-    if(cached && cached.length){
+    if(cache){
 
-      stations = cached;
-      allStations = [...cached];
-      currentList = cached;
+      stations = cache;
+      allStations = [...cache];
+      currentList = cache;
 
       render();
 
-      setStatus("⚠ Offline mode (cached stations)");
+      setStatus("Offline mode (cached stations)");
 
     } else {
 
-      setStatus("Failed loading stations (no cache)");
+      setStatus("No stations available offline");
 
     }
-
   }
 }
 
 /* =========================
-   FAVORITES (UNCHANGED)
+   FAVORITES (FULL OFFLINE JSON)
 ========================= */
 
-async function loadFavorites(){
+function loadFavorites(){
 
-  setStatus("Loading favorites...");
+  const data = loadJSON(FAV_KEY) || [];
 
-  try{
+  favorites = data;
 
-    const res = await fetch(SHEET_API + "?action=get");
+  favoriteIds = new Set(
+    favorites.map(f => f.id)
+  );
 
-    const data = await res.json().catch(()=>[]);
+  currentList = favorites;
 
-    favorites = data.data || data;
+  render();
 
-    favoriteIds = new Set(
-      favorites.map(f => f.id || f.stationuuid)
-    );
+  setStatus(`Loaded ${favorites.length} favorites`);
+}
 
-    currentList = favorites;
+function saveFavorite(s){
 
-    render();
+  const id = s.stationuuid || s.id;
+  if(!id) return;
 
-    setStatus(`Loaded ${favorites.length} favorites`);
-
-  }catch(err){
-    setStatus("Failed loading favorites");
+  const exists = favoriteIds.has(id);
+  if(exists){
+    setStatus("Already in favorites");
+    return;
   }
+
+  favorites.push({
+    id,
+    name: s.name || "",
+    url: s.url_resolved || s.url || "",
+    country: s.country || "",
+    tags: s.tags || ""
+  });
+
+  favoriteIds.add(id);
+
+  saveJSON(FAV_KEY, favorites);
+
+  setStatus("⭐ Saved offline");
+  render();
 }
 
 /* =========================
-   PLAY (UNCHANGED)
+   PLAYER
 ========================= */
 
 function playStation(id){
 
-  const item =
-    currentList.find(s =>
-      s.stationuuid === id || s.id === id
-    );
+  const item = currentList.find(s =>
+    (s.stationuuid || s.id) === id
+  );
 
   if(!item) return;
 
-  currentIndex =
-    currentList.findIndex(s =>
-      s.stationuuid === id || s.id === id
-    );
+  currentIndex = currentList.findIndex(s =>
+    (s.stationuuid || s.id) === id
+  );
 
   const player = document.getElementById("player");
 
@@ -286,131 +290,130 @@ function playStation(id){
   player.play();
 
   isPlaying = true;
-
   document.getElementById("playBtn").textContent = "⏸";
-
-  player.onerror = () => setStatus("❌ Stream unavailable");
-  player.onplaying = () => setStatus("🎵 Live radio playing");
 
   updateNowPlaying();
 }
 
+function updateNowPlaying(){
+
+  const item = currentList[currentIndex];
+  if(!item) return;
+
+  document.getElementById("npName").textContent = item.name || "Unknown";
+  document.getElementById("npMeta").textContent =
+    `${item.country || ""} • ${item.tags || ""}`;
+}
+
 /* =========================
-   REMAINING CODE (UNCHANGED)
-   (all your functions stay exactly the same)
+   CONTROLS
 ========================= */
 
-/* keep everything below exactly as you already had */
-function updateNowPlaying(){ const item=currentList[currentIndex]; if(!item)return;
-document.getElementById("npName").textContent=item.name||"Unknown";
-document.getElementById("npMeta").textContent=`${item.country||""} • ${item.tags||"Radio"}`; }
+function togglePlay(){
 
-function togglePlay(){ const p=document.getElementById("player");
-const b=document.getElementById("playBtn"); if(!p.src)return;
-if(isPlaying){p.pause();isPlaying=false;b.textContent="▶";setStatus("Paused");}
-else{p.play();isPlaying=true;b.textContent="⏸";setStatus("Playing");}}
+  const p = document.getElementById("player");
+  const b = document.getElementById("playBtn");
 
-function nextStation(){ if(!currentList.length)return;
-currentIndex=(currentIndex+1)%currentList.length;
-playStation(currentList[currentIndex].stationuuid||currentList[currentIndex].id); }
+  if(!p.src) return;
 
-function prevStation(){ if(!currentList.length)return;
-currentIndex=(currentIndex-1+currentList.length)%currentList.length;
-playStation(currentList[currentIndex].stationuuid||currentList[currentIndex].id); }
+  if(isPlaying){
+    p.pause();
+    isPlaying = false;
+    b.textContent = "▶";
+  } else {
+    p.play();
+    isPlaying = true;
+    b.textContent = "⏸";
+  }
+}
 
-async function toggleFavorite(s){
-const id=s.stationuuid||s.id;if(!id)return;
-if(favoriteIds.has(id)){setStatus("Already saved");return;}
+function nextStation(){
+  if(!currentList.length) return;
+  currentIndex = (currentIndex + 1) % currentList.length;
+  playStation(currentList[currentIndex].stationuuid || currentList[currentIndex].id);
+}
 
-await fetch(SHEET_API,{
-method:"POST",
-body:new URLSearchParams({
-action:"save",
-id,
-name:s.name||"",
-url:s.url_resolved||s.url||"",
-country:s.country||"",
-genre:s.tags||"",
-time:new Date().toISOString()
-})
-});
-
-favoriteIds.add(id);
-setStatus("⭐ Added to favorites");
-render();
+function prevStation(){
+  if(!currentList.length) return;
+  currentIndex = (currentIndex - 1 + currentList.length) % currentList.length;
+  playStation(currentList[currentIndex].stationuuid || currentList[currentIndex].id);
 }
 
 function toggleFavCurrent(){
-const item=currentList[currentIndex];
-if(item)toggleFavorite(item);
+  const item = currentList[currentIndex];
+  if(item) saveFavorite(item);
 }
-
-function applyFilter(){
-const g=document.getElementById("genre").value.toLowerCase();
-
-stations = !g ? [...allStations]
-: allStations.filter(s=>(s.tags||"").toLowerCase().includes(g));
-
-currentList=stations;
-render();
-setStatus(`Found ${stations.length} stations`);
-}
-
-function nextPage(){page++;loadStations();}
-function prevPage(){if(page>0)page--;loadStations();}
 
 function setVolume(v){
-document.getElementById("player").volume=v;
+  document.getElementById("player").volume = v;
 }
+
+/* =========================
+   FILTER
+========================= */
+
+function applyFilter(){
+
+  const g = document.getElementById("genre").value.toLowerCase();
+
+  currentList = !g
+    ? [...allStations]
+    : allStations.filter(s =>
+        (s.tags || "").toLowerCase().includes(g)
+      );
+
+  render();
+}
+
+/* =========================
+   PAGING
+========================= */
+
+function nextPage(){ page++; loadStations(); }
+function prevPage(){ if(page>0) page--; loadStations(); }
+
+/* =========================
+   RENDER
+========================= */
 
 function render(){
-renderTable();renderMobile();
 
-document.getElementById("count").textContent =
-`${currentList.length} stations loaded`;
+  const tbody = document.querySelector("#table tbody");
+  tbody.innerHTML = "";
 
-document.getElementById("pageInfo").textContent =
-`Page ${page+1}`;
+  currentList.forEach(s => {
+
+    const id = s.stationuuid || s.id;
+
+    tbody.innerHTML += `
+      <tr>
+        <td>${s.name || "Unknown"}</td>
+        <td>${s.country || ""}</td>
+        <td>${s.tags || ""}</td>
+        <td>
+          <button onclick="playStation('${id}')">▶</button>
+          <button onclick='saveFavorite(${JSON.stringify(s)})'>⭐</button>
+        </td>
+      </tr>
+    `;
+  });
+
+  document.getElementById("count").textContent =
+    `${currentList.length} stations`;
+
 }
 
-function renderTable(){ /* unchanged */ 
-const tbody=document.querySelector("#table tbody");
-tbody.innerHTML="";
-currentList.forEach(s=>{
-const id=s.stationuuid||s.id;
-const tr=document.createElement("tr");
-tr.innerHTML=`
-<td><div class="station">${s.name||"Unknown"}</div></td>
-<td>${s.country||""}</td>
-<td><div class="tags">${s.tags||"Radio"}</div></td>
-<td><button onclick="playStation('${id}')">▶ Play</button></td>`;
-tbody.appendChild(tr);
-});
-}
-
-function renderMobile(){ /* unchanged */ 
-const el=document.getElementById("mobileList");
-el.innerHTML="";
-currentList.forEach(s=>{
-const id=s.stationuuid||s.id;
-const div=document.createElement("div");
-div.className="card";
-div.innerHTML=`
-<div class="card-title">${s.name||"Unknown"}</div>
-<div class="card-meta">${s.country||""}</div>
-<button onclick="playStation('${id}')">▶ Play</button>`;
-el.appendChild(div);
-});
-}
+/* =========================
+   STATUS
+========================= */
 
 function setStatus(t){
-document.getElementById("status").textContent=t;
+  document.getElementById("status").textContent = t;
 }
 
-document.getElementById("genre")
-.addEventListener("keydown",e=>{
-if(e.key==="Enter")applyFilter();
-});
+/* =========================
+   INIT
+========================= */
 
 loadStations();
 
