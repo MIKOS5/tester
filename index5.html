@@ -5,7 +5,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-<title>📻 RadioWave Pro (Offline)</title>
+<title>📻 RadioWave Pro (Offline Fixed)</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,9 +16,8 @@
 
 :root{
   --bg:#09111d;
-  --panel:#111827;
   --line:#253347;
-  --text:#ffffff;
+  --text:#fff;
   --muted:#93a4bb;
   --blue:#2793ff;
   --blue2:#1869d9;
@@ -31,7 +30,7 @@
 body{
   margin:0;
   font-family:Inter,sans-serif;
-  background: radial-gradient(circle at top,#17263f,#09111d 45%);
+  background:radial-gradient(circle at top,#17263f,#09111d 45%);
   color:white;
   display:flex;
   height:100vh;
@@ -49,20 +48,10 @@ body{
   box-shadow:var(--shadow);
 }
 
-.logo{
-  font-size:32px;
-  font-weight:800;
-}
-
+.logo{font-size:32px;font-weight:800;}
 .logo span{color:var(--blue);}
+.subtitle{color:var(--muted);font-size:13px;margin-bottom:20px;}
 
-.subtitle{
-  color:var(--muted);
-  font-size:13px;
-  margin-bottom:20px;
-}
-
-/* INPUT */
 .search{
   width:100%;
   padding:14px;
@@ -81,12 +70,11 @@ button{
   cursor:pointer;
   color:white;
   background:linear-gradient(180deg,var(--blue),var(--blue2));
-  transition:.15s;
 }
 
 button:hover{transform:translateY(-1px);}
 
-.main-btn{width:100%; margin-top:10px;}
+.main-btn{width:100%;margin-top:10px;}
 
 .grid-buttons{
   display:grid;
@@ -105,7 +93,8 @@ button:hover{transform:translateY(-1px);}
 }
 
 .station-icon{
-  width:55px;height:55px;
+  width:55px;
+  height:55px;
   border-radius:14px;
   background:linear-gradient(135deg,var(--blue),#6a5cff);
   display:flex;
@@ -125,12 +114,6 @@ button:hover{transform:translateY(-1px);}
   flex:1;
   padding:24px;
   overflow:auto;
-}
-
-.topbar{
-  display:flex;
-  justify-content:space-between;
-  margin-bottom:18px;
 }
 
 .page-title{
@@ -176,14 +159,12 @@ td{
   margin-top:10px;
 }
 
-/* STATUS */
 .status{
-  margin-top:16px;
-  font-size:13px;
+  margin-top:12px;
   color:var(--muted);
+  font-size:13px;
 }
 
-/* MOBILE */
 @media(max-width:900px){
   body{flex-direction:column;}
   .sidebar{width:100%;}
@@ -196,11 +177,10 @@ td{
 
 <body>
 
-<!-- SIDEBAR -->
 <div class="sidebar">
 
   <div class="logo">📻 Radio<span>Wave</span></div>
-  <div class="subtitle">Offline Pro Radio System</div>
+  <div class="subtitle">Offline Fixed Version</div>
 
   <input id="genre" class="search" placeholder="Search genre..." />
 
@@ -210,7 +190,7 @@ td{
     <button onclick="prevPage()">⬅ Prev</button>
     <button onclick="nextPage()">Next ➜</button>
     <button onclick="loadStations()">🔄 Refresh</button>
-    <button onclick="loadFavorites()">⭐ Local Fav</button>
+    <button onclick="loadFavorites()">⭐ Favorites</button>
   </div>
 
   <div class="radio-player">
@@ -236,22 +216,12 @@ td{
 
   <div class="status" id="status">Loading...</div>
 
-  <button style="margin-top:10px;background:#ff3b3b" onclick="clearFavorites()">
-    🗑 Clear Favorites
-  </button>
-
 </div>
 
-<!-- MAIN -->
 <div class="main">
 
-  <div class="topbar">
-    <div>
-      <div class="page-title">US Radio</div>
-      <div id="count" class="status">0 stations</div>
-    </div>
-    <div id="pageInfo" class="status">Page 1</div>
-  </div>
+  <div class="page-title">US Radio</div>
+  <div id="count" class="status"></div>
 
   <div class="table-wrap">
     <table id="table">
@@ -273,7 +243,6 @@ td{
 
 <script>
 
-/* API */
 const API = "https://all.api.radio-browser.info/json/stations/search";
 
 /* STATE */
@@ -288,9 +257,9 @@ let favorites = [];
 let favoriteIds = new Set();
 let isPlaying = false;
 
-/* ================= OFFLINE FAVORITES ================= */
+/* ================= FIXED FAVORITES ================= */
 
-function saveFavoritesLocal(){
+function saveFavorites(){
   localStorage.setItem("radio_favorites", JSON.stringify(favorites));
 }
 
@@ -301,18 +270,18 @@ function loadFavorites(){
   favorites = data ? JSON.parse(data) : [];
 
   favoriteIds = new Set(
-    favorites.map(f => f.stationuuid || f.id)
+    favorites.map(f => f.stationuuid)
   );
 
   currentList = favorites;
 
   render();
-  setStatus(`Loaded ${favorites.length} local favorites`);
+  setStatus(`Loaded ${favorites.length} favorites`);
 }
 
 function toggleFavorite(s){
 
-  const id = s.stationuuid || s.id;
+  const id = s.stationuuid;
   if(!id) return;
 
   if(favoriteIds.has(id)){
@@ -320,19 +289,33 @@ function toggleFavorite(s){
     return;
   }
 
-  favorites.push(s);
+  const clean = {
+    stationuuid: s.stationuuid,
+    name: s.name,
+    country: s.country,
+    tags: s.tags,
+    url: s.url,
+    url_resolved: s.url_resolved
+  };
+
+  favorites.push(clean);
   favoriteIds.add(id);
 
-  saveFavoritesLocal();
+  saveFavorites();
 
   setStatus("⭐ Saved offline");
   render();
 }
 
+function toggleFavCurrent(){
+  const item = currentList[currentIndex];
+  if(item) toggleFavorite(item);
+}
+
 function clearFavorites(){
   favorites = [];
   favoriteIds = new Set();
-  saveFavoritesLocal();
+  saveFavorites();
   render();
   setStatus("Favorites cleared");
 }
@@ -354,7 +337,7 @@ async function loadStations(){
   currentList = stations;
 
   render();
-  setStatus(`Loaded ${stations.length} stations`);
+  setStatus(`Loaded ${stations.length}`);
 }
 
 /* ================= PLAYER ================= */
@@ -362,7 +345,7 @@ async function loadStations(){
 function playStation(id){
 
   const item = currentList.find(s =>
-    s.stationuuid === id || s.id === id
+    s.stationuuid === id
   );
 
   if(!item) return;
@@ -375,17 +358,18 @@ function playStation(id){
   player.play();
 
   isPlaying = true;
+
   document.getElementById("playBtn").textContent = "⏸";
 
   document.getElementById("npName").textContent = item.name;
   document.getElementById("npMeta").textContent =
     `${item.country || ""} • ${item.tags || ""}`;
-
 }
 
 /* controls */
 function togglePlay(){
   const p = document.getElementById("player");
+
   if(!p.src) return;
 
   if(isPlaying){
@@ -411,8 +395,7 @@ function prevStation(){
   playStation(currentList[currentIndex].stationuuid);
 }
 
-/* ================= FILTER ================= */
-
+/* FILTER */
 function applyFilter(){
 
   const g = document.getElementById("genre").value.toLowerCase();
@@ -428,8 +411,7 @@ function applyFilter(){
   render();
 }
 
-/* ================= RENDER ================= */
-
+/* RENDER */
 function render(){
 
   const tbody = document.querySelector("#table tbody");
@@ -438,6 +420,7 @@ function render(){
   currentList.forEach(s => {
 
     const id = s.stationuuid;
+    const fav = favoriteIds.has(id);
 
     tbody.innerHTML += `
       <tr>
@@ -446,7 +429,9 @@ function render(){
         <td>${s.tags || ""}</td>
         <td>
           <button onclick="playStation('${id}')">▶</button>
-          <button onclick='toggleFavorite(${JSON.stringify(s)})'>⭐</button>
+          <button onclick='toggleFavorite(${JSON.stringify(s)})'>
+            ${fav ? "⭐" : "☆"}
+          </button>
         </td>
       </tr>
     `;
@@ -456,13 +441,14 @@ function render(){
     `${currentList.length} stations`;
 }
 
-/* status */
+/* STATUS */
 function setStatus(t){
   document.getElementById("status").textContent = t;
 }
 
-/* init */
+/* INIT */
 loadStations();
+loadFavorites();
 
 </script>
 
