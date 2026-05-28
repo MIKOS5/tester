@@ -2,92 +2,60 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>📻RADIOWAVE📻</title>
 
 <style>
 /* =========================
-   GLOBAL UI
+   GLOBAL DESKTOP UI (BIGGER)
 ========================= */
 body {
   margin: 0;
   font-family: Arial, sans-serif;
   background: #0b0f14;
-  color: #fff;
+  color: #ffffff;
   display: flex;
   height: 100vh;
+  font-size: 20px; /* ⬆ base font bigger */
 }
 
 /* =========================
-   SIDEBAR (RADIO CONSOLE)
+   LEFT WIDGET BAR
 ========================= */
 .sidebar {
-  width: 280px;
+  width: 200px; /* ⬆ wider panel */
   background: #111826;
-  border-right: 1px solid #1f2a3a;
-  padding: 14px;
+  padding: 18px;
   box-sizing: border-box;
-  overflow-y: auto;
+  border-right: 1px solid #1f2a3a;
 }
 
-h2 {
-  margin: 6px 0 10px;
-  font-size: 20px;
+.sidebar h2 {
+  font-size: 22px; /* ⬆ title bigger */
+  margin-bottom: 12px;
 }
 
-input, button {
+input, select, button {
   width: 100%;
-  padding: 12px;
+  padding: 10px;      /* ⬆ bigger touch targets */
   margin-top: 10px;
-  border-radius: 10px;
+  border-radius: 8px;
   border: none;
-  font-size: 15px;
+  font-size: 10px;    /* ⬆ input text bigger */
 }
 
+   #genre {
+  width: 88%;   /* adjust: 60%–95% */
+}
+   
 button {
   background: #1e88e5;
   color: white;
-  font-weight: bold;
   cursor: pointer;
+  font-weight: bold;
 }
 
-button:active {
-  transform: scale(0.98);
-}
-
-/* =========================
-   PLAYER BOX
-========================= */
-.player-box {
-  margin-top: 14px;
-  padding: 12px;
-  background: #0f1722;
-  border-radius: 12px;
-  border: 1px solid #1f2a3a;
-}
-
-.now-playing {
-  font-size: 13px;
-  color: #9ecbff;
-  margin-bottom: 8px;
-}
-
-.controls {
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
-}
-
-.controls button {
-  flex: 1;
-  padding: 10px;
-  font-size: 14px;
-}
-
-input[type="range"] {
-  width: 100%;
-  margin-top: 10px;
+button:hover {
+  background: #1565c0;
 }
 
 /* =========================
@@ -95,79 +63,52 @@ input[type="range"] {
 ========================= */
 .main {
   flex: 1;
-  padding: 14px;
-  overflow-y: auto;
+  padding: 24px;
+  overflow: auto;
 }
 
-/* TOP BAR */
 .topbar {
   display: flex;
-  gap: 8px;
-  margin-bottom: 10px;
+  gap: 12px;
+  margin-bottom: 14px;
 }
 
 .smallbtn {
-  flex: 1;
-  padding: 10px;
-  font-size: 13px;
+  width: auto;
+  padding: 10px 14px;
+  font-size: 14px;
 }
 
-/* =========================
-   STATION CARDS
-========================= */
-.card {
-  background: #121a28;
-  padding: 12px;
-  margin-bottom: 10px;
-  border-radius: 12px;
-  border: 1px solid #1f2a3a;
+/* TABLE (BIG IMPROVEMENT) */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+  font-size: 15px; /* ⬆ table readability */
 }
 
-.card-title {
-  font-size: 15px;
-  font-weight: bold;
+th, td {
+  padding: 14px; /* ⬆ row spacing */
+  border-bottom: 1px solid #1f2a3a;
+  text-align: left;
 }
 
-.card-meta {
-  font-size: 12px;
-  color: #aaa;
-  margin-top: 4px;
+tr:hover {
+  background: #182233;
+  cursor: pointer;
 }
 
-.card-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 10px;
+/* PLAYER */
+audio {
+  width: 100%;
+  margin-top: 18px;
 }
 
-.card-actions button {
-  flex: 1;
-  padding: 10px;
-  font-size: 13px;
-}
-
-/* =========================
-   STATUS
-========================= */
+/* STATUS */
 .status {
-  font-size: 12px;
+  margin-top: 12px;
   color: #aaa;
-  margin-top: 10px;
-}
-
-/* =========================
-   MOBILE ADAPTATION
-========================= */
-@media (max-width: 768px) {
-  body {
-    flex-direction: column;
-  }
-
-  .sidebar {
-    width: 100%;
-    border-right: none;
-    border-bottom: 1px solid #1f2a3a;
-  }
+  font-size: 14px;
 }
 </style>
 </head>
@@ -177,34 +118,18 @@ input[type="range"] {
 <!-- ================= SIDEBAR ================= -->
 <div class="sidebar">
 
-  <h2>📻 RADIOWAVE</h2>
+  <h2>RADIOWAVE</h2>
 
   <input id="genre" placeholder="Genre (rock, jazz, pop)" />
+
   <button onclick="applyFilter()">Apply Genre</button>
 
-  <div class="topbar">
-    <button class="smallbtn" onclick="loadStations()">Refresh</button>
-    <button class="smallbtn" onclick="loadFavorites()">Favorites</button>
-  </div>
+  <button onclick="nextPage()">Next 50 ➜</button>
+  <button onclick="prevPage()">⬅ Prev 50</button>
 
-  <!-- 🎧 PLAYER -->
-  <div class="player-box">
+  <hr>
 
-    <div id="nowPlaying" class="now-playing">
-      🎵 Not playing
-    </div>
-
-    <audio id="player"></audio>
-
-    <div class="controls">
-      <button onclick="playPause()">▶/⏸</button>
-      <button onclick="stopAudio()">⏹</button>
-    </div>
-
-    <input type="range" min="0" max="1" step="0.01"
-           value="1" onchange="setVolume(this.value)">
-
-  </div>
+  <button onclick="loadFavorites()">⭐ Load Favorites</button>
 
   <div class="status" id="status">Loading...</div>
 </div>
@@ -212,7 +137,28 @@ input[type="range"] {
 <!-- ================= MAIN ================= -->
 <div class="main">
 
-  <div id="list"></div>
+  <div class="topbar">
+    <button class="smallbtn" onclick="loadStations()">🔄 Refresh Stations</button>
+    <button class="smallbtn" onclick="showStations()">📻 Stations</button>
+    <button class="smallbtn" onclick="showFavs()">⭐ Favorites</button>
+  </div>
+
+  <h3 id="viewTitle">Stations</h3>
+
+  <!-- TABLE -->
+  <table id="table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Country</th>
+        <th>Genre</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <audio id="player" controls autoplay></audio>
 
 </div>
 
@@ -226,10 +172,10 @@ const SHEET_API = "https://script.google.com/macros/s/AKfycbzZ5MwOcYUY_bpsUKSxPd
 
 let stations = [];
 let favorites = [];
-let mode = "stations";
-let currentGenre = "";
 let page = 0;
-const limit = 30;
+let currentGenre = "";
+let mode = "stations";
+const limit = 50;
 
 /* =========================
    LOAD STATIONS
@@ -237,7 +183,9 @@ const limit = 30;
 async function loadStations() {
   mode = "stations";
 
-  let url = `${API}?countrycode=US&limit=${limit}&offset=${page * limit}&hidebroken=true`;
+  const offset = page * limit;
+  let url = `${API}?countrycode=US&limit=${limit}&offset=${offset}&hidebroken=true`;
+
   if (currentGenre) url += `&tag=${encodeURIComponent(currentGenre)}`;
 
   setStatus("Loading stations...");
@@ -245,30 +193,40 @@ async function loadStations() {
   const res = await fetch(url);
   stations = await res.json();
 
-  render(stations);
+  renderTable(stations, "stations");
 }
 
 /* =========================
-   FAVORITES
+   FAVORITES (FIXED API HANDLING)
 ========================= */
 async function loadFavorites() {
   setStatus("Loading favorites...");
 
   const res = await fetch(SHEET_API + "?action=get");
-  const data = await res.json().catch(() => []);
+  const text = await res.text();
 
-  favorites = data.data || data;
+  let data = [];
+
+  try {
+    const json = JSON.parse(text);
+    data = json.data || json;
+  } catch (e) {
+    data = parseTSV(text);
+  }
+
+  favorites = data;
+
   mode = "favorites";
+  renderTable(favorites, "favorites");
 
-  render(favorites);
-  setStatus(`Favorites: ${favorites.length}`);
+  setStatus(`Loaded ${favorites.length} favorites`);
 }
 
 /* =========================
    SAVE FAVORITE
 ========================= */
-async function saveFavorite(i) {
-  const s = stations[i];
+async function saveFavorite(index) {
+  const s = stations[index];
   if (!s) return;
 
   await fetch(SHEET_API, {
@@ -289,71 +247,51 @@ async function saveFavorite(i) {
 }
 
 /* =========================
-   RENDER CARDS
+   TABLE RENDER
 ========================= */
-function render(list) {
-  const el = document.getElementById("list");
-  el.innerHTML = "";
+function renderTable(list, type) {
+  const tbody = document.querySelector("#table tbody");
+  tbody.innerHTML = "";
+
+  if (!list || !list.length) {
+    setStatus("No data found");
+    return;
+  }
 
   list.forEach((s, i) => {
-    const div = document.createElement("div");
-    div.className = "card";
+    const tr = document.createElement("tr");
 
-    div.innerHTML = `
-      <div class="card-title">${s.name || "Unknown Station"}</div>
-      <div class="card-meta">
-        ${s.country || ""} • ${s.genre || s.tags || ""}
-      </div>
-      <div class="card-actions">
-        <button onclick="play(${i})">▶ Play</button>
-        ${mode === "stations"
-          ? `<button onclick="saveFavorite(${i})">⭐ Save</button>`
+    tr.innerHTML = `
+      <td>${s.name || ""}</td>
+      <td>${s.country || ""}</td>
+      <td>${s.genre || s.tags || ""}</td>
+      <td>
+        <button onclick="play(${i})">▶</button>
+        ${type === "stations"
+          ? `<button onclick="saveFavorite(${i})">⭐</button>`
           : ""
         }
-      </div>
+      </td>
     `;
 
-    el.appendChild(div);
+    tbody.appendChild(tr);
   });
 }
 
 /* =========================
-   PLAY ENGINE
+   PLAY ENGINE (FIXED)
 ========================= */
 function play(i) {
   const item = (mode === "stations") ? stations[i] : favorites[i];
   if (!item) return;
 
   const player = document.getElementById("player");
-  const label = document.getElementById("nowPlaying");
-
   player.src = item.url_resolved || item.url;
   player.play();
-
-  label.textContent = `🎵 ${item.name}`;
 }
 
 /* =========================
-   PLAYER CONTROLS
-========================= */
-function playPause() {
-  const p = document.getElementById("player");
-  p.paused ? p.play() : p.pause();
-}
-
-function stopAudio() {
-  const p = document.getElementById("player");
-  p.pause();
-  p.currentTime = 0;
-  document.getElementById("nowPlaying").textContent = "🎵 Not playing";
-}
-
-function setVolume(v) {
-  document.getElementById("player").volume = v;
-}
-
-/* =========================
-   FILTER
+   FILTER + PAGINATION
 ========================= */
 function applyFilter() {
   currentGenre = document.getElementById("genre").value.trim();
@@ -361,17 +299,56 @@ function applyFilter() {
   loadStations();
 }
 
-/* =========================
-   STATUS
-========================= */
-function setStatus(t) {
-  document.getElementById("status").textContent = t;
+function nextPage() {
+  page++;
+  loadStations();
 }
 
-/* INIT */
+function prevPage() {
+  if (page > 0) page--;
+  loadStations();
+}
+
+/* =========================
+   VIEW SWITCH
+========================= */
+function showStations() {
+  loadStations();
+}
+
+function showFavs() {
+  loadFavorites();
+}
+
+/* =========================
+   HELPERS
+========================= */
+function setStatus(msg) {
+  document.getElementById("status").textContent = msg;
+}
+
+function parseTSV(text) {
+  return text.trim().split("\n").map(l => {
+    const p = l.split("\t");
+    return {
+      id: p[0],
+      name: p[1],
+      url: p[2],
+      country: p[3],
+      genre: p[4],
+      time: p[5]
+    };
+  });
+}
+
+/* =========================
+   INIT
+========================= */
 loadStations();
 
 </script>
 
 </body>
 </html>
+
+make Andriod friendly page, 
