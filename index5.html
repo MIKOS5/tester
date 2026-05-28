@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>RADIO OS Dashboard</title>
+  <title>RADIO OS HYBRID</title>
 
   <style>
     body {
@@ -11,144 +11,127 @@
       padding: 20px;
     }
 
-    h1 {
-      color: #1e88e5;
+    h1 { color: #1e88e5; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 20px;
+      margin-top: 10px;
     }
 
     th, td {
       border: 1px solid #333;
-      padding: 10px;
-      text-align: left;
+      padding: 8px;
+      font-size: 13px;
     }
 
-    th {
-      background: #1e88e5;
-    }
+    th { background: #1e88e5; }
 
     tr:hover {
       background: #222;
       cursor: pointer;
     }
 
-    .status {
-      margin-top: 10px;
-      color: #aaa;
+    input, select, button {
+      padding: 8px;
+      margin-top: 6px;
+      width: 100%;
+      border: none;
+      border-radius: 6px;
     }
 
     button {
-      padding: 10px;
-      margin-top: 10px;
       background: #1e88e5;
       color: white;
-      border: none;
       cursor: pointer;
     }
 
-    button:hover {
-      background: #1565c0;
+    button:hover { background: #1565c0; }
+
+    .status {
+      margin-top: 10px;
+      color: #aaa;
+      font-size: 12px;
     }
   </style>
 </head>
 
 <body>
 
-<h1>🎧 RADIO OS DASHBOARD</h1>
+<h1>🎧 RADIO OS HYBRID</h1>
 
-<button onclick="loadFavoritesTable()">🔄 Reload Favorites</button>
+<div class="grid">
 
-<div class="status" id="status">Loading...</div>
+  <!-- =======================
+       STATIONS PANEL
+  ======================== -->
+  <div>
+    <h3>📡 Stations</h3>
 
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Country</th>
-      <th>Genre</th>
-      <th>Time</th>
-    </tr>
-  </thead>
+    <input id="genre" placeholder="genre filter (rock, jazz...)" />
 
-  <tbody id="favTable"></tbody>
-</table>
-
-<!-- =========================
-🎧 RADIO WIDGET (FLOATING)
-========================= -->
-
-<style>
-#radioWidget {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 320px;
-  background: #111;
-  border-radius: 12px;
-  overflow: hidden;
-  font-family: Arial;
-  z-index: 9999;
-  box-shadow: 0 0 20px rgba(0,0,0,0.6);
-}
-
-#radioHeader {
-  background: #1e88e5;
-  padding: 10px;
-  cursor: move;
-  display: flex;
-  justify-content: space-between;
-}
-
-#radioBody {
-  padding: 10px;
-}
-
-input, select, button {
-  width: 100%;
-  margin-top: 6px;
-  padding: 8px;
-  border: none;
-  border-radius: 6px;
-}
-
-button {
-  background: #1e88e5;
-  color: white;
-}
-
-button:hover {
-  background: #1565c0;
-}
-
-audio {
-  width: 100%;
-  margin-top: 8px;
-}
-</style>
-
-<div id="radioWidget">
-
-  <div id="radioHeader">
-    🎧 RADIO
-    <span onclick="toggle()" style="cursor:pointer;">⬆</span>
-  </div>
-
-  <div id="radioBody">
-
-    <input id="genre" placeholder="genre filter" />
+    <button onclick="loadStations()">Load Stations</button>
 
     <select id="stationList"></select>
 
-    <button onclick="play()">▶ Play</button>
-    <button onclick="save()">⭐ Save</button>
+    <button onclick="playStation()">▶ Play Station</button>
+    <button onclick="saveFavorite()">⭐ Save Favorite</button>
 
-    <audio id="player" controls></audio>
+    <audio id="player" controls style="width:100%;margin-top:10px;"></audio>
 
+    <div class="status" id="stationStatus"></div>
   </div>
+
+  <!-- =======================
+       FAVORITES PANEL
+  ======================== -->
+  <div>
+    <h3>⭐ Favorites (Sheets)</h3>
+
+    <button onclick="loadFavorites()">🔄 Load Favorites</button>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Country</th>
+          <th>Genre</th>
+        </tr>
+      </thead>
+      <tbody id="favTable"></tbody>
+    </table>
+
+    <div class="status" id="favStatus"></div>
+  </div>
+
+</div>
+
+<!-- =========================
+🎧 FLOATING WIDGET (SIMPLE)
+========================= -->
+
+<div id="widget" style="
+position:fixed;
+bottom:20px;
+right:20px;
+background:#111;
+padding:10px;
+border-radius:10px;
+width:250px;
+box-shadow:0 0 20px rgba(0,0,0,0.5);
+">
+
+  <b>🎧 Quick Player</b>
+
+  <button onclick="loadStations()">Reload Stations</button>
+  <button onclick="loadFavorites()">Load Fav</button>
+
 </div>
 
 <script>
@@ -158,14 +141,16 @@ const SHEET_API = "https://script.google.com/macros/s/AKfycbzZ5MwOcYUY_bpsUKSxPd
 
 let stations = [];
 
-// =====================
-// LOAD RADIO STATIONS
-// =====================
+// =========================
+// LOAD STATIONS (RESTORED)
+// =========================
 async function loadStations() {
   const genre = document.getElementById("genre").value;
 
   let url = `${API}?countrycode=US&limit=50&hidebroken=true`;
   if (genre) url += `&tag=${genre}`;
+
+  setStationStatus("Loading stations...");
 
   const res = await fetch(url);
   stations = await res.json();
@@ -179,26 +164,30 @@ async function loadStations() {
     opt.textContent = s.name;
     list.appendChild(opt);
   });
+
+  setStationStatus(`Loaded ${stations.length} stations`);
 }
 
-// =====================
+// =========================
 // PLAY STATION
-// =====================
-function play() {
+// =========================
+function playStation() {
   const s = stations[stationList.value];
+  if (!s) return;
+
   player.src = s.url_resolved || s.url;
   player.play();
 }
 
-// =====================
+// =========================
 // SAVE FAVORITE
-// =====================
-async function save() {
+// =========================
+async function saveFavorite() {
   const s = stations[stationList.value];
 
   await fetch(SHEET_API, {
     method: "POST",
-    headers: {"Content-Type": "application/json"},
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       action: "save",
       id: s.stationuuid,
@@ -210,14 +199,14 @@ async function save() {
     })
   });
 
-  loadFavoritesTable();
+  setFavStatus("⭐ Saved!");
 }
 
-// =====================
+// =========================
 // LOAD FAVORITES TABLE
-// =====================
-async function loadFavoritesTable() {
-  setStatus("Loading favorites...");
+// =========================
+async function loadFavorites() {
+  setFavStatus("Loading...");
 
   const res = await fetch(SHEET_API + "?action=get");
   const data = await res.json();
@@ -226,7 +215,7 @@ async function loadFavoritesTable() {
   table.innerHTML = "";
 
   if (!data.ok || !data.data.length) {
-    setStatus("No favorites found in sheet");
+    setFavStatus("No favorites found");
     return;
   }
 
@@ -237,13 +226,10 @@ async function loadFavoritesTable() {
       <td>${row.name}</td>
       <td>${row.country}</td>
       <td>${row.genre}</td>
-      <td>${row.time}</td>
     `;
 
     tr.onclick = () => {
-      // play in widget
-      stations = [row];
-      stationList.innerHTML = `<option selected>⭐ ${row.name}</option>`;
+      // PLAY FAVORITE DIRECTLY
       player.src = row.url;
       player.play();
     };
@@ -251,23 +237,23 @@ async function loadFavoritesTable() {
     table.appendChild(tr);
   });
 
-  setStatus(`Loaded ${data.data.length} favorites`);
+  setFavStatus(`Loaded ${data.data.length} favorites`);
 }
 
-// =====================
-// UI HELPERS
-// =====================
-function setStatus(t) {
-  document.getElementById("status").innerText = t;
+// =========================
+// STATUS HELPERS
+// =========================
+function setStationStatus(t) {
+  document.getElementById("stationStatus").innerText = t;
 }
 
-function toggle() {
-  document.getElementById("radioWidget").classList.toggle("minimized");
+function setFavStatus(t) {
+  document.getElementById("favStatus").innerText = t;
 }
 
 // INIT
 loadStations();
-loadFavoritesTable();
+loadFavorites();
 
 </script>
 
