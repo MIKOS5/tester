@@ -47,7 +47,7 @@ button:hover {
   background: #1565c0;
 }
 
-/* RADIO PLAYER DOCK */
+/* RADIO PLAYER */
 .radio-player {
   margin-top: 15px;
   padding: 10px;
@@ -92,18 +92,6 @@ button:hover {
   overflow: auto;
 }
 
-.topbar {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.smallbtn {
-  flex: 1;
-  padding: 10px;
-  font-size: 13px;
-}
-
 /* TABLE */
 table {
   width: 100%;
@@ -119,7 +107,7 @@ tr:hover {
   background: #182233;
 }
 
-/* MOBILE CARDS */
+/* CARDS */
 .card {
   background: #121a28;
   padding: 12px;
@@ -145,7 +133,7 @@ tr:hover {
   margin-top: 10px;
 }
 
-/* RESPONSIVE */
+/* MOBILE */
 @media (max-width: 768px) {
   body { flex-direction: column; }
 
@@ -177,7 +165,7 @@ tr:hover {
 
   <div class="status" id="status">Loading...</div>
 
-  <!-- RADIO PLAYER -->
+  <!-- PLAYER -->
   <div class="radio-player">
 
     <div class="now-playing">
@@ -199,11 +187,6 @@ tr:hover {
 
 <!-- MAIN -->
 <div class="main">
-
-  <div class="topbar">
-    <button class="smallbtn" onclick="loadStations()">Stations</button>
-    <button class="smallbtn" onclick="loadFavorites()">Favs</button>
-  </div>
 
   <table id="table">
     <thead>
@@ -263,7 +246,7 @@ async function loadFavorites() {
   const data = await res.json().catch(()=>[]);
 
   favorites = data.data || data;
-  favoriteIds = new Set(favorites.map(f => f.stationuuid));
+  favoriteIds = new Set(favorites.map(f => f.id));
 
   mode = "favorites";
   currentList = favorites;
@@ -273,7 +256,7 @@ async function loadFavorites() {
   setStatus(`Favorites: ${favorites.length}`);
 }
 
-/* PLAY STATION */
+/* PLAY */
 function playStation(id) {
   currentIndex = currentList.findIndex(s => s.stationuuid === id);
   const item = currentList[currentIndex];
@@ -282,8 +265,6 @@ function playStation(id) {
   const player = document.getElementById("player");
   player.src = item.url_resolved || item.url;
   player.play();
-
-  isPlaying = true;
 
   updateNowPlaying();
 }
@@ -298,7 +279,7 @@ function updateNowPlaying() {
     (item.country || "") + " • " + (item.tags || "");
 }
 
-/* PLAY / PAUSE */
+/* PLAY TOGGLE */
 function togglePlay() {
   const player = document.getElementById("player");
 
@@ -313,34 +294,23 @@ function togglePlay() {
   }
 }
 
-/* NEXT */
+/* NEXT / PREV */
 function nextStation() {
   if (!currentList.length) return;
-
   currentIndex = (currentIndex + 1) % currentList.length;
   playStation(currentList[currentIndex].stationuuid);
 }
 
-/* PREV */
 function prevStation() {
   if (!currentList.length) return;
-
-  currentIndex =
-    (currentIndex - 1 + currentList.length) % currentList.length;
-
+  currentIndex = (currentIndex - 1 + currentList.length) % currentList.length;
   playStation(currentList[currentIndex].stationuuid);
 }
 
-/* FAVORITE CURRENT */
-function toggleFavCurrent() {
-  const item = currentList[currentIndex];
-  if (!item) return;
-
-  toggleFavorite(item);
-}
-
-/* ⭐ FIXED FAVORITE SAVE (THIS IS THE IMPORTANT FIX) */
+/* ⭐ FIXED FAVORITE (SAFE + SIMPLE) */
 async function toggleFavorite(s) {
+  if (!s || !s.stationuuid) return;
+
   const exists = favoriteIds.has(s.stationuuid);
 
   if (!exists) {
@@ -349,8 +319,8 @@ async function toggleFavorite(s) {
       body: new URLSearchParams({
         action: "save",
         id: s.stationuuid,
-        name: s.name,
-        url: s.url_resolved || s.url,
+        name: s.name || "",
+        url: s.url_resolved || s.url || "",
         country: s.country || "",
         genre: s.tags || "all",
         time: new Date().toISOString()
@@ -358,12 +328,19 @@ async function toggleFavorite(s) {
     });
 
     favoriteIds.add(s.stationuuid);
-    setStatus("⭐ Added to favorites");
+    setStatus("⭐ Saved");
   } else {
-    setStatus("Already in favorites");
+    setStatus("Already saved");
   }
 
   render();
+}
+
+/* FAVORITE CURRENT */
+function toggleFavCurrent() {
+  const item = currentList[currentIndex];
+  if (!item) return;
+  toggleFavorite(item);
 }
 
 /* PAGINATION */
@@ -373,10 +350,8 @@ function nextPage() {
 }
 
 function prevPage() {
-  if (page > 0) {
-    page--;
-    loadStations();
-  }
+  if (page > 0) page--;
+  loadStations();
 }
 
 /* FILTER */
@@ -411,7 +386,7 @@ function renderTable() {
       <td>${s.tags || ""}</td>
       <td>
         <button onclick="playStation('${s.stationuuid}')">▶</button>
-        <button onclick='toggleFavorite(${JSON.stringify(s)})'>
+        <button onclick="toggleFavorite(currentList.find(x => x.stationuuid==='${s.stationuuid}'))">
           ${isFav ? "⭐" : "☆"}
         </button>
       </td>
@@ -436,7 +411,7 @@ function renderMobile() {
       <div class="card-title">${s.name || ""}</div>
       <div class="card-meta">${s.country || ""} • ${s.tags || ""}</div>
       <button onclick="playStation('${s.stationuuid}')">▶ Play</button>
-      <button onclick='toggleFavorite(${JSON.stringify(s)})'>
+      <button onclick="toggleFavorite(currentList.find(x => x.stationuuid==='${s.stationuuid}'))">
         ${isFav ? "⭐ Favorited" : "☆ Favorite"}
       </button>
     `;
