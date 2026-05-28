@@ -18,7 +18,7 @@ body {
 
 /* SIDEBAR */
 .sidebar {
-  width: 240px;
+  width: 260px;
   background: #111826;
   padding: 16px;
   box-sizing: border-box;
@@ -45,6 +45,44 @@ button {
 
 button:hover {
   background: #1565c0;
+}
+
+/* RADIO PLAYER DOCK */
+.radio-player {
+  margin-top: 15px;
+  padding: 10px;
+  background: #0f1722;
+  border: 1px solid #1f2a3a;
+  border-radius: 10px;
+}
+
+.now-playing {
+  font-size: 12px;
+  color: #aaa;
+  margin-bottom: 8px;
+}
+
+#npName {
+  font-size: 14px;
+  font-weight: bold;
+  color: #fff;
+}
+
+#npMeta {
+  font-size: 12px;
+  color: #aaa;
+}
+
+.controls {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.controls button {
+  flex: 1;
+  padding: 8px;
+  font-size: 14px;
 }
 
 /* MAIN */
@@ -104,21 +142,6 @@ tr:hover {
   margin: 6px 0;
 }
 
-/* PLAYER */
-.player-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: #0f1722;
-  border-top: 1px solid #1f2a3a;
-  padding: 10px;
-}
-
-audio {
-  width: 100%;
-}
-
 /* STATUS */
 .status {
   font-size: 12px;
@@ -145,7 +168,7 @@ audio {
 
 <!-- SIDEBAR -->
 <div class="sidebar">
-  <h2>RADIOWAVE</h2>
+  <h2>📻 RADIOWAVE</h2>
 
   <input id="genre" placeholder="Genre filter" />
   <button onclick="applyFilter()">Apply Genre</button>
@@ -158,9 +181,9 @@ audio {
 
   <div class="status" id="status">Loading...</div>
 
-  <!-- 🎧 RADIO PLAYER DOCK -->
+  <!-- RADIO PLAYER -->
   <div class="radio-player">
-    
+
     <div class="now-playing">
       <div id="npName">Not playing</div>
       <div id="npMeta">Select a station</div>
@@ -192,7 +215,7 @@ audio {
         <th>Name</th>
         <th>Country</th>
         <th>Genre</th>
-        <th>Play / Fav</th>
+        <th>Action</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -200,11 +223,6 @@ audio {
 
   <div id="mobileList"></div>
 
-</div>
-
-<!-- PLAYER -->
-<div class="player-bar">
-  <audio id="player" controls autoplay></audio>
 </div>
 
 <script>
@@ -217,10 +235,12 @@ let favorites = [];
 let favoriteIds = new Set();
 
 let mode = "stations";
-let activeStationId = null;
-
 let page = 0;
 const limit = 50;
+
+let currentList = [];
+let currentIndex = -1;
+let isPlaying = false;
 
 /* LOAD STATIONS */
 async function loadStations() {
@@ -234,7 +254,7 @@ async function loadStations() {
   );
 
   stations = await res.json();
-  activeStationId = null;
+  currentList = stations;
 
   render();
 }
@@ -250,28 +270,80 @@ async function loadFavorites() {
   favoriteIds = new Set(favorites.map(f => f.stationuuid));
 
   mode = "favorites";
+  currentList = favorites;
+
   render();
 
   setStatus(`Favorites: ${favorites.length}`);
 }
 
-/* PLAY */
+/* PLAY STATION */
 function playStation(id) {
-  const list = mode === "stations" ? stations : favorites;
-  const item = list.find(s => s.stationuuid === id);
-
+  currentIndex = currentList.findIndex(s => s.stationuuid === id);
+  const item = currentList[currentIndex];
   if (!item) return;
-
-  activeStationId = id;
 
   const player = document.getElementById("player");
   player.src = item.url_resolved || item.url;
   player.play();
 
-  render();
+  isPlaying = true;
+
+  updateNowPlaying();
 }
 
-/* ⭐ FAVORITE TOGGLE */
+/* NOW PLAYING */
+function updateNowPlaying() {
+  const item = currentList[currentIndex];
+  if (!item) return;
+
+  document.getElementById("npName").textContent = item.name || "Unknown";
+  document.getElementById("npMeta").textContent =
+    (item.country || "") + " • " + (item.tags || "");
+}
+
+/* PLAY / PAUSE */
+function togglePlay() {
+  const player = document.getElementById("player");
+
+  if (!player.src) return;
+
+  if (isPlaying) {
+    player.pause();
+    isPlaying = false;
+  } else {
+    player.play();
+    isPlaying = true;
+  }
+}
+
+/* NEXT */
+function nextStation() {
+  if (!currentList.length) return;
+
+  currentIndex = (currentIndex + 1) % currentList.length;
+  playStation(currentList[currentIndex].stationuuid);
+}
+
+/* PREV */
+function prevStation() {
+  if (!currentList.length) return;
+
+  currentIndex =
+    (currentIndex - 1 + currentList.length) % currentList.length;
+
+  playStation(currentList[currentIndex].stationuuid);
+}
+
+/* FAVORITE CURRENT */
+function toggleFavCurrent() {
+  const item = currentList[currentIndex];
+  if (!item) return;
+
+  toggleFavorite(item);
+}
+
+/* FAVORITE TOGGLE */
 async function toggleFavorite(s) {
   const exists = favoriteIds.has(s.stationuuid);
 
@@ -318,6 +390,7 @@ function applyFilter() {
   stations = stations.filter(s =>
     (s.tags || "").toLowerCase().includes(g)
   );
+  currentList = stations;
   render();
 }
 
@@ -332,9 +405,7 @@ function renderTable() {
   const tbody = document.querySelector("#table tbody");
   tbody.innerHTML = "";
 
-  const list = mode === "stations" ? stations : favorites;
-
-  list.forEach(s => {
+  currentList.forEach(s => {
     const isFav = favoriteIds.has(s.stationuuid);
 
     const tr = document.createElement("tr");
@@ -360,13 +431,11 @@ function renderMobile() {
   const el = document.getElementById("mobileList");
   el.innerHTML = "";
 
-  const list = mode === "stations" ? stations : favorites;
-
-  list.forEach(s => {
+  currentList.forEach(s => {
     const isFav = favoriteIds.has(s.stationuuid);
 
     const div = document.createElement("div");
-    div.className = "card" + (s.stationuuid === activeStationId ? " active" : "");
+    div.className = "card";
 
     div.innerHTML = `
       <div class="card-title">${s.name || ""}</div>
