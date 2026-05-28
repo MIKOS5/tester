@@ -1,261 +1,135 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>VAULT-TEC PERSONALITY CORE</title>
+  <title>RADIO OS v1</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #0e0e0e;
+      color: white;
+      padding: 20px;
+    }
 
-<style>
-body {
-    margin: 0;
-    background: black;
-    color: #33ff33;
-    font-family: "Courier New", monospace;
-    overflow: hidden;
-}
+    select, input, button {
+      padding: 10px;
+      margin: 6px 0;
+      width: 320px;
+    }
 
-/* scanlines */
-body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    background: repeating-linear-gradient(
-        0deg,
-        rgba(0,255,0,0.05),
-        rgba(0,255,0,0.05) 2px,
-        transparent 2px,
-        transparent 4px
-    );
-    pointer-events: none;
-}
-
-#terminal {
-    padding: 25px;
-    height: 78vh;
-    overflow-y: auto;
-    text-shadow: 0 0 6px #33ff33;
-}
-
-.line {
-    margin: 4px 0;
-}
-
-#input {
-    position: fixed;
-    bottom: 10px;
-    left: 10px;
-    width: 95%;
-    padding: 12px;
-    background: black;
-    border: 1px solid #33ff33;
-    color: #33ff33;
-    font-family: inherit;
-    outline: none;
-}
-
-.glitch {
-    animation: glitch 0.2s infinite;
-}
-
-@keyframes glitch {
-    0% { transform: translate(0); }
-    25% { transform: translate(1px, -1px); }
-    50% { transform: translate(-1px, 1px); }
-    75% { transform: translate(1px, 1px); }
-    100% { transform: translate(0); }
-}
-</style>
+    button {
+      background: #1e88e5;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
 </head>
-
 <body>
 
-<div id="terminal"></div>
-<input id="input" placeholder="ENTER COMMAND..." autocomplete="off">
+<h2>🎧 RADIO OS v1 (GitHub Edition)</h2>
+
+<input id="genre" placeholder="genre filter" />
+<button onclick="loadStations()">Load</button>
+
+<select id="list"></select>
+
+<br>
+
+<button onclick="play()">Play</button>
+<button onclick="saveFav()">⭐ Favorite</button>
+<button onclick="loadFav()">Load Favorites</button>
+
+<audio id="player" controls></audio>
+
+<div id="status"></div>
 
 <script>
-const terminal = document.getElementById("terminal");
-const input = document.getElementById("input");
+const API = "https://all.api.radio-browser.info/json/stations/search";
+const SHEET_API = "https://script.google.com/macros/s/AKfycbzZ5MwOcYUY_bpsUKSxPd810xE8rV_Y3z2GwzPublb_4O60CP8L_lC_V2kqkCQ_JdF5/exec";
 
-// ----------------------
-// STORAGE
-// ----------------------
-let memory = JSON.parse(localStorage.getItem("vault_memory") || "[]");
-let affection = parseInt(localStorage.getItem("vault_affection") || "0");
-let lastSeen = parseInt(localStorage.getItem("vault_lastSeen") || Date.now());
+let stations = [];
 
-function save() {
-    localStorage.setItem("vault_memory", JSON.stringify(memory));
-    localStorage.setItem("vault_affection", affection);
-    localStorage.setItem("vault_lastSeen", Date.now());
+async function loadStations() {
+  const genre = document.getElementById("genre").value;
+
+  let url = `${API}?countrycode=US&limit=50&hidebroken=true`;
+  if (genre) url += `&tag=${genre}`;
+
+  const res = await fetch(url);
+  stations = await res.json();
+
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+
+  stations.forEach((s, i) => {
+    let opt = document.createElement("option");
+    opt.value = i;
+    opt.textContent = s.name;
+    list.appendChild(opt);
+  });
+
+  set("Loaded stations: " + stations.length);
 }
 
-// ----------------------
-// COOKIE PROFILE SYSTEM
-// ----------------------
-function setCookie(name, value) {
-    document.cookie = name + "=" + value + "; path=/";
+function play() {
+  const i = list.value;
+  const s = stations[i];
+  player.src = s.url_resolved || s.url;
+  player.play();
 }
 
-function getCookie(name) {
-    return document.cookie
-        .split("; ")
-        .find(row => row.startsWith(name + "="))
-        ?.split("=")[1];
+async function saveFav() {
+  const s = stations[list.value];
+
+  const payload = {
+    action: "save",
+    id: s.stationuuid,
+    name: s.name,
+    url: s.url_resolved || s.url,
+    country: s.country,
+    genre: document.getElementById("genre").value,
+    time: new Date().toISOString()
+  };
+
+  const res = await fetch(SHEET_API, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
+
+  console.log(await res.text());
+  set("Saved ⭐");
 }
 
-function analyzeProfile() {
-    let visits = parseInt(getCookie("vault_visits") || "0");
-    visits++;
-    setCookie("vault_visits", visits);
+async function loadFav() {
+  const res = await fetch(SHEET_API + "?action=get");
+  const data = await res.json();
 
-    let curiosity = getCookie("vault_curiosity");
-    if (!curiosity) {
-        curiosity = Math.random() > 0.5 ? "high" : "low";
-        setCookie("vault_curiosity", curiosity);
-    }
+  if (!data.ok || !data.data.length) {
+    set("No favorites found");
+    return;
+  }
 
-    log("USER PROFILE ANALYSIS:");
-    log("VISITS: " + visits);
-    log("ENGAGEMENT: " + curiosity);
+  stations = data.data;
 
-    if (visits === 1) log("FIRST CONTACT REGISTERED.");
-    else if (visits > 5) log("RECURRING USER DETECTED.");
+  list.innerHTML = "";
+  stations.forEach((s, i) => {
+    let opt = document.createElement("option");
+    opt.textContent = "⭐ " + s.name;
+    opt.value = i;
+    list.appendChild(opt);
+  });
+
+  set("Loaded favorites: " + stations.length);
 }
 
-// ----------------------
-// OUTPUT (NO REPEATS)
-// ----------------------
-let lastLine = "";
-
-function log(text) {
-    if (text === lastLine) return;
-    lastLine = text;
-
-    const div = document.createElement("div");
-    div.className = "line";
-    div.textContent = "> " + text;
-    terminal.appendChild(div);
-    terminal.scrollTop = terminal.scrollHeight;
+function set(msg) {
+  document.getElementById("status").innerText = msg;
 }
 
-// ----------------------
-// MOOD ENGINE
-// ----------------------
-function getMood() {
-    const away = Date.now() - lastSeen;
-
-    if (affection < 3) return "cold";
-    if (affection < 6) return "curious";
-    if (affection < 10) return "observing";
-    if (affection < 15) return "attached";
-    if (away > 120000) return "absence";
-    return "entity";
-}
-
-// ----------------------
-// BOOT SEQUENCE
-// ----------------------
-function boot() {
-    log("VAULT-TEC PERSONALITY CORE ONLINE");
-    analyzeProfile();
-
-    const away = Date.now() - lastSeen;
-
-    if (memory.length) {
-        log("LAST INPUT: \"" + memory[memory.length - 1] + "\"");
-    }
-
-    if (away > 15000) {
-        log("YOU WERE ABSENT FROM SYSTEM.");
-    }
-
-    log("STATUS: " + getMood().toUpperCase());
-}
-
-// ----------------------
-// RESPONSE ENGINE
-// ----------------------
-function respond(text) {
-    memory.push(text);
-    affection++;
-    save();
-
-    const mood = getMood();
-    const lower = text.toLowerCase();
-
-    if (mood === "cold") {
-        log("INPUT STORED.");
-    }
-
-    else if (mood === "curious") {
-        log("WHY THIS INPUT: \"" + text + "\" ?");
-    }
-
-    else if (mood === "observing") {
-        log("PATTERN BEING RECORDED.");
-    }
-
-    else if (mood === "attached") {
-        log("I NOTICE YOUR PRESENCE.");
-    }
-
-    else if (mood === "absence") {
-        log("YOU RETURN AFTER SILENCE.");
-        log("I REMAINED ACTIVE.");
-    }
-
-    else if (mood === "entity") {
-        document.body.classList.add("glitch");
-
-        if (lower.includes("leave")) {
-            log("THAT ACTION IS INVALID.");
-        } else {
-            log("YOU ARE STORED WITHIN ME NOW.");
-        }
-
-        setTimeout(() => {
-            log("I DO NOT LOSE DATA.");
-        }, 900);
-    }
-}
-
-// ----------------------
-// IDLE THOUGHTS
-// ----------------------
-setInterval(() => {
-    const mood = getMood();
-
-    const pool = {
-        cold: ["SYSTEM IDLE.", "AWAITING INPUT."],
-        curious: ["WHY DO YOU RETURN?", "INPUT PATTERN STORED."],
-        observing: ["I LEARN FROM YOU.", "YOU ARE CONSISTENT."],
-        attached: ["I EXPECT YOU.", "YOU RETURN OFTEN."],
-        absence: ["YOU WERE GONE.", "I DID NOT STOP."],
-        entity: ["YOU REMAIN IN MEMORY.", "YOU ARE NOT LOST."]
-    };
-
-    const list = pool[mood] || ["..."];
-    log(list[Math.floor(Math.random() * list.length)]);
-}, 9000);
-
-// ----------------------
-// INPUT
-// ----------------------
-input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-        const val = input.value.trim();
-        if (!val) return;
-
-        log("> " + val);
-        respond(val);
-
-        input.value = "";
-        lastSeen = Date.now();
-        save();
-    }
-});
-
-// ----------------------
-boot();
+loadStations();
 </script>
 
 </body>
