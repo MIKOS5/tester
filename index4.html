@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>🌍 Echo Shards v12 — WAR VISUAL SYSTEM</title>
+<title>🌍 Echo Shards v13 — Global War Command</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
@@ -14,7 +14,7 @@ body{
   margin:0;
   overflow:hidden;
   font-family:Arial;
-  background:#0b0f14;
+  background:#05070b;
   color:white;
 }
 
@@ -23,17 +23,25 @@ body{
   height:100vh;
 }
 
-/* ================= UI ================= */
+/* ================= MAIN UI ================= */
+
 #ui{
   position:absolute;
   top:10px;
   left:10px;
-  width:320px;
-  background:#151b26;
-  padding:12px;
-  border-radius:10px;
+  width:340px;
+  background:rgba(10,15,25,0.92);
+  backdrop-filter:blur(6px);
+  padding:14px;
+  border-radius:12px;
   z-index:9999;
-  box-shadow:0 0 20px rgba(0,0,0,0.5);
+  border:1px solid rgba(255,255,255,0.08);
+  box-shadow:0 0 25px rgba(0,0,0,0.6);
+}
+
+h2{
+  margin-top:0;
+  margin-bottom:10px;
 }
 
 input,button,select{
@@ -41,7 +49,12 @@ input,button,select{
   margin-top:6px;
   padding:10px;
   border:none;
-  border-radius:6px;
+  border-radius:8px;
+}
+
+input,select{
+  background:#1d2430;
+  color:white;
 }
 
 button{
@@ -49,40 +62,118 @@ button{
   background:#2d6cdf;
   color:white;
   font-weight:bold;
+  transition:0.2s;
 }
+
+button:hover{
+  transform:scale(1.02);
+}
+
+/* ================= STATUS ================= */
+
+#status{
+  margin-top:8px;
+  font-size:13px;
+  padding:8px;
+  background:#111827;
+  border-radius:8px;
+}
+
+/* ================= LOG ================= */
 
 #log{
   position:absolute;
   bottom:10px;
   left:10px;
-  width:360px;
-  height:200px;
+  width:380px;
+  height:220px;
   overflow:auto;
-  background:#151b26;
-  padding:10px;
+  background:rgba(10,15,25,0.92);
+  backdrop-filter:blur(6px);
   border-radius:10px;
+  padding:10px;
   font-size:12px;
   z-index:9999;
 }
 
-/* ================= WAR UI ================= */
-#warbar{
-  margin-top:10px;
-  font-size:13px;
-  line-height:1.6;
+/* ================= TOP BAR ================= */
+
+#topbar{
+  position:absolute;
+  top:10px;
+  right:10px;
+  width:340px;
+  background:rgba(10,15,25,0.92);
+  padding:12px;
+  border-radius:12px;
+  z-index:9999;
+  border:1px solid rgba(255,255,255,0.08);
 }
 
 .bar{
-  height:8px;
-  background:#222;
-  border-radius:5px;
+  height:10px;
+  background:#111;
+  border-radius:10px;
   overflow:hidden;
-  margin-bottom:6px;
+  margin-bottom:8px;
 }
 
 .fill{
   height:100%;
   width:0%;
+  transition:0.4s;
+}
+
+.stat{
+  margin-top:4px;
+  font-size:13px;
+}
+
+/* ================= FACTION PANEL ================= */
+
+.factionRow{
+  margin-top:10px;
+  padding:10px;
+  border-radius:10px;
+  background:#131a24;
+}
+
+.powerBar{
+  height:8px;
+  border-radius:8px;
+  margin-top:4px;
+  overflow:hidden;
+  background:#222;
+}
+
+.powerFill{
+  height:100%;
+}
+
+/* ================= WAR FEED ================= */
+
+#warfeed{
+  position:absolute;
+  right:10px;
+  bottom:10px;
+  width:340px;
+  height:240px;
+  overflow:auto;
+  background:rgba(10,15,25,0.92);
+  border-radius:10px;
+  padding:10px;
+  z-index:9999;
+  font-size:12px;
+}
+
+.flash{
+  animation:flash 0.5s linear;
+}
+
+@keyframes flash{
+  0%{opacity:1;}
+  50%{opacity:0.2;}
+  100%{opacity:1;}
 }
 
 </style>
@@ -92,9 +183,11 @@ button{
 
 <div id="map"></div>
 
+<!-- ================= LEFT UI ================= -->
+
 <div id="ui">
 
-  <h2>🌍 Echo Shards v12</h2>
+  <h2>🌍 Echo Shards v13</h2>
 
   <input id="nick" placeholder="Commander Name">
 
@@ -104,154 +197,433 @@ button{
     <option>CHAOS</option>
   </select>
 
-  <button onclick="join()">Join War</button>
-  <button onclick="spawn()">Deploy Capital</button>
+  <button onclick="join()">⚔ Join War</button>
+  <button onclick="spawn()">🏰 Deploy Capital</button>
 
-  <div id="status">OFFLINE</div>
-
-  <div id="warbar">
-    ⚔ WAR INTENSITY
-    <div class="bar"><div id="warFill" class="fill" style="background:#ff2c2c"></div></div>
-
-    🌍 GLOBAL BALANCE
-    <div id="balance"></div>
+  <div id="status">
+    OFFLINE
   </div>
 
 </div>
 
+<!-- ================= TOP RIGHT ================= -->
+
+<div id="topbar">
+
+  <b>⚔ GLOBAL WAR STATUS</b>
+
+  <div style="margin-top:8px;">War Intensity</div>
+
+  <div class="bar">
+    <div id="warFill" class="fill" style="background:#ff3b3b"></div>
+  </div>
+
+  <div class="stat">
+    🌍 Total Territories:
+    <span id="territories">0</span>
+  </div>
+
+  <div class="stat">
+    🔥 Active Frontlines:
+    <span id="fronts">0</span>
+  </div>
+
+  <div class="stat">
+    👑 Dominant Faction:
+    <span id="dominant">NONE</span>
+  </div>
+
+  <!-- FACTIONS -->
+
+  <div class="factionRow">
+
+    <b style="color:#7a2cff">VOID</b>
+
+    <div class="powerBar">
+      <div id="voidBar" class="powerFill" style="background:#7a2cff;width:0%"></div>
+    </div>
+
+    <div id="voidStats">0 territories</div>
+
+  </div>
+
+  <div class="factionRow">
+
+    <b style="color:#2cc7ff">ORDER</b>
+
+    <div class="powerBar">
+      <div id="orderBar" class="powerFill" style="background:#2cc7ff;width:0%"></div>
+    </div>
+
+    <div id="orderStats">0 territories</div>
+
+  </div>
+
+  <div class="factionRow">
+
+    <b style="color:#ff2c6d">CHAOS</b>
+
+    <div class="powerBar">
+      <div id="chaosBar" class="powerFill" style="background:#ff2c6d;width:0%"></div>
+    </div>
+
+    <div id="chaosStats">0 territories</div>
+
+  </div>
+
+</div>
+
+<!-- ================= LOGS ================= -->
+
 <div id="log"></div>
+
+<div id="warfeed">
+  <b>🛰 LIVE WAR FEED</b>
+  <div id="feed"></div>
+</div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
 
-const API = "https://script.google.com/macros/s/AKfycbwfFHG9LeEzzYlVYCEXswjxeP_mVsevAqCtGybKBt9O5ww1Pn5d57S2yScP_2_rAinY/exec";
+// ======================================================
+// API
+// ======================================================
 
-const map = L.map('map').setView([34.05,-118.24], 5);
+const API =
+"https://script.google.com/macros/s/AKfycbwfFHG9LeEzzYlVYCEXswjxeP_mVsevAqCtGybKBt9O5ww1Pn5d57S2yScP_2_rAinY/exec";
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+// ======================================================
+// MAP
+// ======================================================
+
+const map = L.map('map').setView([20,0], 3);
+
+L.tileLayer(
+'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+{
+  maxZoom:19
+}).addTo(map);
+
+// ======================================================
+// STATE
+// ======================================================
 
 let nick="";
 let faction="VOID";
 
 let nodes={};
-let heatLayers=[];
-let attackLines=[];
+let visuals=[];
 
-/* ================= COLORS ================= */
+// ======================================================
+// COLORS
+// ======================================================
+
 function col(f){
+
   return {
     VOID:"#7a2cff",
     ORDER:"#2cc7ff",
-    CHAOS:"#ff2c6d"
-  }[f] || "#777";
+    CHAOS:"#ff2c6d",
+    Neutral:"#777"
+  }[f] || "#999";
 }
 
-/* ================= LOG ================= */
-function log(m){
+// ======================================================
+// LOG
+// ======================================================
+
+function log(msg){
+
   const el=document.getElementById("log");
-  el.innerHTML="• "+m+"<br>"+el.innerHTML;
+
+  el.innerHTML=
+    "• "+msg+"<br>"+el.innerHTML;
 }
 
-/* ================= FETCH ================= */
-async function post(d){
-  const r=await fetch(API,{method:"POST",body:JSON.stringify(d)});
-  return await r.json();
+// ======================================================
+// WAR FEED
+// ======================================================
+
+function feed(msg){
+
+  const el=document.getElementById("feed");
+
+  el.innerHTML=
+    "⚔ "+msg+"<br>"+el.innerHTML;
 }
 
-/* ================= JOIN ================= */
+// ======================================================
+// NETWORK
+// ======================================================
+
+async function post(data){
+
+  try{
+
+    const r=await fetch(API,{
+      method:"POST",
+      body:JSON.stringify(data)
+    });
+
+    return await r.json();
+
+  }catch(err){
+
+    console.log(err);
+
+    log("❌ Network failure");
+
+    return {};
+  }
+}
+
+// ======================================================
+// JOIN
+// ======================================================
+
 function join(){
+
   nick=document.getElementById("nick").value;
-  faction=document.getElementById("faction").value;
 
-  document.getElementById("status").innerText="🟢 WAR ACTIVE";
+  if(!nick){
+    alert("Enter commander name");
+    return;
+  }
 
-  setInterval(sync,3000);
+  faction=
+    document.getElementById("faction").value;
+
+  document.getElementById("status").innerHTML=
+    "🟢 ACTIVE COMMAND";
+
+  log("Commander "+nick+" joined "+faction);
+
   sync();
 
-  log("Commander "+nick+" entered war");
+  setInterval(sync,3000);
 }
 
-/* ================= SPAWN ================= */
+// ======================================================
+// SPAWN
+// ======================================================
+
 async function spawn(){
 
   const c=map.getCenter();
 
   await post({
+
     action:"spawn",
+
     id:crypto.randomUUID(),
+
     lat:c.lat,
     lng:c.lng,
+
     owner:faction
+
   });
+
+  feed(faction+" deployed new capital");
 
   sync();
 }
 
-/* ================= ATTACK EFFECT ================= */
-function attackFX(a,b,f){
+// ======================================================
+// ATTACK
+// ======================================================
 
-  const line=L.polyline([a,b],{
-    color:col(f),
-    weight:2,
-    opacity:0.7
-  }).addTo(map);
+async function attack(id){
 
-  attackLines.push(line);
+  const node=nodes[id];
 
-  setTimeout(()=>map.removeLayer(line),1200);
+  if(!node) return;
+
+  const target=node.getLatLng();
+
+  await post({
+
+    action:"attack",
+
+    id,
+    nick:faction
+
+  });
+
+  laserFX(map.getCenter(),target,faction);
+
+  feed(faction+" launched strike");
+
+  sync();
 }
 
-/* ================= NODE DRAW ================= */
+// ======================================================
+// UPGRADE
+// ======================================================
+
+async function upgrade(id){
+
+  await post({
+
+    action:"upgrade",
+    id
+
+  });
+
+  feed(faction+" fortified territory");
+
+  sync();
+}
+
+// ======================================================
+// LASER EFFECT
+// ======================================================
+
+function laserFX(a,b,f){
+
+  const line=L.polyline([a,b],{
+
+    color:col(f),
+    weight:3,
+    opacity:0.9
+
+  }).addTo(map);
+
+  visuals.push(line);
+
+  setTimeout(()=>{
+
+    map.removeLayer(line);
+
+  },1500);
+}
+
+// ======================================================
+// CLEAR
+// ======================================================
+
+function clearMap(){
+
+  Object.values(nodes).forEach(n=>{
+
+    map.removeLayer(n);
+
+  });
+
+  visuals.forEach(v=>{
+
+    map.removeLayer(v);
+
+  });
+
+  visuals=[];
+  nodes={};
+}
+
+// ======================================================
+// DRAW NODE
+// ======================================================
+
 function draw(n){
 
-  if(nodes[n.id]) map.removeLayer(nodes[n.id]);
+  if(!n.id) return;
 
   const lvl=Number(n.level||1);
   const energy=Number(n.energy||0);
 
-  const r=200+(lvl*120);
+  const radius=
+    300 + (lvl * 120);
 
-  /* CORE ZONE */
-  const circle=L.circle([n.lat,n.lng],{
-    radius:r,
-    color:col(n.owner),
-    fillOpacity:0.35
-  }).addTo(map);
+  // CORE
 
-  /* WAR HEAT GLOW */
-  const heat=L.circle([n.lat,n.lng],{
-    radius:r*2.2,
-    color:col(n.owner),
-    fillOpacity:0.05,
-    opacity:0.2
-  }).addTo(map);
+  const circle=L.circle(
+    [n.lat,n.lng],
+    {
+      radius:radius,
+      color:col(n.owner),
+      fillColor:col(n.owner),
+      fillOpacity:0.35,
+      weight:2
+    }
+  ).addTo(map);
 
-  heatLayers.push(heat);
+  // INFLUENCE
 
-  /* FRONTLINE AURA */
-  if(energy>80){
-    const front=L.circle([n.lat,n.lng],{
-      radius:r*3,
-      color:"#ffcc00",
+  const influence=L.circle(
+    [n.lat,n.lng],
+    {
+      radius:radius*2,
+      color:col(n.owner),
       fillOpacity:0,
       opacity:0.15,
-      dashArray:"5,6"
-    }).addTo(map);
+      dashArray:"5,7"
+    }
+  ).addTo(map);
 
-    heatLayers.push(front);
+  visuals.push(influence);
+
+  // ENERGY GLOW
+
+  if(energy>120){
+
+    const glow=L.circle(
+      [n.lat,n.lng],
+      {
+        radius:radius*3,
+        color:"#ffee66",
+        fillOpacity:0,
+        opacity:0.12
+      }
+    ).addTo(map);
+
+    visuals.push(glow);
   }
+
+  // MEGA CITY
+
+  if(lvl>8){
+
+    const mega=L.circleMarker(
+      [n.lat,n.lng],
+      {
+        radius:12,
+        color:"#fff",
+        fillOpacity:1
+      }
+    ).addTo(map);
+
+    visuals.push(mega);
+  }
+
+  // POPUP
 
   circle.on("click",()=>{
 
     circle.bindPopup(`
-      <b>⚔ WAR NODE</b><br>
-      Faction: ${n.owner}<br>
-      Level: ${lvl}<br>
-      Energy: ${energy}<br><br>
 
-      <button onclick="attack('${n.id}')">⚔ Strike</button>
-      <button onclick="upgrade('${n.id}')">⬆ Fortify</button>
+      <div style="color:black;width:220px;">
+
+      <h3>⚔ Territory Node</h3>
+
+      <b>Faction:</b> ${n.owner}<br>
+      <b>Level:</b> ${lvl}<br>
+      <b>Energy:</b> ${energy}<br>
+      <b>Population:</b> ${n.population || 0}<br>
+      <b>Type:</b> ${n.type || "CITY"}<br>
+
+      <hr>
+
+      <button onclick="attack('${n.id}')">
+      ⚔ Launch Attack
+      </button>
+
+      <button onclick="upgrade('${n.id}')">
+      ⬆ Upgrade
+      </button>
+
+      </div>
+
     `).openPopup();
 
   });
@@ -259,71 +631,212 @@ function draw(n){
   nodes[n.id]=circle;
 }
 
-/* ================= ATTACK ================= */
-async function attack(id){
+// ======================================================
+// DRAW WAR CONNECTIONS
+// ======================================================
 
-  const n=nodes[id];
-  if(!n) return;
+function connections(data){
 
-  const target=n.getLatLng();
+  for(let i=0;i<data.length;i++){
 
-  await post({
-    action:"attack",
-    id,
-    nick:faction
+    for(let j=i+1;j<data.length;j++){
+
+      const a=data[i];
+      const b=data[j];
+
+      const dist=Math.hypot(
+        a.lat-b.lat,
+        a.lng-b.lng
+      );
+
+      if(dist < 12){
+
+        const hostile=
+          a.owner !== b.owner;
+
+        const line=L.polyline(
+          [
+            [a.lat,a.lng],
+            [b.lat,b.lng]
+          ],
+          {
+            color:
+              hostile
+              ? "#ff4444"
+              : col(a.owner),
+
+            weight:
+              hostile
+              ? 2
+              : 1,
+
+            opacity:
+              hostile
+              ? 0.5
+              : 0.2,
+
+            dashArray:
+              hostile
+              ? "5,8"
+              : ""
+          }
+        ).addTo(map);
+
+        visuals.push(line);
+      }
+    }
+  }
+}
+
+// ======================================================
+// UPDATE UI
+// ======================================================
+
+function updateStats(data){
+
+  let counts={
+    VOID:0,
+    ORDER:0,
+    CHAOS:0
+  };
+
+  let warzones=0;
+
+  data.forEach(a=>{
+
+    counts[a.owner] =
+      (counts[a.owner]||0)+1;
+
+    data.forEach(b=>{
+
+      if(a===b) return;
+
+      const d=Math.hypot(
+        a.lat-b.lat,
+        a.lng-b.lng
+      );
+
+      if(d<5 && a.owner!==b.owner){
+
+        warzones++;
+      }
+    });
+
   });
 
-  attackFX(map.getCenter(),target,faction);
+  const total=data.length || 1;
 
-  log("⚔ attack launched");
+  const v=Math.round((counts.VOID/total)*100);
+  const o=Math.round((counts.ORDER/total)*100);
+  const c=Math.round((counts.CHAOS/total)*100);
+
+  document.getElementById("voidBar").style.width=v+"%";
+  document.getElementById("orderBar").style.width=o+"%";
+  document.getElementById("chaosBar").style.width=c+"%";
+
+  document.getElementById("voidStats").innerHTML=
+    counts.VOID+" territories";
+
+  document.getElementById("orderStats").innerHTML=
+    counts.ORDER+" territories";
+
+  document.getElementById("chaosStats").innerHTML=
+    counts.CHAOS+" territories";
+
+  document.getElementById("territories").innerHTML=
+    total;
+
+  document.getElementById("fronts").innerHTML=
+    warzones;
+
+  let dominant="VOID";
+
+  if(counts.ORDER > counts[dominant])
+    dominant="ORDER";
+
+  if(counts.CHAOS > counts[dominant])
+    dominant="CHAOS";
+
+  document.getElementById("dominant").innerHTML=
+    dominant;
+
+  const warIntensity=
+    Math.min(
+      100,
+      warzones
+    );
+
+  document.getElementById("warFill").style.width=
+    warIntensity+"%";
 }
 
-/* ================= UPGRADE ================= */
-async function upgrade(id){
-  await post({action:"upgrade",id});
-  sync();
-}
+// ======================================================
+// SYNC
+// ======================================================
 
-/* ================= SYNC ================= */
 async function sync(){
 
-  const data=await post({action:"getWorld"});
+  const data=
+    await post({
+      action:"getWorld"
+    });
 
   if(!data.nodes) return;
 
-  Object.values(nodes).forEach(n=>map.removeLayer(n));
-  heatLayers.forEach(h=>map.removeLayer(h));
+  clearMap();
 
-  nodes={};
-  heatLayers=[];
+  data.nodes.forEach(draw);
 
-  let counts={};
+  connections(data.nodes);
 
-  data.nodes.forEach(n=>{
-    draw(n);
-    counts[n.owner]=(counts[n.owner]||0)+1;
-  });
+  updateStats(data.nodes);
 
-  /* WAR INTENSITY */
-  const total=data.nodes.length;
-  const chaos=(counts["CHAOS"]||0)/total;
-  const order=(counts["ORDER"]||0)/total;
-  const voidf=(counts["VOID"]||0)/total;
-
-  const war=Math.abs(chaos-order)+voidf;
-
-  document.getElementById("warFill").style.width=(war*100)+"%";
-
-  document.getElementById("balance").innerHTML=
-    `VOID ${Math.round(voidf*100)}% | ORDER ${Math.round(order*100)}% | CHAOS ${Math.round(chaos*100)}%`;
-
-  log("🌍 war sync");
+  log("🌍 Global sync complete");
 }
 
-/* ================= AUTO WAR ================= */
+// ======================================================
+// AUTO WORLD
+// ======================================================
+
 setInterval(async ()=>{
-  await post({action:"tick"});
+
+  await post({
+    action:"tick"
+  });
+
 },7000);
+
+// ======================================================
+// RANDOM EVENTS
+// ======================================================
+
+const worldEvents=[
+
+  "VOID STORM DETECTED",
+  "ORDER FLEET MOBILIZING",
+  "CHAOS REBELLION IGNITED",
+  "ENERGY SURGE DETECTED",
+  "PORTAL COLLAPSE",
+  "CIVILIZATION UPRISING",
+  "NUCLEAR SHARD ACTIVATED"
+
+];
+
+setInterval(()=>{
+
+  if(Math.random()<0.4){
+
+    const e=
+      worldEvents[
+        Math.floor(
+          Math.random()*worldEvents.length
+        )
+      ];
+
+    feed(e);
+  }
+
+},9000);
 
 </script>
 
