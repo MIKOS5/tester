@@ -305,119 +305,166 @@ tr:hover{background:#182233;}
    API
 ========================= */
 
-const API="https://all.api.radio-browser.info/json/stations/search";
-const SHEET_API="https://script.google.com/macros/s/AKfycbzZ5MwOcYUY_bpsUKSxPd810xE8rV_Y3z2GwzPublb_4O60CP8L_lC_V2kqkCQ_JdF5/exec";
+const API =
+"https://all.api.radio-browser.info/json/stations/search";
+
+const SHEET_API =
+"https://script.google.com/macros/s/AKfycbzZ5MwOcYUY_bpsUKSxPd810xE8rV_Y3z2GwzPublb_4O60CP8L_lC_V2kqkCQ_JdF5/exec";
 
 /* =========================
    STATE
 ========================= */
 
-let stations=[],allStations=[];
-let favorites=[],favoriteIds=new Set();
-let currentList=[],currentIndex=-1;
-let page=0;
-const limit=50;
-let isPlaying=false;
+let stations = [];
+let allStations = [];
+
+let favorites = [];
+let favoriteIds = new Set();
+
+let currentList = [];
+let currentIndex = -1;
+
+let page = 0;
+const limit = 50;
+
+let isPlaying = false;
 
 /* =========================
-   LOCAL STORAGE
+   LOCAL STORAGE (NEW)
 ========================= */
 
-const LOCAL_KEY="radiowave_favs_v2";
+const LOCAL_KEY = "radiowave_favorites_v3";
 
-function loadLocal(){
-  try{return JSON.parse(localStorage.getItem(LOCAL_KEY)||"[]");}
-  catch{return[];}
+function loadLocalFavs(){
+  try{
+    return JSON.parse(localStorage.getItem(LOCAL_KEY) || "[]");
+  }catch{
+    return [];
+  }
 }
 
-function saveLocal(){
-  localStorage.setItem(LOCAL_KEY,JSON.stringify(favorites));
+function saveLocalFavs(){
+  localStorage.setItem(LOCAL_KEY, JSON.stringify(favorites));
 }
 
 /* =========================
-   MERGE
+   MERGE SYSTEM (FIXED)
 ========================= */
 
-function merge(list){
-  const map=new Map();
-  list.forEach(s=>{
-    const id=s.stationuuid||s.id;
-    if(!id)return;
-    map.set(id,{...s,id});
+function mergeFavorites(list){
+
+  const map = new Map();
+
+  list.forEach(s => {
+    const id = s.stationuuid || s.id;
+    if(!id) return;
+    map.set(id, { ...s, id });
   });
 
-  favorites=[...map.values()];
-  favoriteIds=new Set(favorites.map(s=>s.id));
-  saveLocal();
+  favorites = [...map.values()];
+  favoriteIds = new Set(favorites.map(s => s.id));
+
+  saveLocalFavs();
 }
 
 /* =========================
-   LOAD STATIONS
+   LOAD STATIONS (FIXED SAFE)
 ========================= */
 
 async function loadStations(){
 
-  setStatus("Loading...");
+  try{
 
-  const res=await fetch(`${API}?countrycode=US&limit=${limit}&offset=${page*limit}&hidebroken=true`);
-  const data=await res.json();
+    setStatus("Loading stations...");
 
-  stations=data;
-  allStations=[...data];
-  currentList=stations;
+    const url =
+      `${API}?countrycode=US&limit=${limit}&offset=${page*limit}&hidebroken=true`;
 
-  render();
-  setStatus("Loaded "+stations.length);
+    const res = await fetch(url);
+
+    if(!res.ok){
+      throw new Error("HTTP " + res.status);
+    }
+
+    const data = await res.json();
+
+    if(!Array.isArray(data)){
+      throw new Error("Bad API response");
+    }
+
+    stations = data;
+    allStations = [...data];
+    currentList = stations;
+
+    render();
+
+    setStatus(`Loaded ${stations.length} stations`);
+
+  }catch(err){
+
+    console.error(err);
+    setStatus("❌ Stations failed (API blocked or offline)");
+
+  }
+
 }
 
 /* =========================
-   FAVORITES
+   FAVORITES LOAD (LOCAL + SHEETS)
 ========================= */
 
 async function loadFavorites(){
 
-  const local=loadLocal();
+  setStatus("Loading favorites...");
 
-  let sheet=[];
+  const local = loadLocalFavs();
+
+  let sheet = [];
 
   try{
-    const res=await fetch(SHEET_API+"?action=get");
-    const data=await res.json().catch(()=>[]);
-    sheet=data.data||data||[];
+    const res = await fetch(SHEET_API + "?action=get");
+    const data = await res.json().catch(()=>[]);
+    sheet = data.data || data || [];
   }catch{}
 
-  merge([...local,...sheet]);
+  mergeFavorites([...local, ...sheet]);
 
-  currentList=favorites;
+  currentList = favorites;
 
   render();
-  setStatus("Favorites loaded "+favorites.length);
+
+  setStatus(`Loaded ${favorites.length} favorites`);
 }
+
+/* =========================
+   FAVORITES SAVE (FIXED SAFETY)
+========================= */
 
 async function toggleFavorite(s){
 
-  const id=s.stationuuid||s.id;
-  if(!id)return;
+  const id = s.stationuuid || s.id;
+  if(!id) return;
 
   if(favoriteIds.has(id)){
     setStatus("Already saved");
     return;
   }
 
-  const fav={
+  const fav = {
     id,
-    name:s.name,
-    url:s.url_resolved||s.url,
-    country:s.country,
-    tags:s.tags,
-    time:new Date().toISOString()
+    name: s.name || "",
+    url: s.url_resolved || s.url || "",
+    country: s.country || "",
+    tags: s.tags || "",
+    time: new Date().toISOString()
   };
 
   favorites.push(fav);
   favoriteIds.add(id);
 
-  saveLocal();
+  saveLocalFavs();
 
+  // SHEETS (non-blocking)
   fetch(SHEET_API,{
     method:"POST",
     body:new URLSearchParams({
@@ -431,21 +478,24 @@ async function toggleFavorite(s){
     })
   }).catch(()=>{});
 
-  setStatus("⭐ Saved");
+  setStatus("⭐ Saved locally + cloud");
+
   render();
 }
+
+/* =========================
+   REMOVE FAVORITE
+========================= */
 
 function removeFavorite(id){
-  favorites=favorites.filter(s=>(s.id||s.stationuuid)!==id);
-  favoriteIds.delete(id);
-  saveLocal();
-  render();
-  setStatus("Removed");
-}
 
-function toggleFavCurrent(){
-  const item=currentList[currentIndex];
-  if(item)toggleFavorite(item);
+  favorites = favorites.filter(s => (s.id || s.stationuuid) !== id);
+  favoriteIds.delete(id);
+
+  saveLocalFavs();
+
+  render();
+  setStatus("❌ Removed");
 }
 
 /* =========================
@@ -454,28 +504,34 @@ function toggleFavCurrent(){
 
 function playStation(id){
 
-  const item=currentList.find(s=>(s.stationuuid||s.id)===id);
-  if(!item)return;
+  const item = currentList.find(s => (s.stationuuid || s.id) === id);
+  if(!item) return;
 
-  currentIndex=currentList.findIndex(s=>(s.stationuuid||s.id)===id);
+  currentIndex = currentList.findIndex(s => (s.stationuuid || s.id) === id);
 
-  const player=document.getElementById("player");
-  player.src=item.url_resolved||item.url||"";
+  const player = document.getElementById("player");
+  player.src = item.url_resolved || item.url || "";
+
   player.play();
 
-  isPlaying=true;
-  document.getElementById("playBtn").textContent="⏸";
+  isPlaying = true;
+  document.getElementById("playBtn").textContent = "⏸";
 
   updateNowPlaying();
 }
 
+/* =========================
+   NOW PLAYING
+========================= */
+
 function updateNowPlaying(){
 
-  const item=currentList[currentIndex];
-  if(!item)return;
+  const item = currentList[currentIndex];
+  if(!item) return;
 
-  document.getElementById("npName").textContent=item.name||"Unknown";
-  document.getElementById("npMeta").textContent=`${item.country||""} • ${item.tags||""}`;
+  document.getElementById("npName").textContent = item.name || "Unknown";
+  document.getElementById("npMeta").textContent =
+    `${item.country || ""} • ${item.tags || "Radio"}`;
 }
 
 /* =========================
@@ -483,32 +539,33 @@ function updateNowPlaying(){
 ========================= */
 
 function togglePlay(){
-  const p=document.getElementById("player");
-  const b=document.getElementById("playBtn");
 
-  if(!p.src)return;
+  const p = document.getElementById("player");
+  const b = document.getElementById("playBtn");
+
+  if(!p.src) return;
 
   if(isPlaying){
-    p.pause();isPlaying=false;b.textContent="▶";
+    p.pause();
+    isPlaying = false;
+    b.textContent = "▶";
   }else{
-    p.play();isPlaying=true;b.textContent="⏸";
+    p.play();
+    isPlaying = true;
+    b.textContent = "⏸";
   }
 }
 
 function nextStation(){
-  if(!currentList.length)return;
-  currentIndex=(currentIndex+1)%currentList.length;
-  playStation(currentList[currentIndex].stationuuid||currentList[currentIndex].id);
+  if(!currentList.length) return;
+  currentIndex = (currentIndex + 1) % currentList.length;
+  playStation(currentList[currentIndex].stationuuid || currentList[currentIndex].id);
 }
 
 function prevStation(){
-  if(!currentList.length)return;
-  currentIndex=(currentIndex-1+currentList.length)%currentList.length;
-  playStation(currentList[currentIndex].stationuuid||currentList[currentIndex].id);
-}
-
-function setVolume(v){
-  document.getElementById("player").volume=v;
+  if(!currentList.length) return;
+  currentIndex = (currentIndex - 1 + currentList.length) % currentList.length;
+  playStation(currentList[currentIndex].stationuuid || currentList[currentIndex].id);
 }
 
 /* =========================
@@ -516,34 +573,68 @@ function setVolume(v){
 ========================= */
 
 function applyFilter(){
-  const g=document.getElementById("genre").value.toLowerCase();
-  if(!g)stations=[...allStations];
-  else stations=allStations.filter(s=>(s.tags||"").toLowerCase().includes(g));
 
-  currentList=stations;
+  const g = document.getElementById("genre").value.toLowerCase();
+
+  if(!g){
+    stations = [...allStations];
+  }else{
+    stations = allStations.filter(s =>
+      (s.tags || "").toLowerCase().includes(g)
+    );
+  }
+
+  currentList = stations;
   render();
 }
 
 /* =========================
-   RENDER
+   VOLUME
+========================= */
+
+function setVolume(v){
+  document.getElementById("player").volume = v;
+}
+
+/* =========================
+   RENDER (SAFE BUTTON FIX)
 ========================= */
 
 function render(){
 
-  const tbody=document.querySelector("#table tbody");
-  tbody.innerHTML="";
+  renderTable();
+  renderMobile();
 
-  currentList.forEach(s=>{
+  document.getElementById("count").textContent =
+    `${currentList.length} stations loaded`;
 
-    const id=s.stationuuid||s.id;
-    const isFav=favoriteIds.has(id);
+  const start = page * limit + 1;
+  const end = start + currentList.length - 1;
 
-    const tr=document.createElement("tr");
+  document.getElementById("pageInfo").textContent =
+    `${start}-${end} • Page ${page + 1}`;
+}
 
-    tr.innerHTML=`
-      <td><div class="station">${s.name||"Unknown"}</div></td>
-      <td>${s.country||""}</td>
-      <td><div class="tags">${s.tags||""}</div></td>
+/* =========================
+   TABLE
+========================= */
+
+function renderTable(){
+
+  const tbody = document.querySelector("#table tbody");
+  tbody.innerHTML = "";
+
+  currentList.forEach(s => {
+
+    const id = s.stationuuid || s.id;
+    const isFav = favoriteIds.has(id);
+
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td><div class="station">${s.name || "Unknown"}</div></td>
+      <td>${s.country || ""}</td>
+      <td><div class="tags">${s.tags || ""}</div></td>
       <td>
         <div class="actions">
 
@@ -551,10 +642,10 @@ function render(){
 
           <button class="small-btn" onclick="${
             isFav
-            ?`removeFavorite('${id}')`
-            :`toggleFavorite(${JSON.stringify(s)})`
+              ? `removeFavorite('${id}')`
+              : `toggleFavorite(${JSON.stringify(s)})`
           }">
-            ${isFav?"❌":"⭐"}
+            ${isFav ? "❌" : "⭐"}
           </button>
 
         </div>
@@ -564,7 +655,55 @@ function render(){
     tbody.appendChild(tr);
   });
 
-  document.getElementById("count").textContent=currentList.length+" stations";
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+function renderMobile(){
+
+  const el = document.getElementById("mobileList");
+  el.innerHTML = "";
+
+  currentList.forEach(s => {
+
+    const id = s.stationuuid || s.id;
+    const isFav = favoriteIds.has(id);
+
+    const div = document.createElement("div");
+    div.className = "card";
+
+    div.innerHTML = `
+      <div class="card-title">${s.name || "Unknown"}</div>
+      <div class="card-meta">${s.country || ""} • ${s.tags || ""}</div>
+
+      <div class="card-buttons">
+
+        <button onclick="playStation('${id}')">▶ Play</button>
+
+        <button onclick="${
+          isFav
+            ? `removeFavorite('${id}')`
+            : `toggleFavorite(${JSON.stringify(s)})`
+        }">
+          ${isFav ? "❌ Remove" : "⭐ Favorite"}
+        </button>
+
+      </div>
+    `;
+
+    el.appendChild(div);
+  });
+
+}
+
+/* =========================
+   STATUS
+========================= */
+
+function setStatus(t){
+  document.getElementById("status").textContent = t;
 }
 
 /* =========================
@@ -574,6 +713,5 @@ function render(){
 loadStations();
 
 </script>
-
 </body>
 </html>
