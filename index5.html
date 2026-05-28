@@ -1,260 +1,137 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>XRADIO OS Widget Test</title>
+  <title>RADIO OS - Live Favorites</title>
+
   <style>
     body {
       font-family: Arial;
       background: #0b0b0b;
       color: white;
-      padding: 40px;
+      padding: 20px;
     }
 
-    h1 {
+    h2 {
       color: #1e88e5;
     }
 
-    .box {
-      max-width: 600px;
-      opacity: 0.8;
-      line-height: 1.5;
+    #list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .card {
+      background: #151515;
+      padding: 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.2s;
+      border: 1px solid #222;
+    }
+
+    .card:hover {
+      transform: scale(1.02);
+      border-color: #1e88e5;
+    }
+
+    .name {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .meta {
+      font-size: 12px;
+      opacity: 0.7;
+    }
+
+    audio {
+      width: 100%;
+      margin-top: 15px;
+    }
+
+    #status {
+      margin-top: 10px;
+      font-size: 12px;
+      opacity: 0.7;
     }
   </style>
 </head>
+
 <body>
 
-<h1>🎧 RADIO OS WIDGET TEST PAGE</h1>
+<h2>⭐ RADIO OS - LIVE FAVORITES</h2>
 
-<div class="box">
-  <p>This page is ONLY for testing the floating Radio OS widget.</p>
-  <p>The widget should appear in the bottom-right corner.</p>
-  <p>You can drag it, minimize it, load stations, and save favorites.</p>
-</div>
+<div id="status">Loading...</div>
 
-<!-- =========================
-🎧 RADIO OS WIDGET v1
-========================= -->
+<div id="list"></div>
 
-<style>
-#radioWidget {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 320px;
-  background: #111;
-  color: white;
-  border-radius: 12px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.6);
-  font-family: Arial;
-  overflow: hidden;
-  z-index: 99999;
-}
-
-#radioHeader {
-  background: #1e88e5;
-  padding: 10px;
-  cursor: move;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-#radioBody {
-  padding: 10px;
-  display: block;
-}
-
-#radioWidget.minimized #radioBody {
-  display: none;
-}
-
-button, select, input {
-  width: 100%;
-  margin-top: 6px;
-  padding: 8px;
-  border: none;
-  border-radius: 6px;
-}
-
-button {
-  background: #1e88e5;
-  color: white;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #1565c0;
-}
-
-.smallRow {
-  display: flex;
-  gap: 5px;
-}
-
-.smallRow button {
-  width: 50%;
-}
-
-audio {
-  width: 100%;
-  margin-top: 8px;
-}
-</style>
-
-<div id="radioWidget">
-
-  <div id="radioHeader">
-    🎧 RADIO OS
-    <span onclick="toggleWidget()" style="cursor:pointer;">⬆</span>
-  </div>
-
-  <div id="radioBody">
-
-    <input id="genre" placeholder="genre filter (rock, jazz, pop)" />
-
-    <select id="stationList"></select>
-
-    <div class="smallRow">
-      <button onclick="playStation()">▶ Play</button>
-      <button onclick="saveFavorite()">⭐ Save</button>
-    </div>
-
-    <div class="smallRow">
-      <button onclick="loadStations()">🔄 Stations</button>
-      <button onclick="loadFavorites()">📥 Favorites</button>
-    </div>
-
-    <audio id="player" controls></audio>
-
-    <div id="status" style="margin-top:6px; font-size:12px; opacity:0.7;"></div>
-
-  </div>
-</div>
+<audio id="player" controls autoplay></audio>
 
 <script>
-const API = "https://all.api.radio-browser.info/json/stations/search";
-const SHEET_API = "https://script.google.com/macros/s/AKfycbzZ5MwOcYUY_bpsUKSxPd810xE8rV_Y3z2GwzPublb_4O60CP8L_lC_V2kqkCQ_JdF5/exec";
+const SHEET_API =
+  "https://script.google.com/macros/s/AKfycbzZ5MwOcYUY_bpsUKSxPd810xE8rV_Y3z2GwzPublb_4O60CP8L_lC_V2kqkCQ_JdF5/exec";
 
-let stations = [];
+let favorites = [];
 
-async function loadStations() {
-  let genre = document.getElementById("genre").value;
-
-  let url = `${API}?countrycode=US&limit=50&hidebroken=true`;
-  if (genre) url += `&tag=${genre}`;
-
-  setStatus("Loading stations...");
-
-  const res = await fetch(url);
-  stations = await res.json();
-
-  const list = document.getElementById("stationList");
-  list.innerHTML = "";
-
-  stations.forEach((s, i) => {
-    let opt = document.createElement("option");
-    opt.value = i;
-    opt.textContent = s.name;
-    list.appendChild(opt);
-  });
-
-  setStatus("Loaded " + stations.length + " stations");
-}
-
-function playStation() {
-  let s = stations[stationList.value];
-  player.src = s.url_resolved || s.url;
-  player.play();
-}
-
-async function saveFavorite() {
-  let s = stations[stationList.value];
-
-  await fetch(SHEET_API, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      action: "save",
-      id: s.stationuuid,
-      name: s.name,
-      url: s.url_resolved || s.url,
-      country: s.country,
-      genre: document.getElementById("genre").value,
-      time: new Date().toISOString()
-    })
-  });
-
-  setStatus("⭐ Saved to favorites");
-}
-
+// 🔄 LIVE REFRESH LOOP
 async function loadFavorites() {
-  const res = await fetch(SHEET_API + "?action=get");
-  const data = await res.json();
+  try {
+    const res = await fetch(SHEET_API + "?action=get");
+    const data = await res.json();
 
-  if (!data.ok) {
-    setStatus("No favorites found / error");
-    return;
+    if (!data.ok) {
+      setStatus("Backend error or no data");
+      return;
+    }
+
+    favorites = data.data || [];
+
+    render();
+    setStatus("Live sync: " + favorites.length + " favorites");
+
+  } catch (err) {
+    console.log(err);
+    setStatus("Failed to load sheet");
   }
+}
 
-  stations = data.data;
-
-  const list = document.getElementById("stationList");
+function render() {
+  const list = document.getElementById("list");
   list.innerHTML = "";
 
-  stations.forEach((s, i) => {
-    let opt = document.createElement("option");
-    opt.value = i;
-    opt.textContent = "⭐ " + s.name;
-    list.appendChild(opt);
-  });
+  favorites.forEach((f, i) => {
+    const div = document.createElement("div");
+    div.className = "card";
 
-  setStatus("Favorites loaded: " + stations.length);
+    div.innerHTML = `
+      <div class="name">${f.name}</div>
+      <div class="meta">🌍 ${f.country || "unknown"}</div>
+      <div class="meta">🎵 ${f.genre || "unknown"}</div>
+    `;
+
+    div.onclick = () => play(f.url);
+
+    list.appendChild(div);
+  });
+}
+
+function play(url) {
+  const player = document.getElementById("player");
+  player.src = url;
+  player.play();
 }
 
 function setStatus(t) {
   document.getElementById("status").innerText = t;
 }
 
-function toggleWidget() {
-  document.getElementById("radioWidget").classList.toggle("minimized");
-}
+// 🔁 AUTO REFRESH EVERY 5 SECONDS
+setInterval(loadFavorites, 5000);
 
-// DRAG
-dragElement(document.getElementById("radioWidget"));
-
-function dragElement(el) {
-  let pos1=0,pos2=0,pos3=0,pos4=0;
-
-  document.getElementById("radioHeader").onmousedown = dragMouseDown;
-
-  function dragMouseDown(e) {
-    e.preventDefault();
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-    document.onmouseup = closeDrag;
-    document.onmousemove = elementDrag;
-  }
-
-  function elementDrag(e) {
-    pos1 = pos3 - e.clientX;
-    pos2 = pos4 - e.clientY;
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-
-    el.style.top = (el.offsetTop - pos2) + "px";
-    el.style.left = (el.offsetLeft - pos1) + "px";
-    el.style.bottom = "auto";
-    el.style.right = "auto";
-  }
-
-  function closeDrag() {
-    document.onmouseup = null;
-    document.onmousemove = null;
-  }
-}
-
-// INIT
-loadStations();
+// FIRST LOAD
+loadFavorites();
 </script>
 
 </body>
