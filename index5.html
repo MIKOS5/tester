@@ -259,23 +259,39 @@ async function loadFavorites() {
 }
 
 /* PLAY */
+/* PLAY */
 function playStation(id) {
-  const item = currentList.find(s => s.stationuuid === id);
+
+  // FIX:
+  // stations use stationuuid
+  // favorites use id
+  const item = currentList.find(s =>
+    s.stationuuid === id || s.id === id
+  );
 
   if (!item) {
     console.log("Station not found:", id);
     return;
   }
 
-  currentIndex = currentList.findIndex(s => s.stationuuid === id);
+  currentIndex = currentList.findIndex(s =>
+    s.stationuuid === id || s.id === id
+  );
 
   const player = document.getElementById("player");
-  player.src = item.url_resolved || item.url;
+
+  player.src =
+    item.url_resolved ||
+    item.url ||
+    "";
+
   player.play();
 
   isPlaying = true;
 
   updateNowPlaying();
+
+  setStatus("▶ Playing: " + (item.name || "Unknown"));
 }
 
 /* NOW PLAYING */
@@ -394,7 +410,7 @@ function renderTable() {
       <td>${s.country || ""}</td>
       <td>${s.tags || ""}</td>
       <td>
-        <button onclick="playStation('${s.stationuuid}')">▶</button>
+        <button onclick="playStation('${s.stationuuid || s.id}')">▶</button>
         <button onclick="toggleFavorite(currentList.find(x => x.stationuuid==='${s.stationuuid}'))">
           ${isFav ? "⭐" : "☆"}
         </button>
