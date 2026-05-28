@@ -1,1 +1,579 @@
-dfddfd
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>📻 RadioWave Pro</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+
+<style>
+
+/* =========================
+   THEME
+========================= */
+
+:root{
+  --bg:#09111d;
+  --panel:#111827;
+  --panel2:#182233;
+  --line:#253347;
+  --text:#ffffff;
+  --muted:#93a4bb;
+  --blue:#2793ff;
+  --blue2:#1869d9;
+  --green:#17c964;
+  --shadow:0 10px 30px rgba(0,0,0,.35);
+}
+
+*{box-sizing:border-box;}
+
+body{
+  margin:0;
+  font-family:Inter,sans-serif;
+  background:radial-gradient(circle at top,#17263f,#09111d 45%);
+  color:white;
+  display:flex;
+  height:100vh;
+  overflow:hidden;
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+
+.sidebar{
+  width:330px;
+  background:rgba(17,24,39,.92);
+  backdrop-filter:blur(16px);
+  border-right:1px solid var(--line);
+  padding:22px;
+  overflow:auto;
+  box-shadow:var(--shadow);
+}
+
+.logo{font-size:32px;font-weight:800;}
+.logo span{color:var(--blue);}
+.subtitle{color:var(--muted);font-size:13px;margin:4px 0 24px;}
+
+/* SEARCH */
+
+.search{
+  width:100%;
+  border:none;
+  outline:none;
+  background:#0e1725;
+  color:white;
+  padding:14px;
+  border-radius:16px;
+  border:1px solid #1e293b;
+}
+
+.search:focus{
+  border-color:var(--blue);
+  box-shadow:0 0 0 4px rgba(39,147,255,.12);
+}
+
+/* BUTTONS */
+
+button{
+  border:none;
+  border-radius:14px;
+  padding:13px 14px;
+  color:white;
+  font-weight:700;
+  cursor:pointer;
+  background:linear-gradient(180deg,var(--blue),var(--blue2));
+  box-shadow:0 5px 18px rgba(0,0,0,.25);
+}
+
+button:hover{transform:translateY(-1px);}
+button:active{transform:scale(.98);}
+
+.main-btn{width:100%;margin-top:12px;}
+
+.grid-buttons{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:12px;
+}
+
+/* PLAYER */
+
+.radio-player{
+  margin-top:24px;
+  padding:18px;
+  border-radius:24px;
+  background:linear-gradient(180deg,#182233,#121926);
+  border:1px solid #263246;
+  box-shadow:var(--shadow);
+}
+
+.player-header{display:flex;gap:14px;}
+
+.station-icon{
+  width:60px;height:60px;
+  border-radius:18px;
+  background:linear-gradient(135deg,var(--blue),#6857ff);
+  display:flex;align-items:center;justify-content:center;
+}
+
+#npName{font-size:16px;font-weight:700;}
+#npMeta{font-size:12px;color:var(--muted);}
+
+.live{display:flex;gap:6px;color:var(--green);font-size:12px;font-weight:700;margin-top:10px;}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 1.5s infinite;}
+
+@keyframes pulse{
+  0%{transform:scale(1);opacity:1;}
+  50%{transform:scale(1.7);opacity:.5;}
+  100%{transform:scale(1);opacity:1;}
+}
+
+.controls{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin-top:18px;
+}
+
+.controls button{padding:12px;font-size:16px;}
+
+.volume{margin-top:18px;}
+
+.status{margin-top:18px;color:var(--muted);font-size:13px;}
+
+/* MAIN */
+
+.main{flex:1;padding:24px;overflow:auto;}
+
+.topbar{display:flex;justify-content:space-between;margin-bottom:22px;}
+
+.page-title{font-size:32px;font-weight:800;}
+
+.count{color:var(--muted);font-size:14px;}
+
+.page-box{
+  background:rgba(17,24,39,.92);
+  border:1px solid var(--line);
+  padding:14px;
+  border-radius:18px;
+  color:var(--muted);
+}
+
+/* TABLE */
+
+.table-wrap{
+  border-radius:26px;
+  overflow:hidden;
+  border:1px solid var(--line);
+  background:rgba(17,24,39,.92);
+}
+
+table{width:100%;border-collapse:collapse;}
+
+th{
+  background:#0f1725;
+  color:#8eb5ff;
+  padding:18px;
+  text-align:left;
+  font-size:12px;
+}
+
+td{
+  padding:18px;
+  border-top:1px solid #1d2938;
+}
+
+tr:hover{background:#182233;}
+
+.station{font-weight:700;}
+.tags{color:var(--muted);font-size:13px;}
+
+.actions{display:flex;gap:8px;}
+
+.small-btn{padding:10px 14px;font-size:13px;}
+
+/* MOBILE */
+
+#mobileList{display:none;}
+
+.card{
+  background:rgba(17,24,39,.94);
+  border:1px solid var(--line);
+  border-radius:22px;
+  padding:18px;
+  margin-bottom:14px;
+}
+
+.card-title{font-weight:700;}
+.card-meta{color:var(--muted);font-size:13px;margin-top:6px;}
+
+.card-buttons{display:flex;gap:10px;margin-top:14px;}
+
+@media(max-width:900px){
+  body{flex-direction:column;height:auto;}
+  .sidebar{width:100%;}
+  .table-wrap{display:none;}
+  #mobileList{display:block;}
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+
+  <div class="logo">📻 Radio<span>Wave</span></div>
+  <div class="subtitle">Live streaming radio dashboard</div>
+
+  <input id="genre" class="search" placeholder="Search genre..."/>
+
+  <button class="main-btn" onclick="applyFilter()">🔎 Search</button>
+
+  <div class="grid-buttons">
+    <button onclick="prevPage()">⬅ Prev</button>
+    <button onclick="nextPage()">Next ➜</button>
+    <button onclick="loadStations()">🔄 Refresh</button>
+    <button onclick="loadFavorites()">⭐ Favorites</button>
+  </div>
+
+  <!-- PLAYER -->
+  <div class="radio-player">
+
+    <div class="player-header">
+      <div class="station-icon">📻</div>
+      <div>
+        <div id="npName">Not Playing</div>
+        <div id="npMeta">Select station</div>
+        <div class="live"><div class="live-dot"></div> LIVE</div>
+      </div>
+    </div>
+
+    <audio id="player"></audio>
+
+    <div class="controls">
+      <button onclick="prevStation()">⏮</button>
+      <button id="playBtn" onclick="togglePlay()">▶</button>
+      <button onclick="nextStation()">⏭</button>
+      <button onclick="toggleFavCurrent()">⭐</button>
+    </div>
+
+    <div class="volume">
+      <label>Volume</label>
+      <input type="range" min="0" max="1" step="0.01" value="1"
+      onchange="setVolume(this.value)">
+    </div>
+
+  </div>
+
+  <div class="status" id="status">Loading...</div>
+
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <div class="topbar">
+    <div>
+      <div class="page-title">United States Radio</div>
+      <div class="count" id="count">0 stations</div>
+    </div>
+
+    <div class="page-box" id="pageInfo">Page 1</div>
+  </div>
+
+  <div class="table-wrap">
+    <table id="table"><tbody></tbody></table>
+  </div>
+
+  <div id="mobileList"></div>
+
+</div>
+
+<script>
+
+/* =========================
+   API
+========================= */
+
+const API="https://all.api.radio-browser.info/json/stations/search";
+const SHEET_API="https://script.google.com/macros/s/AKfycbzZ5MwOcYUY_bpsUKSxPd810xE8rV_Y3z2GwzPublb_4O60CP8L_lC_V2kqkCQ_JdF5/exec";
+
+/* =========================
+   STATE
+========================= */
+
+let stations=[],allStations=[];
+let favorites=[],favoriteIds=new Set();
+let currentList=[],currentIndex=-1;
+let page=0;
+const limit=50;
+let isPlaying=false;
+
+/* =========================
+   LOCAL STORAGE
+========================= */
+
+const LOCAL_KEY="radiowave_favs_v2";
+
+function loadLocal(){
+  try{return JSON.parse(localStorage.getItem(LOCAL_KEY)||"[]");}
+  catch{return[];}
+}
+
+function saveLocal(){
+  localStorage.setItem(LOCAL_KEY,JSON.stringify(favorites));
+}
+
+/* =========================
+   MERGE
+========================= */
+
+function merge(list){
+  const map=new Map();
+  list.forEach(s=>{
+    const id=s.stationuuid||s.id;
+    if(!id)return;
+    map.set(id,{...s,id});
+  });
+
+  favorites=[...map.values()];
+  favoriteIds=new Set(favorites.map(s=>s.id));
+  saveLocal();
+}
+
+/* =========================
+   LOAD STATIONS
+========================= */
+
+async function loadStations(){
+
+  setStatus("Loading...");
+
+  const res=await fetch(`${API}?countrycode=US&limit=${limit}&offset=${page*limit}&hidebroken=true`);
+  const data=await res.json();
+
+  stations=data;
+  allStations=[...data];
+  currentList=stations;
+
+  render();
+  setStatus("Loaded "+stations.length);
+}
+
+/* =========================
+   FAVORITES
+========================= */
+
+async function loadFavorites(){
+
+  const local=loadLocal();
+
+  let sheet=[];
+
+  try{
+    const res=await fetch(SHEET_API+"?action=get");
+    const data=await res.json().catch(()=>[]);
+    sheet=data.data||data||[];
+  }catch{}
+
+  merge([...local,...sheet]);
+
+  currentList=favorites;
+
+  render();
+  setStatus("Favorites loaded "+favorites.length);
+}
+
+async function toggleFavorite(s){
+
+  const id=s.stationuuid||s.id;
+  if(!id)return;
+
+  if(favoriteIds.has(id)){
+    setStatus("Already saved");
+    return;
+  }
+
+  const fav={
+    id,
+    name:s.name,
+    url:s.url_resolved||s.url,
+    country:s.country,
+    tags:s.tags,
+    time:new Date().toISOString()
+  };
+
+  favorites.push(fav);
+  favoriteIds.add(id);
+
+  saveLocal();
+
+  fetch(SHEET_API,{
+    method:"POST",
+    body:new URLSearchParams({
+      action:"save",
+      id,
+      name:fav.name,
+      url:fav.url,
+      country:fav.country,
+      genre:fav.tags,
+      time:fav.time
+    })
+  }).catch(()=>{});
+
+  setStatus("⭐ Saved");
+  render();
+}
+
+function removeFavorite(id){
+  favorites=favorites.filter(s=>(s.id||s.stationuuid)!==id);
+  favoriteIds.delete(id);
+  saveLocal();
+  render();
+  setStatus("Removed");
+}
+
+function toggleFavCurrent(){
+  const item=currentList[currentIndex];
+  if(item)toggleFavorite(item);
+}
+
+/* =========================
+   PLAY
+========================= */
+
+function playStation(id){
+
+  const item=currentList.find(s=>(s.stationuuid||s.id)===id);
+  if(!item)return;
+
+  currentIndex=currentList.findIndex(s=>(s.stationuuid||s.id)===id);
+
+  const player=document.getElementById("player");
+  player.src=item.url_resolved||item.url||"";
+  player.play();
+
+  isPlaying=true;
+  document.getElementById("playBtn").textContent="⏸";
+
+  updateNowPlaying();
+}
+
+function updateNowPlaying(){
+
+  const item=currentList[currentIndex];
+  if(!item)return;
+
+  document.getElementById("npName").textContent=item.name||"Unknown";
+  document.getElementById("npMeta").textContent=`${item.country||""} • ${item.tags||""}`;
+}
+
+/* =========================
+   CONTROLS
+========================= */
+
+function togglePlay(){
+  const p=document.getElementById("player");
+  const b=document.getElementById("playBtn");
+
+  if(!p.src)return;
+
+  if(isPlaying){
+    p.pause();isPlaying=false;b.textContent="▶";
+  }else{
+    p.play();isPlaying=true;b.textContent="⏸";
+  }
+}
+
+function nextStation(){
+  if(!currentList.length)return;
+  currentIndex=(currentIndex+1)%currentList.length;
+  playStation(currentList[currentIndex].stationuuid||currentList[currentIndex].id);
+}
+
+function prevStation(){
+  if(!currentList.length)return;
+  currentIndex=(currentIndex-1+currentList.length)%currentList.length;
+  playStation(currentList[currentIndex].stationuuid||currentList[currentIndex].id);
+}
+
+function setVolume(v){
+  document.getElementById("player").volume=v;
+}
+
+/* =========================
+   FILTER
+========================= */
+
+function applyFilter(){
+  const g=document.getElementById("genre").value.toLowerCase();
+  if(!g)stations=[...allStations];
+  else stations=allStations.filter(s=>(s.tags||"").toLowerCase().includes(g));
+
+  currentList=stations;
+  render();
+}
+
+/* =========================
+   RENDER
+========================= */
+
+function render(){
+
+  const tbody=document.querySelector("#table tbody");
+  tbody.innerHTML="";
+
+  currentList.forEach(s=>{
+
+    const id=s.stationuuid||s.id;
+    const isFav=favoriteIds.has(id);
+
+    const tr=document.createElement("tr");
+
+    tr.innerHTML=`
+      <td><div class="station">${s.name||"Unknown"}</div></td>
+      <td>${s.country||""}</td>
+      <td><div class="tags">${s.tags||""}</div></td>
+      <td>
+        <div class="actions">
+
+          <button class="small-btn" onclick="playStation('${id}')">▶</button>
+
+          <button class="small-btn" onclick="${
+            isFav
+            ?`removeFavorite('${id}')`
+            :`toggleFavorite(${JSON.stringify(s)})`
+          }">
+            ${isFav?"❌":"⭐"}
+          </button>
+
+        </div>
+      </td>
+    `;
+
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById("count").textContent=currentList.length+" stations";
+}
+
+/* =========================
+   INIT
+========================= */
+
+loadStations();
+
+</script>
+
+</body>
+</html>
