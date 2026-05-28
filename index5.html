@@ -285,11 +285,24 @@ function toggleFavorite(s){
   const id = s.stationuuid;
   if(!id) return;
 
-  if(favoriteIds.has(id)){
-    setStatus("Already in favorites");
+  const index = favorites.findIndex(f =>
+    f.stationuuid === id
+  );
+
+  // ✅ IF EXISTS → REMOVE
+  if(index !== -1){
+
+    favorites.splice(index, 1);
+    favoriteIds.delete(id);
+
+    saveFavorites();
+
+    setStatus("Removed from favorites");
+    render();
     return;
   }
 
+  // ✅ OTHERWISE → ADD
   const clean = {
     stationuuid: s.stationuuid,
     name: s.name,
@@ -304,7 +317,7 @@ function toggleFavorite(s){
 
   saveFavorites();
 
-  setStatus("⭐ Saved offline");
+  setStatus("⭐ Added to favorites");
   render();
 }
 
@@ -452,9 +465,9 @@ function render(){
         <td>${s.tags || ""}</td>
         <td>
           <button onclick="playStation('${id}')">▶</button>
-          <button onclick='toggleFavorite(${JSON.stringify(s)})'>
-            ${fav ? "⭐" : "☆"}
-          </button>
+          <button onclick='toggleFavorite(${JSON.stringify(s)})'>        
+            ${fav ? "💔 Remove" : "⭐ Favorite"}
+         </button>
         </td>
       </tr>
     `;
