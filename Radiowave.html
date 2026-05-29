@@ -890,7 +890,6 @@ tr:hover{
 
         <tr>
           <th>Station</th>
-          <th>Country</th>
           <th>Genre</th>
           <th>Actions</th>
         </tr>
@@ -1376,73 +1375,51 @@ function render(){
 function renderTable(){
 
   const tbody =
-    document.querySelector(
-      "#table tbody"
-    );
+    document.querySelector("#table tbody");
 
   tbody.innerHTML = "";
 
   currentList.forEach(s => {
 
-    const id =
-      s.stationuuid || s.id;
+    const id = s.stationuuid || s.id;
 
-    const isFav =
-      favoriteIds.has(id);
+    const isFav = favoriteIds.has(id);
 
-    const tr =
-      document.createElement("tr");
+    const tr = document.createElement("tr");
 
     tr.innerHTML = `
-
       <td>
-
         <div class="station">
           ${s.name || "Unknown"}
         </div>
-
       </td>
 
       <td>
-        ${s.country || ""}
-      </td>
-
-      <td>
-
         <div class="tags">
           ${s.tags || "Radio"}
         </div>
-
       </td>
 
       <td>
-
         <div class="actions">
 
-          <button
-            class="small-btn"
-            onclick="playStation('${id}')"
-          >
+          <button class="small-btn"
+            onclick="playStation('${id}')">
             ▶ Play
           </button>
 
-          <button
-            class="small-btn"
-            onclick='toggleFavorite(${JSON.stringify(s)})'
-          >
+          <button class="small-btn"
+            onclick='toggleFavorite(${JSON.stringify(s)})'>
             ${isFav ? "⭐ Saved" : "☆ Favorite"}
           </button>
 
         </div>
-
       </td>
-
     `;
 
     tbody.appendChild(tr);
 
   });
-
 }
 
 /* =========================
@@ -1472,32 +1449,21 @@ function renderMobile(){
     div.className = "card";
 
     div.innerHTML = `
+  <div class="card-title">
+    ${s.name || "Unknown"}
+  </div>
 
-      <div class="card-title">
-        ${s.name || "Unknown"}
-      </div>
+  <div class="card-meta">
+    ${s.tags || "Radio"}
+  </div>
 
-      <div class="card-meta">
-        ${s.country || ""} • ${s.tags || "Radio"}
-      </div>
-
-      <div class="card-buttons">
-
-        <button
-          onclick="playStation('${id}')"
-        >
-          ▶ Play
-        </button>
-
-        <button
-          onclick='toggleFavorite(${JSON.stringify(s)})'
-        >
-          ${isFav ? "⭐ Saved" : "☆ Favorite"}
-        </button>
-
-      </div>
-
-    `;
+  <div class="card-buttons">
+    <button onclick="playStation('${id}')">▶ Play</button>
+    <button onclick='toggleFavorite(${JSON.stringify(s)})'>
+      ${isFav ? "⭐ Saved" : "☆ Favorite"}
+    </button>
+  </div>
+`;
 
     el.appendChild(div);
 
