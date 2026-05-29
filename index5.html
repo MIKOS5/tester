@@ -1,14 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-<title>📻 RadioWave Pro (Offline Fixed)x</title>
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<title>📻 RadioWave Pro</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 
@@ -16,6 +11,7 @@
 
 :root{
   --bg:#09111d;
+  --panel:#111827;
   --line:#253347;
   --text:#fff;
   --muted:#93a4bb;
@@ -25,13 +21,13 @@
   --shadow:0 10px 30px rgba(0,0,0,.35);
 }
 
-*{box-sizing:border-box;}
+*{box-sizing:border-box}
 
 body{
   margin:0;
   font-family:Inter,sans-serif;
   background:radial-gradient(circle at top,#17263f,#09111d 45%);
-  color:white;
+  color:#fff;
   display:flex;
   height:100vh;
   overflow:hidden;
@@ -39,137 +35,185 @@ body{
 
 /* SIDEBAR */
 .sidebar{
-  width:330px;
+  width:340px;
   background:rgba(17,24,39,.92);
   backdrop-filter:blur(16px);
   border-right:1px solid var(--line);
-  padding:22px;
+  padding:20px;
   overflow:auto;
-  box-shadow:var(--shadow);
 }
 
-.logo{font-size:32px;font-weight:800;}
-.logo span{color:var(--blue);}
-.subtitle{color:var(--muted);font-size:13px;margin-bottom:20px;}
+.logo{
+  font-size:30px;
+  font-weight:800;
+}
+
+.logo span{color:var(--blue)}
 
 .search{
   width:100%;
-  padding:14px;
+  margin-top:12px;
+  padding:12px;
   border-radius:14px;
   border:1px solid #1e293b;
   background:#0e1725;
-  color:white;
+  color:#fff;
 }
 
 /* BUTTONS */
 button{
   border:none;
   border-radius:12px;
-  padding:12px;
-  font-weight:700;
+  padding:10px 12px;
   cursor:pointer;
-  color:white;
+  font-weight:700;
+  color:#fff;
   background:linear-gradient(180deg,var(--blue),var(--blue2));
+  transition:.15s;
 }
 
-button:hover{transform:translateY(-1px);}
+button:hover{transform:translateY(-1px)}
+button:active{transform:scale(.98)}
 
-.main-btn{width:100%;margin-top:10px;}
-
-.grid-buttons{
+.grid{
   display:grid;
   grid-template-columns:1fr 1fr;
-  gap:10px;
-  margin-top:12px;
+  gap:8px;
+  margin-top:10px;
 }
 
 /* PLAYER */
-.radio-player{
-  margin-top:20px;
+.player{
+  margin-top:18px;
   padding:16px;
-  border-radius:18px;
+  border-radius:20px;
   background:linear-gradient(180deg,#182233,#121926);
-  border:1px solid var(--line);
+  border:1px solid #263246;
 }
 
-.station-icon{
-  width:55px;
-  height:55px;
-  border-radius:14px;
-  background:linear-gradient(135deg,var(--blue),#6a5cff);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
+#npName{font-weight:700}
+#npMeta{font-size:12px;color:var(--muted)}
 
 .controls{
   display:grid;
   grid-template-columns:repeat(4,1fr);
-  gap:10px;
-  margin-top:14px;
+  gap:8px;
+  margin-top:12px;
 }
 
 /* MAIN */
 .main{
   flex:1;
-  padding:24px;
+  padding:20px;
   overflow:auto;
 }
 
-.page-title{
-  font-size:30px;
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.title{
+  font-size:28px;
   font-weight:800;
 }
 
+.pagebox{
+  padding:10px 14px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  color:var(--muted);
+}
+
 /* TABLE */
-.table-wrap{
-  border-radius:18px;
+.table{
+  margin-top:20px;
+  border-radius:20px;
   overflow:hidden;
   border:1px solid var(--line);
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
   background:rgba(17,24,39,.92);
 }
 
 th{
   text-align:left;
-  padding:16px;
-  font-size:12px;
-  color:#8eb5ff;
+  padding:14px;
   background:#0f1725;
+  color:#8eb5ff;
+  font-size:12px;
 }
 
 td{
-  padding:16px;
+  padding:14px;
   border-top:1px solid #1d2938;
 }
 
+tr:hover{background:#182233}
+
+.actions{
+  display:flex;
+  gap:8px;
+}
+
+.small{
+  padding:8px 10px;
+  font-size:12px;
+}
+
+/* GENRE DROPDOWN */
+.genre-wrap{
+  position:relative;
+  display:inline-block;
+}
+
+.genre-btn{
+  padding:7px 10px;
+  font-size:12px;
+  border-radius:10px;
+  background:#182233;
+  border:1px solid #263246;
+}
+
+.genre-popup{
+  display:none;
+  position:absolute;
+  top:35px;
+  left:0;
+  background:#0f1725;
+  border:1px solid #263246;
+  padding:10px;
+  border-radius:12px;
+  width:220px;
+  color:#93a4bb;
+  font-size:12px;
+  z-index:999;
+}
+
+.genre-wrap.active .genre-popup{
+  display:block;
+}
+
 /* MOBILE */
-#mobileList{display:none;}
+#mobileList{display:none}
 
 .card{
-  background:rgba(17,24,39,.94);
-  padding:16px;
-  border-radius:16px;
-  margin-bottom:12px;
+  background:rgba(17,24,39,.92);
   border:1px solid var(--line);
-}
-
-.card-buttons{
-  display:flex;
-  gap:10px;
-  margin-top:10px;
-}
-
-.status{
-  margin-top:12px;
-  color:var(--muted);
-  font-size:13px;
+  padding:14px;
+  border-radius:18px;
+  margin-bottom:10px;
 }
 
 @media(max-width:900px){
-  body{flex-direction:column;}
-  .sidebar{width:100%;}
-  .table-wrap{display:none;}
-  #mobileList{display:block;}
+  body{flex-direction:column}
+  .sidebar{width:100%}
+  .table{display:none}
+  #mobileList{display:block}
 }
 
 </style>
@@ -180,57 +224,56 @@ td{
 <div class="sidebar">
 
   <div class="logo">📻 Radio<span>Wave</span></div>
-  <div class="subtitle">Offline Fixed Version</div>
 
-  <input id="genre" class="search" placeholder="Search genre..." />
+  <input id="genre" class="search" placeholder="Search genre..."/>
 
-  <button class="main-btn" onclick="applyFilter()">🔎 Search</button>
+  <button onclick="applyFilter()">Search</button>
 
-  <div class="grid-buttons">
-    <button onclick="prevPage()">⬅ Prev</button>
-    <button onclick="nextPage()">Next ➜</button>
-    <button onclick="loadStations()">🔄 Refresh</button>
-    <button onclick="loadFavorites()">⭐ Favorites</button>
+  <div class="grid">
+    <button onclick="prevPage()">Prev</button>
+    <button onclick="nextPage()">Next</button>
+    <button onclick="loadStations()">Refresh</button>
+    <button onclick="loadFavorites()">Favs</button>
   </div>
 
-  <div class="radio-player">
+  <div class="player">
 
-    <div style="display:flex;gap:10px;align-items:center;">
-      <div class="station-icon">📻</div>
-      <div>
-        <div id="npName">Not Playing</div>
-        <div id="npMeta">Select station</div>
-      </div>
-    </div>
+    <div id="npName">Not Playing</div>
+    <div id="npMeta">Select station</div>
 
     <audio id="player"></audio>
 
     <div class="controls">
       <button onclick="prevStation()">⏮</button>
-      <button id="playBtn" onclick="togglePlay()">▶</button>
+      <button onclick="togglePlay()" id="playBtn">▶</button>
       <button onclick="nextStation()">⏭</button>
       <button onclick="toggleFavCurrent()">⭐</button>
     </div>
 
   </div>
 
-  <div class="status" id="status">Loading...</div>
+  <div id="status" style="margin-top:10px;color:#93a4bb">Loading...</div>
 
 </div>
 
 <div class="main">
 
-  <div class="page-title">US Radio</div>
-  <div id="count" class="status"></div>
+  <div class="topbar">
+    <div>
+      <div class="title">US Radio</div>
+      <div id="count"></div>
+    </div>
 
-  <div class="table-wrap">
-    <table id="table">
+    <div class="pagebox" id="pageInfo"></div>
+  </div>
+
+  <div class="table">
+    <table>
       <thead>
         <tr>
           <th>Station</th>
-          <th>Country</th>
           <th>Genre</th>
-          <th>Action</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -243,251 +286,174 @@ td{
 
 <script>
 
-const API = "https://all.api.radio-browser.info/json/stations/search";
+const API="https://all.api.radio-browser.info/json/stations/search";
 
-/* STATE */
-let stations = [];
-let allStations = [];
-let currentList = [];
-let currentIndex = -1;
+let stations=[],allStations=[],currentList=[];
+let favorites=[],favoriteIds=new Set();
+let page=0,currentIndex=-1;
+const limit=50;
+let isPlaying=false;
 
-let page = 0;
-const limit = 50;
-
-let favorites = [];
-let favoriteIds = new Set();
-let isPlaying = false;
-
-/* ================= FAVORITES ================= */
-
-function saveFavorites(){
-  localStorage.setItem("radio_favorites", JSON.stringify(favorites));
+/* FAVORITES LOCAL */
+function saveFav(){
+  localStorage.setItem("radioFav",JSON.stringify(favorites));
+}
+function loadFav(){
+  const d=localStorage.getItem("radioFav");
+  favorites=d?JSON.parse(d):[];
+  favoriteIds=new Set(favorites.map(f=>f.stationuuid));
 }
 
-function loadFavorites(){
-
-  const data = localStorage.getItem("radio_favorites");
-
-  favorites = data ? JSON.parse(data) : [];
-
-  favoriteIds = new Set(
-    favorites.map(f => f.stationuuid)
-  );
-
-  currentList = favorites;
-
-  render();
-  setStatus(`Loaded ${favorites.length} favorites`);
-}
-
-function toggleFavorite(s){
-
-  const id = s.stationuuid;
-  if(!id) return;
-
-  const index = favorites.findIndex(f =>
-    f.stationuuid === id
-  );
-
-  // ✅ IF EXISTS → REMOVE
-  if(index !== -1){
-
-    favorites.splice(index, 1);
-    favoriteIds.delete(id);
-
-    saveFavorites();
-
-    setStatus("Removed from favorites");
-    render();
-    return;
-  }
-
-  // ✅ OTHERWISE → ADD
-  const clean = {
-    stationuuid: s.stationuuid,
-    name: s.name,
-    country: s.country,
-    tags: s.tags,
-    url: s.url,
-    url_resolved: s.url_resolved
-  };
-
-  favorites.push(clean);
-  favoriteIds.add(id);
-
-  saveFavorites();
-
-  setStatus("⭐ Added to favorites");
-  render();
-}
-
-function toggleFavCurrent(){
-  const item = currentList[currentIndex];
-  if(item) toggleFavorite(item);
-}
-
-function clearFavorites(){
-  favorites = [];
-  favoriteIds = new Set();
-  saveFavorites();
-  render();
-  setStatus("Favorites cleared");
-}
-
-/* ================= STATIONS ================= */
-
+/* LOAD */
 async function loadStations(){
-
-  setStatus("Loading stations...");
-
-  try{
-
-    const res = await fetch(
-      `${API}?countrycode=US&limit=${limit}&offset=${page*limit}&hidebroken=true`
-    );
-
-    const data = await res.json();
-
-    stations = data;
-    allStations = data;
-    currentList = stations;
-
-    render();
-
-    setStatus(`Loaded ${stations.length} stations (Page ${page+1})`);
-
-  }catch(err){
-    setStatus("Failed loading stations");
-  }
+  setStatus("Loading...");
+  const res=await fetch(`${API}?countrycode=US&limit=${limit}&offset=${page*limit}&hidebroken=true`);
+  const data=await res.json();
+  stations=data;
+  allStations=[...data];
+  currentList=stations;
+  render();
+  setStatus("Loaded "+stations.length);
 }
 
-/* ================= PLAYER ================= */
+/* FAVORITE TOGGLE */
+function toggleFavorite(s){
+  const id=s.stationuuid;
+  const exists=favoriteIds.has(id);
 
-function playStation(id){
-
-  const item = currentList.find(s =>
-    s.stationuuid === id
-  );
-
-  if(!item) return;
-
-  currentIndex = currentList.indexOf(item);
-
-  const player = document.getElementById("player");
-
-  player.src = item.url_resolved || item.url;
-  player.play();
-
-  isPlaying = true;
-  document.getElementById("playBtn").textContent = "⏸";
-
-  document.getElementById("npName").textContent = item.name;
-  document.getElementById("npMeta").textContent =
-    `${item.country || ""} • ${item.tags || ""}`;
-}
-
-/* controls */
-function togglePlay(){
-  const p = document.getElementById("player");
-
-  if(!p.src) return;
-
-  if(isPlaying){
-    p.pause();
-    isPlaying = false;
-    document.getElementById("playBtn").textContent = "▶";
+  if(exists){
+    favorites=favorites.filter(f=>f.stationuuid!==id);
+    favoriteIds.delete(id);
+    setStatus("Removed ⭐");
   }else{
-    p.play();
-    isPlaying = true;
-    document.getElementById("playBtn").textContent = "⏸";
+    favorites.push(s);
+    favoriteIds.add(id);
+    setStatus("Saved ⭐");
   }
+
+  saveFav();
+  render();
 }
 
+/* FAVORITES */
+function loadFavorites(){
+  currentList=[...favorites];
+  render();
+}
+
+/* PLAY */
+function playStation(id){
+  const item=currentList.find(s=>s.stationuuid===id);
+  if(!item)return;
+
+  currentIndex=currentList.indexOf(item);
+
+  const p=document.getElementById("player");
+  p.src=item.url_resolved||item.url;
+  p.play();
+
+  isPlaying=true;
+  document.getElementById("playBtn").textContent="⏸";
+
+  document.getElementById("npName").textContent=item.name;
+  document.getElementById("npMeta").textContent=item.tags||"Radio";
+}
+
+/* NEXT PREV FIX */
 function nextStation(){
-  if(!currentList.length) return;
-  currentIndex = (currentIndex + 1) % currentList.length;
+  if(!currentList.length)return;
+  currentIndex=(currentIndex+1)%currentList.length;
   playStation(currentList[currentIndex].stationuuid);
 }
 
 function prevStation(){
-  if(!currentList.length) return;
-  currentIndex = (currentIndex - 1 + currentList.length) % currentList.length;
+  if(!currentList.length)return;
+  currentIndex=(currentIndex-1+currentList.length)%currentList.length;
   playStation(currentList[currentIndex].stationuuid);
 }
 
-/* ================= PAGINATION FIX ================= */
+/* PLAY */
+function togglePlay(){
+  const p=document.getElementById("player");
+  if(!p.src)return;
 
-function nextPage(){
-  page++;
-  loadStations();
-}
-
-function prevPage(){
-  if(page > 0){
-    page--;
-    loadStations();
-  }
-}
-
-/* ================= FILTER ================= */
-
-function applyFilter(){
-
-  const g = document.getElementById("genre").value.toLowerCase();
-
-  if(!g){
-    currentList = allStations;
+  if(isPlaying){
+    p.pause();
+    isPlaying=false;
+    document.getElementById("playBtn").textContent="▶";
   }else{
-    currentList = allStations.filter(s =>
-      (s.tags || "").toLowerCase().includes(g)
-    );
+    p.play();
+    isPlaying=true;
+    document.getElementById("playBtn").textContent="⏸";
   }
+}
 
+/* FILTER */
+function applyFilter(){
+  const v=document.getElementById("genre").value.toLowerCase();
+  currentList=allStations.filter(s=>(s.tags||"").toLowerCase().includes(v));
   render();
 }
 
-/* ================= RENDER ================= */
+/* PAGINATION */
+function nextPage(){page++;loadStations();}
+function prevPage(){if(page>0)page--;loadStations();}
 
+/* GENRE POPUP */
+function toggleGenre(el){
+  document.querySelectorAll(".genre-wrap").forEach(g=>{
+    if(g!==el.parentElement)g.classList.remove("active");
+  });
+  el.parentElement.classList.toggle("active");
+}
+document.addEventListener("click",e=>{
+  if(!e.target.closest(".genre-wrap")){
+    document.querySelectorAll(".genre-wrap").forEach(g=>g.classList.remove("active"));
+  }
+});
+
+/* RENDER */
 function render(){
 
-  const tbody = document.querySelector("#table tbody");
-  tbody.innerHTML = "";
+  const tbody=document.querySelector("tbody");
+  tbody.innerHTML="";
 
-  currentList.forEach(s => {
+  currentList.forEach(s=>{
 
-    const id = s.stationuuid;
-    const fav = favoriteIds.has(id);
+    const fav=favoriteIds.has(s.stationuuid);
 
-    tbody.innerHTML += `
+    tbody.innerHTML+=`
       <tr>
         <td>${s.name}</td>
-        <td>${s.country || ""}</td>
-        <td>${s.tags || ""}</td>
+
         <td>
-          <button onclick="playStation('${id}')">▶</button>
-          <button onclick='toggleFavorite(${JSON.stringify(s)})'>        
-            ${fav ? "💔 Remove" : "⭐ Favorite"}
-         </button>
+          <div class="genre-wrap">
+            <button class="genre-btn" onclick="toggleGenre(this)">Genre ▾</button>
+            <div class="genre-popup">${s.tags||"No data"}</div>
+          </div>
+        </td>
+
+        <td class="actions">
+          <button class="small" onclick="playStation('${s.stationuuid}')">Play</button>
+          <button class="small" onclick='toggleFavorite(${JSON.stringify(s)})'>
+            ${fav?"⭐":"☆"}
+          </button>
         </td>
       </tr>
     `;
   });
 
-  document.getElementById("count").textContent =
-    `${currentList.length} stations`;
-
-  document.getElementById("pageInfo").textContent =
-    `Page ${page + 1}`;
+  document.getElementById("count").innerText=currentList.length+" stations";
+  document.getElementById("pageInfo").innerText="Page "+(page+1);
 }
 
 /* STATUS */
 function setStatus(t){
-  document.getElementById("status").textContent = t;
+  document.getElementById("status").innerText=t;
 }
 
-/* INIT */
+loadFav();
 loadStations();
-loadFavorites();
 
 </script>
 
