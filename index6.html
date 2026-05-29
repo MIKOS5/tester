@@ -3,183 +3,171 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>xx📻 Hybrid Radio Browser</title>
+<title>📻 RadioWave Pro</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 
 <style>
 
+:root{
+  --bg:#09111d;
+  --panel:#111827;
+  --line:#253347;
+  --muted:#93a4bb;
+  --blue:#2793ff;
+  --blue2:#1869d9;
+}
+
+*{box-sizing:border-box}
+
 body{
   margin:0;
-  font-family:Tahoma, sans-serif;
-  background:#0b111c;
-  color:#e7f0ff;
-}
-
-/* MODE BAR */
-.mode-bar{
+  font-family:Inter,sans-serif;
+  background:radial-gradient(circle at top,#17263f,#09111d 45%);
+  color:#fff;
   display:flex;
-  gap:6px;
-  padding:10px;
+  height:100vh;
+  overflow:hidden;
 }
 
-.mode-bar button{
-  flex:1;
-  padding:10px;
-  font-weight:700;
+/* SIDEBAR */
+.sidebar{
+  width:340px;
+  background:rgba(17,24,39,.92);
+  backdrop-filter:blur(16px);
+  border-right:1px solid var(--line);
+  padding:20px;
+  overflow:auto;
+}
+
+.logo{font-size:30px;font-weight:800}
+.logo span{color:var(--blue)}
+
+.search{
+  width:100%;
+  margin-top:12px;
+  padding:12px;
+  border-radius:14px;
+  border:1px solid #1e293b;
+  background:#0e1725;
+  color:#fff;
+}
+
+button{
+  border:none;
+  border-radius:12px;
+  padding:10px 12px;
   cursor:pointer;
-  border:1px solid #1b2d45;
-  background:#0e1624;
-  color:#e7f0ff;
+  font-weight:700;
+  color:#fff;
+  background:linear-gradient(180deg,var(--blue),var(--blue2));
 }
 
-.mode-active{
-  background:linear-gradient(180deg,#3aa0ff,#1a5fbf) !important;
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-top:10px;
+}
+
+/* PLAYER */
+.player{
+  margin-top:18px;
+  padding:16px;
+  border-radius:20px;
+  background:linear-gradient(180deg,#182233,#121926);
+  border:1px solid #263246;
+}
+
+#npName{font-weight:700}
+#npMeta{font-size:12px;color:var(--muted)}
+
+.controls{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin-top:12px;
+}
+
+/* MAIN */
+.main{
+  flex:1;
+  padding:20px;
+  overflow:auto;
+}
+
+.topbar{
+  display:flex;
+  justify-content:space-between;
+}
+
+.title{font-size:28px;font-weight:800}
+
+.pagebox{
+  padding:10px 14px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  color:var(--muted);
 }
 
 /* TABLE */
 .table{
-  border-top:2px solid #223552;
+  margin-top:20px;
+  border-radius:20px;
+  overflow:visible;
+  border:1px solid var(--line);
 }
 
 table{
   width:100%;
   border-collapse:collapse;
+  background:rgba(17,24,39,.92);
 }
 
 th{
-  font-size:11px;
   text-align:left;
-  padding:10px;
-  background:#0c1a2c;
-  color:#7fbaff;
+  padding:14px;
+  background:#0f1725;
+  color:#8eb5ff;
+  font-size:12px;
 }
 
 td{
-  padding:10px;
-  font-size:12px;
-  border-bottom:1px solid #1a2a40;
+  padding:14px;
+  border-top:1px solid #1d2938;
 }
 
-tr:hover{background:#101c2e}
-tr.active{background:#13243a; box-shadow:inset 3px 0 0 #3aa0ff}
+tr:hover{background:#182233}
 
-/* BUTTONS */
-button{
+/* GENRE */
+.genre-wrap{position:relative;display:inline-block}
+
+.genre-btn{
+  padding:7px 10px;
   font-size:12px;
-  font-weight:700;
-  padding:8px 10px;
-  border:1px solid #0f2c55;
-  background:linear-gradient(180deg,#2e77d3,#1a4f99);
-  color:white;
-  cursor:pointer;
+  border-radius:10px;
+  background:#182233;
+  border:1px solid #263246;
 }
 
-/* DOCK PLAYER */
-.dock-player{
-  position:fixed;
-  bottom:0;
+.genre-popup{
+  display:none;
+  position:absolute;
+  top:35px;
   left:0;
-  right:0;
-
-  height:95px;
-
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-
+  width:240px;
+  background:#0f1725;
+  border:1px solid #263246;
   padding:10px;
-
-  background:#050a12;
-  border-top:2px solid #223552;
+  border-radius:12px;
+  font-size:12px;
+  color:#93a4bb;
+  z-index:9999;
+  box-shadow:0 10px 30px rgba(0,0,0,.5);
 }
 
-.dock-left{width:30%}
-
-#ledStatus{
-  font-size:11px;
-  font-weight:700;
-  color:#ffcc66;
-}
-
-#npName{
-  font-size:13px;
-  font-weight:700;
-  color:#6ec0ff;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-
-#npMeta{
-  font-size:11px;
-  color:#93a7c2;
-}
-
-.dock-center{
-  width:40%;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  gap:10px;
-}
-
-.cd{
-  width:46px;
-  height:46px;
-  border-radius:50%;
-  background:radial-gradient(circle,#111,#333,#000);
-  border:2px solid #2b3f5f;
-}
-
-.cd.playing{
-  animation:spin 2.5s linear infinite;
-}
-
-@keyframes spin{
-  from{transform:rotate(0)}
-  to{transform:rotate(360deg)}
-}
-
-.eq{
-  display:flex;
-  align-items:flex-end;
-  height:35px;
-  gap:3px;
-}
-
-.bar{
-  width:4px;
-  background:#3aa0ff;
-  height:6px;
-  animation:eq 1s infinite ease-in-out;
-}
-
-@keyframes eq{
-  0%{height:6px}
-  50%{height:30px}
-  100%{height:10px}
-}
-
-.dock-right{
-  width:30%;
-  display:flex;
-  justify-content:flex-end;
-  gap:6px;
-}
-
-.dock-right button{
-  width:42px;
-  height:42px;
-}
-
-/* MAIN */
-.main{
-  padding-bottom:120px;
-}
-
-#loading{
-  padding:10px;
-  text-align:center;
-  color:#93a7c2;
+.genre-wrap.active .genre-popup{
+  display:block;
 }
 
 </style>
@@ -187,15 +175,52 @@ button{
 
 <body>
 
-<div class="main">
+<div class="sidebar">
 
-  <!-- MODE SWITCH -->
-  <div class="mode-bar">
-    <button onclick="setMode('stations')" id="btnStations">📻 Stations</button>
-    <button onclick="setMode('favorites')" id="btnFavs">⭐ Favorites</button>
+  <div class="logo">📻 Radio<span>Wave</span></div>
+
+  <input id="genre" class="search" placeholder="Search genre..."/>
+
+  <button onclick="applyFilter()">Search</button>
+
+  <div class="grid">
+    <button onclick="prevPage()">Prev</button>
+    <button onclick="nextPage()">Next</button>
+    <button onclick="loadStations()">Refresh</button>
+    <button onclick="loadFavorites()">Favs</button>
   </div>
 
-  <div id="loading">Loading stations...</div>
+  <div class="player">
+
+    <div id="npName">Not Playing</div>
+    <div id="npMeta">Select station</div>
+
+    <audio id="player"></audio>
+
+    <div class="controls">
+      <button onclick="prevStation()">⏮</button>
+      <button onclick="togglePlay()" id="playBtn">▶</button>
+      <button onclick="nextStation()">⏭</button>
+
+      <!-- FIXED ⭐ BUTTON -->
+      <button onclick="toggleFavCurrent()">⭐</button>
+    </div>
+
+  </div>
+
+  <div id="status" style="margin-top:10px;color:#93a4bb">Loading...</div>
+
+</div>
+
+<div class="main">
+
+  <div class="topbar">
+    <div>
+      <div class="title">US Radio</div>
+      <div id="count"></div>
+    </div>
+    <div class="pagebox" id="pageInfo"></div>
+  </div>
 
   <div class="table">
     <table>
@@ -212,118 +237,77 @@ button{
 
 </div>
 
-<!-- DOCK PLAYER -->
-<div class="dock-player">
-
-  <div class="dock-left">
-    <div id="ledStatus">STOPPED</div>
-    <div id="npName">NO STATION</div>
-    <div id="npMeta">Ready</div>
-  </div>
-
-  <div class="dock-center">
-    <div class="cd" id="cdDisc"></div>
-
-    <div class="eq">
-      <div class="bar"></div><div class="bar"></div><div class="bar"></div>
-      <div class="bar"></div><div class="bar"></div><div class="bar"></div>
-      <div class="bar"></div><div class="bar"></div>
-    </div>
-  </div>
-
-  <div class="dock-right">
-    <button onclick="prevStation()">⏮</button>
-    <button onclick="togglePlay()" id="playBtn">▶</button>
-    <button onclick="nextStation()">⏭</button>
-    <button onclick="toggleFavCurrent()">★</button>
-  </div>
-
-  <audio id="player"></audio>
-
-</div>
-
 <script>
 
 const API="https://all.api.radio-browser.info/json/stations/search";
 
-let currentList=[];
-let favorites=[];
-let favoriteIds=new Set();
-
-let mode="stations";
-
-let page=0;
-let limit=50;
-let loading=false;
-
-let currentIndex=-1;
+let stations=[],allStations=[],currentList=[];
+let favorites=[],favoriteIds=new Set();
+let page=0,currentIndex=-1;
+const limit=50;
 let isPlaying=false;
 
 /* FAVORITES */
-function loadFavorites(){
-  const d=localStorage.getItem("favStations");
-  favorites = d ? JSON.parse(d) : [];
-  favoriteIds = new Set(favorites.map(f=>f.stationuuid));
+function saveFav(){
+  localStorage.setItem("radioFav",JSON.stringify(favorites));
 }
-
-function saveFavorites(){
-  localStorage.setItem("favStations", JSON.stringify(favorites));
-}
-
-function toggleFavorite(s){
-
-  const id=s.stationuuid;
-
-  if(favoriteIds.has(id)){
-    favorites = favorites.filter(f=>f.stationuuid!==id);
-    favoriteIds.delete(id);
-  }else{
-    favorites.push(s);
-    favoriteIds.add(id);
-  }
-
-  saveFavorites();
-  render();
-}
-
-function toggleFavCurrent(){
-  const p=document.getElementById("player");
-  if(!p.src) return;
-
-  const item=currentList.find(s=>(s.url_resolved||s.url)===p.src);
-  if(item) toggleFavorite(item);
-}
-
-/* MODE */
-function setMode(m){
-  mode=m;
-
-  document.getElementById("btnStations").classList.remove("mode-active");
-  document.getElementById("btnFavs").classList.remove("mode-active");
-
-  if(m==="stations"){
-    document.getElementById("btnStations").classList.add("mode-active");
-  }else{
-    document.getElementById("btnFavs").classList.add("mode-active");
-  }
-
-  render();
+function loadFav(){
+  const d=localStorage.getItem("radioFav");
+  favorites=d?JSON.parse(d):[];
+  favoriteIds=new Set(favorites.map(f=>f.stationuuid));
 }
 
 /* LOAD */
 async function loadStations(){
-  if(loading) return;
-  loading=true;
-
+  setStatus("Loading...");
   const res=await fetch(`${API}?countrycode=US&limit=${limit}&offset=${page*limit}&hidebroken=true`);
   const data=await res.json();
+  stations=data;
+  allStations=[...data];
+  currentList=stations;
+  render();
+  setStatus("Loaded "+stations.length);
+}
 
-  currentList=[...currentList,...data];
+/* FAVORITE TOGGLE */
+function toggleFavorite(s){
 
-  page++;
-  loading=false;
+  const id=s.stationuuid;
+  const exists=favoriteIds.has(id);
 
-  document.getElementById("loading").innerText="";
+  if(exists){
+    favorites=favorites.filter(f=>f.stationuuid!==id);
+    favoriteIds.delete(id);
+    setStatus("Removed ⭐");
+  }else{
+    favorites.push(s);
+    favoriteIds.add(id);
+    setStatus("Saved ⭐");
+  }
+
+  saveFav();
+  render();
+}
+
+/* FIXED PLAYER FAVORITE BUTTON */
+function toggleFavCurrent(){
+
+  const p=document.getElementById("player");
+  if(!p.src) return;
+
+  const item=currentList.find(s =>
+    (s.url_resolved||s.url) === p.src
+  );
+
+  if(!item) return;
+
+  toggleFavorite(item);
+}
+
+/* LOAD FAVORITES */
+function loadFavorites(){
+  currentList=[...favorites];
+  page=0;
   render();
 }
 
@@ -335,65 +319,73 @@ function playStation(id){
 
   currentIndex=currentList.findIndex(s=>s.stationuuid===id);
 
-  document.querySelectorAll("tr").forEach(r=>r.classList.remove("active"));
-
-  const rows=[...document.querySelectorAll("tr")];
-  const row=rows.find(r=>r.innerText.includes(item.name));
-  if(row) row.classList.add("active");
-
   const p=document.getElementById("player");
   p.src=item.url_resolved||item.url;
   p.play();
 
-  document.getElementById("npName").innerText=item.name;
-  document.getElementById("npMeta").innerText=item.tags||"Radio station";
-
   isPlaying=true;
-  startVisuals();
+  document.getElementById("playBtn").textContent="⏸";
+
+  document.getElementById("npName").textContent=item.name;
+  document.getElementById("npMeta").textContent=item.tags||"Radio";
 }
 
-/* CONTROLS */
-function togglePlay(){
-  const p=document.getElementById("player");
-  const btn=document.getElementById("playBtn");
-
-  if(!p.src) return;
-
-  if(isPlaying){
-    p.pause();
-    isPlaying=false;
-    btn.innerText="▶";
-    stopVisuals();
-  }else{
-    p.play();
-    isPlaying=true;
-    btn.innerText="⏸";
-    startVisuals();
-  }
-}
-
+/* NEXT / PREV FIXED */
 function nextStation(){
+  if(!currentList.length)return;
+  if(currentIndex<0)currentIndex=0;
   currentIndex=(currentIndex+1)%currentList.length;
   playStation(currentList[currentIndex].stationuuid);
 }
 
 function prevStation(){
+  if(!currentList.length)return;
+  if(currentIndex<0)currentIndex=0;
   currentIndex=(currentIndex-1+currentList.length)%currentList.length;
   playStation(currentList[currentIndex].stationuuid);
 }
 
-/* VISUALS */
-function startVisuals(){
-  document.getElementById("cdDisc").classList.add("playing");
-  document.getElementById("ledStatus").innerText="PLAYING";
-  document.getElementById("ledStatus").style.color="#3cff8f";
+/* PLAY */
+function togglePlay(){
+  const p=document.getElementById("player");
+  if(!p.src)return;
+
+  if(isPlaying){
+    p.pause();
+    isPlaying=false;
+    document.getElementById("playBtn").textContent="▶";
+  }else{
+    p.play();
+    isPlaying=true;
+    document.getElementById("playBtn").textContent="⏸";
+  }
 }
 
-function stopVisuals(){
-  document.getElementById("cdDisc").classList.remove("playing");
-  document.getElementById("ledStatus").innerText="STOPPED";
-  document.getElementById("ledStatus").style.color="#ff6666";
+/* FILTER */
+function applyFilter(){
+  const v=document.getElementById("genre").value.toLowerCase();
+  currentList=allStations.filter(s=>(s.tags||"").toLowerCase().includes(v));
+  page=0;
+  render();
 }
+
+/* PAGINATION */
+function nextPage(){page++;loadStations();}
+function prevPage(){if(page>0)page--;loadStations();}
+
+/* GENRE POPUP */
+function toggleGenre(el){
+  document.querySelectorAll(".genre-wrap").forEach(g=>{
+    if(g!==el.parentElement)g.classList.remove("active");
+  });
+  el.parentElement.classList.toggle("active");
+}
+
+document.addEventListener("click",e=>{
+  if(!e.target.closest(".genre-wrap")){
+    document.querySelectorAll(".genre-wrap").forEach(g=>g.classList.remove("active"));
+  }
+});
 
 /* RENDER */
 function render(){
@@ -401,39 +393,42 @@ function render(){
   const tbody=document.querySelector("tbody");
   tbody.innerHTML="";
 
-  let list = mode==="favorites" ? favorites : currentList;
+  currentList.forEach(s=>{
 
-  list.forEach(s=>{
-
-    const fav = favoriteIds.has(s.stationuuid);
+    const fav=favoriteIds.has(s.stationuuid);
 
     tbody.innerHTML+=`
-      <tr onclick="playStation('${s.stationuuid}')">
+      <tr>
         <td>${s.name}</td>
-        <td>${s.tags||""}</td>
+
         <td>
-          <button onclick="event.stopPropagation(); playStation('${s.stationuuid}')">▶</button>
-          <button onclick="event.stopPropagation(); toggleFavorite(${JSON.stringify(s)})">
-            ${fav ? "⭐" : "☆"}
+          <div class="genre-wrap">
+            <button class="genre-btn" onclick="toggleGenre(this)">Genre ▾</button>
+            <div class="genre-popup">${s.tags||"No data"}</div>
+          </div>
+        </td>
+
+        <td>
+          <button onclick="playStation('${s.stationuuid}')">Play</button>
+          <button onclick='toggleFavorite(${JSON.stringify(s)})'>
+            ${fav?"⭐":"☆"}
           </button>
         </td>
       </tr>
     `;
   });
+
+  document.getElementById("count").innerText=currentList.length+" stations";
+  document.getElementById("pageInfo").innerText="Page "+(page+1);
 }
 
-/* INFINITE SCROLL */
-window.addEventListener("scroll",()=>{
-  if(mode!=="stations") return;
-
-  if(window.innerHeight + window.scrollY >= document.body.offsetHeight - 250){
-    loadStations();
-  }
-});
+/* STATUS */
+function setStatus(t){
+  document.getElementById("status").innerText=t;
+}
 
 /* INIT */
-loadFavorites();
-setMode("stations");
+loadFav();
 loadStations();
 
 </script>
