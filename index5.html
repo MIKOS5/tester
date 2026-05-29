@@ -16,7 +16,6 @@
   --muted:#93a4bb;
   --blue:#2793ff;
   --blue2:#1869d9;
-  --green:#17c964;
 }
 
 *{box-sizing:border-box}
@@ -54,7 +53,6 @@ body{
   color:#fff;
 }
 
-/* BUTTONS */
 button{
   border:none;
   border-radius:12px;
@@ -64,9 +62,6 @@ button{
   color:#fff;
   background:linear-gradient(180deg,var(--blue),var(--blue2));
 }
-
-button:hover{transform:translateY(-1px)}
-button:active{transform:scale(.98)}
 
 .grid{
   display:grid;
@@ -104,7 +99,6 @@ button:active{transform:scale(.98)}
 .topbar{
   display:flex;
   justify-content:space-between;
-  align-items:center;
 }
 
 .title{font-size:28px;font-weight:800}
@@ -145,11 +139,8 @@ td{
 
 tr:hover{background:#182233}
 
-/* GENRE DROPDOWN FIXED LAYER */
-.genre-wrap{
-  position:relative;
-  display:inline-block;
-}
+/* GENRE */
+.genre-wrap{position:relative;display:inline-block}
 
 .genre-btn{
   padding:7px 10px;
@@ -171,35 +162,12 @@ tr:hover{background:#182233}
   border-radius:12px;
   font-size:12px;
   color:#93a4bb;
-  z-index:9999; /* FIX: no more hidden under table */
+  z-index:9999;
   box-shadow:0 10px 30px rgba(0,0,0,.5);
 }
 
 .genre-wrap.active .genre-popup{
   display:block;
-}
-
-/* FAVORITE STAR FIX */
-.star{
-  width:auto;
-}
-
-/* MOBILE */
-#mobileList{display:none}
-
-.card{
-  background:rgba(17,24,39,.92);
-  border:1px solid var(--line);
-  padding:14px;
-  border-radius:18px;
-  margin-bottom:10px;
-}
-
-@media(max-width:900px){
-  body{flex-direction:column}
-  .sidebar{width:100%}
-  .table{display:none}
-  #mobileList{display:block}
 }
 
 </style>
@@ -223,6 +191,7 @@ tr:hover{background:#182233}
   </div>
 
   <div class="player">
+
     <div id="npName">Not Playing</div>
     <div id="npMeta">Select station</div>
 
@@ -232,8 +201,11 @@ tr:hover{background:#182233}
       <button onclick="prevStation()">⏮</button>
       <button onclick="togglePlay()" id="playBtn">▶</button>
       <button onclick="nextStation()">⏭</button>
+
+      <!-- FIXED ⭐ BUTTON -->
       <button onclick="toggleFavCurrent()">⭐</button>
     </div>
+
   </div>
 
   <div id="status" style="margin-top:10px;color:#93a4bb">Loading...</div>
@@ -263,8 +235,6 @@ tr:hover{background:#182233}
     </table>
   </div>
 
-  <div id="mobileList"></div>
-
 </div>
 
 <script>
@@ -273,11 +243,11 @@ const API="https://all.api.radio-browser.info/json/stations/search";
 
 let stations=[],allStations=[],currentList=[];
 let favorites=[],favoriteIds=new Set();
-let page=0,currentIndex=0;
+let page=0,currentIndex=-1;
 const limit=50;
 let isPlaying=false;
 
-/* LOCAL STORAGE */
+/* FAVORITES */
 function saveFav(){
   localStorage.setItem("radioFav",JSON.stringify(favorites));
 }
@@ -299,7 +269,7 @@ async function loadStations(){
   setStatus("Loaded "+stations.length);
 }
 
-/* FAVORITES TOGGLE FIXED */
+/* FAVORITE TOGGLE */
 function toggleFavorite(s){
 
   const id=s.stationuuid;
@@ -319,15 +289,29 @@ function toggleFavorite(s){
   render();
 }
 
-/* FAVORITES VIEW */
+/* FIXED PLAYER FAVORITE BUTTON */
+function toggleFavCurrent(){
+
+  const p=document.getElementById("player");
+  if(!p.src) return;
+
+  const item=currentList.find(s =>
+    (s.url_resolved||s.url) === p.src
+  );
+
+  if(!item) return;
+
+  toggleFavorite(item);
+}
+
+/* LOAD FAVORITES */
 function loadFavorites(){
   currentList=[...favorites];
   page=0;
-  currentIndex=0;
   render();
 }
 
-/* PLAY FIXED INDEX */
+/* PLAY */
 function playStation(id){
 
   const item=currentList.find(s=>s.stationuuid===id);
@@ -346,15 +330,17 @@ function playStation(id){
   document.getElementById("npMeta").textContent=item.tags||"Radio";
 }
 
-/* NEXT / PREV FIX */
+/* NEXT / PREV FIXED */
 function nextStation(){
   if(!currentList.length)return;
+  if(currentIndex<0)currentIndex=0;
   currentIndex=(currentIndex+1)%currentList.length;
   playStation(currentList[currentIndex].stationuuid);
 }
 
 function prevStation(){
   if(!currentList.length)return;
+  if(currentIndex<0)currentIndex=0;
   currentIndex=(currentIndex-1+currentList.length)%currentList.length;
   playStation(currentList[currentIndex].stationuuid);
 }
@@ -383,11 +369,11 @@ function applyFilter(){
   render();
 }
 
-/* PAGINATION FIX */
+/* PAGINATION */
 function nextPage(){page++;loadStations();}
 function prevPage(){if(page>0)page--;loadStations();}
 
-/* GENRE POPUP FIX */
+/* GENRE POPUP */
 function toggleGenre(el){
   document.querySelectorAll(".genre-wrap").forEach(g=>{
     if(g!==el.parentElement)g.classList.remove("active");
@@ -401,7 +387,7 @@ document.addEventListener("click",e=>{
   }
 });
 
-/* RENDER FIXED */
+/* RENDER */
 function render(){
 
   const tbody=document.querySelector("tbody");
@@ -433,11 +419,7 @@ function render(){
   });
 
   document.getElementById("count").innerText=currentList.length+" stations";
-
-  const start=page*limit+1;
-  const end=start+currentList.length-1;
-
-  document.getElementById("pageInfo").innerText=`${start}-${end} • Page ${page+1}`;
+  document.getElementById("pageInfo").innerText="Page "+(page+1);
 }
 
 /* STATUS */
