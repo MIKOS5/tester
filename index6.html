@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>📻 RadioWave Jukebox</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Tahoma:wght@400;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+
+<style>
+
+:root{
+  --bg:#0b0f14;
+  --panel:#101722;
+  --panel2:#0e141e;
+  --border:#2a3a52;
+  --inner:#182233;
+  --text:#e6eefc;
+  --muted:#9fb0c7;
+  --blue:#3aa0ff;
+  --blue2:#1b5fbf;
+}
+
+/* ===== BASE ===== */
+body{
+  margin:0;
+  font-family:Tahoma, Inter, sans-serif;
+  background:linear-gradient(#070a0f,#0b0f14);
+  color:var(--text);
+  height:100vh;
+  display:flex;
+  overflow:hidden;
+}
+
+/* ===== LEFT SIDEBAR (OLD MEDIA LIBRARY STYLE) ===== */
+.sidebar{
+  width:320px;
+  background:linear-gradient(180deg,var(--panel),var(--panel2));
+  border-right:2px solid var(--border);
+  padding:14px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+/* LOGO */
+.logo{
+  font-size:22px;
+  font-weight:700;
+  letter-spacing:1px;
+  padding:10px;
+  background:#0c1522;
+  border:1px solid var(--border);
+  text-align:center;
+}
+.logo span{color:var(--blue)}
+
+/* SEARCH (OLD INPUT STYLE) */
+.search{
+  padding:10px;
+  border:1px solid var(--border);
+  background:#0c1420;
+  color:white;
+  outline:none;
+  font-size:13px;
+}
+
+/* BUTTONS (XP STYLE) */
+button{
+  background:linear-gradient(180deg,#2a78d6,#1b4f9a);
+  border:1px solid #0f2d57;
+  color:white;
+  font-weight:700;
+  padding:8px 10px;
+  cursor:pointer;
+  font-size:12px;
+}
+button:hover{
+  filter:brightness(1.1);
+}
+
+/* GRID CONTROLS */
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+}
+
+/* ===== NOW PLAYING PANEL ===== */
+.player{
+  margin-top:10px;
+  background:#0a1220;
+  border:2px inset #22324a;
+  padding:12px;
+}
+
+#npName{
+  font-weight:700;
+  font-size:14px;
+}
+#npMeta{
+  font-size:11px;
+  color:var(--muted);
+  margin-top:4px;
+}
+
+/* AUDIO BAR */
+audio{
+  width:100%;
+  margin-top:8px;
+}
+
+/* PLAYER BUTTONS */
+.controls{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:6px;
+  margin-top:10px;
+}
+
+/* ===== MAIN AREA ===== */
+.main{
+  flex:1;
+  padding:14px;
+  overflow:auto;
+}
+
+/* TOP BAR */
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px;
+  background:#0c1522;
+  border:1px solid var(--border);
+}
+
+.title{
+  font-size:18px;
+  font-weight:700;
+}
+
+.pagebox{
+  font-size:12px;
+  color:var(--muted);
+}
+
+/* ===== TABLE (OLD PLAYLIST LOOK) ===== */
+.table{
+  margin-top:12px;
+  border:2px inset #22324a;
+  background:#0b121c;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+th{
+  text-align:left;
+  font-size:11px;
+  padding:10px;
+  background:#0f1a2a;
+  color:#7fb7ff;
+  border-bottom:1px solid var(--border);
+}
+
+td{
+  padding:10px;
+  font-size:12px;
+  border-bottom:1px solid #1b2a3d;
+}
+
+tr:hover{
+  background:#121c2c;
+}
+
+/* GENRE OLD POPUP */
+.genre-wrap{position:relative}
+.genre-btn{
+  font-size:11px;
+  padding:6px 8px;
+  background:#1a2b44;
+  border:1px solid var(--border);
+}
+
+.genre-popup{
+  display:none;
+  position:absolute;
+  top:30px;
+  left:0;
+  background:#0c1522;
+  border:1px solid var(--border);
+  padding:8px;
+  width:220px;
+  font-size:11px;
+  z-index:999;
+}
+
+.genre-wrap.active .genre-popup{
+  display:block;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+
+  <div class="logo">📻 RADIO <span>JUKEBOX</span></div>
+
+  <input id="genre" class="search" placeholder="Search station / genre"/>
+
+  <button onclick="applyFilter()">Search</button>
+
+  <div class="grid">
+    <button onclick="prevPage()">Prev</button>
+    <button onclick="nextPage()">Next</button>
+    <button onclick="loadStations()">Refresh</button>
+    <button onclick="loadFavorites()">Favs</button>
+  </div>
+
+  <!-- PLAYER -->
+  <div class="player">
+
+    <div id="npName">No Track Selected</div>
+    <div id="npMeta">MusicMatch-style radio player</div>
+
+    <audio id="player" controls></audio>
+
+    <div class="controls">
+      <button onclick="prevStation()">⏮</button>
+      <button onclick="togglePlay()">▶/⏸</button>
+      <button onclick="nextStation()">⏭</button>
+      <button onclick="toggleFavCurrent()">★</button>
+    </div>
+
+  </div>
+
+  <div id="status" style="font-size:11px;color:#9fb0c7">Loading...</div>
+
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <div class="topbar">
+    <div class="title">US RADIO LIBRARY</div>
+    <div class="pagebox" id="pageInfo"></div>
+  </div>
+
+  <div class="table">
+    <table>
+      <thead>
+        <tr>
+          <th>Station</th>
+          <th>Genre</th>
+          <th>Play</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+
+const API="https://all.api.radio-browser.info/json/stations/search";
+
+let stations=[],allStations=[],currentList=[];
+let favorites=[],favoriteIds=new Set();
+let page=0,currentIndex=-1;
+const limit=50;
+let isPlaying=false;
+
+/* FAVORITES */
+function saveFav(){
+  localStorage.setItem("radioFav",JSON.stringify(favorites));
+}
+function loadFav(){
+  const d=localStorage.getItem("radioFav");
+  favorites=d?JSON.parse(d):[];
+  favoriteIds=new Set(favorites.map(f=>f.stationuuid));
+}
+
+/* LOAD */
+async function loadStations(){
+  setStatus("Loading stations...");
+  const res=await fetch(`${API}?countrycode=US&limit=${limit}&offset=${page*limit}&hidebroken=true`);
+  const data=await res.json();
+  allStations=data;
+  currentList=data;
+  render();
+  setStatus("Ready");
+}
+
+/* FAVORITE */
+function toggleFavorite(s){
+  const id=s.stationuuid;
+  if(favoriteIds.has(id)){
+    favorites=favorites.filter(f=>f.stationuuid!==id);
+    favoriteIds.delete(id);
+  }else{
+    favorites.push(s);
+    favoriteIds.add(id);
+  }
+  saveFav();
+  render();
+}
+
+function toggleFavCurrent(){
+  const p=document.getElementById("player");
+  const item=currentList.find(s=>(s.url_resolved||s.url)===p.src);
+  if(item) toggleFavorite(item);
+}
+
+/* FAVORITES VIEW */
+function loadFavorites(){
+  currentList=[...favorites];
+  render();
+}
+
+/* PLAY */
+function playStation(id){
+  const item=currentList.find(s=>s.stationuuid===id);
+  if(!item)return;
+
+  currentIndex=currentList.findIndex(s=>s.stationuuid===id);
+
+  const p=document.getElementById("player");
+  p.src=item.url_resolved||item.url;
+  p.play();
+
+  isPlaying=true;
+
+  document.getElementById("npName").innerText=item.name;
+  document.getElementById("npMeta").innerText=item.tags||"Radio station";
+}
+
+/* NEXT / PREV */
+function nextStation(){
+  if(!currentList.length)return;
+  currentIndex=(currentIndex+1)%currentList.length;
+  playStation(currentList[currentIndex].stationuuid);
+}
+
+function prevStation(){
+  if(!currentList.length)return;
+  currentIndex=(currentIndex-1+currentList.length)%currentList.length;
+  playStation(currentList[currentIndex].stationuuid);
+}
+
+/* PLAY TOGGLE */
+function togglePlay(){
+  const p=document.getElementById("player");
+  if(!p.src)return;
+
+  if(isPlaying){
+    p.pause();
+    isPlaying=false;
+  }else{
+    p.play();
+    isPlaying=true;
+  }
+}
+
+/* FILTER */
+function applyFilter(){
+  const v=document.getElementById("genre").value.toLowerCase();
+  currentList=allStations.filter(s=>(s.tags||"").toLowerCase().includes(v));
+  render();
+}
+
+/* GENRE POPUP */
+function toggleGenre(el){
+  el.parentElement.classList.toggle("active");
+}
+
+document.addEventListener("click",e=>{
+  if(!e.target.closest(".genre-wrap")){
+    document.querySelectorAll(".genre-wrap").forEach(g=>g.classList.remove("active"));
+  }
+});
+
+/* RENDER */
+function render(){
+  const tbody=document.querySelector("tbody");
+  tbody.innerHTML="";
+
+  currentList.forEach(s=>{
+    const fav=favoriteIds.has(s.stationuuid);
+
+    tbody.innerHTML+=`
+      <tr>
+        <td>${s.name}</td>
+        <td>${s.tags||"Unknown"}</td>
+        <td>
+          <button onclick="playStation('${s.stationuuid}')">Play</button>
+          <button onclick='toggleFavorite(${JSON.stringify(s)})'>
+            ${fav?"★":"☆"}
+          </button>
+        </td>
+      </tr>
+    `;
+  });
+
+  document.getElementById("pageInfo").innerText="Page "+(page+1);
+}
+
+function setStatus(t){
+  document.getElementById("status").innerText=t;
+}
+
+/* INIT */
+loadFav();
+loadStations();
+
+</script>
+
+</body>
+</html>
