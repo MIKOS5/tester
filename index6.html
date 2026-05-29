@@ -3,41 +3,41 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>📻 RadioWave Jukebox</title>
+<title>📀 MusicMatch Radio Jukebox</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Tahoma:wght@400;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Tahoma:wght@400;700&display=swap" rel="stylesheet"/>
 
 <style>
 
 :root{
-  --bg:#0b0f14;
-  --panel:#101722;
-  --panel2:#0e141e;
-  --border:#2a3a52;
-  --inner:#182233;
-  --text:#e6eefc;
-  --muted:#9fb0c7;
+  --bg:#070b12;
+  --panel:#0e1624;
+  --panel2:#0a111d;
+  --border:#263a55;
   --blue:#3aa0ff;
-  --blue2:#1b5fbf;
+  --blue2:#1a5fbf;
+  --text:#e7f0ff;
+  --muted:#93a7c2;
 }
 
-/* ===== BASE ===== */
+*{box-sizing:border-box}
+
 body{
   margin:0;
-  font-family:Tahoma, Inter, sans-serif;
-  background:linear-gradient(#070a0f,#0b0f14);
+  font-family:Tahoma, sans-serif;
+  background:linear-gradient(180deg,#05070c,#0b111c);
   color:var(--text);
   height:100vh;
   display:flex;
   overflow:hidden;
 }
 
-/* ===== LEFT SIDEBAR (OLD MEDIA LIBRARY STYLE) ===== */
+/* ================= LEFT LIBRARY ================= */
 .sidebar{
-  width:320px;
+  width:330px;
   background:linear-gradient(180deg,var(--panel),var(--panel2));
   border-right:2px solid var(--border);
-  padding:14px;
+  padding:12px;
   display:flex;
   flex-direction:column;
   gap:10px;
@@ -45,38 +45,37 @@ body{
 
 /* LOGO */
 .logo{
-  font-size:22px;
-  font-weight:700;
-  letter-spacing:1px;
-  padding:10px;
-  background:#0c1522;
-  border:1px solid var(--border);
   text-align:center;
+  font-weight:700;
+  padding:10px;
+  border:1px solid var(--border);
+  background:#0b1524;
+  letter-spacing:1px;
 }
 .logo span{color:var(--blue)}
 
-/* SEARCH (OLD INPUT STYLE) */
+/* INPUT */
 .search{
   padding:10px;
-  border:1px solid var(--border);
-  background:#0c1420;
+  background:#0b1422;
+  border:1px inset var(--border);
   color:white;
   outline:none;
-  font-size:13px;
 }
 
-/* BUTTONS (XP STYLE) */
+/* BUTTONS */
 button{
-  background:linear-gradient(180deg,#2a78d6,#1b4f9a);
-  border:1px solid #0f2d57;
-  color:white;
+  font-family:Tahoma;
+  font-size:12px;
   font-weight:700;
   padding:8px 10px;
+  border:1px solid #0f2c55;
+  background:linear-gradient(180deg,#2e77d3,#1a4f99);
+  color:white;
   cursor:pointer;
-  font-size:12px;
 }
-button:hover{
-  filter:brightness(1.1);
+button:active{
+  transform:translateY(1px);
 }
 
 /* GRID CONTROLS */
@@ -86,31 +85,56 @@ button:hover{
   gap:6px;
 }
 
-/* ===== NOW PLAYING PANEL ===== */
+/* ================= PLAYER ================= */
 .player{
   margin-top:10px;
-  background:#0a1220;
-  border:2px inset #22324a;
   padding:12px;
+  background:linear-gradient(180deg,#0a1322,#070d18);
+  border:2px inset #223552;
+  position:relative;
 }
 
-#npName{
-  font-weight:700;
-  font-size:14px;
+/* LED TOP BAR */
+.player::before{
+  content:"● MUSICMATCH RADIO";
+  font-size:10px;
+  color:#3cff8f;
+  position:absolute;
+  top:-10px;
+  left:10px;
+  background:#070d18;
+  padding:2px 6px;
+  border:1px solid #1c2f4a;
 }
+
+/* DISPLAY SCREEN */
+#npName{
+  background:#050a12;
+  border:1px inset #1d2d45;
+  padding:10px;
+  font-weight:700;
+  font-size:13px;
+  color:#6ec0ff;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  text-shadow:0 0 8px rgba(80,160,255,.25);
+}
+
 #npMeta{
+  margin-top:6px;
   font-size:11px;
   color:var(--muted);
-  margin-top:4px;
 }
 
-/* AUDIO BAR */
+/* AUDIO */
 audio{
   width:100%;
-  margin-top:8px;
+  margin-top:10px;
+  filter:brightness(.9);
 }
 
-/* PLAYER BUTTONS */
+/* CONTROLS */
 .controls{
   display:grid;
   grid-template-columns:repeat(4,1fr);
@@ -118,38 +142,47 @@ audio{
   margin-top:10px;
 }
 
-/* ===== MAIN AREA ===== */
+.controls button{
+  padding:10px 0;
+  border-radius:4px;
+  background:linear-gradient(180deg,#2c63a8,#163a6d);
+  border:1px solid #0b2442;
+}
+
+.controls button:last-child{
+  background:linear-gradient(180deg,#caa200,#8a6a00);
+}
+
+/* STATUS */
+#status{
+  font-size:11px;
+  color:var(--muted);
+}
+
+/* ================= MAIN ================= */
 .main{
   flex:1;
-  padding:14px;
+  padding:12px;
   overflow:auto;
 }
 
-/* TOP BAR */
+/* HEADER */
 .topbar{
   display:flex;
   justify-content:space-between;
-  align-items:center;
   padding:10px;
-  background:#0c1522;
+  background:#0b1524;
   border:1px solid var(--border);
 }
 
 .title{
-  font-size:18px;
   font-weight:700;
 }
 
-.pagebox{
-  font-size:12px;
-  color:var(--muted);
-}
-
-/* ===== TABLE (OLD PLAYLIST LOOK) ===== */
+/* TABLE */
 .table{
-  margin-top:12px;
-  border:2px inset #22324a;
-  background:#0b121c;
+  margin-top:10px;
+  border:2px inset #223552;
 }
 
 table{
@@ -158,45 +191,42 @@ table{
 }
 
 th{
-  text-align:left;
   font-size:11px;
+  text-align:left;
   padding:10px;
-  background:#0f1a2a;
-  color:#7fb7ff;
+  background:#0c1a2c;
+  color:#7fbaff;
   border-bottom:1px solid var(--border);
 }
 
 td{
   padding:10px;
   font-size:12px;
-  border-bottom:1px solid #1b2a3d;
+  border-bottom:1px solid #1a2a40;
 }
 
 tr:hover{
-  background:#121c2c;
+  background:#101c2e;
 }
 
-/* GENRE OLD POPUP */
-.genre-wrap{position:relative}
 .genre-btn{
   font-size:11px;
   padding:6px 8px;
-  background:#1a2b44;
+  background:#14263f;
   border:1px solid var(--border);
 }
 
 .genre-popup{
   display:none;
   position:absolute;
-  top:30px;
-  left:0;
-  background:#0c1522;
+  background:#0b1524;
   border:1px solid var(--border);
   padding:8px;
-  width:220px;
+  width:200px;
   font-size:11px;
-  z-index:999;
 }
+
+.genre-wrap{position:relative}
 
 .genre-wrap.active .genre-popup{
   display:block;
@@ -210,11 +240,11 @@ tr:hover{
 <!-- SIDEBAR -->
 <div class="sidebar">
 
-  <div class="logo">📻 RADIO <span>JUKEBOX</span></div>
+  <div class="logo">📀 MUSICMATCH <span>RADIO</span></div>
 
-  <input id="genre" class="search" placeholder="Search station / genre"/>
+  <input id="genre" class="search" placeholder="Search genre or station"/>
 
-  <button onclick="applyFilter()">Search</button>
+  <button onclick="applyFilter()">SEARCH</button>
 
   <div class="grid">
     <button onclick="prevPage()">Prev</button>
@@ -226,8 +256,8 @@ tr:hover{
   <!-- PLAYER -->
   <div class="player">
 
-    <div id="npName">No Track Selected</div>
-    <div id="npMeta">MusicMatch-style radio player</div>
+    <div id="npName">▶ NO STATION SELECTED</div>
+    <div id="npMeta">MusicMatch-style radio jukebox</div>
 
     <audio id="player" controls></audio>
 
@@ -240,7 +270,7 @@ tr:hover{
 
   </div>
 
-  <div id="status" style="font-size:11px;color:#9fb0c7">Loading...</div>
+  <div id="status">Loading...</div>
 
 </div>
 
@@ -248,8 +278,8 @@ tr:hover{
 <div class="main">
 
   <div class="topbar">
-    <div class="title">US RADIO LIBRARY</div>
-    <div class="pagebox" id="pageInfo"></div>
+    <div class="title">RADIO LIBRARY (US)</div>
+    <div id="pageInfo"></div>
   </div>
 
   <div class="table">
@@ -271,25 +301,25 @@ tr:hover{
 
 const API="https://all.api.radio-browser.info/json/stations/search";
 
-let stations=[],allStations=[],currentList=[];
+let allStations=[],currentList=[];
 let favorites=[],favoriteIds=new Set();
 let page=0,currentIndex=-1;
 const limit=50;
 let isPlaying=false;
 
-/* FAVORITES */
-function saveFav(){
-  localStorage.setItem("radioFav",JSON.stringify(favorites));
-}
+/* LOAD FAVS */
 function loadFav(){
   const d=localStorage.getItem("radioFav");
   favorites=d?JSON.parse(d):[];
   favoriteIds=new Set(favorites.map(f=>f.stationuuid));
 }
+function saveFav(){
+  localStorage.setItem("radioFav",JSON.stringify(favorites));
+}
 
 /* LOAD */
 async function loadStations(){
-  setStatus("Loading stations...");
+  setStatus("Loading...");
   const res=await fetch(`${API}?countrycode=US&limit=${limit}&offset=${page*limit}&hidebroken=true`);
   const data=await res.json();
   allStations=data;
@@ -318,12 +348,6 @@ function toggleFavCurrent(){
   if(item) toggleFavorite(item);
 }
 
-/* FAVORITES VIEW */
-function loadFavorites(){
-  currentList=[...favorites];
-  render();
-}
-
 /* PLAY */
 function playStation(id){
   const item=currentList.find(s=>s.stationuuid===id);
@@ -336,20 +360,16 @@ function playStation(id){
   p.play();
 
   isPlaying=true;
-
   document.getElementById("npName").innerText=item.name;
   document.getElementById("npMeta").innerText=item.tags||"Radio station";
 }
 
 /* NEXT / PREV */
 function nextStation(){
-  if(!currentList.length)return;
   currentIndex=(currentIndex+1)%currentList.length;
   playStation(currentList[currentIndex].stationuuid);
 }
-
 function prevStation(){
-  if(!currentList.length)return;
   currentIndex=(currentIndex-1+currentList.length)%currentList.length;
   playStation(currentList[currentIndex].stationuuid);
 }
@@ -358,14 +378,8 @@ function prevStation(){
 function togglePlay(){
   const p=document.getElementById("player");
   if(!p.src)return;
-
-  if(isPlaying){
-    p.pause();
-    isPlaying=false;
-  }else{
-    p.play();
-    isPlaying=true;
-  }
+  if(isPlaying){p.pause();isPlaying=false;}
+  else{p.play();isPlaying=true;}
 }
 
 /* FILTER */
@@ -374,17 +388,6 @@ function applyFilter(){
   currentList=allStations.filter(s=>(s.tags||"").toLowerCase().includes(v));
   render();
 }
-
-/* GENRE POPUP */
-function toggleGenre(el){
-  el.parentElement.classList.toggle("active");
-}
-
-document.addEventListener("click",e=>{
-  if(!e.target.closest(".genre-wrap")){
-    document.querySelectorAll(".genre-wrap").forEach(g=>g.classList.remove("active"));
-  }
-});
 
 /* RENDER */
 function render(){
@@ -399,7 +402,7 @@ function render(){
         <td>${s.name}</td>
         <td>${s.tags||"Unknown"}</td>
         <td>
-          <button onclick="playStation('${s.stationuuid}')">Play</button>
+          <button onclick="playStation('${s.stationuuid}')">PLAY</button>
           <button onclick='toggleFavorite(${JSON.stringify(s)})'>
             ${fav?"★":"☆"}
           </button>
@@ -411,6 +414,7 @@ function render(){
   document.getElementById("pageInfo").innerText="Page "+(page+1);
 }
 
+/* STATUS */
 function setStatus(t){
   document.getElementById("status").innerText=t;
 }
