@@ -9,7 +9,7 @@
   content="width=device-width, initial-scale=1.0"
 />
 
-<title>📻 RadioWave Pro</title>
+<title>z📻 RadioWave Pro</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 
@@ -766,6 +766,8 @@ tr:hover{
 
   </div>
 
+  <!-- PLAYER -->
+
   <div class="radio-player">
 
     <div class="player-header">
@@ -776,12 +778,20 @@ tr:hover{
 
       <div>
 
-        <div id="npName">Not Playing</div>
-        <div id="npMeta">Select a station</div>
+        <div id="npName">
+          Not Playing
+        </div>
+
+        <div id="npMeta">
+          Select a station
+        </div>
 
         <div class="live">
+
           <div class="live-dot"></div>
+
           LIVE RADIO
+
         </div>
 
       </div>
@@ -792,16 +802,32 @@ tr:hover{
 
     <div class="controls">
 
-      <button onclick="prevStation()">⏮</button>
-      <button id="playBtn" onclick="togglePlay()">▶</button>
-      <button onclick="nextStation()">⏭</button>
-      <button onclick="toggleFavCurrent()">⭐</button>
+      <button onclick="prevStation()">
+        ⏮
+      </button>
+
+      <button
+        id="playBtn"
+        onclick="togglePlay()"
+      >
+        ▶
+      </button>
+
+      <button onclick="nextStation()">
+        ⏭
+      </button>
+
+      <button onclick="toggleFavCurrent()">
+        ⭐
+      </button>
 
     </div>
 
     <div class="volume">
 
-      <label>Volume</label>
+      <label>
+        Volume
+      </label>
 
       <input
         type="range"
@@ -816,9 +842,15 @@ tr:hover{
 
   </div>
 
-  <div class="status" id="status">Loading stations...</div>
+  <div class="status" id="status">
+    Loading stations...
+  </div>
 
 </div>
+
+<!-- =========================
+     MAIN
+========================= -->
 
 <div class="main">
 
@@ -826,26 +858,42 @@ tr:hover{
 
     <div>
 
-      <div class="page-title">United States Radio</div>
+      <div class="page-title">
+        United States Radio
+      </div>
 
-      <div class="count" id="count">0 stations loaded</div>
+      <div
+        class="count"
+        id="count"
+      >
+        0 stations loaded
+      </div>
 
     </div>
 
-    <div class="page-box" id="pageInfo">Page 1</div>
+    <div
+      class="page-box"
+      id="pageInfo"
+    >
+      Page 1
+    </div>
 
   </div>
+
+  <!-- TABLE -->
 
   <div class="table-wrap">
 
     <table id="table">
 
       <thead>
+
         <tr>
           <th>Station</th>
           <th>Genre</th>
           <th>Actions</th>
         </tr>
+
       </thead>
 
       <tbody></tbody>
@@ -853,6 +901,8 @@ tr:hover{
     </table>
 
   </div>
+
+  <!-- MOBILE -->
 
   <div id="mobileList"></div>
 
@@ -876,12 +926,20 @@ const SHEET_API =
 
 let stations = [];
 let allStations = [];
+
 let favorites = [];
-let favoriteIds = new Set();
+
+let favoriteIds =
+new Set();
+
 let currentList = [];
+
 let currentIndex = -1;
+
 let page = 0;
+
 const limit = 50;
+
 let isPlaying = false;
 
 /* =========================
@@ -890,27 +948,40 @@ let isPlaying = false;
 
 async function loadStations(){
 
-  setStatus("Loading stations...");
+  setStatus(
+    "Loading stations..."
+  );
 
   try{
 
-    const offset = page * limit;
+    const offset =
+      page * limit;
 
-    const res = await fetch(`${API}?countrycode=US&limit=${limit}&offset=${offset}&hidebroken=true`);
+    const res =
+      await fetch(
+        `${API}?countrycode=US&limit=${limit}&offset=${offset}&hidebroken=true`
+      );
 
-    const data = await res.json();
+    const data =
+      await res.json();
 
     stations = data;
+
     allStations = [...data];
+
     currentList = stations;
 
     render();
 
-    setStatus(`Loaded ${stations.length} stations`);
+    setStatus(
+      `Loaded ${stations.length} stations`
+    );
 
   }catch(err){
 
-    setStatus("Failed loading stations");
+    setStatus(
+      "Failed loading stations"
+    );
 
   }
 
@@ -922,27 +993,44 @@ async function loadStations(){
 
 async function loadFavorites(){
 
-  setStatus("Loading favorites...");
+  setStatus(
+    "Loading favorites..."
+  );
 
   try{
 
-    const res = await fetch(SHEET_API + "?action=get");
+    const res =
+      await fetch(
+        SHEET_API + "?action=get"
+      );
 
-    const data = await res.json().catch(()=>[]);
+    const data =
+      await res.json()
+      .catch(()=>[]);
 
-    favorites = data.data || data;
+    favorites =
+      data.data || data;
 
-    favoriteIds = new Set(favorites.map(f => f.id || f.stationuuid));
+    favoriteIds =
+      new Set(
+        favorites.map(
+          f => f.id || f.stationuuid
+        )
+      );
 
     currentList = favorites;
 
     render();
 
-    setStatus(`Loaded ${favorites.length} favorites`);
+    setStatus(
+      `Loaded ${favorites.length} favorites`
+    );
 
   }catch(err){
 
-    setStatus("Failed loading favorites");
+    setStatus(
+      "Failed loading favorites"
+    );
 
   }
 
@@ -954,25 +1042,51 @@ async function loadFavorites(){
 
 function playStation(id){
 
-  const item = currentList.find(s => s.stationuuid === id || s.id === id);
+  const item =
+    currentList.find(s =>
+      s.stationuuid === id ||
+      s.id === id
+    );
 
   if(!item) return;
 
-  currentIndex = currentList.findIndex(s => s.stationuuid === id || s.id === id);
+  currentIndex =
+    currentList.findIndex(s =>
+      s.stationuuid === id ||
+      s.id === id
+    );
 
-  const player = document.getElementById("player");
+  const player =
+    document.getElementById("player");
 
-  player.src = item.url_resolved || item.url || "";
+  player.src =
+    item.url_resolved ||
+    item.url ||
+    "";
 
   player.play();
 
   isPlaying = true;
 
-  document.getElementById("playBtn").textContent = "⏸";
+  document.getElementById(
+    "playBtn"
+  ).textContent = "⏸";
 
-  player.onerror = () => setStatus("❌ Stream unavailable");
+  player.onerror = () => {
 
-  player.onplaying = () => setStatus("🎵 Live radio playing");
+    setStatus(
+      "❌ Stream unavailable"
+    );
+
+  };
+
+  player.onplaying = () => {
+
+    setStatus(
+      "🎵 Live radio playing"
+    );
+
+  };
 
   updateNowPlaying();
 
@@ -984,13 +1098,19 @@ function playStation(id){
 
 function updateNowPlaying(){
 
-  const item = currentList[currentIndex];
+  const item =
+    currentList[currentIndex];
 
   if(!item) return;
 
-  document.getElementById("npName").textContent = item.name || "Unknown";
+  document.getElementById(
+    "npName"
+  ).textContent =
+    item.name || "Unknown";
 
-  document.getElementById("npMeta").textContent =
+  document.getElementById(
+    "npMeta"
+  ).textContent =
     `${item.country || ""} • ${item.tags || "Radio"}`;
 
 }
@@ -1001,23 +1121,32 @@ function updateNowPlaying(){
 
 function togglePlay(){
 
-  const player = document.getElementById("player");
-  const btn = document.getElementById("playBtn");
+  const player =
+    document.getElementById("player");
+
+  const btn =
+    document.getElementById("playBtn");
 
   if(!player.src) return;
 
   if(isPlaying){
 
     player.pause();
+
     isPlaying = false;
+
     btn.textContent = "▶";
+
     setStatus("Paused");
 
   }else{
 
     player.play();
+
     isPlaying = true;
+
     btn.textContent = "⏸";
+
     setStatus("Playing");
 
   }
@@ -1030,21 +1159,37 @@ function togglePlay(){
 
 function nextStation(){
 
-  if(!currentList.length) return;
+  if(!currentList.length)
+    return;
 
-  currentIndex = (currentIndex + 1) % currentList.length;
+  currentIndex =
+    (currentIndex + 1)
+    % currentList.length;
 
-  playStation(currentList[currentIndex].stationuuid || currentList[currentIndex].id);
+  const item =
+    currentList[currentIndex];
+
+  playStation(
+    item.stationuuid || item.id
+  );
 
 }
 
 function prevStation(){
 
-  if(!currentList.length) return;
+  if(!currentList.length)
+    return;
 
-  currentIndex = (currentIndex - 1 + currentList.length) % currentList.length;
+  currentIndex =
+    (currentIndex - 1 + currentList.length)
+    % currentList.length;
 
-  playStation(currentList[currentIndex].stationuuid || currentList[currentIndex].id);
+  const item =
+    currentList[currentIndex];
+
+  playStation(
+    item.stationuuid || item.id
+  );
 
 }
 
@@ -1054,11 +1199,23 @@ function prevStation(){
 
 async function toggleFavorite(s){
 
-  const id = s.stationuuid || s.id;
+  const id =
+    s.stationuuid || s.id;
 
   if(!id) return;
 
-  if(favoriteIds.has(id)) return;
+  const exists =
+    favoriteIds.has(id);
+
+  if(exists){
+
+    setStatus(
+      "Already saved"
+    );
+
+    return;
+
+  }
 
   await fetch(SHEET_API,{
 
@@ -1067,12 +1224,24 @@ async function toggleFavorite(s){
     body:new URLSearchParams({
 
       action:"save",
-      id,
+
+      id:id,
+
       name:s.name || "",
-      url:s.url_resolved || s.url || "",
-      country:s.country || "",
-      genre:s.tags || "",
-      time:new Date().toISOString()
+
+      url:
+        s.url_resolved ||
+        s.url ||
+        "",
+
+      country:
+        s.country || "",
+
+      genre:
+        s.tags || "",
+
+      time:
+        new Date().toISOString()
 
     })
 
@@ -1080,7 +1249,9 @@ async function toggleFavorite(s){
 
   favoriteIds.add(id);
 
-  setStatus("⭐ Added to favorites");
+  setStatus(
+    "⭐ Added to favorites"
+  );
 
   render();
 
@@ -1088,7 +1259,8 @@ async function toggleFavorite(s){
 
 function toggleFavCurrent(){
 
-  const item = currentList[currentIndex];
+  const item =
+    currentList[currentIndex];
 
   if(!item) return;
 
@@ -1102,17 +1274,25 @@ function toggleFavCurrent(){
 
 function applyFilter(){
 
-  const g = document.getElementById("genre").value.toLowerCase();
+  const g =
+    document
+    .getElementById("genre")
+    .value
+    .toLowerCase();
 
   if(!g){
 
-    stations = [...allStations];
+    stations =
+      [...allStations];
 
   }else{
 
-    stations = allStations.filter(s =>
-      (s.tags || "").toLowerCase().includes(g)
-    );
+    stations =
+      allStations.filter(s =>
+        (s.tags || "")
+        .toLowerCase()
+        .includes(g)
+      );
 
   }
 
@@ -1120,7 +1300,9 @@ function applyFilter(){
 
   render();
 
-  setStatus(`Found ${stations.length} stations`);
+  setStatus(
+    `Found ${stations.length} stations`
+  );
 
 }
 
@@ -1128,16 +1310,34 @@ function applyFilter(){
    PAGE
 ========================= */
 
-function nextPage(){ page++; loadStations(); }
+function nextPage(){
 
-function prevPage(){ if(page>0) page--; loadStations(); }
+  page++;
+
+  loadStations();
+
+}
+
+function prevPage(){
+
+  if(page > 0){
+    page--;
+  }
+
+  loadStations();
+
+}
 
 /* =========================
    VOLUME
 ========================= */
 
 function setVolume(v){
-  document.getElementById("player").volume = v;
+
+  document
+  .getElementById("player")
+  .volume = v;
+
 }
 
 /* =========================
@@ -1147,10 +1347,24 @@ function setVolume(v){
 function render(){
 
   renderTable();
+
   renderMobile();
 
-  document.getElementById("count").textContent =
+  document
+  .getElementById("count")
+  .textContent =
     `${currentList.length} stations loaded`;
+
+  const start =
+    page * limit + 1;
+
+  const end =
+    start + currentList.length - 1;
+
+  document
+  .getElementById("pageInfo")
+  .textContent =
+    `${start}-${end} • Page ${page + 1}`;
 
 }
 
@@ -1160,7 +1374,9 @@ function render(){
 
 function renderTable(){
 
-  const tbody = document.querySelector("#table tbody");
+  const tbody =
+    document.querySelector("#table tbody");
+
   tbody.innerHTML = "";
 
   currentList.forEach(s => {
@@ -1172,22 +1388,28 @@ function renderTable(){
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
-      <td><div class="station">${s.name || "Unknown"}</div></td>
+      <td>
+        <div class="station">
+          ${s.name || "Unknown"}
+        </div>
+      </td>
 
       <td>
         <div class="tags">
-          ${(s.genre || s.tags) && (s.genre || s.tags).trim()
-            ? (s.genre || s.tags)
-            : "Unknown Genre"}
+          ${s.tags || "Radio"}
         </div>
       </td>
 
       <td>
         <div class="actions">
 
-          <button class="small-btn" onclick="playStation('${id}')">▶ Play</button>
+          <button class="small-btn"
+            onclick="playStation('${id}')">
+            ▶ Play
+          </button>
 
-          <button class="small-btn" onclick='toggleFavorite(${JSON.stringify(s)})'>
+          <button class="small-btn"
+            onclick='toggleFavorite(${JSON.stringify(s)})'>
             ${isFav ? "⭐ Saved" : "☆ Favorite"}
           </button>
 
@@ -1206,33 +1428,42 @@ function renderTable(){
 
 function renderMobile(){
 
-  const el = document.getElementById("mobileList");
+  const el =
+    document.getElementById(
+      "mobileList"
+    );
+
   el.innerHTML = "";
 
   currentList.forEach(s => {
 
-    const id = s.stationuuid || s.id;
-    const isFav = favoriteIds.has(id);
+    const id =
+      s.stationuuid || s.id;
 
-    const div = document.createElement("div");
+    const isFav =
+      favoriteIds.has(id);
+
+    const div =
+      document.createElement("div");
+
     div.className = "card";
 
     div.innerHTML = `
-      <div class="card-title">${s.name || "Unknown"}</div>
+  <div class="card-title">
+    ${s.name || "Unknown"}
+  </div>
 
-      <div class="card-meta">
-        ${(s.genre || s.tags) && (s.genre || s.tags).trim()
-          ? (s.genre || s.tags)
-          : "Unknown Genre"}
-      </div>
+  <div class="card-meta">
+    ${s.tags || "Radio"}
+  </div>
 
-      <div class="card-buttons">
-        <button onclick="playStation('${id}')">▶ Play</button>
-        <button onclick='toggleFavorite(${JSON.stringify(s)})'>
-          ${isFav ? "⭐ Saved" : "☆ Favorite"}
-        </button>
-      </div>
-    `;
+  <div class="card-buttons">
+    <button onclick="playStation('${id}')">▶ Play</button>
+    <button onclick='toggleFavorite(${JSON.stringify(s)})'>
+      ${isFav ? "⭐ Saved" : "☆ Favorite"}
+    </button>
+  </div>
+`;
 
     el.appendChild(div);
 
@@ -1245,8 +1476,31 @@ function renderMobile(){
 ========================= */
 
 function setStatus(t){
-  document.getElementById("status").textContent = t;
+
+  document
+  .getElementById("status")
+  .textContent = t;
+
 }
+
+/* =========================
+   ENTER SEARCH
+========================= */
+
+document
+.getElementById("genre")
+.addEventListener(
+  "keydown",
+  e => {
+
+    if(e.key === "Enter"){
+
+      applyFilter();
+
+    }
+
+  }
+);
 
 /* =========================
    INIT
