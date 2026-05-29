@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>📀 Z Radio Jukebox</title>
+<title>📀 MusicMatch Radio Jukebox</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Tahoma:wght@400;700&display=swap" rel="stylesheet"/>
 
@@ -15,7 +15,6 @@
   --panel2:#0a111d;
   --border:#263a55;
   --blue:#3aa0ff;
-  --blue2:#1a5fbf;
   --text:#e7f0ff;
   --muted:#93a7c2;
 }
@@ -32,7 +31,7 @@ body{
   overflow:hidden;
 }
 
-/* ================= LEFT LIBRARY ================= */
+/* SIDEBAR */
 .sidebar{
   width:330px;
   background:linear-gradient(180deg,var(--panel),var(--panel2));
@@ -43,18 +42,15 @@ body{
   gap:10px;
 }
 
-/* LOGO */
 .logo{
   text-align:center;
   font-weight:700;
   padding:10px;
   border:1px solid var(--border);
   background:#0b1524;
-  letter-spacing:1px;
 }
 .logo span{color:var(--blue)}
 
-/* INPUT */
 .search{
   padding:10px;
   background:#0b1422;
@@ -63,9 +59,7 @@ body{
   outline:none;
 }
 
-/* BUTTONS */
 button{
-  font-family:Tahoma;
   font-size:12px;
   font-weight:700;
   padding:8px 10px;
@@ -74,18 +68,15 @@ button{
   color:white;
   cursor:pointer;
 }
-button:active{
-  transform:translateY(1px);
-}
+button:active{transform:translateY(1px)}
 
-/* GRID CONTROLS */
 .grid{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:6px;
 }
 
-/* ================= PLAYER ================= */
+/* PLAYER */
 .player{
   margin-top:10px;
   padding:12px;
@@ -94,20 +85,25 @@ button:active{
   position:relative;
 }
 
-/* LED TOP BAR */
 .player::before{
-  content:"● Z RADIO";
-  font-size:10px;
-  color:#3cff8f;
+  content:"● MUSICMATCH RADIO";
   position:absolute;
   top:-10px;
   left:10px;
+  font-size:10px;
+  color:#3cff8f;
   background:#070d18;
   padding:2px 6px;
   border:1px solid #1c2f4a;
 }
 
-/* DISPLAY SCREEN */
+#ledStatus{
+  font-size:11px;
+  font-weight:700;
+  color:#ffcc66;
+  margin-bottom:6px;
+}
+
 #npName{
   background:#050a12;
   border:1px inset #1d2d45;
@@ -118,7 +114,6 @@ button:active{
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
-  text-shadow:0 0 8px rgba(80,160,255,.25);
 }
 
 #npMeta{
@@ -127,11 +122,69 @@ button:active{
   color:var(--muted);
 }
 
-/* AUDIO */
-audio{
+/* VISUAL AREA */
+.visual-wrap{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin:10px 0;
+  gap:10px;
+}
+
+/* CD */
+.cd{
+  width:52px;
+  height:52px;
+  border-radius:50%;
+  background:radial-gradient(circle,#111 10%,#333 25%,#111 45%,#000 100%);
+  border:2px solid #2b3f5f;
+}
+
+.cd.playing{
+  animation:spin 2.5s linear infinite;
+}
+
+@keyframes spin{
+  from{transform:rotate(0deg);}
+  to{transform:rotate(360deg);}
+}
+
+/* EQ */
+.eq{
+  display:flex;
+  align-items:flex-end;
+  height:40px;
+  gap:3px;
   width:100%;
-  margin-top:10px;
-  filter:brightness(.9);
+  background:#050a12;
+  border:1px inset #22324a;
+  padding:0 5px;
+}
+
+.bar{
+  width:4px;
+  background:#3aa0ff;
+  height:6px;
+  animation:eq 1s infinite ease-in-out;
+}
+
+.bar:nth-child(2){animation-delay:.1s}
+.bar:nth-child(3){animation-delay:.2s}
+.bar:nth-child(4){animation-delay:.3s}
+.bar:nth-child(5){animation-delay:.4s}
+.bar:nth-child(6){animation-delay:.5s}
+.bar:nth-child(7){animation-delay:.6s}
+.bar:nth-child(8){animation-delay:.7s}
+
+@keyframes eq{
+  0%{height:6px;opacity:.4}
+  50%{height:32px;opacity:1}
+  100%{height:10px;opacity:.6}
+}
+
+.eq.paused .bar{
+  animation-play-state:paused;
+  opacity:.3;
 }
 
 /* CONTROLS */
@@ -144,29 +197,15 @@ audio{
 
 .controls button{
   padding:10px 0;
-  border-radius:4px;
-  background:linear-gradient(180deg,#2c63a8,#163a6d);
-  border:1px solid #0b2442;
 }
 
-.controls button:last-child{
-  background:linear-gradient(180deg,#caa200,#8a6a00);
-}
-
-/* STATUS */
-#status{
-  font-size:11px;
-  color:var(--muted);
-}
-
-/* ================= MAIN ================= */
+/* MAIN */
 .main{
   flex:1;
   padding:12px;
   overflow:auto;
 }
 
-/* HEADER */
 .topbar{
   display:flex;
   justify-content:space-between;
@@ -175,11 +214,6 @@ audio{
   border:1px solid var(--border);
 }
 
-.title{
-  font-weight:700;
-}
-
-/* TABLE */
 .table{
   margin-top:10px;
   border:2px inset #223552;
@@ -196,7 +230,6 @@ th{
   padding:10px;
   background:#0c1a2c;
   color:#7fbaff;
-  border-bottom:1px solid var(--border);
 }
 
 td{
@@ -205,44 +238,18 @@ td{
   border-bottom:1px solid #1a2a40;
 }
 
-tr:hover{
-  background:#101c2e;
-}
-
-.genre-btn{
-  font-size:11px;
-  padding:6px 8px;
-  background:#14263f;
-  border:1px solid var(--border);
-}
-
-.genre-popup{
-  display:none;
-  position:absolute;
-  background:#0b1524;
-  border:1px solid var(--border);
-  padding:8px;
-  width:200px;
-  font-size:11px;
-}
-
-.genre-wrap{position:relative}
-
-.genre-wrap.active .genre-popup{
-  display:block;
-}
+tr:hover{background:#101c2e}
 
 </style>
 </head>
 
 <body>
 
-<!-- SIDEBAR -->
 <div class="sidebar">
 
-  <div class="logo">📀 Z <span>RADIO</span></div>
+  <div class="logo">📀 MUSICMATCH <span>RADIO</span></div>
 
-  <input id="genre" class="search" placeholder="Search genre or station"/>
+  <input id="genre" class="search" placeholder="Search station"/>
 
   <button onclick="applyFilter()">SEARCH</button>
 
@@ -256,8 +263,20 @@ tr:hover{
   <!-- PLAYER -->
   <div class="player">
 
+    <div id="ledStatus">STOPPED</div>
+
     <div id="npName">▶ NO STATION SELECTED</div>
-    <div id="npMeta">Z-style radio jukebox</div>
+    <div id="npMeta">Ready</div>
+
+    <div class="visual-wrap">
+      <div class="cd" id="cdDisc"></div>
+
+      <div class="eq">
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        <div class="bar"></div><div class="bar"></div>
+      </div>
+    </div>
 
     <audio id="player" controls></audio>
 
@@ -270,15 +289,12 @@ tr:hover{
 
   </div>
 
-  <div id="status">Loading...</div>
-
 </div>
 
-<!-- MAIN -->
 <div class="main">
 
   <div class="topbar">
-    <div class="title">RADIO LIBRARY (US)</div>
+    <div>RADIO LIBRARY</div>
     <div id="pageInfo"></div>
   </div>
 
@@ -303,52 +319,36 @@ const API="https://all.api.radio-browser.info/json/stations/search";
 
 let allStations=[],currentList=[];
 let favorites=[],favoriteIds=new Set();
-let page=0,currentIndex=-1;
-const limit=50;
+let currentIndex=-1;
 let isPlaying=false;
 
-/* LOAD FAVS */
-function loadFav(){
-  const d=localStorage.getItem("radioFav");
-  favorites=d?JSON.parse(d):[];
-  favoriteIds=new Set(favorites.map(f=>f.stationuuid));
+function setLed(t,color="#ffcc66"){
+  const el=document.getElementById("ledStatus");
+  el.innerText=t;
+  el.style.color=color;
 }
-function saveFav(){
-  localStorage.setItem("radioFav",JSON.stringify(favorites));
+
+function startVisuals(){
+  document.getElementById("cdDisc").classList.add("playing");
+  document.querySelector(".eq").classList.remove("paused");
+  setLed("PLAYING","#3cff8f");
+}
+
+function stopVisuals(){
+  document.getElementById("cdDisc").classList.remove("playing");
+  document.querySelector(".eq").classList.add("paused");
+  setLed("STOPPED","#ff6666");
 }
 
 /* LOAD */
 async function loadStations(){
-  setStatus("Loading...");
-  const res=await fetch(`${API}?countrycode=US&limit=${limit}&offset=${page*limit}&hidebroken=true`);
+  const res=await fetch(`${API}?countrycode=US&limit=50&hidebroken=true`);
   const data=await res.json();
   allStations=data;
   currentList=data;
   render();
-  setStatus("Ready");
 }
 
-/* FAVORITE */
-function toggleFavorite(s){
-  const id=s.stationuuid;
-  if(favoriteIds.has(id)){
-    favorites=favorites.filter(f=>f.stationuuid!==id);
-    favoriteIds.delete(id);
-  }else{
-    favorites.push(s);
-    favoriteIds.add(id);
-  }
-  saveFav();
-  render();
-}
-
-function toggleFavCurrent(){
-  const p=document.getElementById("player");
-  const item=currentList.find(s=>(s.url_resolved||s.url)===p.src);
-  if(item) toggleFavorite(item);
-}
-
-/* PLAY */
 function playStation(id){
   const item=currentList.find(s=>s.stationuuid===id);
   if(!item)return;
@@ -360,67 +360,55 @@ function playStation(id){
   p.play();
 
   isPlaying=true;
+
   document.getElementById("npName").innerText=item.name;
-  document.getElementById("npMeta").innerText=item.tags||"Radio station";
+  document.getElementById("npMeta").innerText=item.tags||"Radio";
+
+  startVisuals();
 }
 
-/* NEXT / PREV */
+function togglePlay(){
+  const p=document.getElementById("player");
+  if(!p.src)return;
+
+  if(isPlaying){
+    p.pause();
+    isPlaying=false;
+    stopVisuals();
+  }else{
+    p.play();
+    isPlaying=true;
+    startVisuals();
+  }
+}
+
 function nextStation(){
   currentIndex=(currentIndex+1)%currentList.length;
   playStation(currentList[currentIndex].stationuuid);
 }
+
 function prevStation(){
   currentIndex=(currentIndex-1+currentList.length)%currentList.length;
   playStation(currentList[currentIndex].stationuuid);
 }
 
-/* PLAY TOGGLE */
-function togglePlay(){
-  const p=document.getElementById("player");
-  if(!p.src)return;
-  if(isPlaying){p.pause();isPlaying=false;}
-  else{p.play();isPlaying=true;}
-}
-
-/* FILTER */
-function applyFilter(){
-  const v=document.getElementById("genre").value.toLowerCase();
-  currentList=allStations.filter(s=>(s.tags||"").toLowerCase().includes(v));
-  render();
-}
-
-/* RENDER */
 function render(){
   const tbody=document.querySelector("tbody");
   tbody.innerHTML="";
 
   currentList.forEach(s=>{
-    const fav=favoriteIds.has(s.stationuuid);
-
     tbody.innerHTML+=`
       <tr>
         <td>${s.name}</td>
-        <td>${s.tags||"Unknown"}</td>
-        <td>
-          <button onclick="playStation('${s.stationuuid}')">PLAY</button>
-          <button onclick='toggleFavorite(${JSON.stringify(s)})'>
-            ${fav?"★":"☆"}
-          </button>
-        </td>
+        <td>${s.tags||""}</td>
+        <td><button onclick="playStation('${s.stationuuid}')">PLAY</button></td>
       </tr>
     `;
   });
 
-  document.getElementById("pageInfo").innerText="Page "+(page+1);
+  document.getElementById("pageInfo").innerText="Stations: "+currentList.length;
 }
 
-/* STATUS */
-function setStatus(t){
-  document.getElementById("status").innerText=t;
-}
-
-/* INIT */
-loadFav();
 loadStations();
 
 </script>
