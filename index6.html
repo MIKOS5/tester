@@ -8,7 +8,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 
 <style>
-
 :root{
   --bg:#09111d;
   --panel:#111827;
@@ -169,7 +168,6 @@ tr:hover{background:#182233}
 .genre-wrap.active .genre-popup{
   display:block;
 }
-
 </style>
 </head>
 
@@ -180,7 +178,6 @@ tr:hover{background:#182233}
   <div class="logo">📻 Radio<span>Wave</span></div>
 
   <input id="genre" class="search" placeholder="Search genre..."/>
-
   <button onclick="applyFilter()">Search</button>
 
   <div class="grid">
@@ -191,7 +188,6 @@ tr:hover{background:#182233}
   </div>
 
   <div class="player">
-
     <div id="npName">Not Playing</div>
     <div id="npMeta">Select station</div>
 
@@ -201,15 +197,11 @@ tr:hover{background:#182233}
       <button onclick="prevStation()">⏮</button>
       <button onclick="togglePlay()" id="playBtn">▶</button>
       <button onclick="nextStation()">⏭</button>
-
-      <!-- FIXED ⭐ BUTTON -->
       <button onclick="toggleFavCurrent()">⭐</button>
     </div>
-
   </div>
 
   <div id="status" style="margin-top:10px;color:#93a4bb">Loading...</div>
-
 </div>
 
 <div class="main">
@@ -242,6 +234,9 @@ tr:hover{background:#182233}
 const API="https://all.api.radio-browser.info/json/stations/search";
 
 let stations=[],allStations=[],currentList=[];
+let filteredList=[];
+let isFiltered=false;
+
 let favorites=[],favoriteIds=new Set();
 let page=0,currentIndex=-1;
 const limit=50;
@@ -251,6 +246,7 @@ let isPlaying=false;
 function saveFav(){
   localStorage.setItem("radioFav",JSON.stringify(favorites));
 }
+
 function loadFav(){
   const d=localStorage.getItem("radioFav");
   favorites=d?JSON.parse(d):[];
@@ -260,11 +256,17 @@ function loadFav(){
 /* LOAD */
 async function loadStations(){
   setStatus("Loading...");
+
   const res=await fetch(`${API}?countrycode=US&limit=${limit}&offset=${page*limit}&hidebroken=true`);
   const data=await res.json();
+
   stations=data;
   allStations=[...data];
-  currentList=stations;
+
+  if(!isFiltered){
+    currentList=stations;
+  }
+
   render();
   setStatus("Loaded "+stations.length);
 }
@@ -289,7 +291,7 @@ function toggleFavorite(s){
   render();
 }
 
-/* FIXED PLAYER FAVORITE BUTTON */
+/* CURRENT FAVORITE */
 function toggleFavCurrent(){
 
   const p=document.getElementById("player");
@@ -304,9 +306,10 @@ function toggleFavCurrent(){
   toggleFavorite(item);
 }
 
-/* LOAD FAVORITES */
+/* FAVORITES VIEW */
 function loadFavorites(){
   currentList=[...favorites];
+  isFiltered=true;
   page=0;
   render();
 }
@@ -330,7 +333,7 @@ function playStation(id){
   document.getElementById("npMeta").textContent=item.tags||"Radio";
 }
 
-/* NEXT / PREV FIXED */
+/* NEXT / PREV */
 function nextStation(){
   if(!currentList.length)return;
   if(currentIndex<0)currentIndex=0;
@@ -345,7 +348,7 @@ function prevStation(){
   playStation(currentList[currentIndex].stationuuid);
 }
 
-/* PLAY */
+/* PLAY TOGGLE */
 function togglePlay(){
   const p=document.getElementById("player");
   if(!p.src)return;
@@ -361,17 +364,40 @@ function togglePlay(){
   }
 }
 
-/* FILTER */
+/* FILTER (FIXED) */
 function applyFilter(){
   const v=document.getElementById("genre").value.toLowerCase();
-  currentList=allStations.filter(s=>(s.tags||"").toLowerCase().includes(v));
-  page=0;
+
+  filteredList = allStations.filter(s =>
+    (s.tags||"").toLowerCase().includes(v)
+  );
+
+  isFiltered = v.length > 0;
+  page = 0;
+
   render();
 }
 
-/* PAGINATION */
-function nextPage(){page++;loadStations();}
-function prevPage(){if(page>0)page--;loadStations();}
+/* PAGINATION FIXED */
+function nextPage(){
+  if(isFiltered){
+    page++;
+    render();
+  } else {
+    page++;
+    loadStations();
+  }
+}
+
+function prevPage(){
+  if(page>0) page--;
+
+  if(isFiltered){
+    render();
+  } else {
+    loadStations();
+  }
+}
 
 /* GENRE POPUP */
 function toggleGenre(el){
@@ -393,21 +419,21 @@ function render(){
   const tbody=document.querySelector("tbody");
   tbody.innerHTML="";
 
-  currentList.forEach(s=>{
+  const list = isFiltered ? filteredList : currentList;
+
+  list.forEach(s=>{
 
     const fav=favoriteIds.has(s.stationuuid);
 
     tbody.innerHTML+=`
       <tr>
         <td>${s.name}</td>
-
         <td>
           <div class="genre-wrap">
             <button class="genre-btn" onclick="toggleGenre(this)">Genre ▾</button>
             <div class="genre-popup">${s.tags||"No data"}</div>
           </div>
         </td>
-
         <td>
           <button onclick="playStation('${s.stationuuid}')">Play</button>
           <button onclick='toggleFavorite(${JSON.stringify(s)})'>
@@ -418,7 +444,7 @@ function render(){
     `;
   });
 
-  document.getElementById("count").innerText=currentList.length+" stations";
+  document.getElementById("count").innerText=list.length+" stations";
   document.getElementById("pageInfo").innerText="Page "+(page+1);
 }
 
