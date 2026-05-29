@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>xc📀 MusicMatch Radio Jukebox</title>
+<title>📻 Hybrid Radio Browser</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Tahoma:wght@400;700&display=swap" rel="stylesheet"/>
 
@@ -12,8 +12,7 @@
 :root{
   --bg:#070b12;
   --panel:#0e1624;
-  --panel2:#0a111d;
-  --border:#263a55;
+  --border:#223552;
   --blue:#3aa0ff;
   --text:#e7f0ff;
   --muted:#93a7c2;
@@ -26,237 +25,16 @@ body{
   font-family:Tahoma, sans-serif;
   background:linear-gradient(180deg,#05070c,#0b111c);
   color:var(--text);
-  height:100vh;
-  display:flex;
-  overflow:hidden;
-}
-
-/* SIDEBAR */
-.sidebar{
-  width:330px;
-  background:linear-gradient(180deg,var(--panel),var(--panel2));
-  border-right:2px solid var(--border);
-  padding:12px;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
-
-.logo{
-  text-align:center;
-  font-weight:700;
-  padding:10px;
-  border:1px solid var(--border);
-  background:#0b1524;
-}
-.logo span{color:var(--blue)}
-
-.search{
-  padding:10px;
-  background:#0b1422;
-  border:1px inset var(--border);
-  color:white;
-}
-
-button{
-  font-size:12px;
-  font-weight:700;
-  padding:8px 10px;
-  border:1px solid #0f2c55;
-  background:linear-gradient(180deg,#2e77d3,#1a4f99);
-  color:white;
-  cursor:pointer;
-}
-
-.grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:6px;
-}
-
-/* PLAYER */
-.player{
-  margin-top:10px;
-  padding:12px;
-  background:linear-gradient(180deg,#0a1322,#070d18);
-  border:2px inset #223552;
-  position:relative;
-}
-
-.player::before{
-  content:"● MUSICMATCH RADIO";
-  position:absolute;
-  top:-10px;
-  left:10px;
-  font-size:10px;
-  color:#3cff8f;
-  background:#070d18;
-  padding:2px 6px;
-  border:1px solid #1c2f4a;
-}
-
-#ledStatus{
-  font-size:11px;
-  font-weight:700;
-  color:#ffcc66;
-  margin-bottom:6px;
-}
-
-#npName{
-  background:#050a12;
-  border:1px inset #1d2d45;
-  padding:10px;
-  font-weight:700;
-  font-size:13px;
-  color:#6ec0ff;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-
-#npMeta{
-  margin-top:6px;
-  font-size:11px;
-  color:var(--muted);
-}
-
-/* VISUALS */
-.visual-wrap{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  margin:10px 0;
-  gap:10px;
-}
-
-.cd{
-  width:52px;
-  height:52px;
-  border-radius:50%;
-  background:radial-gradient(circle,#111 10%,#333 25%,#111 45%,#000 100%);
-  border:2px solid #2b3f5f;
-}
-
-.cd.playing{
-  animation:spin 2.5s linear infinite;
-}
-
-@keyframes spin{
-  from{transform:rotate(0deg);}
-  to{transform:rotate(360deg);}
-}
-
-.eq{
-  display:flex;
-  align-items:flex-end;
-  height:40px;
-  gap:3px;
-  width:100%;
-  background:#050a12;
-  border:1px inset #22324a;
-  padding:0 5px;
-}
-
-.bar{
-  width:4px;
-  background:#3aa0ff;
-  height:6px;
-  animation:eq 1s infinite ease-in-out;
-}
-
-.bar:nth-child(2){animation-delay:.1s}
-.bar:nth-child(3){animation-delay:.2s}
-.bar:nth-child(4){animation-delay:.3s}
-.bar:nth-child(5){animation-delay:.4s}
-.bar:nth-child(6){animation-delay:.5s}
-.bar:nth-child(7){animation-delay:.6s}
-.bar:nth-child(8){animation-delay:.7s}
-
-@keyframes eq{
-  0%{height:6px;opacity:.4}
-  50%{height:32px;opacity:1}
-  100%{height:10px;opacity:.6}
-}
-
-.eq.paused .bar{
-  animation-play-state:paused;
-  opacity:.3;
-}
-
-/* TRANSPORT */
-.transport{
-  margin-top:10px;
-  display:flex;
-  gap:6px;
-  padding:8px;
-  background:#050a12;
-  border:2px inset #223552;
-}
-
-.transport button{
-  flex:1;
-}
-
-/* VOLUME */
-.volume-wrap{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  margin-top:10px;
-  padding:8px;
-  background:#050a12;
-  border:2px inset #223552;
-}
-
-.vol-icon{
-  font-size:12px;
-  width:20px;
-  text-align:center;
-}
-
-.vol-bar{
-  position:relative;
-  flex:1;
-  height:8px;
-  background:#0b1422;
-  border:1px inset #1c2f4a;
-  cursor:pointer;
-}
-
-.vol-fill{
-  height:100%;
-  width:50%;
-  background:linear-gradient(90deg,#3aa0ff,#1a5fbf);
-}
-
-.vol-knob{
-  position:absolute;
-  top:-3px;
-  width:12px;
-  height:14px;
-  background:#d6e6ff;
-  border:1px solid #1c2f4a;
-  transform:translateX(-50%);
-  left:50%;
 }
 
 /* MAIN */
 .main{
-  flex:1;
   padding:12px;
-  overflow:auto;
+  padding-bottom:120px;
 }
 
-.topbar{
-  display:flex;
-  justify-content:space-between;
-  padding:10px;
-  background:#0b1524;
-  border:1px solid var(--border);
-}
-
+/* TABLE */
 .table{
-  margin-top:10px;
   border:2px inset #223552;
 }
 
@@ -279,69 +57,156 @@ td{
   border-bottom:1px solid #1a2a40;
 }
 
-tr:hover{background:#101c2e}
+tr:hover{
+  background:#101c2e;
+}
+
+tr.active{
+  background:#13243a !important;
+  box-shadow:inset 3px 0 0 #3aa0ff;
+}
+
+/* LOADING */
+#loading{
+  padding:10px;
+  text-align:center;
+  color:#93a7c2;
+}
+
+/* ================= DOCK PLAYER ================= */
+.dock-player{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+
+  height:95px;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  padding:10px;
+
+  background:linear-gradient(180deg,#0a1322,#050a12);
+  border-top:2px solid #223552;
+}
+
+/* LEFT */
+.dock-left{
+  width:30%;
+}
+
+#ledStatus{
+  font-size:11px;
+  font-weight:700;
+  color:#ffcc66;
+}
+
+#npName{
+  font-size:13px;
+  font-weight:700;
+  color:#6ec0ff;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+#npMeta{
+  font-size:11px;
+  color:#93a7c2;
+}
+
+/* CENTER */
+.dock-center{
+  width:40%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+}
+
+.cd{
+  width:46px;
+  height:46px;
+  border-radius:50%;
+  background:radial-gradient(circle,#111,#333,#000);
+  border:2px solid #2b3f5f;
+}
+
+.cd.playing{
+  animation:spin 2.5s linear infinite;
+}
+
+@keyframes spin{
+  from{transform:rotate(0);}
+  to{transform:rotate(360deg);}
+}
+
+/* EQ */
+.eq{
+  display:flex;
+  align-items:flex-end;
+  height:35px;
+  gap:3px;
+}
+
+.bar{
+  width:4px;
+  background:#3aa0ff;
+  height:6px;
+  animation:eq 1s infinite ease-in-out;
+}
+
+.bar:nth-child(2){animation-delay:.1s}
+.bar:nth-child(3){animation-delay:.2s}
+.bar:nth-child(4){animation-delay:.3s}
+.bar:nth-child(5){animation-delay:.4s}
+.bar:nth-child(6){animation-delay:.5s}
+.bar:nth-child(7){animation-delay:.6s}
+.bar:nth-child(8){animation-delay:.7s}
+
+@keyframes eq{
+  0%{height:6px;opacity:.4}
+  50%{height:30px;opacity:1}
+  100%{height:10px;opacity:.6}
+}
+
+/* RIGHT CONTROLS */
+.dock-right{
+  width:30%;
+  display:flex;
+  justify-content:flex-end;
+  gap:6px;
+}
+
+button{
+  font-size:12px;
+  font-weight:700;
+  padding:8px 10px;
+  border:1px solid #0f2c55;
+  background:linear-gradient(180deg,#2e77d3,#1a4f99);
+  color:white;
+  cursor:pointer;
+}
+
+button:active{
+  transform:translateY(1px);
+}
+
+.dock-right button{
+  width:42px;
+  height:42px;
+}
 
 </style>
 </head>
 
 <body>
 
-<div class="sidebar">
-
-  <div class="logo">📀 MUSICMATCH <span>RADIO</span></div>
-
-  <input id="genre" class="search" placeholder="Search station"/>
-
-  <div class="grid">
-    <button onclick="loadStations()">Refresh</button>
-    <button onclick="loadFavorites()">Favs</button>
-  </div>
-
-  <!-- PLAYER -->
-  <div class="player">
-
-    <div id="ledStatus">STOPPED</div>
-
-    <div id="npName">▶ NO STATION</div>
-    <div id="npMeta">Ready</div>
-
-    <div class="visual-wrap">
-      <div class="cd" id="cdDisc"></div>
-
-      <div class="eq">
-        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
-        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
-        <div class="bar"></div><div class="bar"></div>
-      </div>
-    </div>
-
-    <audio id="player"></audio>
-
-    <div class="transport">
-      <button onclick="prevStation()">⏮</button>
-      <button onclick="togglePlay()" id="playBtn">▶</button>
-      <button onclick="nextStation()">⏭</button>
-      <button onclick="toggleFavCurrent()">★</button>
-    </div>
-
-    <!-- VOLUME -->
-    <div class="volume-wrap">
-      <div class="vol-icon">🔊</div>
-      <div class="vol-bar" onclick="setVolumeByClick(event)">
-        <div class="vol-fill" id="volFill"></div>
-        <div class="vol-knob" id="volKnob"></div>
-      </div>
-    </div>
-
-  </div>
-
-</div>
-
 <div class="main">
 
-  <div class="topbar">
-    <div>RADIO LIBRARY</div>
-  </div>
+  <div id="loading">Loading stations...</div>
 
   <div class="table">
     <table>
@@ -358,11 +223,46 @@ tr:hover{background:#101c2e}
 
 </div>
 
+<!-- DOCK PLAYER -->
+<div class="dock-player">
+
+  <div class="dock-left">
+    <div id="ledStatus">STOPPED</div>
+    <div id="npName">NO STATION</div>
+    <div id="npMeta">Ready</div>
+  </div>
+
+  <div class="dock-center">
+    <div class="cd" id="cdDisc"></div>
+
+    <div class="eq">
+      <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      <div class="bar"></div><div class="bar"></div>
+    </div>
+  </div>
+
+  <div class="dock-right">
+    <button onclick="prevStation()">⏮</button>
+    <button onclick="togglePlay()" id="playBtn">▶</button>
+    <button onclick="nextStation()">⏭</button>
+    <button onclick="toggleFavCurrent()">★</button>
+  </div>
+
+  <audio id="player"></audio>
+
+</div>
+
 <script>
 
 const API="https://all.api.radio-browser.info/json/stations/search";
 
-let currentList=[],currentIndex=-1,isPlaying=false;
+let currentList=[];
+let page=0;
+let limit=50;
+let loading=false;
+let currentIndex=-1;
+let isPlaying=false;
 
 /* VISUALS */
 function setLed(t,color="#ffcc66"){
@@ -373,41 +273,58 @@ function setLed(t,color="#ffcc66"){
 
 function startVisuals(){
   document.getElementById("cdDisc").classList.add("playing");
-  document.querySelector(".eq").classList.remove("paused");
   setLed("PLAYING","#3cff8f");
 }
 
 function stopVisuals(){
   document.getElementById("cdDisc").classList.remove("playing");
-  document.querySelector(".eq").classList.add("paused");
   setLed("STOPPED","#ff6666");
 }
 
 /* LOAD */
 async function loadStations(){
-  const res=await fetch(`${API}?countrycode=US&limit=50&hidebroken=true`);
-  currentList=await res.json();
+  if(loading) return;
+  loading=true;
+
+  const res=await fetch(`${API}?countrycode=US&limit=${limit}&offset=${page*limit}&hidebroken=true`);
+  const data=await res.json();
+
+  currentList=[...currentList,...data];
+
   render();
+
+  page++;
+  loading=false;
+
+  document.getElementById("loading").innerText="";
 }
 
 /* PLAY */
 function playStation(id){
+
   const item=currentList.find(s=>s.stationuuid===id);
   if(!item)return;
 
   currentIndex=currentList.findIndex(s=>s.stationuuid===id);
+
+  document.querySelectorAll("tr").forEach(r=>r.classList.remove("active"));
+
+  const rows=[...document.querySelectorAll("tr")];
+  const row=rows.find(r=>r.innerText.includes(item.name));
+  if(row) row.classList.add("active");
 
   const p=document.getElementById("player");
   p.src=item.url_resolved||item.url;
   p.play();
 
   document.getElementById("npName").innerText=item.name;
-  document.getElementById("npMeta").innerText=item.tags||"Radio";
+  document.getElementById("npMeta").innerText=item.tags||"Radio station";
 
   isPlaying=true;
   startVisuals();
 }
 
+/* CONTROLS */
 function togglePlay(){
   const p=document.getElementById("player");
   const btn=document.getElementById("playBtn");
@@ -437,22 +354,6 @@ function prevStation(){
   playStation(currentList[currentIndex].stationuuid);
 }
 
-/* VOLUME */
-const audio=document.getElementById("player");
-audio.volume=0.5;
-
-function setVolumeByClick(e){
-  const bar=e.currentTarget;
-  const rect=bar.getBoundingClientRect();
-  let v=(e.clientX-rect.left)/rect.width;
-  v=Math.max(0,Math.min(1,v));
-
-  audio.volume=v;
-
-  document.getElementById("volFill").style.width=(v*100)+"%";
-  document.getElementById("volKnob").style.left=(v*100)+"%";
-}
-
 /* RENDER */
 function render(){
   const tbody=document.querySelector("tbody");
@@ -460,15 +361,23 @@ function render(){
 
   currentList.forEach(s=>{
     tbody.innerHTML+=`
-      <tr>
+      <tr onclick="playStation('${s.stationuuid}')">
         <td>${s.name}</td>
         <td>${s.tags||""}</td>
-        <td><button onclick="playStation('${s.stationuuid}')">PLAY</button></td>
+        <td>▶</td>
       </tr>
     `;
   });
 }
 
+/* INFINITE SCROLL */
+window.addEventListener("scroll",()=>{
+  if(window.innerHeight + window.scrollY >= document.body.offsetHeight - 250){
+    loadStations();
+  }
+});
+
+/* INIT */
 loadStations();
 
 </script>
