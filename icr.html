@@ -5,231 +5,154 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
   <style>
-    :root {
-      --bg: #0b0f14;
-      --panel: rgba(255,255,255,0.06);
-      --border: rgba(255,255,255,0.1);
-      --text: #e8eef6;
-      --muted: #8aa0b6;
-      --accent: #4cc9f0;
-      --bubble-self: #1f6feb;
-      --bubble-other: #222b36;
-    }
-
-    * {
-      box-sizing: border-box;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
-    }
-
     body {
       margin: 0;
-      background: radial-gradient(circle at top, #111827, var(--bg));
-      color: var(--text);
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .app {
-      width: 100%;
-      max-width: 900px;
-      height: 90vh;
+      font-family: system-ui;
+      background: #0b0f14;
+      color: #fff;
       display: flex;
       flex-direction: column;
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      background: var(--panel);
-      backdrop-filter: blur(14px);
-      overflow: hidden;
+      height: 100vh;
     }
 
-    /* HEADER */
-    .header {
-      padding: 14px 18px;
-      border-bottom: 1px solid var(--border);
+    header {
+      padding: 12px;
+      background: #111827;
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      font-weight: bold;
     }
 
-    .title {
-      font-weight: 600;
-      letter-spacing: 0.5px;
-    }
-
-    .status {
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    /* CHAT AREA */
     #chat {
       flex: 1;
-      padding: 16px;
       overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+      padding: 10px;
     }
 
     .msg {
-      max-width: 70%;
-      padding: 10px 12px;
-      border-radius: 14px;
-      line-height: 1.3;
-      font-size: 14px;
-      position: relative;
-      animation: fadeIn 0.15s ease-in;
+      margin: 6px 0;
+      padding: 8px;
+      background: #1f2937;
+      border-radius: 8px;
     }
 
-    .self {
-      align-self: flex-end;
-      background: var(--bubble-self);
-      color: white;
-      border-bottom-right-radius: 4px;
+    .name {
+      color: #4cc9f0;
+      font-weight: bold;
     }
 
-    .other {
-      align-self: flex-start;
-      background: var(--bubble-other);
-      border-bottom-left-radius: 4px;
-    }
-
-    .meta {
-      font-size: 11px;
-      color: var(--muted);
-      margin-bottom: 4px;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(4px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* INPUT BAR */
     .inputBar {
       display: flex;
-      gap: 10px;
-      padding: 12px;
-      border-top: 1px solid var(--border);
-      background: rgba(0,0,0,0.2);
+      gap: 6px;
+      padding: 10px;
+      background: #111827;
     }
 
     input {
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,0.05);
-      color: var(--text);
       padding: 10px;
-      border-radius: 10px;
+      border: none;
+      border-radius: 6px;
       outline: none;
     }
 
-    #name {
-      width: 140px;
-    }
-
-    #msg {
-      flex: 1;
-    }
+    #name { width: 120px; }
+    #msg { flex: 1; }
 
     button {
-      background: var(--accent);
+      padding: 10px 14px;
+      background: #4cc9f0;
       border: none;
-      padding: 10px 16px;
-      border-radius: 10px;
+      border-radius: 6px;
       cursor: pointer;
-      font-weight: 600;
-      color: #001018;
-      transition: 0.2s;
-    }
-
-    button:hover {
-      transform: scale(1.03);
-    }
-
-    /* MOBILE */
-    @media (max-width: 600px) {
-      .msg { max-width: 85%; }
-      #name { width: 100px; }
     }
   </style>
 </head>
 
 <body>
-  <div class="app">
 
-    <div class="header">
-      <div class="title">💬 Lycos Chat Revival</div>
-      <div class="status" id="status">online</div>
-    </div>
+<header>
+  <div>💬 Chat Pro</div>
+  <div id="status">connecting...</div>
+</header>
 
-    <div id="chat"></div>
+<div id="chat"></div>
 
-    <div class="inputBar">
-      <input id="name" placeholder="nickname" />
-      <input id="msg" placeholder="type message..." />
-      <button onclick="send()">Send</button>
-    </div>
-
-  </div>
+<div class="inputBar">
+  <input id="name" placeholder="name">
+  <input id="msg" placeholder="message">
+  <button onclick="send()">Send</button>
+</div>
 
 <script>
-  const chat = document.getElementById("chat");
-  let lastScroll = true;
+const chat = document.getElementById("chat");
 
-  chat.addEventListener("scroll", () => {
-    lastScroll = chat.scrollTop + chat.clientHeight >= chat.scrollHeight - 20;
+/**
+ * LOAD MESSAGES
+ */
+function loadMessages() {
+  google.script.run
+    .withSuccessHandler(render)
+    .withFailureHandler(err => {
+      console.log("LOAD ERROR", err);
+    })
+    .getMessages();
+}
+
+/**
+ * RENDER CHAT
+ */
+function render(data) {
+  chat.innerHTML = "";
+
+  data.forEach(row => {
+    const time = new Date(row[0]).toLocaleTimeString();
+    const name = row[1];
+    const msg = row[2];
+
+    chat.innerHTML += `
+      <div class="msg">
+        <span class="name">${name}</span>
+        <span>(${time})</span><br/>
+        ${msg}
+      </div>
+    `;
   });
 
-  function loadMessages() {
-    google.script.run.withSuccessHandler(render).getMessages();
-  }
+  chat.scrollTop = chat.scrollHeight;
+}
 
-  function render(data) {
-    chat.innerHTML = "";
+/**
+ * SEND MESSAGE
+ */
+function send() {
+  const name = document.getElementById("name").value || "Anon";
+  const msg = document.getElementById("msg").value;
 
-    const myName = document.getElementById("name").value || "";
+  if (!msg) return;
 
-    data.forEach(row => {
-      const time = new Date(row[0]).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-      const name = row[1];
-      const msg = row[2];
+  google.script.run
+    .withSuccessHandler(() => {
+      document.getElementById("msg").value = "";
+      loadMessages();
+    })
+    .withFailureHandler(err => {
+      console.log("SEND ERROR", err);
+    })
+    .postMessage(name, msg);
+}
 
-      const div = document.createElement("div");
-      div.className = "msg " + (name === myName ? "self" : "other");
+/**
+ * ENTER KEY SUPPORT
+ */
+document.getElementById("msg").addEventListener("keydown", e => {
+  if (e.key === "Enter") send();
+});
 
-      div.innerHTML = `
-        <div class="meta">${name} • ${time}</div>
-        <div>${msg}</div>
-      `;
-
-      chat.appendChild(div);
-    });
-
-    if (lastScroll) {
-      chat.scrollTop = chat.scrollHeight;
-    }
-  }
-
-  function send() {
-    const name = document.getElementById("name").value || "Anonymous";
-    const msg = document.getElementById("msg").value;
-
-    if (!msg.trim()) return;
-
-    google.script.run.postMessage(name, msg);
-
-    document.getElementById("msg").value = "";
-    setTimeout(loadMessages, 200);
-  }
-
-  document.getElementById("msg").addEventListener("keydown", e => {
-    if (e.key === "Enter") send();
-  });
-
-  loadMessages();
-  setInterval(loadMessages, 1500);
+/**
+ * INIT
+ */
+loadMessages();
+setInterval(loadMessages, 1500);
 </script>
 
 </body>
