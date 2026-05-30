@@ -1,79 +1,73 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <base target="_top">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: system-ui;
-      background: #0b0f14;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-    }
+<style>
+body {
+  margin: 0;
+  font-family: system-ui;
+  background: #0b0f14;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
 
-    header {
-      padding: 12px;
-      background: #111827;
-      display: flex;
-      justify-content: space-between;
-      font-weight: bold;
-    }
+header {
+  padding: 12px;
+  background: #111827;
+  font-weight: bold;
+}
 
-    #chat {
-      flex: 1;
-      overflow-y: auto;
-      padding: 10px;
-    }
+#chat {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+}
 
-    .msg {
-      margin: 6px 0;
-      padding: 8px;
-      background: #1f2937;
-      border-radius: 8px;
-    }
+.msg {
+  margin: 6px 0;
+  padding: 10px;
+  background: #1f2937;
+  border-radius: 8px;
+}
 
-    .name {
-      color: #4cc9f0;
-      font-weight: bold;
-    }
+.name {
+  color: #4cc9f0;
+  font-weight: bold;
+}
 
-    .inputBar {
-      display: flex;
-      gap: 6px;
-      padding: 10px;
-      background: #111827;
-    }
+.inputBar {
+  display: flex;
+  gap: 6px;
+  padding: 10px;
+  background: #111827;
+}
 
-    input {
-      padding: 10px;
-      border: none;
-      border-radius: 6px;
-      outline: none;
-    }
+input {
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  outline: none;
+}
 
-    #name { width: 120px; }
-    #msg { flex: 1; }
+#name { width: 120px; }
+#msg { flex: 1; }
 
-    button {
-      padding: 10px 14px;
-      background: #4cc9f0;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-  </style>
+button {
+  padding: 10px 14px;
+  background: #4cc9f0;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+</style>
 </head>
 
 <body>
 
-<header>
-  <div>💬 Chat Pro</div>
-  <div id="status">connecting...</div>
-</header>
+<header>💬 Live Chat</header>
 
 <div id="chat"></div>
 
@@ -84,36 +78,36 @@
 </div>
 
 <script>
-const chat = document.getElementById("chat");
+
+const API_URL = "https://script.google.com/macros/s/AKfycbzX9UkAd64skxZoOtdIBnDkzDQMCBtodK98gBVWqZzmYYuSqYRJgZxx0rCqkBY8QRa17A/exec";
 
 /**
  * LOAD MESSAGES
  */
-function loadMessages() {
-  google.script.run
-    .withSuccessHandler(render)
-    .withFailureHandler(err => {
-      console.log("LOAD ERROR", err);
-    })
-    .getMessages();
+async function loadMessages() {
+  const res = await fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify({ action: "get" })
+  });
+
+  const data = await res.json();
+  render(data);
 }
 
 /**
- * RENDER CHAT
+ * RENDER
  */
 function render(data) {
+  const chat = document.getElementById("chat");
   chat.innerHTML = "";
 
-  data.forEach(row => {
-    const time = new Date(row[0]).toLocaleTimeString();
-    const name = row[1];
-    const msg = row[2];
+  data.forEach(m => {
+    const time = new Date(m.time).toLocaleTimeString();
 
     chat.innerHTML += `
       <div class="msg">
-        <span class="name">${name}</span>
-        <span>(${time})</span><br/>
-        ${msg}
+        <span class="name">${m.name}</span> (${time})<br/>
+        ${m.message}
       </div>
     `;
   });
@@ -124,35 +118,28 @@ function render(data) {
 /**
  * SEND MESSAGE
  */
-function send() {
+async function send() {
   const name = document.getElementById("name").value || "Anon";
   const msg = document.getElementById("msg").value;
 
   if (!msg) return;
 
-  google.script.run
-    .withSuccessHandler(() => {
-      document.getElementById("msg").value = "";
-      loadMessages();
+  await fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify({
+      action: "send",
+      name,
+      message: msg
     })
-    .withFailureHandler(err => {
-      console.log("SEND ERROR", err);
-    })
-    .postMessage(name, msg);
+  });
+
+  document.getElementById("msg").value = "";
+  loadMessages();
 }
 
-/**
- * ENTER KEY SUPPORT
- */
-document.getElementById("msg").addEventListener("keydown", e => {
-  if (e.key === "Enter") send();
-});
-
-/**
- * INIT
- */
+setInterval(loadMessages, 2000);
 loadMessages();
-setInterval(loadMessages, 1500);
+
 </script>
 
 </body>
