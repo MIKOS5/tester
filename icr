@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+      body {
+        font-family: Arial;
+        background: #111;
+        color: #0f0;
+      }
+
+      #chat {
+        height: 400px;
+        overflow-y: scroll;
+        border: 1px solid #0f0;
+        padding: 10px;
+      }
+
+      input {
+        width: 80%;
+        padding: 10px;
+      }
+
+      button {
+        padding: 10px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h2>Lycos-Style Chat</h2>
+
+    Nickname:
+    <input id="name" placeholder="Enter name" />
+
+    <div id="chat"></div>
+
+    <input id="msg" placeholder="Type message..." />
+    <button onclick="send()">Send</button>
+
+    <script>
+      let chatBox = document.getElementById("chat");
+
+      function loadMessages() {
+        google.script.run.withSuccessHandler(render).getMessages();
+      }
+
+      function render(data) {
+        chatBox.innerHTML = "";
+        data.forEach(row => {
+          let time = new Date(row[0]).toLocaleTimeString();
+          chatBox.innerHTML +=
+            `<div>[${time}] <b>${row[1]}</b>: ${row[2]}</div>`;
+        });
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+
+      function send() {
+        let name = document.getElementById("name").value || "Anonymous";
+        let msg = document.getElementById("msg").value;
+
+        if (!msg) return;
+
+        google.script.run.postMessage(name, msg);
+
+        document.getElementById("msg").value = "";
+        setTimeout(loadMessages, 500);
+      }
+
+      loadMessages();
+      setInterval(loadMessages, 2000);
+    </script>
+  </body>
+</html>
