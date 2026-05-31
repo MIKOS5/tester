@@ -1287,12 +1287,11 @@ function applyFilter(){
 
   }else{
 
-    stations =
-      allStations.filter(s =>
-        (s.tags || "")
-        .toLowerCase()
-        .includes(g)
-      );
+    stations = allStations.filter(s =>
+      (s.tags || "").toLowerCase().includes(g) ||
+      (s.name || "").toLowerCase().includes(g) ||
+      (s.country || "").toLowerCase().includes(g)
+    );
 
   }
 
@@ -1459,7 +1458,7 @@ function renderMobile(){
 
   <div class="card-buttons">
     <button onclick="playStation('${id}')">▶ Play</button>
-    <button onclick='toggleFavorite(${JSON.stringify(s)})'>
+    <button onclick="toggleFavoriteById('${id}')">
       ${isFav ? "⭐ Saved" : "☆ Favorite"}
     </button>
   </div>
