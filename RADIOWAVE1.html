@@ -1,17 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>x📻 RadioWave Pro</title>
+<title>📻 RadioWave Pro</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet"/>
 
 <style>
+
 :root{
   --bg:#09111d;
   --panel:#111827;
@@ -19,9 +16,7 @@
   --text:#fff;
   --muted:#93a4bb;
   --blue:#2793ff;
-  --blue2:#1869d9;
   --green:#17c964;
-  --shadow:0 10px 30px rgba(0,0,0,.35);
 }
 
 *{box-sizing:border-box;}
@@ -38,357 +33,327 @@ body{
 
 /* SIDEBAR */
 .sidebar{
-  width:330px;
-  background:rgba(17,24,39,.92);
-  backdrop-filter:blur(16px);
+  width:340px;
+  background:rgba(17,24,39,.95);
   border-right:1px solid var(--line);
-  padding:22px;
+  padding:20px;
   overflow:auto;
-  box-shadow:var(--shadow);
 }
 
-.logo{font-size:32px;font-weight:800;}
+.logo{font-size:28px;font-weight:800;}
 .logo span{color:var(--blue);}
-.subtitle{color:var(--muted);font-size:13px;margin:4px 0 24px;}
+.subtitle{color:var(--muted);font-size:13px;margin-bottom:20px;}
 
-.search{
-  width:100%;
-  border:none;
-  outline:none;
-  background:#0e1725;
-  color:white;
-  padding:14px;
-  border-radius:16px;
-  border:1px solid #1e293b;
-}
-
-.search:focus{
-  border-color:var(--blue);
-  box-shadow:0 0 0 4px rgba(39,147,255,.12);
-}
-
-/* BUTTONS */
-button{
-  border:none;
-  border-radius:14px;
-  padding:13px;
-  color:white;
-  font-weight:700;
-  cursor:pointer;
-  background:linear-gradient(180deg,var(--blue),var(--blue2));
-}
-
-button:hover{transform:translateY(-1px);}
-
-.main-btn{width:100%;margin-top:12px;}
-
-.grid-buttons{
+/* GENRES */
+.genre-grid{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:10px;
-  margin-top:12px;
+  margin-top:10px;
+}
+
+.genre{
+  padding:12px;
+  border-radius:14px;
+  background:#0e1725;
+  border:1px solid #1e293b;
+  text-align:center;
+  cursor:pointer;
+  font-weight:700;
+  transition:.15s;
+}
+
+.genre:hover{
+  border-color:var(--blue);
+  transform:translateY(-2px);
+}
+
+.genre.active{
+  background:var(--blue);
 }
 
 /* PLAYER */
-.radio-player{
-  margin-top:24px;
-  padding:18px;
-  border-radius:24px;
-  background:linear-gradient(180deg,#182233,#121926);
-  border:1px solid #263246;
+.player{
+  margin-top:20px;
+  padding:16px;
+  border-radius:20px;
+  background:#121a2a;
+  border:1px solid var(--line);
 }
 
-.station-icon{
-  width:60px;height:60px;border-radius:18px;
-  background:linear-gradient(135deg,var(--blue),#6857ff);
-  display:flex;align-items:center;justify-content:center;
+.now{
+  font-weight:700;
 }
 
-#npName{font-weight:700;}
-#npMeta{color:var(--muted);font-size:12px;}
+.meta{
+  font-size:12px;
+  color:var(--muted);
+}
 
-.live{color:var(--green);font-size:12px;display:flex;gap:6px;}
+.controls{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin-top:12px;
+}
 
-.live-dot{width:8px;height:8px;background:var(--green);border-radius:50%;}
+button{
+  border:none;
+  border-radius:12px;
+  padding:10px;
+  background:linear-gradient(180deg,#2793ff,#1869d9);
+  color:white;
+  font-weight:700;
+  cursor:pointer;
+}
 
 /* MAIN */
-.main{flex:1;padding:24px;overflow:auto;}
-
-.table-wrap{
-  border-radius:26px;
-  border:1px solid var(--line);
-  background:rgba(17,24,39,.92);
+.main{
+  flex:1;
+  padding:20px;
+  overflow:auto;
 }
 
-table{width:100%;border-collapse:collapse;}
-
-th{
-  background:#0f1725;
-  color:#8eb5ff;
-  text-transform:uppercase;
-  font-size:12px;
-  padding:18px;
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:10px;
 }
 
-td{padding:18px;border-top:1px solid #1d2938;}
-
-.station{font-weight:700;}
-.tags{color:var(--muted);font-size:13px;}
-
-.actions{display:flex;gap:8px;}
-.small-btn{padding:10px;font-size:13px;}
-
-#mobileList{display:none;}
+.title{font-size:26px;font-weight:800;}
 
 .card{
-  background:rgba(17,24,39,.94);
+  background:rgba(17,24,39,.95);
   border:1px solid var(--line);
-  padding:18px;
-  border-radius:22px;
-  margin-bottom:14px;
+  border-radius:16px;
+  padding:14px;
+  margin-bottom:10px;
 }
 
+.station{
+  font-weight:700;
+}
+
+.small{
+  font-size:12px;
+  color:var(--muted);
+}
+
+.row{
+  display:flex;
+  gap:10px;
+  margin-top:10px;
+}
+
+/* MOBILE */
 @media(max-width:900px){
   body{flex-direction:column;height:auto;}
   .sidebar{width:100%;}
-  .table-wrap{display:none;}
-  #mobileList{display:block;}
 }
+
 </style>
 </head>
 
 <body>
 
+<!-- SIDEBAR -->
 <div class="sidebar">
 
   <div class="logo">📻 Radio<span>Wave</span></div>
-  <div class="subtitle">Live streaming radio dashboard</div>
+  <div class="subtitle">Spotify-style radio streaming</div>
 
-  <input id="genre" class="search" placeholder="Search genre, station, country..." />
-
-  <button class="main-btn" onclick="loadStations()">🔎 Search</button>
-
-  <div class="grid-buttons">
-    <button onclick="prevPage()">⬅ Prev</button>
-    <button onclick="nextPage()">Next ➜</button>
-    <button onclick="loadStations()">🔄 Refresh</button>
-    <button onclick="loadFavorites()">⭐ Favorites</button>
+  <div class="genre-grid">
+    <div class="genre" onclick="setGenre('rock')">🎸 Rock</div>
+    <div class="genre" onclick="setGenre('pop')">🎤 Pop</div>
+    <div class="genre" onclick="setGenre('jazz')">🎷 Jazz</div>
+    <div class="genre" onclick="setGenre('hip hop')">🔥 Hip Hop</div>
+    <div class="genre" onclick="setGenre('electronic')">🎛 Electronic</div>
+    <div class="genre" onclick="setGenre('classical')">🎻 Classical</div>
+    <div class="genre" onclick="setGenre('country')">🤠 Country</div>
+    <div class="genre" onclick="loadTrending()">📈 Trending</div>
   </div>
 
-  <div class="radio-player">
+  <div class="player">
 
-    <div style="display:flex;gap:14px;">
-      <div class="station-icon">📻</div>
-      <div>
-        <div id="npName">Not Playing</div>
-        <div id="npMeta">Select station</div>
-        <div class="live"><div class="live-dot"></div>LIVE</div>
-      </div>
+    <div class="now" id="npName">Not Playing</div>
+    <div class="meta" id="npMeta">Select a station</div>
+
+    <audio id="audio"></audio>
+
+    <div class="controls">
+      <button onclick="prev()">⏮</button>
+      <button onclick="toggle()">▶</button>
+      <button onclick="next()">⏭</button>
+      <button onclick="fav()">⭐</button>
     </div>
-
-    <audio id="player"></audio>
-
-    <div class="grid-buttons">
-      <button onclick="prevStation()">⏮</button>
-      <button id="playBtn" onclick="togglePlay()">▶</button>
-      <button onclick="nextStation()">⏭</button>
-      <button onclick="toggleFavCurrent()">⭐</button>
-    </div>
-
-    <input type="range" min="0" max="1" step="0.01" value="1"
-      onchange="setVolume(this.value)"/>
 
   </div>
 
 </div>
 
+<!-- MAIN -->
 <div class="main">
 
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>Station</th>
-          <th>Genre</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="tbody"></tbody>
-    </table>
+  <div class="top">
+    <div class="title" id="title">Stations</div>
   </div>
 
-  <div id="mobileList"></div>
+  <div id="list"></div>
 
 </div>
 
 <script>
 
 /* APIs */
-const RADIO_API =
+const RADIO =
 "https://all.api.radio-browser.info/json/stations/search";
 
-const SHEET_API =
+const SHEET =
 "https://script.google.com/macros/s/AKfycbzZ5MwOcYUY_bpsUKSxPd810xE8rV_Y3z2GwzPublb_4O60CP8L_lC_V2kqkCQ_JdF5/exec";
 
 /* STATE */
 let stations=[];
-let allStations=[];
-let currentList=[];
-let favoriteIds=new Set();
-let page=0;
-const limit=500;
-let currentIndex=-1;
-let isPlaying=false;
+let current=[];
+let index=0;
+let genre="";
+let playing=false;
+let favorites=new Set();
 
 /* LOAD */
-async function loadStations(){
+async function load(g=""){
 
-  setStatus("Loading...");
-
-  const q=document.getElementById("genre").value.trim();
-  const offset=page*limit;
+  genre=g;
 
   let url=
-  `${RADIO_API}?countrycode=US&limit=${limit}&offset=${offset}&hidebroken=true`;
+  `${RADIO}?limit=60&hidebroken=true`;
 
-  if(q){
-    url=
-    `${RADIO_API}?limit=${limit}&offset=${offset}&hidebroken=true`+
-    `&name=${encodeURIComponent(q)}&tag=${encodeURIComponent(q)}`;
+  if(g){
+    url+=`&tag=${encodeURIComponent(g)}`;
+  }else{
+    url+=`&countrycode=US`;
   }
 
   const res=await fetch(url);
   const data=await res.json();
 
   stations=data;
-  allStations=[...data];
-  currentList=data;
+  current=data;
 
   render();
-  setStatus(`Loaded ${data.length}`);
+  setTitle(g||"US Stations");
 }
 
-/* FAVORITES */
-async function loadFavorites(){
+/* TRENDING */
+async function loadTrending(){
 
-  const res=await fetch(SHEET_API+"?action=get");
-  const data=await res.json().catch(()=>[]);
-
-  const list=data.data||data;
-
-  favoriteIds=new Set(list.map(f=>f.id||f.stationuuid));
-  currentList=list;
-
-  render();
-  setStatus("Favorites loaded");
-}
-
-async function toggleFavorite(s){
-
-  const id=s.stationuuid||s.id;
-  if(!id||favoriteIds.has(id)) return;
-
-  await fetch(SHEET_API,{
-    method:"POST",
-    body:new URLSearchParams({
-      action:"save",
-      id,
-      name:s.name||"",
-      url:s.url_resolved||s.url||"",
-      country:s.country||"",
-      genre:s.tags||"",
-      time:new Date().toISOString()
-    })
-  });
-
-  favoriteIds.add(id);
-  setStatus("⭐ Saved");
-  render();
-}
-
-/* PLAY */
-function playStation(id){
-
-  const item=currentList.find(s=>
-    (s.stationuuid||s.id)===id
+  const res=await fetch(
+    `${RADIO}?order=votes&reverse=true&limit=60`
   );
 
-  if(!item) return;
+  stations=await res.json();
+  current=stations;
 
-  currentIndex=currentList.indexOf(item);
-
-  const player=document.getElementById("player");
-
-  player.src=item.url_resolved||item.url;
-  player.play();
-
-  isPlaying=true;
-  document.getElementById("playBtn").textContent="⏸";
-
-  updateNow(item);
-}
-
-function updateNow(item){
-
-  document.getElementById("npName").textContent=item.name||"Unknown";
-  document.getElementById("npMeta").textContent=
-    `${item.country||""} • ${(item.tags?.trim())||(item.genre?.trim())||"Radio"}`;
-}
-
-function togglePlay(){
-  const p=document.getElementById("player");
-  if(!p.src) return;
-
-  if(isPlaying){p.pause();isPlaying=false;}
-  else{p.play();isPlaying=true;}
-}
-
-/* NAV */
-function nextStation(){
-  if(!currentList.length) return;
-  currentIndex=(currentIndex+1)%currentList.length;
-  playStation(currentList[currentIndex].stationuuid||currentList[currentIndex].id);
-}
-
-function prevStation(){
-  if(!currentList.length) return;
-  currentIndex=(currentIndex-1+currentList.length)%currentList.length;
-  playStation(currentList[currentIndex].stationuuid||currentList[currentIndex].id);
+  render();
+  setTitle("Trending");
 }
 
 /* RENDER */
 function render(){
 
-  const tbody=document.getElementById("tbody");
-  tbody.innerHTML="";
+  const el=document.getElementById("list");
+  el.innerHTML="";
 
-  currentList.forEach(s=>{
+  current.forEach((s,i)=>{
 
-    const id=s.stationuuid||s.id;
-    const fav=favoriteIds.has(id);
+    el.innerHTML+=`
+    <div class="card">
+      <div class="station">${s.name}</div>
+      <div class="small">
+        ${(s.tags||"Radio")} • ${s.country||""}
+      </div>
 
-    tbody.innerHTML+=`
-      <tr>
-        <td class="station">${s.name||"Unknown"}</td>
-        <td class="tags">${(s.tags?.trim())||(s.genre?.trim())||"Radio"}</td>
-        <td>
-          <button onclick="playStation('${id}')">▶</button>
-          <button onclick='toggleFavorite(${JSON.stringify(s)})'>
-            ${fav?"⭐":"☆"}
-          </button>
-        </td>
-      </tr>
+      <div class="row">
+        <button onclick="play(${i})">▶ Play</button>
+        <button onclick="save('${s.stationuuid}')">⭐</button>
+      </div>
+    </div>
     `;
   });
 
 }
 
-/* UTIL */
-function setStatus(t){
-  console.log(t);
+/* PLAY */
+function play(i){
+
+  index=i;
+
+  const s=current[i];
+
+  const audio=document.getElementById("audio");
+
+  audio.src=s.url_resolved||s.url;
+  audio.play();
+
+  playing=true;
+
+  document.getElementById("npName").innerText=s.name;
+  document.getElementById("npMeta").innerText=
+    `${s.country||""} • ${s.tags||"Radio"}`;
+
 }
 
-loadStations();
+/* CONTROLS */
+function toggle(){
+  const a=document.getElementById("audio");
+
+  if(!a.src) return;
+
+  if(playing){
+    a.pause();
+    playing=false;
+  }else{
+    a.play();
+    playing=true;
+  }
+}
+
+function next(){
+  index=(index+1)%current.length;
+  play(index);
+}
+
+function prev(){
+  index=(index-1+current.length)%current.length;
+  play(index);
+}
+
+/* FAVORITES */
+async function save(id){
+
+  await fetch(SHEET,{
+    method:"POST",
+    body:new URLSearchParams({
+      action:"save",
+      id
+    })
+  });
+
+}
+
+/* GENRE UI */
+function setGenre(g){
+
+  document.querySelectorAll(".genre")
+  .forEach(x=>x.classList.remove("active"));
+
+  event.target.classList.add("active");
+
+  load(g);
+}
+
+/* INIT */
+load();
 
 </script>
 
