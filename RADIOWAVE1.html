@@ -475,6 +475,22 @@ function play(i){
     `${s.country || ""} • ${getGenre(s)}`;
 }
 
+function playFiltered(i){
+
+  const s = window.filtered[i];
+  if(!s) return;
+
+  const audio = document.getElementById("audio");
+
+  audio.src = s.url_resolved || s.url;
+  audio.play();
+
+  document.getElementById("npName").innerText = s.name;
+
+  document.getElementById("npMeta").innerText =
+    `${s.country || ""} • ${getGenre(s)}`;
+}
+  
 /* CONTROLS */
 function toggle(){
   const a = document.getElementById("audio");
@@ -510,7 +526,9 @@ function render(){
       .toLowerCase()
       .trim() || "";
 
-  current.forEach((s,i)=>{
+  let filtered = [];
+
+  for (let s of current) {
 
     const text = `
       ${s.name || ""}
@@ -518,7 +536,14 @@ function render(){
       ${s.country || ""}
     `.toLowerCase();
 
-    if(q && !text.includes(q)) return;
+    if (q && !text.includes(q)) continue;
+
+    filtered.push(s);
+  }
+
+  window.filtered = filtered;
+
+  filtered.forEach((s,i)=>{
 
     const id = s.stationuuid || s.id;
     const isFav = favorites.has(id);
@@ -527,23 +552,21 @@ function render(){
       <div class="card">
         <div class="station">${s.name}</div>
 
-        <!-- ✅ FIXED GENRE DISPLAY -->
         <div class="small">${getGenre(s)} • ${s.country || ""}</div>
 
         <div class="row">
-          <button onclick="play(${i})">▶ Play</button>
+          <button onclick="playFiltered(${i})">▶ Play</button>
 
           <button class="fav-btn ${isFav ? "saved" : ""}"
             onclick='fav(${JSON.stringify(s)})'>
             ${isFav ? "⭐ Saved" : "☆ Favorite"}
           </button>
-
         </div>
       </div>
     `;
   });
 }
-
+  
 /* GENRE */
 function setGenre(g){
 
