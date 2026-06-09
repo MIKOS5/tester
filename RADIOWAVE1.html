@@ -340,6 +340,7 @@ const GENRES = [
   grid.innerHTML += `
     <div class="genre" onclick="loadFavorites()">⭐ Favorites</div>
     <div class="genre" onclick="loadMISC()">📻 MISC</div>
+    <div class="genre" onclick="loadInternational()">🌎 International</div>
   `;
 }
   
@@ -443,6 +444,17 @@ async function loadMISC(){
 
   render();
   setTitle("📻 MISC");
+}
+
+async function loadInternational(){
+
+  const res = await fetch(SHEET + "?action=international");
+  const data = await res.json().catch(()=>[]);
+
+  current = data.data || [];
+
+  render();
+  setTitle("🌎 International");
 }
   
 /* PLAY */
