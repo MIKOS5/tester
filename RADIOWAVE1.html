@@ -275,6 +275,8 @@ button{
 
   <div class="genre-grid" id="genreGrid"></div>
 
+  <div class="action-grid" id="actionGrid"></div>
+
 </div>
 
 </div>
@@ -413,23 +415,15 @@ const GENRES = [
     load(id);
   });
 
-  grid.innerHTML += `
-    <div class="genre dropdown">
-      ☰ More
-      <div class="dropdown-menu">
-        <div onclick="loadFavorites()">⭐ Favorites</div>
-        <div onclick="loadMISC()">📻 MISC</div>
-        <div onclick="loadInternational()">🌎 International</div>
-      </div>
-    </div>
-`  ;
-}
-  
-/* STATE */
-let current=[];
-let index=0;
-let favorites=new Set();
+  // ✅ put special actions OUTSIDE genres
+  const actions = document.getElementById("actionGrid");
 
+  actions.innerHTML = `
+    <div class="genre" onclick="loadFavorites()">⭐ Favorites</div>
+    <div class="genre" onclick="loadMISC()">📻 MISC</div>
+    <div class="genre" onclick="loadInternational()">🌎 International</div>
+  `;
+}
 /* =========================
    🔥 FIXED GENRE FUNCTION
 ========================= */
@@ -692,6 +686,18 @@ function setTitle(t){
 renderGenres();
 load();
 
+.action-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+  margin-top:12px;
+}
+
+.action-grid .genre{
+  background:#0b1220;
+  border:1px solid #1e293b;
+}
+  
 </script>
 
 </body>
