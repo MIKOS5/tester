@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>📻 MISC Stations</title>
+<title>X📻 MISC Stations</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet"/>
 
@@ -173,6 +173,39 @@ button{
 ::-webkit-scrollbar-thumb:hover{
   background:rgba(39,147,255,1);
 }
+
+.dropdown {
+  position: relative;
+  user-select: none;
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: 100%;
+  width: 100%;
+  background: #0e1725;
+  border: 1px solid #1e293b;
+  border-radius: 12px;
+  z-index: 999;
+  overflow: hidden;
+}
+
+.dropdown-menu div {
+  padding: 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.dropdown-menu div:hover {
+  background: #2793ff;
+}
+
+/* show on hover */
+.dropdown:hover .dropdown-menu {
+  display: block;
+}
   
 </style>
 </head>
@@ -338,10 +371,15 @@ const GENRES = [
   });
 
   grid.innerHTML += `
-    <div class="genre" onclick="loadFavorites()">⭐ Favorites</div>
-    <div class="genre" onclick="loadMISC()">📻 MISC</div>
-    <div class="genre" onclick="loadInternational()">🌎 International</div>
-  `;
+    <div class="genre dropdown">
+      ☰ More
+      <div class="dropdown-menu">
+        <div onclick="loadFavorites()">⭐ Favorites</div>
+        <div onclick="loadMISC()">📻 MISC</div>
+        <div onclick="loadInternational()">🌎 International</div>
+      </div>
+    </div>
+`  ;
 }
   
 /* STATE */
