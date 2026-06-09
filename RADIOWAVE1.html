@@ -320,6 +320,7 @@ const GENRES = [
 
   grid.innerHTML += `
     <div class="genre" onclick="loadFavorites()">⭐ Favorites</div>
+    <div class="genre" onclick="loadMISC()">📻 MISC</div>
   `;
 }
   
@@ -413,7 +414,18 @@ async function fav(s){
   setTitle("Saved ⭐");
   render();
 }
+  
+async function loadMISC(){
 
+  const res = await fetch(SHEET + "?action=misc");
+  const data = await res.json().catch(()=>[]);
+
+  current = data.data || [];
+
+  render();
+  setTitle("📻 MISC");
+}
+  
 /* PLAY */
 function play(i){
 
