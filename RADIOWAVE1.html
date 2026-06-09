@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>📻 RadioWave Pro</title>
+<title>📻 MISC Stations</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet"/>
 
@@ -40,16 +40,23 @@ body{
   overflow:auto;
 }
 
-.logo{font-size:28px;font-weight:800;}
+.logo{
+  font-size:28px;
+  font-weight:800;
+}
 .logo span{color:var(--blue);}
-.subtitle{color:var(--muted);font-size:13px;margin-bottom:20px;}
+
+.subtitle{
+  color:var(--muted);
+  font-size:13px;
+  margin-bottom:20px;
+}
 
 /* GENRES */
 .genre-grid{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:10px;
-  margin-top:10px;
 }
 
 .genre{
@@ -114,14 +121,11 @@ button{
   overflow:auto;
 }
 
-.top{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+.title{
+  font-size:26px;
+  font-weight:800;
   margin-bottom:10px;
 }
-
-.title{font-size:26px;font-weight:800;}
 
 .card{
   background:rgba(17,24,39,.95);
@@ -160,9 +164,10 @@ button{
 <!-- SIDEBAR -->
 <div class="sidebar">
 
-  <div class="logo">📻 Radio<span>Wave</span></div>
-  <div class="subtitle">Spotify-style radio streaming</div>
+  <div class="logo">📻 MISC <span>Stations</span></div>
+  <div class="subtitle">Live radio • genres • favorites</div>
 
+  <!-- GENRES -->
   <div class="genre-grid">
     <div class="genre" onclick="setGenre('rock')">🎸 Rock</div>
     <div class="genre" onclick="setGenre('pop')">🎤 Pop</div>
@@ -171,13 +176,14 @@ button{
     <div class="genre" onclick="setGenre('electronic')">🎛 Electronic</div>
     <div class="genre" onclick="setGenre('classical')">🎻 Classical</div>
     <div class="genre" onclick="setGenre('country')">🤠 Country</div>
-    <div class="genre" onclick="loadTrending()">📈 Trending</div>
+    <div class="genre" onclick="loadFavorites()">⭐ Favorites</div>
   </div>
 
+  <!-- PLAYER -->
   <div class="player">
 
     <div class="now" id="npName">Not Playing</div>
-    <div class="meta" id="npMeta">Select a station</div>
+    <div class="meta" id="npMeta">Select station</div>
 
     <audio id="audio"></audio>
 
@@ -195,9 +201,7 @@ button{
 <!-- MAIN -->
 <div class="main">
 
-  <div class="top">
-    <div class="title" id="title">Stations</div>
-  </div>
+  <div class="title" id="title">Stations</div>
 
   <div id="list"></div>
 
@@ -205,7 +209,7 @@ button{
 
 <script>
 
-/* APIs */
+/* API */
 const RADIO =
 "https://all.api.radio-browser.info/json/stations/search";
 
@@ -213,17 +217,15 @@ const SHEET =
 "https://script.google.com/macros/s/AKfycbzZ5MwOcYUY_bpsUKSxPd810xE8rV_Y3z2GwzPublb_4O60CP8L_lC_V2kqkCQ_JdF5/exec";
 
 /* STATE */
-let stations=[];
 let current=[];
 let index=0;
-let genre="";
-let playing=false;
+let currentGenre="";
 let favorites=new Set();
 
 /* LOAD */
 async function load(g=""){
 
-  genre=g;
+  currentGenre=g;
 
   let url=
   `${RADIO}?limit=60&hidebroken=true`;
@@ -235,50 +237,46 @@ async function load(g=""){
   }
 
   const res=await fetch(url);
-  const data=await res.json();
-
-  stations=data;
-  current=data;
+  current=await res.json();
 
   render();
   setTitle(g||"US Stations");
 }
 
-/* TRENDING */
-async function loadTrending(){
+/* FAVORITES LOAD */
+async function loadFavorites(){
 
-  const res=await fetch(
-    `${RADIO}?order=votes&reverse=true&limit=60`
-  );
+  const res=await fetch(SHEET+"?action=get");
+  const data=await res.json().catch(()=>[]);
 
-  stations=await res.json();
-  current=stations;
+  const list=data.data||data;
+
+  current=list;
 
   render();
-  setTitle("Trending");
+  setTitle("⭐ Favorites");
+
 }
 
-/* RENDER */
-function render(){
+/* SAVE FAVORITE */
+async function fav(){
 
-  const el=document.getElementById("list");
-  el.innerHTML="";
+  const s=current[index];
+  if(!s) return;
 
-  current.forEach((s,i)=>{
+  const id=s.stationuuid||s.id;
 
-    el.innerHTML+=`
-    <div class="card">
-      <div class="station">${s.name}</div>
-      <div class="small">
-        ${(s.tags||"Radio")} • ${s.country||""}
-      </div>
-
-      <div class="row">
-        <button onclick="play(${i})">▶ Play</button>
-        <button onclick="save('${s.stationuuid}')">⭐</button>
-      </div>
-    </div>
-    `;
+  await fetch(SHEET,{
+    method:"POST",
+    body:new URLSearchParams({
+      action:"save",
+      id,
+      name:s.name,
+      url:s.url_resolved||s.url,
+      country:s.country||"",
+      genre:s.tags||"",
+      time:new Date().toISOString()
+    })
   });
 
 }
@@ -295,29 +293,20 @@ function play(i){
   audio.src=s.url_resolved||s.url;
   audio.play();
 
-  playing=true;
-
   document.getElementById("npName").innerText=s.name;
   document.getElementById("npMeta").innerText=
     `${s.country||""} • ${s.tags||"Radio"}`;
 
 }
 
-/* CONTROLS */
+/* TOGGLE */
 function toggle(){
   const a=document.getElementById("audio");
-
-  if(!a.src) return;
-
-  if(playing){
-    a.pause();
-    playing=false;
-  }else{
-    a.play();
-    playing=true;
-  }
+  if(a.paused) a.play();
+  else a.pause();
 }
 
+/* NEXT/PREV */
 function next(){
   index=(index+1)%current.length;
   play(index);
@@ -328,20 +317,30 @@ function prev(){
   play(index);
 }
 
-/* FAVORITES */
-async function save(id){
+/* RENDER */
+function render(){
 
-  await fetch(SHEET,{
-    method:"POST",
-    body:new URLSearchParams({
-      action:"save",
-      id
-    })
+  const el=document.getElementById("list");
+  el.innerHTML="";
+
+  current.forEach((s,i)=>{
+
+    el.innerHTML+=`
+      <div class="card">
+        <div class="station">${s.name}</div>
+        <div class="small">${s.tags||"Radio"} • ${s.country||""}</div>
+
+        <div class="row">
+          <button onclick="play(${i})">▶ Play</button>
+          <button onclick="fav()">⭐ Save</button>
+        </div>
+      </div>
+    `;
   });
 
 }
 
-/* GENRE UI */
+/* GENRE */
 function setGenre(g){
 
   document.querySelectorAll(".genre")
@@ -350,6 +349,11 @@ function setGenre(g){
   event.target.classList.add("active");
 
   load(g);
+}
+
+/* TITLE */
+function setTitle(t){
+  document.getElementById("title").innerText=t;
 }
 
 /* INIT */
