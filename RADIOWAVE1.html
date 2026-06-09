@@ -415,39 +415,27 @@ const GENRES = [
     </div>
   `).join("");
 
+  // prevent duplicate listeners
   if (!grid.dataset.bound) {
-  grid.dataset.bound = "true";
+    grid.dataset.bound = "true";
 
-  grid.addEventListener("click", (e) => {
-    const item = e.target.closest(".genre");
-    if (!item) return;
+    grid.addEventListener("click", (e) => {
+      const item = e.target.closest(".genre");
+      if (!item) return;
 
-    const id = item.dataset.id;
-    if (!id) return;
+      const id = item.dataset.id;
+      if (!id) return;
 
-    document.querySelectorAll(".genre")
-      .forEach(x => x.classList.remove("active"));
+      document.querySelectorAll(".genre")
+        .forEach(x => x.classList.remove("active"));
 
-    item.classList.add("active");
+      item.classList.add("active");
 
-    load(id);
-  });
-}
-    const item = e.target.closest(".genre");
-    if(!item) return;
+      load(id);
+    });
+  }
 
-    const id = item.dataset.id;
-    if(!id) return;
-
-    document.querySelectorAll(".genre")
-      .forEach(x => x.classList.remove("active"));
-
-    item.classList.add("active");
-
-    load(id);
-  });
-
-  // ✅ put special actions OUTSIDE genres
+  // actions panel
   const actions = document.getElementById("actionGrid");
 
   actions.innerHTML = `
