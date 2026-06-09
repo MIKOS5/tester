@@ -206,6 +206,41 @@ button{
 .dropdown:hover .dropdown-menu {
   display: block;
 }
+
+.genre-section {
+  margin-top: 10px;
+}
+
+/* header bar */
+.genre-header {
+  padding: 12px;
+  border-radius: 12px;
+  background: #0e1725;
+  border: 1px solid #1e293b;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+/* collapse animation */
+.genre-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  max-height: 1000px;
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.2s ease;
+}
+
+/* collapsed state */
+.genre-grid.collapsed {
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
   
 </style>
 </head>
@@ -232,7 +267,15 @@ button{
     </div>
 
   </div>
+  <div class="genre-section">
+
+  <div class="genre-header" onclick="toggleGenres()">
+    🎚 Genres <span id="genreArrow">▼</span>
+  </div>
+
   <div class="genre-grid" id="genreGrid"></div>
+
+</div>
 
 </div>
 
@@ -551,6 +594,23 @@ function normalize(s){
     country: s.country || "",
     genre: s.tags || s.genre || "Radio"
   };
+}
+
+let genresOpen = true;
+
+function toggleGenres(){
+  const grid = document.getElementById("genreGrid");
+  const arrow = document.getElementById("genreArrow");
+
+  genresOpen = !genresOpen;
+
+  if(genresOpen){
+    grid.classList.remove("collapsed");
+    arrow.innerText = "▼";
+  } else {
+    grid.classList.add("collapsed");
+    arrow.innerText = "▲";
+  }
 }
   
 /* CURRENT FAVORITE */
