@@ -166,28 +166,7 @@ button{
   <div class="logo">📻 MISC <span>Stations</span></div>
   <div class="subtitle">Live radio • genres • favorites</div>
 
-  <div class="genre-grid">
-    <div class="genre" onclick="setGenre('rock')">🎸 Rock</div>
-    <div class="genre" onclick="setGenre('pop')">🎤 Pop</div>
-    <div class="genre" onclick="setGenre('jazz')">🎷 Jazz</div>
-    <div class="genre" onclick="setGenre('hip hop')">🔥 Hip Hop</div>
-    <div class="genre" onclick="setGenre('electronic')">🎛 Electronic</div>
-    <div class="genre" onclick="setGenre('classical')">🎻 Classical</div>
-    <div class="genre" onclick="setGenre('country')">🤠 Country</div>
-    <div class="genre" onclick="setGenre('news')">📰 News</div>
-    <div class="genre" onclick="setGenre('talk')">🎙 Talk Radio</div>
-    <div class="genre" onclick="setGenre('sports')">🏈 Sports Talk</div>
-    <div class="genre" onclick="setGenre('comedy')">😂 Comedy</div>
-    <div class="genre" onclick="setGenre('oldies')">📻 Oldies</div>
-    <div class="genre" onclick="setGenre('rnb')">🎶 R&B</div>
-    <div class="genre" onclick="setGenre('reggae')">🌴 Reggae</div>
-    <div class="genre" onclick="setGenre('latin')">💃 Latin</div>
-    <div class="genre" onclick="setGenre('metal')">🤘 Metal</div>
-    <div class="genre" onclick="setGenre('indie')">🎧 Indie</div>
-    <div class="genre" onclick="setGenre('lofi')">🌙 Lo-Fi</div>
-    <div class="genre" onclick="setGenre('podcast')">🎧 Podcasts</div>
-    <div class="genre" onclick="loadFavorites()">⭐ Favorites</div>
-  </div>
+  <div class="genre-grid" id="genreGrid"></div>
 
   <div class="player">
 
@@ -225,6 +204,59 @@ const RADIO =
 const SHEET =
 "https://script.google.com/macros/s/AKfycbzZ5MwOcYUY_bpsUKSxPd810xE8rV_Y3z2GwzPublb_4O60CP8L_lC_V2kqkCQ_JdF5/exec";
 
+
+const GENRES = [
+  { id: "rock", label: "🎸 Rock" },
+  { id: "pop", label: "🎤 Pop" },
+  { id: "jazz", label: "🎷 Jazz" },
+  { id: "hip hop", label: "🔥 Hip Hop" },
+  { id: "electronic", label: "🎛 Electronic" },
+  { id: "classical", label: "🎻 Classical" },
+  { id: "country", label: "🤠 Country" },
+  { id: "news", label: "📰 News" },
+  { id: "talk", label: "🎙 Talk Radio" },
+  { id: "sports", label: "🏈 Sports Talk" },
+  { id: "comedy", label: "😂 Comedy" },
+  { id: "oldies", label: "📻 Oldies" },
+  { id: "rnb", label: "🎶 R&B" },
+  { id: "reggae", label: "🌴 Reggae" },
+  { id: "latin", label: "💃 Latin" },
+  { id: "metal", label: "🤘 Metal" },
+  { id: "indie", label: "🎧 Indie" },
+  { id: "lofi", label: "🌙 Lo-Fi" },
+  { id: "podcast", label: "🎧 Podcasts" }
+];
+
+  function renderGenres(){
+
+  const grid = document.getElementById("genreGrid");
+
+  grid.innerHTML = GENRES.map(g => `
+    <div class="genre" data-id="${g.id}">
+      ${g.label}
+    </div>
+  `).join("");
+
+  grid.addEventListener("click", (e) => {
+    const item = e.target.closest(".genre");
+    if(!item) return;
+
+    const id = item.dataset.id;
+    if(!id) return;
+
+    document.querySelectorAll(".genre")
+      .forEach(x => x.classList.remove("active"));
+
+    item.classList.add("active");
+
+    load(id);
+  });
+
+  grid.innerHTML += `
+    <div class="genre" onclick="loadFavorites()">⭐ Favorites</div>
+  `;
+}
+  
 /* STATE */
 let current=[];
 let index=0;
@@ -407,6 +439,7 @@ function setTitle(t){
 }
 
 /* INIT */
+renderGenres();
 load();
 
 </script>
