@@ -4,8 +4,7 @@
 
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-<title>📻 RadioWave Pro</title>
+<title>z📻 RadioWave Pro</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,13 +12,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 
 <style>
-
 :root{
   --bg:#09111d;
   --panel:#111827;
-  --panel2:#182233;
   --line:#253347;
-  --text:#ffffff;
+  --text:#fff;
   --muted:#93a4bb;
   --blue:#2793ff;
   --blue2:#1869d9;
@@ -50,7 +47,7 @@ body{
   box-shadow:var(--shadow);
 }
 
-.logo{font-size:32px;font-weight:800;letter-spacing:-1px;}
+.logo{font-size:32px;font-weight:800;}
 .logo span{color:var(--blue);}
 .subtitle{color:var(--muted);font-size:13px;margin:4px 0 24px;}
 
@@ -65,16 +62,23 @@ body{
   border:1px solid #1e293b;
 }
 
+.search:focus{
+  border-color:var(--blue);
+  box-shadow:0 0 0 4px rgba(39,147,255,.12);
+}
+
+/* BUTTONS */
 button{
   border:none;
   border-radius:14px;
-  padding:13px 14px;
+  padding:13px;
   color:white;
   font-weight:700;
   cursor:pointer;
   background:linear-gradient(180deg,var(--blue),var(--blue2));
-  box-shadow:0 5px 18px rgba(0,0,0,.25);
 }
+
+button:hover{transform:translateY(-1px);}
 
 .main-btn{width:100%;margin-top:12px;}
 
@@ -92,102 +96,64 @@ button{
   border-radius:24px;
   background:linear-gradient(180deg,#182233,#121926);
   border:1px solid #263246;
-  box-shadow:var(--shadow);
-  position:relative;
-  overflow:hidden;
-}
-
-/* 🎧 VISUALIZER GLOW BACKGROUND */
-.radio-player::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:radial-gradient(circle at center, rgba(39,147,255,.25), transparent 70%);
-  animation:pulseBG 3s infinite;
-  pointer-events:none;
-}
-
-@keyframes pulseBG{
-  0%{transform:scale(1);opacity:.5;}
-  50%{transform:scale(1.2);opacity:.8;}
-  100%{transform:scale(1);opacity:.5;}
-}
-
-/* 🎧 CANVAS VISUALIZER */
-#visualizer{
-  width:100%;
-  height:60px;
-  display:block;
-  margin-top:12px;
-  border-radius:12px;
-  background:rgba(0,0,0,.25);
-}
-
-.player-header{
-  display:flex;
-  align-items:center;
-  gap:14px;
 }
 
 .station-icon{
-  width:60px;height:60px;
-  border-radius:18px;
+  width:60px;height:60px;border-radius:18px;
   background:linear-gradient(135deg,var(--blue),#6857ff);
   display:flex;align-items:center;justify-content:center;
-  font-size:28px;
 }
 
-#npName{font-size:16px;font-weight:700;}
-#npMeta{font-size:12px;color:var(--muted);}
+#npName{font-weight:700;}
+#npMeta{color:var(--muted);font-size:12px;}
 
-.live{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  margin-top:10px;
-  color:var(--green);
-  font-size:12px;
-  font-weight:700;
-}
+.live{color:var(--green);font-size:12px;display:flex;gap:6px;}
 
-.live-dot{
-  width:8px;height:8px;
-  border-radius:50%;
-  background:var(--green);
-  animation:pulse 1.5s infinite;
-}
+.live-dot{width:8px;height:8px;background:var(--green);border-radius:50%;}
 
-@keyframes pulse{
-  0%{transform:scale(1);opacity:1;}
-  50%{transform:scale(1.7);opacity:.5;}
-  100%{transform:scale(1);opacity:1;}
-}
-
-.controls{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:10px;
-  margin-top:18px;
-}
-
-.volume{margin-top:18px;}
-.volume label{color:var(--muted);font-size:12px;}
-
+/* MAIN */
 .main{flex:1;padding:24px;overflow:auto;}
 
 .table-wrap{
   border-radius:26px;
   border:1px solid var(--line);
   background:rgba(17,24,39,.92);
-  box-shadow:var(--shadow);
 }
 
 table{width:100%;border-collapse:collapse;}
-th{background:#0f1725;color:#8eb5ff;padding:18px;font-size:12px;text-transform:uppercase;}
+
+th{
+  background:#0f1725;
+  color:#8eb5ff;
+  text-transform:uppercase;
+  font-size:12px;
+  padding:18px;
+}
+
 td{padding:18px;border-top:1px solid #1d2938;}
 
+.station{font-weight:700;}
 .tags{color:var(--muted);font-size:13px;}
 
+.actions{display:flex;gap:8px;}
+.small-btn{padding:10px;font-size:13px;}
+
+#mobileList{display:none;}
+
+.card{
+  background:rgba(17,24,39,.94);
+  border:1px solid var(--line);
+  padding:18px;
+  border-radius:22px;
+  margin-bottom:14px;
+}
+
+@media(max-width:900px){
+  body{flex-direction:column;height:auto;}
+  .sidebar{width:100%;}
+  .table-wrap{display:none;}
+  #mobileList{display:block;}
+}
 </style>
 </head>
 
@@ -198,9 +164,9 @@ td{padding:18px;border-top:1px solid #1d2938;}
   <div class="logo">📻 Radio<span>Wave</span></div>
   <div class="subtitle">Live streaming radio dashboard</div>
 
-  <input id="genre" class="search" placeholder="Search by genre..." />
+  <input id="genre" class="search" placeholder="Search genre, station, country..." />
 
-  <button class="main-btn" onclick="applyFilter()">🔎 Search Stations</button>
+  <button class="main-btn" onclick="loadStations()">🔎 Search</button>
 
   <div class="grid-buttons">
     <button onclick="prevPage()">⬅ Prev</button>
@@ -209,42 +175,34 @@ td{padding:18px;border-top:1px solid #1d2938;}
     <button onclick="loadFavorites()">⭐ Favorites</button>
   </div>
 
-  <!-- PLAYER -->
   <div class="radio-player">
 
-    <div class="player-header">
+    <div style="display:flex;gap:14px;">
       <div class="station-icon">📻</div>
       <div>
         <div id="npName">Not Playing</div>
-        <div id="npMeta">Select a station</div>
-        <div class="live"><div class="live-dot"></div>LIVE RADIO</div>
+        <div id="npMeta">Select station</div>
+        <div class="live"><div class="live-dot"></div>LIVE</div>
       </div>
     </div>
 
     <audio id="player"></audio>
 
-    <!-- 🎧 VISUALIZER ADDED -->
-    <canvas id="visualizer"></canvas>
-
-    <div class="controls">
+    <div class="grid-buttons">
       <button onclick="prevStation()">⏮</button>
       <button id="playBtn" onclick="togglePlay()">▶</button>
       <button onclick="nextStation()">⏭</button>
       <button onclick="toggleFavCurrent()">⭐</button>
     </div>
 
-    <div class="volume">
-      <label>Volume</label>
-      <input type="range" min="0" max="1" step="0.01" value="1"
-        onchange="setVolume(this.value)" />
-    </div>
+    <input type="range" min="0" max="1" step="0.01" value="1"
+      onchange="setVolume(this.value)"/>
 
   </div>
 
 </div>
 
 <div class="main">
-  <h2>United States Radio</h2>
 
   <div class="table-wrap">
     <table>
@@ -255,135 +213,179 @@ td{padding:18px;border-top:1px solid #1d2938;}
           <th>Actions</th>
         </tr>
       </thead>
-      <tbody id="tableBody"></tbody>
+      <tbody id="tbody"></tbody>
     </table>
   </div>
+
+  <div id="mobileList"></div>
+
 </div>
 
 <script>
 
-/* =========================
-   AUDIO VISUALIZER
-========================= */
+/* APIs */
+const RADIO_API =
+"https://all.api.radio-browser.info/json/stations/search";
 
-let audioCtx;
-let analyser;
-let source;
-let dataArray;
-let canvas, ctx;
+const SHEET_API =
+"https://script.google.com/macros/s/AKfycbzZ5MwOcYUY_bpsUKSxPd810xE8rV_Y3z2GwzPublb_4O60CP8L_lC_V2kqkCQ_JdF5/exec";
 
-function initVisualizer(){
-
-  const audio = document.getElementById("player");
-  canvas = document.getElementById("visualizer");
-  ctx = canvas.getContext("2d");
-
-  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  analyser = audioCtx.createAnalyser();
-
-  source = audioCtx.createMediaElementSource(audio);
-  source.connect(analyser);
-  analyser.connect(audioCtx.destination);
-
-  analyser.fftSize = 64;
-  dataArray = new Uint8Array(analyser.frequencyBinCount);
-
-  draw();
-}
-
-function draw(){
-
-  requestAnimationFrame(draw);
-
-  if(!analyser) return;
-
-  analyser.getByteFrequencyData(dataArray);
-
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-
-  const barWidth = (canvas.width / dataArray.length);
-
-  let x = 0;
-
-  for(let i=0;i<dataArray.length;i++){
-
-    let barHeight = dataArray[i] / 2;
-
-    ctx.fillStyle = "#2793ff";
-    ctx.fillRect(x, canvas.height - barHeight, barWidth - 2, barHeight);
-
-    x += barWidth;
-  }
-}
-
-/* INIT ON FIRST PLAY */
-let visualizerReady = false;
-
-function ensureVisualizer(){
-  if(!visualizerReady){
-    initVisualizer();
-    visualizerReady = true;
-  }
-}
-
-/* =========================
-   ORIGINAL LOGIC (UNCHANGED CORE)
-========================= */
-
-const API="https://all.api.radio-browser.info/json/stations/search";
-let stations=[],allStations=[],currentList=[],currentIndex=-1,page=0;
+/* STATE */
+let stations=[];
+let allStations=[];
+let currentList=[];
+let favoriteIds=new Set();
+let page=0;
 const limit=50;
+let currentIndex=-1;
 let isPlaying=false;
 
+/* LOAD */
 async function loadStations(){
-  const res=await fetch(`${API}?countrycode=US&limit=${limit}&offset=${page*limit}&hidebroken=true`);
+
+  setStatus("Loading...");
+
+  const q=document.getElementById("genre").value.trim();
+  const offset=page*limit;
+
+  let url=
+  `${RADIO_API}?countrycode=US&limit=${limit}&offset=${offset}&hidebroken=true`;
+
+  if(q){
+    url=
+    `${RADIO_API}?limit=${limit}&offset=${offset}&hidebroken=true`+
+    `&name=${encodeURIComponent(q)}&tag=${encodeURIComponent(q)}`;
+  }
+
+  const res=await fetch(url);
   const data=await res.json();
+
   stations=data;
   allStations=[...data];
-  currentList=stations;
+  currentList=data;
+
+  render();
+  setStatus(`Loaded ${data.length}`);
+}
+
+/* FAVORITES */
+async function loadFavorites(){
+
+  const res=await fetch(SHEET_API+"?action=get");
+  const data=await res.json().catch(()=>[]);
+
+  const list=data.data||data;
+
+  favoriteIds=new Set(list.map(f=>f.id||f.stationuuid));
+  currentList=list;
+
+  render();
+  setStatus("Favorites loaded");
+}
+
+async function toggleFavorite(s){
+
+  const id=s.stationuuid||s.id;
+  if(!id||favoriteIds.has(id)) return;
+
+  await fetch(SHEET_API,{
+    method:"POST",
+    body:new URLSearchParams({
+      action:"save",
+      id,
+      name:s.name||"",
+      url:s.url_resolved||s.url||"",
+      country:s.country||"",
+      genre:s.tags||"",
+      time:new Date().toISOString()
+    })
+  });
+
+  favoriteIds.add(id);
+  setStatus("⭐ Saved");
   render();
 }
 
+/* PLAY */
 function playStation(id){
 
-  ensureVisualizer(); // 🎧 HOOK
+  const item=currentList.find(s=>
+    (s.stationuuid||s.id)===id
+  );
 
-  const item=currentList.find(s=>s.stationuuid===id||s.id===id);
-  currentIndex=currentList.findIndex(s=>s.stationuuid===id||s.id===id);
+  if(!item) return;
+
+  currentIndex=currentList.indexOf(item);
 
   const player=document.getElementById("player");
-  player.src=item.url_resolved||item.url||"";
+
+  player.src=item.url_resolved||item.url;
   player.play();
 
   isPlaying=true;
   document.getElementById("playBtn").textContent="⏸";
 
-  document.getElementById("npName").textContent=item.name;
-  document.getElementById("npMeta").textContent=item.tags||"Radio";
+  updateNow(item);
+}
+
+function updateNow(item){
+
+  document.getElementById("npName").textContent=item.name||"Unknown";
+  document.getElementById("npMeta").textContent=
+    `${item.country||""} • ${(item.tags?.trim())||(item.genre?.trim())||"Radio"}`;
 }
 
 function togglePlay(){
   const p=document.getElementById("player");
+  if(!p.src) return;
+
   if(isPlaying){p.pause();isPlaying=false;}
   else{p.play();isPlaying=true;}
 }
 
-function setVolume(v){
-  document.getElementById("player").volume=v;
+/* NAV */
+function nextStation(){
+  if(!currentList.length) return;
+  currentIndex=(currentIndex+1)%currentList.length;
+  playStation(currentList[currentIndex].stationuuid||currentList[currentIndex].id);
 }
 
+function prevStation(){
+  if(!currentList.length) return;
+  currentIndex=(currentIndex-1+currentList.length)%currentList.length;
+  playStation(currentList[currentIndex].stationuuid||currentList[currentIndex].id);
+}
+
+/* RENDER */
 function render(){
-  const t=document.getElementById("tableBody");
-  t.innerHTML="";
+
+  const tbody=document.getElementById("tbody");
+  tbody.innerHTML="";
+
   currentList.forEach(s=>{
+
     const id=s.stationuuid||s.id;
-    t.innerHTML+=`
+    const fav=favoriteIds.has(id);
+
+    tbody.innerHTML+=`
       <tr>
-        <td>${s.name}</td>
-        <td>${s.tags||"Radio"}</td>
-        <td><button onclick="playStation('${id}')">▶</button></td>
-      </tr>`;
+        <td class="station">${s.name||"Unknown"}</td>
+        <td class="tags">${(s.tags?.trim())||(s.genre?.trim())||"Radio"}</td>
+        <td>
+          <button onclick="playStation('${id}')">▶</button>
+          <button onclick='toggleFavorite(${JSON.stringify(s)})'>
+            ${fav?"⭐":"☆"}
+          </button>
+        </td>
+      </tr>
+    `;
   });
+
+}
+
+/* UTIL */
+function setStatus(t){
+  console.log(t);
 }
 
 loadStations();
