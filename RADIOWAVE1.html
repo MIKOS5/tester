@@ -318,6 +318,10 @@ button{
 
 <script>
 
+let current = [];
+let index = 0;
+let favorites = new Set();
+  
 /* API */
 const RADIO =
 "https://all.api.radio-browser.info/json/stations/search";
@@ -411,7 +415,24 @@ const GENRES = [
     </div>
   `).join("");
 
+  if (!grid.dataset.bound) {
+  grid.dataset.bound = "true";
+
   grid.addEventListener("click", (e) => {
+    const item = e.target.closest(".genre");
+    if (!item) return;
+
+    const id = item.dataset.id;
+    if (!id) return;
+
+    document.querySelectorAll(".genre")
+      .forEach(x => x.classList.remove("active"));
+
+    item.classList.add("active");
+
+    load(id);
+  });
+}
     const item = e.target.closest(".genre");
     if(!item) return;
 
