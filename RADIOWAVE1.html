@@ -88,14 +88,8 @@ body{
   border:1px solid var(--line);
 }
 
-.now{
-  font-weight:700;
-}
-
-.meta{
-  font-size:12px;
-  color:var(--muted);
-}
+.now{font-weight:700;}
+.meta{font-size:12px;color:var(--muted);}
 
 .controls{
   display:grid;
@@ -135,19 +129,22 @@ button{
   margin-bottom:10px;
 }
 
-.station{
-  font-weight:700;
-}
-
-.small{
-  font-size:12px;
-  color:var(--muted);
-}
+.station{font-weight:700;}
+.small{font-size:12px;color:var(--muted);}
 
 .row{
   display:flex;
   gap:10px;
   margin-top:10px;
+}
+
+/* FAVORITE BUTTON */
+.fav-btn{
+  background:linear-gradient(180deg,#444,#222);
+}
+
+.fav-btn.saved{
+  background:linear-gradient(180deg,#17c964,#0ea85a);
 }
 
 /* MOBILE */
@@ -167,7 +164,6 @@ button{
   <div class="logo">📻 MISC <span>Stations</span></div>
   <div class="subtitle">Live radio • genres • favorites</div>
 
-  <!-- GENRES -->
   <div class="genre-grid">
     <div class="genre" onclick="setGenre('rock')">🎸 Rock</div>
     <div class="genre" onclick="setGenre('pop')">🎤 Pop</div>
@@ -179,7 +175,6 @@ button{
     <div class="genre" onclick="loadFavorites()">⭐ Favorites</div>
   </div>
 
-  <!-- PLAYER -->
   <div class="player">
 
     <div class="now" id="npName">Not Playing</div>
@@ -191,7 +186,7 @@ button{
       <button onclick="prev()">⏮</button>
       <button onclick="toggle()">▶</button>
       <button onclick="next()">⏭</button>
-      <button onclick="fav()">⭐</button>
+      <button onclick="favCurrent()">⭐</button>
     </div>
 
   </div>
@@ -219,132 +214,167 @@ const SHEET =
 /* STATE */
 let current=[];
 let index=0;
-let currentGenre="";
 let favorites=new Set();
 
 /* LOAD */
 async function load(g=""){
 
-  currentGenre=g;
-
-  let url=
-  `${RADIO}?limit=500&hidebroken=true`;
+  let url =
+    `${RADIO}?limit=500&hidebroken=true`;
 
   if(g){
-    url+=`&tag=${encodeURIComponent(g)}`;
+    url += `&tag=${encodeURIComponent(g)}`;
   }else{
-    url+=`&countrycode=US`;
+    url += `&countrycode=US`;
   }
 
-  const res=await fetch(url);
-  current=await res.json();
+  const res = await fetch(url);
+  current = await res.json();
 
   render();
-  setTitle(g||"US Stations");
+  setTitle(g || "US Stations");
 }
 
 /* FAVORITES LOAD */
 async function loadFavorites(){
 
-  const res=await fetch(SHEET+"?action=get");
-  const data=await res.json().catch(()=>[]);
+  const res = await fetch(SHEET + "?action=get");
+  const data = await res.json().catch(()=>[]);
 
-  const list=data.data||data;
+  const list = data.data || data;
 
-  current=list;
+  current = list;
+
+  favorites = new Set(
+    list.map(s => s.stationuuid || s.id)
+  );
 
   render();
   setTitle("⭐ Favorites");
-
 }
 
-/* SAVE FAVORITE */
-async function fav(){
+/* ⭐ TOGGLE FAVORITE (FULL FIX) */
+async function fav(s){
 
-  const s=current[index];
-  if(!s) return;
+  const id = s.stationuuid || s.id;
+  if(!id) return;
 
-  const id=s.stationuuid||s.id;
+  const exists = favorites.has(id);
 
+  // ❌ REMOVE
+  if(exists){
+
+    await fetch(SHEET,{
+      method:"POST",
+      body:new URLSearchParams({
+        action:"delete",
+        id:id
+      })
+    });
+
+    favorites.delete(id);
+    setTitle("Removed ⭐");
+
+    render();
+    return;
+  }
+
+  // ⭐ ADD
   await fetch(SHEET,{
     method:"POST",
     body:new URLSearchParams({
       action:"save",
-      id,
-      name:s.name,
-      url:s.url_resolved||s.url,
-      country:s.country||"",
-      genre:s.tags||"",
+      id:id,
+      name:s.name || "",
+      url:s.url_resolved || s.url || "",
+      country:s.country || "",
+      genre:s.tags || "",
       time:new Date().toISOString()
     })
   });
 
+  favorites.add(id);
+  setTitle("Saved ⭐");
+
+  render();
 }
 
 /* PLAY */
 function play(i){
 
-  index=i;
+  index = i;
 
-  const s=current[i];
+  const s = current[i];
 
-  const audio=document.getElementById("audio");
+  const audio = document.getElementById("audio");
 
-  audio.src=s.url_resolved||s.url;
+  audio.src = s.url_resolved || s.url;
   audio.play();
 
-  document.getElementById("npName").innerText=s.name;
-  document.getElementById("npMeta").innerText=
-    `${s.country||""} • ${s.tags||"Radio"}`;
-
+  document.getElementById("npName").innerText = s.name;
+  document.getElementById("npMeta").innerText =
+    `${s.country || ""} • ${s.tags || "Radio"}`;
 }
 
-/* TOGGLE */
+/* CONTROLS */
 function toggle(){
-  const a=document.getElementById("audio");
+  const a = document.getElementById("audio");
   if(a.paused) a.play();
   else a.pause();
 }
 
-/* NEXT/PREV */
 function next(){
-  index=(index+1)%current.length;
+  index = (index + 1) % current.length;
   play(index);
 }
 
 function prev(){
-  index=(index-1+current.length)%current.length;
+  index = (index - 1 + current.length) % current.length;
   play(index);
+}
+
+/* CURRENT FAVORITE BUTTON */
+function favCurrent(){
+  const s = current[index];
+  if(!s) return;
+  fav(s);
 }
 
 /* RENDER */
 function render(){
 
-  const el=document.getElementById("list");
-  el.innerHTML="";
+  const el = document.getElementById("list");
+  el.innerHTML = "";
 
   current.forEach((s,i)=>{
 
-    el.innerHTML+=`
+    const id = s.stationuuid || s.id;
+    const isFav = favorites.has(id);
+
+    el.innerHTML += `
       <div class="card">
         <div class="station">${s.name}</div>
-        <div class="small">${s.tags||"Radio"} • ${s.country||""}</div>
+        <div class="small">${s.tags || "Radio"} • ${s.country || ""}</div>
 
         <div class="row">
           <button onclick="play(${i})">▶ Play</button>
-          <button onclick="fav()">⭐ Save</button>
+
+          <button class="fav-btn ${isFav ? "saved" : ""}"
+            onclick='fav(${JSON.stringify(s)})'>
+            ${isFav ? "⭐ Saved" : "☆ Favorite"}
+          </button>
+
         </div>
       </div>
     `;
   });
-
 }
 
 /* GENRE */
 function setGenre(g){
 
   document.querySelectorAll(".genre")
-  .forEach(x=>x.classList.remove("active"));
+    .forEach(x => x.classList.remove("active"));
 
   event.target.classList.add("active");
 
@@ -353,7 +383,7 @@ function setGenre(g){
 
 /* TITLE */
 function setTitle(t){
-  document.getElementById("title").innerText=t;
+  document.getElementById("title").innerText = t;
 }
 
 /* INIT */
