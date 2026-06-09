@@ -216,6 +216,15 @@ let current=[];
 let index=0;
 let favorites=new Set();
 
+/* =========================
+   🔥 FIXED GENRE FUNCTION
+========================= */
+function getGenre(s){
+  return (s.tags?.trim())
+    || (s.genre?.trim())
+    || "Radio";
+}
+
 /* LOAD */
 async function load(g=""){
 
@@ -253,7 +262,7 @@ async function loadFavorites(){
   setTitle("⭐ Favorites");
 }
 
-/* ⭐ TOGGLE FAVORITE (FULL FIX) */
+/* FAVORITE TOGGLE */
 async function fav(s){
 
   const id = s.stationuuid || s.id;
@@ -261,7 +270,6 @@ async function fav(s){
 
   const exists = favorites.has(id);
 
-  // ❌ REMOVE
   if(exists){
 
     await fetch(SHEET,{
@@ -274,12 +282,10 @@ async function fav(s){
 
     favorites.delete(id);
     setTitle("Removed ⭐");
-
     render();
     return;
   }
 
-  // ⭐ ADD
   await fetch(SHEET,{
     method:"POST",
     body:new URLSearchParams({
@@ -288,14 +294,13 @@ async function fav(s){
       name:s.name || "",
       url:s.url_resolved || s.url || "",
       country:s.country || "",
-      genre:s.tags || "",
+      genre:getGenre(s),
       time:new Date().toISOString()
     })
   });
 
   favorites.add(id);
   setTitle("Saved ⭐");
-
   render();
 }
 
@@ -312,8 +317,9 @@ function play(i){
   audio.play();
 
   document.getElementById("npName").innerText = s.name;
+
   document.getElementById("npMeta").innerText =
-    `${s.country || ""} • ${s.tags || "Radio"}`;
+    `${s.country || ""} • ${getGenre(s)}`;
 }
 
 /* CONTROLS */
@@ -333,7 +339,7 @@ function prev(){
   play(index);
 }
 
-/* CURRENT FAVORITE BUTTON */
+/* CURRENT FAVORITE */
 function favCurrent(){
   const s = current[index];
   if(!s) return;
@@ -354,7 +360,9 @@ function render(){
     el.innerHTML += `
       <div class="card">
         <div class="station">${s.name}</div>
-        <div class="small">${s.tags || "Radio"} • ${s.country || ""}</div>
+
+        <!-- ✅ FIXED GENRE DISPLAY -->
+        <div class="small">${getGenre(s)} • ${s.country || ""}</div>
 
         <div class="row">
           <button onclick="play(${i})">▶ Play</button>
