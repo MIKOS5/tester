@@ -369,7 +369,7 @@ async function load(g=""){
   }
 
   const res = await fetch(url);
-  current = await res.json();
+  current = (await res.json()).map(normalize);
 
   render();
   setTitle(g || "US Stations");
@@ -381,13 +381,10 @@ async function loadFavorites(){
   const res = await fetch(SHEET + "?action=get");
   const data = await res.json().catch(()=>[]);
 
-  const list = data.data || data;
+  const list = (data.data || data).map(normalize);
 
   current = list;
-
-  favorites = new Set(
-    list.map(s => s.stationuuid || s.id)
-  );
+  favorites = new Set(list.map(s => s.id));
 
   render();
   setTitle("⭐ Favorites");
@@ -440,7 +437,7 @@ async function loadMISC(){
   const res = await fetch(SHEET + "?action=misc");
   const data = await res.json().catch(()=>[]);
 
-  current = data.data || [];
+  current = (data.data || []).map(normalize);
 
   render();
   setTitle("📻 MISC");
@@ -451,7 +448,7 @@ async function loadInternational(){
   const res = await fetch(SHEET + "?action=international");
   const data = await res.json().catch(()=>[]);
 
-  current = data.data || [];
+  current = (data.data || []).map(normalize);
 
   render();
   setTitle("🌎 International");
@@ -508,6 +505,16 @@ function prev(){
   play(index);
 }
 
+function normalize(s){
+  return {
+    id: s.stationuuid || s.id,
+    name: s.name || "Unknown",
+    url: s.url_resolved || s.url,
+    country: s.country || "",
+    genre: s.tags || s.genre || "Radio"
+  };
+}
+  
 /* CURRENT FAVORITE */
 function favCurrent(){
   const s = current[index];
