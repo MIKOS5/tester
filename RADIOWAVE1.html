@@ -317,6 +317,10 @@ button{
   <input
   type="text"
   id="searchBox"
+  <div style="display:flex;gap:10px;margin-bottom:15px;">
+    <button onclick="prevPage()">⬅ Prev</button>
+    <button onclick="nextPage()">Next ➡</button>
+  </div>
   placeholder="🔎 Search stations..."
   oninput="render()"
   style="
@@ -339,6 +343,9 @@ button{
 let current = [];
 let index = 0;
 let favorites = new Set();
+let page = 0;
+const PAGE_SIZE = 500;
+let currentGenre = "";
   
 /* API */
 const RADIO =
@@ -462,6 +469,7 @@ const GENRES = [
 
       item.classList.add("active");
 
+      page = 0;
       load(id);
     });
   }
@@ -486,20 +494,23 @@ function getGenre(s){
 }
 
 /* LOAD */
-async function load(g=""){
+async function load(g = currentGenre){
+
+  currentGenre = g;
 
   let url =
-    `${RADIO}?limit=2500&hidebroken=true&countrycode=US`;
+    `${RADIO}?limit=${PAGE_SIZE}&offset=${page * PAGE_SIZE}&hidebroken=true`;
 
   if(g){
     url += `&tag=${encodeURIComponent(g)}`;
   }
 
   const res = await fetch(url);
+
   current = (await res.json()).map(normalize);
 
   render();
-  setTitle(g || "US Stations");
+  setTitle(`${g || "All Stations"} - Page ${page + 1}`);
 }
 
 /* FAVORITES LOAD */
@@ -746,6 +757,17 @@ function setTitle(t){
   document.getElementById("title").innerText = t;
 }
 
+function nextPage(){
+  page++;
+  load();
+}
+
+function prevPage(){
+  if(page > 0){
+    page--;
+    load();
+  }
+}
 /* INIT */
 renderGenres();
 load();
