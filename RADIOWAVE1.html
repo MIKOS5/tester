@@ -541,6 +541,28 @@ async function load(g){
   setTitle(   `${currentCountry || "All Countries"} • ${g || "All Stations"} • Page ${page + 1}` );
 }
 
+async function loadCountries(){
+  const res = await fetch("https://all.api.radio-browser.info/json/countries");
+  const data = await res.json();
+
+  const select = document.getElementById("countryFilter");
+
+  // keep "All Countries" first
+  select.innerHTML = `
+    <option value="">🌎 All Countries</option>
+  `;
+
+  // sort alphabetically
+  data.sort((a,b) => a.name.localeCompare(b.name));
+
+  for (let c of data){
+    const opt = document.createElement("option");
+    opt.value = c.name;
+    opt.textContent = `${c.name} (${c.stationcount})`;
+    select.appendChild(opt);
+  }
+}
+  
 /* FAVORITES LOAD */
 async function loadFavorites(){
 
@@ -809,8 +831,10 @@ function prevPage(){
     load();
   }
 }
+  
 /* INIT */
 renderGenres();
+loadCountries();   // ✅ add this
 load();
   
 </script>
