@@ -270,6 +270,40 @@ button{
 .action-grid{
   margin-bottom: 10px;
 }
+
+.genre-dropdown {
+  position: relative;
+}
+
+.genre-dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 110%;
+  left: 0;
+  width: 260px;
+  background: #0e1725;
+  border: 1px solid #1e293b;
+  border-radius: 12px;
+  padding: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 999;
+}
+
+.genre-dropdown-menu.show {
+  display: block;
+}
+
+.genre-dropdown-menu div {
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.genre-dropdown-menu div:hover {
+  background: #2793ff;
+}
 </style>
 </head>
 
@@ -314,8 +348,9 @@ button{
 <div class="main">
 
   <div class="title" id="title">Stations</div>
-  <div style="display:flex;gap:10px;margin-bottom:15px;">
+<div style="display:flex;gap:10px;margin-bottom:15px;align-items:center;flex-wrap:wrap;">
 
+  <!-- COUNTRY -->
   <select
     id="countryFilter"
     onchange="changeCountry()"
@@ -333,6 +368,25 @@ button{
     <option value="Australia">🇦🇺 Australia</option>
     <option value="">🌎 All Countries</option>
   </select>
+
+  <!-- GENRE DROPDOWN BUTTON -->
+  <div class="genre-dropdown">
+    <button onclick="toggleGenreDropdown()" style="
+      padding:12px;
+      border-radius:12px;
+      background:#111827;
+      color:white;
+      border:1px solid #253347;
+      cursor:pointer;
+      font-weight:600;
+    ">
+      🎚 Genres ▼
+    </button>
+
+    <div id="genreDropdownMenu" class="genre-dropdown-menu"></div>
+  </div>
+
+</div>
 
 </div>
   <input
@@ -509,6 +563,32 @@ const GENRES = [
     <div class="genre" onclick="loadMISC()">📻 MISC</div>
     <div class="genre" onclick="loadInternational()">🌎 International</div>
   `;
+}
+
+function buildGenreDropdown(){
+  const menu = document.getElementById("genreDropdownMenu");
+
+  menu.innerHTML = GENRES.map(g => `
+    <div onclick="selectGenre('${g.id}')">
+      ${g.label}
+    </div>
+  `).join("");
+}
+
+function toggleGenreDropdown(){
+  document.getElementById("genreDropdownMenu")
+    .classList.toggle("show");
+}
+
+function selectGenre(id){
+  currentGenre = id;
+  filterMode = true;
+  page = 0;
+
+  document.getElementById("genreDropdownMenu")
+    .classList.remove("show");
+
+  load(id);
 }
 /* =========================
    🔥 FIXED GENRE FUNCTION
@@ -858,6 +938,7 @@ function prevPage(){
 /* INIT */
 renderGenres();
 loadCountries();   // ✅ add this
+buildGenreDropdown();
 load();
   
 </script>
