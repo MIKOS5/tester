@@ -314,6 +314,27 @@ button{
 <div class="main">
 
   <div class="title" id="title">Stations</div>
+  <div style="display:flex;gap:10px;margin-bottom:15px;">
+
+  <select
+    id="countryFilter"
+    onchange="changeCountry()"
+    style="
+      padding:12px;
+      border-radius:12px;
+      background:#111827;
+      color:white;
+      border:1px solid #253347;
+    "
+  >
+    <option value="United States">🇺🇸 United States</option>
+    <option value="Canada">🇨🇦 Canada</option>
+    <option value="United Kingdom">🇬🇧 United Kingdom</option>
+    <option value="Australia">🇦🇺 Australia</option>
+    <option value="">🌎 All Countries</option>
+  </select>
+
+</div>
   <input
   type="text"
   id="searchBox"
@@ -347,7 +368,7 @@ let index = 0;
 let favorites = new Set();
 let page = 0;
 const PAGE_SIZE = 500;
-let currentGenre = "";
+let currentCountry = "United States";
   
 /* API */
 const RADIO =
@@ -503,6 +524,10 @@ async function load(g = currentGenre){
   let url =
     `${RADIO}?limit=${PAGE_SIZE}&offset=${page * PAGE_SIZE}&hidebroken=true&order=clickcount&reverse=true`;
 
+  if(currentCountry){
+  url += `&country=${encodeURIComponent(currentCountry)}`;
+}
+  
   if(g){
     url += `&tag=${encodeURIComponent(g)}`;
   }
@@ -512,7 +537,7 @@ async function load(g = currentGenre){
   current = (await res.json()).map(normalize);
 
   render();
-  setTitle(`${g || "All Stations"} - Page ${page + 1}`);
+  setTitle(   `${currentCountry || "All Countries"} • ${g || "All Stations"} • Page ${page + 1}` );
 }
 
 /* FAVORITES LOAD */
@@ -762,6 +787,16 @@ function setTitle(t){
   document.getElementById("title").innerText = t;
 }
 
+function changeCountry(){
+
+  currentCountry =
+    document.getElementById("countryFilter").value;
+
+  page = 0;
+
+  load();
+}
+  
 function nextPage(){
   page++;
   load();
