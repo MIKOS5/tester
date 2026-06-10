@@ -513,37 +513,16 @@ const GENRES = [
   { id:"world", label:"🌐 World Music" }
 ];
 
-  function renderGenres(){
+function renderGenres(){
+  const actions = document.getElementById("actionGrid");
 
-  const grid = document.getElementById("genreGrid");
-
-  grid.innerHTML = GENRES.map(g => `
-    <div class="genre" data-id="${g.id}">
-      ${g.label}
-    </div>
-  `).join("");
-
-  // prevent duplicate listeners
-  if (!grid.dataset.bound) {
-    grid.dataset.bound = "true";
-
-    grid.addEventListener("click", (e) => {
-      const item = e.target.closest(".genre");
-      if (!item) return;
-
-      const id = item.dataset.id;
-      if (!id) return;
-
-      document.querySelectorAll(".genre")
-        .forEach(x => x.classList.remove("active"));
-
-      item.classList.add("active");
-
-      page = 0;
-      currentGenre = id;
-      load(id);
-    });
-  }
+  actions.innerHTML = `
+    <div class="genre" onclick="showAll()">📻 Show All</div>
+    <div class="genre" onclick="loadFavorites()">⭐ Favorites</div>
+    <div class="genre" onclick="loadMISC()">📻 MISC</div>
+    <div class="genre" onclick="loadInternational()">🌎 International</div>
+  `;
+}
 
   // actions panel
   const actions = document.getElementById("actionGrid");
