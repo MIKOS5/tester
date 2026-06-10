@@ -364,6 +364,7 @@ button{
 <script>
 
 let currentGenre = "";
+let filterMode = false;
 let current = [];
 let index = 0;
 let favorites = new Set();
@@ -494,6 +495,7 @@ const GENRES = [
       item.classList.add("active");
 
       page = 0;
+      currentGenre = id;
       load(id);
     });
   }
@@ -520,25 +522,38 @@ function getGenre(s){
 /* LOAD */
 async function load(g){
 
-  
+  currentGenre = g || "";
+  filterMode = !!g;
 
   let url =
-    `${RADIO}?limit=${PAGE_SIZE}&offset=${page * PAGE_SIZE}&hidebroken=true&order=clickcount&reverse=true`;
+    `${RADIO}?hidebroken=true&order=clickcount&reverse=true`;
 
+  // COUNTRY FILTER
   if(currentCountry){
-  url += `&country=${encodeURIComponent(currentCountry)}`;
-}
-  
+    url += `&country=${encodeURIComponent(currentCountry)}`;
+  }
+
+  // GENRE MODE (FULL FILTER LOAD)
   if(g){
     url += `&tag=${encodeURIComponent(g)}`;
+
+    // IMPORTANT: no pagination in genre mode
+    page = 0;
+  }
+
+  // ALL STATIONS MODE (pagination ON)
+  if(!g){
+    url += `&limit=${PAGE_SIZE}&offset=${page * PAGE_SIZE}`;
   }
 
   const res = await fetch(url);
-
   current = (await res.json()).map(normalize);
 
   render();
-  setTitle(   `${currentCountry || "All Countries"} • ${g || "All Stations"} • Page ${page + 1}` );
+
+  setTitle(
+    `${currentCountry || "All Countries"} • ${g || "All Stations"}`
+  );
 }
 
 async function loadCountries(){
@@ -787,6 +802,7 @@ function showAll() {
 
   page = 0;
   currentGenre = "";
+  filterMode = false;
 
   document.querySelectorAll(".genre")
     .forEach(x => x.classList.remove("active"));
@@ -821,12 +837,19 @@ function changeCountry(){
 }
   
 function nextPage(){
-  page++;
-  load();
+  if(filterMode){
+    // in genre mode, just reload same genre (no paging)
+    load(currentGenre);
+  } else {
+    page++;
+    load();
+  }
 }
 
 function prevPage(){
-  if(page > 0){
+  if(filterMode){
+    load(currentGenre);
+  } else if(page > 0){
     page--;
     load();
   }
