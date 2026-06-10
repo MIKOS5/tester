@@ -317,10 +317,6 @@ button{
   <input
   type="text"
   id="searchBox"
-  <div style="display:flex;gap:10px;margin-bottom:15px;">
-    <button onclick="prevPage()">⬅ Prev</button>
-    <button onclick="nextPage()">Next ➡</button>
-  </div>
   placeholder="🔎 Search stations..."
   oninput="render()"
   style="
@@ -334,6 +330,12 @@ button{
     font-size:16px;
   "
 >
+
+<div style="display:flex;gap:10px;margin-bottom:15px;">
+  <button onclick="prevPage()">⬅ Prev</button>
+  <button onclick="nextPage()">Next ➡</button>
+</div>
+
   <div id="list"></div>
 
 </div>
@@ -499,7 +501,7 @@ async function load(g = currentGenre){
   currentGenre = g;
 
   let url =
-    `${RADIO}?limit=${PAGE_SIZE}&offset=${page * PAGE_SIZE}&hidebroken=true`;
+    `${RADIO}?limit=${PAGE_SIZE}&offset=${page * PAGE_SIZE}&hidebroken=true&order=clickcount&reverse=true`;
 
   if(g){
     url += `&tag=${encodeURIComponent(g)}`;
@@ -734,11 +736,14 @@ function favFiltered(i){
 }
 
 function showAll() {
+
+  page = 0;
+  currentGenre = "";
+
   document.querySelectorAll(".genre")
     .forEach(x => x.classList.remove("active"));
 
-  load(); // reload all stations
-  setTitle("📻 All Stations");
+  load();
 }
 
 /* GENRE */
