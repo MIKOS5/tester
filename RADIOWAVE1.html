@@ -703,7 +703,7 @@ function render(){
 
         <div class="row">
           <button onclick="playFiltered(${i})">▶ Play</button>
-
+          <button onclick="showAll()">📻 Show All</button>
           <button class="fav-btn ${isFav ? "saved" : ""}"
             onclick="favFiltered(${i})">
             ${isFav ? "⭐ Saved" : "☆ Favorite"}
@@ -717,7 +717,15 @@ function render(){
 function favFiltered(i){
   fav(window.filtered[i]);
 }
-  
+
+function showAll() {
+  document.querySelectorAll(".genre")
+    .forEach(x => x.classList.remove("active"));
+
+  load(); // reload all stations
+  setTitle("📻 All Stations");
+}
+
 /* GENRE */
 function setGenre(g){
 
