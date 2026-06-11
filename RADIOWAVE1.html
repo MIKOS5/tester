@@ -297,58 +297,6 @@ button{
   opacity: 1;
   pointer-events: auto;
 }
-
-#helpBtn{
-  position: fixed;
-  bottom: 20px;
-  left: 20px;
-  z-index: 9999;
-
-  padding: 12px 14px;
-  border-radius: 999px;
-  border: none;
-
-  background: linear-gradient(180deg,#2793ff,#1869d9);
-  color: white;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-/* modal */
-.modal{
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-}
-
-.hidden{
-  display: none;
-}
-
-.modal-content{
-  width: 320px;
-  background: #111827;
-  border: 1px solid #253347;
-  border-radius: 16px;
-  padding: 16px;
-  color: white;
-}
-
-.modal-header{
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.modal-body p{
-  margin: 8px 0;
-  color: #93a4bb;
-}
 </style>
 </head>
 
@@ -941,23 +889,6 @@ function prevPage(){
   }
 }
 
-function openHelp(){
-  document.getElementById("helpModal").classList.remove("hidden");
-}
-
-function closeHelp(){
-  document.getElementById("helpModal").classList.add("hidden");
-}
-
-// optional: close on outside click
-document.getElementById("helpModal").addEventListener("click", (e) => {
-  if (e.target.id === "helpModal") closeHelp();
-});
-
-// optional shortcut key: H
-document.addEventListener("keydown", (e) => {
-  if (e.key.toLowerCase() === "h") openHelp();
-});
   
 /* INIT */
 renderGenres();
@@ -980,18 +911,9 @@ document.addEventListener("keydown", (e) => {
   const isTyping = tag === "input" || tag === "textarea" || tag === "select";
 
   // don't interfere while typing (except Esc and /)
-  if (isTyping && e.key !== "Escape" && e.key !== "escape" && e.key !== "/") return;
+  if (isTyping && e.key !== "Escape") return;
 
-  const key = e.key.toLowerCase();
-
-  // SHIFT + F = load favorites (highest priority)
-  if (key === "f" && e.shiftKey) {
-    e.preventDefault();
-    loadFavorites();
-    return;
-  }
-
-  switch (key) {
+  switch (e.key.toLowerCase()) {
 
     // playback
     case " ":
@@ -1009,11 +931,16 @@ document.addEventListener("keydown", (e) => {
       prev();
       break;
 
-    // F = favorite current station
+    // favorite
     case "f":
-      favCurrent();
-      break;
+  if (e.shiftKey) {
+    loadFavorites();   // open favorites list
+  } else {
+    favCurrent();      // toggle current station favorite
+  }
+  break;
 
+    // search focus
     case "/":
       e.preventDefault();
       document.getElementById("searchBox").focus();
@@ -1072,31 +999,5 @@ if ("serviceWorker" in navigator) {
 }
 </script>
 <button id="backToTop" onclick="scrollToTop()">⬆ Top</button>
-<!-- HELP BUTTON -->
-<button id="helpBtn" onclick="openHelp()">❔ Help</button>
-
-<!-- HELP POPUP -->
-<div id="helpModal" class="modal hidden">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h2>🎛 Controls</h2>
-      <button onclick="closeHelp()">✖</button>
-    </div>
-
-    <div class="modal-body">
-      <p><b>Space</b> → Play / Pause</p>
-      <p><b>← / →</b> or <b>N / P</b> → Next / Prev</p>
-      <p><b>F</b> → Favorite current station</p>
-      <p><b>Shift + F</b> → Load Favorites</p>
-      <p><b>/</b> → Focus search</p>
-      <p><b>Esc</b> → Clear search</p>
-      <p><b>G</b> → Toggle genres</p>
-      <p><b>A</b> → Show all stations</p>
-      <p><b>M</b> → MISC</p>
-      <p><b>I</b> → International</p>
-      <p><b>Home</b> → Scroll to top</p>
-    </div>
-  </div>
-</div>
 </body>
 </html>
