@@ -314,8 +314,9 @@ button{
 <div class="main">
 
   <div class="title" id="title">Stations</div>
-  <div style="display:flex;gap:10px;margin-bottom:15px;">
+  <div style="display:flex;gap:10px;margin-bottom:15px;align-items:center;">
 
+  <!-- COUNTRY -->
   <select
     id="countryFilter"
     onchange="changeCountry()"
@@ -325,6 +326,7 @@ button{
       background:#111827;
       color:white;
       border:1px solid #253347;
+      flex:1;
     "
   >
     <option value="United States">🇺🇸 United States</option>
@@ -333,6 +335,18 @@ button{
     <option value="Australia">🇦🇺 Australia</option>
     <option value="">🌎 All Countries</option>
   </select>
+
+  <!-- GENRE TOGGLE -->
+  <button onclick="toggleGenresPopup()" style="
+    padding:12px;
+    border-radius:12px;
+    background:#111827;
+    color:white;
+    border:1px solid #253347;
+    font-weight:700;
+  ">
+    🎚 Genres ▾
+  </button>
 
 </div>
   <input
@@ -471,18 +485,19 @@ const GENRES = [
   function renderGenres(){
 
   const grid = document.getElementById("genreGrid");
+  const popupGrid = document.getElementById("genreGridPopup");
 
-  grid.innerHTML = GENRES.map(g => `
+  const html = GENRES.map(g => `
     <div class="genre" data-id="${g.id}">
       ${g.label}
     </div>
   `).join("");
 
-  // prevent duplicate listeners
-  if (!grid.dataset.bound) {
-    grid.dataset.bound = "true";
+  grid.innerHTML = html;
+  popupGrid.innerHTML = html;
 
-    grid.addEventListener("click", (e) => {
+  function bind(container){
+    container.addEventListener("click", (e) => {
       const item = e.target.closest(".genre");
       if (!item) return;
 
@@ -497,10 +512,21 @@ const GENRES = [
       page = 0;
       currentGenre = id;
       load(id);
+
+      closeGenrePopup();
     });
   }
 
-  // actions panel
+  if (!grid.dataset.bound) {
+    grid.dataset.bound = "true";
+    bind(grid);
+  }
+
+  if (!popupGrid.dataset.bound) {
+    popupGrid.dataset.bound = "true";
+    bind(popupGrid);
+  }
+
   const actions = document.getElementById("actionGrid");
 
   actions.innerHTML = `
@@ -810,6 +836,15 @@ function showAll() {
   load();
 }
 
+function toggleGenresPopup(){
+  const p = document.getElementById("genrePopup");
+  p.style.display = (p.style.display === "block") ? "none" : "block";
+}
+
+function closeGenrePopup(){
+  document.getElementById("genrePopup").style.display = "none";
+}
+  
 /* GENRE */
 function setGenre(g){
 
@@ -871,6 +906,24 @@ if ("serviceWorker" in navigator) {
   });
 }
 </script>
-  
+<div id="genrePopup" style="
+  position:fixed;
+  top:120px;
+  left:50%;
+  transform:translateX(-50%);
+  width:90%;
+  max-width:600px;
+  background:#0e1725;
+  border:1px solid #1e293b;
+  border-radius:16px;
+  padding:15px;
+  display:none;
+  z-index:9999;
+  max-height:70vh;
+  overflow:auto;
+">
+  <div style="font-weight:800;margin-bottom:10px;">Select Genre</div>
+  <div class="genre-grid" id="genreGridPopup"></div>
+</div>
 </body>
 </html>
