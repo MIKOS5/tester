@@ -270,6 +270,33 @@ button{
 .action-grid{
   margin-bottom: 10px;
 }
+
+#backToTop{
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+
+  padding: 12px 14px;
+  border-radius: 999px;
+
+  background: linear-gradient(180deg,#2793ff,#1869d9);
+  color: white;
+  border: none;
+  cursor: pointer;
+
+  font-weight: 800;
+  box-shadow: 0 10px 25px rgba(0,0,0,.4);
+
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.2s ease;
+}
+
+#backToTop.show{
+  opacity: 1;
+  pointer-events: auto;
+}
 </style>
 </head>
 
@@ -742,6 +769,13 @@ function favCurrent(){
   fav(s);
 }
 
+function scrollToTop(){
+  document.querySelector(".main").scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+}
+  
 /* RENDER */
 function render(){
 
@@ -854,11 +888,22 @@ function prevPage(){
     load();
   }
 }
+
   
 /* INIT */
 renderGenres();
 loadCountries();   // ✅ add this
 load();
+
+document.querySelector(".main").addEventListener("scroll", () => {
+  const btn = document.getElementById("backToTop");
+
+  if (document.querySelector(".main").scrollTop > 300) {
+    btn.classList.add("show");
+  } else {
+    btn.classList.remove("show");
+  }
+});
   
 </script>
 
@@ -871,6 +916,6 @@ if ("serviceWorker" in navigator) {
   });
 }
 </script>
-  
+<button id="backToTop" onclick="scrollToTop()">⬆ Top</button>
 </body>
 </html>
