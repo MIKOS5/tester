@@ -297,6 +297,58 @@ button{
   opacity: 1;
   pointer-events: auto;
 }
+
+#helpBtn{
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 9999;
+
+  padding: 12px 14px;
+  border-radius: 999px;
+  border: none;
+
+  background: linear-gradient(180deg,#2793ff,#1869d9);
+  color: white;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* modal */
+.modal{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.hidden{
+  display: none;
+}
+
+.modal-content{
+  width: 320px;
+  background: #111827;
+  border: 1px solid #253347;
+  border-radius: 16px;
+  padding: 16px;
+  color: white;
+}
+
+.modal-header{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.modal-body p{
+  margin: 8px 0;
+  color: #93a4bb;
+}
 </style>
 </head>
 
@@ -889,6 +941,23 @@ function prevPage(){
   }
 }
 
+function openHelp(){
+  document.getElementById("helpModal").classList.remove("hidden");
+}
+
+function closeHelp(){
+  document.getElementById("helpModal").classList.add("hidden");
+}
+
+// optional: close on outside click
+document.getElementById("helpModal").addEventListener("click", (e) => {
+  if (e.target.id === "helpModal") closeHelp();
+});
+
+// optional shortcut key: H
+document.addEventListener("keydown", (e) => {
+  if (e.key.toLowerCase() === "h") openHelp();
+});
   
 /* INIT */
 renderGenres();
