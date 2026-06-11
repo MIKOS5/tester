@@ -683,14 +683,27 @@ async function loadInternational(){
   render();
   setTitle("🌎 International");
 }
-  
+
+async function getNowPlaying(station) {
+  try {
+    const res = await fetch(
+      `https://tester-nenh.onrender.com/nowplaying?url=${encodeURIComponent(station.url)}`
+    );
+
+    return await res.json();
+  } catch (e) {
+    return {
+      nowPlaying: "Unavailable",
+      source: "error"
+    };
+  }
+}
 /* PLAY */
-function play(i){
+async function play(i){
 
   index = i;
 
   const s = current[i];
-
   const audio = document.getElementById("audio");
 
   audio.src = s.url_resolved || s.url;
@@ -698,8 +711,15 @@ function play(i){
 
   document.getElementById("npName").innerText = s.name;
 
+  // default state first (instant UI response)
   document.getElementById("npMeta").innerText =
-    `${s.country || ""} • ${getGenre(s)}`;
+    `${s.country || ""} • Loading...`;
+
+  // fetch real now playing (async upgrade layer)
+  const meta = await getNowPlaying(s);
+
+  document.getElementById("npMeta").innerText =
+    `${meta.nowPlaying || "Live Radio"} • ${s.country || ""}`;
 }
 
 function playFiltered(i){
