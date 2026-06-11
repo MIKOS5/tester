@@ -1,5 +1,4 @@
 import express from "express";
-import icy from "icy";
 
 const app = express();
 const PORT = process.env.PORT || 10000;
@@ -8,7 +7,7 @@ app.get("/", (req, res) => {
   res.json({ status: "Radiowave API running" });
 });
 
-app.get("/nowplaying", (req, res) => {
+app.get("/nowplaying", async (req, res) => {
   const streamUrl = req.query.url;
 
   if (!streamUrl) {
@@ -16,28 +15,20 @@ app.get("/nowplaying", (req, res) => {
   }
 
   try {
-    icy.get(streamUrl, (stream) => {
-      let timeout = setTimeout(() => {
-        res.json({
-          station: "Radiowave",
-          nowPlaying: "No metadata (timeout)",
-          stream: streamUrl
-        });
-      }, 5000);
+    // Simple fallback approach (safe + no crashing)
+    const response = await fetch(streamUrl, {
+      headers: {
+        "Icy-MetaData": "1"
+      }
+    });
 
-      stream.on("metadata", (metadata) => {
-        clearTimeout(timeout);
+    const contentType = response.headers.get("content-type") || "";
 
-        const parsed = icy.parse(metadata);
-
-        res.json({
-          station: "Radiowave",
-          nowPlaying: parsed.StreamTitle || "Unknown",
-          stream: streamUrl
-        });
-
-        stream.destroy();
-      });
+    res.json({
+      station: "Radiowave",
+      nowPlaying: "Metadata not parsed yet (safe mode)",
+      stream: streamUrl,
+      contentType
     });
 
   } catch (err) {
