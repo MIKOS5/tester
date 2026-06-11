@@ -904,6 +904,84 @@ document.querySelector(".main").addEventListener("scroll", () => {
     btn.classList.remove("show");
   }
 });
+
+document.addEventListener("keydown", (e) => {
+
+  const tag = document.activeElement.tagName.toLowerCase();
+  const isTyping = tag === "input" || tag === "textarea" || tag === "select";
+
+  // don't interfere while typing (except Esc and /)
+  if (isTyping && e.key !== "Escape") return;
+
+  switch (e.key.toLowerCase()) {
+
+    // playback
+    case " ":
+      e.preventDefault();
+      toggle();
+      break;
+
+    case "arrowright":
+    case "n":
+      next();
+      break;
+
+    case "arrowleft":
+    case "p":
+      prev();
+      break;
+
+    // favorite
+    case "f":
+      favCurrent();
+      break;
+
+    // search focus
+    case "/":
+      e.preventDefault();
+      document.getElementById("searchBox").focus();
+      break;
+
+    case "escape":
+      document.getElementById("searchBox").value = "";
+      document.getElementById("searchBox").blur();
+      render();
+      break;
+
+    // UI toggles
+    case "g":
+      toggleGenres();
+      break;
+
+    case "a":
+      showAll();
+      break;
+
+    case "m":
+      loadMISC();
+      break;
+
+    case "i":
+      loadInternational();
+      break;
+
+    case "c":
+      document.getElementById("countryFilter").focus();
+      break;
+
+    case "home":
+      scrollToTop();
+      break;
+
+    case "pagedown":
+      nextPage();
+      break;
+
+    case "pageup":
+      prevPage();
+      break;
+  }
+});
   
 </script>
 
