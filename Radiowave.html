@@ -348,7 +348,52 @@ button{
     🎚 Genres ▾
   </button>
 
+  <div id="genrePopup" style="
+  position:fixed;
+  top:120px;
+  left:50%;
+  transform:translateX(-50%);
+  width:90%;
+  max-width:600px;
+  background:#0e1725;
+  border:1px solid #1e293b;
+  border-radius:16px;
+  padding:15px;
+  display:none;
+  z-index:9999;
+  max-height:70vh;
+  overflow:auto;
+  box-shadow:0 10px 30px rgba(0,0,0,0.6);
+">
+
+  <!-- HEADER -->
+  <div style="
+    font-weight:800;
+    margin-bottom:12px;
+    font-size:18px;
+    color:white;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  ">
+    <span>Select Genre</span>
+
+    <!-- CLOSE BUTTON -->
+    <span onclick="closeGenrePopup()" style="
+      cursor:pointer;
+      font-size:18px;
+      padding:4px 10px;
+      border-radius:8px;
+      background:#111827;
+      border:1px solid #253347;
+    ">✖</span>
+  </div>
+
+  <!-- GENRE GRID (THIS IS REQUIRED FOR YOUR JS) -->
+  <div id="genreGridPopup" class="genre-grid"></div>
+
 </div>
+
   <input
   type="text"
   id="searchBox"
@@ -493,10 +538,12 @@ const GENRES = [
     </div>
   `).join("");
 
-  grid.innerHTML = html;
-  popupGrid.innerHTML = html;
+  if (grid) grid.innerHTML = html;
+  if (popupGrid) popupGrid.innerHTML = html;
 
   function bind(container){
+    if (!container) return;
+
     container.addEventListener("click", (e) => {
       const item = e.target.closest(".genre");
       if (!item) return;
@@ -517,24 +564,26 @@ const GENRES = [
     });
   }
 
-  if (!grid.dataset.bound) {
+  if (grid && !grid.dataset.bound) {
     grid.dataset.bound = "true";
     bind(grid);
   }
 
-  if (!popupGrid.dataset.bound) {
+  if (popupGrid && !popupGrid.dataset.bound) {
     popupGrid.dataset.bound = "true";
     bind(popupGrid);
   }
 
   const actions = document.getElementById("actionGrid");
 
-  actions.innerHTML = `
-    <div class="genre" onclick="showAll()">📻 Show All</div>
-    <div class="genre" onclick="loadFavorites()">⭐ Favorites</div>
-    <div class="genre" onclick="loadMISC()">📻 MISC</div>
-    <div class="genre" onclick="loadInternational()">🌎 International</div>
-  `;
+  if (actions) {
+    actions.innerHTML = `
+      <div class="genre" onclick="showAll()">📻 Show All</div>
+      <div class="genre" onclick="loadFavorites()">⭐ Favorites</div>
+      <div class="genre" onclick="loadMISC()">📻 MISC</div>
+      <div class="genre" onclick="loadInternational()">🌎 International</div>
+    `;
+  }
 }
 /* =========================
    🔥 FIXED GENRE FUNCTION
@@ -906,24 +955,7 @@ if ("serviceWorker" in navigator) {
   });
 }
 </script>
-<div id="genrePopup" style="
-  position:fixed;
-  top:120px;
-  left:50%;
-  transform:translateX(-50%);
-  width:90%;
-  max-width:600px;
-  background:#0e1725;
-  border:1px solid #1e293b;
-  border-radius:16px;
-  padding:15px;
-  display:none;
-  z-index:9999;
-  max-height:70vh;
-  overflow:auto;
-">
-  <div style="font-weight:800;margin-bottom:10px;">Select Genre</div>
-  <div class="genre-grid" id="genreGridPopup"></div>
+
 </div>
 </body>
 </html>
