@@ -1,37 +1,53 @@
 import express from "express";
+import icy from "icy";
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 
-// simple test route
 app.get("/", (req, res) => {
   res.json({ status: "Radiowave API running" });
 });
 
-// Now Playing endpoint (basic version for now)
-app.get("/nowplaying", async (req, res) => {
-  const stream = req.query.url;
+app.get("/nowplaying", (req, res) => {
+  const streamUrl = req.query.url;
 
-  if (!stream) {
+  if (!streamUrl) {
     return res.json({ error: "missing url" });
   }
 
   try {
-    // simple fallback (we'll improve later)
-    res.json({
-      station: "Radiowave",
-      nowPlaying: "Live stream active (metadata upgrade next step)",
-      stream: stream
+    icy.get(streamUrl, (stream) => {
+      let timeout = setTimeout(() => {
+        res.json({
+          station: "Radiowave",
+          nowPlaying: "No metadata (timeout)",
+          stream: streamUrl
+        });
+      }, 5000);
+
+      stream.on("metadata", (metadata) => {
+        clearTimeout(timeout);
+
+        const parsed = icy.parse(metadata);
+
+        res.json({
+          station: "Radiowave",
+          nowPlaying: parsed.StreamTitle || "Unknown",
+          stream: streamUrl
+        });
+
+        stream.destroy();
+      });
     });
 
   } catch (err) {
     res.json({
-      error: "server error",
+      error: "stream error",
       details: err.message
     });
   }
 });
 
-app.listen(PORT, () => {
-  console.log("Radiowave API running on port", PORT);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log("Radiowave API running on", PORT);
 });
