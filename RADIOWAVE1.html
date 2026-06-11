@@ -911,9 +911,18 @@ document.addEventListener("keydown", (e) => {
   const isTyping = tag === "input" || tag === "textarea" || tag === "select";
 
   // don't interfere while typing (except Esc and /)
-  if (isTyping && e.key !== "Escape") return;
+  if (isTyping && e.key !== "Escape" && e.key !== "escape" && e.key !== "/") return;
 
-  switch (e.key.toLowerCase()) {
+  const key = e.key.toLowerCase();
+
+  // SHIFT + F = load favorites (highest priority)
+  if (key === "f" && e.shiftKey) {
+    e.preventDefault();
+    loadFavorites();
+    return;
+  }
+
+  switch (key) {
 
     // playback
     case " ":
@@ -931,16 +940,11 @@ document.addEventListener("keydown", (e) => {
       prev();
       break;
 
-    // favorite
+    // F = favorite current station
     case "f":
-  if (e.shiftKey) {
-    loadFavorites();   // open favorites list
-  } else {
-    favCurrent();      // toggle current station favorite
-  }
-  break;
+      favCurrent();
+      break;
 
-    // search focus
     case "/":
       e.preventDefault();
       document.getElementById("searchBox").focus();
