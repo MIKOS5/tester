@@ -323,7 +323,7 @@ button{
   padding: 12px 14px;
   border-radius: 999px;
 
-  background: linear-gradient(180deg, var(--blue), var(--blue-dark));
+  background: linear-gradient(background:linear-gradient(180deg,var(--blue),var(--blue-dark));
   color:var(--text);
   border: none;
   cursor: pointer;
@@ -340,57 +340,6 @@ button{
   opacity: 1;
   pointer-events: auto;
 }
-
-.chat-panel{
-  margin-top:12px;
-  border:1px solid var(--line);
-  border-radius:16px;
-  overflow:hidden;
-  background:var(--panel);
-}
-
-.chat-header{
-  padding:10px;
-  font-weight:800;
-  background:var(--panel-alt);
-  border-bottom:1px solid var(--line);
-}
-
-#chat{
-  height:180px;
-  overflow-y:auto;
-  padding:8px;
-  font-size:12px;
-}
-
-.msg{
-  margin:6px 0;
-  padding:6px;
-  background:var(--panel-alt);
-  border-radius:8px;
-}
-
-.name{
-  color:var(--blue);
-  font-weight:800;
-}
-
-.inputBar{
-  display:flex;
-  gap:6px;
-  padding:8px;
-  border-top:1px solid var(--line);
-}
-
-.inputBar input{
-  flex:1;
-  padding:8px;
-  border-radius:8px;
-  border:1px solid var(--line);
-  background:var(--bg);
-  color:var(--text);
-}
-  
 </style>
 </head>
 
@@ -437,20 +386,7 @@ button{
 
 </div>
 
-<div class="chat-panel">
-
-  <header class="chat-header">💬 Live Chat</header>
-
-  <div id="chat"></div>
-
-  <div class="inputBar">
-    <input id="name" placeholder="name">
-    <input id="msg" placeholder="message">
-    <button onclick="sendChat()">Send</button>
-  </div>
-
 </div>
-
 
 <!-- MAIN -->
 <div class="main">
@@ -498,11 +434,8 @@ button{
   <button onclick="prevPage()">⬅ Prev</button>
   <button onclick="nextPage()">Next ➡</button>
 </div>
-<div id="list"></div>
-  
 
-
- 
+  <div id="list"></div>
 
 </div>
 
@@ -820,60 +753,6 @@ async function getNowPlaying(station) {
     };
   }
 }
-
-const API_URL = "https://script.google.com/macros/s/AKfycbzX9UkAd64skxZoOtdIBnDkzDQMCBtodK98gBVWqZzmYYuSqYRJgZxx0rCqkBY8QRa17A/exec";
-
-async function loadChat(){
-  const res = await fetch(API_URL, {
-    method: "POST",
-    body: JSON.stringify({ action: "get" })
-  });
-
-  const data = await res.json();
-  renderChat(data);
-}
-
-function renderChat(data){
-  const chat = document.getElementById("chat");
-  chat.innerHTML = "";
-
-  data.forEach(m => {
-    const time = new Date(m.time).toLocaleTimeString();
-
-    chat.innerHTML += `
-      <div class="msg">
-        <span class="name">${m.name}</span> (${time})<br/>
-        ${m.message}
-      </div>
-    `;
-  });
-
-  chat.scrollTop = chat.scrollHeight;
-}
-
-async function sendChat(){
-  const name = document.getElementById("name").value || "Anon";
-  const msg = document.getElementById("msg").value;
-
-  if(!msg) return;
-
-  await fetch(API_URL, {
-    method:"POST",
-    body: JSON.stringify({
-      action:"send",
-      name,
-      message: msg
-    })
-  });
-
-  document.getElementById("msg").value = "";
-  loadChat();
-}
-
-setInterval(loadChat, 2000);
-loadChat();
-
-  
 /* PLAY */
 async function play(i){
 
