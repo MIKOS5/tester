@@ -355,13 +355,27 @@ button{
   border-top:1px solid var(--line);
 }
 
+.chat-input{
+  display:flex;
+  gap:5px;
+}
+
 .chat-input input{
-  flex:1;
   padding:6px;
   border-radius:8px;
   border:1px solid var(--line);
   background:var(--bg);
   color:var(--text);
+}
+
+#chatName{
+  width:70px;
+  flex:0 0 auto;
+}
+
+#chatMsg{
+  flex:1;
+  min-width:120px;
 }
   
 #backToTop{
@@ -443,8 +457,8 @@ button{
   <div id="chatLog" class="chat-log"></div>
 
   <div class="chat-input">
-    <input id="chatName" placeholder="name" />
-    <input id="chatMsg" placeholder="message" />
+    <input id="chatName" placeholder="name" maxlength="8" />
+    <input id="chatMsg" placeholder="message" maxlength="100" />
     <button onclick="sendMessage()">Send</button>
   </div>
 </div>
@@ -513,6 +527,7 @@ let page = 0;
 const PAGE_SIZE = 500;
 let currentCountry = "United States";
 let playingIndex = null;
+let stationStarted = false;
   
 /* API */
 const RADIO =
@@ -843,6 +858,9 @@ if (meta && meta.nowPlaying && meta.nowPlaying !== "Unavailable") {
   document.getElementById("npMeta").innerText =
     `${getGenre(s)} • ${s.country || ""}`;
  }
+  // ✅ ADD THIS HERE
+  stationStarted = true;
+  loadChat();
 }
 
 function playFiltered(i){
@@ -872,6 +890,9 @@ function playFiltered(i){
   playingIndex = i;
   const btn = document.getElementById(`playBtn-${i}`);
   if (btn) btn.innerText = "⏸ Pause";
+  // ✅ ADD THIS HERE (THIS IS THE IMPORTANT PART)
+  stationStarted = true;
+  loadChat();
 }
   
 /* CONTROLS */
@@ -1005,6 +1026,10 @@ function render(){
   });
 }
 
+function getCurrentStationId(){
+  return current[index]?.id || "global";
+}
+  
 function shareSite(){
 
   const url = window.location.href;
@@ -1160,20 +1185,49 @@ document.querySelector(".main").addEventListener("scroll", () => {
 });
 
 /* CHAT */
-const API_URL = "https://script.google.com/macros/s/AKfycbzX9UkAd64skxZoOtdIBnDkzDQMCBtodK98gBVWqZzmYYuSqYRJgZxx0rCqkBY8QRa17A/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzin84qDcZ9L1q4pTBtHZGKJSTDcZ_wnmgWmnmgPgf1jrc1nRprzbEBixKMSHcdkxiZBg/exec";
 
 let chatData = [];
+let currentChatStationId = null;
 
 async function loadChat(){
   try {
+
+    const stationId = getCurrentStationId();
+
+    // detect station change
+    if (currentChatStationId !== stationId) {
+      currentChatStationId = stationId;
+
+      chatData = [{
+        system: true,
+        name: "System",
+        message: `Welcome to "${getStationName()}" chat 💬`
+      }];
+    }
+
     const res = await fetch(API_URL, {
       method: "POST",
-      body: JSON.stringify({ action: "get" })
+      body: JSON.stringify({
+        action: "get",
+        station: stationId
+      })
     });
 
     const data = await res.json();
 
-    chatData = Array.isArray(data) ? data : [];
+    const messages = Array.isArray(data) ? data : [];
+
+    // merge welcome + real messages
+    chatData = [
+      {
+        system: true,
+        name: "System",
+        message: `Welcome to "${getStationName()}" chat 💬`
+      },
+      ...messages
+    ];
+
     renderChat();
 
   } catch(e){
@@ -1182,10 +1236,14 @@ async function loadChat(){
 }
 
 async function sendMessage(){
-  const name = document.getElementById("chatName").value || "Anon";
-  const msg = document.getElementById("chatMsg").value;
+  let name = document.getElementById("chatName").value || "Anon";
+  let msg = document.getElementById("chatMsg").value;
 
   if(!msg) return;
+
+  // 🔒 enforce limits in JS too
+  name = name.trim().slice(0, 8);
+  msg = msg.trim().slice(0, 100);
 
   document.getElementById("chatMsg").value = "";
 
@@ -1193,24 +1251,38 @@ async function sendMessage(){
     method: "POST",
     body: JSON.stringify({
       action: "send",
+      station: getCurrentStationId(),
       name,
       message: msg
     })
   });
 
-  loadChat(); // refresh immediately after send
+  loadChat();
 }
 
+function getStationName(){
+  return current?.[index]?.name || "this station";
+}
+  
 function renderChat(){
   const box = document.getElementById("chatLog");
   box.innerHTML = "";
 
+    if (!stationStarted) {
+  box.innerHTML = `
+    <div class="chat-msg" style="opacity:0.7;text-align:center;">
+      Select a station to join chat 💬
+    </div>
+  `;
+  return;
+}
+
   chatData.forEach(m => {
     box.innerHTML += `
-      <div class="chat-msg">
-        <span class="chat-name">${m.name}</span>: ${m.message}
-      </div>
-    `;
+      <div class="chat-msg" style="${m.system ? "opacity:0.7;font-style:italic;text-align:center;" : ""}">
+        <span class="chat-name">${m.system ? "" : m.name + ":"}</span> ${m.message}
+    </div>
+`;
   });
 
   box.scrollTop = box.scrollHeight;
@@ -1218,7 +1290,11 @@ function renderChat(){
 
 /* AUTO REFRESH (IMPORTANT PART) */
 loadChat();
-setInterval(loadChat, 3000); // every 3 seconds
+setInterval(() => {
+  if (document.visibilityState === "visible") {
+    loadChat();
+  }
+}, 3000);
   
 document.addEventListener("keydown", (e) => {
 
