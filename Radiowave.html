@@ -28,8 +28,39 @@
   --line:#253347;
   --text:#fff;
   --muted:#93a4bb;
+
   --blue:#2793ff;
+  --blue-dark:#1869d9;
+
   --green:#17c964;
+  --green-dark:#0ea85a;
+
+  --button-dark:#444;
+  --button-dark2:#222;
+
+  --panel-alt:#0b1220;
+}
+
+/* 🌙 LIGHT MODE */
+body.light{
+  --bg:#f4f6f8;
+  --panel:#ffffff;
+
+  --line:#d9e2ec;
+
+  --text:#102a43;
+  --muted:#627d98;
+
+  --blue:#4f8ef7;
+  --blue-dark:#3b82f6;
+
+  --green:#16a34a;
+  --green-dark:#15803d;
+
+  --button-dark:#e9eef5;
+  --button-dark2:#dbe4ef;
+
+  --panel-alt:#eef3f8;
 }
 
 *{box-sizing:border-box;}
@@ -37,17 +68,19 @@
 body{
   margin:0;
   font-family:Inter,sans-serif;
-  background:radial-gradient(circle at top,#17263f,#09111d 45%);
-  color:white;
+  background:var(--bg);
+  color:var(--text);
   display:flex;
   height:100vh;
   overflow:hidden;
+
+  transition: background 0.3s, color 0.3s;
 }
 
 /* SIDEBAR */
 .sidebar{
   width:340px;
-  background:rgba(17,24,39,.95);
+  background:var(--panel);
   border-right:1px solid var(--line);
   padding:20px;
   overflow:auto;
@@ -66,12 +99,17 @@ body{
 }
 
 /* GENRES */
+.genre-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
 
 .genre{
   padding:12px;
   border-radius:14px;
-  background:#0e1725;
-  border:1px solid #1e293b;
+  background:var(--panel);
+  border:1px solid var(--line);
   text-align:center;
   cursor:pointer;
   font-weight:700;
@@ -92,7 +130,7 @@ body{
   margin-top:20px;
   padding:16px;
   border-radius:20px;
-  background:#121a2a;
+  background:var(--panel);
   border:1px solid var(--line);
 }
 
@@ -110,8 +148,10 @@ button{
   border:none;
   border-radius:12px;
   padding:10px;
-  background:linear-gradient(180deg,#2793ff,#1869d9);
-  color:white;
+  background:linear-gradient(180deg,
+    var(--blue),
+    var(--blue-dark));
+  color:var(--text);
   font-weight:700;
   cursor:pointer;
 }
@@ -130,7 +170,7 @@ button{
 }
 
 .card{
-  background:rgba(17,24,39,.95);
+  background:var(--panel);
   border:1px solid var(--line);
   border-radius:16px;
   padding:14px;
@@ -151,11 +191,19 @@ button{
 
 /* FAVORITE BUTTON */
 .fav-btn{
-  background:linear-gradient(180deg,#444,#222);
+  background:linear-gradient(
+    180deg,
+    var(--button-dark),
+    var(--button-dark2)
+  );
 }
 
 .fav-btn.saved{
-  background:linear-gradient(180deg,#17c964,#0ea85a);
+  background:linear-gradient(
+    180deg,
+    var(--green),
+    var(--green-dark)
+  );
 }
 
 /* MOBILE */
@@ -193,8 +241,8 @@ button{
   left: 0;
   top: 100%;
   width: 100%;
-  background: #0e1725;
-  border: 1px solid #1e293b;
+  background: var(--panel);
+  border: 1px solid var(--line);
   border-radius: 12px;
   z-index: 999;
   overflow: hidden;
@@ -207,7 +255,7 @@ button{
 }
 
 .dropdown-menu div:hover {
-  background: #2793ff;
+  background:var(--blue);
 }
 
 /* show on hover */
@@ -223,8 +271,8 @@ button{
 .genre-header {
   padding: 12px;
   border-radius: 12px;
-  background: #0e1725;
-  border: 1px solid #1e293b;
+  background: var(--panel);
+  border: 1px solid var(--line);
   font-weight: 800;
   cursor: pointer;
   display: flex;
@@ -258,23 +306,39 @@ button{
 }
 
 .action-grid .genre{
-  background:#0b1220;
-  border:1px solid #1e293b;
+  background:var(--panel-alt);
+  border:1px solid var(--line);
 }
 
 .action-grid{
   margin-bottom: 10px;
 }
 
-.genre-grid-popup{
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 8px;
+#backToTop{
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
 
-  max-height: 55vh;
-  overflow-y: auto;
+  padding: 12px 14px;
+  border-radius: 999px;
 
-  padding-right: 6px;
+  background: linear-gradient(background:linear-gradient(180deg,var(--blue),var(--blue-dark));
+  color:var(--text);
+  border: none;
+  cursor: pointer;
+
+  font-weight: 800;
+  box-shadow: 0 10px 25px rgba(0,0,0,.4);
+
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.2s ease;
+}
+
+#backToTop.show{
+  opacity: 1;
+  pointer-events: auto;
 }
 </style>
 </head>
@@ -299,9 +363,17 @@ button{
       <button onclick="next()">⏭</button>
       <button onclick="favCurrent()">⭐</button>
     </div>
-
+    <div style="margin-top:10px;">
+  <button onclick="shareSite()" style="width:100%;">
+    🔗 Share RadioWave
+  </button>
+</div>
   </div>
   <div class="action-grid" id="actionGrid"></div>
+
+<div class="action-grid">
+  <div class="genre" onclick="toggleTheme()">🌙 Night / ☀️ Light</div>
+</div>
 
 <!-- GENRES SECTION -->
 <div class="genre-section">
@@ -310,7 +382,7 @@ button{
     🎚 Genres <span id="genreArrow">▼</span>
   </div>
 
-  <div class="genre-grid" id="genreGrid"></div>
+  <div class="genre-grid collapsed" id="genreGrid"></div>
 
 </div>
 
@@ -320,19 +392,17 @@ button{
 <div class="main">
 
   <div class="title" id="title">Stations</div>
-  <div style="display:flex;gap:10px;margin-bottom:15px;align-items:center;">
+  <div style="display:flex;gap:10px;margin-bottom:15px;">
 
-  <!-- COUNTRY -->
   <select
     id="countryFilter"
     onchange="changeCountry()"
     style="
       padding:12px;
       border-radius:12px;
-      background:#111827;
-      color:white;
-      border:1px solid #253347;
-      flex:1;
+      background:var(--panel);
+      color:var(--text);
+      border:1px solid var(--line);
     "
   >
     <option value="United States">🇺🇸 United States</option>
@@ -342,64 +412,7 @@ button{
     <option value="">🌎 All Countries</option>
   </select>
 
-  <!-- GENRE TOGGLE -->
-  <button onclick="toggleGenresPopup()" style="
-    padding:12px;
-    border-radius:12px;
-    background:#111827;
-    color:white;
-    border:1px solid #253347;
-    font-weight:700;
-  ">
-    🎚 Genres ▾
-  </button>
-
-  <div id="genrePopup" style="
-  position:fixed;
-  top:120px;
-  left:50%;
-  transform:translateX(-50%);
-  width:90%;
-  max-width:600px;
-  background:#0e1725;
-  border:1px solid #1e293b;
-  border-radius:16px;
-  padding:15px;
-  display:none;
-  z-index:9999;
-  max-height:70vh;
-  overflow:auto;
-  box-shadow:0 10px 30px rgba(0,0,0,0.6);
-">
-
-  <!-- HEADER -->
-  <div style="
-    font-weight:800;
-    margin-bottom:12px;
-    font-size:18px;
-    color:white;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-  ">
-    <span>Select Genre</span>
-
-    <!-- CLOSE BUTTON -->
-    <span onclick="closeGenrePopup()" style="
-      cursor:pointer;
-      font-size:18px;
-      padding:4px 10px;
-      border-radius:8px;
-      background:#111827;
-      border:1px solid #253347;
-    ">✖</span>
-  </div>
-
-  <!-- GENRE GRID (THIS IS REQUIRED FOR YOUR JS) -->
-  <div id="genreGridPopup" class="genre-grid-popup"></div>
-
 </div>
-
   <input
   type="text"
   id="searchBox"
@@ -411,8 +424,8 @@ button{
     margin-bottom:15px;
     border-radius:12px;
     border:1px solid var(--line);
-    background:#111827;
-    color:white;
+    background:var(--panel);
+    color:var(--text);
     font-size:16px;
   "
 >
@@ -436,6 +449,7 @@ let favorites = new Set();
 let page = 0;
 const PAGE_SIZE = 500;
 let currentCountry = "United States";
+let playingIndex = null;
   
 /* API */
 const RADIO =
@@ -536,21 +550,18 @@ const GENRES = [
   function renderGenres(){
 
   const grid = document.getElementById("genreGrid");
-  const popupGrid = document.getElementById("genreGridPopup");
 
-  const html = GENRES.map(g => `
+  grid.innerHTML = GENRES.map(g => `
     <div class="genre" data-id="${g.id}">
       ${g.label}
     </div>
   `).join("");
 
-  if (grid) grid.innerHTML = html;
-  if (popupGrid) popupGrid.innerHTML = html;
+  // prevent duplicate listeners
+  if (!grid.dataset.bound) {
+    grid.dataset.bound = "true";
 
-  function bind(container){
-    if (!container) return;
-
-    container.addEventListener("click", (e) => {
+    grid.addEventListener("click", (e) => {
       const item = e.target.closest(".genre");
       if (!item) return;
 
@@ -565,31 +576,18 @@ const GENRES = [
       page = 0;
       currentGenre = id;
       load(id);
-
-      closeGenrePopup();
     });
   }
 
-  if (grid && !grid.dataset.bound) {
-    grid.dataset.bound = "true";
-    bind(grid);
-  }
-
-  if (popupGrid && !popupGrid.dataset.bound) {
-    popupGrid.dataset.bound = "true";
-    bind(popupGrid);
-  }
-
+  // actions panel
   const actions = document.getElementById("actionGrid");
 
-  if (actions) {
-    actions.innerHTML = `
-      <div class="genre" onclick="showAll()">📻 Show All</div>
-      <div class="genre" onclick="loadFavorites()">⭐ Favorites</div>
-      <div class="genre" onclick="loadMISC()">📻 MISC</div>
-      <div class="genre" onclick="loadInternational()">🌎 International</div>
-    `;
-  }
+  actions.innerHTML = `
+    <div class="genre" onclick="showAll()">📻 Show All</div>
+    <div class="genre" onclick="loadFavorites()">⭐ Favorites</div>
+    <div class="genre" onclick="loadMISC()">📻 MISC</div>
+    <div class="genre" onclick="loadInternational()">🌎 International</div>
+  `;
 }
 /* =========================
    🔥 FIXED GENRE FUNCTION
@@ -657,6 +655,9 @@ async function loadCountries(){
     opt.textContent = `${c.name} (${c.stationcount})`;
     select.appendChild(opt);
   }
+
+  // ✅ set default AFTER loop
+  select.value = currentCountry;
 }
   
 /* FAVORITES LOAD */
@@ -737,14 +738,27 @@ async function loadInternational(){
   render();
   setTitle("🌎 International");
 }
-  
+
+async function getNowPlaying(station) {
+  try {
+    const res = await fetch(
+      `https://tester-nenh.onrender.com/nowplaying?url=${encodeURIComponent(station.url)}`
+    );
+
+    return await res.json();
+  } catch (e) {
+    return {
+      nowPlaying: "Unavailable",
+      source: "error"
+    };
+  }
+}
 /* PLAY */
-function play(i){
+async function play(i){
 
   index = i;
 
   const s = current[i];
-
   const audio = document.getElementById("audio");
 
   audio.src = s.url_resolved || s.url;
@@ -752,14 +766,30 @@ function play(i){
 
   document.getElementById("npName").innerText = s.name;
 
+  // default state first (instant UI response)
   document.getElementById("npMeta").innerText =
-    `${s.country || ""} • ${getGenre(s)}`;
+    `${s.country || ""} • Loading...`;
+
+  // fetch real now playing (async upgrade layer)
+const meta = await getNowPlaying(s);
+
+if (meta && meta.nowPlaying && meta.nowPlaying !== "Unavailable") {
+  document.getElementById("npMeta").innerText =
+    `${meta.nowPlaying} • ${s.country || ""}`;
+} else {
+  document.getElementById("npMeta").innerText =
+    `${getGenre(s)} • ${s.country || ""}`;
+ }
 }
 
 function playFiltered(i){
 
-  const s = window.filtered[i];
+  const list = getActiveList();
+  const s = list[i];
   if(!s) return;
+
+  index = i;
+  window.activeList = list;
 
   const audio = document.getElementById("audio");
 
@@ -769,26 +799,55 @@ function playFiltered(i){
   document.getElementById("npName").innerText = s.name;
 
   document.getElementById("npMeta").innerText =
-    `${s.country || ""} • ${getGenre(s)}`;
+    `${getGenre(s)} • ${s.country || ""}`;
+
+  // fix button state
+  if (playingIndex !== null && document.getElementById(`playBtn-${playingIndex}`)) {
+    document.getElementById(`playBtn-${playingIndex}`).innerText = "▶ Play";
+  }
+
+  playingIndex = i;
+  const btn = document.getElementById(`playBtn-${i}`);
+  if (btn) btn.innerText = "⏸ Pause";
 }
   
 /* CONTROLS */
 function toggle(){
   const a = document.getElementById("audio");
-  if(a.paused) a.play();
-  else a.pause();
+
+  if(a.paused){
+    a.play();
+    if (playingIndex !== null) {
+      const btn = document.getElementById(`playBtn-${playingIndex}`);
+      if (btn) btn.innerText = "⏸ Pause";
+    }
+  } else {
+    a.pause();
+    if (playingIndex !== null) {
+      const btn = document.getElementById(`playBtn-${playingIndex}`);
+      if (btn) btn.innerText = "▶ Play";
+    }
+  }
 }
 
 function next(){
-  index = (index + 1) % current.length;
-  play(index);
+  const list = getActiveList();
+  index = (index + 1) % list.length;
+  playFiltered(index);
 }
 
 function prev(){
-  index = (index - 1 + current.length) % current.length;
-  play(index);
+  const list = getActiveList();
+  index = (index - 1 + list.length) % list.length;
+  playFiltered(index);
 }
 
+function getActiveList(){
+  return window.filtered && window.filtered.length
+    ? window.filtered
+    : current;
+}
+  
 function normalize(s){
   return {
     id: s.stationuuid || s.id,
@@ -799,7 +858,7 @@ function normalize(s){
   };
 }
 
-let genresOpen = true;
+let genresOpen = false;
 
 function toggleGenres(){
   const grid = document.getElementById("genreGrid");
@@ -809,10 +868,10 @@ function toggleGenres(){
 
   if(genresOpen){
     grid.classList.remove("collapsed");
-    arrow.innerText = "▼";
+    arrow.innerText = "▲";
   } else {
     grid.classList.add("collapsed");
-    arrow.innerText = "▲";
+    arrow.innerText = "▼";
   }
 }
   
@@ -823,6 +882,13 @@ function favCurrent(){
   fav(s);
 }
 
+function scrollToTop(){
+  document.querySelector(".main").scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+}
+  
 /* RENDER */
 function render(){
 
@@ -863,18 +929,94 @@ function render(){
         <div class="small">${getGenre(s)} • ${s.country || ""}</div>
 
         <div class="row">
-          <button onclick="playFiltered(${i})">▶ Play</button>
+          <button id="playBtn-${i}" onclick="playFiltered(${i})">▶ Play</button>
           <button onclick="showAll()">📻 Show All</button>
           <button class="fav-btn ${isFav ? "saved" : ""}"
             onclick="favFiltered(${i})">
             ${isFav ? "⭐ Saved" : "☆ Favorite"}
           </button>
+          <button onclick="shareFiltered(${i})">🔗 Share</button>
         </div>
       </div>
     `;
   });
 }
 
+function shareSite(){
+
+  const url = window.location.href;
+  const title = "xRadiowave - Live Radio Stations";
+  const text = "Listen to live radio stations on xRadiowave";
+
+  const cleanUrl = encodeURIComponent(url);
+  const cleanText = encodeURIComponent(text);
+  const cleanTitle = encodeURIComponent(title);
+
+  // Native share (mobile)
+  if (navigator.share) {
+    navigator.share({
+      title,
+      text,
+      url
+    });
+    return;
+  }
+
+  // fallback share menu
+  const menu = document.createElement("div");
+
+  menu.innerHTML = `
+    <div style="
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.6);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:99999;
+    " onclick="this.remove()">
+
+      <div onclick="event.stopPropagation()" style="
+        background:var(--panel);
+        padding:20px;
+        border-radius:16px;
+        display:grid;
+        gap:10px;
+        min-width:260px;
+      ">
+
+        <button onclick="window.open(
+          'https://www.facebook.com/sharer/sharer.php?u=' + cleanUrl,
+          '_blank'
+        )">Facebook</button>
+
+        <button onclick="window.open(
+          'https://twitter.com/intent/tweet?text=' + cleanText + '&url=' + cleanUrl,
+          '_blank'
+        )">X / Twitter</button>
+
+        <button onclick="window.open(
+          'https://www.reddit.com/submit?url=' + cleanUrl + '&title=' + cleanTitle,
+          '_blank'
+        )">Reddit</button>
+
+        <button onclick="window.open(
+          'https://wa.me/?text=' + cleanText + '%20' + cleanUrl,
+          '_blank'
+        )">WhatsApp</button>
+
+        <button onclick="window.open(
+          'mailto:?subject=' + cleanTitle + '&body=' + cleanText + '%20' + cleanUrl,
+          '_self'
+        )">Email</button>
+
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(menu);
+}
+  
 function favFiltered(i){
   fav(window.filtered[i]);
 }
@@ -891,15 +1033,6 @@ function showAll() {
   load();
 }
 
-function toggleGenresPopup(){
-  const p = document.getElementById("genrePopup");
-  p.style.display = (p.style.display === "block") ? "none" : "block";
-}
-
-function closeGenrePopup(){
-  document.getElementById("genrePopup").style.display = "none";
-}
-  
 /* GENRE */
 function setGenre(g){
 
@@ -944,12 +1077,189 @@ function prevPage(){
     load();
   }
 }
-  
+
+function toggleTheme(){
+  document.body.classList.toggle("light");
+}
 /* INIT */
 renderGenres();
 loadCountries();   // ✅ add this
 load();
-  
+
+document.querySelector(".main").addEventListener("scroll", () => {
+  const btn = document.getElementById("backToTop");
+
+  if (document.querySelector(".main").scrollTop > 300) {
+    btn.classList.add("show");
+  } else {
+    btn.classList.remove("show");
+  }
+});
+
+document.addEventListener("keydown", (e) => {
+
+  const tag = document.activeElement.tagName.toLowerCase();
+  const isTyping = tag === "input" || tag === "textarea" || tag === "select";
+
+  // don't interfere while typing (except Esc and /)
+  if (isTyping && e.key !== "Escape") return;
+
+  switch (e.key.toLowerCase()) {
+
+    // playback
+    case " ":
+      e.preventDefault();
+      toggle();
+      break;
+
+    case "arrowright":
+    case "n":
+      next();
+      break;
+
+    case "arrowleft":
+    case "p":
+      prev();
+      break;
+
+    // favorite
+    case "f":
+  if (e.shiftKey) {
+    loadFavorites();   // open favorites list
+  } else {
+    favCurrent();      // toggle current station favorite
+  }
+  break;
+
+    // search focus
+    case "/":
+      e.preventDefault();
+      document.getElementById("searchBox").focus();
+      break;
+
+    case "escape":
+      document.getElementById("searchBox").value = "";
+      document.getElementById("searchBox").blur();
+      render();
+      break;
+
+    // UI toggles
+    case "g":
+      toggleGenres();
+      break;
+
+    case "a":
+      showAll();
+      break;
+
+    case "m":
+      loadMISC();
+      break;
+
+    case "i":
+      loadInternational();
+      break;
+
+    case "c":
+      document.getElementById("countryFilter").focus();
+      break;
+
+    case "home":
+      scrollToTop();
+      break;
+
+    case "pagedown":
+      nextPage();
+      break;
+
+    case "pageup":
+      prevPage();
+      break;
+  }
+});
+
+function shareStation(station){
+
+  if (!station) return;
+
+  const name = station.name || "Radio Station";
+  const url = station.url || station.url_resolved || "";
+  const genre = getGenre(station);
+
+  const shareText = `Listening to ${name} • ${genre}`;
+
+  const cleanUrl = encodeURIComponent(url || "");
+  const cleanText = encodeURIComponent(shareText);
+  const cleanName = encodeURIComponent(name);
+
+  // Native mobile share (best option)
+  if (navigator.share) {
+    navigator.share({
+      title: name,
+      text: shareText,
+      url: url
+    });
+    return;
+  }
+
+  // Fallback menu (station-based sharing)
+  const menu = document.createElement("div");
+
+  menu.innerHTML = `
+    <div style="
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.6);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:99999;
+    " onclick="this.remove()">
+
+      <div onclick="event.stopPropagation()" style="
+        background:var(--panel);
+        padding:20px;
+        border-radius:16px;
+        display:grid;
+        gap:10px;
+        min-width:260px;
+      ">
+
+        <button onclick="window.open(
+          'https://www.facebook.com/sharer/sharer.php?u=' + cleanUrl,
+          '_blank'
+        )">Facebook</button>
+
+        <button onclick="window.open(
+          'https://twitter.com/intent/tweet?text=' + cleanText + '&url=' + cleanUrl,
+          '_blank'
+        )">X / Twitter</button>
+
+        <button onclick="window.open(
+          'https://www.reddit.com/submit?url=' + cleanUrl + '&title=' + cleanName,
+          '_blank'
+        )">Reddit</button>
+
+        <button onclick="window.open(
+          'https://wa.me/?text=' + cleanText + '%20' + cleanUrl,
+          '_blank'
+        )">WhatsApp</button>
+
+        <button onclick="window.open(
+          'mailto:?subject=' + cleanName + '&body=' + cleanText + '%20' + cleanUrl,
+          '_self'
+        )">Email</button>
+
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(menu);
+}
+
+function shareFiltered(i){
+  shareStation(window.filtered[i]);
+}
 </script>
 
 <script>
@@ -961,7 +1271,6 @@ if ("serviceWorker" in navigator) {
   });
 }
 </script>
-
-</div>
+<button id="backToTop" onclick="scrollToTop()">⬆ Top</button>
 </body>
 </html>
