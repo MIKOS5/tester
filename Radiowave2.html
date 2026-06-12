@@ -98,6 +98,29 @@ body{
   margin-bottom:20px;
 }
 
+<div id="authScreen" style="
+  position:fixed;
+  inset:0;
+  background:var(--bg);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:99999;
+  flex-direction:column;
+  gap:10px;
+">
+
+  <h2>🔐 RadioWave Login</h2>
+
+  <input id="authUser" placeholder="username" style="padding:10px;border-radius:10px;">
+  <input id="authPass" type="password" placeholder="password" style="padding:10px;border-radius:10px;">
+
+  <button onclick="registerUser()">Create Account</button>
+  <button onclick="loginUser()">Login</button>
+
+  <div id="authMsg" style="font-size:12px;color:var(--muted)"></div>
+</div>
+  
 /* GENRES */
 .genre-grid{
   display:grid;
@@ -1170,10 +1193,23 @@ function toggleTheme(){
   document.body.classList.toggle("light");
 }
 /* INIT */
-renderGenres();
-loadCountries();   // ✅ add this
-load();
+function initApp(){
+  renderGenres();
+  loadCountries();
+  load();
+  loadChat();
+}
 
+window.addEventListener("load", () => {
+  const saved = localStorage.getItem("rw_user");
+
+  if(saved){
+    currentUser = saved;
+    document.getElementById("authScreen").style.display = "none";
+    initApp();
+  }
+});
+  
 document.querySelector(".main").addEventListener("scroll", () => {
   const btn = document.getElementById("backToTop");
 
@@ -1187,8 +1223,14 @@ document.querySelector(".main").addEventListener("scroll", () => {
 /* CHAT */
 const API_URL = "https://script.google.com/macros/s/AKfycbzin84qDcZ9L1q4pTBtHZGKJSTDcZ_wnmgWmnmgPgf1jrc1nRprzbEBixKMSHcdkxiZBg/exec";
 
-let chatData = [];
-let currentChatStationId = null;
+/* 🔐 AUTH SYSTEM */
+const AUTH_URL = "https://script.google.com/macros/s/AKfycbzPgPxaAstNl9dENnFuCPi2Mu5H8v-WlXHAN2_yrdMNy9ZL2j3_o_epD52NWJ0Myem9/exec";
+
+let currentUser = null;
+
+function setAuthMsg(t){
+  document.getElementById("authMsg").innerText = t;
+}
 
 async function loadChat(){
   try {
@@ -1236,13 +1278,11 @@ async function loadChat(){
 }
 
 async function sendMessage(){
-  let name = document.getElementById("chatName").value || "Anon";
+  let name = currentUser || "Anon";
   let msg = document.getElementById("chatMsg").value;
 
   if(!msg) return;
 
-  // 🔒 enforce limits in JS too
-  name = name.trim().slice(0, 8);
   msg = msg.trim().slice(0, 100);
 
   document.getElementById("chatMsg").value = "";
@@ -1260,6 +1300,61 @@ async function sendMessage(){
   loadChat();
 }
 
+async function registerUser(){
+  const username = document.getElementById("authUser").value.trim();
+  const password = document.getElementById("authPass").value.trim();
+
+  if(!username || !password){
+    setAuthMsg("Enter username + password");
+    return;
+  }
+
+  const res = await fetch(AUTH_URL, {
+    method:"POST",
+    body: JSON.stringify({
+      action:"register",
+      username,
+      password
+    })
+  });
+
+  const data = await res.json();
+
+  if(data.ok){
+    setAuthMsg("Account created! You can now login.");
+  } else {
+    setAuthMsg(data.error || "Error");
+  }
+}
+
+async function loginUser(){
+  const username = document.getElementById("authUser").value.trim();
+  const password = document.getElementById("authPass").value.trim();
+
+  const res = await fetch(AUTH_URL, {
+    method:"POST",
+    body: JSON.stringify({
+      action:"login",
+      username,
+      password
+    })
+  });
+
+  const data = await res.json();
+
+  if(data.ok){
+    currentUser = data.username;
+
+    localStorage.setItem("rw_user", currentUser);
+
+    document.getElementById("authScreen").style.display = "none";
+
+    initApp(); // start your radio/chat
+  } else {
+    setAuthMsg("Login failed");
+  }
+}
+  
 function getStationName(){
   return current?.[index]?.name || "this station";
 }
