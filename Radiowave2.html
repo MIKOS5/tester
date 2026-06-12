@@ -355,17 +355,19 @@ button{
   border-top:1px solid var(--line);
 }
 
-.chat-input{
-  display:flex;
-  gap:5px;
-}
-
 .chat-input input{
   padding:6px;
   border-radius:8px;
   border:1px solid var(--line);
   background:var(--bg);
   color:var(--text);
+  font-size:12px;
+}
+
+/* message box control */
+#chatMsg{
+  flex:1;
+  min-width:0;
 }
 
 #chatName{
@@ -373,9 +375,6 @@ button{
   flex:0 0 auto;
 }
 
-#chatMsg{
-  flex:1; 
-}
 
 #appContainer {
   display: none;
@@ -745,7 +744,16 @@ async function load(g){
   }
 
   const res = await fetch(url);
-  current = (await res.json()).map(normalize);
+
+let data = [];
+try {
+  data = await res.json();
+} catch (e) {
+  console.error("Radio API failed:", e);
+  data = [];
+}
+
+current = Array.isArray(data) ? data.map(normalize) : [];
 
   render();
 
@@ -1216,11 +1224,17 @@ function toggleTheme(){
   document.body.classList.toggle("light");
 }
 /* INIT */
-function initApp(){
-  renderGenres();
-  loadCountries();
-  load();
-  safeLoadChat();
+async function initApp(){
+  try {
+    renderGenres();
+    await loadCountries();
+    await load();
+    safeLoadChat();
+  } catch (e) {
+    console.error("initApp failed:", e);
+    document.getElementById("title").innerText =
+      "Error loading app — check console";
+  }
 }
 
 window.addEventListener("load", () => {
@@ -1374,7 +1388,9 @@ async function loginUser(){
 
   document.getElementById("chatUser").innerText = currentUser; // ✅ ADD THIS
     
+  setTimeout(() => {
   initApp();
+}, 50);
 } else {
     setAuthMsg("Login failed");
   }
