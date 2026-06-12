@@ -363,7 +363,11 @@ button{
       <button onclick="next()">⏭</button>
       <button onclick="favCurrent()">⭐</button>
     </div>
-
+    <div style="margin-top:10px;">
+  <button onclick="shareSite()" style="width:100%;">
+    🔗 Share RadioWave
+  </button>
+</div>
   </div>
   <div class="action-grid" id="actionGrid"></div>
 
@@ -899,6 +903,81 @@ function render(){
   });
 }
 
+function shareSite(){
+
+  const url = window.location.href;
+  const title = "xRadiowave - Live Radio Stations";
+  const text = "Listen to live radio stations on xRadiowave";
+
+  const cleanUrl = encodeURIComponent(url);
+  const cleanText = encodeURIComponent(text);
+  const cleanTitle = encodeURIComponent(title);
+
+  // Native share (mobile)
+  if (navigator.share) {
+    navigator.share({
+      title,
+      text,
+      url
+    });
+    return;
+  }
+
+  // fallback share menu
+  const menu = document.createElement("div");
+
+  menu.innerHTML = `
+    <div style="
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.6);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:99999;
+    " onclick="this.remove()">
+
+      <div onclick="event.stopPropagation()" style="
+        background:var(--panel);
+        padding:20px;
+        border-radius:16px;
+        display:grid;
+        gap:10px;
+        min-width:260px;
+      ">
+
+        <button onclick="window.open(
+          'https://www.facebook.com/sharer/sharer.php?u=' + cleanUrl,
+          '_blank'
+        )">Facebook</button>
+
+        <button onclick="window.open(
+          'https://twitter.com/intent/tweet?text=' + cleanText + '&url=' + cleanUrl,
+          '_blank'
+        )">X / Twitter</button>
+
+        <button onclick="window.open(
+          'https://www.reddit.com/submit?url=' + cleanUrl + '&title=' + cleanTitle,
+          '_blank'
+        )">Reddit</button>
+
+        <button onclick="window.open(
+          'https://wa.me/?text=' + cleanText + '%20' + cleanUrl,
+          '_blank'
+        )">WhatsApp</button>
+
+        <button onclick="window.open(
+          'mailto:?subject=' + cleanTitle + '&body=' + cleanText + '%20' + cleanUrl,
+          '_self'
+        )">Email</button>
+
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(menu);
+}
+  
 function favFiltered(i){
   fav(window.filtered[i]);
 }
