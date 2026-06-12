@@ -768,7 +768,9 @@ async function play(i){
 
   // default state first (instant UI response)
   document.getElementById("npMeta").innerText =
-    `${s.country || ""} • Loading...`;
+  `${meta.nowPlaying && meta.nowPlaying !== "Unavailable"
+      ? meta.nowPlaying
+      : getGenre(s)} • ${s.country || ""}`;
 
   // fetch real now playing (async upgrade layer)
   const meta = await getNowPlaying(s);
