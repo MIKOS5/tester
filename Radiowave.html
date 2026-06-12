@@ -1159,14 +1159,18 @@ document.querySelector(".main").addEventListener("scroll", () => {
   }
 });
 
+/* CHAT */
 const API_URL = "https://script.google.com/macros/s/AKfycbzX9UkAd64skxZoOtdIBnDkzDQMCBtodK98gBVWqZzmYYuSqYRJgZxx0rCqkBY8QRa17A/exec";
 
-/* CHAT */
 let chatData = [];
 
 async function loadChat(){
   try {
-    const res = await fetch(API_URL + "?action=get");
+    const res = await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({ action: "get" })
+    });
+
     const data = await res.json();
 
     chatData = Array.isArray(data) ? data : [];
@@ -1189,36 +1193,32 @@ async function sendMessage(){
     method: "POST",
     body: JSON.stringify({
       action: "send",
-      name: name,
+      name,
       message: msg
     })
   });
 
-  loadChat();
-  setInterval(loadChat, 5000);
+  loadChat(); // refresh immediately after send
 }
-  
+
 function renderChat(){
   const box = document.getElementById("chatLog");
   box.innerHTML = "";
 
-  chatData.slice(-50).forEach(m => {
+  chatData.forEach(m => {
     box.innerHTML += `
       <div class="chat-msg">
-        <span class="chat-name">${m.name}</span>: ${m.msg}
+        <span class="chat-name">${m.name}</span>: ${m.message}
       </div>
     `;
   });
 
   box.scrollTop = box.scrollHeight;
 }
-renderChat(); // ✅ ADD THIS
 
-document.getElementById("chatMsg").addEventListener("keydown", (e) => {
-  if (e.key === "Enter") {
-    sendMessage();
-  }
-});
+/* AUTO REFRESH (IMPORTANT PART) */
+loadChat();
+setInterval(loadChat, 3000); // every 3 seconds
   
 document.addEventListener("keydown", (e) => {
 
