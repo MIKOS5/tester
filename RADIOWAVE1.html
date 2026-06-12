@@ -449,6 +449,7 @@ let favorites = new Set();
 let page = 0;
 const PAGE_SIZE = 500;
 let currentCountry = "United States";
+let playingIndex = null;
   
 /* API */
 const RADIO =
@@ -787,16 +788,37 @@ function playFiltered(i){
   audio.play();
 
   document.getElementById("npName").innerText = s.name;
-
   document.getElementById("npMeta").innerText =
     `${s.country || ""} • ${getGenre(s)}`;
+
+  // reset old button if exists
+  if (playingIndex !== null && document.getElementById(`playBtn-${playingIndex}`)) {
+    document.getElementById(`playBtn-${playingIndex}`).innerText = "▶ Play";
+  }
+
+  // set new one
+  playingIndex = i;
+  const btn = document.getElementById(`playBtn-${i}`);
+  if (btn) btn.innerText = "⏸ Pause";
 }
   
 /* CONTROLS */
 function toggle(){
   const a = document.getElementById("audio");
-  if(a.paused) a.play();
-  else a.pause();
+
+  if(a.paused){
+    a.play();
+    if (playingIndex !== null) {
+      const btn = document.getElementById(`playBtn-${playingIndex}`);
+      if (btn) btn.innerText = "⏸ Pause";
+    }
+  } else {
+    a.pause();
+    if (playingIndex !== null) {
+      const btn = document.getElementById(`playBtn-${playingIndex}`);
+      if (btn) btn.innerText = "▶ Play";
+    }
+  }
 }
 
 function next(){
@@ -890,7 +912,7 @@ function render(){
         <div class="small">${getGenre(s)} • ${s.country || ""}</div>
 
         <div class="row">
-          <button onclick="playFiltered(${i})">▶ Play</button>
+          <button id="playBtn-${i}" onclick="playFiltered(${i})">▶ Play</button>
           <button onclick="showAll()">📻 Show All</button>
           <button class="fav-btn ${isFav ? "saved" : ""}"
             onclick="favFiltered(${i})">
