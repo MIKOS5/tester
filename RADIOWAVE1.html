@@ -1064,76 +1064,80 @@ function shareStation(station){
 
   if (!station) return;
 
-  const name = station.name;
+  const name = station.name || "Radio Station";
   const url = station.url || station.url_resolved || "";
   const genre = getGenre(station);
 
   const shareText = `Listening to ${name} • ${genre}`;
 
-  // safer URL for mobile share
-  const stationId = station.id || station.stationuuid || "";
-  const appUrl = `${location.origin}${location.pathname}?station=${stationId}`;
+  const cleanUrl = encodeURIComponent(url || "");
+  const cleanText = encodeURIComponent(shareText);
+  const cleanName = encodeURIComponent(name);
 
-  // MOBILE NATIVE SHARE
+  // Native mobile share (best option)
   if (navigator.share) {
     navigator.share({
       title: name,
       text: shareText,
-      url: appUrl
+      url: url
     });
     return;
   }
 
-  // DESKTOP FALLBACK MENU
+  // Fallback menu (station-based sharing)
   const menu = document.createElement("div");
-  menu.className = "share-menu";
 
   menu.innerHTML = `
-  <div style="
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,.6);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    z-index:99999;
-  " onclick="this.remove()">
+    <div style="
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.6);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:99999;
+    " onclick="this.remove()">
 
-    <div onclick="event.stopPropagation()" style="
-      background:var(--panel);
-      padding:20px;
-      border-radius:16px;
-      display:grid;
-      gap:10px;
-      min-width:260px;
-    ">
+      <div onclick="event.stopPropagation()" style="
+        background:var(--panel);
+        padding:20px;
+        border-radius:16px;
+        display:grid;
+        gap:10px;
+        min-width:260px;
+      ">
 
-      <button onclick="window.open('https://www.facebook.com/sharer/sharer.php?u=${cleanUrl}', '_blank')">
-        Facebook
-      </button>
+        <button onclick="window.open(
+          'https://www.facebook.com/sharer/sharer.php?u=' + cleanUrl,
+          '_blank'
+        )">Facebook</button>
 
-      <button onclick="window.open('https://twitter.com/intent/tweet?text=${cleanText}&url=${cleanUrl}', '_blank')">
-        X / Twitter
-      </button>
+        <button onclick="window.open(
+          'https://twitter.com/intent/tweet?text=' + cleanText + '&url=' + cleanUrl,
+          '_blank'
+        )">X / Twitter</button>
 
-      <button onclick="window.open('https://www.reddit.com/submit?url=${cleanUrl}&title=${cleanName}', '_blank')">
-        Reddit
-      </button>
+        <button onclick="window.open(
+          'https://www.reddit.com/submit?url=' + cleanUrl + '&title=' + cleanName,
+          '_blank'
+        )">Reddit</button>
 
-      <button onclick="window.open('https://wa.me/?text=${cleanText}%20${cleanUrl}', '_blank')">
-        WhatsApp
-      </button>
+        <button onclick="window.open(
+          'https://wa.me/?text=' + cleanText + '%20' + cleanUrl,
+          '_blank'
+        )">WhatsApp</button>
 
-      <button onclick="window.open('mailto:?subject=${cleanName}&body=${cleanText}%20${cleanUrl}', '_self')">
-        Email
-      </button>
+        <button onclick="window.open(
+          'mailto:?subject=' + cleanName + '&body=' + cleanText + '%20' + cleanUrl,
+          '_self'
+        )">Email</button>
 
+      </div>
     </div>
-  </div>
-`;
+  `;
 
   document.body.appendChild(menu);
-}  
+}
 
 function shareFiltered(i){
   shareStation(window.filtered[i]);
