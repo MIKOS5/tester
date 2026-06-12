@@ -771,16 +771,24 @@ async function play(i){
     `${s.country || ""} • Loading...`;
 
   // fetch real now playing (async upgrade layer)
-  const meta = await getNowPlaying(s);
+const meta = await getNowPlaying(s);
 
+if (meta && meta.nowPlaying && meta.nowPlaying !== "Unavailable") {
   document.getElementById("npMeta").innerText =
-    `${meta.nowPlaying || "Live Radio"} • ${s.country || ""}`;
+    `${meta.nowPlaying} • ${s.country || ""}`;
+} else {
+  document.getElementById("npMeta").innerText =
+    `${getGenre(s)} • ${s.country || ""}`;
 }
 
 function playFiltered(i){
 
-  const s = window.filtered[i];
+  const list = getActiveList();
+  const s = list[i];
   if(!s) return;
+
+  index = i;
+  window.activeList = list;
 
   const audio = document.getElementById("audio");
 
@@ -788,15 +796,15 @@ function playFiltered(i){
   audio.play();
 
   document.getElementById("npName").innerText = s.name;
-  document.getElementById("npMeta").innerText =
-    `${s.country || ""} • ${getGenre(s)}`;
 
-  // reset old button if exists
+  document.getElementById("npMeta").innerText =
+    `${getGenre(s)} • ${s.country || ""}`;
+
+  // fix button state
   if (playingIndex !== null && document.getElementById(`playBtn-${playingIndex}`)) {
     document.getElementById(`playBtn-${playingIndex}`).innerText = "▶ Play";
   }
 
-  // set new one
   playingIndex = i;
   const btn = document.getElementById(`playBtn-${i}`);
   if (btn) btn.innerText = "⏸ Pause";
@@ -822,15 +830,23 @@ function toggle(){
 }
 
 function next(){
-  index = (index + 1) % current.length;
-  play(index);
+  const list = getActiveList();
+  index = (index + 1) % list.length;
+  playFiltered(index);
 }
 
 function prev(){
-  index = (index - 1 + current.length) % current.length;
-  play(index);
+  const list = getActiveList();
+  index = (index - 1 + list.length) % list.length;
+  playFiltered(index);
 }
 
+function getActiveList(){
+  return window.filtered && window.filtered.length
+    ? window.filtered
+    : current;
+}
+  
 function normalize(s){
   return {
     id: s.stationuuid || s.id,
