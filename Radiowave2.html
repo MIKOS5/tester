@@ -97,29 +97,6 @@ body{
   font-size:13px;
   margin-bottom:20px;
 }
-
-<div id="authScreen" style="
-  position:fixed;
-  inset:0;
-  background:var(--bg);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index:99999;
-  flex-direction:column;
-  gap:10px;
-">
-
-  <h2>🔐 RadioWave Login</h2>
-
-  <input id="authUser" placeholder="username" style="padding:10px;border-radius:10px;">
-  <input id="authPass" type="password" placeholder="password" style="padding:10px;border-radius:10px;">
-
-  <button onclick="registerUser()">Create Account</button>
-  <button onclick="loginUser()">Login</button>
-
-  <div id="authMsg" style="font-size:12px;color:var(--muted)"></div>
-</div>
   
 /* GENRES */
 .genre-grid{
@@ -400,6 +377,10 @@ button{
   flex:1;
   min-width:120px;
 }
+
+#appContainer {
+  display: none;
+}
   
 #backToTop{
   position: fixed;
@@ -432,6 +413,31 @@ button{
 
 <body>
 
+<div id="appContainer">
+
+<div id="authScreen" style="
+  position:fixed;
+  inset:0;
+  background:var(--bg);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:99999;
+  flex-direction:column;
+  gap:10px;
+">
+
+  <h2>🔐 RadioWave Login</h2>
+
+  <input id="authUser" placeholder="username" style="padding:10px;border-radius:10px;">
+  <input id="authPass" type="password" placeholder="password" style="padding:10px;border-radius:10px;">
+
+  <button onclick="registerUser()">Create Account</button>
+  <button onclick="loginUser()">Login</button>
+
+  <div id="authMsg" style="font-size:12px;color:var(--muted)"></div>
+</div>
+  
 <!-- SIDEBAR -->
 <div class="sidebar">
 
@@ -883,7 +889,7 @@ if (meta && meta.nowPlaying && meta.nowPlaying !== "Unavailable") {
  }
   // ✅ ADD THIS HERE
   stationStarted = true;
-  loadChat();
+  safeLoadChat();
 }
 
 function playFiltered(i){
@@ -915,7 +921,7 @@ function playFiltered(i){
   if (btn) btn.innerText = "⏸ Pause";
   // ✅ ADD THIS HERE (THIS IS THE IMPORTANT PART)
   stationStarted = true;
-  loadChat();
+  safeLoadChat();
 }
   
 /* CONTROLS */
@@ -953,6 +959,11 @@ function getActiveList(){
   return window.filtered && window.filtered.length
     ? window.filtered
     : current;
+}
+
+function safeLoadChat(){
+  if(!currentUser) return; // BLOCK if not logged in
+  loadChat();
 }
   
 function normalize(s){
@@ -1197,7 +1208,7 @@ function initApp(){
   renderGenres();
   loadCountries();
   load();
-  loadChat();
+  safeLoadChat();
 }
 
 window.addEventListener("load", () => {
@@ -1297,7 +1308,7 @@ async function sendMessage(){
     })
   });
 
-  loadChat();
+  safeLoadChat();
 }
 
 async function registerUser(){
@@ -1343,14 +1354,14 @@ async function loginUser(){
   const data = await res.json();
 
   if(data.ok){
-    currentUser = data.username;
+  currentUser = data.username;
+  localStorage.setItem("rw_user", currentUser);
 
-    localStorage.setItem("rw_user", currentUser);
+  document.getElementById("authScreen").style.display = "none";
+  document.getElementById("appContainer").style.display = "flex";
 
-    document.getElementById("authScreen").style.display = "none";
-
-    initApp(); // start your radio/chat
-  } else {
+  initApp();
+} else {
     setAuthMsg("Login failed");
   }
 }
@@ -1384,10 +1395,10 @@ function renderChat(){
 }
 
 /* AUTO REFRESH (IMPORTANT PART) */
-loadChat();
-setInterval(() => {
+safeLoadChat();
+  setInterval(() => {
   if (document.visibilityState === "visible") {
-    loadChat();
+    safeLoadChat();
   }
 }, 3000);
   
@@ -1567,5 +1578,5 @@ if ("serviceWorker" in navigator) {
 }
 </script>
 <button id="backToTop" onclick="scrollToTop()">⬆ Top</button>
-</body>
-</html>
+</div> <!-- appContainer -->
+</body></html>
