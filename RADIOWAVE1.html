@@ -779,27 +779,27 @@ async function play(i){
 
 function playFiltered(i){
 
+  index = i;
+
   const s = window.filtered[i];
   if(!s) return;
 
   const audio = document.getElementById("audio");
 
-  audio.src = s.url_resolved || s.url;
+  audio.src = s.url || s.url_resolved;
   audio.play();
 
   document.getElementById("npName").innerText = s.name;
+
   document.getElementById("npMeta").innerText =
-    `${s.country || ""} • ${getGenre(s)}`;
+    `${s.country || ""} • Loading...`;
 
-  // reset old button if exists
-  if (playingIndex !== null && document.getElementById(`playBtn-${playingIndex}`)) {
-    document.getElementById(`playBtn-${playingIndex}`).innerText = "▶ Play";
-  }
+  getNowPlaying(s).then(meta=>{
+    document.getElementById("npMeta").innerText =
+      `${meta.nowPlaying || "Live Radio"} • ${s.country || ""}`;
+  });
 
-  // set new one
   playingIndex = i;
-  const btn = document.getElementById(`playBtn-${i}`);
-  if (btn) btn.innerText = "⏸ Pause";
 }
   
 /* CONTROLS */
@@ -822,12 +822,35 @@ function toggle(){
 }
 
 function next(){
+
+  if(window.filtered?.length){
+
+    index = (index + 1) % window.filtered.length;
+
+    playFiltered(index);
+    return;
+  }
+
   index = (index + 1) % current.length;
   play(index);
 }
 
 function prev(){
-  index = (index - 1 + current.length) % current.length;
+
+  if(window.filtered?.length){
+
+    index =
+      (index - 1 + window.filtered.length)
+      % window.filtered.length;
+
+    playFiltered(index);
+    return;
+  }
+
+  index =
+    (index - 1 + current.length)
+    % current.length;
+
   play(index);
 }
 
@@ -835,7 +858,8 @@ function normalize(s){
   return {
     id: s.stationuuid || s.id,
     name: s.name || "Unknown",
-    url: s.url_resolved || s.url,
+    url: s.url,
+    url_resolved: s.url_resolved,
     country: s.country || "",
     genre: s.tags || s.genre || "Radio"
   };
