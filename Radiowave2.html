@@ -443,8 +443,8 @@ button{
   <div id="chatLog" class="chat-log"></div>
 
   <div class="chat-input">
-    <input id="chatName" placeholder="name" />
-    <input id="chatMsg" placeholder="message" />
+    <input id="chatName" placeholder="name" maxlength="8" />
+    <input id="chatMsg" placeholder="message" maxlength="100" />
     <button onclick="sendMessage()">Send</button>
   </div>
 </div>
@@ -1222,10 +1222,14 @@ async function loadChat(){
 }
 
 async function sendMessage(){
-  const name = document.getElementById("chatName").value || "Anon";
-  const msg = document.getElementById("chatMsg").value;
+  let name = document.getElementById("chatName").value || "Anon";
+  let msg = document.getElementById("chatMsg").value;
 
   if(!msg) return;
+
+  // 🔒 enforce limits in JS too
+  name = name.trim().slice(0, 8);
+  msg = msg.trim().slice(0, 100);
 
   document.getElementById("chatMsg").value = "";
 
