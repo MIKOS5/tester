@@ -513,6 +513,7 @@ let page = 0;
 const PAGE_SIZE = 500;
 let currentCountry = "United States";
 let playingIndex = null;
+let stationStarted = false;
   
 /* API */
 const RADIO =
@@ -844,6 +845,7 @@ if (meta && meta.nowPlaying && meta.nowPlaying !== "Unavailable") {
     `${getGenre(s)} • ${s.country || ""}`;
  }
   // ✅ ADD THIS HERE
+  stationStarted = true;
   loadChat();
 }
 
@@ -875,6 +877,7 @@ function playFiltered(i){
   const btn = document.getElementById(`playBtn-${i}`);
   if (btn) btn.innerText = "⏸ Pause";
   // ✅ ADD THIS HERE (THIS IS THE IMPORTANT PART)
+  stationStarted = true;
   loadChat();
 }
   
@@ -1222,11 +1225,14 @@ function renderChat(){
   const box = document.getElementById("chatLog");
   box.innerHTML = "";
 
-    box.innerHTML += `
-    <div class="chat-msg" style="opacity:0.8;font-style:italic;">
-      Welcome to "${getStationName()}" chat 💬
+    if (!stationStarted) {
+  box.innerHTML = `
+    <div class="chat-msg" style="opacity:0.7;text-align:center;">
+      Select a station to join chat 💬
     </div>
   `;
+  return;
+}
 
   chatData.forEach(m => {
     box.innerHTML += `
