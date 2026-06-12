@@ -314,6 +314,56 @@ button{
   margin-bottom: 10px;
 }
 
+.chat-box{
+  margin-top:15px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  overflow:hidden;
+  background:var(--panel);
+}
+
+.chat-header{
+  padding:10px;
+  font-weight:800;
+  background:var(--panel-alt);
+  border-bottom:1px solid var(--line);
+}
+
+.chat-log{
+  height:180px;
+  overflow-y:auto;
+  padding:10px;
+  font-size:12px;
+}
+
+.chat-msg{
+  margin-bottom:6px;
+  padding:6px;
+  background:var(--panel-alt);
+  border-radius:8px;
+}
+
+.chat-name{
+  color:var(--blue);
+  font-weight:800;
+}
+
+.chat-input{
+  display:flex;
+  gap:5px;
+  padding:8px;
+  border-top:1px solid var(--line);
+}
+
+.chat-input input{
+  flex:1;
+  padding:6px;
+  border-radius:8px;
+  border:1px solid var(--line);
+  background:var(--bg);
+  color:var(--text);
+}
+  
 #backToTop{
   position: fixed;
   bottom: 20px;
@@ -323,7 +373,7 @@ button{
   padding: 12px 14px;
   border-radius: 999px;
 
-  background: linear-gradient(background:linear-gradient(180deg,var(--blue),var(--blue-dark));
+  background: linear-gradient(180deg, var(--blue), var(--blue-dark));
   color:var(--text);
   border: none;
   cursor: pointer;
@@ -386,6 +436,19 @@ button{
 
 </div>
 
+<!-- CHAT -->
+<div class="chat-box">
+  <div class="chat-header">💬 Chat</div>
+
+  <div id="chatLog" class="chat-log"></div>
+
+  <div class="chat-input">
+    <input id="chatName" placeholder="name" />
+    <input id="chatMsg" placeholder="message" />
+    <button onclick="sendMessage()">Send</button>
+  </div>
+</div>
+  
 </div>
 
 <!-- MAIN -->
@@ -1096,6 +1159,39 @@ document.querySelector(".main").addEventListener("scroll", () => {
   }
 });
 
+let chatData = [];
+
+function sendMessage(){
+  const name = document.getElementById("chatName").value || "Anon";
+  const msg = document.getElementById("chatMsg").value;
+
+  if(!msg) return;
+
+  chatData.push({
+    name,
+    msg,
+    time: Date.now()
+  });
+
+  document.getElementById("chatMsg").value = "";
+  renderChat();
+}
+
+function renderChat(){
+  const box = document.getElementById("chatLog");
+  box.innerHTML = "";
+
+  chatData.slice(-50).forEach(m => {
+    box.innerHTML += `
+      <div class="chat-msg">
+        <span class="chat-name">${m.name}</span>: ${m.msg}
+      </div>
+    `;
+  });
+
+  box.scrollTop = box.scrollHeight;
+}
+  
 document.addEventListener("keydown", (e) => {
 
   const tag = document.activeElement.tagName.toLowerCase();
