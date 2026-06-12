@@ -768,9 +768,7 @@ async function play(i){
 
   // default state first (instant UI response)
   document.getElementById("npMeta").innerText =
-  `${meta.nowPlaying && meta.nowPlaying !== "Unavailable"
-      ? meta.nowPlaying
-      : getGenre(s)} • ${s.country || ""}`;
+    `${s.country || ""} • Loading...`;
 
   // fetch real now playing (async upgrade layer)
   const meta = await getNowPlaying(s);
@@ -786,17 +784,22 @@ function playFiltered(i){
 
   const audio = document.getElementById("audio");
 
-  audio.src = s.url;
+  audio.src = s.url_resolved || s.url;
   audio.play();
 
   document.getElementById("npName").innerText = s.name;
   document.getElementById("npMeta").innerText =
     `${s.country || ""} • ${getGenre(s)}`;
 
-  playingIndex = i;
-}
+  // reset old button if exists
+  if (playingIndex !== null && document.getElementById(`playBtn-${playingIndex}`)) {
+    document.getElementById(`playBtn-${playingIndex}`).innerText = "▶ Play";
+  }
 
+  // set new one
   playingIndex = i;
+  const btn = document.getElementById(`playBtn-${i}`);
+  if (btn) btn.innerText = "⏸ Pause";
 }
   
 /* CONTROLS */
@@ -819,35 +822,12 @@ function toggle(){
 }
 
 function next(){
-
-  if(window.filtered?.length){
-
-    index = (index + 1) % window.filtered.length;
-
-    playFiltered(index);
-    return;
-  }
-
   index = (index + 1) % current.length;
   play(index);
 }
 
 function prev(){
-
-  if(window.filtered?.length){
-
-    index =
-      (index - 1 + window.filtered.length)
-      % window.filtered.length;
-
-    playFiltered(index);
-    return;
-  }
-
-  index =
-    (index - 1 + current.length)
-    % current.length;
-
+  index = (index - 1 + current.length) % current.length;
   play(index);
 }
 
