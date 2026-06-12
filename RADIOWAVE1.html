@@ -781,25 +781,20 @@ async function play(i){
 
 function playFiltered(i){
 
-  index = i;
-
   const s = window.filtered[i];
   if(!s) return;
 
   const audio = document.getElementById("audio");
 
-  audio.src = s.url || s.url_resolved;
+  audio.src = s.url;
   audio.play();
 
   document.getElementById("npName").innerText = s.name;
-
   document.getElementById("npMeta").innerText =
-    `${s.country || ""} • Loading...`;
+    `${s.country || ""} • ${getGenre(s)}`;
 
-  getNowPlaying(s).then(meta=>{
-    document.getElementById("npMeta").innerText =
-      `${meta.nowPlaying || "Live Radio"} • ${s.country || ""}`;
-  });
+  playingIndex = i;
+}
 
   playingIndex = i;
 }
@@ -860,8 +855,7 @@ function normalize(s){
   return {
     id: s.stationuuid || s.id,
     name: s.name || "Unknown",
-    url: s.url,
-    url_resolved: s.url_resolved,
+    url: s.url_resolved || s.url,
     country: s.country || "",
     genre: s.tags || s.genre || "Radio"
   };
