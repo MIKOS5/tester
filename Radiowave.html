@@ -521,7 +521,6 @@ const RADIO =
 const SHEET =
 "https://script.google.com/macros/s/AKfycbzZ5MwOcYUY_bpsUKSxPd810xE8rV_Y3z2GwzPublb_4O60CP8L_lC_V2kqkCQ_JdF5/exec";
 
-const API_URL = "https://script.google.com/macros/s/AKfycbzX9UkAd64skxZoOtdIBnDkzDQMCBtodK98gBVWqZzmYYuSqYRJgZxx0rCqkBY8QRa17A/exec";
   
 const GENRES = [
   { id:"50s", label:"📻 50s Hits" },
@@ -1160,25 +1159,43 @@ document.querySelector(".main").addEventListener("scroll", () => {
   }
 });
 
-let chatData = [];
-const API_URL = "https://script.google.com/macros/s/AKfycbzX9UkAd64skxZoOtdIBnDkzDQMCBtodK98gBVWqZzmYYuSqYRJgZxx0rCqkBY8QRa17A/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzX9MwOcYUY_bpsUKSxPd810xE8rV_Y3z2GwzPublb_4O60CP8L_lC_V2kqkCQ_JdF5/exec";
 
-function sendMessage(){
+/* CHAT */
+let chatData = [];
+
+async function loadChat(){
+  try {
+    const res = await fetch(API_URL + "?action=get");
+    const data = await res.json();
+    chatData = data.messages || [];
+    renderChat();
+  } catch(e){
+    console.log("chat load failed", e);
+  }
+}
+
+async function sendMessage(){
   const name = document.getElementById("chatName").value || "Anon";
   const msg = document.getElementById("chatMsg").value;
 
   if(!msg) return;
 
-  chatData.push({
-    name,
-    msg,
-    time: Date.now()
+  document.getElementById("chatMsg").value = "";
+
+  await fetch(API_URL, {
+    method:"POST",
+    body: new URLSearchParams({
+      action:"send",
+      name,
+      msg
+    })
   });
 
-  document.getElementById("chatMsg").value = "";
-  renderChat();
+  loadChat();
+  setInterval(loadChat, 5000);
 }
-
+  
 function renderChat(){
   const box = document.getElementById("chatLog");
   box.innerHTML = "";
