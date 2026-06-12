@@ -843,6 +843,8 @@ if (meta && meta.nowPlaying && meta.nowPlaying !== "Unavailable") {
   document.getElementById("npMeta").innerText =
     `${getGenre(s)} • ${s.country || ""}`;
  }
+  // ✅ ADD THIS HERE
+  loadChat();
 }
 
 function playFiltered(i){
@@ -872,6 +874,8 @@ function playFiltered(i){
   playingIndex = i;
   const btn = document.getElementById(`playBtn-${i}`);
   if (btn) btn.innerText = "⏸ Pause";
+  // ✅ ADD THIS HERE (THIS IS THE IMPORTANT PART)
+  loadChat();
 }
   
 /* CONTROLS */
@@ -1005,6 +1009,10 @@ function render(){
   });
 }
 
+function getCurrentStationId(){
+  return current[index]?.id || "global";
+}
+  
 function shareSite(){
 
   const url = window.location.href;
@@ -1168,7 +1176,10 @@ async function loadChat(){
   try {
     const res = await fetch(API_URL, {
       method: "POST",
-      body: JSON.stringify({ action: "get" })
+      body: JSON.stringify({
+        action: "get",
+        station: getCurrentStationId()
+      })
     });
 
     const data = await res.json();
@@ -1193,12 +1204,13 @@ async function sendMessage(){
     method: "POST",
     body: JSON.stringify({
       action: "send",
+      station: getCurrentStationId(),
       name,
       message: msg
     })
   });
 
-  loadChat(); // refresh immediately after send
+  loadChat();
 }
 
 function renderChat(){
@@ -1218,7 +1230,11 @@ function renderChat(){
 
 /* AUTO REFRESH (IMPORTANT PART) */
 loadChat();
-setInterval(loadChat, 3000); // every 3 seconds
+setInterval(() => {
+  if (document.visibilityState === "visible") {
+    loadChat();
+  }
+}, 3000);
   
 document.addEventListener("keydown", (e) => {
 
