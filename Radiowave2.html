@@ -570,6 +570,7 @@ let playingIndex = null;
 let stationStarted = false;
 let chatData = [];
 let currentChatStationId = null;
+let appInitialized = false;
   
 /* API */
 const RADIO =
@@ -1231,7 +1232,10 @@ async function initApp(){
     renderGenres();
     await loadCountries();
     await load();
-    if (currentUser) safeLoadChat();
+    
+    if (currentUser) {
+      safeLoadChat();
+    }
   } catch (e) {
     console.error("initApp failed:", e);
     document.getElementById("title").innerText =
@@ -1239,15 +1243,28 @@ async function initApp(){
   }
 }
 
-window.addEventListener("load", () => {
+/* 🔐 HARD LOGIN GATE */
+function startAppIfLoggedIn(){
   const saved = localStorage.getItem("rw_user");
 
-  if(saved){
-    currentUser = saved;
-    document.getElementById("authScreen").style.display = "none";
-    document.getElementById("appContainer").style.display = "flex";
-    initApp();
+  if (!saved) {
+    // FORCE auth screen visible
+    document.getElementById("authScreen").style.display = "flex";
+    document.getElementById("appContainer").style.display = "none";
+    return;
   }
+
+  currentUser = saved;
+
+  document.getElementById("authScreen").style.display = "none";
+  document.getElementById("appContainer").style.display = "flex";
+
+  initApp();
+}
+
+/* INIT */
+window.addEventListener("load", () => {
+  startAppIfLoggedIn();
 });
   
 document.querySelector(".main").addEventListener("scroll", () => {
@@ -1382,22 +1399,26 @@ async function loginUser(){
 
   const data = await res.json();
 
-  if(data.ok){
+  if (data.ok) {
   currentUser = data.username;
   localStorage.setItem("rw_user", currentUser);
 
+  // hide login immediately
   document.getElementById("authScreen").style.display = "none";
+
+  // show app ONCE
   document.getElementById("appContainer").style.display = "flex";
 
-  document.getElementById("chatUser").innerText = currentUser; // ✅ ADD THIS
-    
-  setTimeout(() => {
-  document.getElementById("appContainer").style.display = "flex";
-requestAnimationFrame(initApp);
-}, 50);
+  // update UI
+  document.getElementById("chatUser").innerText = currentUser;
+
+  // start app cleanly
+  requestAnimationFrame(() => {
+    initApp();
+  });
+
 } else {
-    setAuthMsg("Login failed");
-  }
+  setAuthMsg("Login failed");
 }
   
 function getStationName(){
