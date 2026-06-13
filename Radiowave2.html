@@ -1228,18 +1228,33 @@ function toggleTheme(){
 }
 /* INIT */
 async function initApp(){
+  console.log("initApp starting...");
+
   try {
     renderGenres();
-    await loadCountries();
-    await load();
-    
+
+    await loadCountries().catch(err => {
+      console.error("loadCountries failed:", err);
+    });
+
+    await load().catch(err => {
+      console.error("load failed:", err);
+    });
+
     if (currentUser) {
       safeLoadChat();
     }
+
+    console.log("initApp complete");
+
   } catch (e) {
-    console.error("initApp failed:", e);
+    console.error("initApp fatal error:", e);
+
     document.getElementById("title").innerText =
       "Error loading app — check console";
+
+    document.getElementById("list").innerHTML =
+      "<div style='padding:20px'>Init failed — check console logs</div>";
   }
 }
 
