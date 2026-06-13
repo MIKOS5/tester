@@ -1385,41 +1385,47 @@ async function registerUser(){
 }
 
 async function loginUser(){
+ async function loginUser(){
   const username = document.getElementById("authUser").value.trim();
   const password = document.getElementById("authPass").value.trim();
 
   const res = await fetch(AUTH_URL, {
-    method:"POST",
+    method: "POST",
     body: JSON.stringify({
-      action:"login",
+      action: "login",
       username,
       password
     })
   });
-}
 
-  const data = await res.json();
+  let data;
+  try {
+    data = await res.json();
+  } catch (e) {
+    setAuthMsg("Server error");
+    return;
+  }
 
   if (data.ok) {
-  currentUser = data.username;
-  localStorage.setItem("rw_user", currentUser);
+    currentUser = data.username;
+    localStorage.setItem("rw_user", currentUser);
 
-  // hide login immediately
-  document.getElementById("authScreen").style.display = "none";
+    // hide login immediately
+    document.getElementById("authScreen").style.display = "none";
 
-  // show app ONCE
-  document.getElementById("appContainer").style.display = "flex";
+    // show app
+    document.getElementById("appContainer").style.display = "flex";
 
-  // update UI
-  document.getElementById("chatUser").innerText = currentUser;
+    // update UI
+    document.getElementById("chatUser").innerText = currentUser;
 
-  // start app cleanly
-  requestAnimationFrame(() => {
-    initApp();
-  });
+    // start app cleanly
+    requestAnimationFrame(() => {
+      initApp();
+    });
 
-} else {
-  setAuthMsg("Login failed");
+  } else {
+    setAuthMsg("Login failed");
   }
 }
   
