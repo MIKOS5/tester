@@ -463,6 +463,9 @@ button{
   <button onclick="shareSite()" style="width:100%;">
     🔗 Share RadioWave
   </button>
+  <button onclick="logout()" style="width:100%;margin-top:10px;">
+  🚪 Logout
+</button>
 </div>
   </div>
   <div class="action-grid" id="actionGrid"></div>
@@ -571,6 +574,7 @@ let stationStarted = false;
 let chatData = [];
 let currentChatStationId = null;
 let appInitialized = false;
+let appStarted = false; // ✅ ADD HERE (global scope loc
   
 /* API */
 const RADIO =
@@ -1260,16 +1264,16 @@ async function initApp(){
 
 /* 🔐 HARD LOGIN GATE */
 function startAppIfLoggedIn(){
-  const saved = localStorage.getItem("rw_user");
+  const savedUser = localStorage.getItem("rw_user");
+  const verified = localStorage.getItem("rw_auth_ok") === "1";
 
-  if (!saved) {
-    // FORCE auth screen visible
+  if (!savedUser || !verified) {
     document.getElementById("authScreen").style.display = "flex";
     document.getElementById("appContainer").style.display = "none";
     return;
   }
 
-  currentUser = saved;
+  currentUser = savedUser;
 
   document.getElementById("authScreen").style.display = "none";
   document.getElementById("appContainer").style.display = "flex";
@@ -1399,6 +1403,12 @@ async function registerUser(){
   }
 }
 
+function logout(){
+  localStorage.removeItem("rw_user");
+  localStorage.removeItem("rw_auth_ok");
+  location.reload();
+}
+  
 async function loginUser(){
   const username = document.getElementById("authUser").value.trim();
   const password = document.getElementById("authPass").value.trim();
