@@ -1386,16 +1386,13 @@ async function registerUser(){
   }
 
   const res = await fetch(AUTH_URL, {
-    method:"POST",
-    headers: {
-  "Content-Type": "application/json"
-},
-    body: JSON.stringify({
-      action:"register",
-      username,
-      password
-    })
-  });
+  method: "POST",
+  body: new URLSearchParams({
+    action: "register",
+    username,
+    password
+  })
+});
 
   const data = await res.json();
 
@@ -1417,16 +1414,13 @@ async function loginUser(){
   const password = document.getElementById("authPass").value.trim();
 
   const res = await fetch(AUTH_URL, {
-    method: "POST",
-    headers: {
-  "Content-Type": "application/json"
-},
-    body: JSON.stringify({
-      action: "login",
-      username,
-      password
-    })
-  });
+  method: "POST",
+  body: new URLSearchParams({
+    action: "login",
+    username,
+    password
+  })
+});
 
   let data;
   try {
