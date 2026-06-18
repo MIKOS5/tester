@@ -785,13 +785,24 @@ async function loadUndiscovered(){
 
 async function loadInternational2(){
 
-  const res = await fetch(SHEET + "?action=international2");
-  const data = await res.json().catch(()=>[]);
+  try {
+    const res = await fetch(SHEET + "?action=international2");
 
-  current = (data.data || []).map(normalize);
+    const data = await res.json();
 
-  render();
-  setTitle("🌍 International East");
+    console.log("International2 response:", data);
+
+    current = (data.data || []).map(normalize);
+
+    render();
+    setTitle("🌍 International East");
+
+  } catch (err) {
+    console.error("International2 failed:", err);
+    current = [];
+    render();
+    setTitle("🌍 International East (error)");
+  }
 }
   
 /* FAVORITE TOGGLE */
