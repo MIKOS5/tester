@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-<title>xRadiowave</title>
+<title>Radiowave</title>
 
 <link rel="manifest" href="manifest.json">
 
@@ -170,12 +170,6 @@ button{
   cursor:pointer;
 }
 
-#soundcloudWidget {
-  display: none;
-  margin-top: 10px;
-  border-radius: 12px;
-}
-  
 .controls button {
   font-size: 30px;   /* 👈 emoji + text size */
   padding: 12px;
@@ -473,15 +467,6 @@ button{
 
     <audio id="audio"></audio>
 
-    <iframe
-  id="soundcloudWidget"
-  width="100%"
-  height="120"
-  scrolling="no"
-  frameborder="no"
-  allow="autoplay"
-></iframe>
-    
     <div class="controls">
   <button onclick="prev()">⏮</button>
   <button onclick="toggle()">▶</button>
@@ -592,9 +577,6 @@ let currentCountry = "United States";
 let playingIndex = null;
 let stationStarted = false;
 let metadataAbort = null;
-let soundcloudMode = false;
-let soundcloudList = [];
-let soundcloudIndex = 0;
   
 /* API */
 const RADIO =
@@ -734,7 +716,6 @@ const GENRES = [
     <div class="genre" onclick="loadUndiscovered()">🕵️ Undiscovered</div>
     <div class="genre" onclick="loadInternational()">🌎 Mexico</div>
     <div class="genre" onclick="loadInternational2()">🌍 International</div>
-    <div class="genre" onclick="loadSoundCloud()">🎧 SoundCloud</div>
   `;
 }
 /* =========================
@@ -855,42 +836,6 @@ async function loadInternational2(){
     setTitle("🌍 International (error)");
   }
 }
-
-async function getSoundCloudEmbed(url){
-  const res = await fetch(
-    "https://soundcloud.com/oembed?format=json&url=" +
-    encodeURIComponent(url)
-  );
-  return await res.json();
-}
-  
-async function playSoundCloud(i){
-
-  const track = soundcloudList[i];
-
-  const widget = document.getElementById("soundcloudWidget");
-  widget.style.display = "block";
-
-  const pageUrl = track.pageUrl || `https://soundcloud.com/tracks/${track.id}`;
-
-  try {
-    const data = await getSoundCloudEmbed(pageUrl);
-
-    // oEmbed returns HTML iframe
-    widget.srcdoc = data.html;
-  } catch (err) {
-    console.error("oEmbed failed, fallback used", err);
-
-    // fallback to API embed (your working method)
-    widget.src =
-      "https://w.soundcloud.com/player/?url=" +
-      encodeURIComponent("https://api.soundcloud.com/tracks/" + track.id) +
-      "&auto_play=true";
-  }
-
-  document.getElementById("npName").innerText = track.name;
-  document.getElementById("npMeta").innerText = "SoundCloud • oEmbed Player";
-}
   
 /* FAVORITE TOGGLE */
 async function fav(s){
@@ -967,49 +912,6 @@ async function loadInternational(){
   setTitle("🌎 Mexico");
 }
 
-async function loadSoundCloud(){
-
-  soundcloudMode = true;
-  current = []; // clear radio list
-  setTitle("🎧 SoundCloud");
-
-  try {
-
-    const res = await fetch(
-      "https://api-v2.soundcloud.com/search/tracks?q=lofi&client_id=YOUR_CLIENT_ID&limit=50"
-    );
-
-    const data = await res.json();
-
-    soundcloudList = await Promise.all(
-      data.collection.map(async (t) => {
-
-        // fallback to real SoundCloud page if available
-        const pageUrl =
-          t.permalink_url || `https://soundcloud.com/tracks/${t.id}`;
-
-        return {
-          id: t.id,
-          name: t.title,
-          pageUrl,   // 👈 useful later for oEmbed / sharing
-          genre: "SoundCloud"
-        };
-      })
-    );
-
-    renderSoundCloud();
-
-  } catch (err) {
-    console.error("SoundCloud load failed:", err);
-    soundcloudList = [];
-    renderSoundCloud();
-    setTitle("🎧 SoundCloud (error)");
-  }
-}
-
-  renderSoundCloud();
-}
-  
 async function listenNowPlaying(streamUrl, callback){
 
     if(metadataAbort)
@@ -1160,35 +1062,6 @@ function playFiltered(i){
   stationStarted = true;
   loadChat();
 }
-
-function toggleSource(){
-  if (soundcloudMode) {
-    showAll();
-  } else {
-    loadSoundCloud();
-  }
-}
-  
-function renderSoundCloud(){
-
-  const el = document.getElementById("list");
-  el.innerHTML = "";
-
-  soundcloudList.forEach((s,i)=>{
-
-    el.innerHTML += `
-      <div class="card">
-        <div class="station">${s.name}</div>
-
-        <div class="small">🎧 SoundCloud</div>
-
-        <div class="row">
-          <button onclick="playSoundCloud(${i})">▶ Play</button>
-        </div>
-      </div>
-    `;
-  });
-}
   
 /* CONTROLS */
 function toggle(){
@@ -1210,48 +1083,17 @@ function toggle(){
 }
 
 function next(){
-
-  if (soundcloudMode) {
-    soundcloudIndex = (soundcloudIndex + 1) % soundcloudList.length;
-    playSoundCloud(soundcloudIndex);
-    return;
-  }
-
   const list = getActiveList();
   index = (index + 1) % list.length;
   playFiltered(index);
 }
 
 function prev(){
-
-  if (soundcloudMode) {
-    soundcloudIndex =
-      (soundcloudIndex - 1 + soundcloudList.length) % soundcloudList.length;
-    playSoundCloud(soundcloudIndex);
-    return;
-  }
-
   const list = getActiveList();
   index = (index - 1 + list.length) % list.length;
   playFiltered(index);
 }
 
-function showAll() {
-  soundcloudMode = false;
-
-  document.getElementById("soundcloudWidget").style.display = "none";
-  document.getElementById("soundcloudWidget").src = "";
-
-  page = 0;
-  currentGenre = "";
-  filterMode = false;
-
-  document.querySelectorAll(".genre")
-    .forEach(x => x.classList.remove("active"));
-
-  load();
-}
-  
 function getActiveList(){
   return window.filtered && window.filtered.length
     ? window.filtered
