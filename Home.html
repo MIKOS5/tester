@@ -3,119 +3,142 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gear & Tools Hub</title>
+<title>Radiowave Hub</title>
+
 <style>
-  /* Base Layout */
-  body {
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-    display: flex;
-    height: 100vh;
-    overflow: hidden;
-    background: #f4f4f4;
-  }
+body {
+  margin:0;
+  height:100vh;
+  display:flex;
+  font-family:Arial;
+  overflow:hidden;
+}
 
-  /* Sidebar */
-  .sidebar {
-    width: 220px;
-    background: #333;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    padding-top: 20px;
-  }
-  .sidebar h2 {
-    text-align: center;
-    margin-bottom: 20px;
-    font-size: 1.5em;
-    border-bottom: 1px solid #555;
-    padding-bottom: 10px;
-  }
-  .sidebar a {
-    color: white;
-    text-decoration: none;
-    padding: 12px 20px;
-    margin: 5px 10px;
-    border-radius: 6px;
-    transition: all 0.2s ease;
-    font-weight: bold;
-  }
-  .sidebar a:hover {
-    background: #555;
-    transform: translateX(5px);
-  }
+.sidebar {
+  width:260px;
+  background:#111;
+  color:#fff;
+  padding:10px;
+}
 
-  /* Main content area */
-  .main-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
+.main {
+  flex:1;
+  display:flex;
+  flex-direction:column;
+}
 
-  header {
-    background: #444;
-    color: white;
-    text-align: center;
-    padding: 20px;
-  }
-  header h1 {
-    margin: 0;
-    font-size: 1.8em;
-  }
-  header p {
-    margin: 5px 0 0;
-    font-size: 0.9em;
-    opacity: 0.8;
-  }
+header {
+  background:#222;
+  color:white;
+  padding:10px;
+}
 
-  iframe {
-    flex: 1;
-    border: none;
-    width: 100%;
-    background: white;
-  }
+iframe {
+  flex:1;
+  border:none;
+}
 
-  /* Responsive tweaks */
-  @media (max-width: 768px) {
-    body {
-      flex-direction: column;
-    }
-    .sidebar {
-      width: 100%;
-      flex-direction: row;
-      overflow-x: auto;
-    }
-    .sidebar a {
-      flex: 1 0 auto;
-      margin: 5px;
-      text-align: center;
-    }
-    .main-content {
-      flex: 1;
-    }
-  }
+/* PLAYER */
+.player {
+  background:#1a1a1a;
+  padding:10px;
+  border-radius:10px;
+}
+
+button {
+  width:100%;
+  margin-top:5px;
+}
 </style>
 </head>
+
 <body>
 
-<!-- Sidebar Navigation -->
+<!-- GLOBAL AUDIO (IMPORTANT) -->
+<audio id="globalAudio"></audio>
+
 <div class="sidebar">
-  <h2>Navigation</h2>
-  <a href="RADIOWAVE1.html" target="contentFrame">Radiowave</a>
-  <!-- Add more links as needed -->
+
+  <h3>🎧 Radiowave</h3>
+
+  <div class="player">
+    <div id="nowPlaying">Not Playing</div>
+    <div id="meta">Select station</div>
+
+    <button onclick="togglePlay()">▶ Play / Pause</button>
+    <button onclick="nextStation()">⏭ Next</button>
+  </div>
+
+  <hr>
+
+  <button onclick="sendToApp('loadFavorites')">⭐ Favorites</button>
+  <button onclick="sendToApp('showAll')">📻 All Stations</button>
 </div>
 
-<!-- Main Content Area -->
-<div class="main-content">
-  <header>
-    <h1>My Gear & Tools Hub</h1>
-    <p>Quick access to your inventory and tools</p>
-  </header>
+<div class="main">
+  <header>Radiowave Browser</header>
 
-  <!-- Windowed Page -->
-  <iframe name="contentFrame" src="inventory.html"></iframe>
+  <iframe id="appFrame" src="radiowave.html"></iframe>
 </div>
+
+<script>
+
+let currentStation = null;
+let stations = [];
+let index = 0;
+
+/* RECEIVE FROM IFRAME */
+window.addEventListener("message", (e) => {
+  const msg = e.data;
+
+  if (msg.type === "play") {
+    playStream(msg.station, msg.list, msg.index);
+  }
+});
+
+/* SEND COMMANDS TO IFRAME */
+function sendToApp(cmd) {
+  document.getElementById("appFrame")
+    .contentWindow
+    .postMessage({ type: cmd }, "*");
+}
+
+/* GLOBAL PLAYER */
+function playStream(station, list, i) {
+
+  currentStation = station;
+  stations = list || [];
+  index = i || 0;
+
+  const audio = document.getElementById("globalAudio");
+
+  audio.src = station.url;
+  audio.play();
+
+  document.getElementById("nowPlaying").innerText = station.name;
+  document.getElementById("meta").innerText =
+    station.genre + " • " + station.country;
+
+  sendToApp({
+    type:"syncPlaying",
+    index:i
+  });
+}
+
+function togglePlay() {
+  const audio = document.getElementById("globalAudio");
+  if (audio.paused) audio.play();
+  else audio.pause();
+}
+
+function nextStation() {
+  if (!stations.length) return;
+
+  index = (index + 1) % stations.length;
+  playStream(stations[index], stations, index);
+}
+
+</script>
 
 </body>
 </html>
