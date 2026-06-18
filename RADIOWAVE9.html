@@ -663,8 +663,9 @@ const GENRES = [
   actions.innerHTML = `
     <div class="genre" onclick="showAll()">📻 Show All</div>
     <div class="genre" onclick="loadFavorites()">⭐ Favorites</div>
-    <div class="genre" onclick="loadMISC()">📻 MISC</div>
+    <div class="genre" onclick="loadArtist()">🎤 Artist</div>
     <div class="genre" onclick="loadInternational()">🌎 International</div>
+    <div class="genre" onclick="loadMISC()">📻 Misc</div>
   `;
 }
 /* =========================
@@ -793,6 +794,17 @@ async function fav(s){
   favorites.add(id);
   setTitle("Saved ⭐");
   render();
+}
+
+async function loadArtist(){
+
+  const res = await fetch(SHEET + "?action=artist");
+  const data = await res.json().catch(()=>[]);
+
+  current = (data.data || []).map(normalize);
+
+  render();
+  setTitle("🎤 Artist");
 }
   
 async function loadMISC(){
