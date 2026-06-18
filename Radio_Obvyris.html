@@ -459,6 +459,60 @@ button{
 .brand:active{
     transform:scale(.98);
 }
+
+#chatFloatBtn{
+  position: fixed;
+  bottom: 90px;
+  right: 20px;
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  font-size: 22px;
+  z-index: 99999;
+  box-shadow: 0 10px 25px rgba(0,0,0,.4);
+}
+
+.chat-popup{
+  position: fixed;
+  bottom: 160px;
+  right: 20px;
+  width: 320px;
+  height: 420px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 99999;
+  box-shadow: 0 20px 40px rgba(0,0,0,.5);
+}
+
+.chat-popup.hidden{
+  display: none;
+}
+
+.chat-popup-header{
+  display:flex;
+  justify-content: space-between;
+  align-items:center;
+  padding:10px;
+  background: var(--panel-alt);
+  font-weight: 800;
+  border-bottom: 1px solid var(--line);
+}
+
+.chat-popup-log{
+  flex:1;
+  overflow-y:auto;
+  padding:10px;
+  font-size:12px;
+}
+
+.chat-popup .chat-input{
+  padding:8px;
+  border-top:1px solid var(--line);
+}
   
 #backToTop.show{
   opacity: 1;
@@ -1289,6 +1343,58 @@ function favFiltered(i){
   fav(window.filtered[i]);
 }
 
+let chatOpen = false;
+
+function toggleChatPopup(){
+  const popup = document.getElementById("chatPopup");
+  chatOpen = !chatOpen;
+
+  popup.classList.toggle("hidden");
+
+  if(chatOpen){
+    renderPopupChat();
+  }
+}
+
+function renderPopupChat(){
+  const box = document.getElementById("chatLogPopup");
+  box.innerHTML = "";
+
+  chatData.forEach(m => {
+    box.innerHTML += `
+      <div class="chat-msg" style="${m.system ? "opacity:0.7;text-align:center;" : ""}">
+        <span class="chat-name">${m.system ? "" : m.name + ":"}</span> ${m.message}
+      </div>
+    `;
+  });
+
+  box.scrollTop = box.scrollHeight;
+}
+async function sendPopupMessage(){
+  let name = document.getElementById("chatNamePopup").value || "Anon";
+  let msg = document.getElementById("chatMsgPopup").value;
+
+  if(!msg) return;
+
+  name = name.trim().slice(0,8);
+  msg = msg.trim().slice(0,100);
+
+  document.getElementById("chatMsgPopup").value = "";
+
+  await fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify({
+      action: "send",
+      station: getCurrentStationId(),
+      name,
+      message: msg
+    })
+  });
+
+  loadChat();
+  renderPopupChat();
+}
+  
 function showAll() {
 
   page = 0;
@@ -1445,7 +1551,8 @@ async function sendMessage(){
     })
   });
 
-  loadChat();
+  renderChat();
+if (chatOpen) renderPopupChat();
 }
 
 function getStationName(){
@@ -1659,6 +1766,23 @@ if ("serviceWorker" in navigator) {
   });
 }
 </script>
+<button id="chatFloatBtn" onclick="toggleChatPopup()">
+  💬
+</button>
+  <div id="chatPopup" class="chat-popup hidden">
+  <div class="chat-popup-header">
+    <span>💬 Chat</span>
+    <button onclick="toggleChatPopup()">✖</button>
+  </div>
+
+  <div id="chatLogPopup" class="chat-popup-log"></div>
+
+  <div class="chat-input">
+    <input id="chatNamePopup" placeholder="name" maxlength="8" />
+    <input id="chatMsgPopup" placeholder="message" maxlength="100" />
+    <button onclick="sendPopupMessage()">Send</button>
+  </div>
+</div>
 <button id="backToTop" onclick="scrollToTop()">⬆ Top</button>
 </body>
 </html>
