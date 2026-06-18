@@ -566,18 +566,6 @@ button{
   </div>
   <div class="action-grid" id="actionGrid"></div>
 
-<!-- CHAT -->
-<div class="chat-box">
-  <div class="chat-header">💬 Chat</div>
-
-  <div id="chatLog" class="chat-log"></div>
-
-  <div class="chat-input">
-    <input id="chatName" placeholder="name" maxlength="8" />
-    <input id="chatMsg" placeholder="message" maxlength="100" />
-    <button onclick="sendMessage()">Send</button>
-  </div>
-</div>
   
 </div>
 
@@ -1111,8 +1099,33 @@ async function play(i){
   });
 
   stationStarted = true;
-  loadChat();
+  loadPopupChat();
 }
+
+async function loadPopupChat(){
+  try {
+    const stationId = getCurrentStationId();
+
+    const res = await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "get",
+        station: stationId
+      })
+    });
+
+    const data = await res.json();
+    const messages = Array.isArray(data) ? data : [];
+
+    chatData = messages;
+
+    renderPopupChat();
+
+  } catch(e){
+    console.log("popup chat load failed", e);
+  }
+}
+  
 function playFiltered(i){
 
   const list = getActiveList();
@@ -1142,7 +1155,7 @@ function playFiltered(i){
   if (btn) btn.innerText = "⏸ Pause";
   // ✅ ADD THIS HERE (THIS IS THE IMPORTANT PART)
   stationStarted = true;
-  loadChat();
+  loadPopupChat();
 }
   
 /* CONTROLS */
@@ -1368,24 +1381,43 @@ function toggleChatPopup(){
   popup.classList.toggle("hidden");
 
   if(chatOpen){
-    renderPopupChat();
+    loadPopupChat();   // 👈 ADD THIS
   }
 }
 
 function renderPopupChat(){
   const box = document.getElementById("chatLogPopup");
+  if (!box) return;
+
   box.innerHTML = "";
 
-  chatData.forEach(m => {
+  if (!stationStarted) {
+    box.innerHTML = `
+      <div class="chat-msg" style="opacity:0.7;text-align:center;">
+        Select a station to join chat 💬
+      </div>
+    `;
+    return;
+  }
+
+  const welcome = {
+    system: true,
+    name: "System",
+    message: `Chat for "${getStationName()}"`
+  };
+
+  [welcome, ...chatData].forEach(m => {
     box.innerHTML += `
       <div class="chat-msg" style="${m.system ? "opacity:0.7;text-align:center;" : ""}">
-        <span class="chat-name">${m.system ? "" : m.name + ":"}</span> ${m.message}
+        <span class="chat-name">${m.system ? "" : (m.name + ":")}</span>
+        ${m.message}
       </div>
     `;
   });
 
   box.scrollTop = box.scrollHeight;
 }
+  
 async function sendPopupMessage(){
   let name = document.getElementById("chatNamePopup").value || "Anon";
   let msg = document.getElementById("chatMsgPopup").value;
@@ -1407,8 +1439,7 @@ async function sendPopupMessage(){
     })
   });
 
-  loadChat();
-  renderPopupChat();
+  await loadPopupChat();
 }
   
 function showAll() {
@@ -1600,10 +1631,10 @@ function renderChat(){
 }
 
 /* AUTO REFRESH (IMPORTANT PART) */
-loadChat();
+loadPopupChat();
 setInterval(() => {
-  if (document.visibilityState === "visible") {
-    loadChat();
+  if (document.visibilityState === "visible" && chatOpen) {
+    loadPopupChat();
   }
 }, 3000);
   
