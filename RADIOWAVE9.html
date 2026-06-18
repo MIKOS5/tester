@@ -840,6 +840,26 @@ async function loadInternational2(){
     setTitle("🌍 International (error)");
   }
 }
+
+async function playSoundCloud(i){
+
+  soundcloudIndex = i;
+
+  const track = soundcloudList[i];
+
+  // STEP A: resolve stream URL
+  const res = await fetch(track.url + "?client_id=YOUR_CLIENT_ID");
+  const data = await res.json();
+
+  const audioUrl = data.url; // real stream URL
+
+  const audio = document.getElementById("audio");
+  audio.src = audioUrl;
+  audio.play();
+
+  document.getElementById("npName").innerText = track.name;
+  document.getElementById("npMeta").innerText = "SoundCloud • Streaming";
+}
   
 /* FAVORITE TOGGLE */
 async function fav(s){
@@ -1091,6 +1111,14 @@ function playFiltered(i){
   loadChat();
 }
 
+function toggleSource(){
+  if (soundcloudMode) {
+    showAll();
+  } else {
+    loadSoundCloud();
+  }
+}
+  
 function renderSoundCloud(){
 
   const el = document.getElementById("list");
@@ -1132,17 +1160,37 @@ function toggle(){
 }
 
 function next(){
+
+  if (soundcloudMode) {
+    soundcloudIndex = (soundcloudIndex + 1) % soundcloudList.length;
+    playSoundCloud(soundcloudIndex);
+    return;
+  }
+
   const list = getActiveList();
   index = (index + 1) % list.length;
   playFiltered(index);
 }
 
 function prev(){
+
+  if (soundcloudMode) {
+    soundcloudIndex =
+      (soundcloudIndex - 1 + soundcloudList.length) % soundcloudList.length;
+    playSoundCloud(soundcloudIndex);
+    return;
+  }
+
   const list = getActiveList();
   index = (index - 1 + list.length) % list.length;
   playFiltered(index);
 }
 
+function showAll(){
+  soundcloudMode = false;
+  load();
+}
+  
 function getActiveList(){
   return window.filtered && window.filtered.length
     ? window.filtered
