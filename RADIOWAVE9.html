@@ -680,8 +680,10 @@ const GENRES = [
 
   actions.innerHTML = `
     <div class="genre" onclick="loadArtist()">🎤 Artist</div>
-    <div class="genre" onclick="loadInternational()">🌎 International</div>
     <div class="genre" onclick="loadMISC()">📻 Misc</div>
+    <div class="genre" onclick="loadUndiscovered()">🕵️ Undiscovered</div>
+    <div class="genre" onclick="loadInternational()">🌎 International West</div>
+    <div class="genre" onclick="loadInternational2()">🌍 International East</div>
   `;
 }
 /* =========================
@@ -770,6 +772,28 @@ async function loadFavorites(){
   setTitle("⭐ Favorites");
 }
 
+async function loadUndiscovered(){
+
+  const res = await fetch(SHEET + "?action=undiscovered");
+  const data = await res.json().catch(()=>[]);
+
+  current = (data.data || []).map(normalize);
+
+  render();
+  setTitle("🕵️ Undiscovered");
+}
+
+async function loadInternational2(){
+
+  const res = await fetch(SHEET + "?action=international2");
+  const data = await res.json().catch(()=>[]);
+
+  current = (data.data || []).map(normalize);
+
+  render();
+  setTitle("🌍 International 2");
+}
+  
 /* FAVORITE TOGGLE */
 async function fav(s){
 
