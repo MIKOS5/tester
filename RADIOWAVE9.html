@@ -139,6 +139,49 @@ body{
   box-shadow:0 4px 14px rgba(39,147,255,0.35);
 }
 
+.genre-tabs{
+  margin-top:10px;
+}
+
+.tab-bar{
+  display:flex;
+  gap:6px;
+  margin-bottom:10px;
+}
+
+.tab{
+  flex:1;
+  text-align:center;
+  padding:8px;
+  border-radius:10px;
+  font-size:12px;
+  font-weight:700;
+  cursor:pointer;
+  background:var(--panel);
+  border:1px solid var(--line);
+  transition:0.15s;
+}
+
+.tab:hover{
+  border-color:var(--blue);
+}
+
+.tab.active{
+  background:var(--blue);
+  color:white;
+  border-color:var(--blue-dark);
+}
+
+.tab-content .genre-grid{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+.hidden{
+  display:none !important;
+}
+  
 /* PLAYER */
 .player{
   margin-top:20px;
@@ -499,13 +542,21 @@ button{
   </select>
 
   <!-- 🔥 NEW: Genre dropdown moved here -->
-  <div class="genre-header" onclick="toggleGenres()" style="margin:0;">
-  🎚 Genres <span id="genreArrow">▼</span>
-  </div>
-</div>
+  <div class="genre-tabs">
 
-<!-- 🔥 STEP 3 GOES HERE -->
-<div class="genre-grid collapsed" id="genreGrid" style="margin-bottom:15px;"></div>
+  <div class="tab-bar">
+    <div class="tab active" onclick="switchTab('decades')">⏳ Decades</div>
+    <div class="tab" onclick="switchTab('genres')">🎧 Genres</div>
+    <div class="tab" onclick="switchTab('moods')">🌈 Moods</div>
+  </div>
+
+  <div class="tab-content">
+    <div class="genre-grid" id="tab-decades"></div>
+    <div class="genre-grid hidden" id="tab-genres"></div>
+    <div class="genre-grid hidden" id="tab-moods"></div>
+  </div>
+
+</div>
   
   <input
   type="text"
@@ -554,114 +605,130 @@ const SHEET =
 "https://script.google.com/macros/s/AKfycbzZ5MwOcYUY_bpsUKSxPd810xE8rV_Y3z2GwzPublb_4O60CP8L_lC_V2kqkCQ_JdF5/exec";
 
   
-const GENRES = [
-  { id:"50s", label:"📻 50s Hits" },
-  { id:"60s", label:"🎙 60s Hits" },
-  { id:"70s", label:"✌️ 70s Hits" },
-  { id:"80s", label:"📼 80s Hits" },
-  { id:"90s", label:"💿 90s Hits" },
-  { id:"2000s", label:"📀 2000s Hits" },
+const GENRES = {
+  decades: [
+    { id:"50s", label:"50s" },
+    { id:"60s", label:"60s" },
+    { id:"70s", label:"70s" },
+    { id:"80s", label:"80s" },
+    { id:"90s", label:"90s" },
+    { id:"2000s", label:"2000s" }
+  ],
 
-  { id:"acoustic", label:"🎸 Acoustic" },
-  { id:"afrobeats", label:"🌍 Afrobeats" },
-  { id:"ambient", label:"🌫 Ambient" },
-  { id:"alternative", label:"🎸 Alternative" },
-  { id:"anime", label:"🌸 Anime Music" },
+  genres: [
+    { id:"rock", label:"Rock" },
+    { id:"pop", label:"Pop" },
+    { id:"hip hop", label:"Hip Hop" },
+    { id:"metal", label:"Metal" },
+    { id:"jazz", label:"Jazz" },
+    { id:"edm", label:"EDM" },
+    { id:"electronic", label:"Electronic" },
+    { id:"classical", label:"Classical" },
+    { id:"country", label:"Country" },
+    { id:"latin", label:"Latin" },
+    { id:"rnb", label:"R&B" },
 
-  { id:"blues", label:"🎺 Blues" },
-  { id:"bollywood", label:"🎬 Bollywood" },
-  { id:"bluegrass", label:"🪕 Bluegrass" },
+    { id:"reggae", label:"Reggae" },
+    { id:"blues", label:"Blues" },
+    { id:"funk", label:"Funk" },
+    { id:"soul", label:"Soul" },
 
-  { id:"celtic", label:"☘️ Celtic" },
-  { id:"chillout", label:"😌 Chillout" },
-  { id:"christian", label:"✝️ Christian" },
-  { id:"classical", label:"🎻 Classical" },
-  { id:"comedy", label:"😂 Comedy" },
-  { id:"country", label:"🤠 Country" },
+    { id:"indie", label:"Indie" },
+    { id:"alternative", label:"Alternative" },
+    { id:"punk", label:"Punk" },
+    { id:"grunge", label:"Grunge" },
 
-  { id:"disco", label:"🪩 Disco" },
-  { id:"drum and bass", label:"🥁 Drum & Bass" },
-  { id:"dubstep", label:"💥 Dubstep" },
+    { id:"afrobeats", label:"Afrobeats" },
+    { id:"bollywood", label:"Bollywood" },
+    { id:"kpop", label:"K-Pop" },
+    { id:"jpop", label:"J-Pop" },
 
-  { id:"edm", label:"⚡ EDM" },
-  { id:"electronic", label:"🎛 Electronic" },
-  { id:"experimental", label:"🧪 Experimental" },
+    { id:"anime", label:"Anime Music" },
+    { id:"video game", label:"Video Game Music" },
 
-  { id:"folk", label:"🪕 Folk" },
-  { id:"funk", label:"🕺 Funk" },
+    { id:"folk", label:"Folk" },
+    { id:"acoustic", label:"Acoustic" },
+    { id:"bluegrass", label:"Bluegrass" },
+    { id:"celtic", label:"Celtic" },
 
-  { id:"gospel", label:"🙏 Gospel" },
-  { id:"grunge", label:"☔ Grunge" },
+    { id:"experimental", label:"Experimental" },
+    { id:"dubstep", label:"Dubstep" },
+    { id:"drum and bass", label:"Drum & Bass" },
+    { id:"hardstyle", label:"Hardstyle" },
 
-  { id:"hardstyle", label:"⚙️ Hardstyle" },
-  { id:"hip hop", label:"🔥 Hip Hop" },
-  { id:"holiday", label:"🎄 Holiday" },
-  { id:"house", label:"🏠 House" },
-  { id:"hits", label:"⭐ Hits" },
+    { id:"house", label:"House" },
+    { id:"techno", label:"Techno" },
+    { id:"trance", label:"Trance" },
 
-  { id:"indie", label:"🎧 Indie" },
+    { id:"lofi", label:"Lo-Fi" },
+    { id:"ambient", label:"Ambient" },
+    { id:"chillout", label:"Chillout" },
 
-  { id:"jazz", label:"🎷 Jazz" },
-  { id:"jpop", label:"🇯🇵 J-Pop" },
+    { id:"comedy", label:"Comedy" },
+    { id:"news", label:"News" },
+    { id:"talk", label:"Talk Radio" },
+    { id:"podcast", label:"Podcasts" },
+    { id:"sports", label:"Sports Talk" },
 
-  { id:"kids", label:"🧒 Kids" },
-  { id:"kpop", label:"🇰🇷 K-Pop" },
+    { id:"sleep", label:"Sleep Music" },
+    { id:"study", label:"Study Beats" },
+    { id:"workout", label:"Workout" },
 
-  { id:"latin", label:"💃 Latin" },
-  { id:"lofi", label:"🌙 Lo-Fi" },
+    { id:"top 40", label:"Top 40" },
+    { id:"hits", label:"Hits" },
+    { id:"oldies", label:"Oldies" },
+    { id:"holiday", label:"Holiday" },
 
-  { id:"meditation", label:"🧘 Meditation" },
-  { id:"metal", label:"🤘 Metal" },
+    { id:"world", label:"World Music" }
+  ],
 
-  { id:"news", label:"📰 News" },
-  { id:"oldies", label:"📻 Oldies" },
+  moods: [
+    { id:"chillout", label:"Chill" },
+    { id:"study", label:"Focus / Study" },
+    { id:"sleep", label:"Sleep" },
+    { id:"workout", label:"Workout" },
+    { id:"party", label:"Party" },
+    { id:"lofi", label:"Lo-Fi" },
+    { id:"ambient", label:"Ambient" },
+    { id:"comedy", label:"Fun / Comedy" }
+  ]
+};
 
-  { id:"pop", label:"🎤 Pop" },
-  { id:"podcast", label:"🎧 Podcasts" },
-  { id:"punk", label:"🤟 Punk" },
+function switchTab(tab){
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  event.target.classList.add("active");
 
-  { id:"rnb", label:"🎶 R&B" },
-  { id:"reggae", label:"🌴 Reggae" },
-  { id:"rock", label:"🎸 Rock" },
+  document.querySelectorAll(".genre-grid").forEach(g => g.classList.add("hidden"));
 
-  { id:"soul", label:"💖 Soul" },
-  { id:"soundtracks", label:"🎬 Soundtracks" },
-  { id:"sports", label:"🏈 Sports Talk" },
-  { id:"study", label:"📚 Study Beats" },
-  { id:"swing", label:"🎷 Swing" },
-  { id:"sleep", label:"😴 Sleep Music" },
+  document.getElementById("tab-" + tab).classList.remove("hidden");
 
-  { id:"talk", label:"🎙 Talk Radio" },
-  { id:"techno", label:"🔊 Techno" },
-  { id:"top 40", label:"🔥 Top 40" },
-  { id:"trance", label:"🌌 Trance" },
-
-  { id:"video game", label:"🎮 Video Game Music" },
-
-  { id:"workout", label:"💪 Workout" },
-  { id:"world", label:"🌐 World Music" }
-];
-
+  renderTab(tab);
+}
+  
   function renderGenres(){
+  renderTab("decades");
+  renderTab("genres");
+  renderTab("moods");
+}
 
-  const grid = document.getElementById("genreGrid");
+function renderTab(tab){
+  const grid = document.getElementById("tab-" + tab);
+  if(!grid) return;
 
-  grid.innerHTML = GENRES.map(g => `
+  grid.innerHTML = GENRES[tab].map(g => `
     <div class="genre" data-id="${g.id}">
       ${g.label}
     </div>
   `).join("");
 
-  // prevent duplicate listeners
-  if (!grid.dataset.bound) {
+  if (!grid.dataset.bound){
     grid.dataset.bound = "true";
 
     grid.addEventListener("click", (e) => {
       const item = e.target.closest(".genre");
-      if (!item) return;
+      if(!item) return;
 
       const id = item.dataset.id;
-      if (!id) return;
 
       document.querySelectorAll(".genre")
         .forEach(x => x.classList.remove("active"));
@@ -673,6 +740,7 @@ const GENRES = [
       load(id);
     });
   }
+}
 
   // actions panel
   const actions = document.getElementById("actionGrid");
