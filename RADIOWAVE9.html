@@ -545,6 +545,7 @@ const PAGE_SIZE = 500;
 let currentCountry = "United States";
 let playingIndex = null;
 let stationStarted = false;
+let metadataAbort = null;
   
 /* API */
 const RADIO =
@@ -844,19 +845,96 @@ async function loadInternational(){
   setTitle("🌎 International");
 }
 
-async function getNowPlaying(station) {
-  try {
-    const res = await fetch(
-      `https://tester-nenh.onrender.com/nowplaying?url=${encodeURIComponent(station.url)}`
-    );
+async function listenNowPlaying(streamUrl, callback){
 
-    return await res.json();
-  } catch (e) {
-    return {
-      nowPlaying: "Unavailable",
-      source: "error"
-    };
-  }
+    if(metadataAbort)
+        metadataAbort.abort();
+
+    metadataAbort = new AbortController();
+
+    try{
+
+        const response = await fetch(streamUrl,{
+            headers:{
+                "Icy-MetaData":"1"
+            },
+            signal:metadataAbort.signal
+        });
+
+        const metaInt =
+            parseInt(response.headers.get("icy-metaint"));
+
+        if(!metaInt)
+            return;
+
+        const reader = response.body.getReader();
+
+        const decoder = new TextDecoder();
+
+        while(true){
+
+            // Skip audio bytes
+
+            let remaining = metaInt;
+
+            while(remaining>0){
+
+                const {value,done}=await reader.read();
+
+                if(done) return;
+
+                remaining-=value.length;
+            }
+
+            // Metadata length
+
+            const lenChunk=await reader.read();
+
+            if(lenChunk.done) return;
+
+            const metaLength=lenChunk.value[0]*16;
+
+            if(metaLength===0)
+                continue;
+
+            let meta=new Uint8Array(metaLength);
+
+            let offset=0;
+
+            while(offset<metaLength){
+
+                const chunk=await reader.read();
+
+                if(chunk.done) return;
+
+                meta.set(chunk.value.slice(0,metaLength-offset),offset);
+
+                offset+=Math.min(
+                    chunk.value.length,
+                    metaLength-offset
+                );
+            }
+
+            const text=decoder.decode(meta);
+
+            const match=text.match(
+                /StreamTitle='([^']*)'/
+            );
+
+            if(match){
+
+                callback(match[1]);
+
+            }
+
+        }
+
+    }catch(e){
+
+        console.log("metadata stopped");
+
+    }
+
 }
 /* PLAY */
 async function play(i){
@@ -870,26 +948,22 @@ async function play(i){
   audio.play();
 
   document.getElementById("npName").innerText = s.name;
+  document.getElementById("npMeta").innerText = "Loading track...";
 
-  // default state first (instant UI response)
-  document.getElementById("npMeta").innerText =
-    `${s.country || ""} • Loading...`;
+  // ✅ STOP previous listener cleanly
+  if (metadataAbort) {
+    metadataAbort.abort();
+  }
 
-  // fetch real now playing (async upgrade layer)
-const meta = await getNowPlaying(s);
+  // Start new listener
+  listenNowPlaying(s.url, (title) => {
+    document.getElementById("npMeta").innerText =
+      `${title} • ${s.country || ""}`;
+  });
 
-if (meta && meta.nowPlaying && meta.nowPlaying !== "Unavailable") {
-  document.getElementById("npMeta").innerText =
-    `${meta.nowPlaying} • ${s.country || ""}`;
-} else {
-  document.getElementById("npMeta").innerText =
-    `${getGenre(s)} • ${s.country || ""}`;
- }
-  // ✅ ADD THIS HERE
   stationStarted = true;
   loadChat();
 }
-
 function playFiltered(i){
 
   const list = getActiveList();
