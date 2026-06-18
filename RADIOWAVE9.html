@@ -577,6 +577,9 @@ let currentCountry = "United States";
 let playingIndex = null;
 let stationStarted = false;
 let metadataAbort = null;
+let soundcloudMode = false;
+let soundcloudList = [];
+let soundcloudIndex = 0;
   
 /* API */
 const RADIO =
@@ -716,6 +719,7 @@ const GENRES = [
     <div class="genre" onclick="loadUndiscovered()">🕵️ Undiscovered</div>
     <div class="genre" onclick="loadInternational()">🌎 Mexico</div>
     <div class="genre" onclick="loadInternational2()">🌍 International</div>
+    <div class="genre" onclick="loadSoundCloud()">🎧 SoundCloud</div>
   `;
 }
 /* =========================
@@ -912,6 +916,30 @@ async function loadInternational(){
   setTitle("🌎 Mexico");
 }
 
+async function loadSoundCloud(){
+
+  soundcloudMode = true;
+  current = []; // clear radio list
+  setTitle("🎧 SoundCloud");
+
+  // example public search (no auth needed via third-party API)
+  const res = await fetch(
+    "https://api-v2.soundcloud.com/search/tracks?q=lofi&client_id=YOUR_CLIENT_ID&limit=50"
+  );
+
+  const data = await res.json();
+
+  soundcloudList = data.collection.map(t => ({
+    id: t.id,
+    name: t.title,
+    url: t.media.transcodings[0]?.url,
+    country: "",
+    genre: "SoundCloud"
+  }));
+
+  renderSoundCloud();
+}
+  
 async function listenNowPlaying(streamUrl, callback){
 
     if(metadataAbort)
@@ -1061,6 +1089,27 @@ function playFiltered(i){
   // ✅ ADD THIS HERE (THIS IS THE IMPORTANT PART)
   stationStarted = true;
   loadChat();
+}
+
+function renderSoundCloud(){
+
+  const el = document.getElementById("list");
+  el.innerHTML = "";
+
+  soundcloudList.forEach((s,i)=>{
+
+    el.innerHTML += `
+      <div class="card">
+        <div class="station">${s.name}</div>
+
+        <div class="small">🎧 SoundCloud</div>
+
+        <div class="row">
+          <button onclick="playSoundCloud(${i})">▶ Play</button>
+        </div>
+      </div>
+    `;
+  });
 }
   
 /* CONTROLS */
