@@ -170,6 +170,12 @@ button{
   cursor:pointer;
 }
 
+#soundcloudWidget {
+  display: none;
+  margin-top: 10px;
+  border-radius: 12px;
+}
+  
 .controls button {
   font-size: 30px;   /* 👈 emoji + text size */
   padding: 12px;
@@ -467,6 +473,15 @@ button{
 
     <audio id="audio"></audio>
 
+    <iframe
+      id="soundcloudWidget"
+     width="100%"
+     height="120"
+     scrolling="no"
+     frameborder="no"
+     allow="autoplay">
+    </iframe>
+    
     <div class="controls">
   <button onclick="prev()">⏮</button>
   <button onclick="toggle()">▶</button>
@@ -847,18 +862,23 @@ async function playSoundCloud(i){
 
   const track = soundcloudList[i];
 
-  // STEP A: resolve stream URL
-  const res = await fetch(track.url + "?client_id=YOUR_CLIENT_ID");
-  const data = await res.json();
-
-  const audioUrl = data.url; // real stream URL
-
+  // stop radio audio
   const audio = document.getElementById("audio");
-  audio.src = audioUrl;
-  audio.play();
+  audio.pause();
+  audio.src = "";
+
+  // show iframe player
+  const widget = document.getElementById("soundcloudWidget");
+  widget.style.display = "block";
+
+  // load track into SoundCloud embed
+  widget.src =
+    "https://w.soundcloud.com/player/?url=" +
+    encodeURIComponent("https://api.soundcloud.com/tracks/" + track.id) +
+    "&auto_play=true";
 
   document.getElementById("npName").innerText = track.name;
-  document.getElementById("npMeta").innerText = "SoundCloud • Streaming";
+  document.getElementById("npMeta").innerText = "SoundCloud • Embedded Player";
 }
   
 /* FAVORITE TOGGLE */
@@ -950,12 +970,11 @@ async function loadSoundCloud(){
   const data = await res.json();
 
   soundcloudList = data.collection.map(t => ({
-    id: t.id,
-    name: t.title,
-    url: t.media.transcodings[0]?.url,
-    country: "",
-    genre: "SoundCloud"
-  }));
+  id: t.id,
+  name: t.title,
+  country: "",
+  genre: "SoundCloud"
+}));
 
   renderSoundCloud();
 }
@@ -1186,8 +1205,19 @@ function prev(){
   playFiltered(index);
 }
 
-function showAll(){
+function showAll() {
   soundcloudMode = false;
+
+  document.getElementById("soundcloudWidget").style.display = "none";
+  document.getElementById("soundcloudWidget").src = "";
+
+  page = 0;
+  currentGenre = "";
+  filterMode = false;
+
+  document.querySelectorAll(".genre")
+    .forEach(x => x.classList.remove("active"));
+
   load();
 }
   
