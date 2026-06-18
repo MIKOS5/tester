@@ -474,13 +474,13 @@ button{
     <audio id="audio"></audio>
 
     <iframe
-      id="soundcloudWidget"
-     width="100%"
-     height="120"
-     scrolling="no"
-     frameborder="no"
-     allow="autoplay">
-    </iframe>
+  id="soundcloudWidget"
+  width="100%"
+  height="120"
+  scrolling="no"
+  frameborder="no"
+  allow="autoplay"
+></iframe>
     
     <div class="controls">
   <button onclick="prev()">⏮</button>
@@ -856,29 +856,40 @@ async function loadInternational2(){
   }
 }
 
+async function getSoundCloudEmbed(url){
+  const res = await fetch(
+    "https://soundcloud.com/oembed?format=json&url=" +
+    encodeURIComponent(url)
+  );
+  return await res.json();
+}
+  
 async function playSoundCloud(i){
-
-  soundcloudIndex = i;
 
   const track = soundcloudList[i];
 
-  // stop radio audio
-  const audio = document.getElementById("audio");
-  audio.pause();
-  audio.src = "";
-
-  // show iframe player
   const widget = document.getElementById("soundcloudWidget");
   widget.style.display = "block";
 
-  // load track into SoundCloud embed
-  widget.src =
-    "https://w.soundcloud.com/player/?url=" +
-    encodeURIComponent("https://api.soundcloud.com/tracks/" + track.id) +
-    "&auto_play=true";
+  const pageUrl = track.pageUrl || `https://soundcloud.com/tracks/${track.id}`;
+
+  try {
+    const data = await getSoundCloudEmbed(pageUrl);
+
+    // oEmbed returns HTML iframe
+    widget.srcdoc = data.html;
+  } catch (err) {
+    console.error("oEmbed failed, fallback used", err);
+
+    // fallback to API embed (your working method)
+    widget.src =
+      "https://w.soundcloud.com/player/?url=" +
+      encodeURIComponent("https://api.soundcloud.com/tracks/" + track.id) +
+      "&auto_play=true";
+  }
 
   document.getElementById("npName").innerText = track.name;
-  document.getElementById("npMeta").innerText = "SoundCloud • Embedded Player";
+  document.getElementById("npMeta").innerText = "SoundCloud • oEmbed Player";
 }
   
 /* FAVORITE TOGGLE */
@@ -962,19 +973,39 @@ async function loadSoundCloud(){
   current = []; // clear radio list
   setTitle("🎧 SoundCloud");
 
-  // example public search (no auth needed via third-party API)
-  const res = await fetch(
-    "https://api-v2.soundcloud.com/search/tracks?q=lofi&client_id=YOUR_CLIENT_ID&limit=50"
-  );
+  try {
 
-  const data = await res.json();
+    const res = await fetch(
+      "https://api-v2.soundcloud.com/search/tracks?q=lofi&client_id=YOUR_CLIENT_ID&limit=50"
+    );
 
-  soundcloudList = data.collection.map(t => ({
-  id: t.id,
-  name: t.title,
-  country: "",
-  genre: "SoundCloud"
-}));
+    const data = await res.json();
+
+    soundcloudList = await Promise.all(
+      data.collection.map(async (t) => {
+
+        // fallback to real SoundCloud page if available
+        const pageUrl =
+          t.permalink_url || `https://soundcloud.com/tracks/${t.id}`;
+
+        return {
+          id: t.id,
+          name: t.title,
+          pageUrl,   // 👈 useful later for oEmbed / sharing
+          genre: "SoundCloud"
+        };
+      })
+    );
+
+    renderSoundCloud();
+
+  } catch (err) {
+    console.error("SoundCloud load failed:", err);
+    soundcloudList = [];
+    renderSoundCloud();
+    setTitle("🎧 SoundCloud (error)");
+  }
+}
 
   renderSoundCloud();
 }
