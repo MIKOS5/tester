@@ -708,6 +708,8 @@ let currentCountry = "United States";
 let playingIndex = null;
 let stationStarted = false;
 let metadataAbort = null;
+let mediaMode = "radio";
+let liveBoundaryTimer = null;
   
 /* API */
 const RADIO =
@@ -1214,6 +1216,7 @@ let liveStarted = false;
 let liveInterval = null;
 
 function toggleLive() {
+
     const card = document.getElementById("liveVideoCard");
     const video = document.getElementById("livePlayer");
     const audio = document.getElementById("audio");
@@ -1222,13 +1225,15 @@ function toggleLive() {
 
     if (opening) {
 
-        // Stop radio
-        audio.pause();
-        audio.removeAttribute("src");
-        audio.load();
+        // 🔥 SAFETY RESET (important)
+        if (liveBoundaryTimer) {
+            clearInterval(liveBoundaryTimer);
+            liveBoundaryTimer = null;
+        }
+
+        setMediaMode("tv");
 
         card.style.display = "block";
-        setMediaMode("tv");
 
         loadLiveStream();
 
@@ -1238,41 +1243,38 @@ function toggleLive() {
 
     } else {
 
+        // stop server sync timer
         clearInterval(liveInterval);
         liveInterval = null;
 
+        // 🔥 STOP boundary timer (THIS is the important one)
+        if (liveBoundaryTimer) {
+            clearInterval(liveBoundaryTimer);
+            liveBoundaryTimer = null;
+        }
+
+        // stop video fully
         video.pause();
         video.removeAttribute("src");
         video.load();
 
         card.style.display = "none";
 
-        setMediaMode("radio");
+        // stop audio fully
+        audio.pause();
+        audio.removeAttribute("src");
+        audio.load();
 
-        // DO NOT restart radio here.
+        setMediaMode("radio");
     }
 }
   
 function playFiltered(i){
 
-  if (mediaMode === "tv") return;  // 🔒 BLOCK
+    if (mediaMode === "tv")
+        return;
 
-  const list = getActiveList();
-  const s = list[i];
-  if(!s) return;
-
-  index = i;
-  window.activeList = list;
-
-  const audio = document.getElementById("audio");
-
-  audio.src = s.url_resolved || s.url;
-  audio.play();
-
-  document.getElementById("npName").innerText = s.name;
-
-  document.getElementById("npMeta").innerText =
-    `${getGenre(s)} • ${s.country || ""}`;
+    play(i);
 }
 
 function updateModeUI() {
@@ -1527,26 +1529,27 @@ function toggleChatPopup(){
 }
 
 function setMediaMode(mode) {
+
   mediaMode = mode;
 
   const audio = document.getElementById("audio");
   const video = document.getElementById("livePlayer");
 
-  if (mode === "radio") {
-    video.pause();
-    video.style.display = "none";
+  if (mode === "tv") {
 
-    audio.muted = false;
-
-  } else if (mode === "tv") {
     audio.pause();
-    audio.src = "";
+    audio.removeAttribute("src");
+    audio.load();
 
     video.style.display = "block";
 
   } else {
-    audio.pause();
+
     video.pause();
+    video.removeAttribute("src");
+    video.load();
+
+    video.style.display = "none";
   }
 }
   
@@ -2020,12 +2023,24 @@ function playLive(i, offset = 0) {
   livePlayer.onended = () => nextLive();
 
   // enforce loop boundary
-  setInterval(() => {
+  // clear any previous boundary timer
+if (liveBoundaryTimer) {
+    clearInterval(liveBoundaryTimer);
+    liveBoundaryTimer = null;
+}
+
+// enforce loop boundary (single timer only)
+liveBoundaryTimer = setInterval(() => {
+
     if (!liveCurrent) return;
+
+    if (livePlayer.readyState < 2) return; // not ready yet
+
     if (livePlayer.currentTime >= liveCurrent.end) {
-      nextLive();
+        nextLive();
     }
-  }, 500);
+
+}, 500);
 }
 
 function nextLive() {
