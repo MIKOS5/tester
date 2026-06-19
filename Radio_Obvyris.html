@@ -1644,12 +1644,12 @@ document.addEventListener("keydown", (e) => {
   const tag = document.activeElement.tagName.toLowerCase();
   const isTyping = tag === "input" || tag === "textarea" || tag === "select";
 
-  // don't interfere while typing (except Esc and /)
+  // Don't interfere while typing (except Esc and /)
   if (isTyping && e.key !== "Escape") return;
 
   switch (e.key.toLowerCase()) {
 
-    // playback
+    // Playback
     case " ":
       e.preventDefault();
       toggle();
@@ -1665,28 +1665,26 @@ document.addEventListener("keydown", (e) => {
       prev();
       break;
 
-    // favorite
-    case "f":
-  if (e.shiftKey) {
-    loadFavorites();   // open favorites list
-  } else {
-    favCurrent();      // toggle current station favorite
-  }
-  break;
-
-    // search focus
+    // Search
     case "/":
+    case "s":
       e.preventDefault();
       document.getElementById("searchBox").focus();
       break;
 
+    // Favorites
+    case "f":
+      loadFavorites();
+      break;
+
+    // Escape
     case "escape":
       document.getElementById("searchBox").value = "";
       document.getElementById("searchBox").blur();
       render();
       break;
 
-    // UI toggles
+    // UI
     case "g":
       toggleGenres();
       break;
@@ -1717,6 +1715,12 @@ document.addEventListener("keydown", (e) => {
 
     case "pageup":
       prevPage();
+      break;
+
+    // Help
+    case "?":
+      e.preventDefault();
+      showKeyboardHelp();
       break;
   }
 });
