@@ -659,7 +659,7 @@ let currentCountry = "United States";
 let playingIndex = null;
 let stationStarted = false;
 let metadataAbort = null;
-let liveModeEnabled = false;
+let mode = "radio"; // "radio" | "live"
   
 /* API */
 const RADIO =
@@ -1092,18 +1092,23 @@ async function listenNowPlaying(streamUrl, callback){
 /* PLAY */
 async function play(i){
 
-  if (!liveModeEnabled) return;  // 🔒 BLOCK
+  mode = "radio";
 
   index = i;
-
   const s = current[i];
+
   const audio = document.getElementById("audio");
+  const video = document.getElementById("livePlayer");
+
+  // stop video if switching back
+  video.pause();
+  video.src = "";
 
   audio.src = s.url_resolved || s.url;
   audio.play();
 
   document.getElementById("npName").innerText = s.name;
-  document.getElementById("npMeta").innerText = "Loading track...";
+  document.getElementById("npMeta").innerText = "LIVE RADIO";
 }
 
 async function loadPopupChat(){
@@ -1136,31 +1141,26 @@ let liveInterval = null;
 function toggleLive(){
   const card = document.getElementById("liveVideoCard");
 
-  if (!card) return;
+  if (mode !== "live") {
+    mode = "live";
 
-  if (card.style.display === "none") {
     card.style.display = "block";
-    liveModeEnabled = true;
 
-    if (!liveStarted) {
-      loadLiveStream();
-      liveStarted = true;
-      liveInterval = setInterval(loadLiveStream, 15000);
-    }
+    const audio = document.getElementById("audio");
+    audio.pause(); // stop radio cleanly
+
+    loadLiveStream();
 
   } else {
+    mode = "radio";
+
     card.style.display = "none";
-    livePlayer.pause();
 
-    liveModeEnabled = false;
+    const video = document.getElementById("livePlayer");
+    video.pause();
+    video.src = "";
 
-    clearInterval(liveInterval);
-    liveInterval = null;
-
-    // 🔥 ALSO STOP AUDIO when exiting live mode
-    const audio = document.getElementById("audio");
-    audio.pause();
-    audio.src = "";
+    load(); // reload radio UI if needed
   }
 }
   
@@ -1847,7 +1847,7 @@ let liveCurrent = null;
 livePlayer.controls = false;
 livePlayer.disablePictureInPicture = true;
 
-livePlayer.addEventListener("pause", () => livePlayer.play());
+ livePlayer.addEventListener("ended", () => nextLive());
 
 async function loadLiveStream() {
   try {
