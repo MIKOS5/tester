@@ -602,7 +602,7 @@ button{
     <div class="now" id="npName">Not Playing</div>
     <div class="meta" id="npMeta">Select station</div>
 
-    <audio id="audio"></audio>
+    <audio id="audio" preload="none" autoplay="false"></audio>
 
     <div class="controls">
   <button onclick="prev()">⏮</button>
@@ -1261,6 +1261,19 @@ function updateModeUI() {
   } else {
     title.innerText = "📻 RADIO MODE";
   }
+}
+
+function stopAllMedia(){
+  const audio = document.getElementById("audio");
+  const video = document.getElementById("livePlayer");
+
+  audio.pause();
+  audio.removeAttribute("src");
+  audio.load();
+
+  video.pause();
+  video.removeAttribute("src");
+  video.load();
 }
   
 /* CONTROLS */
@@ -2005,6 +2018,47 @@ loadLiveStream();
 </script>
 
 <script>
+// 👇 ADD THIS HERE (Step 1)
+window.addEventListener("load", () => {
+  const audio = document.getElementById("audio");
+  const video = document.getElementById("livePlayer");
+
+  audio.autoplay = false;
+  audio.preload = "none";
+  audio.controls = false;
+  audio.muted = false;
+
+  audio.addEventListener("play", (e) => {
+  if (mediaMode === "tv") {
+    audio.pause();
+    e.preventDefault();
+  }
+});
+  
+  audio.pause();
+  audio.removeAttribute("src");
+  audio.load();
+
+  video.pause();
+  video.removeAttribute("src");
+  video.load();
+
+  setMediaMode("radio");
+  document.getElementById("liveVideoCard").style.display = "none";
+});
+
+window.addEventListener("pageshow", () => {
+  const audio = document.getElementById("audio");
+  audio.pause();
+  audio.removeAttribute("src");
+  audio.load();
+});
+  
+// EXISTING CODE BELOW
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js")
+    
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("./sw.js")
