@@ -530,6 +530,52 @@ button{
   padding:8px;
   border-top:1px solid var(--line);
 }
+
+.tv-screen{
+    position:relative;
+    width:100%;
+    aspect-ratio:16/9;
+    background:#000;
+    border-radius:18px;
+    overflow:hidden;
+    border:4px solid #333;
+    box-shadow:
+        inset 0 0 40px rgba(0,0,0,.8),
+        0 20px 60px rgba(0,0,0,.5);
+}
+
+#livePlayer{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    background:black;
+}
+
+.tv-overlay{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+}
+
+#liveTitle{
+    position:absolute;
+    left:12px;
+    bottom:12px;
+    padding:6px 12px;
+    background:rgba(0,0,0,.65);
+    border-radius:8px;
+    font-weight:700;
+}
+
+#tvClock{
+    position:absolute;
+    right:12px;
+    top:12px;
+    padding:5px 10px;
+    background:rgba(0,0,0,.6);
+    border-radius:8px;
+    font-family:monospace;
+}
   
 #backToTop.show{
   opacity: 1;
@@ -576,17 +622,20 @@ button{
   <div class="title" id="title">Stations</div>
   <div style="display:flex;gap:10px;margin-bottom:15px;align-items:center;flex-wrap:wrap;">
 
-    <div class="card" id="liveVideoCard" style="display:none;">
-    <div style="font-weight:800;margin-bottom:10px;">
-      📺 LIVE Broadcast
-    </div>
+    <div id="liveVideoCard" class="tv-screen" style="display:none;">
 
-    <video id="livePlayer" autoplay muted playsinline
-      style="width:100%;border-radius:12px;background:black;">
+    <video
+        id="livePlayer"
+        playsinline
+        preload="metadata">
     </video>
 
-    <div class="small" id="liveTitle">Connecting...</div>
-  </div>
+    <div class="tv-overlay">
+        <div id="liveTitle">OFF AIR</div>
+        <div id="tvClock"></div>
+    </div>
+
+</div>
     
   <!-- 👇 MOVE SHOW ALL HERE -->
   <div class="genre" onclick="showAll()" style="white-space:nowrap;">
@@ -1104,13 +1153,31 @@ async function play(i){
   video.pause();
   video.src = "";
 
+  // set stream
   audio.src = s.url_resolved || s.url;
-  audio.play();
+
+  // 🔥 ADD THIS: error handling for bad streams
+  audio.onerror = () => {
+    console.log("Audio failed:", audio.src);
+    setTitle("❌ Stream failed");
+    document.getElementById("npMeta").innerText = "Broken stream / unavailable";
+  };
+
+  // optional: more detailed debugging
+  audio.onstalled = () => console.log("Stream stalled:", audio.src);
+  audio.onabort = () => console.log("Stream aborted:", audio.src);
+
+  try {
+    await audio.play();
+  } catch (err) {
+    console.log("Play blocked or failed:", err);
+    setTitle("❌ Cannot play stream");
+    document.getElementById("npMeta").innerText = "Playback blocked or failed";
+  }
 
   document.getElementById("npName").innerText = s.name;
   document.getElementById("npMeta").innerText = "LIVE RADIO";
 }
-
 async function loadPopupChat(){
   try {
     const stationId = getCurrentStationId();
@@ -1138,35 +1205,35 @@ async function loadPopupChat(){
 let liveStarted = false;
 let liveInterval = null;
 
-function toggleLive(){
+function toggleLive() {
   const card = document.getElementById("liveVideoCard");
 
-  if (mode !== "live") {
-    mode = "live";
+  const isOpening = card.style.display === "none";
 
+  if (isOpening) {
     card.style.display = "block";
-
-    const audio = document.getElementById("audio");
-    audio.pause(); // stop radio cleanly
+    setMediaMode("tv");
 
     loadLiveStream();
 
-  } else {
-    mode = "radio";
+    if (!liveStarted) {
+      liveStarted = true;
+      liveInterval = setInterval(loadLiveStream, 15000);
+    }
 
+  } else {
     card.style.display = "none";
 
-    const video = document.getElementById("livePlayer");
-    video.pause();
-    video.src = "";
+    setMediaMode("radio");
 
-    load(); // reload radio UI if needed
+    clearInterval(liveInterval);
+    liveInterval = null;
   }
 }
   
 function playFiltered(i){
 
-  if (!liveModeEnabled) return;  // 🔒 BLOCK
+  if (mediaMode === "tv") return;  // 🔒 BLOCK
 
   const list = getActiveList();
   const s = list[i];
@@ -1184,6 +1251,16 @@ function playFiltered(i){
 
   document.getElementById("npMeta").innerText =
     `${getGenre(s)} • ${s.country || ""}`;
+}
+
+function updateModeUI() {
+  const title = document.getElementById("title");
+
+  if (mediaMode === "tv") {
+    title.innerText = "📺 LIVE TV MODE";
+  } else {
+    title.innerText = "📻 RADIO MODE";
+  }
 }
   
 /* CONTROLS */
@@ -1232,6 +1309,7 @@ function normalize(s){
     genre: s.tags || s.genre || "Radio"
   };
 }
+
 
 let genresOpen = false;
 
@@ -1413,6 +1491,30 @@ function toggleChatPopup(){
   }
 }
 
+function setMediaMode(mode) {
+  mediaMode = mode;
+
+  const audio = document.getElementById("audio");
+  const video = document.getElementById("livePlayer");
+
+  if (mode === "radio") {
+    video.pause();
+    video.style.display = "none";
+
+    audio.muted = false;
+
+  } else if (mode === "tv") {
+    audio.pause();
+    audio.src = "";
+
+    video.style.display = "block";
+
+  } else {
+    audio.pause();
+    video.pause();
+  }
+}
+  
 function renderPopupChat(){
   const box = document.getElementById("chatLogPopup");
   if (!box) return;
