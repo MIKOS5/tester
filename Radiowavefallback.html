@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-<title>Radiowave</title>
+<title>Radio Obvyris</title>
 
 <link rel="manifest" href="manifest.json">
 
@@ -13,12 +13,12 @@
 
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Radiowave">
+<meta name="apple-mobile-web-app-title" content="Radio Obvyris">
 
 <link rel="icon" type="image/png" href="https://mikos5.github.io/tester/navicon.png">
 <link rel="apple-touch-icon" href="https://mikos5.github.io/tester/navicon.png">
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet"/>
 
 <style>
 
@@ -87,10 +87,17 @@ body{
 }
 
 .logo{
-  font-size:28px;
-  font-weight:800;
+  font-family:'Orbitron', sans-serif;
+  font-size:42px;
+  font-weight:900;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  text-shadow:0 0 8px rgba(39,147,255,.35);
 }
-.logo span{color:var(--blue);}
+
+.logo span{
+  color:var(--blue);
+}
 
 .subtitle{
   color:var(--muted);
@@ -100,20 +107,18 @@ body{
 
 /* GENRES */
 .genre-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  max-height:2000px;
+  overflow:hidden;
+  transition: max-height 0.3s ease, opacity 0.2s ease;
 }
 
-.genre{
-  padding:12px;
-  border-radius:14px;
-  background:var(--panel);
-  border:1px solid var(--line);
-  text-align:center;
-  cursor:pointer;
-  font-weight:700;
-  transition:.15s;
+.genre:hover{
+  transform:translateY(-1px);
+  border-color:var(--blue);
+  background:rgba(39,147,255,0.12);
 }
 
 .genre:hover{
@@ -123,6 +128,9 @@ body{
 
 .genre.active{
   background:var(--blue);
+  color:white;
+  border-color:var(--blue-dark);
+  box-shadow:0 4px 14px rgba(39,147,255,0.35);
 }
 
 /* PLAYER */
@@ -156,6 +164,11 @@ button{
   cursor:pointer;
 }
 
+.controls button {
+  font-size: 30px;   /* 👈 emoji + text size */
+  padding: 12px;
+}
+  
 /* MAIN */
 .main{
   flex:1;
@@ -268,24 +281,30 @@ button{
 }
 
 /* header bar */
-.genre-header {
-  padding: 12px;
-  border-radius: 12px;
-  background: var(--panel);
-  border: 1px solid var(--line);
-  font-weight: 800;
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
+.genre{
+  padding:8px 10px;        /* smaller padding */
+  border-radius:12px;      /* slightly tighter */
+  font-size:13px;          /* smaller text */
+  background:var(--panel);
+  border:1px solid var(--line);
+  text-align:center;
+  cursor:pointer;
+  font-weight:700;
+  transition:.15s;
+  line-height:1.2;
 }
 
 /* collapse animation */
 .genre-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 6px;
+
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel);
+
   max-height: 2000px;
   overflow: hidden;
   transition: max-height 0.3s ease, opacity 0.2s ease;
@@ -296,24 +315,130 @@ button{
   max-height: 0;
   opacity: 0;
   pointer-events: none;
+  padding-top: 0;
+  padding-bottom: 0;
+  border: 0;
 }
 
-.action-grid{
-  display:grid;
-  grid-template-columns:1fr;
-  gap:10px;
-  margin-top:12px;
+/* responsive columns */
+@media (max-width: 1400px) {
+  .genre-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
 }
 
-.action-grid .genre{
-  background:var(--panel-alt);
-  border:1px solid var(--line);
+@media (max-width: 1000px) {
+  .genre-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
-.action-grid{
+@media (max-width: 700px) {
+  .genre-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ACTION GRID */
+.action-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-top: 12px;
   margin-bottom: 10px;
 }
 
+.action-grid .genre{
+    min-height:50px;
+    font-size:20px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:0 12px;
+}
+
+/* CHAT */
+.chat-box {
+  margin-top: 15px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--panel);
+}
+
+.chat-header{
+  padding:10px;
+  font-weight:800;
+  background:var(--panel-alt);
+  border-bottom:1px solid var(--line);
+}
+
+.chat-log{
+  height:180px;
+  overflow-y:auto;
+  padding:10px;
+  font-size:12px;
+}
+
+.chat-msg{
+  margin-bottom:6px;
+  padding:6px;
+  background:var(--panel-alt);
+  border-radius:8px;
+}
+
+.chat-name{
+  color:var(--blue);
+  font-weight:800;
+}
+
+.chat-input{
+  display:flex;
+  gap:5px;
+  padding:8px;
+  border-top:1px solid var(--line);
+}
+
+.chat-input{
+  display:flex;
+  gap:5px;
+}
+
+.chat-input input{
+  padding:6px;
+  border-radius:8px;
+  border:1px solid var(--line);
+  background:var(--bg);
+  color:var(--text);
+}
+
+.chat-popup .chat-input{
+  display:flex;
+  gap:5px;
+  padding:8px;
+  border-top:1px solid var(--line);
+  background: var(--panel);
+}
+
+.chat-popup .chat-input input{
+  padding:6px;
+  border-radius:8px;
+  border:1px solid var(--line);
+  background:var(--bg);
+  color:var(--text);
+}
+  
+#chatName{
+  width:70px;
+  flex:0 0 auto;
+}
+
+#chatMsg,
+#chatMsgPopup {
+  flex: 0 1 120px;   /* shrink + max width */
+  max-width: 120px;
+}
+  
 #backToTop{
   position: fixed;
   bottom: 20px;
@@ -323,7 +448,7 @@ button{
   padding: 12px 14px;
   border-radius: 999px;
 
-  background: linear-gradient(background:linear-gradient(180deg,var(--blue),var(--blue-dark));
+  background: linear-gradient(180deg, var(--blue), var(--blue-dark));
   color:var(--text);
   border: none;
   cursor: pointer;
@@ -336,6 +461,76 @@ button{
   transition: 0.2s ease;
 }
 
+.brand{
+    cursor:pointer;
+    user-select:none;
+    padding:8px;
+    border-radius:10px;
+    transition:.2s;
+}
+
+.brand:hover{
+    background:rgba(255,255,255,.08);
+}
+
+.brand:active{
+    transform:scale(.98);
+}
+
+#chatFloatBtn{
+  position: fixed;
+  bottom: 90px;
+  right: 20px;
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  font-size: 22px;
+  z-index: 99999;
+  box-shadow: 0 10px 25px rgba(0,0,0,.4);
+}
+
+.chat-popup{
+  position: fixed;
+  bottom: 160px;
+  right: 20px;
+  width: 35vw;
+  height: 70vh;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 99999;
+  box-shadow: 0 20px 40px rgba(0,0,0,.5);
+}
+
+.chat-popup.hidden{
+  display: none;
+}
+
+.chat-popup-header{
+  display:flex;
+  justify-content: space-between;
+  align-items:center;
+  padding:10px;
+  background: var(--panel-alt);
+  font-weight: 800;
+  border-bottom: 1px solid var(--line);
+}
+
+.chat-popup-log{
+  flex:1;
+  overflow-y:auto;
+  padding:10px;
+  font-size:12px;
+}
+
+.chat-popup .chat-input{
+  padding:8px;
+  border-top:1px solid var(--line);
+}
+  
 #backToTop.show{
   opacity: 1;
   pointer-events: auto;
@@ -348,8 +543,14 @@ button{
 <!-- SIDEBAR -->
 <div class="sidebar">
 
-  <div class="logo">📻Radio <span>Stations</span></div>
-  <div class="subtitle">Live radio • genres • favorites</div>
+  <div class="brand" onclick="shareSite()">
+    <div class="logo">
+        Radio <span>Obvyris</span> 
+    </div>
+    <div class="subtitle">
+        Live radio stations • genres • favorites
+    </div>
+</div>
   <div class="player">
 
     <div class="now" id="npName">Not Playing</div>
@@ -358,42 +559,40 @@ button{
     <audio id="audio"></audio>
 
     <div class="controls">
-      <button onclick="prev()">⏮</button>
-      <button onclick="toggle()">▶</button>
-      <button onclick="next()">⏭</button>
-      <button onclick="favCurrent()">⭐</button>
-    </div>
-    <div style="margin-top:10px;">
-  <button onclick="shareSite()" style="width:100%;">
-    🔗 Share RadioWave
-  </button>
-</div>
+  <button onclick="prev()">⏮</button>
+  <button onclick="toggle()">▶</button>
+  <button onclick="next()">⏭</button>
+  <button id="themeBtn" onclick="toggleTheme()">🌙</button>
+  </div>
   </div>
   <div class="action-grid" id="actionGrid"></div>
 
-<div class="action-grid">
-  <div class="genre" onclick="toggleTheme()">🌙 Night / ☀️ Light</div>
-</div>
-
-<!-- GENRES SECTION -->
-<div class="genre-section">
-
-  <div class="genre-header" onclick="toggleGenres()">
-    🎚 Genres <span id="genreArrow">▼</span>
-  </div>
-
-  <div class="genre-grid collapsed" id="genreGrid"></div>
-
-</div>
-
+  
 </div>
 
 <!-- MAIN -->
 <div class="main">
 
   <div class="title" id="title">Stations</div>
-  <div style="display:flex;gap:10px;margin-bottom:15px;">
+  <div style="display:flex;gap:10px;margin-bottom:15px;align-items:center;flex-wrap:wrap;">
 
+    <div class="card" id="liveVideoCard">
+    <div style="font-weight:800;margin-bottom:10px;">
+      📺 LIVE Broadcast
+    </div>
+
+    <video id="livePlayer" autoplay muted playsinline
+      style="width:100%;border-radius:12px;background:black;">
+    </video>
+
+    <div class="small" id="liveTitle">Connecting...</div>
+  </div>
+    
+  <!-- 👇 MOVE SHOW ALL HERE -->
+  <div class="genre" onclick="showAll()" style="white-space:nowrap;">
+    📻 Show All
+  </div>
+    
   <select
     id="countryFilter"
     onchange="changeCountry()"
@@ -412,7 +611,15 @@ button{
     <option value="">🌎 All Countries</option>
   </select>
 
+  <!-- 🔥 NEW: Genre dropdown moved here -->
+  <div class="genre-header" onclick="toggleGenres()" style="margin:0;">
+  🎚 Genres <span id="genreArrow">▼</span>
+  </div>
 </div>
+
+<!-- 🔥 STEP 3 GOES HERE -->
+<div class="genre-grid collapsed" id="genreGrid" style="margin-bottom:15px;"></div>
+  
   <input
   type="text"
   id="searchBox"
@@ -450,6 +657,8 @@ let page = 0;
 const PAGE_SIZE = 500;
 let currentCountry = "United States";
 let playingIndex = null;
+let stationStarted = false;
+let metadataAbort = null;
   
 /* API */
 const RADIO =
@@ -458,7 +667,7 @@ const RADIO =
 const SHEET =
 "https://script.google.com/macros/s/AKfycbzZ5MwOcYUY_bpsUKSxPd810xE8rV_Y3z2GwzPublb_4O60CP8L_lC_V2kqkCQ_JdF5/exec";
 
-
+  
 const GENRES = [
   { id:"50s", label:"📻 50s Hits" },
   { id:"60s", label:"🎙 60s Hits" },
@@ -583,10 +792,15 @@ const GENRES = [
   const actions = document.getElementById("actionGrid");
 
   actions.innerHTML = `
-    <div class="genre" onclick="showAll()">📻 Show All</div>
+    <div class="genre" onclick="loadArtist()">🎤 Artist</div>
     <div class="genre" onclick="loadFavorites()">⭐ Favorites</div>
-    <div class="genre" onclick="loadMISC()">📻 MISC</div>
-    <div class="genre" onclick="loadInternational()">🌎 International</div>
+    <div class="genre" onclick="loadMISC()">📻 Misc</div>
+    <div class="genre" onclick="loadUndiscovered()">🕵️ Undiscovered</div>
+    <div class="genre" onclick="loadInternational()">🌎 Mexico</div>
+    <div class="genre" onclick="loadInternational2()">🌍 International</div>
+    <div class="genre" onclick="toggleLive()">
+  📺 Live TV Mode
+</div>
   `;
 }
 /* =========================
@@ -675,6 +889,39 @@ async function loadFavorites(){
   setTitle("⭐ Favorites");
 }
 
+async function loadUndiscovered(){
+
+  const res = await fetch(SHEET + "?action=undiscovered");
+  const data = await res.json().catch(()=>[]);
+
+  current = (data.data || []).map(normalize);
+
+  render();
+  setTitle("🕵️ Undiscovered");
+}
+
+async function loadInternational2(){
+
+  try {
+    const res = await fetch(SHEET + "?action=international2");
+
+    const data = await res.json();
+
+    console.log("International2 response:", data);
+
+    current = (data.data || []).map(normalize);
+
+    render();
+    setTitle("🌍 International");
+
+  } catch (err) {
+    console.error("International2 failed:", err);
+    current = [];
+    render();
+    setTitle("🌍 International (error)");
+  }
+}
+  
 /* FAVORITE TOGGLE */
 async function fav(s){
 
@@ -716,6 +963,17 @@ async function fav(s){
   setTitle("Saved ⭐");
   render();
 }
+
+async function loadArtist(){
+
+  const res = await fetch(SHEET + "?action=artist");
+  const data = await res.json().catch(()=>[]);
+
+  current = (data.data || []).map(normalize);
+
+  render();
+  setTitle("🎤 Artist");
+}
   
 async function loadMISC(){
 
@@ -736,22 +994,99 @@ async function loadInternational(){
   current = (data.data || []).map(normalize);
 
   render();
-  setTitle("🌎 International");
+  setTitle("🌎 Mexico");
 }
 
-async function getNowPlaying(station) {
-  try {
-    const res = await fetch(
-      `https://tester-nenh.onrender.com/nowplaying?url=${encodeURIComponent(station.url)}`
-    );
+async function listenNowPlaying(streamUrl, callback){
 
-    return await res.json();
-  } catch (e) {
-    return {
-      nowPlaying: "Unavailable",
-      source: "error"
-    };
-  }
+    if(metadataAbort)
+        metadataAbort.abort();
+
+    metadataAbort = new AbortController();
+
+    try{
+
+        const response = await fetch(streamUrl,{
+            headers:{
+                "Icy-MetaData":"1"
+            },
+            signal:metadataAbort.signal
+        });
+
+        const metaInt =
+            parseInt(response.headers.get("icy-metaint"));
+
+        if(!metaInt)
+            return;
+
+        const reader = response.body.getReader();
+
+        const decoder = new TextDecoder();
+
+        while(true){
+
+            // Skip audio bytes
+
+            let remaining = metaInt;
+
+            while(remaining>0){
+
+                const {value,done}=await reader.read();
+
+                if(done) return;
+
+                remaining-=value.length;
+            }
+
+            // Metadata length
+
+            const lenChunk=await reader.read();
+
+            if(lenChunk.done) return;
+
+            const metaLength=lenChunk.value[0]*16;
+
+            if(metaLength===0)
+                continue;
+
+            let meta=new Uint8Array(metaLength);
+
+            let offset=0;
+
+            while(offset<metaLength){
+
+                const chunk=await reader.read();
+
+                if(chunk.done) return;
+
+                meta.set(chunk.value.slice(0,metaLength-offset),offset);
+
+                offset+=Math.min(
+                    chunk.value.length,
+                    metaLength-offset
+                );
+            }
+
+            const text=decoder.decode(meta);
+
+            const match=text.match(
+                /StreamTitle='([^']*)'/
+            );
+
+            if(match){
+
+                callback(match[1]);
+
+            }
+
+        }
+
+    }catch(e){
+
+        console.log("metadata stopped");
+
+    }
+
 }
 /* PLAY */
 async function play(i){
@@ -765,23 +1100,61 @@ async function play(i){
   audio.play();
 
   document.getElementById("npName").innerText = s.name;
+  document.getElementById("npMeta").innerText = "Loading track...";
 
-  // default state first (instant UI response)
-  document.getElementById("npMeta").innerText =
-    `${s.country || ""} • Loading...`;
+  // ✅ STOP previous listener cleanly
+  if (metadataAbort) {
+    metadataAbort.abort();
+  }
 
-  // fetch real now playing (async upgrade layer)
-const meta = await getNowPlaying(s);
+  // Start new listener
+  listenNowPlaying(s.url, (title) => {
+    document.getElementById("npMeta").innerText =
+      `${title} • ${s.country || ""}`;
+  });
 
-if (meta && meta.nowPlaying && meta.nowPlaying !== "Unavailable") {
-  document.getElementById("npMeta").innerText =
-    `${meta.nowPlaying} • ${s.country || ""}`;
-} else {
-  document.getElementById("npMeta").innerText =
-    `${getGenre(s)} • ${s.country || ""}`;
- }
+  stationStarted = true;
+  loadPopupChat();
 }
 
+async function loadPopupChat(){
+  try {
+    const stationId = getCurrentStationId();
+
+    const res = await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "get",
+        station: stationId
+      })
+    });
+
+    const data = await res.json();
+    const messages = Array.isArray(data) ? data : [];
+
+    chatData = messages;
+
+    renderPopupChat();
+
+  } catch(e){
+    console.log("popup chat load failed", e);
+  }
+}
+
+function toggleLive(){
+  const card = document.getElementById("liveVideoCard");
+
+  if (!card) return;
+
+  if (card.style.display === "none") {
+    card.style.display = "block";
+    loadLiveStream();
+  } else {
+    card.style.display = "none";
+    livePlayer.pause();
+  }
+}
+  
 function playFiltered(i){
 
   const list = getActiveList();
@@ -809,6 +1182,9 @@ function playFiltered(i){
   playingIndex = i;
   const btn = document.getElementById(`playBtn-${i}`);
   if (btn) btn.innerText = "⏸ Pause";
+  // ✅ ADD THIS HERE (THIS IS THE IMPORTANT PART)
+  stationStarted = true;
+  loadPopupChat();
 }
   
 /* CONTROLS */
@@ -942,11 +1318,15 @@ function render(){
   });
 }
 
+function getCurrentStationId(){
+  return current[index]?.id || "global";
+}
+  
 function shareSite(){
 
   const url = window.location.href;
-  const title = "xRadiowave - Live Radio Stations";
-  const text = "Listen to live radio stations on xRadiowave";
+  const title = "Radio Obvyris - Live Radio Stations";
+  const text = "Listen to live radio stations on Radio Obvyris";
 
   const cleanUrl = encodeURIComponent(url);
   const cleanText = encodeURIComponent(text);
@@ -1021,6 +1401,76 @@ function favFiltered(i){
   fav(window.filtered[i]);
 }
 
+let chatOpen = false;
+
+function toggleChatPopup(){
+  const popup = document.getElementById("chatPopup");
+  chatOpen = !chatOpen;
+
+  popup.classList.toggle("hidden");
+
+  if(chatOpen){
+    loadPopupChat();   // 👈 ADD THIS
+  }
+}
+
+function renderPopupChat(){
+  const box = document.getElementById("chatLogPopup");
+  if (!box) return;
+
+  box.innerHTML = "";
+
+  if (!stationStarted) {
+    box.innerHTML = `
+      <div class="chat-msg" style="opacity:0.7;text-align:center;">
+        Select a station to join chat 💬
+      </div>
+    `;
+    return;
+  }
+
+  const welcome = {
+    system: true,
+    name: "System",
+    message: `Chat for "${getStationName()}"`
+  };
+
+  [welcome, ...chatData].forEach(m => {
+    box.innerHTML += `
+      <div class="chat-msg" style="${m.system ? "opacity:0.7;text-align:center;" : ""}">
+        <span class="chat-name">${m.system ? "" : (m.name + ":")}</span>
+        ${m.message}
+      </div>
+    `;
+  });
+
+  box.scrollTop = box.scrollHeight;
+}
+  
+async function sendPopupMessage(){
+  let name = document.getElementById("chatNamePopup").value || "Anon";
+  let msg = document.getElementById("chatMsgPopup").value;
+
+  if(!msg) return;
+
+  name = name.trim().slice(0,8);
+  msg = msg.trim().slice(0,100);
+
+  document.getElementById("chatMsgPopup").value = "";
+
+  await fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify({
+      action: "send",
+      station: getCurrentStationId(),
+      name,
+      message: msg
+    })
+  });
+
+  await loadPopupChat();
+}
+  
 function showAll() {
 
   page = 0;
@@ -1078,8 +1528,16 @@ function prevPage(){
   }
 }
 
-function toggleTheme(){
+function toggleTheme() {
   document.body.classList.toggle("light");
+
+  const btn = document.getElementById("themeBtn");
+
+  if (document.body.classList.contains("light")) {
+    btn.textContent = "☀️";
+  } else {
+    btn.textContent = "🌙";
+  }
 }
 /* INIT */
 renderGenres();
@@ -1096,17 +1554,130 @@ document.querySelector(".main").addEventListener("scroll", () => {
   }
 });
 
+/* CHAT */
+const API_URL = "https://script.google.com/macros/s/AKfycbzin84qDcZ9L1q4pTBtHZGKJSTDcZ_wnmgWmnmgPgf1jrc1nRprzbEBixKMSHcdkxiZBg/exec";
+
+let chatData = [];
+let currentChatStationId = null;
+
+async function loadChat(){
+  try {
+
+    const stationId = getCurrentStationId();
+
+    // detect station change
+    if (currentChatStationId !== stationId) {
+      currentChatStationId = stationId;
+
+      chatData = [{
+        system: true,
+        name: "System",
+        message: `Welcome to "${getStationName()}" chat 💬`
+      }];
+    }
+
+    const res = await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "get",
+        station: stationId
+      })
+    });
+
+    const data = await res.json();
+
+    const messages = Array.isArray(data) ? data : [];
+
+    // merge welcome + real messages
+    chatData = [
+      {
+        system: true,
+        name: "System",
+        message: `Welcome to "${getStationName()}" chat 💬`
+      },
+      ...messages
+    ];
+
+    renderChat();
+
+  } catch(e){
+    console.log("chat load failed", e);
+  }
+}
+
+async function sendMessage(){
+  let name = document.getElementById("chatName").value || "Anon";
+  let msg = document.getElementById("chatMsg").value;
+
+  if(!msg) return;
+
+  // 🔒 enforce limits in JS too
+  name = name.trim().slice(0, 8);
+  msg = msg.trim().slice(0, 100);
+
+  document.getElementById("chatMsg").value = "";
+
+  await fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify({
+      action: "send",
+      station: getCurrentStationId(),
+      name,
+      message: msg
+    })
+  });
+
+  renderChat();
+if (chatOpen) renderPopupChat();
+}
+
+function getStationName(){
+  return current?.[index]?.name || "this station";
+}
+  
+function renderChat(){
+  const box = document.getElementById("chatLog");
+  box.innerHTML = "";
+
+    if (!stationStarted) {
+  box.innerHTML = `
+    <div class="chat-msg" style="opacity:0.7;text-align:center;">
+      Select a station to join chat 💬
+    </div>
+  `;
+  return;
+}
+
+  chatData.forEach(m => {
+    box.innerHTML += `
+      <div class="chat-msg" style="${m.system ? "opacity:0.7;font-style:italic;text-align:center;" : ""}">
+        <span class="chat-name">${m.system ? "" : m.name + ":"}</span> ${m.message}
+    </div>
+`;
+  });
+
+  box.scrollTop = box.scrollHeight;
+}
+
+/* AUTO REFRESH (IMPORTANT PART) */
+loadPopupChat();
+setInterval(() => {
+  if (document.visibilityState === "visible" && chatOpen) {
+    loadPopupChat();
+  }
+}, 3000);
+  
 document.addEventListener("keydown", (e) => {
 
   const tag = document.activeElement.tagName.toLowerCase();
   const isTyping = tag === "input" || tag === "textarea" || tag === "select";
 
-  // don't interfere while typing (except Esc and /)
+  // Don't interfere while typing (except Esc and /)
   if (isTyping && e.key !== "Escape") return;
 
   switch (e.key.toLowerCase()) {
 
-    // playback
+    // Playback
     case " ":
       e.preventDefault();
       toggle();
@@ -1122,28 +1693,26 @@ document.addEventListener("keydown", (e) => {
       prev();
       break;
 
-    // favorite
-    case "f":
-  if (e.shiftKey) {
-    loadFavorites();   // open favorites list
-  } else {
-    favCurrent();      // toggle current station favorite
-  }
-  break;
-
-    // search focus
+    // Search
     case "/":
+    case "s":
       e.preventDefault();
       document.getElementById("searchBox").focus();
       break;
 
+    // Favorites
+    case "f":
+      loadFavorites();
+      break;
+
+    // Escape
     case "escape":
       document.getElementById("searchBox").value = "";
       document.getElementById("searchBox").blur();
       render();
       break;
 
-    // UI toggles
+    // UI
     case "g":
       toggleGenres();
       break;
@@ -1174,6 +1743,12 @@ document.addEventListener("keydown", (e) => {
 
     case "pageup":
       prevPage();
+      break;
+
+    // Help
+    case "?":
+      e.preventDefault();
+      showKeyboardHelp();
       break;
   }
 });
@@ -1260,6 +1835,72 @@ function shareStation(station){
 function shareFiltered(i){
   shareStation(window.filtered[i]);
 }
+
+const LIVE_API = "https://script.google.com/macros/s/AKfycbyasf7oke6ZAhjgD-j2HGcR9bBysso2M9RuUuOgXZUQ7UkQ6CAOMV4PfGM3ViLUz6bygg/exec";
+
+const livePlayer = document.getElementById("livePlayer");
+
+let liveStations = [];
+let liveIndex = 0;
+let liveOffset = 0;
+let liveCurrent = null;
+
+livePlayer.controls = false;
+livePlayer.disablePictureInPicture = true;
+
+livePlayer.addEventListener("pause", () => livePlayer.play());
+
+async function loadLiveStream() {
+  try {
+    const res = await fetch(LIVE_API);
+    const data = await res.json();
+
+    liveStations = data.stations || [];
+    liveIndex = data.index || 0;
+    liveOffset = data.offset || 0;
+
+    playLive(liveIndex, liveOffset);
+  } catch (e) {
+    console.log("Live load failed", e);
+  }
+}
+
+function playLive(i, offset = 0) {
+  liveCurrent = liveStations[i];
+  if (!liveCurrent) return;
+
+  document.getElementById("liveTitle").innerText =
+    `${liveCurrent.title || "LIVE"} • STREAM`;
+
+  livePlayer.src = liveCurrent.url;
+
+  livePlayer.onloadedmetadata = () => {
+    try {
+      livePlayer.currentTime = (liveCurrent.start || 0) + offset;
+      livePlayer.play();
+    } catch(e) {}
+  };
+
+  livePlayer.onended = () => nextLive();
+
+  // enforce loop boundary
+  setInterval(() => {
+    if (!liveCurrent) return;
+    if (livePlayer.currentTime >= liveCurrent.end) {
+      nextLive();
+    }
+  }, 500);
+}
+
+function nextLive() {
+  liveIndex = (liveIndex + 1) % liveStations.length;
+  playLive(liveIndex, 0);
+}
+
+// auto sync with server every 15s
+setInterval(loadLiveStream, 15000);
+
+loadLiveStream();
 </script>
 
 <script>
@@ -1271,6 +1912,23 @@ if ("serviceWorker" in navigator) {
   });
 }
 </script>
+<button id="chatFloatBtn" onclick="toggleChatPopup()">
+  💬
+</button>
+  <div id="chatPopup" class="chat-popup hidden">
+  <div class="chat-popup-header">
+    <span>💬 Chat</span>
+    <button onclick="toggleChatPopup()">✖</button>
+  </div>
+
+  <div id="chatLogPopup" class="chat-popup-log"></div>
+
+  <div class="chat-input">
+    <input id="chatNamePopup" placeholder="name" maxlength="8" />
+    <input id="chatMsgPopup" placeholder="message" maxlength="100" />
+    <button onclick="sendPopupMessage()">Send</button>
+  </div>
+</div>
 <button id="backToTop" onclick="scrollToTop()">⬆ Top</button>
 </body>
 </html>
