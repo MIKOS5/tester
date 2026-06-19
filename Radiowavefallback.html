@@ -708,7 +708,6 @@ let currentCountry = "United States";
 let playingIndex = null;
 let stationStarted = false;
 let metadataAbort = null;
-let mode = "radio"; // "radio" | "live"
   
 /* API */
 const RADIO =
@@ -1141,7 +1140,7 @@ async function listenNowPlaying(streamUrl, callback){
 /* PLAY */
 async function play(i){
 
-  mode = "radio";
+  mediaMode = "radio";
 
   index = i;
   const s = current[i];
@@ -1149,30 +1148,39 @@ async function play(i){
   const audio = document.getElementById("audio");
   const video = document.getElementById("livePlayer");
 
-  // stop video if switching back
+  // 🔥 Stop Live TV completely
+  clearInterval(liveInterval);
+  liveInterval = null;
+
   video.pause();
-  video.src = "";
+  video.removeAttribute("src");
+  video.load();
+
+  document.getElementById("liveVideoCard").style.display = "none";
 
   // set stream
   audio.src = s.url_resolved || s.url;
 
-  // 🔥 ADD THIS: error handling for bad streams
   audio.onerror = () => {
     console.log("Audio failed:", audio.src);
     setTitle("❌ Stream failed");
-    document.getElementById("npMeta").innerText = "Broken stream / unavailable";
+    document.getElementById("npMeta").innerText =
+      "Broken stream / unavailable";
   };
 
-  // optional: more detailed debugging
-  audio.onstalled = () => console.log("Stream stalled:", audio.src);
-  audio.onabort = () => console.log("Stream aborted:", audio.src);
+  audio.onstalled = () =>
+    console.log("Stream stalled:", audio.src);
+
+  audio.onabort = () =>
+    console.log("Stream aborted:", audio.src);
 
   try {
     await audio.play();
   } catch (err) {
     console.log("Play blocked or failed:", err);
     setTitle("❌ Cannot play stream");
-    document.getElementById("npMeta").innerText = "Playback blocked or failed";
+    document.getElementById("npMeta").innerText =
+      "Playback blocked or failed";
   }
 
   document.getElementById("npName").innerText = s.name;
@@ -1206,29 +1214,43 @@ let liveStarted = false;
 let liveInterval = null;
 
 function toggleLive() {
-  const card = document.getElementById("liveVideoCard");
+    const card = document.getElementById("liveVideoCard");
+    const video = document.getElementById("livePlayer");
+    const audio = document.getElementById("audio");
 
-  const isOpening = card.style.display === "none";
+    const opening = card.style.display === "none";
 
-  if (isOpening) {
-    card.style.display = "block";
-    setMediaMode("tv");
+    if (opening) {
 
-    loadLiveStream();
+        // Stop radio
+        audio.pause();
+        audio.removeAttribute("src");
+        audio.load();
 
-    if (!liveStarted) {
-      liveStarted = true;
-      liveInterval = setInterval(loadLiveStream, 15000);
+        card.style.display = "block";
+        setMediaMode("tv");
+
+        loadLiveStream();
+
+        if (!liveInterval) {
+            liveInterval = setInterval(loadLiveStream, 15000);
+        }
+
+    } else {
+
+        clearInterval(liveInterval);
+        liveInterval = null;
+
+        video.pause();
+        video.removeAttribute("src");
+        video.load();
+
+        card.style.display = "none";
+
+        setMediaMode("radio");
+
+        // DO NOT restart radio here.
     }
-
-  } else {
-    card.style.display = "none";
-
-    setMediaMode("radio");
-
-    clearInterval(liveInterval);
-    liveInterval = null;
-  }
 }
   
 function playFiltered(i){
@@ -2012,9 +2034,7 @@ function nextLive() {
 }
 
 // auto sync with server every 15s
-setInterval(loadLiveStream, 15000);
 
-loadLiveStream();
 </script>
 
 <script>
