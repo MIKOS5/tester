@@ -1141,6 +1141,9 @@ async function loadPopupChat(){
   }
 }
 
+let liveStarted = false;
+let liveInterval = null;
+
 function toggleLive(){
   const card = document.getElementById("liveVideoCard");
 
@@ -1148,10 +1151,23 @@ function toggleLive(){
 
   if (card.style.display === "none") {
     card.style.display = "block";
-    loadLiveStream();
+
+    // ONLY start once
+    if (!liveStarted) {
+      loadLiveStream();
+      liveStarted = true;
+
+      // auto sync only when user enables live mode
+      liveInterval = setInterval(loadLiveStream, 15000);
+    }
+
   } else {
     card.style.display = "none";
     livePlayer.pause();
+
+    // optional: stop syncing when hidden
+    clearInterval(liveInterval);
+    liveInterval = null;
   }
 }
   
