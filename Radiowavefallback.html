@@ -659,6 +659,7 @@ let currentCountry = "United States";
 let playingIndex = null;
 let stationStarted = false;
 let metadataAbort = null;
+let liveModeEnabled = false;
   
 /* API */
 const RADIO =
@@ -1091,6 +1092,8 @@ async function listenNowPlaying(streamUrl, callback){
 /* PLAY */
 async function play(i){
 
+  if (!liveModeEnabled) return;  // 🔒 BLOCK
+
   index = i;
 
   const s = current[i];
@@ -1101,20 +1104,6 @@ async function play(i){
 
   document.getElementById("npName").innerText = s.name;
   document.getElementById("npMeta").innerText = "Loading track...";
-
-  // ✅ STOP previous listener cleanly
-  if (metadataAbort) {
-    metadataAbort.abort();
-  }
-
-  // Start new listener
-  listenNowPlaying(s.url, (title) => {
-    document.getElementById("npMeta").innerText =
-      `${title} • ${s.country || ""}`;
-  });
-
-  stationStarted = true;
-  loadPopupChat();
 }
 
 async function loadPopupChat(){
@@ -1151,13 +1140,11 @@ function toggleLive(){
 
   if (card.style.display === "none") {
     card.style.display = "block";
+    liveModeEnabled = true;
 
-    // ONLY start once
     if (!liveStarted) {
       loadLiveStream();
       liveStarted = true;
-
-      // auto sync only when user enables live mode
       liveInterval = setInterval(loadLiveStream, 15000);
     }
 
@@ -1165,13 +1152,21 @@ function toggleLive(){
     card.style.display = "none";
     livePlayer.pause();
 
-    // optional: stop syncing when hidden
+    liveModeEnabled = false;
+
     clearInterval(liveInterval);
     liveInterval = null;
+
+    // 🔥 ALSO STOP AUDIO when exiting live mode
+    const audio = document.getElementById("audio");
+    audio.pause();
+    audio.src = "";
   }
 }
   
 function playFiltered(i){
+
+  if (!liveModeEnabled) return;  // 🔒 BLOCK
 
   const list = getActiveList();
   const s = list[i];
@@ -1189,18 +1184,6 @@ function playFiltered(i){
 
   document.getElementById("npMeta").innerText =
     `${getGenre(s)} • ${s.country || ""}`;
-
-  // fix button state
-  if (playingIndex !== null && document.getElementById(`playBtn-${playingIndex}`)) {
-    document.getElementById(`playBtn-${playingIndex}`).innerText = "▶ Play";
-  }
-
-  playingIndex = i;
-  const btn = document.getElementById(`playBtn-${i}`);
-  if (btn) btn.innerText = "⏸ Pause";
-  // ✅ ADD THIS HERE (THIS IS THE IMPORTANT PART)
-  stationStarted = true;
-  loadPopupChat();
 }
   
 /* CONTROLS */
