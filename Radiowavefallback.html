@@ -1225,10 +1225,7 @@ function toggleLive() {
         loadLiveStream();
 
         if (!liveInterval) {
-  liveInterval = setInterval(() => {
-    syncLiveStateOnly();
-  }, 15000);
-}
+            liveInterval = setInterval(loadLiveStream, 15000);
         }
 
     } else {
@@ -1424,36 +1421,6 @@ function render(){
 
 function getCurrentStationId(){
   return current[index]?.id || "global";
-}
-
-async function syncLiveStateOnly() {
-  try {
-    const res = await fetch(LIVE_API);
-    const data = await res.json();
-
-    // only correct drift, do NOT restart video
-    const newIndex = data.index;
-    const newOffset = data.offset;
-
-    if (!liveCurrent) return;
-
-    // if server changed segment → switch
-    if (newIndex !== liveIndex) {
-      liveIndex = newIndex;
-      playLive(liveIndex, newOffset);
-      return;
-    }
-
-    // small drift correction only
-    const drift = livePlayer.currentTime - (liveCurrent.start + newOffset);
-
-    if (Math.abs(drift) > 3) {
-      livePlayer.currentTime = liveCurrent.start + newOffset;
-    }
-
-  } catch(e) {
-    console.log("sync failed", e);
-  }
 }
   
 function shareSite(){
