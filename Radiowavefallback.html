@@ -607,7 +607,8 @@ button{
     <div class="now" id="npName">Not Playing</div>
     <div class="meta" id="npMeta">Select station</div>
 
-    <audio id="audio" preload="none" autoplay="false"></audio>
+    <video id="videoPlayer" playsinline></video>
+    <audio id="audioPlayer"></audio>
 
     <div class="controls">
   <button onclick="prev()">⏮</button>
@@ -1145,35 +1146,61 @@ async function listenNowPlaying(streamUrl, callback){
 
 }
 /* PLAY */
-async function play(i){
-
-  // If TV mode is open, close it first
-  if (document.getElementById("liveVideoCard").style.display !== "none") {
-      toggleLive();
-  }
-
-  mediaMode = "radio";
+async function playItem(i){
+  const item = getActiveList()[i];
+  if(!item) return;
 
   index = i;
-  const s = current[i];
 
-  const audio = document.getElementById("audio");
+  const video = document.getElementById("videoPlayer");
+  const audio = document.getElementById("audioPlayer");
 
-  audio.src = s.url_resolved || s.url;
+  // reset both
+  video.pause();
+  audio.pause();
 
-  try {
-      await audio.play();
-  } catch(err) {
-      console.log(err);
+  video.style.display = "none";
+  audio.style.display = "none";
+
+  document.getElementById("npName").innerText = item.title || item.name;
+
+    if(item.type === "radio"){
+    audio.style.display = "block";
+    audio.src = item.url;
+    audio.play();
+
+    document.getElementById("npMeta").innerText =
+      `${item.genre || "Radio"} • ${item.country || ""}`;
+
+    // ONLY radio uses ICY metadata
+    listenNowPlaying(item.url, (title) => {
+      document.getElementById("npMeta").innerText =
+        `${title} • ${item.country || ""}`;
+    });
   }
+    if(item.type === "video"){
+    video.style.display = "block";
 
-  document.getElementById("npName").innerText = s.name;
-  document.getElementById("npMeta").innerText = "LIVE RADIO";
+    video.src = item.url;
 
-  stationStarted = true;
-  playingIndex = i;
+    // handle start/end trimming
+    video.currentTime = item.start || 0;
+
+    video.play();
+
+    document.getElementById("npMeta").innerText =
+      `Video • ${item.subtitle || ""}`;
+
+    if(item.end){
+      const check = setInterval(() => {
+        if(video.currentTime >= item.end){
+          clearInterval(check);
+          next();
+        }
+      }, 500);
+    }
+  }
 }
-
   
 async function loadPopupChat(){
   try {
@@ -1256,13 +1283,6 @@ function toggleLive() {
     }
 }
   
-function playFiltered(i){
-
-    if (mediaMode === "tv")
-        return;
-
-    play(i);
-}
 
 function updateModeUI() {
   const title = document.getElementById("title");
@@ -1309,13 +1329,13 @@ function toggle(){
 function next(){
   const list = getActiveList();
   index = (index + 1) % list.length;
-  playFiltered(index);
+  playItem(index);
 }
 
 function prev(){
   const list = getActiveList();
   index = (index - 1 + list.length) % list.length;
-  playFiltered(index);
+  playItem(index);
 }
 
 function getActiveList(){
@@ -1327,10 +1347,13 @@ function getActiveList(){
 function normalize(s){
   return {
     id: s.stationuuid || s.id,
-    name: s.name || "Unknown",
+    type: s.type || "radio",   // 👈 key upgrade
+    title: s.title || s.name,
+    subtitle: s.country || "",
     url: s.url_resolved || s.url,
-    country: s.country || "",
-    genre: s.tags || s.genre || "Radio"
+    genre: s.tags || s.genre || "",
+    start: s.start || 0,
+    end: s.end || null
   };
 }
 
@@ -1359,6 +1382,16 @@ function favCurrent(){
   fav(s);
 }
 
+function updateUI(item){
+  const video = document.getElementById("videoPlayer");
+
+  if(item.type === "video"){
+    document.body.classList.add("tv-mode");
+  } else {
+    document.body.classList.remove("tv-mode");
+  }
+}
+  
 function scrollToTop(){
   document.querySelector(".main").scrollTo({
     top: 0,
