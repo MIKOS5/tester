@@ -781,7 +781,8 @@ const GENRES = [
   const actions = document.getElementById("actionGrid");
 
   actions.innerHTML = `
-    <div class="genre" onclick="loadArtist()">🎤 Artist</div>
+    <div class="genre" onclick="loadArtistAl()">🎤 Artist AL</div>
+    <div class="genre" onclick="loadArtistMz()">🎧 Artist MZ</div>
     <div class="genre" onclick="loadFavorites()">⭐ Favorites</div>
     <div class="genre" onclick="loadMISC()">📻 Misc</div>
     <div class="genre" onclick="loadUndiscovered()">🕵️ Undiscovered</div>
@@ -859,6 +860,29 @@ async function loadCountries(){
   // ✅ set default AFTER loop
   select.value = currentCountry;
 }
+
+async function loadArtistAl(){
+
+  const res = await fetch(SHEET + "?action=artistal");
+  const data = await res.json().catch(()=>[]);
+
+  current = (data.data || []).map(normalize);
+
+  render();
+  setTitle("🎤 Artist AL");
+}
+
+async function loadArtistMz(){
+
+  const res = await fetch(SHEET + "?action=artistmz");
+  const data = await res.json().catch(()=>[]);
+
+  current = (data.data || []).map(normalize);
+
+  render();
+  setTitle("🎧 Artist MZ");
+}
+
   
 /* FAVORITES LOAD */
 async function loadFavorites(){
@@ -948,17 +972,6 @@ async function fav(s){
   favorites.add(id);
   setTitle("Saved ⭐");
   render();
-}
-
-async function loadArtist(){
-
-  const res = await fetch(SHEET + "?action=artist");
-  const data = await res.json().catch(()=>[]);
-
-  current = (data.data || []).map(normalize);
-
-  render();
-  setTitle("🎤 Artist");
 }
   
 async function loadMISC(){
