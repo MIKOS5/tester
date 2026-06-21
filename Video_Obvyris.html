@@ -734,7 +734,7 @@ const PLAYLIST =
 "https://iptv-org.github.io/iptv/index.m3u";
 
 const SHEET =
-"https://script.google.com/macros/s/AKfycbzI5jO1YDjUGSDdHerVj9GblsqmHf2rA4YqpfLPydDMyhMtOJ7VF1-jtBltpEZk0LYASw/exec";
+"https://script.google.com/macros/s/AKfycbzZ5MwOcYUY_bpsUKSxPd810xE8rV_Y3z2GwzPublb_4O60CP8L_lC_V2kqkCQ_JdF5/exec";
 
   
 const GENRES = [
@@ -929,7 +929,7 @@ async function loadArtistMz(){
 /* FAVORITES LOAD */
 async function loadFavorites(){
 
-  const res = await fetch(SHEET + "?action=get");
+  const res = await fetch(SHEET + "?action=tvfavorites");
   const data = await res.json().catch(()=>[]);
 
   const list = (data.data || data).map(normalize);
@@ -1010,17 +1010,17 @@ async function fav(s){
   }
 
   await fetch(SHEET,{
-    method:"POST",
-    body:new URLSearchParams({
-      action:"save",
-      id:id,
-      name:s.name || "",
-      url:s.url_resolved || s.url || "",
-      country:s.country || "",
-      genre:getGenre(s),
-      time:new Date().toISOString()
-    })
-  });
+  method:"POST",
+  body:new URLSearchParams({
+    action:"savetv",
+    id:id,
+    name:s.name || "",
+    url:s.url_resolved || s.url || "",
+    country:s.country || "",
+    genre:getGenre(s),
+    time:new Date().toISOString()
+  })
+});
 
   favorites.add(id);
   setTitle("Saved ⭐");
