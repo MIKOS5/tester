@@ -688,7 +688,7 @@ Live TV • Movies • Music Videos • IPTV
   type="text"
   id="searchBox"
   placeholder="🔎 Search stations..."
-  oninput="render()"
+  oninput="render(true)"
   style="
     width:100%;
     padding:12px;
@@ -724,6 +724,9 @@ let stationStarted = false;
 let metadataAbort = null;
 let allChannels = [];
 let current = [];
+let renderIndex = 0;
+const RENDER_CHUNK = 50;
+let renderedList = [];
   
 /* API */
 const PLAYLIST =
@@ -1533,34 +1536,39 @@ function scrollToTop(){
 }
   
 /* RENDER */
-function render(){
+function render(reset = true){
 
   const el = document.getElementById("list");
-  el.innerHTML = "";
 
   const q =
     document.getElementById("searchBox")?.value
       .toLowerCase()
       .trim() || "";
 
-  let filtered = [];
-
-  for (let s of current) {
-
+  // STEP 1: filter
+  renderedList = current.filter(s => {
     const text = `
       ${s.name || ""}
       ${getGenre(s)}
       ${s.country || ""}
     `.toLowerCase();
 
-    if (q && !text.includes(q)) continue;
+    return !q || text.includes(q);
+  });
 
-    filtered.push(s);
+  window.filtered = renderedList;
+
+  // STEP 2: reset render
+  if (reset) {
+    el.innerHTML = "";
+    renderIndex = 0;
   }
 
-  window.filtered = filtered;
+  // STEP 3: render chunk
+  const slice = renderedList.slice(renderIndex, renderIndex + RENDER_CHUNK);
 
-  filtered.forEach((s,i)=>{
+  slice.forEach((s, i) => {
+    const realIndex = renderIndex + i;
 
     const id = s.stationuuid || s.id;
     const isFav = favorites.has(id);
@@ -1568,21 +1576,22 @@ function render(){
     el.innerHTML += `
       <div class="card">
         <div class="station">${s.name}</div>
-
         <div class="small">${getGenre(s)} • ${s.country || ""}</div>
 
         <div class="row">
-          <button id="playBtn-${i}" onclick="playFiltered(${i})">▶ Play</button>
+          <button onclick="playFiltered(${realIndex})">▶ Play</button>
           <button onclick="showAll()">📻 Show All</button>
           <button class="fav-btn ${isFav ? "saved" : ""}"
-            onclick="favFiltered(${i})">
+            onclick="favFiltered(${realIndex})">
             ${isFav ? "⭐ Saved" : "☆ Favorite"}
           </button>
-          <button onclick="shareFiltered(${i})">🔗 Share</button>
+          <button onclick="shareFiltered(${realIndex})">🔗 Share</button>
         </div>
       </div>
     `;
   });
+
+  renderIndex += RENDER_CHUNK;
 }
 
 function getCurrentStationId(){
@@ -1809,7 +1818,15 @@ function toggleTheme() {
 /* INIT */
 renderGenres();   // ✅ add this
 load();
+  
+document.querySelector(".main").addEventListener("scroll", () => {
+  const main = document.querySelector(".main");
 
+  if (main.scrollTop + main.clientHeight >= main.scrollHeight - 200) {
+    render(false); // load next chunk
+  }
+});
+  
 document.querySelector(".main").addEventListener("scroll", () => {
   const btn = document.getElementById("backToTop");
 
