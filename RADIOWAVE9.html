@@ -2,67 +2,71 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>API Player Test</title>
+<title>Radio Obvyris - YouTube Player</title>
 
 <style>
 body {
   font-family: Arial;
   background: #0b1220;
   color: white;
-  padding-bottom: 120px;
+  padding-bottom: 340px;
 }
 
 .item {
   background: #111827;
   border: 1px solid #2b3a55;
   padding: 10px;
-  margin: 10px 0;
-  border-radius: 8px;
+  margin: 8px 0;
   cursor: pointer;
+  border-radius: 8px;
 }
 
 .item:hover {
   background: #1f2937;
 }
 
-#playerBar {
+#player {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  background: #0f172a;
-  border-top: 1px solid #334155;
-  padding: 10px;
+  height: 320px;
+  background: #000;
+  border-top: 2px solid #334155;
 }
 
+#controls {
+  padding: 6px;
+  display: flex;
+  gap: 10px;
+}
 button {
-  padding: 6px 10px;
-  margin-right: 5px;
-}
-
-#title {
-  font-size: 14px;
-  margin-bottom: 5px;
+  padding: 5px 10px;
 }
 </style>
 </head>
 
 <body>
 
-<h2>Deezer API Player Test</h2>
+<h2>Hybrid YouTube Player (Full Songs)</h2>
 
 <div id="status">Loading...</div>
-
 <div id="list"></div>
 
-<!-- PLAYER -->
-<div id="playerBar">
-  <div id="title">Nothing playing</div>
+<div id="player">
+  <div id="nowPlaying" style="padding:6px;">Nothing playing</div>
 
-  <audio id="audio" controls></audio>
+  <iframe id="yt"
+    width="100%"
+    height="250"
+    frameborder="0"
+    allow="autoplay; encrypted-media"
+    allowfullscreen></iframe>
 
-  <div style="margin-top:5px;">
-    <button onclick="stopAudio()">Stop</button>
+  <div id="controls">
+    <button onclick="prev()">⏮ Prev</button>
+    <button onclick="next()">⏭ Next</button>
+    <button onclick="shuffle()">🔀 Shuffle</button>
   </div>
 </div>
 
@@ -70,28 +74,22 @@ button {
 
 const API_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AUkAhnQk8-f99-lPKOSOgwC18MsANHA7qEeJHqCenDCtj_XvulLjTyVJEhVAD1T4MMS9zwhHmRZ2PRyyR1PT7qd0MzXNT23c9_miaR9tbbrEHXccKOqpgvtUguaxgi-EOjMpgpVfp5dAy17jWi5vra2xFCCeaBIgqPsYtLatATGEPsozUlsaZ-PAIQ5-sE1A2bRX7bWBCvdG0AE1RCMJBPUHQXOEpRtZHf3smTl0PRqbFt7eGeVcE_SHrVAAkIiIWFgtFr9ZN9_Isk8wc4684b-UL2voWvEePNNQx2vexl3i-pa0q8DqRFlCjoSjm_QxVnw6Ntpp_MkSQo2i3zHp462T5OaYFO1_ul2TXwjrrg1xDKdAByVWW4w&lib=MXc-WCITJINqWdf85Co8mUx0G2u6XM1aZ";
 
-const audio = document.getElementById("audio");
+const YT_KEY = "AIzaSyClZO1lSAK5RHQ6x0CtQtTrQDxqdlwY_i0";
 
-let currentList = [];
+let list = [];
+let queue = [];
+let index = 0;
 
 async function loadData() {
-  try {
-    const res = await fetch(API_URL);
-    const data = await res.json();
+  const res = await fetch(API_URL);
+  const data = await res.json();
 
-    const list = Array.isArray(data) ? data : data.data || [data];
+  list = Array.isArray(data) ? data : data.data || [];
 
-    currentList = list;
+  document.getElementById("status").innerText =
+    "Loaded: " + list.length;
 
-    document.getElementById("status").innerText =
-      "Loaded: " + list.length + " items";
-
-    render(list);
-
-  } catch (err) {
-    document.getElementById("status").innerText =
-      "Failed: " + err.message;
-  }
+  render(list);
 }
 
 function render(items) {
@@ -102,40 +100,71 @@ function render(items) {
     const div = document.createElement("div");
     div.className = "item";
 
-    div.innerHTML = `
-      <b>${item.title || item.name || "Unknown"}</b><br>
-      ${item.artist?.name || item.artist || ""}<br>
-      <small>${item.album?.title || ""}</small>
-    `;
+    const title = item.title || item.name;
+    const artist = item.artist?.name || item.artist;
 
-    div.onclick = () => playTrack(item);
+    div.innerHTML = `<b>${title}</b><br>${artist}`;
+
+    div.onclick = () => {
+      queue = items;
+      index = i;
+      play(index);
+    };
 
     container.appendChild(div);
   });
 }
 
-function playTrack(item) {
-  const url = item.preview;
+async function play(i) {
+  const item = queue[i];
+  if (!item) return;
 
-  if (!url) {
-    alert("No preview available");
+  const title = item.title || item.name;
+  const artist = item.artist?.name || item.artist;
+
+  document.getElementById("nowPlaying").innerText =
+    `Playing: ${title} - ${artist}`;
+
+  const query = encodeURIComponent(title + " " + artist);
+
+  const url =
+    `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=1&q=${query}&key=${YT_KEY}`;
+
+  const res = await fetch(url);
+  const data = await res.json();
+
+  const videoId = data.items?.[0]?.id?.videoId;
+
+  if (!videoId) {
+    next();
     return;
   }
 
-  audio.src = url;
-  audio.play();
+  document.getElementById("yt").src =
+    `https://www.youtube.com/embed/${videoId}?autoplay=1`;
 
-  document.getElementById("title").innerText =
-    "Now Playing: " +
-    (item.title || item.name || "Unknown") +
-    " - " +
-    (item.artist?.name || item.artist || "");
+  // auto-next after delay fallback (since iframe doesn't give end event reliably)
+  setTimeout(() => {
+    next();
+  }, 180000); // 3 min fallback
 }
 
-function stopAudio() {
-  audio.pause();
-  audio.currentTime = 0;
-  document.getElementById("title").innerText = "Stopped";
+function next() {
+  index++;
+  if (index >= queue.length) index = 0;
+  play(index);
+}
+
+function prev() {
+  index--;
+  if (index < 0) index = queue.length - 1;
+  play(index);
+}
+
+function shuffle() {
+  queue = queue.sort(() => Math.random() - 0.5);
+  index = 0;
+  play(index);
 }
 
 loadData();
