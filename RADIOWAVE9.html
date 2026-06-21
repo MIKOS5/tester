@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Radio Obvyris - YouTube Player</title>
+<title>YouTube Only Player</title>
 
 <style>
 body {
@@ -31,7 +31,7 @@ body {
   left: 0;
   right: 0;
   height: 320px;
-  background: #000;
+  background: black;
   border-top: 2px solid #334155;
 }
 
@@ -41,16 +41,16 @@ body {
   gap: 10px;
 }
 button {
-  padding: 5px 10px;
+  padding: 6px 10px;
 }
 </style>
 </head>
 
 <body>
 
-<h2>Hybrid YouTube Player (Full Songs)</h2>
+<h2>YouTube Music Player (No JSON)</h2>
 
-<div id="status">Loading...</div>
+<div id="status">Ready</div>
 <div id="list"></div>
 
 <div id="player">
@@ -72,102 +72,75 @@ button {
 
 <script>
 
-const API_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AUkAhnQk8-f99-lPKOSOgwC18MsANHA7qEeJHqCenDCtj_XvulLjTyVJEhVAD1T4MMS9zwhHmRZ2PRyyR1PT7qd0MzXNT23c9_miaR9tbbrEHXccKOqpgvtUguaxgi-EOjMpgpVfp5dAy17jWi5vra2xFCCeaBIgqPsYtLatATGEPsozUlsaZ-PAIQ5-sE1A2bRX7bWBCvdG0AE1RCMJBPUHQXOEpRtZHf3smTl0PRqbFt7eGeVcE_SHrVAAkIiIWFgtFr9ZN9_Isk8wc4684b-UL2voWvEePNNQx2vexl3i-pa0q8DqRFlCjoSjm_QxVnw6Ntpp_MkSQo2i3zHp462T5OaYFO1_ul2TXwjrrg1xDKdAByVWW4w&lib=MXc-WCITJINqWdf85Co8mUx0G2u6XM1aZ";
+const YT_KEY = "YOUR_API_KEY_HERE";
 
-const YT_KEY = "AIzaSyClZO1lSAK5RHQ6x0CtQtTrQDxqdlwY_i0";
+// 🔥 YOUR BUILT-IN PLAYLIST (edit this anytime)
+const songs = [
+  "Alice In Chains Rooster",
+  "Alice In Chains Man in the Box",
+  "Nirvana Smells Like Teen Spirit",
+  "Soundgarden Black Hole Sun",
+  "Pearl Jam Even Flow",
+  "Metallica Enter Sandman"
+];
 
-let list = [];
-let queue = [];
 let index = 0;
 
-async function loadData() {
-  const res = await fetch(API_URL);
-  const data = await res.json();
+function render() {
+  const list = document.getElementById("list");
+  list.innerHTML = "";
 
-  list = Array.isArray(data) ? data : data.data || [];
-
-  document.getElementById("status").innerText =
-    "Loaded: " + list.length;
-
-  render(list);
-}
-
-function render(items) {
-  const container = document.getElementById("list");
-  container.innerHTML = "";
-
-  items.forEach((item, i) => {
+  songs.forEach((s, i) => {
     const div = document.createElement("div");
     div.className = "item";
-
-    const title = item.title || item.name;
-    const artist = item.artist?.name || item.artist;
-
-    div.innerHTML = `<b>${title}</b><br>${artist}`;
+    div.innerHTML = `<b>${s}</b>`;
 
     div.onclick = () => {
-      queue = items;
       index = i;
-      play(index);
+      play(i);
     };
 
-    container.appendChild(div);
+    list.appendChild(div);
   });
 }
 
 async function play(i) {
-  const item = queue[i];
-  if (!item) return;
-
-  const title = item.title || item.name;
-  const artist = item.artist?.name || item.artist;
+  const query = songs[i];
 
   document.getElementById("nowPlaying").innerText =
-    `Playing: ${title} - ${artist}`;
-
-  const query = encodeURIComponent(title + " " + artist);
+    "Playing: " + query;
 
   const url =
-    `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=1&q=${query}&key=${YT_KEY}`;
+    `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=1&q=${encodeURIComponent(query)}&key=${YT_KEY}`;
 
   const res = await fetch(url);
   const data = await res.json();
 
   const videoId = data.items?.[0]?.id?.videoId;
 
-  if (!videoId) {
-    next();
-    return;
-  }
+  if (!videoId) return;
 
   document.getElementById("yt").src =
     `https://www.youtube.com/embed/${videoId}?autoplay=1`;
 
-  // auto-next after delay fallback (since iframe doesn't give end event reliably)
-  setTimeout(() => {
-    next();
-  }, 180000); // 3 min fallback
 }
 
 function next() {
-  index++;
-  if (index >= queue.length) index = 0;
+  index = (index + 1) % songs.length;
   play(index);
 }
 
 function prev() {
-  index--;
-  if (index < 0) index = queue.length - 1;
+  index = (index - 1 + songs.length) % songs.length;
   play(index);
 }
 
 function shuffle() {
-  queue = queue.sort(() => Math.random() - 0.5);
-  index = 0;
+  index = Math.floor(Math.random() * songs.length);
   play(index);
 }
 
-loadData();
+render();
 
 </script>
 
