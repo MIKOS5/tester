@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>IPTV Stream Pro Fixed</title>
+<title>IPTV Stream Pro</title>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
@@ -17,103 +17,68 @@ body{
   color:#fff;
 }
 
-/* PLAYER */
+/* LEFT SIDEBAR FILTERS */
+#sidebar{
+  width:260px;
+  background:#111827;
+  border-right:1px solid #222;
+  display:flex;
+  flex-direction:column;
+}
+
+/* GROUP LIST */
+#groupList{
+  flex:1;
+  overflow:auto;
+  padding:8px;
+}
+
+.group{
+  padding:8px;
+  margin-bottom:6px;
+  background:#0b0f17;
+  border:1px solid #222;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:12px;
+}
+
+.group:hover{
+  background:#1f2937;
+}
+
+/* MAIN AREA */
 #main{
   flex:1;
   display:flex;
   flex-direction:column;
 }
 
+/* VIDEO */
 video{
   width:100%;
   background:black;
-  max-height:70vh;
+  max-height:65vh;
 }
 
-/* BAR */
+/* TOP BAR */
 #bar{
   background:#111827;
   padding:10px;
   display:flex;
   gap:10px;
-}
-
-/* SIDEBAR */
-#sidebar{
-  width:320px;
-  display:flex;
-  flex-direction:column;
-  border-left:1px solid #222;
-  background:#111827;
-}
-
-/* FILTERS */
-#filters{
-  display:flex;
-  gap:8px;
-  padding:10px;
-  background:#0f172a;
   align-items:center;
 }
 
-input{
-  flex:1;
-  padding:8px;
-  border-radius:6px;
-  border:1px solid #333;
-  background:#0b0f17;
+/* SEARCH */
+#search{
+  width:100%;
+  padding:10px;
+  border:none;
+  outline:none;
+  background:#0f172a;
   color:#fff;
-}
-
-/* DROPDOWN */
-.dropdown{
-  position:relative;
-}
-
-.dropbtn{
-  padding:6px 10px;
-  font-size:12px;
-  background:#1f2937;
-  color:#fff;
-  border:1px solid #333;
-  border-radius:8px;
-  cursor:pointer;
-}
-
-.dropdown-menu{
-  position:absolute;
-  top:100%;
-  right:0;
-  margin-top:6px;
-  width:320px;
-  max-height:260px;
-  overflow:auto;
-  background:#111827;
-  border:1px solid #333;
-  border-radius:10px;
-  display:none;
-  padding:8px;
-
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:6px;
-}
-
-.dropdown:hover .dropdown-menu{
-  display:grid;
-}
-
-.dropdown-menu div{
-  font-size:11px;
-  padding:6px;
-  background:#0b0f17;
-  border-radius:6px;
-  cursor:pointer;
-  text-align:center;
-}
-
-.dropdown-menu div:hover{
-  background:#2793ff;
+  border-bottom:1px solid #222;
 }
 
 /* LIST */
@@ -127,13 +92,23 @@ input{
   border-bottom:1px solid #222;
   cursor:pointer;
 }
-.card:hover{background:#1f2937}
+.card:hover{
+  background:#1f2937;
+}
 </style>
 </head>
 
 <body>
 
+<!-- LEFT SIDEBAR -->
+<div id="sidebar">
+  <input id="search" placeholder="Search..." oninput="applyFilters()"/>
+  <div id="groupList"></div>
+</div>
+
+<!-- MAIN -->
 <div id="main">
+
   <video id="video" controls playsinline></video>
 
   <div id="bar">
@@ -141,20 +116,6 @@ input{
     <button onclick="prev()">⏮</button>
     <button onclick="toggle()">⏯</button>
     <button onclick="next()">⏭</button>
-  </div>
-</div>
-
-<div id="sidebar">
-
-  <div id="filters">
-
-    <div class="dropdown">
-      <button class="dropbtn">📂 Groups</button>
-      <div class="dropdown-menu" id="groupMenu"></div>
-    </div>
-
-    <input id="search" placeholder="Search..." oninput="applyFilters()"/>
-
   </div>
 
   <div id="list"></div>
@@ -201,27 +162,38 @@ function parseM3U(t){
   return out;
 }
 
-/* GROUPS */
+/* GROUP SIDEBAR */
 function buildGroups(){
   const set=new Set();
-
   list.forEach(s=>set.add(s.group));
 
-  const menu=document.getElementById("groupMenu");
-  menu.innerHTML="";
+  const box=document.getElementById("groupList");
+  box.innerHTML="";
+
+  const all=document.createElement("div");
+  all.className="group";
+  all.textContent="📺 All Channels";
+  all.onclick=()=>{
+    filtered=list;
+    render(true);
+  };
+  box.appendChild(all);
 
   [...set].sort().forEach(g=>{
     const d=document.createElement("div");
+    d.className="group";
     d.textContent=g;
+
     d.onclick=()=>{
       filtered=list.filter(x=>x.group===g);
       render(true);
     };
-    menu.appendChild(d);
+
+    box.appendChild(d);
   });
 }
 
-/* FILTER */
+/* SEARCH FILTER */
 function applyFilters(){
   const q=document.getElementById("search").value.toLowerCase();
 
@@ -232,7 +204,7 @@ function applyFilters(){
   render(true);
 }
 
-/* RENDER SAFE */
+/* RENDER */
 function render(reset){
   const el=document.getElementById("list");
 
@@ -257,33 +229,24 @@ function render(reset){
   renderIndex+=CHUNK;
 }
 
-/* SCROLL SAFE */
+/* INFINITE SCROLL */
 document.getElementById("list").onscroll=(e)=>{
   if(e.target.scrollTop+e.target.clientHeight>=e.target.scrollHeight-100){
     render(false);
   }
 };
 
-/* FIXED HLS PLAY */
+/* HLS PLAY */
 function playMedia(url){
   const v=document.getElementById("video");
 
   if(window.Hls && Hls.isSupported()){
-
     if(window.hls) window.hls.destroy();
 
-    window.hls=new Hls({
-      enableWorker:true,
-      lowLatencyMode:true
-    });
-
+    window.hls=new Hls();
     window.hls.loadSource(url);
     window.hls.attachMedia(v);
-
-    window.hls.on(Hls.Events.MANIFEST_PARSED,()=>{
-      v.play();
-    });
-
+    v.play();
   }else{
     v.src=url;
     v.play();
