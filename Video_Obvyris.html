@@ -1214,6 +1214,17 @@ async function play(i){
   loadPopupChat();
 }
 
+async function loadAllChannels(){
+  const res = await fetch(PLAYLIST);
+  const text = await res.text();
+
+  allChannels = parseM3U(text);
+  current = [...allChannels];
+
+  render();
+  setTitle("📺 Live TV");
+}
+  
 async function loadPopupChat(){
   try {
     const stationId = getCurrentStationId();
@@ -1269,7 +1280,8 @@ function playFiltered(i){
   stationStarted = true;
   loadPopupChat();
 }
-  
+
+
 /* CONTROLS */
 function toggle() {
   const a = document.getElementById("audio");
@@ -1784,7 +1796,7 @@ function showAll() {
   document.querySelectorAll(".genre")
     .forEach(x => x.classList.remove("active"));
 
-  load();
+  loadAllChannels();
 }
 
 /* GENRE */
@@ -1810,7 +1822,7 @@ function changeCountry(){
 
   page = 0;
 
-  load();
+  loadAllChannels();
 }
   
 function nextPage(){
@@ -1819,7 +1831,7 @@ function nextPage(){
     load(currentGenre);
   } else {
     page++;
-    load();
+    loadAllChannels();
   }
 }
 
@@ -1828,7 +1840,7 @@ function prevPage(){
     load(currentGenre);
   } else if(page > 0){
     page--;
-    load();
+    loadAllChannels();
   }
 }
 
@@ -1845,7 +1857,7 @@ function toggleTheme() {
 }
 /* INIT */
 renderGenres();   // ✅ add this
-load();
+loadAllChannels();
   
 document.querySelector(".main").addEventListener("scroll", () => {
   const main = document.querySelector(".main");
