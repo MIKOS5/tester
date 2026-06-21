@@ -8,92 +8,208 @@
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
 <style>
+/* =========================
+   🎨 DESIGN SYSTEM THEME
+========================= */
+
+:root{
+  --bg:#09111d;
+  --panel:#111827;
+  --border:#253347;
+
+  --blue:#2793ff;
+  --blue-dark:#1869d9;
+
+  --green:#17c964;
+  --green-dark:#0ea85a;
+
+  --text:#ffffff;
+  --muted:#93a4bb;
+}
+
+/* 🌙 DARK MODE BASE */
 body{
   margin:0;
   display:flex;
   height:100vh;
-  font-family:Arial;
-  background:#0b0f17;
-  color:#fff;
+  font-family:Inter, Arial, sans-serif;
+  background:var(--bg);
+  color:var(--text);
 }
 
-/* LEFT SIDEBAR FILTERS */
-#sidebar{
-  width:260px;
-  background:#111827;
-  border-right:1px solid #222;
-  display:flex;
-  flex-direction:column;
-}
+/* =========================
+   PLAYER + MAIN PANELS
+========================= */
 
-/* GROUP LIST */
-#groupList{
-  flex:1;
-  overflow:auto;
-  padding:8px;
-}
-
-.group{
-  padding:8px;
-  margin-bottom:6px;
-  background:#0b0f17;
-  border:1px solid #222;
-  border-radius:8px;
-  cursor:pointer;
-  font-size:12px;
-}
-
-.group:hover{
-  background:#1f2937;
-}
-
-/* MAIN AREA */
 #main{
   flex:1;
   display:flex;
   flex-direction:column;
+  background:var(--bg);
 }
 
-/* VIDEO */
 video{
   width:100%;
-  background:black;
+  background:#000;
   max-height:65vh;
+  border-bottom:1px solid var(--border);
 }
 
 /* TOP BAR */
 #bar{
-  background:#111827;
+  background:var(--panel);
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
   padding:10px;
   display:flex;
   gap:10px;
   align-items:center;
 }
 
-/* SEARCH */
+#now{
+  color:var(--text);
+  font-weight:700;
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+
+#sidebar{
+  width:260px;
+  background:var(--panel);
+  border-right:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+}
+
+.group{
+  padding:9px;
+  margin-bottom:6px;
+  background:var(--bg);
+  border:1px solid var(--border);
+  border-radius:10px;
+  cursor:pointer;
+  font-size:12px;
+  color:var(--text);
+  transition:.15s;
+}
+
+.group:hover{
+  background:rgba(39,147,255,0.12);
+  border-color:var(--blue);
+}
+
+.group:active{
+  transform:scale(0.98);
+}
+
+/* =========================
+   INPUT / SEARCH
+========================= */
+
 #search{
   width:100%;
   padding:10px;
   border:none;
   outline:none;
-  background:#0f172a;
-  color:#fff;
-  border-bottom:1px solid #222;
+  background:var(--panel);
+  color:var(--text);
+  border-bottom:1px solid var(--border);
 }
 
-/* LIST */
+#search::placeholder{
+  color:var(--muted);
+}
+
+/* =========================
+   STATION LIST
+========================= */
+
 #list{
   flex:1;
   overflow:auto;
+  background:var(--bg);
 }
 
 .card{
-  padding:10px;
-  border-bottom:1px solid #222;
+  padding:12px;
+  border-bottom:1px solid var(--border);
   cursor:pointer;
+  transition:.15s;
 }
+
 .card:hover{
-  background:#1f2937;
+  background:rgba(39,147,255,0.08);
+}
+
+.card b{
+  color:var(--text);
+}
+
+.card small{
+  color:var(--muted);
+}
+
+/* =========================
+   BUTTONS
+========================= */
+
+button{
+  background:linear-gradient(180deg,var(--blue),var(--blue-dark));
+  border:none;
+  color:white;
+  padding:8px 10px;
+  border-radius:10px;
+  font-weight:700;
+  cursor:pointer;
+  transition:.15s;
+}
+
+button:hover{
+  filter:brightness(1.1);
+}
+
+button:active{
+  transform:scale(0.97);
+}
+
+/* =========================
+   SCROLLBAR FIX (MATCH UI)
+========================= */
+
+*::-webkit-scrollbar{
+  width:10px;
+}
+
+*::-webkit-scrollbar-track{
+  background:var(--panel);
+}
+
+*::-webkit-scrollbar-thumb{
+  background:var(--border);
+  border-radius:999px;
+  border:2px solid var(--panel);
+}
+
+*::-webkit-scrollbar-thumb:hover{
+  background:var(--blue);
+}
+
+/* Firefox */
+*{
+  scrollbar-width:thin;
+  scrollbar-color:var(--border) var(--panel);
+}
+
+/* =========================
+   MOBILE CLEANUP
+========================= */
+
+@media(max-width:900px){
+  #sidebar{
+    width:200px;
+  }
 }
 </style>
 </head>
