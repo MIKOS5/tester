@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Video Stream</title>
+
+<style>
+body {
+  margin:0;
+  font-family: Arial, sans-serif;
+  background:#0b0f17;
+  color:#fff;
+  display:flex;
+  height:100vh;
+}
+
+#left {
+  width:320px;
+  background:#111827;
+  padding:10px;
+  overflow:auto;
+}
+
+#right {
+  flex:1;
+  display:flex;
+  flex-direction:column;
+}
+
+video, audio {
+  width:100%;
+  background:black;
+}
+
+#playerBar {
+  padding:10px;
+  background:#0f172a;
+}
+
+button {
+  padding:8px;
+  margin:2px;
+  cursor:pointer;
+}
+
+.card {
+  padding:8px;
+  border-bottom:1px solid #222;
+  cursor:pointer;
+}
+
+.card:hover {
+  background:#1f2937;
+}
+
+#chatBox {
+  position:fixed;
+  bottom:0;
+  right:0;
+  width:300px;
+  background:#111827;
+  border-left:1px solid #333;
+  border-top:1px solid #333;
+  display:flex;
+  flex-direction:column;
+}
+
+#chatLog {
+  height:200px;
+  overflow:auto;
+  font-size:12px;
+  padding:5px;
+}
+
+#chatInput {
+  display:flex;
+}
+</style>
+</head>
+
+<body>
+
+<div id="left">
+  <input id="search" placeholder="Search..." oninput="render()" style="width:100%;padding:8px;">
+
+  <div id="list"></div>
+</div>
+
+<div id="right">
+
+  <video id="video" controls playsinline></video>
+  <audio id="audio" controls></audio>
+
+  <div id="playerBar">
+    <div id="now">No station</div>
+
+    <button onclick="prev()">⏮</button>
+    <button onclick="toggle()">▶/⏸</button>
+    <button onclick="next()">⏭</button>
+  </div>
+
+</div>
+
+<!-- CHAT -->
+<div id="chatBox">
+  <div id="chatLog"></div>
+
+  <div id="chatInput">
+    <input id="chatName" placeholder="name" maxlength="8" style="width:70px;">
+    <input id="chatMsg" placeholder="message" maxlength="120" style="flex:1;">
+    <button onclick="sendChat()">Send</button>
+  </div>
+</div>
+
+<script>
+const PLAYLIST = "https://iptv-org.github.io/iptv/index.m3u";
+const API_URL = "https://script.google.com/macros/s/AKfycbzin84qDcZ9L1q4pTBtHZGKJSTDcZ_wnmgWmnmgPgf1jrc1nRprzbEBixKMSHcdkxiZBg/exec";
+
+let list = [];
+let filtered = [];
+let index = 0;
+
+/* LOAD M3U */
+async function load() {
+  const res = await fetch(PLAYLIST);
+  const text = await res.text();
+  list = parseM3U(text);
+  render();
+}
+
+/* PARSE */
+function parseM3U(text) {
+  const lines = text.split("\n");
+  const out = [];
+  let item = null;
+
+  for (let line of lines) {
+    if (line.startsWith("#EXTINF")) {
+      item = {
+        name: line.split(",").pop(),
+      };
+    } else if (item && line.startsWith("http")) {
+      item.url = line.trim();
+      out.push(item);
+      item = null;
+    }
+  }
+  return out;
+}
+
+/* RENDER */
+function render() {
+  const q = document.getElementById("search").value?.toLowerCase() || "";
+  filtered = list.filter(s =>
+    s.name.toLowerCase().includes(q)
+  );
+
+  const el = document.getElementById("list");
+  el.innerHTML = "";
+
+  filtered.forEach((s, i) => {
+    el.innerHTML += `
+      <div class="card" onclick="play(${i})">
+        ${s.name}
+      </div>
+    `;
+  });
+}
+
+/* PLAY MEDIA */
+function playMedia(url) {
+  const video = document.getElementById("video");
+  const audio = document.getElementById("audio");
+
+  const isVideo = url.includes(".m3u8") || url.includes(".mp4");
+
+  if (isVideo) {
+    audio.pause();
+    audio.src = "";
+    video.style.display = "block";
+    audio.style.display = "none";
+    video.src = url;
+    video.play();
+  } else {
+    video.pause();
+    video.src = "";
+    audio.style.display = "block";
+    video.style.display = "none";
+    audio.src = url;
+    audio.play();
+  }
+}
+
+/* PLAY */
+function play(i) {
+  index = i;
+  const s = filtered[i];
+
+  document.getElementById("now").innerText = s.name;
+  playMedia(s.url);
+
+  loadChat();
+}
+
+/* CONTROLS */
+function next() {
+  index = (index + 1) % filtered.length;
+  play(index);
+}
+
+function prev() {
+  index = (index - 1 + filtered.length) % filtered.length;
+  play(index);
+}
+
+function toggle() {
+  const v = document.getElementById("video");
+  const a = document.getElementById("audio");
+
+  if (v.style.display !== "none") {
+    v.paused ? v.play() : v.pause();
+  } else {
+    a.paused ? a.play() : a.pause();
+  }
+}
+
+/* CHAT */
+async function loadChat() {
+  const station = getStationId();
+
+  const res = await fetch(API_URL, {
+    method:"POST",
+    body: JSON.stringify({ action:"get", station })
+  });
+
+  const data = await res.json();
+  renderChat(Array.isArray(data) ? data : []);
+}
+
+async function sendChat() {
+  const name = document.getElementById("chatName").value || "Anon";
+  const msg = document.getElementById("chatMsg").value;
+  if (!msg) return;
+
+  await fetch(API_URL, {
+    method:"POST",
+    body: JSON.stringify({
+      action:"send",
+      station: getStationId(),
+      name,
+      message: msg
+    })
+  });
+
+  document.getElementById("chatMsg").value = "";
+  loadChat();
+}
+
+function renderChat(messages) {
+  const box = document.getElementById("chatLog");
+  box.innerHTML = "";
+
+  messages.forEach(m => {
+    box.innerHTML += `<div><b>${m.name}:</b> ${m.message}</div>`;
+  });
+
+  box.scrollTop = box.scrollHeight;
+}
+
+function getStationId() {
+  return filtered[index]?.name || "global";
+}
+
+/* INIT */
+load();
+</script>
+
+</body>
+</html>
