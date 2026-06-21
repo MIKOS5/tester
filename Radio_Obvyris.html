@@ -901,16 +901,14 @@ async function loadFavorites(){
 }
 
 async function loadMood() {
-  currentMode = "mood";
-  page = 0;
 
-  const res = await fetch(API_URL + "?action=mood");
-  const json = await res.json();
+  const res = await fetch(SHEET + "?action=mood");
+  const data = await res.json().catch(() => []);
 
-  stations = json.data || [];
-  filteredStations = [...stations];
+  current = (data.data || []).map(normalize);
 
-  renderStations();
+  render();
+  setTitle("☁️ Mood");
 }
   
 async function loadUndiscovered(){
