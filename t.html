@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>IPTV Stream Pro</title>
+<title>IPTV Stream Pro Fixed</title>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
@@ -17,7 +17,7 @@ body{
   color:#fff;
 }
 
-/* LEFT PLAYER */
+/* PLAYER */
 #main{
   flex:1;
   display:flex;
@@ -30,32 +30,15 @@ video{
   max-height:70vh;
 }
 
+/* BAR */
 #bar{
   background:#111827;
   padding:10px;
   display:flex;
   gap:10px;
-  align-items:center;
 }
 
-/* TOP FILTER BAR */
-#filters{
-  display:flex;
-  gap:10px;
-  padding:10px;
-  background:#0f172a;
-  border-bottom:1px solid #222;
-}
-
-select,input{
-  padding:8px;
-  border-radius:6px;
-  border:1px solid #333;
-  background:#0b0f17;
-  color:#fff;
-}
-
-/* RIGHT SIDEBAR */
+/* SIDEBAR */
 #sidebar{
   width:320px;
   display:flex;
@@ -64,6 +47,76 @@ select,input{
   background:#111827;
 }
 
+/* FILTERS */
+#filters{
+  display:flex;
+  gap:8px;
+  padding:10px;
+  background:#0f172a;
+  align-items:center;
+}
+
+input{
+  flex:1;
+  padding:8px;
+  border-radius:6px;
+  border:1px solid #333;
+  background:#0b0f17;
+  color:#fff;
+}
+
+/* DROPDOWN */
+.dropdown{
+  position:relative;
+}
+
+.dropbtn{
+  padding:6px 10px;
+  font-size:12px;
+  background:#1f2937;
+  color:#fff;
+  border:1px solid #333;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.dropdown-menu{
+  position:absolute;
+  top:100%;
+  right:0;
+  margin-top:6px;
+  width:320px;
+  max-height:260px;
+  overflow:auto;
+  background:#111827;
+  border:1px solid #333;
+  border-radius:10px;
+  display:none;
+  padding:8px;
+
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:6px;
+}
+
+.dropdown:hover .dropdown-menu{
+  display:grid;
+}
+
+.dropdown-menu div{
+  font-size:11px;
+  padding:6px;
+  background:#0b0f17;
+  border-radius:6px;
+  cursor:pointer;
+  text-align:center;
+}
+
+.dropdown-menu div:hover{
+  background:#2793ff;
+}
+
+/* LIST */
 #list{
   flex:1;
   overflow:auto;
@@ -75,142 +128,70 @@ select,input{
   cursor:pointer;
 }
 .card:hover{background:#1f2937}
-
-/* CHAT */
-#chatPopup{
-  position:fixed;
-  right:0;
-  bottom:0;
-  width:320px;
-  height:420px;
-  background:#111827;
-  border:1px solid #333;
-  display:flex;
-  flex-direction:column;
-  z-index:9999;
-}
-.hidden{display:none}
-
-#chatLogPopup{
-  flex:1;
-  overflow:auto;
-  padding:8px;
-  font-size:12px;
-}
-
-.chat-input{
-  display:flex;
-  gap:5px;
-  padding:6px;
-  border-top:1px solid #333;
-}
-
-.chat-input input{
-  background:#0b0f17;
-  color:#fff;
-  border:none;
-  padding:6px;
-}
-
-#chatNamePopup{width:70px}
-#chatMsgPopup{flex:1}
 </style>
 </head>
 
 <body>
 
-<!-- PLAYER -->
 <div id="main">
-
-  <video id="video" controls autoplay playsinline></video>
+  <video id="video" controls playsinline></video>
 
   <div id="bar">
     <div id="now">Loading...</div>
     <button onclick="prev()">⏮</button>
     <button onclick="toggle()">⏯</button>
     <button onclick="next()">⏭</button>
-    <button onclick="toggleChat()">💬</button>
   </div>
-
 </div>
 
-<!-- SIDEBAR -->
 <div id="sidebar">
 
-  <!-- FILTERS -->
-<div id="filters">
+  <div id="filters">
 
-  <div class="dropdown">
-    <button class="dropbtn">📂 Groups</button>
-
-    <div class="dropdown-menu grid-menu" id="groupMenu">
-      <!-- filled by JS -->
+    <div class="dropdown">
+      <button class="dropbtn">📂 Groups</button>
+      <div class="dropdown-menu" id="groupMenu"></div>
     </div>
+
+    <input id="search" placeholder="Search..." oninput="applyFilters()"/>
+
   </div>
 
-  <input id="search" placeholder="Search..." oninput="applyFilters()"/>
-
-</div>
-
-<!-- CHAT -->
-<div id="chatPopup" class="hidden">
-
-  <div style="padding:10px;background:#0f172a;display:flex;justify-content:space-between;">
-    <b>Chat</b>
-    <button onclick="toggleChat()">✖</button>
-  </div>
-
-  <div id="chatLogPopup"></div>
-
-  <div class="chat-input">
-    <input id="chatNamePopup" placeholder="name" maxlength="8"/>
-    <input id="chatMsgPopup" placeholder="message" maxlength="100"/>
-    <button onclick="sendChat()">Send</button>
-  </div>
+  <div id="list"></div>
 
 </div>
 
 <script>
 
 const PLAYLIST="https://iptv-org.github.io/iptv/index.m3u";
-const API_URL="https://script.google.com/macros/s/AKfycbzin84qDcZ9L1q4pTBtHZGKJSTDcZ_wnmgWmnmgPgf1jrc1nRprzbEBixKMSHcdkxiZBg/exec";
 
 let list=[],filtered=[],index=0;
 let renderIndex=0;
-const CHUNK=100;
+const CHUNK=120;
 
 /* LOAD */
 async function load(){
   const r=await fetch(PLAYLIST);
   const t=await r.text();
+
   list=parseM3U(t);
 
-  buildFilters();
+  buildGroups();
   applyFilters();
 }
 
-/* PARSE M3U (FULL META) */
+/* PARSE */
 function parseM3U(t){
   const lines=t.split("\n");
   let out=[],item=null;
 
   for(let l of lines){
-
     if(l.startsWith("#EXTINF")){
-      item={};
-
-      item.name=l.split(",").pop();
-
-      const g=l.match(/group-title="([^"]+)"/);
-      item.group=g?g[1]:"Other";
-
-      const c=l.match(/tvg-country="([^"]+)"/);
-      item.country=c?c[1]:"";
-
-      const id=l.match(/tvg-id="([^"]+)"/);
-      item.id=id?id[1]:item.name;
+      item={
+        name:l.split(",").pop(),
+        group:(l.match(/group-title="([^"]+)"/)||[])[1]||"Other"
+      };
     }
-
     else if(item && l.startsWith("http")){
       item.url=l.trim();
       out.push(item);
@@ -220,51 +201,39 @@ function parseM3U(t){
   return out;
 }
 
-/* FILTER UI BUILD */
-function buildFilters(){
+/* GROUPS */
+function buildGroups(){
+  const set=new Set();
 
-  const g=new Set();
-  const c=new Set();
+  list.forEach(s=>set.add(s.group));
 
-  list.forEach(s=>{
-    if(s.group) g.add(s.group);
-    if(s.country) c.add(s.country);
-  });
+  const menu=document.getElementById("groupMenu");
+  menu.innerHTML="";
 
-  const gf=document.getElementById("groupFilter");
-  const cf=document.getElementById("countryFilter");
-
-  [...g].sort().forEach(x=>{
-    gf.innerHTML+=`<option>${x}</option>`;
-  });
-
-  [...c].sort().forEach(x=>{
-    cf.innerHTML+=`<option>${x}</option>`;
+  [...set].sort().forEach(g=>{
+    const d=document.createElement("div");
+    d.textContent=g;
+    d.onclick=()=>{
+      filtered=list.filter(x=>x.group===g);
+      render(true);
+    };
+    menu.appendChild(d);
   });
 }
 
-/* APPLY FILTERS */
+/* FILTER */
 function applyFilters(){
-
-  const g=document.getElementById("groupFilter").value;
-  const c=document.getElementById("countryFilter").value;
   const q=document.getElementById("search").value.toLowerCase();
 
-  filtered=list.filter(s=>{
-
-    const mg=!g||s.group===g;
-    const mc=!c||s.country===c;
-    const mq=!q||s.name.toLowerCase().includes(q);
-
-    return mg&&mc&&mq;
-  });
+  filtered=list.filter(s=>
+    s.name.toLowerCase().includes(q)
+  );
 
   render(true);
 }
 
-/* RENDER */
+/* RENDER SAFE */
 function render(reset){
-
   const el=document.getElementById("list");
 
   if(reset){
@@ -280,31 +249,41 @@ function render(reset){
     el.innerHTML+=`
       <div class="card" onclick="play(${real})">
         <b>${s.name}</b><br/>
-        <small>${s.group} • ${s.country}</small>
-      </div>`;
+        <small>${s.group}</small>
+      </div>
+    `;
   });
 
   renderIndex+=CHUNK;
 }
 
-/* SCROLL */
+/* SCROLL SAFE */
 document.getElementById("list").onscroll=(e)=>{
   if(e.target.scrollTop+e.target.clientHeight>=e.target.scrollHeight-100){
     render(false);
   }
 };
 
-/* PLAY IPTV (FIXED HLS) */
+/* FIXED HLS PLAY */
 function playMedia(url){
   const v=document.getElementById("video");
 
   if(window.Hls && Hls.isSupported()){
+
     if(window.hls) window.hls.destroy();
 
-    window.hls=new Hls();
+    window.hls=new Hls({
+      enableWorker:true,
+      lowLatencyMode:true
+    });
+
     window.hls.loadSource(url);
     window.hls.attachMedia(v);
-    v.play();
+
+    window.hls.on(Hls.Events.MANIFEST_PARSED,()=>{
+      v.play();
+    });
+
   }else{
     v.src=url;
     v.play();
@@ -319,10 +298,9 @@ function play(i){
 
   document.getElementById("now").innerText=s.name;
   playMedia(s.url);
-  loadChat();
 }
 
-/* NEXT/PREV */
+/* CONTROLS */
 function next(){
   index=(index+1)%filtered.length;
   play(index);
@@ -336,69 +314,6 @@ function prev(){
 function toggle(){
   const v=document.getElementById("video");
   v.paused?v.play():v.pause();
-}
-
-/* CHAT */
-let chatOpen=false;
-
-function toggleChat(){
-  chatOpen=!chatOpen;
-  document.getElementById("chatPopup").classList.toggle("hidden");
-  if(chatOpen) loadChat();
-}
-
-function getStationId(){
-  return filtered[index]?.id||filtered[index]?.name||"global";
-}
-
-async function loadChat(){
-
-  const id=getStationId();
-
-  const res=await fetch(API_URL,{
-    method:"POST",
-    body:JSON.stringify({action:"get",station:id})
-  });
-
-  const data=await res.json();
-
-  renderChat(Array.isArray(data)?data:[]);
-}
-
-function renderChat(data){
-
-  const box=document.getElementById("chatLogPopup");
-  box.innerHTML="";
-
-  data.forEach(m=>{
-    box.innerHTML+=`
-      <div>
-        <b>${m.name||""}</b> ${m.message||""}
-      </div>`;
-  });
-
-  box.scrollTop=box.scrollHeight;
-}
-
-async function sendChat(){
-
-  let name=document.getElementById("chatNamePopup").value||"Anon";
-  let msg=document.getElementById("chatMsgPopup").value;
-
-  if(!msg.trim()) return;
-
-  await fetch(API_URL,{
-    method:"POST",
-    body:JSON.stringify({
-      action:"send",
-      station:getStationId(),
-      name:name.slice(0,8),
-      message:msg.slice(0,100)
-    })
-  });
-
-  document.getElementById("chatMsgPopup").value="";
-  loadChat();
 }
 
 /* START */
