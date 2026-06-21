@@ -3,105 +3,97 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Obvyris Home</title>
+<title>Obvyris Hub</title>
 
 <style>
-:root{
-  --bg:#09111d;
-  --panel:#111827;
-  --border:#253347;
-  --blue:#2793ff;
-  --text:#fff;
-  --muted:#93a4bb;
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  height: 100vh;
+  display: flex;
+  overflow: hidden;
 }
 
-body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:var(--bg);
-  color:var(--text);
-  display:flex;
-  height:100vh;
+/* SIDEBAR */
+.sidebar {
+  width: 220px;
+  background: #111827;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+  border-right: 1px solid #253347;
 }
 
-/* LEFT NAV */
-.sidebar{
-  width:240px;
-  background:var(--panel);
-  border-right:1px solid var(--border);
-  padding:15px;
+.sidebar h2 {
+  margin: 0 0 15px 0;
+  font-size: 18px;
 }
 
-h2{
-  margin:0 0 10px 0;
+.btn {
+  padding: 10px;
+  margin-bottom: 10px;
+  background: linear-gradient(180deg, #2793ff, #1869d9);
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  text-align: center;
+  color: white;
+  user-select: none;
+  transition: 0.15s;
 }
 
-.btn{
-  display:block;
-  padding:10px;
-  margin-bottom:10px;
-  background:linear-gradient(180deg,var(--blue),#1869d9);
-  border-radius:10px;
-  text-align:center;
-  cursor:pointer;
-  font-weight:bold;
-  text-decoration:none;
-  color:white;
+.btn:hover {
+  filter: brightness(1.1);
+  transform: translateX(3px);
 }
 
 /* MAIN */
-.main{
-  flex:1;
-  padding:15px;
-  overflow:auto;
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
-.grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:15px;
+header {
+  background: #111827;
+  color: white;
+  padding: 12px;
+  border-bottom: 1px solid #253347;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.card{
-  background:var(--panel);
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:12px;
+header h1 {
+  font-size: 16px;
+  margin: 0;
 }
 
-.title{
-  font-size:18px;
-  font-weight:bold;
-  margin-bottom:10px;
+iframe {
+  flex: 1;
+  border: none;
+  width: 100%;
+  background: #000;
 }
 
-.small{
-  font-size:12px;
-  color:var(--muted);
-}
+/* MOBILE */
+@media (max-width: 800px) {
+  body {
+    flex-direction: column;
+  }
 
-.chat{
-  height:180px;
-  overflow:auto;
-  font-size:12px;
-  border-top:1px solid var(--border);
-  margin-top:10px;
-  padding-top:10px;
-}
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    overflow-x: auto;
+  }
 
-.msg{
-  margin-bottom:6px;
-}
-
-.playbtn{
-  margin-top:10px;
-  padding:8px;
-  border:none;
-  border-radius:8px;
-  background:var(--blue);
-  color:white;
-  font-weight:bold;
-  cursor:pointer;
+  .btn {
+    flex: 1;
+    margin-right: 10px;
+    white-space: nowrap;
+  }
 }
 </style>
 </head>
@@ -110,107 +102,45 @@ h2{
 
 <!-- SIDEBAR -->
 <div class="sidebar">
-  <h2>🚀 Obvyris Hub</h2>
+  <h2>🚀 Obvyris</h2>
 
-  <a class="btn" href="index99.html?app=home" target="_top">🏠 Home</a>
-  <a class="btn" href="index99.html?app=video" target="_top">📺 Video</a>
-  <a class="btn" href="index99.html?app=radio" target="_top">📻 Radio</a>
-
-  <div style="margin-top:20px;font-size:12px;color:var(--muted)">
-    Quick access launcher
-  </div>
+  <div class="btn" onclick="go('Home.html')">🏠 Home</div>
+  <div class="btn" onclick="go('Video_Obvyris.html')">📺 Video</div>
+  <div class="btn" onclick="go('Radio_Obvyris.html')">📻 Radio</div>
 </div>
 
 <!-- MAIN -->
 <div class="main">
 
-  <h1>Dashboard</h1>
+  <header>
+    <h1 id="title">Home</h1>
+    <div>Index99 Launcher</div>
+  </header>
 
-  <div class="grid">
+  <iframe id="frame" src="Home.html"></iframe>
 
-    <!-- VIDEO CARD -->
-    <div class="card">
-      <div class="title">📺 Video Obvyris</div>
-      <div class="small">Live IPTV + Channels</div>
-
-      <button class="playbtn" onclick="go('video')">
-        Open Video
-      </button>
-
-      <div class="chat" id="videoChat">Loading chat...</div>
-    </div>
-
-    <!-- RADIO CARD -->
-    <div class="card">
-      <div class="title">📻 Radio Obvyris</div>
-      <div class="small">Live stations + music</div>
-
-      <button class="playbtn" onclick="go('radio')">
-        Open Radio
-      </button>
-
-      <div class="chat" id="radioChat">Loading chat...</div>
-    </div>
-
-  </div>
 </div>
 
 <script>
 
-/* 🔗 YOUR SAME APPS SCRIPT ENDPOINTS */
-const VIDEO_CHAT =
-"https://script.google.com/macros/s/AKfycbzin84qDcZ9L1q4pTBtHZGKJSTDcZ_wnmgWmnmgPgf1jrc1nRprzbEBixKMSHcdkxiZBg/exec";
+const frame = document.getElementById("frame");
+const title = document.getElementById("title");
 
-const RADIO_CHAT =
-"https://script.google.com/macros/s/AKfycbzZ5MwOcYUY_bpsUKSxPd810xE8rV_Y3z2GwzPublb_4O60CP8L_lC_V2kqkCQ_JdF5/exec";
+function go(page){
 
+  frame.src = page;
 
-function go(app){
-
-  if(app === "video"){
-    parent.document.querySelector("iframe").src = "Video_Obvyris.html";
-  }
-
-  if(app === "radio"){
-    parent.document.querySelector("iframe").src = "Radio_Obvyris.html";
-  }
+  if(page.includes("Home")) title.innerText = "Home";
+  if(page.includes("Video")) title.innerText = "Video Obvyris";
+  if(page.includes("Radio")) title.innerText = "Radio Obvyris";
 }
 
-/* LOAD CHAT PREVIEW */
-async function loadChat(url, boxId){
+/* optional: deep link support */
+const params = new URLSearchParams(window.location.search);
+const app = params.get("app");
 
-  try{
-    const res = await fetch(url,{
-      method:"POST",
-      body:JSON.stringify({action:"get", station:"global"})
-    });
-
-    const data = await res.json();
-
-    const box = document.getElementById(boxId);
-    box.innerHTML = "";
-
-    (data || []).slice(-6).forEach(m=>{
-      box.innerHTML += `
-        <div class="msg">
-          <b>${m.name || "Anon"}:</b> ${m.message}
-        </div>
-      `;
-    });
-
-  }catch(e){
-    document.getElementById(boxId).innerHTML =
-      "Chat unavailable";
-  }
-}
-
-loadChat(VIDEO_CHAT,"videoChat");
-loadChat(RADIO_CHAT,"radioChat");
-
-setInterval(()=>{
-  loadChat(VIDEO_CHAT,"videoChat");
-  loadChat(RADIO_CHAT,"radioChat");
-},5000);
+if(app === "video") go("Video_Obvyris.html");
+if(app === "radio") go("Radio_Obvyris.html");
 
 </script>
 
