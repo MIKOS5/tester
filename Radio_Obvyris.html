@@ -1454,14 +1454,13 @@ async function sendPopupMessage(){
 
   document.getElementById("chatMsgPopup").value = "";
 
-  await fetch(API_URL, {
-    method: "POST",
-    body: JSON.stringify({
-      action: "send",
-      station: getCurrentStationId(),
-      name,
-      message: msg
-    })
+  body: JSON.stringify({
+  action: "send",
+  station: getCurrentStationId(),
+  stationName: getStationName(),
+  name,
+  message: msg
+})
   });
 
   await loadPopupChat();
@@ -1616,11 +1615,12 @@ async function sendMessage(){
   await fetch(API_URL, {
     method: "POST",
     body: JSON.stringify({
-      action: "send",
-      station: getCurrentStationId(),
-      name,
-      message: msg
-    })
+  action: "send",
+  station: getCurrentStationId(),
+  stationName: getStationName(),
+  name,
+  message: msg
+})
   });
 
   renderChat();
