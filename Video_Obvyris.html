@@ -1238,12 +1238,13 @@ async function loadPopupChat(){
   
 function playFiltered(i){
 
-  const list = getActiveList();
+  const list = window.currentPlayList || current;
   const s = list[i];
-  if(!s) return;
+if (!s) return;
 
-  index = i;
-  window.activeList = list;
+index = i;
+window.activeList = list;
+window.currentPlayList = list;
 
   const url = s.url_resolved || s.url;
 
@@ -1306,17 +1307,24 @@ function toggle() {
 }
 
 function next(){
-  const list = getActiveList();
+  const list = window.currentPlayList || current;
   index = (index + 1) % list.length;
   playFiltered(index);
 }
 
 function prev(){
-  const list = getActiveList();
+  const list = window.currentPlayList || current;
   index = (index - 1 + list.length) % list.length;
   playFiltered(index);
 }
 
+function playById(id){
+  const list = window.currentPlayList || current;
+  const i = list.findIndex(s => s.id === id);
+  if(i === -1) return;
+  playFiltered(i);
+}
+  
 function getActiveList(){
   return window.filtered && window.filtered.length
     ? window.filtered
@@ -1596,16 +1604,13 @@ function render(reset = true){
   slice.forEach((s, i) => {
     const realIndex = renderIndex + i;
 
-    const id = s.stationuuid || s.id;
-    const isFav = favorites.has(id);
-
     el.innerHTML += `
       <div class="card">
         <div class="station">${s.name}</div>
         <div class="small">${getGenre(s)} • ${s.country || ""}</div>
 
         <div class="row">
-          <button onclick="play(${i})">▶ Play</button>
+          <button onclick="playById('${s.id}')">▶ Play</button>
         </div>
       </div>
     `;
