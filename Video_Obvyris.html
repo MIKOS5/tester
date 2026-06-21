@@ -808,8 +808,7 @@ const GENRES = [
   <div class="genre" onclick="loadMusicVideos()">🎵 Music Videos</div>
   <div class="genre" onclick="loadSports()">⚽ Sports</div>
   <div class="genre" onclick="loadNews()">📰 News</div>
-  <div class="genre" onclick="loadFavorites()">⭐ Favorites</div>
-  <div class="genre" onclick="loadInternational()">🌎 International</div>
+  <div class="genre" onclick="loadTVFavorites()">⭐ Favorites</div>
   <div class="genre" onclick="loadRecent()">🕘 Recently Watched</div>
   `;
 }
@@ -927,18 +926,18 @@ async function loadArtistMz(){
 
   
 /* FAVORITES LOAD */
-async function loadFavorites(){
+async function loadTVFavorites(){
 
   const res = await fetch(SHEET + "?action=tvfavorites");
   const data = await res.json().catch(()=>[]);
 
-  const list = (data.data || data).map(normalize);
+  const list = (data.data || []).map(normalize);
 
   current = list;
   favorites = new Set(list.map(s => s.id));
 
   render();
-  setTitle("⭐ Favorites");
+  setTitle("⭐ TV Favorites");
 }
 
 async function loadMood() {
@@ -1986,8 +1985,8 @@ document.addEventListener("keydown", (e) => {
 
     // Favorites
     case "f":
-      loadFavorites();
-      break;
+     loadTVFavorites();
+    break;
 
     // Escape
     case "escape":
