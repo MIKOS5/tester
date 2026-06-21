@@ -15,37 +15,7 @@ body {
   height: 100vh;
 }
 
-#sidebar {
-  width: 320px;
-  background: #111827;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-#search {
-  padding: 10px;
-  border: none;
-  outline: none;
-  background: #0f172a;
-  color: white;
-}
-
-#list {
-  overflow-y: auto;
-  flex: 1;
-}
-
-.card {
-  padding: 10px;
-  border-bottom: 1px solid #222;
-  cursor: pointer;
-}
-
-.card:hover {
-  background: #1f2937;
-}
-
+/* LEFT PLAYER */
 #main {
   flex: 1;
   display: flex;
@@ -68,46 +38,97 @@ button {
   cursor: pointer;
 }
 
-#chat {
+/* RIGHT SIDEBAR */
+#sidebar {
+  width: 320px;
+  background: #111827;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid #222;
+}
+
+#search {
+  padding: 10px;
+  border: none;
+  outline: none;
+  background: #0f172a;
+  color: white;
+}
+
+#list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.card {
+  padding: 10px;
+  border-bottom: 1px solid #222;
+  cursor: pointer;
+}
+
+.card:hover {
+  background: #1f2937;
+}
+
+/* CHAT POPUP */
+#chatPopup {
   position: fixed;
-  right: 0;
   bottom: 0;
-  width: 300px;
+  right: 0;
+  width: 320px;
+  height: 400px;
   background: #111827;
   border-top: 1px solid #333;
   border-left: 1px solid #333;
-}
-
-#chatLog {
-  height: 180px;
-  overflow-y: auto;
-  font-size: 12px;
-  padding: 5px;
-}
-
-#chatInput {
   display: flex;
+  flex-direction: column;
+  z-index: 9999;
 }
 
-#chatInput input {
-  border: none;
+.hidden {
+  display: none;
+}
+
+.chat-header {
+  padding: 10px;
+  background: #0f172a;
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+}
+
+#chatLogPopup {
+  flex: 1;
+  overflow-y: auto;
   padding: 6px;
-  outline: none;
+  font-size: 12px;
 }
 
-#chatMsg { flex: 1; }
+.chat-input {
+  display: flex;
+  gap: 5px;
+  padding: 6px;
+  border-top: 1px solid #333;
+}
+
+.chat-input input {
+  border: none;
+  outline: none;
+  padding: 6px;
+  background: #0b0f17;
+  color: white;
+}
+
+#chatNamePopup { width: 70px; }
+#chatMsgPopup { flex: 1; }
 </style>
 </head>
 
 <body>
 
-<div id="sidebar">
-  <input id="search" placeholder="Search..." />
-
-  <div id="list"></div>
-</div>
-
+<!-- MAIN PLAYER -->
 <div id="main">
+
   <video id="video" controls playsinline></video>
   <audio id="audio" controls></audio>
 
@@ -117,19 +138,35 @@ button {
     <button onclick="toggle()">▶/⏸</button>
     <button onclick="next()">⏭</button>
   </div>
+
 </div>
 
-<!-- CHAT -->
-<div id="chat">
-  <div id="chatLog"></div>
-  <div id="chatInput">
-    <input id="chatName" placeholder="name" maxlength="8" style="width:70px;">
-    <input id="chatMsg" placeholder="message" maxlength="120">
-    <button onclick="sendChat()">Send</button>
+<!-- SIDEBAR -->
+<div id="sidebar">
+  <input id="search" placeholder="Search stations..." />
+  <div id="list"></div>
+</div>
+
+<!-- CHAT POPUP -->
+<div id="chatPopup" class="hidden">
+
+  <div class="chat-header">
+    <span>💬 Chat</span>
+    <button onclick="toggleChatPopup()">✖</button>
   </div>
+
+  <div id="chatLogPopup"></div>
+
+  <div class="chat-input">
+    <input id="chatNamePopup" placeholder="name" maxlength="8">
+    <input id="chatMsgPopup" placeholder="message" maxlength="100">
+    <button onclick="sendPopupMessage()">Send</button>
+  </div>
+
 </div>
 
 <script>
+
 const PLAYLIST = "https://iptv-org.github.io/iptv/index.m3u";
 const API_URL = "https://script.google.com/macros/s/AKfycbzin84qDcZ9L1q4pTBtHZGKJSTDcZ_wnmgWmnmgPgf1jrc1nRprzbEBixKMSHcdkxiZBg/exec";
 
@@ -141,6 +178,11 @@ let index = 0;
 let renderIndex = 0;
 const CHUNK = 80;
 
+/* CHAT */
+let chatOpen = false;
+let chatData = [];
+let currentChatStationId = null;
+
 /* LOAD IPTV */
 async function load() {
   const res = await fetch(PLAYLIST);
@@ -149,7 +191,7 @@ async function load() {
   render(true);
 }
 
-/* PARSER */
+/* PARSE M3U */
 function parseM3U(text) {
   const lines = text.split("\n");
   const out = [];
@@ -186,7 +228,6 @@ function render(reset = true) {
 
   slice.forEach((s, i) => {
     const realIndex = renderIndex + i;
-
     el.innerHTML += `
       <div class="card" onclick="play(${realIndex})">
         ${s.name}
@@ -200,24 +241,22 @@ function render(reset = true) {
 /* SCROLL LOAD */
 document.getElementById("list").addEventListener("scroll", (e) => {
   const el = e.target;
-  if (el.scrollTop + el.clientHeight >= el.scrollHeight - 120) {
+  if (el.scrollTop + el.clientHeight >= el.scrollHeight - 100) {
     render(false);
   }
 });
 
-/* SEARCH (debounced) */
-let t;
+/* SEARCH */
 document.getElementById("search").addEventListener("input", () => {
-  clearTimeout(t);
-  t = setTimeout(() => render(true), 200);
+  render(true);
 });
 
-/* MEDIA SWITCH */
+/* PLAY MEDIA */
 function playMedia(url) {
   const v = document.getElementById("video");
   const a = document.getElementById("audio");
 
-  const isVideo = url.includes(".m3u8") || url.includes(".mp4");
+  const isVideo = url.includes(".mp4") || url.includes(".m3u8");
 
   if (isVideo) {
     a.pause(); a.src = "";
@@ -242,7 +281,7 @@ function play(i) {
 
   document.getElementById("now").innerText = s.name;
   playMedia(s.url);
-  loadChat();
+  loadPopupChat();
 }
 
 /* CONTROLS */
@@ -267,53 +306,96 @@ function toggle() {
   }
 }
 
-/* CHAT */
-async function loadChat() {
-  const station = getStation();
+/* CHAT TOGGLE */
+function toggleChatPopup() {
+  const box = document.getElementById("chatPopup");
+  chatOpen = !chatOpen;
+  box.classList.toggle("hidden");
+
+  if (chatOpen) loadPopupChat();
+}
+
+/* GET STATION */
+function getStationId() {
+  return filtered?.[index]?.name || "global";
+}
+
+/* LOAD CHAT */
+async function loadPopupChat() {
+  const stationId = getStationId();
+
+  if (currentChatStationId !== stationId) {
+    currentChatStationId = stationId;
+    chatData = [];
+  }
 
   const res = await fetch(API_URL, {
     method: "POST",
-    body: JSON.stringify({ action:"get", station })
-  });
-
-  const data = await res.json();
-  renderChat(Array.isArray(data) ? data : []);
-}
-
-async function sendChat() {
-  const name = document.getElementById("chatName").value || "Anon";
-  const msg = document.getElementById("chatMsg").value;
-  if (!msg) return;
-
-  await fetch(API_URL, {
-    method:"POST",
     body: JSON.stringify({
-      action:"send",
-      station: getStation(),
-      name,
-      message: msg
+      action: "get",
+      station: stationId
     })
   });
 
-  document.getElementById("chatMsg").value = "";
-  loadChat();
+  const data = await res.json();
+  const msgs = Array.isArray(data) ? data : [];
+
+  chatData = [
+    { system: true, name: "System", message: `Chat: ${stationId}` },
+    ...msgs
+  ];
+
+  renderPopupChat();
 }
 
-function renderChat(msgs) {
-  const box = document.getElementById("chatLog");
-  box.innerHTML = msgs.map(m =>
-    `<div><b>${m.name}:</b> ${m.message}</div>`
-  ).join("");
+/* RENDER CHAT */
+function renderPopupChat() {
+  const box = document.getElementById("chatLogPopup");
+  box.innerHTML = "";
+
+  chatData.forEach(m => {
+    box.innerHTML += `
+      <div style="${m.system ? "opacity:.6;text-align:center;" : ""}">
+        ${m.system ? "" : `<b>${m.name}:</b>`}
+        ${m.message}
+      </div>
+    `;
+  });
+
   box.scrollTop = box.scrollHeight;
 }
 
-function getStation() {
-  return filtered[index]?.name || "global";
+/* SEND CHAT */
+async function sendPopupMessage() {
+  let name = document.getElementById("chatNamePopup").value || "Anon";
+  let msg = document.getElementById("chatMsgPopup").value;
+
+  if (!msg.trim()) return;
+
+  await fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify({
+      action: "send",
+      station: getStationId(),
+      name: name.trim().slice(0,8),
+      message: msg.trim().slice(0,100)
+    })
+  });
+
+  document.getElementById("chatMsgPopup").value = "";
+  loadPopupChat();
 }
+
+/* AUTO CHAT REFRESH */
+setInterval(() => {
+  if (chatOpen && document.visibilityState === "visible") {
+    loadPopupChat();
+  }
+}, 3000);
 
 /* START */
 load();
-</script>
 
+</script>
 </body>
 </html>
