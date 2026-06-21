@@ -11,6 +11,7 @@
   --panel:#111827;
   --border:#253347;
   --blue:#2793ff;
+  --blue-dark:#1869d9;
   --text:#fff;
   --muted:#93a4bb;
 }
@@ -20,144 +21,148 @@ body{
   font-family:Arial,sans-serif;
   background:var(--bg);
   color:var(--text);
-  display:flex;
-  height:100vh;
 }
 
-/* LEFT NAV */
-.sidebar{
-  width:240px;
-  background:var(--panel);
-  border-right:1px solid var(--border);
-  padding:15px;
-}
-
-h2{
-  margin:0 0 10px 0;
-}
-
-.btn{
-  display:block;
-  padding:10px;
-  margin-bottom:10px;
-  background:linear-gradient(180deg,var(--blue),#1869d9);
-  border-radius:10px;
+/* HEADER */
+.header{
+  padding:20px;
   text-align:center;
-  cursor:pointer;
-  font-weight:bold;
-  text-decoration:none;
-  color:white;
+  border-bottom:1px solid var(--border);
 }
 
-/* MAIN */
-.main{
-  flex:1;
-  padding:15px;
-  overflow:auto;
+.title{
+  font-size:28px;
+  font-weight:800;
 }
 
+.subtitle{
+  font-size:13px;
+  color:var(--muted);
+  margin-top:5px;
+}
+
+/* GRID */
 .grid{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:15px;
+  padding:20px;
 }
 
+@media(max-width:900px){
+  .grid{
+    grid-template-columns:1fr;
+  }
+}
+
+/* CARD */
 .card{
   background:var(--panel);
   border:1px solid var(--border);
-  border-radius:12px;
-  padding:12px;
+  border-radius:14px;
+  padding:15px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
 }
 
-.title{
-  font-size:18px;
-  font-weight:bold;
-  margin-bottom:10px;
+.card-title{
+  font-size:20px;
+  font-weight:800;
 }
 
-.small{
+.card-sub{
   font-size:12px;
   color:var(--muted);
 }
 
+/* BUTTON */
+.btn{
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:700;
+  color:white;
+  background:linear-gradient(180deg,var(--blue),var(--blue-dark));
+}
+
+.btn:hover{
+  filter:brightness(1.1);
+}
+
+/* CHAT PREVIEW */
 .chat{
-  height:180px;
-  overflow:auto;
-  font-size:12px;
-  border-top:1px solid var(--border);
   margin-top:10px;
   padding-top:10px;
+  border-top:1px solid var(--border);
+  font-size:12px;
+  max-height:160px;
+  overflow:auto;
 }
 
 .msg{
   margin-bottom:6px;
+  opacity:0.9;
 }
 
-.playbtn{
-  margin-top:10px;
-  padding:8px;
-  border:none;
-  border-radius:8px;
-  background:var(--blue);
-  color:white;
-  font-weight:bold;
-  cursor:pointer;
+.name{
+  color:var(--blue);
+  font-weight:700;
+}
+
+/* FOOT */
+.footer{
+  text-align:center;
+  font-size:11px;
+  color:var(--muted);
+  padding:10px;
 }
 </style>
 </head>
 
 <body>
 
-<!-- SIDEBAR -->
-<div class="sidebar">
-  <h2>🚀 Obvyris Hub</h2>
-
-  <a class="btn" href="Index99.html?app=home" target="_top">🏠 Home</a>
-  <a class="btn" href="Index99.html?app=video" target="_top">📺 Video</a>
-  <a class="btn" href="Index99.html?app=radio" target="_top">📻 Radio</a>
-
-  <div style="margin-top:20px;font-size:12px;color:var(--muted)">
-    Quick access launcher
-  </div>
+<div class="header">
+  <div class="title">🚀 Obvyris Dashboard</div>
+  <div class="subtitle">Video • Radio • Live Chat Preview</div>
 </div>
 
-<!-- MAIN -->
-<div class="main">
+<div class="grid">
 
-  <h1>Dashboard</h1>
+  <!-- VIDEO -->
+  <div class="card">
+    <div class="card-title">📺 Video Obvyris</div>
+    <div class="card-sub">IPTV channels + live streaming</div>
 
-  <div class="grid">
+    <button class="btn" onclick="openApp('video')">
+      ▶ Open Video
+    </button>
 
-    <!-- VIDEO CARD -->
-    <div class="card">
-      <div class="title">📺 Video Obvyris</div>
-      <div class="small">Live IPTV + Channels</div>
-
-      <button class="playbtn" onclick="go('video')">
-        Open Video
-      </button>
-
-      <div class="chat" id="videoChat">Loading chat...</div>
-    </div>
-
-    <!-- RADIO CARD -->
-    <div class="card">
-      <div class="title">📻 Radio Obvyris</div>
-      <div class="small">Live stations + music</div>
-
-      <button class="playbtn" onclick="go('radio')">
-        Open Radio
-      </button>
-
-      <div class="chat" id="radioChat">Loading chat...</div>
-    </div>
-
+    <div class="chat" id="videoChat">Loading chat...</div>
   </div>
+
+  <!-- RADIO -->
+  <div class="card">
+    <div class="card-title">📻 Radio Obvyris</div>
+    <div class="card-sub">Live stations + genres + favorites</div>
+
+    <button class="btn" onclick="openApp('radio')">
+      ▶ Open Radio
+    </button>
+
+    <div class="chat" id="radioChat">Loading chat...</div>
+  </div>
+
+</div>
+
+<div class="footer">
+  Obvyris Hub • Unified Media System
 </div>
 
 <script>
 
-/* 🔗 YOUR SAME APPS SCRIPT ENDPOINTS */
+/* chat endpoints (your existing Apps Script) */
 const VIDEO_CHAT =
 "https://script.google.com/macros/s/AKfycbzin84qDcZ9L1q4pTBtHZGKJSTDcZ_wnmgWmnmgPgf1jrc1nRprzbEBixKMSHcdkxiZBg/exec";
 
@@ -165,14 +170,19 @@ const RADIO_CHAT =
 "https://script.google.com/macros/s/AKfycbzZ5MwOcYUY_bpsUKSxPd810xE8rV_Y3z2GwzPublb_4O60CP8L_lC_V2kqkCQ_JdF5/exec";
 
 
-function go(app){
+/* OPEN APP (via index99 iframe) */
+function openApp(app){
+
+  const frame = parent.document.querySelector("iframe");
+
+  if(!frame) return;
 
   if(app === "video"){
-    parent.document.querySelector("iframe").src = "Video_Obvyris.html";
+    frame.src = "Video_Obvyris.html";
   }
 
   if(app === "radio"){
-    parent.document.querySelector("iframe").src = "Radio_Obvyris.html";
+    frame.src = "Radio_Obvyris.html";
   }
 }
 
@@ -180,9 +190,13 @@ function go(app){
 async function loadChat(url, boxId){
 
   try{
+
     const res = await fetch(url,{
       method:"POST",
-      body:JSON.stringify({action:"get", station:"global"})
+      body:JSON.stringify({
+        action:"get",
+        station:"global"
+      })
     });
 
     const data = await res.json();
@@ -193,14 +207,15 @@ async function loadChat(url, boxId){
     (data || []).slice(-6).forEach(m=>{
       box.innerHTML += `
         <div class="msg">
-          <b>${m.name || "Anon"}:</b> ${m.message}
+          <span class="name">${m.name || "Anon"}:</span>
+          ${m.message}
         </div>
       `;
     });
 
   }catch(e){
     document.getElementById(boxId).innerHTML =
-      "Chat unavailable";
+      "Chat offline";
   }
 }
 
