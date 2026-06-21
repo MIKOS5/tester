@@ -595,7 +595,8 @@ body{
     <div id="npName">Not Playing</div>
     <div id="npMeta">Select a station</div>
     <audio id="audio"></audio>
-
+    <video id="video" style="display:none; width:100%; max-height:180px;" controls></video>
+    
     <div class="controls">
       <button onclick="prev()">⏮</button>
       <button onclick="toggle()">▶ / ⏸</button>
@@ -1160,9 +1161,31 @@ async function play(i){
 
   const s = current[i];
   const audio = document.getElementById("audio");
+  const video = document.getElementById("video");
 
-  audio.src = s.url_resolved || s.url;
+  const url = s.url_resolved || s.url;
+
+// simple detection
+  const isVideo = url.includes(".mp4") || url.includes("m3u8") || url.includes("youtube");
+
+if (isVideo) {
+
+  audio.pause();
+  audio.style.display = "none";
+
+  video.style.display = "block";
+  video.src = url;
+  video.play();
+
+} else {
+
+  video.pause();
+  video.style.display = "none";
+
+  audio.style.display = "block";
+  audio.src = url;
   audio.play();
+}
 
   document.getElementById("npName").innerText = s.name;
   document.getElementById("npMeta").innerText = "Loading track...";
@@ -1216,9 +1239,31 @@ function playFiltered(i){
   window.activeList = list;
 
   const audio = document.getElementById("audio");
+  const video = document.getElementById("video");
 
-  audio.src = s.url_resolved || s.url;
+  const url = s.url_resolved || s.url;
+
+// simple detection
+  const isVideo = url.includes(".mp4") || url.includes("m3u8") || url.includes("youtube");
+
+if (isVideo) {
+
+  audio.pause();
+  audio.style.display = "none";
+
+  video.style.display = "block";
+  video.src = url;
+  video.play();
+
+} else {
+
+  video.pause();
+  video.style.display = "none";
+
+  audio.style.display = "block";
+  audio.src = url;
   audio.play();
+}
 
   document.getElementById("npName").innerText = s.name;
 
