@@ -928,14 +928,17 @@ async function loadArtistMz(){
   
 /* FAVORITES LOAD */
 async function loadTVFavorites(){
-
   const res = await fetch(SHEET + "?action=tvfavorites");
   const data = await res.json().catch(()=>[]);
 
-  const list = (data.data || []).map(normalize);
+  const favs = data.data || [];
 
-  current = list;
-  favorites = new Set(list.map(s => s.id));
+  current = favs.map(f => {
+    return allChannels.find(c =>
+      c.stationuuid === f.id ||
+      c.name === f.name
+    );
+  }).filter(Boolean);
 
   render();
   setTitle("⭐ TV Favorites");
@@ -993,6 +996,7 @@ async function fav(s){
 
   const exists = favorites.has(id);
 
+  // ❌ REMOVE FAVORITE
   if(exists){
 
     await fetch(SHEET,{
@@ -1009,24 +1013,30 @@ async function fav(s){
     return;
   }
 
+  // ✅ SAVE FAVORITE (FIXED)
   await fetch(SHEET,{
-  method:"POST",
-  body:new URLSearchParams({
-    action:"savetv",
-    id:id,
-    name:s.name || "",
-    url:s.url_resolved || s.url || "",
-    country:s.country || "",
-    genre:getGenre(s),
-    time:new Date().toISOString()
-  })
-});
+    method:"POST",
+    body:new URLSearchParams({
+      action:"savetv",
+      id:id,
+      name:s.name || "",
+
+      // 🔥 IMPORTANT CHANGE: DO NOT STORE STREAM URL
+      url:"",
+
+      // optional but useful for filtering
+      tvgId: s.tvgId || "",
+      group: getGenre(s),
+
+      country:s.country || "",
+      time:new Date().toISOString()
+    })
+  });
 
   favorites.add(id);
   setTitle("Saved ⭐");
   render();
 }
-  
 async function loadMISC(){
 
   const res = await fetch(SHEET + "?action=misc");
@@ -1319,7 +1329,7 @@ function normalize(s){
   return {
     id: s.stationuuid || s.id,
     name: s.name || "Unknown",
-    url: s.url_resolved || s.url,
+    tvgId: s.tvgId,,
     country: s.country || "",
     genre: s.tags || s.genre || "Radio"
   };
