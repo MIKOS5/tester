@@ -1,147 +1,166 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<title>YouTube Only Player</title>
+<meta charset="UTF-8" />
+<title>IPTV Player</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
 <style>
 body {
-  font-family: Arial;
+  margin: 0;
+  font-family: Arial, sans-serif;
   background: #0b1220;
   color: white;
-  padding-bottom: 340px;
+  display: flex;
+  height: 100vh;
 }
 
-.item {
+#sidebar {
+  width: 320px;
   background: #111827;
-  border: 1px solid #2b3a55;
-  padding: 10px;
-  margin: 8px 0;
-  cursor: pointer;
-  border-radius: 8px;
+  overflow-y: auto;
+  border-right: 1px solid #222;
 }
 
-.item:hover {
+#sidebar h2 {
+  margin: 10px;
+  font-size: 16px;
+}
+
+#search {
+  width: 90%;
+  margin: 10px;
+  padding: 8px;
+  border-radius: 6px;
+  border: none;
+}
+
+.channel {
+  padding: 10px;
+  border-bottom: 1px solid #222;
+  cursor: pointer;
+}
+
+.channel:hover {
   background: #1f2937;
 }
 
-#player {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 320px;
-  background: black;
-  border-top: 2px solid #334155;
+#main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
-#controls {
-  padding: 6px;
-  display: flex;
-  gap: 10px;
+video {
+  width: 100%;
+  height: 70%;
+  background: black;
 }
-button {
-  padding: 6px 10px;
+
+#nowPlaying {
+  padding: 10px;
+  background: #111827;
 }
 </style>
 </head>
 
 <body>
 
-<h2>YouTube Music Player (No JSON)</h2>
-
-<div id="status">Ready</div>
-<div id="list"></div>
-
-<div id="player">
-  <div id="nowPlaying" style="padding:6px;">Nothing playing</div>
-
-  <iframe id="yt"
-    width="100%"
-    height="250"
-    frameborder="0"
-    allow="autoplay; encrypted-media"
-    allowfullscreen></iframe>
-
-  <div id="controls">
-    <button onclick="prev()">⏮ Prev</button>
-    <button onclick="next()">⏭ Next</button>
-    <button onclick="shuffle()">🔀 Shuffle</button>
-  </div>
+<div id="sidebar">
+  <h2>IPTV Channels</h2>
+  <input id="search" placeholder="Search..." />
+  <div id="list"></div>
 </div>
 
+<div id="main">
+  <video id="video" controls autoplay></video>
+  <div id="nowPlaying">Select a channel</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
 <script>
+let channels = [];
 
-const YT_KEY = "AIzaSyClZO1lSAK5RHQ6x0CtQtTrQDxqdlwY_i0";
+const listEl = document.getElementById("list");
+const searchEl = document.getElementById("search");
+const video = document.getElementById("video");
+const nowPlaying = document.getElementById("nowPlaying");
 
-// 🔥 YOUR BUILT-IN PLAYLIST (edit this anytime)
-const songs = [
-  "Alice In Chains Rooster",
-  "Alice In Chains Man in the Box",
-  "Nirvana Smells Like Teen Spirit",
-  "Soundgarden Black Hole Sun",
-  "Pearl Jam Even Flow",
-  "Metallica Enter Sandman"
-];
+// Load M3U
+fetch("https://iptv-org.github.io/iptv/index.m3u")
+  .then(r => r.text())
+  .then(parseM3U)
+  .then(data => {
+    channels = data;
+    renderList(channels);
+  });
 
-let index = 0;
+// Parse M3U
+function parseM3U(data) {
+  const lines = data.split("\n");
+  const result = [];
 
-function render() {
-  const list = document.getElementById("list");
-  list.innerHTML = "";
+  let name = "";
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
 
-  songs.forEach((s, i) => {
+    if (line.startsWith("#EXTINF")) {
+      const parts = line.split(",");
+      name = parts.slice(1).join(",");
+    } 
+    else if (line && !line.startsWith("#")) {
+      result.push({
+        name,
+        url: line
+      });
+    }
+  }
+  return result;
+}
+
+// Render list
+function renderList(data) {
+  listEl.innerHTML = "";
+
+  data.slice(0, 500).forEach((ch, i) => {
     const div = document.createElement("div");
-    div.className = "item";
-    div.innerHTML = `<b>${s}</b>`;
+    div.className = "channel";
+    div.textContent = ch.name;
 
-    div.onclick = () => {
-      index = i;
-      play(i);
-    };
+    div.onclick = () => playStream(ch);
 
-    list.appendChild(div);
+    listEl.appendChild(div);
   });
 }
 
-async function play(i) {
-  const query = songs[i];
+// Play stream
+function playStream(ch) {
+  nowPlaying.textContent = ch.name;
 
-  document.getElementById("nowPlaying").innerText =
-    "Playing: " + query;
+  if (ch.url.endsWith(".m3u8")) {
+    if (Hls.isSupported()) {
+      const hls = new Hls();
+      hls.loadSource(ch.url);
+      hls.attachMedia(video);
+    } else {
+      video.src = ch.url;
+    }
+  } else {
+    video.src = ch.url;
+  }
 
-  const url =
-    `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=1&q=${encodeURIComponent(query)}&key=${YT_KEY}`;
-
-  const res = await fetch(url);
-  const data = await res.json();
-
-  const videoId = data.items?.[0]?.id?.videoId;
-
-  if (!videoId) return;
-
-  document.getElementById("yt").src =
-    `https://www.youtube.com/embed/${videoId}?autoplay=1`;
-
+  video.play().catch(() => {});
 }
 
-function next() {
-  index = (index + 1) % songs.length;
-  play(index);
-}
-
-function prev() {
-  index = (index - 1 + songs.length) % songs.length;
-  play(index);
-}
-
-function shuffle() {
-  index = Math.floor(Math.random() * songs.length);
-  play(index);
-}
-
-render();
-
+// Search filter
+searchEl.addEventListener("input", () => {
+  const q = searchEl.value.toLowerCase();
+  const filtered = channels.filter(c =>
+    c.name.toLowerCase().includes(q)
+  );
+  renderList(filtered);
+});
 </script>
 
 </body>
