@@ -1,146 +1,190 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Obvyris Hub</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>Obvyris Home</title>
+
+<link rel="icon" href="https://mikos5.github.io/tester/navicon.png">
+<link rel="apple-touch-icon" href="https://mikos5.github.io/tester/navicon.png">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet"/>
 
 <style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  height: 100vh;
-  display: flex;
-  overflow: hidden;
+
+:root{
+  --bg:#09111d;
+  --panel:#111827;
+  --border:#253347;
+  --blue:#2793ff;
+  --blue-dark:#1869d9;
+  --text:#ffffff;
+  --muted:#93a4bb;
 }
 
-/* SIDEBAR */
-.sidebar {
-  width: 220px;
-  background: #111827;
-  color: white;
-  display: flex;
-  flex-direction: column;
-  padding: 15px;
-  border-right: 1px solid #253347;
+*{
+  box-sizing:border-box;
 }
 
-.sidebar h2 {
-  margin: 0 0 15px 0;
-  font-size: 18px;
+body{
+  margin:0;
+  font-family:Inter, sans-serif;
+  background:var(--bg);
+  color:var(--text);
 }
 
-.btn {
-  padding: 10px;
-  margin-bottom: 10px;
-  background: linear-gradient(180deg, #2793ff, #1869d9);
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: bold;
-  text-align: center;
-  color: white;
-  user-select: none;
-  transition: 0.15s;
+/* HEADER */
+header{
+  text-align:center;
+  padding:30px 20px 10px;
 }
 
-.btn:hover {
-  filter: brightness(1.1);
-  transform: translateX(3px);
+.logo{
+  width:90px;
+  height:90px;
+  border-radius:18px;
+  box-shadow:0 0 25px rgba(39,147,255,.35);
 }
 
-/* MAIN */
-.main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+.title{
+  font-family:Orbitron, sans-serif;
+  font-size:34px;
+  font-weight:900;
+  margin-top:10px;
+  letter-spacing:2px;
 }
 
-header {
-  background: #111827;
-  color: white;
-  padding: 12px;
-  border-bottom: 1px solid #253347;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.title span{
+  color:var(--blue);
 }
 
-header h1 {
-  font-size: 16px;
-  margin: 0;
+.subtitle{
+  color:var(--muted);
+  font-size:13px;
+  margin-top:5px;
 }
 
-iframe {
-  flex: 1;
-  border: none;
-  width: 100%;
-  background: #000;
+/* MAIN GRID */
+.container{
+  max-width:900px;
+  margin:0 auto;
+  padding:20px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:16px;
 }
 
-/* MOBILE */
-@media (max-width: 800px) {
-  body {
-    flex-direction: column;
-  }
-
-  .sidebar {
-    width: 100%;
-    flex-direction: row;
-    overflow-x: auto;
-  }
-
-  .btn {
-    flex: 1;
-    margin-right: 10px;
-    white-space: nowrap;
-  }
+/* CARDS */
+.card{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:18px;
+  cursor:pointer;
+  transition:.2s;
+  text-align:left;
 }
+
+.card:hover{
+  transform:translateY(-3px);
+  border-color:var(--blue);
+  box-shadow:0 10px 25px rgba(0,0,0,.35);
+}
+
+.card h2{
+  margin:0;
+  font-size:20px;
+}
+
+.card p{
+  margin:8px 0 0;
+  font-size:12px;
+  color:var(--muted);
+}
+
+.icon{
+  font-size:28px;
+  margin-bottom:10px;
+}
+
+/* FOOTER */
+footer{
+  text-align:center;
+  padding:20px;
+  color:var(--muted);
+  font-size:12px;
+}
+
+button{
+  margin-top:12px;
+  width:100%;
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  background:linear-gradient(180deg,var(--blue),var(--blue-dark));
+  color:white;
+  font-weight:700;
+  cursor:pointer;
+}
+
 </style>
 </head>
 
 <body>
 
-<!-- SIDEBAR -->
-<div class="sidebar">
-  <h2>🚀 Obvyris</h2>
+<header>
+  <img class="logo" src="https://mikos5.github.io/tester/navicon.png" alt="Obvyris Logo">
 
-  <div class="btn" onclick="go('Home_Obvyris.html')">🏠 Home</div>
-  <div class="btn" onclick="go('Video_Obvyris.html')">📺 Video</div>
-  <div class="btn" onclick="go('Radio_Obvyris.html')">📻 Radio</div>
+  <div class="title">Obvyris <span>Hub</span></div>
+  <div class="subtitle">Your live media dashboard</div>
+</header>
+
+<div class="container">
+
+  <!-- VIDEO -->
+  <div class="card" onclick="openApp('video')">
+    <div class="icon">📺</div>
+    <h2>Video</h2>
+    <p>Live IPTV channels & streaming</p>
+    <button>Open Video</button>
+  </div>
+
+  <!-- RADIO -->
+  <div class="card" onclick="openApp('radio')">
+    <div class="icon">📻</div>
+    <h2>Radio</h2>
+    <p>Stations, genres & favorites</p>
+    <button>Open Radio</button>
+  </div>
+
+  <!-- OPTIONAL FUTURE SLOT -->
+  <div class="card" onclick="alert('Coming soon')">
+    <div class="icon">💬</div>
+    <h2>Chat</h2>
+    <p>Live community chat (coming soon)</p>
+    <button>Preview</button>
+  </div>
+
 </div>
 
-<!-- MAIN -->
-<div class="main">
-
-  <header>
-    <h1 id="title">Home</h1>
-    <div>Index99 Launcher</div>
-  </header>
-
-  <iframe id="frame" src="Home_Obvyris.html"></iframe>
-
-</div>
+<footer>
+  Obvyris Hub • Dark Media System
+</footer>
 
 <script>
 
-const frame = document.getElementById("frame");
-const title = document.getElementById("title");
+function openApp(app){
 
-function go(page){
+  // works inside iframe or standalone
+  if(app === "video"){
+    window.location.href = "Video_Obvyris.html";
+  }
 
-  frame.src = page;
-
-  if(page.includes("Home")) title.innerText = "Home";
-  if(page.includes("Video")) title.innerText = "Video Obvyris";
-  if(page.includes("Radio")) title.innerText = "Radio Obvyris";
+  if(app === "radio"){
+    window.location.href = "Radio_Obvyris.html";
+  }
 }
-
-/* optional: deep link support */
-const params = new URLSearchParams(window.location.search);
-const app = params.get("app");
-
-if(app === "video") go("Video_Obvyris.html");
-if(app === "radio") go("Radio_Obvyris.html");
 
 </script>
 
