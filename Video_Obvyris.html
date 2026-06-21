@@ -19,8 +19,7 @@
 <link rel="apple-touch-icon" href="https://mikos5.github.io/tester/navicon.png">
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  
+
 <style>
 
 :root{
@@ -809,7 +808,8 @@ const GENRES = [
   <div class="genre" onclick="loadMusicVideos()">🎵 Music Videos</div>
   <div class="genre" onclick="loadSports()">⚽ Sports</div>
   <div class="genre" onclick="loadNews()">📰 News</div>
-  <div class="genre" onclick="loadTVFavorites()">⭐ Favorites</div>
+  <div class="genre" onclick="loadFavorites()">⭐ Favorites</div>
+  <div class="genre" onclick="loadInternational()">🌎 International</div>
   <div class="genre" onclick="loadRecent()">🕘 Recently Watched</div>
   `;
 }
@@ -927,21 +927,18 @@ async function loadArtistMz(){
 
   
 /* FAVORITES LOAD */
-async function loadTVFavorites(){
-  const res = await fetch(SHEET + "?action=tvfavorites");
+async function loadFavorites(){
+
+  const res = await fetch(SHEET + "?action=get");
   const data = await res.json().catch(()=>[]);
 
-  const favs = data.data || [];
+  const list = (data.data || data).map(normalize);
 
-  current = favs.map(f => {
-    return allChannels.find(c =>
-      c.stationuuid === f.id ||
-      c.name === f.name
-    );
-  }).filter(Boolean);
+  current = list;
+  favorites = new Set(list.map(s => s.id));
 
   render();
-  setTitle("⭐ TV Favorites");
+  setTitle("⭐ Favorites");
 }
 
 async function loadMood() {
@@ -996,7 +993,6 @@ async function fav(s){
 
   const exists = favorites.has(id);
 
-  // ❌ REMOVE FAVORITE
   if(exists){
 
     await fetch(SHEET,{
@@ -1013,22 +1009,15 @@ async function fav(s){
     return;
   }
 
-  // ✅ SAVE FAVORITE (FIXED)
   await fetch(SHEET,{
     method:"POST",
     body:new URLSearchParams({
-      action:"savetv",
+      action:"save",
       id:id,
       name:s.name || "",
-
-      // 🔥 IMPORTANT CHANGE: DO NOT STORE STREAM URL
-      url:"",
-
-      // optional but useful for filtering
-      tvgId: s.tvgId || "",
-      group: getGenre(s),
-
+      url:s.url_resolved || s.url || "",
       country:s.country || "",
+      genre:getGenre(s),
       time:new Date().toISOString()
     })
   });
@@ -1037,6 +1026,7 @@ async function fav(s){
   setTitle("Saved ⭐");
   render();
 }
+  
 async function loadMISC(){
 
   const res = await fetch(SHEET + "?action=misc");
@@ -1142,15 +1132,23 @@ async function listenNowPlaying(streamUrl, callback){
 }
 
 function playMedia(url) {
-  const video = document.getElementById("video");
   const audio = document.getElementById("audio");
+  const video = document.getElementById("video");
 
   const isVideo =
     url.includes(".mp4") ||
     url.includes(".m3u8") ||
     url.includes("youtube");
 
-  if (!isVideo) {
+  if (isVideo) {
+    audio.pause();
+    audio.src = "";
+
+    video.style.display = "block";
+    video.src = url;
+    video.play();
+
+  } else {
     video.pause();
     video.src = "";
     video.style.display = "none";
@@ -1158,31 +1156,6 @@ function playMedia(url) {
     audio.style.display = "block";
     audio.src = url;
     audio.play();
-    return;
-  }
-
-  audio.pause();
-  audio.src = "";
-
-  video.style.display = "block";
-
-  // 🔥 HLS SUPPORT FIX
-  if (url.includes(".m3u8") && Hls.isSupported()) {
-    if (window.hls) window.hls.destroy();
-
-    const hls = new Hls();
-    window.hls = hls;
-
-    hls.loadSource(url);
-    hls.attachMedia(video);
-
-    hls.on(Hls.Events.MANIFEST_PARSED, function () {
-      video.play();
-    });
-
-  } else {
-    video.src = url;
-    video.play();
   }
 }
   
@@ -1214,17 +1187,6 @@ async function play(i){
   loadPopupChat();
 }
 
-async function loadAllChannels(){
-  const res = await fetch(PLAYLIST);
-  const text = await res.text();
-
-  allChannels = parseM3U(text);
-  current = [...allChannels];
-
-  render();
-  setTitle("📺 Live TV");
-}
-  
 async function loadPopupChat(){
   try {
     const stationId = getCurrentStationId();
@@ -1280,8 +1242,7 @@ function playFiltered(i){
   stationStarted = true;
   loadPopupChat();
 }
-
-
+  
 /* CONTROLS */
 function toggle() {
   const a = document.getElementById("audio");
@@ -1341,7 +1302,7 @@ function normalize(s){
   return {
     id: s.stationuuid || s.id,
     name: s.name || "Unknown",
-    tvgId: s.tvgId,
+    url: s.url_resolved || s.url,
     country: s.country || "",
     genre: s.tags || s.genre || "Radio"
   };
@@ -1796,7 +1757,7 @@ function showAll() {
   document.querySelectorAll(".genre")
     .forEach(x => x.classList.remove("active"));
 
-  loadAllChannels();
+  load();
 }
 
 /* GENRE */
@@ -1822,7 +1783,7 @@ function changeCountry(){
 
   page = 0;
 
-  loadAllChannels();
+  load();
 }
   
 function nextPage(){
@@ -1831,7 +1792,7 @@ function nextPage(){
     load(currentGenre);
   } else {
     page++;
-    loadAllChannels();
+    load();
   }
 }
 
@@ -1840,7 +1801,7 @@ function prevPage(){
     load(currentGenre);
   } else if(page > 0){
     page--;
-    loadAllChannels();
+    load();
   }
 }
 
@@ -1857,7 +1818,7 @@ function toggleTheme() {
 }
 /* INIT */
 renderGenres();   // ✅ add this
-loadAllChannels();
+load();
   
 document.querySelector(".main").addEventListener("scroll", () => {
   const main = document.querySelector(".main");
@@ -2025,8 +1986,8 @@ document.addEventListener("keydown", (e) => {
 
     // Favorites
     case "f":
-     loadTVFavorites();
-    break;
+      loadFavorites();
+      break;
 
     // Escape
     case "escape":
