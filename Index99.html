@@ -3,121 +3,216 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gear & Tools Hub</title>
+<title>Obvyris Home</title>
+
 <style>
-  /* Base Layout */
-  body {
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-    display: flex;
-    height: 100vh;
-    overflow: hidden;
-    background: #f4f4f4;
-  }
+:root{
+  --bg:#09111d;
+  --panel:#111827;
+  --border:#253347;
+  --blue:#2793ff;
+  --text:#fff;
+  --muted:#93a4bb;
+}
 
-  /* Sidebar */
-  .sidebar {
-    width: 220px;
-    background: #333;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    padding-top: 20px;
-  }
-  .sidebar h2 {
-    text-align: center;
-    margin-bottom: 20px;
-    font-size: 1.5em;
-    border-bottom: 1px solid #555;
-    padding-bottom: 10px;
-  }
-  .sidebar a {
-    color: white;
-    text-decoration: none;
-    padding: 12px 20px;
-    margin: 5px 10px;
-    border-radius: 6px;
-    transition: all 0.2s ease;
-    font-weight: bold;
-  }
-  .sidebar a:hover {
-    background: #555;
-    transform: translateX(5px);
-  }
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  display:flex;
+  height:100vh;
+}
 
-  /* Main content area */
-  .main-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
+/* LEFT NAV */
+.sidebar{
+  width:240px;
+  background:var(--panel);
+  border-right:1px solid var(--border);
+  padding:15px;
+}
 
-  header {
-    background: #444;
-    color: white;
-    text-align: center;
-    padding: 20px;
-  }
-  header h1 {
-    margin: 0;
-    font-size: 1.8em;
-  }
-  header p {
-    margin: 5px 0 0;
-    font-size: 0.9em;
-    opacity: 0.8;
-  }
+h2{
+  margin:0 0 10px 0;
+}
 
-  iframe {
-    flex: 1;
-    border: none;
-    width: 100%;
-    background: white;
-  }
+.btn{
+  display:block;
+  padding:10px;
+  margin-bottom:10px;
+  background:linear-gradient(180deg,var(--blue),#1869d9);
+  border-radius:10px;
+  text-align:center;
+  cursor:pointer;
+  font-weight:bold;
+  text-decoration:none;
+  color:white;
+}
 
-  /* Responsive tweaks */
-  @media (max-width: 768px) {
-    body {
-      flex-direction: column;
-    }
-    .sidebar {
-      width: 100%;
-      flex-direction: row;
-      overflow-x: auto;
-    }
-    .sidebar a {
-      flex: 1 0 auto;
-      margin: 5px;
-      text-align: center;
-    }
-    .main-content {
-      flex: 1;
-    }
-  }
+/* MAIN */
+.main{
+  flex:1;
+  padding:15px;
+  overflow:auto;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:15px;
+}
+
+.card{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:12px;
+}
+
+.title{
+  font-size:18px;
+  font-weight:bold;
+  margin-bottom:10px;
+}
+
+.small{
+  font-size:12px;
+  color:var(--muted);
+}
+
+.chat{
+  height:180px;
+  overflow:auto;
+  font-size:12px;
+  border-top:1px solid var(--border);
+  margin-top:10px;
+  padding-top:10px;
+}
+
+.msg{
+  margin-bottom:6px;
+}
+
+.playbtn{
+  margin-top:10px;
+  padding:8px;
+  border:none;
+  border-radius:8px;
+  background:var(--blue);
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
 </style>
 </head>
+
 <body>
 
-<!-- Sidebar Navigation -->
+<!-- SIDEBAR -->
 <div class="sidebar">
-  <h2>Navigation</h2>
-  <a href="Home_Obvyris.html" target="contentFrame">Home_Obvyris.html</a>
-  <a href="Video_Obvyris.html" target="contentFrame">Video_Obvyris.html</a>
-  <a href="Radio_Obvyris.html" target="contentFrame">Radio_Obvyris.html</a>
-  <!-- Add more links as needed -->
+  <h2>🚀 Obvyris Hub</h2>
+
+  <a class="btn" href="index99.html?app=home" target="_top">🏠 Home</a>
+  <a class="btn" href="index99.html?app=video" target="_top">📺 Video</a>
+  <a class="btn" href="index99.html?app=radio" target="_top">📻 Radio</a>
+
+  <div style="margin-top:20px;font-size:12px;color:var(--muted)">
+    Quick access launcher
+  </div>
 </div>
 
-<!-- Main Content Area -->
-<div class="main-content">
-  <header>
-    <h1>My Gear & Tools Hub</h1>
-    <p>Quick access to your inventory and tools</p>
-  </header>
+<!-- MAIN -->
+<div class="main">
 
-  <!-- Windowed Page -->
-  <iframe name="contentFrame" src="Home_Obvyris.html"></iframe>
+  <h1>Dashboard</h1>
+
+  <div class="grid">
+
+    <!-- VIDEO CARD -->
+    <div class="card">
+      <div class="title">📺 Video Obvyris</div>
+      <div class="small">Live IPTV + Channels</div>
+
+      <button class="playbtn" onclick="go('video')">
+        Open Video
+      </button>
+
+      <div class="chat" id="videoChat">Loading chat...</div>
+    </div>
+
+    <!-- RADIO CARD -->
+    <div class="card">
+      <div class="title">📻 Radio Obvyris</div>
+      <div class="small">Live stations + music</div>
+
+      <button class="playbtn" onclick="go('radio')">
+        Open Radio
+      </button>
+
+      <div class="chat" id="radioChat">Loading chat...</div>
+    </div>
+
+  </div>
 </div>
+
+<script>
+
+/* 🔗 YOUR SAME APPS SCRIPT ENDPOINTS */
+const VIDEO_CHAT =
+"https://script.google.com/macros/s/AKfycbzin84qDcZ9L1q4pTBtHZGKJSTDcZ_wnmgWmnmgPgf1jrc1nRprzbEBixKMSHcdkxiZBg/exec";
+
+const RADIO_CHAT =
+"https://script.google.com/macros/s/AKfycbzZ5MwOcYUY_bpsUKSxPd810xE8rV_Y3z2GwzPublb_4O60CP8L_lC_V2kqkCQ_JdF5/exec";
+
+
+function go(app){
+
+  if(app === "video"){
+    parent.document.querySelector("iframe").src = "Video_Obvyris.html";
+  }
+
+  if(app === "radio"){
+    parent.document.querySelector("iframe").src = "Radio_Obvyris.html";
+  }
+}
+
+/* LOAD CHAT PREVIEW */
+async function loadChat(url, boxId){
+
+  try{
+    const res = await fetch(url,{
+      method:"POST",
+      body:JSON.stringify({action:"get", station:"global"})
+    });
+
+    const data = await res.json();
+
+    const box = document.getElementById(boxId);
+    box.innerHTML = "";
+
+    (data || []).slice(-6).forEach(m=>{
+      box.innerHTML += `
+        <div class="msg">
+          <b>${m.name || "Anon"}:</b> ${m.message}
+        </div>
+      `;
+    });
+
+  }catch(e){
+    document.getElementById(boxId).innerHTML =
+      "Chat unavailable";
+  }
+}
+
+loadChat(VIDEO_CHAT,"videoChat");
+loadChat(RADIO_CHAT,"radioChat");
+
+setInterval(()=>{
+  loadChat(VIDEO_CHAT,"videoChat");
+  loadChat(RADIO_CHAT,"radioChat");
+},5000);
+
+</script>
 
 </body>
 </html>
