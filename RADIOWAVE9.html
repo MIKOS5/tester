@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Deezer API Test</title>
+<title>Deezer Auto List</title>
 
 <style>
 body {
@@ -12,102 +12,84 @@ body {
   padding: 20px;
 }
 
-input, button {
-  padding: 10px;
-  font-size: 16px;
-}
-
-button {
-  cursor: pointer;
-}
-
-#status {
-  margin-top: 10px;
-  color: #9ca3af;
-}
-
 .item {
   background: #111827;
-  padding: 10px;
   margin: 10px 0;
+  padding: 10px;
   border-radius: 8px;
 }
 
 pre {
-  white-space: pre-wrap;
-  word-break: break-word;
   background: #0f172a;
   padding: 10px;
-  border-radius: 6px;
   overflow-x: auto;
-}
-
-img {
-  width: 60px;
-  height: 60px;
   border-radius: 6px;
+  white-space: pre-wrap;
 }
 </style>
 </head>
 
 <body>
 
-<h2>Deezer Search Test</h2>
-
-<input id="q" value="alice in chains" />
-<button onclick="search()">Search</button>
-
-<div id="status"></div>
-<div id="results"></div>
+<h2>Deezer API Auto Load</h2>
+<div id="status">Loading...</div>
+<div id="list"></div>
 
 <script>
-async function search() {
-  const q = document.getElementById("q").value;
-  const results = document.getElementById("results");
-  const status = document.getElementById("status");
+const API_URL = "https://api.deezer.com/search?q=alice%20in%20chains";
 
-  results.innerHTML = "";
-  status.innerText = "Loading...";
+async function load() {
+  const status = document.getElementById("status");
+  const list = document.getElementById("list");
 
   try {
-    const url = `https://api.deezer.com/search?q=${encodeURIComponent(q)}`;
+    const res = await fetch(API_URL);
+    const json = await res.json();
 
-    const res = await fetch(url);
-    const data = await res.json();
+    console.log("FULL API:", json);
 
-    console.log("FULL RESPONSE:", data);
+    const arr = json.data || [];
 
-    if (!data || !data.data) {
-      status.innerText = "No data returned.";
-      return;
-    }
+    status.innerText = `Loaded ${arr.length} items`;
 
-    status.innerText = `Found ${data.data.length} results`;
+    // convert to simple array structure
+    const simplified = arr.map(track => ({
+      title: track.title,
+      artist: track.artist?.name,
+      album: track.album?.title,
+      preview: track.preview,
+      cover: track.album?.cover_small,
+      raw: track
+    }));
 
-    data.data.forEach((track, i) => {
+    console.log("SIMPLIFIED ARRAY:", simplified);
+
+    simplified.forEach((item, i) => {
       const div = document.createElement("div");
       div.className = "item";
 
       div.innerHTML = `
-        <strong>${i + 1}. ${track.title}</strong><br>
-        Artist: ${track.artist?.name || "N/A"}<br>
-        Album: ${track.album?.title || "N/A"}<br>
-        <img src="${track.album?.cover_small || ''}" /><br><br>
+        <strong>${i + 1}. ${item.title}</strong><br>
+        Artist: ${item.artist}<br>
+        Album: ${item.album}<br>
+        Preview: ${item.preview ? "Available" : "None"}<br>
 
         <details>
-          <summary>RAW DATA</summary>
-          <pre>${JSON.stringify(track, null, 2)}</pre>
+          <summary>RAW OBJECT</summary>
+          <pre>${JSON.stringify(item.raw, null, 2)}</pre>
         </details>
       `;
 
-      results.appendChild(div);
+      list.appendChild(div);
     });
 
   } catch (err) {
     console.error(err);
-    status.innerText = "Error loading API (check console)";
+    status.innerText = "Failed to load API (likely CORS issue)";
   }
 }
+
+load();
 </script>
 
 </body>
