@@ -1,22 +1,129 @@
-<audio id="audio" controls></audio>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Deezer Search Viewer</title>
 
-<div id="list"></div>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #0b1220;
+  color: white;
+  margin: 0;
+  padding: 20px;
+}
+
+h1 { margin-bottom: 10px; }
+
+input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 8px;
+  background: #2793ff;
+  color: white;
+  cursor: pointer;
+  margin-bottom: 15px;
+}
+
+.item {
+  background: #111827;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.item img {
+  width: 60px;
+  height: 60px;
+  border-radius: 6px;
+  vertical-align: middle;
+  margin-right: 10px;
+}
+
+.title {
+  font-weight: bold;
+}
+
+.small {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+pre {
+  background: #0a0f1a;
+  padding: 10px;
+  overflow-x: auto;
+  display: none;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.toggle {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #2793ff;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Deezer Search Viewer</h1>
+
+<input id="q" placeholder="Search artist, song, album..." />
+<button onclick="search()">Search</button>
+
+<div id="results"></div>
 
 <script>
-const json = https://api.deezer.com/search?q=alice%20in%20chains;
+async function search() {
+  const q = document.getElementById("q").value;
+  const res = await fetch("https://api.deezer.com/search?q=" + encodeURIComponent(q));
+  const data = await res.json();
 
-const list = document.getElementById("list");
-const audio = document.getElementById("audio");
+  const container = document.getElementById("results");
+  container.innerHTML = "";
 
-json.data.forEach((track, i) => {
-  const btn = document.createElement("button");
-  btn.innerText = track.title + " - " + track.artist.name;
+  data.data.forEach((item, i) => {
 
-  btn.onclick = () => {
-    audio.src = track.preview;
-    audio.play();
-  };
+    const div = document.createElement("div");
+    div.className = "item";
 
-  list.appendChild(btn);
-});
+    div.innerHTML = `
+      <div style="display:flex;align-items:center;">
+        <img src="${item.album.cover_small}" />
+        <div>
+          <div class="title">${item.title}</div>
+          <div class="small">Artist: ${item.artist.name}</div>
+          <div class="small">Album: ${item.album.title}</div>
+          <audio controls src="${item.preview}"></audio>
+        </div>
+      </div>
+
+      <div class="toggle" onclick="toggle(${i})">Show full JSON</div>
+
+      <pre id="json-${i}">${JSON.stringify(item, null, 2)}</pre>
+    `;
+
+    container.appendChild(div);
+  });
+}
+
+function toggle(i) {
+  const el = document.getElementById("json-" + i);
+  el.style.display = el.style.display === "block" ? "none" : "block";
+}
 </script>
+
+</body>
+</html>
