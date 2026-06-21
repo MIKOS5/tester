@@ -723,6 +723,8 @@ let currentCountry = "United States";
 let playingIndex = null;
 let stationStarted = false;
 let metadataAbort = null;
+let allChannels = [];
+let current = [];
   
 /* API */
 const PLAYLIST =
@@ -817,41 +819,60 @@ function getGenre(s){
     || "Genre not listed - Radio";
 }
 
+function parseM3U(text){
+
+    const lines = text.split("\n");
+
+    const list = [];
+
+    let item = null;
+
+    for(const line of lines){
+
+        if(line.startsWith("#EXTINF")){
+
+            item = {};
+
+            const name = line.split(",").pop();
+
+            item.name = name.trim();
+
+            const tagMatch = line.match(/group-title="([^"]+)"/);
+            item.genre = tagMatch ? tagMatch[1] : "";
+
+            const countryMatch = line.match(/tvg-country="([^"]+)"/);
+            item.country = countryMatch ? countryMatch[1] : "";
+
+        }
+
+        else if(item && line.startsWith("http")){
+
+            item.url = line.trim();
+
+            item.id = item.name;
+
+            list.push(item);
+
+            item = null;
+        }
+    }
+
+    return list;
+}
+  
 /* LOAD */
-async function load(g){
+async function load(){
 
-  currentGenre = g || "";
-  filterMode = !!g;
+  const res = await fetch(PLAYLIST);
+  const text = await res.text();
 
-  let url =
-    `${RADIO}?hidebroken=true&order=clickcount&reverse=true`;
+  allChannels = parseM3U(text);
 
-  // COUNTRY FILTER
-  if(currentCountry){
-    url += `&country=${encodeURIComponent(currentCountry)}`;
-  }
+current = [...allChannels];
 
-  // GENRE MODE (FULL FILTER LOAD)
-  if(g){
-    url += `&tag=${encodeURIComponent(g)}`;
+render();
 
-    // IMPORTANT: no pagination in genre mode
-    page = 0;
-  }
-
-  // ALL STATIONS MODE (pagination ON)
-  if(!g){
-    url += `&limit=${PAGE_SIZE}&offset=${page * PAGE_SIZE}`;
-  }
-
-  const res = await fetch(url);
-  current = (await res.json()).map(normalize);
-
-  render();
-
-  setTitle(
-    `${currentCountry || "All Countries"} • ${g || "All Stations"}`
-  );
+  setTitle("📺 Live TV");
 }
 
 async function loadCountries(){
@@ -1346,6 +1367,149 @@ function addRecent(channel){
         "recentVideos",
         JSON.stringify(recent)
     );
+}
+
+function loadLiveTV(){
+    current = [...allChannels];
+    render();
+    setTitle("📺 Live TV");
+}
+
+function loadMovies(){
+    current = allChannels.filter(c =>
+        (c.genre || "").toLowerCase().includes("movie")
+    );
+    render();
+    setTitle("🎬 Movies");
+}
+
+function loadMusicVideos(){
+    current = allChannels.filter(c => {
+        const g = (c.genre || "").toLowerCase();
+        const n = (c.name || "").toLowerCase();
+        return g.includes("music") ||
+               g.includes("radio") ||
+               n.includes("music") ||
+               n.includes("mtv") ||
+               n.includes("vevo");
+    });
+    render();
+    setTitle("🎵 Music Videos");
+}
+
+function loadSports(){
+    current = allChannels.filter(c =>
+        (c.genre || "").toLowerCase().includes("sport")
+    );
+    render();
+    setTitle("⚽ Sports");
+}
+
+function loadNews(){
+    current = allChannels.filter(c =>
+        (c.genre || "").toLowerCase().includes("news")
+    );
+    render();
+    setTitle("📰 News");
+}
+
+function loadEntertainment(){
+    current = allChannels.filter(c => {
+        const g = (c.genre || "").toLowerCase();
+        return g.includes("entertainment") ||
+               g.includes("general") ||
+               g.includes("variety");
+    });
+    render();
+    setTitle("📺 Entertainment");
+}
+
+function loadKids(){
+    current = allChannels.filter(c => {
+        const g = (c.genre || "").toLowerCase();
+        return g.includes("kids") ||
+               g.includes("children") ||
+               g.includes("cartoon") ||
+               g.includes("family");
+    });
+    render();
+    setTitle("👶 Kids");
+}
+
+function loadInternational(){
+    current = allChannels.filter(c => {
+        const country = (c.country || "").toLowerCase();
+        return country !== "" &&
+               country !== "us" &&
+               country !== "united states";
+    });
+    render();
+    setTitle("🌎 International");
+}
+
+function loadDocumentary(){
+    current = allChannels.filter(c =>
+        (c.genre || "").toLowerCase().includes("documentary")
+    );
+    render();
+    setTitle("📚 Documentary");
+}
+
+function loadGaming(){
+    current = allChannels.filter(c => {
+        const g = (c.genre || "").toLowerCase();
+        return g.includes("gaming") ||
+               g.includes("game") ||
+               g.includes("esports");
+    });
+    render();
+    setTitle("🎮 Gaming");
+}
+
+function loadComedy(){
+    current = allChannels.filter(c =>
+        (c.genre || "").toLowerCase().includes("comedy")
+    );
+    render();
+    setTitle("😂 Comedy");
+}
+
+function loadDrama(){
+    current = allChannels.filter(c =>
+        (c.genre || "").toLowerCase().includes("drama")
+    );
+    render();
+    setTitle("🎭 Drama");
+}
+
+function loadLifestyle(){
+    current = allChannels.filter(c => {
+        const g = (c.genre || "").toLowerCase();
+        return g.includes("lifestyle") ||
+               g.includes("travel") ||
+               g.includes("food") ||
+               g.includes("cooking");
+    });
+    render();
+    setTitle("🍳 Lifestyle");
+}
+
+function loadReligion(){
+    current = allChannels.filter(c => {
+        const g = (c.genre || "").toLowerCase();
+        return g.includes("relig") ||
+               g.includes("faith") ||
+               g.includes("christian") ||
+               g.includes("church");
+    });
+    render();
+    setTitle("🛐 Religion");
+}
+
+function loadRecent(){
+    current = JSON.parse(localStorage.getItem("recentVideos") || "[]");
+    render();
+    setTitle("🕘 Recently Watched");
 }
   
 let genresOpen = false;
