@@ -2,19 +2,19 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Video Stream</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>IPTV Stream Pro</title>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
 <style>
 body{
   margin:0;
+  display:flex;
+  height:100vh;
   font-family:Arial;
   background:#0b0f17;
   color:#fff;
-  display:flex;
-  height:100vh;
 }
 
 /* LEFT PLAYER */
@@ -38,21 +38,30 @@ video{
   align-items:center;
 }
 
+/* TOP FILTER BAR */
+#filters{
+  display:flex;
+  gap:10px;
+  padding:10px;
+  background:#0f172a;
+  border-bottom:1px solid #222;
+}
+
+select,input{
+  padding:8px;
+  border-radius:6px;
+  border:1px solid #333;
+  background:#0b0f17;
+  color:#fff;
+}
+
 /* RIGHT SIDEBAR */
 #sidebar{
   width:320px;
   display:flex;
   flex-direction:column;
-  background:#111827;
   border-left:1px solid #222;
-}
-
-#search{
-  padding:10px;
-  border:none;
-  outline:none;
-  background:#0f172a;
-  color:#fff;
+  background:#111827;
 }
 
 #list{
@@ -73,11 +82,11 @@ video{
   right:0;
   bottom:0;
   width:320px;
-  height:400px;
+  height:420px;
   background:#111827;
+  border:1px solid #333;
   display:flex;
   flex-direction:column;
-  border:1px solid #333;
   z-index:9999;
 }
 .hidden{display:none}
@@ -110,7 +119,7 @@ video{
 
 <body>
 
-<!-- MAIN -->
+<!-- PLAYER -->
 <div id="main">
 
   <video id="video" controls autoplay playsinline></video>
@@ -125,9 +134,22 @@ video{
 
 </div>
 
-<!-- RIGHT SIDEBAR -->
+<!-- SIDEBAR -->
 <div id="sidebar">
-  <input id="search" placeholder="Search..." />
+
+  <!-- FILTERS -->
+  <div id="filters">
+    <select id="groupFilter" onchange="applyFilters()">
+      <option value="">All Groups</option>
+    </select>
+
+    <select id="countryFilter" onchange="applyFilters()">
+      <option value="">All Countries</option>
+    </select>
+
+    <input id="search" placeholder="Search..." oninput="applyFilters()"/>
+  </div>
+
   <div id="list"></div>
 </div>
 
@@ -143,7 +165,7 @@ video{
 
   <div class="chat-input">
     <input id="chatNamePopup" placeholder="name" maxlength="8"/>
-    <input id="chatMsgPopup" placeholder="msg" maxlength="100"/>
+    <input id="chatMsgPopup" placeholder="message" maxlength="100"/>
     <button onclick="sendChat()">Send</button>
   </div>
 
@@ -156,25 +178,40 @@ const API_URL="https://script.google.com/macros/s/AKfycbzin84qDcZ9L1q4pTBtHZGKJS
 
 let list=[],filtered=[],index=0;
 let renderIndex=0;
-const CHUNK=80;
+const CHUNK=100;
 
-/* LOAD M3U */
+/* LOAD */
 async function load(){
   const r=await fetch(PLAYLIST);
   const t=await r.text();
   list=parseM3U(t);
-  render(true);
+
+  buildFilters();
+  applyFilters();
 }
 
-/* PARSE */
+/* PARSE M3U (FULL META) */
 function parseM3U(t){
   const lines=t.split("\n");
   let out=[],item=null;
 
   for(let l of lines){
+
     if(l.startsWith("#EXTINF")){
-      item={name:l.split(",").pop()};
+      item={};
+
+      item.name=l.split(",").pop();
+
+      const g=l.match(/group-title="([^"]+)"/);
+      item.group=g?g[1]:"Other";
+
+      const c=l.match(/tvg-country="([^"]+)"/);
+      item.country=c?c[1]:"";
+
+      const id=l.match(/tvg-id="([^"]+)"/);
+      item.id=id?id[1]:item.name;
     }
+
     else if(item && l.startsWith("http")){
       item.url=l.trim();
       out.push(item);
@@ -184,13 +221,52 @@ function parseM3U(t){
   return out;
 }
 
-/* RENDER (INFINITE SAFE) */
+/* FILTER UI BUILD */
+function buildFilters(){
+
+  const g=new Set();
+  const c=new Set();
+
+  list.forEach(s=>{
+    if(s.group) g.add(s.group);
+    if(s.country) c.add(s.country);
+  });
+
+  const gf=document.getElementById("groupFilter");
+  const cf=document.getElementById("countryFilter");
+
+  [...g].sort().forEach(x=>{
+    gf.innerHTML+=`<option>${x}</option>`;
+  });
+
+  [...c].sort().forEach(x=>{
+    cf.innerHTML+=`<option>${x}</option>`;
+  });
+}
+
+/* APPLY FILTERS */
+function applyFilters(){
+
+  const g=document.getElementById("groupFilter").value;
+  const c=document.getElementById("countryFilter").value;
+  const q=document.getElementById("search").value.toLowerCase();
+
+  filtered=list.filter(s=>{
+
+    const mg=!g||s.group===g;
+    const mc=!c||s.country===c;
+    const mq=!q||s.name.toLowerCase().includes(q);
+
+    return mg&&mc&&mq;
+  });
+
+  render(true);
+}
+
+/* RENDER */
 function render(reset){
+
   const el=document.getElementById("list");
-
-  const q=(document.getElementById("search").value||"").toLowerCase();
-
-  filtered=list.filter(s=>s.name.toLowerCase().includes(q));
 
   if(reset){
     el.innerHTML="";
@@ -201,9 +277,11 @@ function render(reset){
 
   slice.forEach((s,i)=>{
     const real=renderIndex+i;
+
     el.innerHTML+=`
       <div class="card" onclick="play(${real})">
-        ${s.name}
+        <b>${s.name}</b><br/>
+        <small>${s.group} • ${s.country}</small>
       </div>`;
   });
 
@@ -217,27 +295,21 @@ document.getElementById("list").onscroll=(e)=>{
   }
 };
 
-document.getElementById("search").oninput=()=>render(true);
-
-/* SINGLE PLAYER (FIXED IPTV) */
+/* PLAY IPTV (FIXED HLS) */
 function playMedia(url){
-  const video=document.getElementById("video");
+  const v=document.getElementById("video");
 
-  if(video.canPlayType("application/vnd.apple.mpegurl")){
-    video.src=url;
-  }
-  else if(window.Hls && Hls.isSupported()){
+  if(window.Hls && Hls.isSupported()){
     if(window.hls) window.hls.destroy();
 
     window.hls=new Hls();
     window.hls.loadSource(url);
-    window.hls.attachMedia(video);
+    window.hls.attachMedia(v);
+    v.play();
+  }else{
+    v.src=url;
+    v.play();
   }
-  else{
-    video.src=url;
-  }
-
-  video.play();
 }
 
 /* PLAY */
@@ -248,11 +320,10 @@ function play(i){
 
   document.getElementById("now").innerText=s.name;
   playMedia(s.url);
-
   loadChat();
 }
 
-/* CONTROLS */
+/* NEXT/PREV */
 function next(){
   index=(index+1)%filtered.length;
   play(index);
@@ -270,7 +341,6 @@ function toggle(){
 
 /* CHAT */
 let chatOpen=false;
-let chatData=[];
 
 function toggleChat(){
   chatOpen=!chatOpen;
@@ -279,11 +349,11 @@ function toggleChat(){
 }
 
 function getStationId(){
-  return filtered[index]?.name||"global";
+  return filtered[index]?.id||filtered[index]?.name||"global";
 }
 
-/* LOAD CHAT */
 async function loadChat(){
+
   const id=getStationId();
 
   const res=await fetch(API_URL,{
@@ -292,16 +362,16 @@ async function loadChat(){
   });
 
   const data=await res.json();
-  chatData=Array.isArray(data)?data:[];
 
-  renderChat();
+  renderChat(Array.isArray(data)?data:[]);
 }
 
-function renderChat(){
+function renderChat(data){
+
   const box=document.getElementById("chatLogPopup");
   box.innerHTML="";
 
-  chatData.forEach(m=>{
+  data.forEach(m=>{
     box.innerHTML+=`
       <div>
         <b>${m.name||""}</b> ${m.message||""}
@@ -311,10 +381,11 @@ function renderChat(){
   box.scrollTop=box.scrollHeight;
 }
 
-/* SEND */
 async function sendChat(){
+
   let name=document.getElementById("chatNamePopup").value||"Anon";
   let msg=document.getElementById("chatMsgPopup").value;
+
   if(!msg.trim()) return;
 
   await fetch(API_URL,{
