@@ -1154,48 +1154,57 @@ async function listenNowPlaying(streamUrl, callback){
     }
 
 }
+
+function playMedia(url) {
+  const audio = document.getElementById("audio");
+  const video = document.getElementById("video");
+
+  const isVideo =
+    url.includes(".mp4") ||
+    url.includes(".m3u8") ||
+    url.includes("youtube");
+
+  if (isVideo) {
+    // stop audio completely
+    audio.pause();
+    audio.src = "";
+
+    // start video
+    video.style.display = "block";
+    video.src = url;
+    video.play();
+
+  } else {
+    // stop video completely
+    video.pause();
+    video.src = "";
+    video.style.display = "none";
+
+    // start audio
+    audio.style.display = "block";
+    audio.src = url;
+    audio.play();
+  }
+}
+  
 /* PLAY */
 async function play(i){
 
   index = i;
 
   const s = current[i];
-  const audio = document.getElementById("audio");
-  const video = document.getElementById("video");
-
   const url = s.url_resolved || s.url;
 
-// simple detection
-  const isVideo = url.includes(".mp4") || url.includes("m3u8") || url.includes("youtube");
-
-if (isVideo) {
-
-  audio.pause();
-  audio.style.display = "none";
-
-  video.style.display = "block";
-  video.src = url;
-  video.play();
-
-} else {
-
-  video.pause();
-  video.style.display = "none";
-
-  audio.style.display = "block";
-  audio.src = url;
-  audio.play();
-}
+  playMedia(url);
 
   document.getElementById("npName").innerText = s.name;
   document.getElementById("npMeta").innerText = "Loading track...";
 
-  // ✅ STOP previous listener cleanly
+  // stop previous metadata listener
   if (metadataAbort) {
     metadataAbort.abort();
   }
 
-  // Start new listener
   listenNowPlaying(s.url, (title) => {
     document.getElementById("npMeta").innerText =
       `${title} • ${s.country || ""}`;
@@ -1238,63 +1247,59 @@ function playFiltered(i){
   index = i;
   window.activeList = list;
 
-  const audio = document.getElementById("audio");
-  const video = document.getElementById("video");
-
   const url = s.url_resolved || s.url;
 
-// simple detection
-  const isVideo = url.includes(".mp4") || url.includes("m3u8") || url.includes("youtube");
-
-if (isVideo) {
-
-  audio.pause();
-  audio.style.display = "none";
-
-  video.style.display = "block";
-  video.src = url;
-  video.play();
-
-} else {
-
-  video.pause();
-  video.style.display = "none";
-
-  audio.style.display = "block";
-  audio.src = url;
-  audio.play();
-}
+  playMedia(url);
 
   document.getElementById("npName").innerText = s.name;
-
   document.getElementById("npMeta").innerText =
     `${getGenre(s)} • ${s.country || ""}`;
 
-  // fix button state
-  if (playingIndex !== null && document.getElementById(`playBtn-${playingIndex}`)) {
+  // reset old button
+  if (playingIndex !== null &&
+      document.getElementById(`playBtn-${playingIndex}`)) {
     document.getElementById(`playBtn-${playingIndex}`).innerText = "▶ Play";
   }
 
   playingIndex = i;
+
   const btn = document.getElementById(`playBtn-${i}`);
   if (btn) btn.innerText = "⏸ Pause";
-  // ✅ ADD THIS HERE (THIS IS THE IMPORTANT PART)
+
   stationStarted = true;
   loadPopupChat();
 }
   
 /* CONTROLS */
-function toggle(){
+function toggle() {
   const a = document.getElementById("audio");
+  const v = document.getElementById("video");
 
-  if(a.paused){
+  const isVideoVisible = v.style.display !== "none" && v.src;
+
+  // 🎬 VIDEO MODE
+  if (isVideoVisible) {
+    if (v.paused) {
+      v.play();
+    } else {
+      v.pause();
+    }
+
+    return;
+  }
+
+  // 🔊 AUDIO MODE
+  if (a.paused) {
     a.play();
+
     if (playingIndex !== null) {
       const btn = document.getElementById(`playBtn-${playingIndex}`);
       if (btn) btn.innerText = "⏸ Pause";
     }
+
   } else {
     a.pause();
+
     if (playingIndex !== null) {
       const btn = document.getElementById(`playBtn-${playingIndex}`);
       if (btn) btn.innerText = "▶ Play";
