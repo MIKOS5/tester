@@ -1,233 +1,144 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Obvyris Home</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Chat Rooms</title>
 
 <style>
-:root{
-  --bg:#09111d;
-  --panel:#111827;
-  --border:#253347;
-  --blue:#2793ff;
-  --blue-dark:#1869d9;
-  --text:#fff;
-  --muted:#93a4bb;
-}
-
 body{
   margin:0;
-  font-family:Arial,sans-serif;
-  background:var(--bg);
-  color:var(--text);
-}
-
-/* HEADER */
-.header{
-  padding:20px;
-  text-align:center;
-  border-bottom:1px solid var(--border);
-}
-
-.title{
-  font-size:28px;
-  font-weight:800;
-}
-
-.subtitle{
-  font-size:13px;
-  color:var(--muted);
-  margin-top:5px;
-}
-
-/* GRID */
-.grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:15px;
-  padding:20px;
-}
-
-@media(max-width:900px){
-  .grid{
-    grid-template-columns:1fr;
-  }
-}
-
-/* CARD */
-.card{
-  background:var(--panel);
-  border:1px solid var(--border);
-  border-radius:14px;
-  padding:15px;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
-
-.card-title{
-  font-size:20px;
-  font-weight:800;
-}
-
-.card-sub{
-  font-size:12px;
-  color:var(--muted);
-}
-
-/* BUTTON */
-.btn{
-  padding:10px;
-  border:none;
-  border-radius:10px;
-  cursor:pointer;
-  font-weight:700;
+  font-family:Arial;
+  background:#09111d;
   color:white;
-  background:linear-gradient(180deg,var(--blue),var(--blue-dark));
 }
 
-.btn:hover{
-  filter:brightness(1.1);
-}
-
-/* CHAT PREVIEW */
-.chat{
-  margin-top:10px;
-  padding-top:10px;
-  border-top:1px solid var(--border);
-  font-size:12px;
-  max-height:160px;
-  overflow:auto;
-}
-
-.msg{
-  margin-bottom:6px;
-  opacity:0.9;
-}
-
-.name{
-  color:var(--blue);
+header{
+  padding:15px;
+  background:#111827;
+  font-size:20px;
   font-weight:700;
+  border-bottom:1px solid #253347;
 }
 
-/* FOOT */
-.footer{
-  text-align:center;
-  font-size:11px;
-  color:var(--muted);
-  padding:10px;
+.room{
+  padding:12px;
+  border-bottom:1px solid #253347;
+  cursor:pointer;
+  transition:.2s;
 }
+
+.room:hover{
+  background:rgba(39,147,255,0.15);
+}
+
+.room b{
+  color:#2793ff;
+}
+
+.small{
+  font-size:12px;
+  opacity:.7;
+}
+
 </style>
 </head>
 
 <body>
 
-<div class="header">
-  <div class="title">🚀 Obvyris Dashboard</div>
-  <div class="subtitle">Video • Radio • Live Chat Preview</div>
-</div>
-
-<div class="grid">
-
-  <!-- VIDEO -->
-  <div class="card">
-    <div class="card-title">📺 Video Obvyris</div>
-    <div class="card-sub">IPTV channels + live streaming</div>
-
-    <button class="btn" onclick="openApp('video')">
-      ▶ Open Video
-    </button>
-
-    <div class="chat" id="videoChat">Loading chat...</div>
-  </div>
-
-  <!-- RADIO -->
-  <div class="card">
-    <div class="card-title">📻 Radio Obvyris</div>
-    <div class="card-sub">Live stations + genres + favorites</div>
-
-    <button class="btn" onclick="openApp('radio')">
-      ▶ Open Radio
-    </button>
-
-    <div class="chat" id="radioChat">Loading chat...</div>
-  </div>
-
-</div>
-
-<div class="footer">
-  Obvyris Hub • Unified Media System
-</div>
+<header>💬 Chat Rooms</header>
+<div id="rooms"></div>
 
 <script>
 
-/* chat endpoints (your existing Apps Script) */
-const VIDEO_CHAT =
-"https://script.google.com/macros/s/AKfycbzin84qDcZ9L1q4pTBtHZGKJSTDcZ_wnmgWmnmgPgf1jrc1nRprzbEBixKMSHcdkxiZBg/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzin84qDcZ9L1q4pTBtHZGKJSTDcZ_wnmgWmnmgPgf1jrc1nRprzbEBixKMSHcdkxiZBg/exec";
 
-const RADIO_CHAT =
-"https://script.google.com/macros/s/AKfycbzZ5MwOcYUY_bpsUKSxPd810xE8rV_Y3z2GwzPublb_4O60CP8L_lC_V2kqkCQ_JdF5/exec";
+let messages = [];
 
+async function load(){
+  const res = await fetch(API_URL, {
+    method:"POST",
+    body: JSON.stringify({
+      action:"get",
+      station:""   // <- IMPORTANT: empty = get ALL messages
+    })
+  });
 
-/* OPEN APP (via index99 iframe) */
-function openApp(app){
+  const data = await res.json();
+  messages = Array.isArray(data) ? data : [];
 
-  const frame = parent.document.querySelector("iframe");
-
-  if(!frame) return;
-
-  if(app === "video"){
-    frame.src = "Video_Obvyris.html";
-  }
-
-  if(app === "radio"){
-    frame.src = "Radio_Obvyris.html";
-  }
+  renderRooms();
 }
 
-/* LOAD CHAT PREVIEW */
-async function loadChat(url, boxId){
+function renderRooms(){
 
-  try{
+  const rooms = {};
 
-    const res = await fetch(url,{
-      method:"POST",
-      body:JSON.stringify({
-        action:"get",
-        station:"global"
-      })
-    });
+  // GROUP BY STATION ID
+  for (let m of messages){
 
-    const data = await res.json();
+    const id = m.station || "global";
 
-    const box = document.getElementById(boxId);
-    box.innerHTML = "";
+    if (!rooms[id]){
+      rooms[id] = {
+        id,
+        count:0,
+        last:m.message,
+        name: guessRoomName(id, m)
+      };
+    }
 
-    (data || []).slice(-6).forEach(m=>{
-      box.innerHTML += `
-        <div class="msg">
-          <span class="name">${m.name || "Anon"}:</span>
-          ${m.message}
+    rooms[id].count++;
+    rooms[id].last = m.message;
+  }
+
+  const el = document.getElementById("rooms");
+  el.innerHTML = "";
+
+  Object.values(rooms)
+    .sort((a,b)=>b.count - a.count)
+    .forEach(r => {
+
+      el.innerHTML += `
+        <div class="room" onclick="openRoom('${r.id}')">
+          <b>${r.name}</b>
+          <div class="small">
+            ID: ${r.id}
+          </div>
+          <div class="small">
+            ${r.count} messages • Last: ${r.last}
+          </div>
         </div>
       `;
     });
-
-  }catch(e){
-    document.getElementById(boxId).innerHTML =
-      "Chat offline";
-  }
 }
 
-loadChat(VIDEO_CHAT,"videoChat");
-loadChat(RADIO_CHAT,"radioChat");
+/* ROOM NAME DETECTION */
+function guessRoomName(id, msg){
 
-setInterval(()=>{
-  loadChat(VIDEO_CHAT,"videoChat");
-  loadChat(RADIO_CHAT,"radioChat");
-},5000);
+  // Example mapping (YOU can expand this)
+  const map = {
+    "global-video": "🎬 Video Chat",
+    "global": "🌐 Global Chat"
+  };
+
+  if (map[id]) return map[id];
+
+  // fallback: prettify UUID
+  if (id.includes("-")){
+    return "📻 Station Chat";
+  }
+
+  return "💬 Chat Room";
+}
+
+function openRoom(id){
+  // send to your video/chat page
+  window.location.href = `chatroom.html?room=${encodeURIComponent(id)}`;
+}
+
+load();
 
 </script>
-
 </body>
 </html>
