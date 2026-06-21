@@ -714,7 +714,6 @@ Live TV • Movies • Music Videos • IPTV
 
 let currentGenre = "";
 let filterMode = false;
-let current = [];
 let index = 0;
 let favorites = new Set();
 let page = 0;
@@ -1035,16 +1034,6 @@ async function loadMISC(){
   setTitle("📻 MISC");
 }
 
-async function loadInternational(){
-
-  const res = await fetch(SHEET + "?action=international");
-  const data = await res.json().catch(()=>[]);
-
-  current = (data.data || []).map(normalize);
-
-  render();
-  setTitle("🌎 Mexico");
-}
 
 async function listenNowPlaying(streamUrl, callback){
 
@@ -1818,8 +1807,7 @@ function toggleTheme() {
   }
 }
 /* INIT */
-renderGenres();
-loadCountries();   // ✅ add this
+renderGenres();   // ✅ add this
 load();
 
 document.querySelector(".main").addEventListener("scroll", () => {
