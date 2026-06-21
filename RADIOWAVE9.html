@@ -2,14 +2,14 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>API Test Loader</title>
+<title>API Player Test</title>
 
 <style>
 body {
   font-family: Arial;
   background: #0b1220;
   color: white;
-  padding: 20px;
+  padding-bottom: 120px;
 }
 
 .item {
@@ -18,56 +18,83 @@ body {
   padding: 10px;
   margin: 10px 0;
   border-radius: 8px;
+  cursor: pointer;
 }
 
-pre {
-  background: #000;
+.item:hover {
+  background: #1f2937;
+}
+
+#playerBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #0f172a;
+  border-top: 1px solid #334155;
   padding: 10px;
-  overflow: auto;
+}
+
+button {
+  padding: 6px 10px;
+  margin-right: 5px;
+}
+
+#title {
+  font-size: 14px;
+  margin-bottom: 5px;
 }
 </style>
 </head>
 
 <body>
 
-<h2>Deezer / GAS API Auto Load Test</h2>
+<h2>Deezer API Player Test</h2>
 
 <div id="status">Loading...</div>
 
-<h3>Raw JSON</h3>
-<pre id="raw"></pre>
-
-<h3>List Output</h3>
 <div id="list"></div>
+
+<!-- PLAYER -->
+<div id="playerBar">
+  <div id="title">Nothing playing</div>
+
+  <audio id="audio" controls></audio>
+
+  <div style="margin-top:5px;">
+    <button onclick="stopAudio()">Stop</button>
+  </div>
+</div>
 
 <script>
 
 const API_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AUkAhnQk8-f99-lPKOSOgwC18MsANHA7qEeJHqCenDCtj_XvulLjTyVJEhVAD1T4MMS9zwhHmRZ2PRyyR1PT7qd0MzXNT23c9_miaR9tbbrEHXccKOqpgvtUguaxgi-EOjMpgpVfp5dAy17jWi5vra2xFCCeaBIgqPsYtLatATGEPsozUlsaZ-PAIQ5-sE1A2bRX7bWBCvdG0AE1RCMJBPUHQXOEpRtZHf3smTl0PRqbFt7eGeVcE_SHrVAAkIiIWFgtFr9ZN9_Isk8wc4684b-UL2voWvEePNNQx2vexl3i-pa0q8DqRFlCjoSjm_QxVnw6Ntpp_MkSQo2i3zHp462T5OaYFO1_ul2TXwjrrg1xDKdAByVWW4w&lib=MXc-WCITJINqWdf85Co8mUx0G2u6XM1aZ";
+
+const audio = document.getElementById("audio");
+
+let currentList = [];
 
 async function loadData() {
   try {
     const res = await fetch(API_URL);
     const data = await res.json();
 
+    const list = Array.isArray(data) ? data : data.data || [data];
+
+    currentList = list;
+
     document.getElementById("status").innerText =
-      "Loaded: " + (Array.isArray(data) ? data.length : 1) + " items";
+      "Loaded: " + list.length + " items";
 
-    document.getElementById("raw").textContent =
-      JSON.stringify(data, null, 2);
-
-    // normalize to array
-    const list = Array.isArray(data) ? data : [data];
-
-    renderList(list);
+    render(list);
 
   } catch (err) {
     document.getElementById("status").innerText =
-      "Failed to load API: " + err.message;
-    console.error(err);
+      "Failed: " + err.message;
   }
 }
 
-function renderList(items) {
+function render(items) {
   const container = document.getElementById("list");
   container.innerHTML = "";
 
@@ -75,16 +102,40 @@ function renderList(items) {
     const div = document.createElement("div");
     div.className = "item";
 
-    let html = `<b>#${i}</b><br><br>`;
+    div.innerHTML = `
+      <b>${item.title || item.name || "Unknown"}</b><br>
+      ${item.artist?.name || item.artist || ""}<br>
+      <small>${item.album?.title || ""}</small>
+    `;
 
-    // show ALL fields dynamically
-    for (let key in item) {
-      html += `<b>${key}:</b> ${item[key]}<br>`;
-    }
+    div.onclick = () => playTrack(item);
 
-    div.innerHTML = html;
     container.appendChild(div);
   });
+}
+
+function playTrack(item) {
+  const url = item.preview;
+
+  if (!url) {
+    alert("No preview available");
+    return;
+  }
+
+  audio.src = url;
+  audio.play();
+
+  document.getElementById("title").innerText =
+    "Now Playing: " +
+    (item.title || item.name || "Unknown") +
+    " - " +
+    (item.artist?.name || item.artist || "");
+}
+
+function stopAudio() {
+  audio.pause();
+  audio.currentTime = 0;
+  document.getElementById("title").innerText = "Stopped";
 }
 
 loadData();
