@@ -1,127 +1,112 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>Deezer Search Viewer</title>
+<meta charset="UTF-8">
+<title>Deezer API Test</title>
 
 <style>
 body {
-  font-family: Arial, sans-serif;
+  font-family: Arial;
   background: #0b1220;
-  color: white;
-  margin: 0;
+  color: #fff;
   padding: 20px;
 }
 
-h1 { margin-bottom: 10px; }
-
-input {
-  width: 100%;
-  padding: 12px;
-  border-radius: 8px;
-  border: none;
-  margin-bottom: 10px;
+input, button {
+  padding: 10px;
   font-size: 16px;
 }
 
 button {
-  padding: 10px 15px;
-  border: none;
-  border-radius: 8px;
-  background: #2793ff;
-  color: white;
   cursor: pointer;
-  margin-bottom: 15px;
+}
+
+#status {
+  margin-top: 10px;
+  color: #9ca3af;
 }
 
 .item {
   background: #111827;
-  margin-bottom: 10px;
   padding: 10px;
+  margin: 10px 0;
   border-radius: 8px;
 }
 
-.item img {
+pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: #0f172a;
+  padding: 10px;
+  border-radius: 6px;
+  overflow-x: auto;
+}
+
+img {
   width: 60px;
   height: 60px;
   border-radius: 6px;
-  vertical-align: middle;
-  margin-right: 10px;
-}
-
-.title {
-  font-weight: bold;
-}
-
-.small {
-  font-size: 12px;
-  opacity: 0.7;
-}
-
-pre {
-  background: #0a0f1a;
-  padding: 10px;
-  overflow-x: auto;
-  display: none;
-  border-radius: 6px;
-  font-size: 12px;
-}
-
-.toggle {
-  margin-top: 8px;
-  font-size: 12px;
-  color: #2793ff;
-  cursor: pointer;
 }
 </style>
 </head>
 
 <body>
 
-<h1>Deezer Search Viewer</h1>
+<h2>Deezer Search Test</h2>
 
-<input id="q" placeholder="Search artist, song, album..." />
+<input id="q" value="alice in chains" />
 <button onclick="search()">Search</button>
 
+<div id="status"></div>
 <div id="results"></div>
 
 <script>
 async function search() {
   const q = document.getElementById("q").value;
-  const res = await fetch("https://api.deezer.com/search?q=" + encodeURIComponent(q));
-  const data = await res.json();
+  const results = document.getElementById("results");
+  const status = document.getElementById("status");
 
-  const container = document.getElementById("results");
-  container.innerHTML = "";
+  results.innerHTML = "";
+  status.innerText = "Loading...";
 
-  data.data.forEach((item, i) => {
+  try {
+    const url = `https://api.deezer.com/search?q=${encodeURIComponent(q)}`;
 
-    const div = document.createElement("div");
-    div.className = "item";
+    const res = await fetch(url);
+    const data = await res.json();
 
-    div.innerHTML = `
-      <div style="display:flex;align-items:center;">
-        <img src="${item.album.cover_small}" />
-        <div>
-          <div class="title">${item.title}</div>
-          <div class="small">Artist: ${item.artist.name}</div>
-          <div class="small">Album: ${item.album.title}</div>
-          <audio controls src="${item.preview}"></audio>
-        </div>
-      </div>
+    console.log("FULL RESPONSE:", data);
 
-      <div class="toggle" onclick="toggle(${i})">Show full JSON</div>
+    if (!data || !data.data) {
+      status.innerText = "No data returned.";
+      return;
+    }
 
-      <pre id="json-${i}">${JSON.stringify(item, null, 2)}</pre>
-    `;
+    status.innerText = `Found ${data.data.length} results`;
 
-    container.appendChild(div);
-  });
-}
+    data.data.forEach((track, i) => {
+      const div = document.createElement("div");
+      div.className = "item";
 
-function toggle(i) {
-  const el = document.getElementById("json-" + i);
-  el.style.display = el.style.display === "block" ? "none" : "block";
+      div.innerHTML = `
+        <strong>${i + 1}. ${track.title}</strong><br>
+        Artist: ${track.artist?.name || "N/A"}<br>
+        Album: ${track.album?.title || "N/A"}<br>
+        <img src="${track.album?.cover_small || ''}" /><br><br>
+
+        <details>
+          <summary>RAW DATA</summary>
+          <pre>${JSON.stringify(track, null, 2)}</pre>
+        </details>
+      `;
+
+      results.appendChild(div);
+    });
+
+  } catch (err) {
+    console.error(err);
+    status.innerText = "Error loading API (check console)";
+  }
 }
 </script>
 
