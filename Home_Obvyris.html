@@ -163,19 +163,7 @@ body{
 }
 
 /* FLOAT BUTTON */
-#refreshBtn{
-  position:fixed;
-  bottom:20px;
-  right:20px;
-  background:var(--blue);
-  border:none;
-  color:white;
-  padding:14px;
-  border-radius:50%;
-  font-size:18px;
-  cursor:pointer;
-  box-shadow:0 10px 25px rgba(0,0,0,0.4);
-}
+
 
 </style>
 </head>
@@ -225,20 +213,38 @@ body{
 <div id="rooms"></div>
 
 <!-- FLOAT REFRESH -->
-<button id="refreshBtn" onclick="load()">↻</button>
+
 
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbzin84qDcZ9L1q4pTBtHZGKJSTDcZ_wnmgWmnmgPgf1jrc1nRprzbEBixKMSHcdkxiZBg/exec";
 
 let messages = [];
-</script>
-
-<script>
-
-
+let activeRoom = "global";
+let popupOpen = false;
+let lastHash = "";
 
 /* =========================
-   BUILD CHAT ROOMS
+   LOAD ALL ROOMS
+========================= */
+async function load(){
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({ action: "get", station: "" })
+    });
+
+    const data = await res.json();
+    messages = Array.isArray(data) ? data : [];
+
+    renderRooms();
+
+  } catch (err){
+    console.log("Load failed:", err);
+  }
+}
+
+/* =========================
+   RENDER ROOMS
 ========================= */
 function renderRooms(){
 
@@ -246,104 +252,62 @@ function renderRooms(){
   let totalMessages = 0;
   let activeRooms = 0;
 
-  const q = document.getElementById("searchBox")
-    .value.toLowerCase().trim();
+  const q = document.getElementById("searchBox")?.value?.toLowerCase() || "";
 
   for (let m of messages){
 
     const id = m.station || "global";
-    const stationName = m.stationName || "Unknown Station";
 
-    const text = `
-      ${stationName}
-      ${m.name}
-      ${m.message}
-    `.toLowerCase();
+    const text = `${m.stationName || ""} ${m.name || ""} ${m.message || ""}`.toLowerCase();
 
-    // SEARCH FILTER
     if (q && !text.includes(q)) continue;
 
     if (!rooms[id]){
       rooms[id] = {
         id,
-        stationName,
-        count:0,
-        last:m.message,
-        lastUser:m.name,
-        lastTime:m.time || ""
+        name: m.stationName || id,
+        count: 0,
+        last: m.message || "",
+        lastUser: m.name || "Anon",
+        lastTime: m.time || ""
       };
       activeRooms++;
     }
 
     rooms[id].count++;
-    rooms[id].last = m.message;
-    rooms[id].lastUser = m.name;
-    rooms[id].lastTime = m.time || "";
+    rooms[id].last = m.message || rooms[id].last;
+    rooms[id].lastUser = m.name || rooms[id].lastUser;
 
     totalMessages++;
   }
 
-  /* =========================
-     UPDATE STATS BAR
-  ========================= */
-  document.getElementById("roomCount").innerText =
-    Object.keys(rooms).length;
+  document.getElementById("roomCount").innerText = Object.keys(rooms).length;
+  document.getElementById("msgCount").innerText = totalMessages;
+  document.getElementById("activeCount").innerText = activeRooms;
 
-  document.getElementById("msgCount").innerText =
-    totalMessages;
-
-  document.getElementById("activeCount").innerText =
-    activeRooms;
-
-  /* =========================
-     RENDER UI
-  ========================= */
   const el = document.getElementById("rooms");
-  el.innerHTML = "";
-
-  const list = Object.values(rooms)
-    .sort((a,b) => b.count - a.count);
-
-  if (list.length === 0){
-    el.innerHTML = `
-      <div class="empty">
-        💬 No chat rooms found<br><br>
-        Start playing a station and send a message
-      </div>
-    `;
-    return;
-  }
-
-  list.forEach(r => {
-
-    el.innerHTML += `
+  el.innerHTML = Object.values(rooms)
+    .sort((a,b)=>b.count-a.count)
+    .map(r => `
       <div class="room" onclick="openRoom('${r.id}')">
 
         <div class="room-title">
-          📻 ${r.stationName}
+          📻 ${r.name}
           <span>${r.count} msgs</span>
-        </div>
-
-        <div class="room-meta">
-          ID: ${r.id}
         </div>
 
         <div class="last-msg">
           ${r.lastUser}: ${r.last}
         </div>
 
-        <div class="room-meta">
-          ${r.lastTime}
-        </div>
+        <div class="room-meta">${r.lastTime}</div>
 
       </div>
-    `;
-  });
-
+    `).join("");
 }
 
 /* =========================
-   OPEN ROOM
+   OPEN ROOM (CLICK CARD)
 ========================= */
 function openRoom(id){
   activeRoom = id;
@@ -352,14 +316,80 @@ function openRoom(id){
 }
 
 /* =========================
+   POPUP TOGGLE
+========================= */
+function toggleRoomPopup(){
+  const el = document.getElementById("chatPopup");
+  popupOpen = !popupOpen;
+  el.style.display = popupOpen ? "flex" : "none";
+
+  if (popupOpen) loadPopup();
+}
+
+/* =========================
+   LOAD CHAT MESSAGES
+========================= */
+async function loadPopup(){
+
+  const title = document.getElementById("popupTitle");
+  title.innerText = "💬 " + activeRoom;
+
+  const res = await fetch(API_URL, {
+    method:"POST",
+    body: JSON.stringify({
+      action:"get",
+      station: activeRoom
+    })
+  });
+
+  const data = await res.json();
+  const msgs = Array.isArray(data) ? data : [];
+
+  const box = document.getElementById("popupMessages");
+  box.innerHTML = msgs.map(m => `
+    <div style="margin-bottom:6px;padding:6px;background:#0b1220;border-radius:8px;">
+      <b style="color:#2793ff">${m.name || "Anon"}:</b> ${m.message}
+    </div>
+  `).join("");
+
+  box.scrollTop = box.scrollHeight;
+}
+
+/* =========================
+   SEND MESSAGE
+========================= */
+async function sendPopupMsg(){
+
+  const name = document.getElementById("popupName").value || "Anon";
+  const msg = document.getElementById("popupMsg").value;
+
+  if (!msg) return;
+
+  document.getElementById("popupMsg").value = "";
+
+  await fetch(API_URL, {
+    method:"POST",
+    body: JSON.stringify({
+      action:"send",
+      station: activeRoom,
+      name: name.slice(0,10),
+      message: msg.slice(0,120)
+    })
+  });
+
+  loadPopup();
+}
+
+/* =========================
    AUTO REFRESH
 ========================= */
 setInterval(() => {
-  if (document.visibilityState === "visible") {
-    load();
-  }
-}, 5000);
+  if (popupOpen) loadPopup();
+}, 3000);
 
+setInterval(load, 5000);
+
+load();
 </script>
 
 <!-- =========================
@@ -372,10 +402,6 @@ setInterval(() => {
    CONFIG
 ========================= */
 
-const API_URL = "https://script.google.com/macros/s/AKfycbzin84qDcZ9L1q4pTBtHZGKJSTDcZ_wnmgWmnmgPgf1jrc1nRprzbEBixKMSHcdkxiZBg/exec";
-
-let messages = [];
-let lastHash = "";
 
 /* =========================
    LOAD ALL CHAT DATA
