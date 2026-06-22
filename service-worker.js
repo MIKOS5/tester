@@ -2,11 +2,12 @@ const CACHE_NAME = "obvyris-pro-v1";
 
 // IMPORTANT: use full /tester/ paths for GitHub Pages stability
 const FILES = [
-  "/tester/",
   "/tester/index99.html",
   "/tester/manifest.json",
   "/tester/R192.png",
-  "/tester/R512.png"
+  "/tester/R512.png",
+  "/tester/Radio_Obvyris.html",
+  "/tester/Video_Obvyris.html"
 ];
 
 // INSTALL
