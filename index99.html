@@ -199,9 +199,12 @@ function openApp(app){
 
 <script>
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/tester/service-worker.js")
-    .then(() => console.log("SW Registered"))
-    .catch(err => console.error("SW failed", err));
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("/tester/service-worker.js")
+      .then(reg => console.log("SW OK", reg.scope))
+      .catch(err => console.error("SW ERROR", err));
+  });
 }
 </script>
 </body>
