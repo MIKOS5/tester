@@ -3,10 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Obvyris Media OS v2</title>
-
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#2793ff">
+<title>Obvyris Media OS v2.2</title>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
@@ -15,7 +12,7 @@
   --bg:#0b0f18;
   --panel:#111827;
   --text:#fff;
-  --muted:#94a3b8;
+  --muted:#9ca3af;
   --blue:#2793ff;
 }
 
@@ -32,29 +29,43 @@ body{
 .sidebar{
   width:320px;
   background:var(--panel);
-  padding:10px;
-  overflow:auto;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
 }
 
-.title{font-size:20px;font-weight:900;}
+.header{
+  padding:10px;
+  font-weight:900;
+  font-size:20px;
+}
 
-button{
-  background:var(--blue);
-  color:#fff;
+input{
+  margin:10px;
+  padding:10px;
+  border-radius:8px;
   border:none;
-  padding:8px;
-  margin:3px;
-  border-radius:6px;
-  cursor:pointer;
+}
+
+/* LIST SCROLL AREA */
+#list{
+  flex:1;
+  overflow:auto;
+  padding:10px;
 }
 
 .card{
   background:#1f2937;
-  padding:8px;
+  padding:10px;
   margin:6px 0;
-  border-radius:8px;
+  border-radius:10px;
   cursor:pointer;
-  border:1px solid #333;
+  transition:.2s;
+}
+
+.card:hover{
+  transform:scale(1.02);
+  background:#243041;
 }
 
 /* MAIN */
@@ -66,45 +77,37 @@ button{
 
 video{
   width:100%;
-  height:60vh;
+  height:70vh;
   background:black;
 }
 
-.topbar{
-  padding:8px;
+/* CONTROLS */
+.controls{
   display:flex;
-  gap:8px;
+  gap:10px;
+  padding:10px;
 }
 
-/* CHAT */
-.chat{
-  position:fixed;
-  right:10px;
-  bottom:100px;
-  width:320px;
-  height:50vh;
-  background:var(--panel);
-  display:none;
-  flex-direction:column;
-  border:1px solid #333;
+button{
+  background:var(--blue);
+  border:none;
+  color:white;
+  padding:10px;
+  border-radius:8px;
+  cursor:pointer;
 }
-
-.chat-log{flex:1;overflow:auto;padding:10px;font-size:12px;}
-.chat-input{display:flex;}
 </style>
 </head>
 
 <body>
 
 <div class="sidebar">
-  <div class="title">📡 Obvyris OS v2</div>
+  <div class="header">📡 Obvyris OS v2.2</div>
 
   <button onclick="setMode('video')">📺 Video</button>
   <button onclick="setMode('radio')">📻 Radio</button>
-  <button onclick="toggleTheme()">🌙</button>
-  <button onclick="showFavs()">⭐ Fav</button>
 
-  <input id="search" placeholder="search..." oninput="render()"/>
+  <input id="search" placeholder="Search..." oninput="doSearch()"/>
 
   <div id="list"></div>
 </div>
@@ -113,220 +116,178 @@ video{
 
   <video id="player" controls autoplay></video>
 
-  <div class="topbar">
+  <div class="controls">
     <button onclick="prev()">⏮</button>
     <button onclick="toggle()">▶</button>
     <button onclick="next()">⏭</button>
-    <button onclick="toggleChat()">💬</button>
   </div>
 
-</div>
-
-<div id="chat" class="chat">
-  <div style="padding:8px;font-weight:700;">Chat</div>
-  <div id="chatLog" class="chat-log"></div>
-
-  <div class="chat-input">
-    <input id="name" placeholder="name" maxlength="8"/>
-    <input id="msg" placeholder="msg" maxlength="100"/>
-    <button onclick="send()">Send</button>
-  </div>
 </div>
 
 <script>
 
 /* ================= STATE ================= */
-let mode="video";
-let index=0;
-let list=[];
-let favs=JSON.parse(localStorage.getItem("fav")||"[]");
+let mode = "video";
+let list = [];
+let filtered = [];
+let startIndex = 0;
 
-const video=document.getElementById("player");
+const VISIBLE = 16;
+const player = document.getElementById("player");
 
-/* ================= LOAD VIDEO ================= */
+/* ================= VIDEO LOAD ================= */
 async function loadVideo(){
-  const res=await fetch("https://iptv-org.github.io/iptv/index.m3u");
-  const text=await res.text();
 
-  const lines=text.split("\n");
+  const res = await fetch("https://iptv-org.github.io/iptv/index.m3u");
+  const text = await res.text();
 
-  let temp=[];
+  const lines = text.split("\n");
+
+  let temp = [];
 
   for(let l of lines){
     if(l.startsWith("http")){
       temp.push({
-        id:l,
-        name:l.split("/").pop(),
-        url:l,
+        name: l.split("/").pop(),
+        url: l,
         type:"video"
       });
     }
   }
 
-  list=temp;
-  render();
+  list = temp;
+  filtered = temp;
+
+  renderVirtual(true);
 }
 
-/* ================= LOAD RADIO ================= */
+/* ================= RADIO LOAD ================= */
 async function loadRadio(){
-  const res=await fetch("https://all.api.radio-browser.info/json/stations/search?limit=200");
-  const data=await res.json();
 
-  list=data.map(s=>({
-    id:s.stationuuid,
-    name:s.name,
-    url:s.url_resolved,
+  const res = await fetch("https://all.api.radio-browser.info/json/stations/search?limit=300");
+  const data = await res.json();
+
+  list = data.map(s => ({
+    name: s.name,
+    url: s.url_resolved,
     type:"radio"
   }));
 
-  render();
+  filtered = list;
+
+  renderVirtual(true);
 }
 
-/* ================= RENDER ================= */
-function render(){
-  const el=document.getElementById("list");
-  el.innerHTML="";
+/* ================= VIRTUAL RENDER ================= */
+function renderVirtual(reset=false){
 
-  const q=document.getElementById("search").value.toLowerCase();
+  const el = document.getElementById("list");
 
-  list
-  .filter(i=>i.name.toLowerCase().includes(q))
-  .forEach((c,i)=>{
-    el.innerHTML+=`
-      <div class="card" onclick="play(${i})">
-        ${c.name}
-      </div>
+  if(reset){
+    el.innerHTML = "";
+    startIndex = 0;
+  }
+
+  const q = (document.getElementById("search").value || "").toLowerCase();
+
+  filtered = list.filter(i =>
+    i.name.toLowerCase().includes(q)
+  );
+
+  el.innerHTML = "";
+
+  const end = Math.min(startIndex + VISIBLE, filtered.length);
+
+  for(let i=startIndex; i<end; i++){
+
+    const item = filtered[i];
+
+    const div = document.createElement("div");
+    div.className = "card";
+
+    div.innerHTML = `
+      <div style="font-weight:700">${item.name}</div>
+      <div style="font-size:11px;opacity:.6">${item.type}</div>
     `;
-  });
+
+    div.onclick = () => play(i);
+
+    el.appendChild(div);
+  }
 }
+
+/* ================= SCROLL ENGINE ================= */
+document.getElementById("list").addEventListener("scroll",(e)=>{
+
+  const el = e.target;
+
+  const nearBottom =
+    el.scrollTop + el.clientHeight >= el.scrollHeight - 120;
+
+  const nearTop =
+    el.scrollTop < 80;
+
+  if(nearBottom){
+    startIndex += 6;
+    renderVirtual();
+  }
+
+  if(nearTop && startIndex > 0){
+    startIndex -= 6;
+    renderVirtual();
+  }
+});
 
 /* ================= PLAY ================= */
 function play(i){
-  index=i;
-  const item=list[i];
 
+  const item = filtered[i];
   if(!item) return;
 
   if(item.url.includes(".m3u8") && Hls.isSupported()){
-    const hls=new Hls();
+    const hls = new Hls();
     hls.loadSource(item.url);
-    hls.attachMedia(video);
+    hls.attachMedia(player);
   } else {
-    video.src=item.url;
+    player.src = item.url;
   }
 
-  video.play();
-  loadChat();
+  player.play();
 }
 
 /* ================= CONTROLS ================= */
 function next(){
-  index=(index+1)%list.length;
-  play(index);
+  let i = filtered.findIndex(f => f.url === player.src);
+  i = (i+1)%filtered.length;
+  play(i);
 }
 
 function prev(){
-  index=(index-1+list.length)%list.length;
-  play(index);
+  let i = filtered.findIndex(f => f.url === player.src);
+  i = (i-1+filtered.length)%filtered.length;
+  play(i);
 }
 
 function toggle(){
-  video.paused?video.play():video.pause();
+  player.paused ? player.play() : player.pause();
 }
 
 /* ================= MODE ================= */
 function setMode(m){
-  mode=m;
-  index=0;
+  mode = m;
   if(m==="video") loadVideo();
   else loadRadio();
 }
 
-/* ================= FAVORITES ================= */
-function toggleFav(item){
-  const exists=favs.find(f=>f.id===item.id);
-
-  if(exists){
-    favs=favs.filter(f=>f.id!==item.id);
-  }else{
-    favs.push(item);
-  }
-
-  localStorage.setItem("fav",JSON.stringify(favs));
-}
-
-function showFavs(){
-  list=favs;
-  render();
-}
-
-/* ================= CHAT ================= */
-const API="https://script.google.com/macros/s/AKfycbzin84qDcZ9L1q4pTBtHZGKJSTDcZ_wnmgWmnmgPgf1jrc1nRprzbEBixKMSHcdkxiZBg/exec";
-
-function room(){
-  return list[index]?.id || "global";
-}
-
-async function loadChat(){
-  const res=await fetch(API,{
-    method:"POST",
-    body:JSON.stringify({
-      action:"get",
-      station:room()
-    })
-  });
-
-  const data=await res.json();
-  renderChat(data);
-}
-
-function renderChat(data){
-  const box=document.getElementById("chatLog");
-  box.innerHTML="";
-  (data||[]).forEach(m=>{
-    box.innerHTML+=`<div><b>${m.name}:</b> ${m.message}</div>`;
-  });
-  box.scrollTop=box.scrollHeight;
-}
-
-async function send(){
-  const name=document.getElementById("name").value||"anon";
-  const msg=document.getElementById("msg").value;
-
-  await fetch(API,{
-    method:"POST",
-    body:JSON.stringify({
-      action:"send",
-      station:room(),
-      name,
-      message:msg
-    })
-  });
-
-  loadChat();
-}
-
-/* ================= CHAT TOGGLE ================= */
-function toggleChat(){
-  const c=document.getElementById("chat");
-  c.style.display=c.style.display==="flex"?"none":"flex";
-  if(c.style.display==="flex") loadChat();
-}
-
-/* ================= THEME ================= */
-function toggleTheme(){
-  document.body.classList.toggle("light");
+/* ================= SEARCH ================= */
+function doSearch(){
+  startIndex = 0;
+  renderVirtual(true);
 }
 
 /* ================= INIT ================= */
 loadVideo();
 
-/* ================= KEYBOARD ================= */
-document.addEventListener("keydown",(e)=>{
-  if(e.key==="ArrowRight") next();
-  if(e.key==="ArrowLeft") prev();
-  if(e.key===" ") toggle();
-});
 </script>
 
 </body>
