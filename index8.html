@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>Obvyris TV</title>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+<style>
+body {
+    margin: 0;
+    background: black;
+    color: white;
+    font-family: Arial;
+    overflow: hidden;
+}
+
+/* TOP BAR */
+#topbar {
+    height: 60px;
+    background: #111;
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+/* LAYOUT */
+#container {
+    display: flex;
+    height: calc(100vh - 60px);
+}
+
+/* CHANNEL LIST */
+#channels {
+    width: 320px;
+    background: #0b0b0b;
+    overflow-y: auto;
+    border-right: 2px solid #222;
+}
+
+.channel {
+    padding: 15px;
+    border-bottom: 1px solid #1e1e1e;
+    cursor: pointer;
+}
+
+.channel:hover {
+    background: #222;
+}
+
+.channel.active {
+    background: #333;
+}
+
+/* PLAYER */
+#playerArea {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+video {
+    width: 100%;
+    height: 70vh;
+    background: black;
+}
+
+/* INFO BAR */
+#nowPlaying {
+    padding: 10px;
+    background: #111;
+    font-size: 16px;
+}
+
+/* CONTROLS */
+#controls {
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    background: #0f0f0f;
+}
+
+button {
+    font-size: 18px;
+    padding: 10px 15px;
+    border: none;
+    background: #222;
+    color: white;
+    border-radius: 6px;
+}
+button:hover {
+    background: #444;
+}
+</style>
+</head>
+
+<body>
+
+<div id="topbar">📺 Obvyris TV (IPTV Caster Mode)</div>
+
+<div id="container">
+
+    <!-- CHANNEL LIST -->
+    <div id="channels"></div>
+
+    <!-- PLAYER -->
+    <div id="playerArea">
+
+        <video id="video" controls autoplay></video>
+
+        <div id="nowPlaying">Select a channel</div>
+
+        <div id="controls">
+            <button onclick="prevChannel()">⏮ Prev</button>
+            <button onclick="playPause()">⏯ Play/Pause</button>
+            <button onclick="nextChannel()">⏭ Next</button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+let channels = [];
+let currentIndex = 0;
+
+const video = document.getElementById("video");
+const list = document.getElementById("channels");
+const nowPlaying = document.getElementById("nowPlaying");
+
+/* -----------------------------
+   LOAD IPTV M3U
+----------------------------- */
+async function loadChannels() {
+    const res = await fetch("https://iptv-org.github.io/iptv/index.m3u");
+    const text = await res.text();
+
+    parseM3U(text);
+}
+
+/* -----------------------------
+   PARSE M3U (simple IPTV parser)
+----------------------------- */
+function parseM3U(data) {
+    const lines = data.split("\n");
+    let name = "";
+    let group = "";
+
+    for (let i = 0; i < lines.length; i++) {
+
+        if (lines[i].includes("#EXTINF")) {
+            name = lines[i].split(",")[1] || "Unknown";
+
+            if (lines[i].includes("group-title")) {
+                let match = lines[i].match(/group-title="(.*?)"/);
+                group = match ? match[1] : "Other";
+            }
+        }
+
+        if (lines[i].startsWith("http")) {
+            channels.push({
+                name,
+                group,
+                url: lines[i].trim()
+            });
+        }
+    }
+
+    renderChannels();
+}
+
+/* -----------------------------
+   RENDER CHANNEL LIST
+----------------------------- */
+function renderChannels() {
+    list.innerHTML = "";
+
+    channels.slice(0, 200).forEach((ch, i) => {
+        const div = document.createElement("div");
+        div.className = "channel";
+        div.innerText = ch.name;
+
+        div.onclick = () => playChannel(i);
+
+        list.appendChild(div);
+    });
+}
+
+/* -----------------------------
+   PLAY CHANNEL (HLS + MP4)
+----------------------------- */
+function playChannel(i) {
+    currentIndex = i;
+
+    const ch = channels[i];
+    nowPlaying.innerText = ch.name;
+
+    document.querySelectorAll(".channel").forEach(el => el.classList.remove("active"));
+    if (list.children[i]) list.children[i].classList.add("active");
+
+    if (window.hls) {
+        window.hls.destroy();
+        window.hls = null;
+    }
+
+    if (ch.url.includes(".m3u8")) {
+        if (Hls.isSupported()) {
+            const hls = new Hls();
+            hls.loadSource(ch.url);
+            hls.attachMedia(video);
+            window.hls = hls;
+        } else {
+            video.src = ch.url;
+        }
+    } else {
+        video.src = ch.url;
+    }
+
+    video.play();
+}
+
+/* -----------------------------
+   CONTROLS
+----------------------------- */
+function nextChannel() {
+    if (currentIndex < channels.length - 1) {
+        playChannel(currentIndex + 1);
+    }
+}
+
+function prevChannel() {
+    if (currentIndex > 0) {
+        playChannel(currentIndex - 1);
+    }
+}
+
+function playPause() {
+    if (video.paused) video.play();
+    else video.pause();
+}
+
+/* -----------------------------
+   AUTO START
+----------------------------- */
+loadChannels();
+</script>
+
+</body>
+</html>
