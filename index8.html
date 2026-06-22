@@ -4,53 +4,79 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-<title>Obvyris TV</title>
+<title>Obvyris Media OS</title>
 
 <link rel="manifest" href="manifest.json">
 
 <meta name="theme-color" content="#2793ff">
-<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-
-<link rel="icon" href="https://mikos5.github.io/tester/navicon.png">
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
 <style>
-body{
-  margin:0;
-  background:#0b0f18;
-  color:white;
-  font-family:Inter, Arial;
-  display:flex;
-  height:100vh;
-  overflow:hidden;
+
+/* =========================
+   🎨 BASE THEME SYSTEM
+========================= */
+:root{
+  --bg:#0b0f18;
+  --panel:#111827;
+  --text:#fff;
+  --muted:#94a3b8;
+  --blue:#2793ff;
 }
 
 body.light{
-  background:#f4f6f8;
-  color:#111;
+  --bg:#f4f6f8;
+  --panel:#ffffff;
+  --text:#111;
+  --muted:#555;
+  --blue:#3b82f6;
 }
 
-/* SIDEBAR */
+body{
+  margin:0;
+  font-family:Arial;
+  background:var(--bg);
+  color:var(--text);
+  display:flex;
+  height:100vh;
+}
+
+/* =========================
+   SIDEBAR
+========================= */
 .sidebar{
-  width:360px;
-  background:#111827;
+  width:340px;
+  background:var(--panel);
   overflow:auto;
-  padding:15px;
+  padding:10px;
 }
 
-body.light .sidebar{
-  background:#fff;
-}
-
-/* HEADER */
-.logo{
-  font-size:30px;
+.title{
+  font-size:24px;
   font-weight:900;
 }
 
-/* VIDEO */
+/* MODE BUTTONS */
+.mode{
+  display:flex;
+  gap:10px;
+  margin:10px 0;
+}
+
+button{
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  background:var(--blue);
+  color:#fff;
+  font-weight:700;
+}
+
+/* =========================
+   MAIN
+========================= */
 .main{
   flex:1;
   display:flex;
@@ -65,37 +91,26 @@ video{
 
 /* CHANNEL LIST */
 .card{
-  background:#1f2937;
-  margin:8px 0;
+  background:var(--panel);
+  margin:6px 0;
   padding:10px;
   border-radius:10px;
   cursor:pointer;
+  border:1px solid #222;
 }
 
-body.light .card{
-  background:#e5e7eb;
-}
-
-/* CONTROLS */
-button{
-  padding:10px;
-  border:none;
-  border-radius:8px;
-  background:#2793ff;
-  color:white;
-  font-weight:700;
-}
-
-/* CHAT */
-.chat-popup{
+/* =========================
+   CHAT
+========================= */
+.chat{
   position:fixed;
   right:20px;
   bottom:120px;
   width:340px;
   height:60vh;
-  background:#111827;
+  background:var(--panel);
   border:1px solid #333;
-  display:flex;
+  display:none;
   flex-direction:column;
 }
 
@@ -109,6 +124,7 @@ button{
 .chat-input{
   display:flex;
 }
+
 </style>
 </head>
 
@@ -117,9 +133,14 @@ button{
 <!-- SIDEBAR -->
 <div class="sidebar">
 
-  <div class="logo">📺 Obvyris TV</div>
+  <div class="title">📡 Obvyris Media OS</div>
 
   <button onclick="toggleTheme()">🌙 Theme</button>
+
+  <div class="mode">
+    <button onclick="setMode('video')">📺 Video</button>
+    <button onclick="setMode('radio')">📻 Radio</button>
+  </div>
 
   <div id="list"></div>
 
@@ -132,76 +153,92 @@ button{
 
   <div style="padding:10px;display:flex;gap:10px;">
     <button onclick="prev()">⏮</button>
-    <button onclick="toggle()">▶/⏸</button>
+    <button onclick="toggle()">▶</button>
     <button onclick="next()">⏭</button>
-    <button onclick="toggleChatPopup()">💬 Chat</button>
+    <button onclick="toggleChat()">💬 Chat</button>
   </div>
 
 </div>
 
 <!-- CHAT -->
-<div id="chatPopup" class="chat-popup" style="display:none;">
-  <div style="padding:10px;background:#222;">💬 Channel Chat</div>
+<div id="chat" class="chat">
+
+  <div style="padding:10px;font-weight:700;">💬 Chat</div>
 
   <div id="chatLog" class="chat-log"></div>
 
   <div class="chat-input">
-    <input id="chatName" placeholder="name" maxlength="8">
-    <input id="chatMsg" placeholder="message" maxlength="100">
-    <button onclick="sendMessage()">Send</button>
+    <input id="name" placeholder="name" maxlength="8">
+    <input id="msg" placeholder="message" maxlength="100">
+    <button onclick="send()">Send</button>
   </div>
+
 </div>
 
 <script>
 
-/* =====================
-   IPTV ENGINE
-===================== */
-
-const IPTV =
-"https://iptv-org.github.io/iptv/index.m3u";
-
-let channels = [];
+/* =========================
+   🔥 STATE
+========================= */
+let mode = "video";
 let index = 0;
+
+let videoList = [];
+let radioList = [];
 
 const video = document.getElementById("video");
 
-/* LOAD IPTV */
-async function load(){
-  const res = await fetch(IPTV);
+/* =========================
+   📺 IPTV LOAD
+========================= */
+async function loadVideo(){
+  const res = await fetch("https://iptv-org.github.io/iptv/index.m3u");
   const text = await res.text();
 
-  parse(text);
-}
+  const lines = text.split("\n");
 
-function parse(data){
-  const lines = data.split("\n");
+  let name="";
 
-  let name = "";
-
-  for(let i=0;i<lines.length;i++){
-    if(lines[i].includes("#EXTINF")){
-      name = lines[i].split(",")[1] || "Channel";
+  for(let l of lines){
+    if(l.includes("#EXTINF")){
+      name = l.split(",")[1] || "Channel";
     }
-
-    if(lines[i].startsWith("http")){
-      channels.push({
-        name,
-        url: lines[i]
-      });
+    if(l.startsWith("http")){
+      videoList.push({name,url:l});
     }
   }
 
   render();
 }
 
-/* RENDER */
-function render(){
-  const el = document.getElementById("list");
-  el.innerHTML = "";
+/* =========================
+   📻 RADIO LOAD
+========================= */
+async function loadRadio(){
+  const res = await fetch("https://all.api.radio-browser.info/json/stations/search?limit=200");
+  const data = await res.json();
 
-  channels.slice(0,200).forEach((c,i)=>{
-    el.innerHTML += `
+  radioList = data.map(s=>({
+    name:s.name,
+    url:s.url_resolved,
+    id:s.stationuuid
+  }));
+
+  render();
+}
+
+/* =========================
+   RENDER LIST
+========================= */
+function render(){
+
+  const list = document.getElementById("list");
+  list.innerHTML="";
+
+  const arr = mode==="video" ? videoList : radioList;
+
+  arr.slice(0,200).forEach((c,i)=>{
+    list.innerHTML += `
       <div class="card" onclick="play(${i})">
         ${c.name}
       </div>
@@ -209,32 +246,49 @@ function render(){
   });
 }
 
-/* PLAY */
+/* =========================
+   PLAY
+========================= */
 function play(i){
+
   index = i;
-  const c = channels[i];
+  const arr = mode==="video" ? videoList : radioList;
+  const item = arr[i];
 
-  if(c.url.includes(".m3u8") && Hls.isSupported()){
-    const hls = new Hls();
-    hls.loadSource(c.url);
-    hls.attachMedia(video);
+  if(!item) return;
+
+  if(mode==="video"){
+
+    if(item.url.includes(".m3u8") && Hls.isSupported()){
+      const hls = new Hls();
+      hls.loadSource(item.url);
+      hls.attachMedia(video);
+    } else {
+      video.src = item.url;
+    }
+
+    video.play();
+
   } else {
-    video.src = c.url;
+    video.src = item.url;
+    video.play();
   }
-
-  video.play();
 
   loadChat();
 }
 
-/* CONTROLS */
+/* =========================
+   CONTROLS
+========================= */
 function next(){
-  index = (index+1)%channels.length;
+  const arr = mode==="video" ? videoList : radioList;
+  index = (index+1)%arr.length;
   play(index);
 }
 
 function prev(){
-  index = (index-1+channels.length)%channels.length;
+  const arr = mode==="video" ? videoList : radioList;
+  index = (index-1+arr.length)%arr.length;
   play(index);
 }
 
@@ -243,26 +297,42 @@ function toggle(){
   else video.pause();
 }
 
-/* THEME */
+/* =========================
+   MODE SWITCH
+========================= */
+function setMode(m){
+  mode = m;
+  index = 0;
+  render();
+
+  if(m==="video") loadVideo();
+  else loadRadio();
+}
+
+/* =========================
+   THEME
+========================= */
 function toggleTheme(){
   document.body.classList.toggle("light");
 }
 
-/* CHAT SYSTEM */
-const API_URL = "https://script.google.com/macros/s/AKfycbzin84qDcZ9L1q4pTBtHZGKJSTDcZ_wnmgWmnmgPgf1jrc1nRprzbEBixKMSHcdkxiZBg/exec";
+/* =========================
+   CHAT SYSTEM
+========================= */
+const API =
+"https://script.google.com/macros/s/AKfycbzin84qDcZ9L1q4pTBtHZGKJSTDcZ_wnmgWmnmgPgf1jrc1nRprzbEBixKMSHcdkxiZBg/exec";
 
-let chatOpen = false;
-
-function getRoom(){
-  return channels[index]?.url || "global";
+function room(){
+  const arr = mode==="video" ? videoList : radioList;
+  return arr[index]?.url || "global";
 }
 
 async function loadChat(){
-  const res = await fetch(API_URL,{
+  const res = await fetch(API,{
     method:"POST",
     body: JSON.stringify({
       action:"get",
-      station:getRoom()
+      station:room()
     })
   });
 
@@ -272,26 +342,24 @@ async function loadChat(){
 
 function renderChat(data){
   const box = document.getElementById("chatLog");
-  box.innerHTML = "";
+  box.innerHTML="";
 
-  (data || []).forEach(m=>{
-    box.innerHTML += `
-      <div><b>${m.name}:</b> ${m.message}</div>
-    `;
+  (data||[]).forEach(m=>{
+    box.innerHTML += `<div><b>${m.name}:</b> ${m.message}</div>`;
   });
 
   box.scrollTop = box.scrollHeight;
 }
 
-async function sendMessage(){
-  const name = document.getElementById("chatName").value;
-  const msg = document.getElementById("chatMsg").value;
+async function send(){
+  const name = document.getElementById("name").value;
+  const msg = document.getElementById("msg").value;
 
-  await fetch(API_URL,{
+  await fetch(API,{
     method:"POST",
     body: JSON.stringify({
       action:"send",
-      station:getRoom(),
+      station:room(),
       name,
       message:msg
     })
@@ -300,17 +368,19 @@ async function sendMessage(){
   loadChat();
 }
 
-/* CHAT TOGGLE */
-function toggleChatPopup(){
-  const p = document.getElementById("chatPopup");
-  chatOpen = !chatOpen;
-  p.style.display = chatOpen ? "flex" : "none";
-
-  if(chatOpen) loadChat();
+/* =========================
+   CHAT TOGGLE
+========================= */
+function toggleChat(){
+  const c = document.getElementById("chat");
+  c.style.display = c.style.display==="flex" ? "none":"flex";
+  if(c.style.display==="flex") loadChat();
 }
 
-/* INIT */
-load();
+/* =========================
+   INIT
+========================= */
+loadVideo();
 
 </script>
 
