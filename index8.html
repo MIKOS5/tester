@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Obvyris Media OS v2.2</title>
+<title>Obvyris Media OS v2.3</title>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
@@ -12,7 +12,7 @@
   --bg:#0b0f18;
   --panel:#111827;
   --text:#fff;
-  --muted:#9ca3af;
+  --muted:#94a3b8;
   --blue:#2793ff;
 }
 
@@ -37,17 +37,9 @@ body{
 .header{
   padding:10px;
   font-weight:900;
-  font-size:20px;
 }
 
-input{
-  margin:10px;
-  padding:10px;
-  border-radius:8px;
-  border:none;
-}
-
-/* LIST SCROLL AREA */
+/* LIST */
 #list{
   flex:1;
   overflow:auto;
@@ -65,7 +57,6 @@ input{
 
 .card:hover{
   transform:scale(1.02);
-  background:#243041;
 }
 
 /* MAIN */
@@ -81,20 +72,18 @@ video{
   background:black;
 }
 
-/* CONTROLS */
-.controls{
-  display:flex;
-  gap:10px;
-  padding:10px;
-}
-
 button{
   background:var(--blue);
   border:none;
   color:white;
   padding:10px;
+  margin:4px;
   border-radius:8px;
   cursor:pointer;
+}
+
+.controls{
+  padding:10px;
 }
 </style>
 </head>
@@ -102,14 +91,16 @@ button{
 <body>
 
 <div class="sidebar">
-  <div class="header">📡 Obvyris OS v2.2</div>
+
+  <div class="header">📡 OS v2.3 Infinite Feed</div>
 
   <button onclick="setMode('video')">📺 Video</button>
   <button onclick="setMode('radio')">📻 Radio</button>
 
-  <input id="search" placeholder="Search..." oninput="doSearch()"/>
+  <input id="search" placeholder="Search..." oninput="doSearch()" style="margin:10px;padding:8px"/>
 
   <div id="list"></div>
+
 </div>
 
 <div class="main">
@@ -128,14 +119,16 @@ button{
 
 /* ================= STATE ================= */
 let mode = "video";
-let list = [];
-let filtered = [];
-let startIndex = 0;
 
-const VISIBLE = 16;
+let list = [];        // full dataset
+let filtered = [];    // filtered dataset
+let feed = [];        // loaded chunks
+
+const BATCH = 25;
+
 const player = document.getElementById("player");
 
-/* ================= VIDEO LOAD ================= */
+/* ================= LOAD VIDEO ================= */
 async function loadVideo(){
 
   const res = await fetch("https://iptv-org.github.io/iptv/index.m3u");
@@ -156,15 +149,13 @@ async function loadVideo(){
   }
 
   list = temp;
-  filtered = temp;
-
-  renderVirtual(true);
+  renderFeed(true);
 }
 
-/* ================= RADIO LOAD ================= */
+/* ================= LOAD RADIO ================= */
 async function loadRadio(){
 
-  const res = await fetch("https://all.api.radio-browser.info/json/stations/search?limit=300");
+  const res = await fetch("https://all.api.radio-browser.info/json/stations/search?limit=500");
   const data = await res.json();
 
   list = data.map(s => ({
@@ -173,34 +164,32 @@ async function loadRadio(){
     type:"radio"
   }));
 
-  filtered = list;
-
-  renderVirtual(true);
+  renderFeed(true);
 }
 
-/* ================= VIRTUAL RENDER ================= */
-function renderVirtual(reset=false){
+/* ================= INFINITE FEED ================= */
+function renderFeed(reset=false){
 
   const el = document.getElementById("list");
 
   if(reset){
     el.innerHTML = "";
-    startIndex = 0;
+    feed = [];
+
+    const q = (document.getElementById("search").value || "").toLowerCase();
+
+    filtered = list.filter(i =>
+      i.name.toLowerCase().includes(q)
+    );
   }
 
-  const q = (document.getElementById("search").value || "").toLowerCase();
+  const next = filtered.slice(feed.length, feed.length + BATCH);
 
-  filtered = list.filter(i =>
-    i.name.toLowerCase().includes(q)
-  );
+  feed.push(...next);
 
   el.innerHTML = "";
 
-  const end = Math.min(startIndex + VISIBLE, filtered.length);
-
-  for(let i=startIndex; i<end; i++){
-
-    const item = filtered[i];
+  feed.forEach((item,i)=>{
 
     const div = document.createElement("div");
     div.className = "card";
@@ -213,10 +202,10 @@ function renderVirtual(reset=false){
     div.onclick = () => play(i);
 
     el.appendChild(div);
-  }
+  });
 }
 
-/* ================= SCROLL ENGINE ================= */
+/* ================= SCROLL INFINITE ================= */
 document.getElementById("list").addEventListener("scroll",(e)=>{
 
   const el = e.target;
@@ -224,24 +213,18 @@ document.getElementById("list").addEventListener("scroll",(e)=>{
   const nearBottom =
     el.scrollTop + el.clientHeight >= el.scrollHeight - 120;
 
-  const nearTop =
-    el.scrollTop < 80;
-
   if(nearBottom){
-    startIndex += 6;
-    renderVirtual();
-  }
 
-  if(nearTop && startIndex > 0){
-    startIndex -= 6;
-    renderVirtual();
+    if(feed.length < filtered.length){
+      renderFeed(false);
+    }
   }
 });
 
 /* ================= PLAY ================= */
 function play(i){
 
-  const item = filtered[i];
+  const item = feed[i];
   if(!item) return;
 
   if(item.url.includes(".m3u8") && Hls.isSupported()){
@@ -257,14 +240,14 @@ function play(i){
 
 /* ================= CONTROLS ================= */
 function next(){
-  let i = filtered.findIndex(f => f.url === player.src);
-  i = (i+1)%filtered.length;
+  let i = feed.findIndex(f => f.url === player.src);
+  i = (i+1)%feed.length;
   play(i);
 }
 
 function prev(){
-  let i = filtered.findIndex(f => f.url === player.src);
-  i = (i-1+filtered.length)%filtered.length;
+  let i = feed.findIndex(f => f.url === player.src);
+  i = (i-1+feed.length)%feed.length;
   play(i);
 }
 
@@ -272,17 +255,17 @@ function toggle(){
   player.paused ? player.play() : player.pause();
 }
 
+/* ================= SEARCH ================= */
+function doSearch(){
+  renderFeed(true);
+}
+
 /* ================= MODE ================= */
 function setMode(m){
   mode = m;
-  if(m==="video") loadVideo();
-  else loadRadio();
-}
 
-/* ================= SEARCH ================= */
-function doSearch(){
-  startIndex = 0;
-  renderVirtual(true);
+  if(m === "video") loadVideo();
+  else loadRadio();
 }
 
 /* ================= INIT ================= */
