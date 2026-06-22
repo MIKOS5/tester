@@ -1,44 +1,180 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Chat Rooms</title>
+<title>Radio Obvyris • Chat Rooms</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet"/>
 
 <style>
+
+:root{
+  --bg:#09111d;
+  --panel:#111827;
+  --line:#253347;
+  --text:#ffffff;
+  --muted:#93a4bb;
+  --blue:#2793ff;
+  --blue-dark:#1869d9;
+  --green:#17c964;
+  --green-dark:#0ea85a;
+  --panel-alt:#0b1220;
+}
+
+/* LIGHT MODE */
+body.light{
+  --bg:#f4f6f8;
+  --panel:#ffffff;
+  --line:#d9e2ec;
+  --text:#102a43;
+  --muted:#627d98;
+  --blue:#4f8ef7;
+  --blue-dark:#3b82f6;
+  --panel-alt:#eef3f8;
+}
+
+*{box-sizing:border-box;}
+
 body{
   margin:0;
-  font-family:Arial;
-  background:#09111d;
-  color:white;
+  font-family:Inter,sans-serif;
+  background:var(--bg);
+  color:var(--text);
 }
 
-header{
+/* HEADER */
+.header{
+  padding:18px 20px;
+  background:var(--panel);
+  border-bottom:1px solid var(--line);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.logo{
+  font-family:Orbitron;
+  font-size:26px;
+  font-weight:900;
+  letter-spacing:2px;
+}
+
+.logo span{
+  color:var(--blue);
+}
+
+.sub{
+  font-size:12px;
+  color:var(--muted);
+}
+
+/* STATS BAR */
+.stats{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
   padding:15px;
-  background:#111827;
-  font-size:20px;
-  font-weight:700;
-  border-bottom:1px solid #253347;
 }
 
-.room{
+.stat{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:10px;
+  text-align:center;
+}
+
+.stat b{
+  display:block;
+  font-size:18px;
+  color:var(--blue);
+}
+
+/* SEARCH */
+.search{
+  padding:0 15px 10px;
+}
+
+.search input{
+  width:100%;
   padding:12px;
-  border-bottom:1px solid #253347;
+  border-radius:12px;
+  border:1px solid var(--line);
+  background:var(--panel);
+  color:var(--text);
+  outline:none;
+}
+
+/* ROOMS */
+#rooms{
+  padding:15px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+/* ROOM CARD */
+.room{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:14px;
   cursor:pointer;
   transition:.2s;
 }
 
 .room:hover{
-  background:rgba(39,147,255,0.15);
+  transform:translateY(-2px);
+  border-color:var(--blue);
+  background:rgba(39,147,255,0.08);
 }
 
-.room b{
-  color:#2793ff;
+.room-title{
+  font-weight:800;
+  font-size:18px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
 }
 
-.small{
+.room-title span{
+  font-size:11px;
+  color:var(--muted);
+}
+
+.room-meta{
   font-size:12px;
-  opacity:.7;
+  color:var(--muted);
+  margin-top:6px;
+}
+
+.last-msg{
+  margin-top:8px;
+  font-size:13px;
+  font-weight:600;
+}
+
+/* EMPTY */
+.empty{
+  text-align:center;
+  padding:40px;
+  color:var(--muted);
+}
+
+/* FLOAT BUTTON */
+#refreshBtn{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  background:var(--blue);
+  border:none;
+  color:white;
+  padding:14px;
+  border-radius:50%;
+  font-size:18px;
+  cursor:pointer;
+  box-shadow:0 10px 25px rgba(0,0,0,0.4);
 }
 
 </style>
@@ -46,99 +182,377 @@ header{
 
 <body>
 
-<header>💬 Chat Rooms</header>
+<!-- HEADER -->
+<div class="header">
+  <div>
+    <div class="logo">Radio <span>Obvyris</span></div>
+    <div class="sub">Live Chat Rooms</div>
+  </div>
+
+  <button onclick="location.reload()" style="
+    background:var(--blue);
+    border:none;
+    color:white;
+    padding:10px 14px;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:700;
+  ">↻</button>
+</div>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat">
+    <b id="roomCount">0</b>
+    Rooms
+  </div>
+  <div class="stat">
+    <b id="msgCount">0</b>
+    Messages
+  </div>
+  <div class="stat">
+    <b id="activeCount">0</b>
+    Active
+  </div>
+</div>
+
+<!-- SEARCH -->
+<div class="search">
+  <input id="searchBox" placeholder="🔍 Search chat rooms..." oninput="renderRooms()"/>
+</div>
+
+<!-- ROOMS -->
 <div id="rooms"></div>
 
+<!-- FLOAT REFRESH -->
+<button id="refreshBtn" onclick="load()">↻</button>
+
 <script>
+const API_URL = "https://script.google.com/macros/s/AKfycbzin84qDcZ9L1q4pTBtHZGKJSTDcZ_wnmgWmnmgPgf1jrc1nRprzbEBixKMSHcdkxiZBg/exec";
+
+let messages = [];
+</script>
+
+<script>
+
+/* =========================
+   LOAD ALL MESSAGES
+========================= */
+async function load(){
+
+  try {
+
+    const res = await fetch(API_URL, {
+      method:"POST",
+      body: JSON.stringify({
+        action:"get",
+        station:"" // ALL MESSAGES
+      })
+    });
+
+    const data = await res.json();
+    messages = Array.isArray(data) ? data : [];
+
+    renderRooms();
+
+  } catch(err){
+    console.error("Load failed:", err);
+  }
+}
+
+/* =========================
+   BUILD CHAT ROOMS
+========================= */
+function renderRooms(){
+
+  const rooms = {};
+  let totalMessages = 0;
+  let activeRooms = 0;
+
+  const q = document.getElementById("searchBox")
+    .value.toLowerCase().trim();
+
+  for (let m of messages){
+
+    const id = m.station || "global";
+    const stationName = m.stationName || "Unknown Station";
+
+    const text = `
+      ${stationName}
+      ${m.name}
+      ${m.message}
+    `.toLowerCase();
+
+    // SEARCH FILTER
+    if (q && !text.includes(q)) continue;
+
+    if (!rooms[id]){
+      rooms[id] = {
+        id,
+        stationName,
+        count:0,
+        last:m.message,
+        lastUser:m.name,
+        lastTime:m.time || ""
+      };
+      activeRooms++;
+    }
+
+    rooms[id].count++;
+    rooms[id].last = m.message;
+    rooms[id].lastUser = m.name;
+    rooms[id].lastTime = m.time || "";
+
+    totalMessages++;
+  }
+
+  /* =========================
+     UPDATE STATS BAR
+  ========================= */
+  document.getElementById("roomCount").innerText =
+    Object.keys(rooms).length;
+
+  document.getElementById("msgCount").innerText =
+    totalMessages;
+
+  document.getElementById("activeCount").innerText =
+    activeRooms;
+
+  /* =========================
+     RENDER UI
+  ========================= */
+  const el = document.getElementById("rooms");
+  el.innerHTML = "";
+
+  const list = Object.values(rooms)
+    .sort((a,b) => b.count - a.count);
+
+  if (list.length === 0){
+    el.innerHTML = `
+      <div class="empty">
+        💬 No chat rooms found<br><br>
+        Start playing a station and send a message
+      </div>
+    `;
+    return;
+  }
+
+  list.forEach(r => {
+
+    el.innerHTML += `
+      <div class="room" onclick="openRoom('${r.id}')">
+
+        <div class="room-title">
+          📻 ${r.stationName}
+          <span>${r.count} msgs</span>
+        </div>
+
+        <div class="room-meta">
+          ID: ${r.id}
+        </div>
+
+        <div class="last-msg">
+          ${r.lastUser}: ${r.last}
+        </div>
+
+        <div class="room-meta">
+          ${r.lastTime}
+        </div>
+
+      </div>
+    `;
+  });
+
+}
+
+/* =========================
+   OPEN ROOM
+========================= */
+function openRoom(id){
+  window.location.href =
+    `chatroom.html?room=${encodeURIComponent(id)}`;
+}
+
+/* =========================
+   AUTO REFRESH
+========================= */
+setInterval(() => {
+  if (document.visibilityState === "visible") {
+    load();
+  }
+}, 5000);
+
+</script>
+
+<!-- =========================
+     PART 3 / FINAL SCRIPT
+========================= -->
+
+<script>
+
+/* =========================
+   CONFIG
+========================= */
 
 const API_URL = "https://script.google.com/macros/s/AKfycbzin84qDcZ9L1q4pTBtHZGKJSTDcZ_wnmgWmnmgPgf1jrc1nRprzbEBixKMSHcdkxiZBg/exec";
 
 let messages = [];
+let lastHash = "";
+
+/* =========================
+   LOAD ALL CHAT DATA
+========================= */
 
 async function load(){
-  const res = await fetch(API_URL, {
-    method:"POST",
-    body: JSON.stringify({
-      action:"get",
-      station:""   // <- IMPORTANT: empty = get ALL messages
-    })
-  });
+  try {
 
-  const data = await res.json();
-  messages = Array.isArray(data) ? data : [];
+    const res = await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "get",
+        station: ""   // GLOBAL FETCH (ALL ROOMS)
+      })
+    });
 
-  renderRooms();
+    const data = await res.json();
+    messages = Array.isArray(data) ? data : [];
+
+    renderRooms();
+
+  } catch (err){
+    console.log("Load failed:", err);
+  }
 }
+
+/* =========================
+   GROUP MESSAGES INTO ROOMS
+========================= */
 
 function renderRooms(){
 
   const rooms = {};
 
-  // GROUP BY STATION ID
   for (let m of messages){
 
-    const id = m.station || "global";
+    const id = (m.station || "global").trim();
 
     if (!rooms[id]){
       rooms[id] = {
         id,
-        count:0,
-        last:m.message,
-        name: guessRoomName(id, m)
+        count: 0,
+        last: m.message || "",
+        name: guessRoomName(id)
       };
     }
 
     rooms[id].count++;
-    rooms[id].last = m.message;
+    rooms[id].last = m.message || rooms[id].last;
   }
 
+  const list = Object.values(rooms)
+    .sort((a,b)=>b.count - a.count);
+
   const el = document.getElementById("rooms");
-  el.innerHTML = "";
 
-  Object.values(rooms)
-    .sort((a,b)=>b.count - a.count)
-    .forEach(r => {
+  el.innerHTML = list.map(r => `
+    <div class="room" onclick="openRoom('${r.id}')">
+      <b>${escapeHtml(r.name)}</b>
 
-      el.innerHTML += `
-        <div class="room" onclick="openRoom('${r.id}')">
-          <b>${r.name}</b>
-          <div class="small">
-            ID: ${r.id}
-          </div>
-          <div class="small">
-            ${r.count} messages • Last: ${r.last}
-          </div>
-        </div>
-      `;
-    });
+      <div class="small">
+        Room ID: ${r.id}
+      </div>
+
+      <div class="small">
+        💬 ${r.count} messages
+      </div>
+
+      <div class="small">
+        🕒 Last: ${escapeHtml(r.last)}
+      </div>
+    </div>
+  `).join("");
 }
 
-/* ROOM NAME DETECTION */
-function guessRoomName(id, msg){
+/* =========================
+   ROOM NAME LOGIC
+========================= */
 
-  // Example mapping (YOU can expand this)
+function guessRoomName(id){
+
   const map = {
+    "global": "🌐 Global Chat",
     "global-video": "🎬 Video Chat",
-    "global": "🌐 Global Chat"
+    "music": "🎵 Music Chat"
   };
 
   if (map[id]) return map[id];
 
-  // fallback: prettify UUID
-  if (id.includes("-")){
+  if (id.includes("-") && id.length > 20){
     return "📻 Station Chat";
   }
 
   return "💬 Chat Room";
 }
 
+/* =========================
+   NAVIGATION
+========================= */
+
 function openRoom(id){
-  // send to your video/chat page
   window.location.href = `chatroom.html?room=${encodeURIComponent(id)}`;
 }
 
+/* =========================
+   SECURITY (basic HTML escape)
+========================= */
+
+function escapeHtml(str){
+  return String(str)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+/* =========================
+   AUTO REFRESH (LIVE ROOMS)
+========================= */
+
+async function autoRefresh(){
+
+  try{
+
+    const res = await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "get",
+        station: ""
+      })
+    });
+
+    const data = await res.json();
+    const newMessages = JSON.stringify(data);
+
+    if (newMessages !== lastHash){
+      lastHash = newMessages;
+      messages = Array.isArray(data) ? data : [];
+      renderRooms();
+    }
+
+  } catch(e){
+    console.log("refresh error", e);
+  }
+}
+
+/* =========================
+   INIT
+========================= */
+
 load();
+setInterval(autoRefresh, 4000);
 
 </script>
+
 </body>
 </html>
