@@ -235,30 +235,7 @@ let messages = [];
 
 <script>
 
-/* =========================
-   LOAD ALL MESSAGES
-========================= */
-async function load(){
 
-  try {
-
-    const res = await fetch(API_URL, {
-      method:"POST",
-      body: JSON.stringify({
-        action:"get",
-        station:"" // ALL MESSAGES
-      })
-    });
-
-    const data = await res.json();
-    messages = Array.isArray(data) ? data : [];
-
-    renderRooms();
-
-  } catch(err){
-    console.error("Load failed:", err);
-  }
-}
 
 /* =========================
    BUILD CHAT ROOMS
@@ -429,50 +406,6 @@ async function load(){
    GROUP MESSAGES INTO ROOMS
 ========================= */
 
-function renderRooms(){
-
-  const rooms = {};
-
-  for (let m of messages){
-
-    const id = (m.station || "global").trim();
-
-    if (!rooms[id]){
-      rooms[id] = {
-        id,
-        count: 0,
-        last: m.message || "",
-        name: guessRoomName(id)
-      };
-    }
-
-    rooms[id].count++;
-    rooms[id].last = m.message || rooms[id].last;
-  }
-
-  const list = Object.values(rooms)
-    .sort((a,b)=>b.count - a.count);
-
-  const el = document.getElementById("rooms");
-
-  el.innerHTML = list.map(r => `
-    <div class="room" onclick="openRoom('${r.id}')">
-      <b>${escapeHtml(r.name)}</b>
-
-      <div class="small">
-        Room ID: ${r.id}
-      </div>
-
-      <div class="small">
-        💬 ${r.count} messages
-      </div>
-
-      <div class="small">
-        🕒 Last: ${escapeHtml(r.last)}
-      </div>
-    </div>
-  `).join("");
-}
 
 /* =========================
    ROOM NAME LOGIC
@@ -538,7 +471,7 @@ function openRoom(id){
 async function loadPopup(){
 
   const title = document.getElementById("popupTitle");
-  title.innerText = "💬 " + getName(activeRoom);
+  title.innerText = "💬 " + guessRoomName(activeRoom);
 
   const res = await fetch(API_URL, {
     method:"POST",
@@ -637,25 +570,6 @@ load();
 setInterval(autoRefresh, 4000);
 
 </script>
-<!-- CHAT POPUP BUTTON -->
-<button id="chatRoomBtn" onclick="toggleRoomPopup()"
-style="
-position:fixed;
-bottom:90px;
-right:20px;
-width:56px;
-height:56px;
-border-radius:50%;
-border:none;
-background:linear-gradient(180deg,#2793ff,#1869d9);
-color:white;
-font-size:20px;
-box-shadow:0 10px 25px rgba(0,0,0,.4);
-z-index:9999;
-cursor:pointer;
-">
-💬
-</button>
 
 <!-- CHAT ROOM POPUP -->
 <div id="chatPopup" style="
