@@ -17,12 +17,12 @@ body{
   height:100vh;
 }
 
-/* SIDEBAR */
 .sidebar{
-  width:320px;
+  width:340px;
   background:#111827;
   display:flex;
   flex-direction:column;
+  overflow:hidden;
 }
 
 .header{
@@ -44,7 +44,10 @@ body{
   cursor:pointer;
 }
 
-/* MAIN */
+.card:hover{
+  background:#374151;
+}
+
 .main{
   flex:1;
   display:flex;
@@ -74,24 +77,22 @@ button{
 
 <body>
 
-<!-- SIDEBAR -->
 <div class="sidebar">
 
-  <div class="header">📡 Obvyris OS v2.4</div>
+  <div class="header">📡 Obvyris Media OS v2.4</div>
 
   <button onclick="setMode('video')">📺 Video</button>
   <button onclick="setMode('radio')">📻 Radio</button>
 
   <div class="controls">
     <button onclick="prevPage()">⬅ Prev Page</button>
-    <button onclick="nextPage()">Next ➡</button>
+    <button onclick="nextPage()">Next Page ➡</button>
   </div>
 
   <div id="list"></div>
 
 </div>
 
-<!-- MAIN -->
 <div class="main">
 
   <video id="player" controls autoplay></video>
@@ -117,8 +118,9 @@ let feed = [];
 const player = document.getElementById("player");
 
 /* =========================
-   LOAD VIDEO
+   📺 FIXED M3U PARSER
 ========================= */
+
 async function loadVideo(){
 
   const res = await fetch("https://iptv-org.github.io/iptv/index.m3u");
@@ -128,13 +130,35 @@ async function loadVideo(){
 
   list = [];
 
+  let currentName = "Unknown Channel";
+  let currentGroup = "General";
+
   for(let l of lines){
-    if(l.startsWith("http")){
+
+    l = l.trim();
+
+    // NAME LINE
+    if(l.startsWith("#EXTINF")){
+
+      const nameMatch = l.split(",");
+      currentName = nameMatch[1] || "Unknown Channel";
+
+      const groupMatch = l.match(/group-title="(.*?)"/);
+      currentGroup = groupMatch ? groupMatch[1] : "General";
+    }
+
+    // URL LINE
+    else if(l.startsWith("http")){
+
       list.push({
-        name: l.split("/").pop(),
+        name: currentName,
+        group: currentGroup,
         url: l,
         type:"video"
       });
+
+      currentName = "Unknown Channel";
+      currentGroup = "General";
     }
   }
 
@@ -142,8 +166,9 @@ async function loadVideo(){
 }
 
 /* =========================
-   LOAD RADIO
+   RADIO
 ========================= */
+
 async function loadRadio(){
 
   const res = await fetch("https://all.api.radio-browser.info/json/stations/search?limit=500");
@@ -159,23 +184,18 @@ async function loadRadio(){
 }
 
 /* =========================
-   RESET + FILTER
+   RESET
 ========================= */
-function resetAndRender(){
 
+function resetAndRender(){
   page = 0;
   feed = [];
-
-  const el = document.getElementById("list");
-  el.innerHTML = "";
-
   filtered = list;
-
   renderPage(true);
 }
 
 /* =========================
-   PAGED INFINITE SYSTEM
+   PAGED FEED SYSTEM
 ========================= */
 
 function getPageData(){
@@ -200,14 +220,14 @@ function renderPage(resetFeed = true){
 
   el.innerHTML = "";
 
-  feed.forEach((item, i)=>{
+  feed.forEach((item,i)=>{
 
     const div = document.createElement("div");
     div.className = "card";
 
     div.innerHTML = `
       <div><b>${item.name}</b></div>
-      <div style="font-size:11px;opacity:.6">${item.type}</div>
+      <div style="font-size:11px;opacity:.6">${item.group || item.type}</div>
     `;
 
     div.onclick = () => play(i);
@@ -228,6 +248,7 @@ document.getElementById("list").addEventListener("scroll",(e)=>{
     el.scrollTop + el.clientHeight >= el.scrollHeight - 120;
 
   if(nearBottom){
+
     const pageData = getPageData();
 
     if(feed.length < pageData.length){
@@ -254,22 +275,6 @@ function play(i){
   }
 
   player.play();
-}
-
-/* =========================
-   CONTROLS
-========================= */
-
-function next(){
-  let i = feed.findIndex(f => f.url === player.src);
-  i = (i + 1) % feed.length;
-  play(i);
-}
-
-function prev(){
-  let i = feed.findIndex(f => f.url === player.src);
-  i = (i - 1 + feed.length) % feed.length;
-  play(i);
 }
 
 /* =========================
