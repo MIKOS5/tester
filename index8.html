@@ -1,6 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Obvyris Media OS v2.4</title>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#0b0f18;
+  color:white;
+  display:flex;
+  height:100vh;
+}
+
+/* SIDEBAR */
+.sidebar{
+  width:320px;
+  background:#111827;
+  display:flex;
+  flex-direction:column;
+}
+
+.header{
+  padding:10px;
+  font-weight:900;
+}
+
+#list{
+  flex:1;
+  overflow:auto;
+  padding:10px;
+}
+
+.card{
+  background:#1f2937;
+  padding:10px;
+  margin:6px 0;
+  border-radius:10px;
+  cursor:pointer;
+}
+
+/* MAIN */
+.main{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+}
+
+video{
+  width:100%;
+  height:70vh;
+  background:black;
+}
+
+.controls{
+  padding:10px;
+}
+
+button{
+  padding:10px;
+  margin:5px;
+  background:#2793ff;
+  border:none;
+  color:white;
+  border-radius:8px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+
+  <div class="header">📡 Obvyris OS v2.4</div>
+
+  <button onclick="setMode('video')">📺 Video</button>
+  <button onclick="setMode('radio')">📻 Radio</button>
+
+  <div class="controls">
+    <button onclick="prevPage()">⬅ Prev Page</button>
+    <button onclick="nextPage()">Next ➡</button>
+  </div>
+
+  <div id="list"></div>
+
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <video id="player" controls autoplay></video>
+
+</div>
+
+<script>
+
 /* =========================
-   📦 PAGED INFINITE SYSTEM
+   STATE
 ========================= */
+
+let mode = "video";
 
 let list = [];
 let filtered = [];
@@ -8,7 +112,71 @@ let filtered = [];
 let page = 0;
 const PAGE_SIZE = 200;
 
-let feed = []; // current page chunk
+let feed = [];
+
+const player = document.getElementById("player");
+
+/* =========================
+   LOAD VIDEO
+========================= */
+async function loadVideo(){
+
+  const res = await fetch("https://iptv-org.github.io/iptv/index.m3u");
+  const text = await res.text();
+
+  const lines = text.split("\n");
+
+  list = [];
+
+  for(let l of lines){
+    if(l.startsWith("http")){
+      list.push({
+        name: l.split("/").pop(),
+        url: l,
+        type:"video"
+      });
+    }
+  }
+
+  resetAndRender();
+}
+
+/* =========================
+   LOAD RADIO
+========================= */
+async function loadRadio(){
+
+  const res = await fetch("https://all.api.radio-browser.info/json/stations/search?limit=500");
+  const data = await res.json();
+
+  list = data.map(s => ({
+    name: s.name,
+    url: s.url_resolved,
+    type:"radio"
+  }));
+
+  resetAndRender();
+}
+
+/* =========================
+   RESET + FILTER
+========================= */
+function resetAndRender(){
+
+  page = 0;
+  feed = [];
+
+  const el = document.getElementById("list");
+  el.innerHTML = "";
+
+  filtered = list;
+
+  renderPage(true);
+}
+
+/* =========================
+   PAGED INFINITE SYSTEM
+========================= */
 
 function getPageData(){
   const start = page * PAGE_SIZE;
@@ -26,8 +194,8 @@ function renderPage(resetFeed = true){
 
   const pageData = getPageData();
 
-  // load next chunk inside page
   const next = pageData.slice(feed.length, feed.length + 25);
+
   feed.push(...next);
 
   el.innerHTML = "";
@@ -38,7 +206,7 @@ function renderPage(resetFeed = true){
     div.className = "card";
 
     div.innerHTML = `
-      <div style="font-weight:700">${item.name}</div>
+      <div><b>${item.name}</b></div>
       <div style="font-size:11px;opacity:.6">${item.type}</div>
     `;
 
@@ -47,3 +215,101 @@ function renderPage(resetFeed = true){
     el.appendChild(div);
   });
 }
+
+/* =========================
+   INFINITE SCROLL
+========================= */
+
+document.getElementById("list").addEventListener("scroll",(e)=>{
+
+  const el = e.target;
+
+  const nearBottom =
+    el.scrollTop + el.clientHeight >= el.scrollHeight - 120;
+
+  if(nearBottom){
+    const pageData = getPageData();
+
+    if(feed.length < pageData.length){
+      renderPage(false);
+    }
+  }
+});
+
+/* =========================
+   PLAY
+========================= */
+
+function play(i){
+
+  const item = feed[i];
+  if(!item) return;
+
+  if(item.url.includes(".m3u8") && Hls.isSupported()){
+    const hls = new Hls();
+    hls.loadSource(item.url);
+    hls.attachMedia(player);
+  } else {
+    player.src = item.url;
+  }
+
+  player.play();
+}
+
+/* =========================
+   CONTROLS
+========================= */
+
+function next(){
+  let i = feed.findIndex(f => f.url === player.src);
+  i = (i + 1) % feed.length;
+  play(i);
+}
+
+function prev(){
+  let i = feed.findIndex(f => f.url === player.src);
+  i = (i - 1 + feed.length) % feed.length;
+  play(i);
+}
+
+/* =========================
+   PAGE CONTROLS
+========================= */
+
+function nextPage(){
+  const maxPages = Math.ceil(filtered.length / PAGE_SIZE);
+
+  if(page < maxPages - 1){
+    page++;
+    renderPage(true);
+  }
+}
+
+function prevPage(){
+  if(page > 0){
+    page--;
+    renderPage(true);
+  }
+}
+
+/* =========================
+   MODE SWITCH
+========================= */
+
+function setMode(m){
+  mode = m;
+
+  if(m === "video") loadVideo();
+  else loadRadio();
+}
+
+/* =========================
+   INIT
+========================= */
+
+loadVideo();
+
+</script>
+
+</body>
+</html>
