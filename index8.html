@@ -1,37 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-<title>Obvyris Media OS</title>
+<title>Obvyris Media OS v2</title>
 
 <link rel="manifest" href="manifest.json">
-
 <meta name="theme-color" content="#2793ff">
-<meta name="apple-mobile-web-app-capable" content="yes">
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
 <style>
-
-/* =========================
-   🎨 BASE THEME SYSTEM
-========================= */
 :root{
   --bg:#0b0f18;
   --panel:#111827;
   --text:#fff;
   --muted:#94a3b8;
   --blue:#2793ff;
-}
-
-body.light{
-  --bg:#f4f6f8;
-  --panel:#ffffff;
-  --text:#111;
-  --muted:#555;
-  --blue:#3b82f6;
 }
 
 body{
@@ -43,40 +28,36 @@ body{
   height:100vh;
 }
 
-/* =========================
-   SIDEBAR
-========================= */
+/* SIDEBAR */
 .sidebar{
-  width:340px;
+  width:320px;
   background:var(--panel);
-  overflow:auto;
   padding:10px;
+  overflow:auto;
 }
 
-.title{
-  font-size:24px;
-  font-weight:900;
-}
-
-/* MODE BUTTONS */
-.mode{
-  display:flex;
-  gap:10px;
-  margin:10px 0;
-}
+.title{font-size:20px;font-weight:900;}
 
 button{
-  padding:10px;
-  border:none;
-  border-radius:8px;
   background:var(--blue);
   color:#fff;
-  font-weight:700;
+  border:none;
+  padding:8px;
+  margin:3px;
+  border-radius:6px;
+  cursor:pointer;
 }
 
-/* =========================
-   MAIN
-========================= */
+.card{
+  background:#1f2937;
+  padding:8px;
+  margin:6px 0;
+  border-radius:8px;
+  cursor:pointer;
+  border:1px solid #333;
+}
+
+/* MAIN */
 .main{
   flex:1;
   display:flex;
@@ -85,160 +66,133 @@ button{
 
 video{
   width:100%;
-  height:65vh;
+  height:60vh;
   background:black;
 }
 
-/* CHANNEL LIST */
-.card{
-  background:var(--panel);
-  margin:6px 0;
-  padding:10px;
-  border-radius:10px;
-  cursor:pointer;
-  border:1px solid #222;
+.topbar{
+  padding:8px;
+  display:flex;
+  gap:8px;
 }
 
-/* =========================
-   CHAT
-========================= */
+/* CHAT */
 .chat{
   position:fixed;
-  right:20px;
-  bottom:120px;
-  width:340px;
-  height:60vh;
+  right:10px;
+  bottom:100px;
+  width:320px;
+  height:50vh;
   background:var(--panel);
-  border:1px solid #333;
   display:none;
   flex-direction:column;
+  border:1px solid #333;
 }
 
-.chat-log{
-  flex:1;
-  overflow:auto;
-  padding:10px;
-  font-size:12px;
-}
-
-.chat-input{
-  display:flex;
-}
-
+.chat-log{flex:1;overflow:auto;padding:10px;font-size:12px;}
+.chat-input{display:flex;}
 </style>
 </head>
 
 <body>
 
-<!-- SIDEBAR -->
 <div class="sidebar">
+  <div class="title">📡 Obvyris OS v2</div>
 
-  <div class="title">📡 Obvyris Media OS</div>
+  <button onclick="setMode('video')">📺 Video</button>
+  <button onclick="setMode('radio')">📻 Radio</button>
+  <button onclick="toggleTheme()">🌙</button>
+  <button onclick="showFavs()">⭐ Fav</button>
 
-  <button onclick="toggleTheme()">🌙 Theme</button>
-
-  <div class="mode">
-    <button onclick="setMode('video')">📺 Video</button>
-    <button onclick="setMode('radio')">📻 Radio</button>
-  </div>
+  <input id="search" placeholder="search..." oninput="render()"/>
 
   <div id="list"></div>
-
 </div>
 
-<!-- MAIN -->
 <div class="main">
 
-  <video id="video" controls autoplay></video>
+  <video id="player" controls autoplay></video>
 
-  <div style="padding:10px;display:flex;gap:10px;">
+  <div class="topbar">
     <button onclick="prev()">⏮</button>
     <button onclick="toggle()">▶</button>
     <button onclick="next()">⏭</button>
-    <button onclick="toggleChat()">💬 Chat</button>
+    <button onclick="toggleChat()">💬</button>
   </div>
 
 </div>
 
-<!-- CHAT -->
 <div id="chat" class="chat">
-
-  <div style="padding:10px;font-weight:700;">💬 Chat</div>
-
+  <div style="padding:8px;font-weight:700;">Chat</div>
   <div id="chatLog" class="chat-log"></div>
 
   <div class="chat-input">
-    <input id="name" placeholder="name" maxlength="8">
-    <input id="msg" placeholder="message" maxlength="100">
+    <input id="name" placeholder="name" maxlength="8"/>
+    <input id="msg" placeholder="msg" maxlength="100"/>
     <button onclick="send()">Send</button>
   </div>
-
 </div>
 
 <script>
 
-/* =========================
-   🔥 STATE
-========================= */
-let mode = "video";
-let index = 0;
+/* ================= STATE ================= */
+let mode="video";
+let index=0;
+let list=[];
+let favs=JSON.parse(localStorage.getItem("fav")||"[]");
 
-let videoList = [];
-let radioList = [];
+const video=document.getElementById("player");
 
-const video = document.getElementById("video");
-
-/* =========================
-   📺 IPTV LOAD
-========================= */
+/* ================= LOAD VIDEO ================= */
 async function loadVideo(){
-  const res = await fetch("https://iptv-org.github.io/iptv/index.m3u");
-  const text = await res.text();
+  const res=await fetch("https://iptv-org.github.io/iptv/index.m3u");
+  const text=await res.text();
 
-  const lines = text.split("\n");
+  const lines=text.split("\n");
 
-  let name="";
+  let temp=[];
 
   for(let l of lines){
-    if(l.includes("#EXTINF")){
-      name = l.split(",")[1] || "Channel";
-    }
     if(l.startsWith("http")){
-      videoList.push({name,url:l});
+      temp.push({
+        id:l,
+        name:l.split("/").pop(),
+        url:l,
+        type:"video"
+      });
     }
   }
 
+  list=temp;
   render();
 }
 
-/* =========================
-   📻 RADIO LOAD
-========================= */
+/* ================= LOAD RADIO ================= */
 async function loadRadio(){
-  const res = await fetch("https://all.api.radio-browser.info/json/stations/search?limit=200");
-  const data = await res.json();
+  const res=await fetch("https://all.api.radio-browser.info/json/stations/search?limit=200");
+  const data=await res.json();
 
-  radioList = data.map(s=>({
+  list=data.map(s=>({
+    id:s.stationuuid,
     name:s.name,
     url:s.url_resolved,
-    id:s.stationuuid
+    type:"radio"
   }));
 
   render();
 }
 
-/* =========================
-   RENDER LIST
-========================= */
+/* ================= RENDER ================= */
 function render(){
+  const el=document.getElementById("list");
+  el.innerHTML="";
 
-  const list = document.getElementById("list");
-  list.innerHTML="";
+  const q=document.getElementById("search").value.toLowerCase();
 
-  const arr = mode==="video" ? videoList : radioList;
-
-  arr.slice(0,200).forEach((c,i)=>{
-    list.innerHTML += `
+  list
+  .filter(i=>i.name.toLowerCase().includes(q))
+  .forEach((c,i)=>{
+    el.innerHTML+=`
       <div class="card" onclick="play(${i})">
         ${c.name}
       </div>
@@ -246,118 +200,102 @@ function render(){
   });
 }
 
-/* =========================
-   PLAY
-========================= */
+/* ================= PLAY ================= */
 function play(i){
-
-  index = i;
-  const arr = mode==="video" ? videoList : radioList;
-  const item = arr[i];
+  index=i;
+  const item=list[i];
 
   if(!item) return;
 
-  if(mode==="video"){
-
-    if(item.url.includes(".m3u8") && Hls.isSupported()){
-      const hls = new Hls();
-      hls.loadSource(item.url);
-      hls.attachMedia(video);
-    } else {
-      video.src = item.url;
-    }
-
-    video.play();
-
+  if(item.url.includes(".m3u8") && Hls.isSupported()){
+    const hls=new Hls();
+    hls.loadSource(item.url);
+    hls.attachMedia(video);
   } else {
-    video.src = item.url;
-    video.play();
+    video.src=item.url;
   }
 
+  video.play();
   loadChat();
 }
 
-/* =========================
-   CONTROLS
-========================= */
+/* ================= CONTROLS ================= */
 function next(){
-  const arr = mode==="video" ? videoList : radioList;
-  index = (index+1)%arr.length;
+  index=(index+1)%list.length;
   play(index);
 }
 
 function prev(){
-  const arr = mode==="video" ? videoList : radioList;
-  index = (index-1+arr.length)%arr.length;
+  index=(index-1+list.length)%list.length;
   play(index);
 }
 
 function toggle(){
-  if(video.paused) video.play();
-  else video.pause();
+  video.paused?video.play():video.pause();
 }
 
-/* =========================
-   MODE SWITCH
-========================= */
+/* ================= MODE ================= */
 function setMode(m){
-  mode = m;
-  index = 0;
-  render();
-
+  mode=m;
+  index=0;
   if(m==="video") loadVideo();
   else loadRadio();
 }
 
-/* =========================
-   THEME
-========================= */
-function toggleTheme(){
-  document.body.classList.toggle("light");
+/* ================= FAVORITES ================= */
+function toggleFav(item){
+  const exists=favs.find(f=>f.id===item.id);
+
+  if(exists){
+    favs=favs.filter(f=>f.id!==item.id);
+  }else{
+    favs.push(item);
+  }
+
+  localStorage.setItem("fav",JSON.stringify(favs));
 }
 
-/* =========================
-   CHAT SYSTEM
-========================= */
-const API =
-"https://script.google.com/macros/s/AKfycbzin84qDcZ9L1q4pTBtHZGKJSTDcZ_wnmgWmnmgPgf1jrc1nRprzbEBixKMSHcdkxiZBg/exec";
+function showFavs(){
+  list=favs;
+  render();
+}
+
+/* ================= CHAT ================= */
+const API="https://script.google.com/macros/s/AKfycbzin84qDcZ9L1q4pTBtHZGKJSTDcZ_wnmgWmnmgPgf1jrc1nRprzbEBixKMSHcdkxiZBg/exec";
 
 function room(){
-  const arr = mode==="video" ? videoList : radioList;
-  return arr[index]?.url || "global";
+  return list[index]?.id || "global";
 }
 
 async function loadChat(){
-  const res = await fetch(API,{
+  const res=await fetch(API,{
     method:"POST",
-    body: JSON.stringify({
+    body:JSON.stringify({
       action:"get",
       station:room()
     })
   });
 
-  const data = await res.json();
+  const data=await res.json();
   renderChat(data);
 }
 
 function renderChat(data){
-  const box = document.getElementById("chatLog");
+  const box=document.getElementById("chatLog");
   box.innerHTML="";
-
   (data||[]).forEach(m=>{
-    box.innerHTML += `<div><b>${m.name}:</b> ${m.message}</div>`;
+    box.innerHTML+=`<div><b>${m.name}:</b> ${m.message}</div>`;
   });
-
-  box.scrollTop = box.scrollHeight;
+  box.scrollTop=box.scrollHeight;
 }
 
 async function send(){
-  const name = document.getElementById("name").value;
-  const msg = document.getElementById("msg").value;
+  const name=document.getElementById("name").value||"anon";
+  const msg=document.getElementById("msg").value;
 
   await fetch(API,{
     method:"POST",
-    body: JSON.stringify({
+    body:JSON.stringify({
       action:"send",
       station:room(),
       name,
@@ -368,20 +306,27 @@ async function send(){
   loadChat();
 }
 
-/* =========================
-   CHAT TOGGLE
-========================= */
+/* ================= CHAT TOGGLE ================= */
 function toggleChat(){
-  const c = document.getElementById("chat");
-  c.style.display = c.style.display==="flex" ? "none":"flex";
+  const c=document.getElementById("chat");
+  c.style.display=c.style.display==="flex"?"none":"flex";
   if(c.style.display==="flex") loadChat();
 }
 
-/* =========================
-   INIT
-========================= */
+/* ================= THEME ================= */
+function toggleTheme(){
+  document.body.classList.toggle("light");
+}
+
+/* ================= INIT ================= */
 loadVideo();
 
+/* ================= KEYBOARD ================= */
+document.addEventListener("keydown",(e)=>{
+  if(e.key==="ArrowRight") next();
+  if(e.key==="ArrowLeft") prev();
+  if(e.key===" ") toggle();
+});
 </script>
 
 </body>
