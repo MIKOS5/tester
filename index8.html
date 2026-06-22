@@ -1,76 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
+<meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Obvyris Media OS v2.4</title>
+<title>Obvyris Media OS v2.3</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2793ff">
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
 <style>
+:root{
+  --bg:#0b0f18;
+  --panel:#111827;
+  --text:#fff;
+  --muted:#94a3b8;
+  --blue:#2793ff;
+}
+
 body{
   margin:0;
   font-family:Arial;
-  background:#0b0f18;
-  color:white;
+  background:var(--bg);
+  color:var(--text);
   display:flex;
   height:100vh;
-}
-
-.sidebar{
-  width:340px;
-  background:#111827;
-  display:flex;
-  flex-direction:column;
   overflow:hidden;
 }
 
-.header{
-  padding:10px;
-  font-weight:900;
-}
-
-#list{
-  flex:1;
+/* SIDEBAR */
+.sidebar{
+  width:320px;
+  background:var(--panel);
   overflow:auto;
   padding:10px;
 }
 
-.card{
-  background:#1f2937;
+.title{font-size:22px;font-weight:900}
+
+button{
   padding:10px;
-  margin:6px 0;
-  border-radius:10px;
+  border:none;
+  border-radius:8px;
+  background:var(--blue);
+  color:#fff;
+  font-weight:700;
   cursor:pointer;
 }
 
-.card:hover{
-  background:#374151;
-}
+.mode{display:flex;gap:10px;margin:10px 0}
 
+/* MAIN */
 .main{
   flex:1;
-  display:flex;
-  flex-direction:column;
+  overflow:auto;
 }
 
 video{
   width:100%;
-  height:70vh;
+  height:55vh;
   background:black;
 }
 
-.controls{
+/* CARD */
+.card{
+  background:var(--panel);
+  margin:6px;
   padding:10px;
+  border-radius:10px;
+  cursor:pointer;
+  border:1px solid #222;
 }
 
-button{
-  padding:10px;
-  margin:5px;
-  background:#2793ff;
-  border:none;
-  color:white;
-  border-radius:8px;
+/* INFINITE SCROLL BUFFER */
+#sentinel{
+  height:60px;
 }
 </style>
 </head>
@@ -78,240 +83,229 @@ button{
 <body>
 
 <div class="sidebar">
+  <div class="title">📡 Obvyris OS v2.3</div>
 
-  <div class="header">📡 Obvyris Media OS v2.4</div>
-
-  <button onclick="setMode('video')">📺 Video</button>
-  <button onclick="setMode('radio')">📻 Radio</button>
-
-  <div class="controls">
-    <button onclick="prevPage()">⬅ Prev Page</button>
-    <button onclick="nextPage()">Next Page ➡</button>
+  <div class="mode">
+    <button onclick="setMode('video')">📺 Video</button>
+    <button onclick="setMode('radio')">📻 Radio</button>
+    <button onclick="setMode('sheet')">📡 Sheets</button>
   </div>
 
-  <div id="list"></div>
+  <button onclick="toggleTheme()">🌙 Theme</button>
 
+  <div id="list"></div>
 </div>
 
 <div class="main">
 
-  <video id="player" controls autoplay></video>
+  <video id="video" controls autoplay></video>
+
+  <div style="padding:10px;display:flex;gap:10px;">
+    <button onclick="prev()">⏮</button>
+    <button onclick="toggle()">▶</button>
+    <button onclick="next()">⏭</button>
+  </div>
 
 </div>
 
 <script>
 
-/* =========================
-   STATE
-========================= */
+/* ================= STATE ================= */
+let mode="video";
+let index=0;
 
-let mode = "video";
+let videoList=[];
+let radioList=[];
+let sheetList=[];
+let feed=[];
+let page=0;
+const PAGE_SIZE=80;
 
-let list = [];
-let filtered = [];
+const video=document.getElementById("video");
 
-let page = 0;
-const PAGE_SIZE = 200;
-
-let feed = [];
-
-const player = document.getElementById("player");
-
-/* =========================
-   📺 FIXED M3U PARSER
-========================= */
-
+/* ================= M3U PARSER (FIXED NAMES) ================= */
 async function loadVideo(){
+  const res=await fetch("https://iptv-org.github.io/iptv/index.m3u");
+  const text=await res.text();
 
-  const res = await fetch("https://iptv-org.github.io/iptv/index.m3u");
-  const text = await res.text();
+  const lines=text.split("\n");
+  let name="";
 
-  const lines = text.split("\n");
-
-  list = [];
-
-  let currentName = "Unknown Channel";
-  let currentGroup = "General";
+  videoList=[];
 
   for(let l of lines){
-
-    l = l.trim();
-
-    // NAME LINE
     if(l.startsWith("#EXTINF")){
-
-      const nameMatch = l.split(",");
-      currentName = nameMatch[1] || "Unknown Channel";
-
-      const groupMatch = l.match(/group-title="(.*?)"/);
-      currentGroup = groupMatch ? groupMatch[1] : "General";
+      name=l.split(",")[1]||"Channel";
     }
-
-    // URL LINE
-    else if(l.startsWith("http")){
-
-      list.push({
-        name: currentName,
-        group: currentGroup,
-        url: l,
-        type:"video"
-      });
-
-      currentName = "Unknown Channel";
-      currentGroup = "General";
+    if(l.startsWith("http")){
+      videoList.push({name,url:l.trim()});
     }
   }
 
-  resetAndRender();
+  render();
 }
 
-/* =========================
-   RADIO
-========================= */
-
+/* ================= RADIO ================= */
 async function loadRadio(){
+  const res=await fetch("https://all.api.radio-browser.info/json/stations/search?limit=500");
+  const data=await res.json();
 
-  const res = await fetch("https://all.api.radio-browser.info/json/stations/search?limit=500");
-  const data = await res.json();
-
-  list = data.map(s => ({
-    name: s.name,
-    url: s.url_resolved,
-    type:"radio"
+  radioList=data.map(s=>({
+    name:s.name,
+    url:s.url_resolved,
+    id:s.stationuuid
   }));
 
-  resetAndRender();
+  render();
 }
 
-/* =========================
-   RESET
-========================= */
+/* ================= SHEETS BLEND ================= */
+const SHEET="https://script.google.com/macros/s/AKfycbzZ5MwOcYUY_bpsUKSxPd810xE8rV_Y3z2GwzPublb_4O60CP8L_lC_V2kqkCQ_JdF5/exec";
 
-function resetAndRender(){
-  page = 0;
-  feed = [];
-  filtered = list;
-  renderPage(true);
-}
+async function loadSheets(){
+  const actions=[
+    "get","mood","misc","international","undiscovered","international2","artistal","artistmz"
+  ];
 
-/* =========================
-   PAGED FEED SYSTEM
-========================= */
+  sheetList=[];
 
-function getPageData(){
-  const start = page * PAGE_SIZE;
-  return filtered.slice(start, start + PAGE_SIZE);
-}
+  for(let a of actions){
+    try{
+      const res=await fetch(SHEET+"?action="+a);
+      const json=await res.json();
 
-function renderPage(resetFeed = true){
+      const arr=(json.data||json||[]).map(s=>({
+        name:s.name,
+        url:s.url,
+        type:a,
+        id:s.id
+      }));
 
-  const el = document.getElementById("list");
+      sheetList.push(...arr);
 
-  if(resetFeed){
-    el.innerHTML = "";
-    feed = [];
+    }catch(e){}
   }
 
-  const pageData = getPageData();
+  render();
+}
 
-  const next = pageData.slice(feed.length, feed.length + 25);
+/* ================= MODE ================= */
+function setMode(m){
+  mode=m;
+  index=0;
 
-  feed.push(...next);
+  if(m==="video") loadVideo();
+  if(m==="radio") loadRadio();
+  if(m==="sheet") loadSheets();
+}
 
-  el.innerHTML = "";
+/* ================= UNIFIED FEED ================= */
+function getSource(){
+  if(mode==="video") return videoList;
+  if(mode==="radio") return radioList;
+  return sheetList;
+}
+
+/* ================= VIRTUAL INFINITE RENDER ================= */
+function render(reset=true){
+  const el=document.getElementById("list");
+  const arr=getSource();
+
+  if(reset){
+    el.innerHTML="";
+    feed=[];
+    page=0;
+  }
+
+  const start=page*PAGE_SIZE;
+  const chunk=arr.slice(start,start+PAGE_SIZE);
+
+  feed.push(...chunk);
+
+  el.innerHTML="";
 
   feed.forEach((item,i)=>{
-
-    const div = document.createElement("div");
-    div.className = "card";
-
-    div.innerHTML = `
-      <div><b>${item.name}</b></div>
-      <div style="font-size:11px;opacity:.6">${item.group || item.type}</div>
-    `;
-
-    div.onclick = () => play(i);
-
+    const div=document.createElement("div");
+    div.className="card";
+    div.innerHTML=`${item.name}<br><small>${item.type||""}</small>`;
+    div.onclick=()=>play(i);
     el.appendChild(div);
   });
+
+  observeScroll();
 }
 
-/* =========================
-   INFINITE SCROLL
-========================= */
+/* ================= AUTO LOAD MORE ================= */
+function observeScroll(){
+  const main=document.querySelector(".main");
 
-document.getElementById("list").addEventListener("scroll",(e)=>{
-
-  const el = e.target;
-
-  const nearBottom =
-    el.scrollTop + el.clientHeight >= el.scrollHeight - 120;
-
-  if(nearBottom){
-
-    const pageData = getPageData();
-
-    if(feed.length < pageData.length){
-      renderPage(false);
+  main.onscroll=()=>{
+    if(main.scrollTop+main.clientHeight>=main.scrollHeight-200){
+      loadMore();
     }
-  }
-});
+  };
+}
 
-/* =========================
-   PLAY
-========================= */
+function loadMore(){
+  const arr=getSource();
 
+  if(feed.length>=arr.length) return;
+
+  page++;
+  const start=page*PAGE_SIZE;
+  const chunk=arr.slice(start,start+PAGE_SIZE);
+
+  feed.push(...chunk);
+  render(false);
+}
+
+/* ================= PLAY ================= */
 function play(i){
+  index=i;
 
-  const item = feed[i];
+  const arr=getSource();
+  const item=arr[i];
   if(!item) return;
 
-  if(item.url.includes(".m3u8") && Hls.isSupported()){
-    const hls = new Hls();
-    hls.loadSource(item.url);
-    hls.attachMedia(player);
-  } else {
-    player.src = item.url;
-  }
-
-  player.play();
-}
-
-/* =========================
-   PAGE CONTROLS
-========================= */
-
-function nextPage(){
-  const maxPages = Math.ceil(filtered.length / PAGE_SIZE);
-
-  if(page < maxPages - 1){
-    page++;
-    renderPage(true);
+  if(mode==="video"){
+    if(item.url.includes(".m3u8") && Hls.isSupported()){
+      const hls=new Hls();
+      hls.loadSource(item.url);
+      hls.attachMedia(video);
+    }else{
+      video.src=item.url;
+    }
+    video.play();
+  }else{
+    video.src=item.url;
+    video.play();
   }
 }
 
-function prevPage(){
-  if(page > 0){
-    page--;
-    renderPage(true);
-  }
+/* ================= CONTROLS ================= */
+function next(){
+  const arr=getSource();
+  index=(index+1)%arr.length;
+  play(index);
 }
 
-/* =========================
-   MODE SWITCH
-========================= */
-
-function setMode(m){
-  mode = m;
-
-  if(m === "video") loadVideo();
-  else loadRadio();
+function prev(){
+  const arr=getSource();
+  index=(index-1+arr.length)%arr.length;
+  play(index);
 }
 
-/* =========================
-   INIT
-========================= */
+function toggle(){
+  if(video.paused) video.play();
+  else video.pause();
+}
 
+/* ================= THEME ================= */
+function toggleTheme(){
+  document.body.classList.toggle("light");
+}
+
+/* ================= INIT ================= */
 loadVideo();
 
 </script>
