@@ -1,47 +1,31 @@
-const CACHE_NAME = "obvyris-pro-v1";
+const CACHE_NAME = "obvyris-v1";
 
-// IMPORTANT: use full /tester/ paths for GitHub Pages stability
 const FILES = [
-  "/tester/index99.html",
-  "/tester/manifest.json",
-  "/tester/R192.png",
-  "/tester/R512.png",
-  "/tester/Radio_Obvyris.html",
-  "/tester/Video_Obvyris.html"
+  "./index99.html",
+  "./manifest.json",
+  "./R192.png",
+  "./R512.png"
 ];
 
 // INSTALL
 self.addEventListener("install", event => {
-  self.skipWaiting(); // forces new SW to activate immediately
+  self.skipWaiting();
 
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(FILES);
-    })
+    caches.open(CACHE_NAME).then(cache => cache.addAll(FILES))
   );
 });
 
 // ACTIVATE
 self.addEventListener("activate", event => {
-  event.waitUntil(
-    clients.claim() // forces control of pages immediately
-  );
+  event.waitUntil(clients.claim());
 });
 
-// FETCH (cache-first with network fallback)
+// FETCH (safe fallback)
 self.addEventListener("fetch", event => {
   event.respondWith(
-    caches.match(event.request).then(cached => {
-      if (cached) return cached;
-
-      return fetch(event.request).then(networkResponse => {
-        return caches.open(CACHE_NAME).then(cache => {
-          cache.put(event.request, networkResponse.clone());
-          return networkResponse;
-        });
-      }).catch(() => {
-        // optional offline fallback could go here
-      });
+    caches.match(event.request).then(res => {
+      return res || fetch(event.request);
     })
   );
 });
