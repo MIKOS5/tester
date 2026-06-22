@@ -219,6 +219,7 @@ body{
 const API_URL = "https://script.google.com/macros/s/AKfycbzin84qDcZ9L1q4pTBtHZGKJSTDcZ_wnmgWmnmgPgf1jrc1nRprzbEBixKMSHcdkxiZBg/exec";
 
 let messages = [];
+let roomNames = {};
 let activeRoom = "global";
 let popupOpen = false;
 let lastHash = "";
@@ -230,11 +231,26 @@ async function load(){
   try {
     const res = await fetch(API_URL, {
       method: "POST",
-      body: JSON.stringify({ action: "get", station: "" })
+      body: JSON.stringify({
+        action: "get",
+        station: ""
+      })
     });
 
     const data = await res.json();
     messages = Array.isArray(data) ? data : [];
+
+    // BUILD ROOM NAME MAP (station → stationName)
+    roomNames = {};
+
+    for (let m of messages) {
+      if (m.station && m.stationName) {
+        // only set once so it doesn't keep overwriting
+        if (!roomNames[m.station]) {
+          roomNames[m.station] = m.stationName;
+        }
+      }
+    }
 
     renderRooms();
 
@@ -333,7 +349,7 @@ function toggleRoomPopup(){
 async function loadPopup(){
 
   const title = document.getElementById("popupTitle");
-  title.innerText = "💬 " + activeRoom;
+  title.innerText = "💬 " + (roomNames[activeRoom] || activeRoom);
 
   const res = await fetch(API_URL, {
     method:"POST",
