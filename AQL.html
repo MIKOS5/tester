@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>QA AQL Control Panel</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      background: #0f172a;
+      color: white;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background: #1e293b;
+      padding: 15px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      height: 100vh;
+    }
+
+    .sidebar {
+      background: #111827;
+      padding: 10px;
+    }
+
+    .sidebar button {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      background: #334155;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .sidebar button:hover {
+      background: #475569;
+    }
+
+    .content {
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 8px;
+      margin: 5px 0;
+    }
+
+    .card {
+      background: #1e293b;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    button.action {
+      background: #22c55e;
+      padding: 10px;
+      border: none;
+      color: white;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    button.action:hover {
+      background: #16a34a;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  QA / AQL Inspection System (Google Sheets Backend)
+</header>
+
+<div class="container">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <button onclick="loadDashboard()">Dashboard</button>
+    <button onclick="loadInspection()">New Inspection</button>
+    <button onclick="loadSettings()">AQL Settings</button>
+    <button onclick="loadData()">View Data</button>
+  </div>
+
+  <!-- MAIN -->
+  <div class="content" id="app"></div>
+
+</div>
+
+<script>
+
+const API_BASE = "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec";
+
+// ---------------- DASHBOARD ----------------
+function loadDashboard() {
+  document.getElementById("app").innerHTML = `
+    <div class="card">
+      <h2>QA Dashboard</h2>
+      <button class="action" onclick="fetchStats()">Load Stats</button>
+      <div id="stats"></div>
+    </div>
+  `;
+}
+
+async function fetchStats() {
+  let res = await fetch(API_BASE + "?action=getStats");
+  let data = await res.json();
+
+  let html = "<h3>Daily Stats</h3>";
+
+  data.forEach(d => {
+    html += `
+      <div class="card">
+        <b>Date:</b> ${d.date}<br>
+        <b>Brand:</b> ${d.brand_id}<br>
+        <b>Merchant:</b> ${d.merchant_id}<br>
+        <b>Failure Rate:</b> ${d.failure_rate}%
+      </div>
+    `;
+  });
+
+  document.getElementById("stats").innerHTML = html;
+}
+
+// ---------------- INSPECTION ----------------
+function loadInspection() {
+  document.getElementById("app").innerHTML = `
+    <div class="card">
+      <h2>New Inspection</h2>
+
+      <input id="inspector" placeholder="Inspector Name">
+      <input id="brand" placeholder="Brand ID (B1)">
+      <input id="merchant" placeholder="Merchant ID (M1)">
+      <input id="product" placeholder="Product ID (P1)">
+      <input id="lot" placeholder="Lot Size">
+      <input id="sample" placeholder="Sample Size">
+
+      <div class="row">
+        <input id="critical" placeholder="Critical Defects">
+        <input id="major" placeholder="Major Defects">
+      </div>
+
+      <input id="minor" placeholder="Minor Defects">
+
+      <select id="result">
+        <option>PASS</option>
+        <option>FAIL</option>
+      </select>
+
+      <button class="action" onclick="submitInspection()">Submit Inspection</button>
+
+      <div id="msg"></div>
+    </div>
+  `;
+}
+
+async function submitInspection() {
+
+  const body = {
+    inspector: document.getElementById("inspector").value,
+    brand_id: document.getElementById("brand").value,
+    merchant_id: document.getElementById("merchant").value,
+    product_id: document.getElementById("product").value,
+    lot_size: Number(document.getElementById("lot").value),
+    sample_size: Number(document.getElementById("sample").value),
+    defects_total: 0,
+    critical_count: Number(document.getElementById("critical").value),
+    major_count: Number(document.getElementById("major").value),
+    minor_count: Number(document.getElementById("minor").value),
+    result: document.getElementById("result").value
+  };
+
+  let res = await fetch(API_BASE + "?action=createInspection", {
+    method: "POST",
+    body: JSON.stringify(body)
+  });
+
+  let data = await res.json();
+
+  document.getElementById("msg").innerHTML =
+    "Saved Inspection ID: " + data.inspection_id;
+}
+
+// ---------------- SETTINGS (AQL TOGGLE) ----------------
+function loadSettings() {
+  document.getElementById("app").innerHTML = `
+    <div class="card">
+      <h2>AQL Settings</h2>
+
+      <select id="aqlLevel">
+        <option value="I">Level I (Low)</option>
+        <option value="II">Level II (Standard)</option>
+        <option value="III">Level III (Strict)</option>
+      </select>
+
+      <input id="defaultAQL" placeholder="Default AQL (e.g. 1.0, 2.5)">
+
+      <button class="action" onclick="saveSettings()">Save Settings</button>
+
+      <div id="settingsMsg"></div>
+    </div>
+  `;
+}
+
+async function saveSettings() {
+
+  const data = {
+    inspection_level: document.getElementById("aqlLevel").value,
+    default_aql: document.getElementById("defaultAQL").value
+  };
+
+  // NOTE: You must add updateSettings endpoint in Apps Script
+  let res = await fetch(API_BASE + "?action=updateSettings", {
+    method: "POST",
+    body: JSON.stringify(data)
+  });
+
+  document.getElementById("settingsMsg").innerHTML =
+    "Settings updated!";
+}
+
+// ---------------- VIEW DATA ----------------
+function loadData() {
+  document.getElementById("app").innerHTML = `
+    <div class="card">
+      <h2>Live Data</h2>
+      <button class="action" onclick="loadBrands()">Load Brands</button>
+      <button class="action" onclick="loadProducts()">Load Products</button>
+      <div id="dataView"></div>
+    </div>
+  `;
+}
+
+async function loadBrands() {
+  let res = await fetch(API_BASE + "?action=getBrands");
+  let data = await res.json();
+
+  let html = "<h3>Brands</h3>";
+  data.forEach(b => {
+    html += `<div class="card">${b.brand_id} - ${b.brand_name}</div>`;
+  });
+
+  document.getElementById("dataView").innerHTML = html;
+}
+
+async function loadProducts() {
+  let res = await fetch(API_BASE + "?action=getProducts");
+  let data = await res.json();
+
+  let html = "<h3>Products</h3>";
+  data.forEach(p => {
+    html += `<div class="card">${p.product_id} - ${p.description}</div>`;
+  });
+
+  document.getElementById("dataView").innerHTML = html;
+}
+
+// default load
+loadDashboard();
+
+</script>
+
+</body>
+</html>
