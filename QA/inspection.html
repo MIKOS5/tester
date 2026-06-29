@@ -333,7 +333,12 @@ async function submitInspection() {
     };
 
     const data = await api("createInspection", payload);
-    const r = data.aql_result;
+
+if (!data || !data.aql_result) {
+  throw new Error(data?.error || "Invalid API response");
+}
+
+const r = data.aql_result;
 
     const record = {
       time: new Date().toLocaleString(),
