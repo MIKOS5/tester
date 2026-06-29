@@ -29,10 +29,9 @@ body {
   margin-bottom: 10px;
   padding: 10px;
   background: #334155;
+  border: none;
   color: white;
-  border: 0;
   border-radius: 6px;
-  cursor: pointer;
 }
 
 .content {
@@ -42,9 +41,9 @@ body {
 
 .card {
   background: #1e293b;
-  padding: 15px;
-  margin-bottom: 15px;
+  padding: 16px;
   border-radius: 10px;
+  margin-bottom: 12px;
 }
 
 input, select {
@@ -69,12 +68,13 @@ button.run {
   background: #22c55e;
   border: none;
   font-weight: bold;
-  cursor: pointer;
   border-radius: 6px;
+  cursor: pointer;
 }
 
 .pass { background: #16a34a; padding: 10px; border-radius: 8px; }
 .fail { background: #ef4444; padding: 10px; border-radius: 8px; }
+.warn { background: #f59e0b; padding: 10px; border-radius: 8px; color: black; }
 
 .small { font-size: 12px; color: #94a3b8; }
 </style>
@@ -94,63 +94,46 @@ button.run {
 <div class="content">
 
   <div class="card">
-    <h2>AQL Inspection Engine</h2>
-    <div class="small">Production-safe frontend (JSON guarded + fallback safe parsing)</div>
+    <h2>AQL Engine</h2>
+    <div class="small">Safe frontend (HTML-proof API parser)</div>
   </div>
 
   <div class="card">
 
-    <label>Inspector</label>
-    <input id="inspector">
+    <input id="inspector" placeholder="Inspector">
 
     <div class="row">
-      <div>
-        <label>Brand ID</label>
-        <input id="brand">
-      </div>
-      <div>
-        <label>Merchant ID</label>
-        <input id="merchant">
-      </div>
+      <input id="brand" placeholder="Brand ID">
+      <input id="merchant" placeholder="Merchant ID">
     </div>
 
-    <label>Product ID</label>
-    <input id="product">
+    <input id="product" placeholder="Product ID">
 
     <div class="row">
-      <div>
-        <label>AQL Level</label>
-        <select id="level">
-          <option>I</option>
-          <option selected>II</option>
-          <option>III</option>
-        </select>
-      </div>
+      <select id="level">
+        <option value="I">Level I</option>
+        <option value="II" selected>Level II</option>
+        <option value="III">Level III</option>
+      </select>
 
-      <div>
-        <label>AQL Value</label>
-        <input id="aql" value="2.5">
-      </div>
+      <input id="aql" value="2.5">
     </div>
 
-    <label>Lot Size</label>
-    <input id="lot" type="number">
+    <input id="lot" type="number" placeholder="Lot Size">
 
     <div class="row">
-      <div><label>Critical</label><input id="c" type="number" value="0"></div>
-      <div><label>Major</label><input id="m" type="number" value="0"></div>
+      <input id="critical" type="number" value="0">
+      <input id="major" type="number" value="0">
     </div>
 
-    <label>Minor</label>
-    <input id="mi" type="number" value="0">
+    <input id="minor" type="number" value="0">
 
     <button class="run" onclick="run()">RUN INSPECTION</button>
 
   </div>
 
   <div class="card">
-    <h3>Result</h3>
-    <div id="out"></div>
+    <div id="result"></div>
   </div>
 
 </div>
@@ -158,53 +141,61 @@ button.run {
 
 <script>
 
-/* ================= SAFE API CALL ================= */
-async function api(action, payload) {
+const API = "YOUR_APPS_SCRIPT_URL_HERE";
 
-  const url = "YOUR_SCRIPT_URL_HERE"; // IMPORTANT
+/* ================= SAFE FETCH ================= */
+async function safeFetch(payload) {
 
-  const res = await fetch(url + "?action=" + action, {
+  const res = await fetch(API, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "text/plain" },
     body: JSON.stringify(payload)
   });
 
   const text = await res.text();
 
-  // 🔥 HANDLE HTML ERROR (your current issue)
-  if (text.trim().startsWith("<")) {
-    throw new Error("Server returned HTML instead of JSON (Apps Script error)");
+  // 🔥 HARD GUARD: prevents "<html>" crash
+  if (!text || text.trim().startsWith("<")) {
+    console.error("BAD RESPONSE:", text);
+    throw new Error("Backend returned HTML (deployment or permission issue)");
   }
 
   try {
     return JSON.parse(text);
   } catch (e) {
-    throw new Error("Invalid JSON response: " + text);
+    console.error("INVALID JSON:", text);
+    throw new Error("Invalid JSON response from backend");
   }
 }
 
-/* ================= RUN INSPECTION ================= */
+/* ================= RUN ================= */
 async function run() {
 
-  const out = document.getElementById("out");
+  const out = document.getElementById("result");
   out.innerHTML = "Running...";
 
   const payload = {
+    action: "createInspection",
     inspector: val("inspector"),
     brand_id: val("brand"),
     merchant_id: val("merchant"),
     product_id: val("product"),
-    inspection_level: val("level"),
-    aql_value: parseFloat(val("aql")),
-    lot_size: parseInt(val("lot")),
-    critical_count: parseInt(val("c")),
-    major_count: parseInt(val("m")),
-    minor_count: parseInt(val("mi"))
+    inspection_level: norm(val("level")),
+    aql_value: parseFloat(val("aql")) || 0,
+    lot_size: parseInt(val("lot")) || 0,
+    critical_count: parseInt(val("critical")) || 0,
+    major_count: parseInt(val("major")) || 0,
+    minor_count: parseInt(val("minor")) || 0
   };
 
   try {
 
-    const data = await api("createInspection", payload);
+    const data = await safeFetch(payload);
+
+    if (!data.aql_result) {
+      out.innerHTML = `<div class="warn">${JSON.stringify(data)}</div>`;
+      return;
+    }
 
     const r = data.aql_result;
 
@@ -225,8 +216,10 @@ async function run() {
 }
 
 /* ================= HELPERS ================= */
-function val(id) {
-  return document.getElementById(id).value;
+function val(id){ return document.getElementById(id).value; }
+
+function norm(v){
+  return String(v).toUpperCase().replace("LEVEL","").replace(/\s+/g,"").trim();
 }
 
 </script>
