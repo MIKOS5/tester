@@ -3,25 +3,36 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>QA AQL Inspection Engine</title>
-
-<link rel="stylesheet" href="css/style.css">
+<title>AQL Inspection Engine</title>
 
 <style>
-
-/* ================= GLOBAL ================= */
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: Arial;
   background: #0f172a;
-  color: #fff;
+  color: white;
 }
 
-/* ================= LAYOUT ================= */
 .container {
   display: grid;
   grid-template-columns: 260px 1fr;
   height: 100vh;
+}
+
+.sidebar {
+  background: #111827;
+  padding: 12px;
+}
+
+.sidebar button {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 8px;
+  background: #334155;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
 }
 
 .content {
@@ -29,53 +40,23 @@ body {
   overflow-y: auto;
 }
 
-/* ================= SIDEBAR ================= */
-.sidebar {
-  background: #111827;
-  padding: 10px;
-}
-
-.sidebar button {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
-  background: #334155;
-  color: white;
-  border: none;
-  cursor: pointer;
-  border-radius: 6px;
-}
-
-.sidebar button:hover {
-  background: #475569;
-}
-
-/* ================= CARDS ================= */
 .card {
   background: #1e293b;
-  padding: 15px;
+  padding: 16px;
   border-radius: 10px;
   margin-bottom: 12px;
 }
 
-/* ================= TEXT ================= */
-.page-title {
-  font-size: 22px;
+.title {
+  font-size: 20px;
   font-weight: bold;
 }
 
-.subtitle {
+.sub {
   font-size: 12px;
   color: #94a3b8;
 }
 
-.section-title {
-  font-size: 13px;
-  color: #cbd5e1;
-  margin: 10px 0;
-}
-
-/* ================= INPUTS ================= */
 input, select {
   width: 100%;
   padding: 10px;
@@ -87,76 +68,71 @@ input, select {
   border-radius: 6px;
 }
 
-/* ================= GRID ================= */
 .row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
 }
 
-.full {
-  grid-column: 1 / -1;
-}
-
-/* ================= BUTTON ================= */
-.action {
+button.action {
   width: 100%;
   padding: 12px;
   background: #22c55e;
   border: none;
-  color: white;
-  font-weight: bold;
   border-radius: 6px;
+  font-weight: bold;
   cursor: pointer;
 }
 
-.action:hover {
-  background: #16a34a;
+button.action:disabled {
+  background: #14532d;
+  cursor: not-allowed;
 }
 
-/* ================= RESULT ================= */
 .pass {
   background: #16a34a;
   padding: 12px;
-  border-radius: 10px;
+  border-radius: 8px;
 }
 
 .fail {
   background: #ef4444;
   padding: 12px;
-  border-radius: 10px;
-}
-
-.badge {
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-}
-
-.badge.pass { background: #065f46; }
-.badge.fail { background: #7f1d1d; }
-
-/* ================= HISTORY ================= */
-.history-item {
-  background: #0f172a;
-  padding: 10px;
   border-radius: 8px;
-  margin-top: 8px;
-  border: 1px solid #334155;
-  font-size: 12px;
 }
 
-/* ================= LOADING ================= */
-.loading {
-  color: #facc15;
+.warn {
+  background: #f59e0b;
+  padding: 12px;
+  border-radius: 8px;
+  color: black;
 }
 
-/* ================= SMALL ================= */
 .small {
   font-size: 12px;
   color: #94a3b8;
 }
 
+.history {
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+.history-item {
+  padding: 8px;
+  border: 1px solid #334155;
+  margin-top: 6px;
+  border-radius: 6px;
+}
+
+.debug {
+  font-size: 11px;
+  background: #0f172a;
+  border: 1px dashed #334155;
+  padding: 8px;
+  margin-top: 10px;
+  color: #94a3b8;
+}
 </style>
 </head>
 
@@ -164,30 +140,24 @@ input, select {
 
 <div class="container">
 
-<!-- SIDEBAR -->
 <div class="sidebar">
-  <a href="QAhome.html"><button>Home</button></a>
-  <a href="inspection.html"><button>Inspection</button></a>
-  <a href="dashboard.html"><button>Dashboard</button></a>
-  <a href="reports.html"><button>Reports</button></a>
+  <button>Home</button>
+  <button>Inspection</button>
+  <button>Dashboard</button>
+  <button>Reports</button>
 </div>
 
-<!-- MAIN -->
 <div class="content">
 
-  <!-- HEADER -->
   <div class="card">
-    <div class="page-title">AQL Inspection Engine</div>
-    <div class="subtitle">Production inspection system connected to Google Sheets API</div>
+    <div class="title">AQL Inspection Engine</div>
+    <div class="sub">Stable production frontend (fixed rule matching + validation)</div>
   </div>
 
-  <!-- FORM -->
   <div class="card">
 
-    <div class="section-title">Inspector Info</div>
-
-    <label>Inspector Name</label>
-    <input id="inspector" placeholder="John Doe">
+    <label>Inspector</label>
+    <input id="inspector">
 
     <div class="row">
       <div>
@@ -203,12 +173,10 @@ input, select {
     <label>Product ID</label>
     <input id="product">
 
-    <div class="section-title">Inspection Settings</div>
-
     <div class="row">
       <div>
         <label>AQL Level</label>
-        <select id="inspectionLevel">
+        <select id="level">
           <option value="I">Level I</option>
           <option value="II" selected>Level II</option>
           <option value="III">Level III</option>
@@ -217,188 +185,145 @@ input, select {
 
       <div>
         <label>AQL Value</label>
-        <input id="aqlValue" placeholder="2.5">
+        <input id="aql" value="2.5">
       </div>
     </div>
 
     <label>Lot Size</label>
     <input id="lot" type="number">
 
-    <div class="section-title">Defects</div>
-
     <div class="row">
       <div>
         <label>Critical</label>
         <input id="critical" type="number" value="0">
       </div>
-
       <div>
         <label>Major</label>
         <input id="major" type="number" value="0">
       </div>
-
-      <div class="full">
-        <label>Minor</label>
-        <input id="minor" type="number" value="0">
-      </div>
     </div>
 
-    <button class="action" onclick="submitInspection()">
-      RUN AQL INSPECTION
-    </button>
+    <label>Minor</label>
+    <input id="minor" type="number" value="0">
 
-    <div id="result" style="margin-top:15px;"></div>
+    <button class="action" id="runBtn" onclick="run()">RUN INSPECTION</button>
+
+    <div id="result"></div>
+    <div id="debug"></div>
+
   </div>
 
-  <!-- HISTORY -->
   <div class="card">
-    <div class="section-title">Recent Inspections</div>
+    <div class="title">History</div>
     <div id="history"></div>
   </div>
 
 </div>
 </div>
 
-<script src="js/api.js"></script>
-
 <script>
-  console.log("API loaded:", typeof api);
-</script>
+const API = "YOUR_APPS_SCRIPT_URL";
 
-<script>
+let history = JSON.parse(localStorage.getItem("aql_history") || "[]");
 
-/* ================= STATE ================= */
-let historyLog = JSON.parse(localStorage.getItem("qa_history") || "[]");
+function val(id){ return document.getElementById(id).value; }
 
-/* ================= INIT ================= */
-window.onload = () => {
-  loadDraft();
-  renderHistory();
-};
-
-/* ================= AUTO SAVE ================= */
-document.querySelectorAll("input, select").forEach(el => {
-  el.addEventListener("input", saveDraft);
-});
-
-/* ================= DRAFT ================= */
-function saveDraft() {
-  const draft = collectForm();
-  localStorage.setItem("qa_draft", JSON.stringify(draft));
+function normLevel(v){
+  return String(v).toUpperCase().replace("LEVEL","").replace(/\s+/g,"").trim();
 }
 
-function loadDraft() {
-  const draft = JSON.parse(localStorage.getItem("qa_draft") || "{}");
-  Object.keys(draft).forEach(k => {
-    const el = document.getElementById(k);
-    if (el) el.value = draft[k];
-  });
+function show(el, html){ document.getElementById(el).innerHTML = html; }
+
+function saveHistory(item){
+  history.unshift(item);
+  history = history.slice(0, 10);
+  localStorage.setItem("aql_history", JSON.stringify(history));
 }
 
-/* ================= COLLECT ================= */
-function collectForm() {
-  return {
+function renderHistory(){
+  show("history",
+    history.map(h =>
+      `<div class="history-item">
+        <b>${h.decision}</b> - ${h.id}<br>
+        <span class="small">${h.time}</span>
+      </div>`
+    ).join("")
+  );
+}
+
+async function run(){
+
+  const btn = document.getElementById("runBtn");
+  btn.disabled = true;
+  btn.innerText = "Running...";
+
+  const payload = {
+    action: "createInspection",
     inspector: val("inspector"),
-    brand: val("brand"),
-    merchant: val("merchant"),
-    product: val("product"),
-    inspectionLevel: val("inspectionLevel"),
-    aqlValue: val("aqlValue"),
-    lot: val("lot"),
-    critical: val("critical"),
-    major: val("major"),
-    minor: val("minor")
+    brand_id: val("brand"),
+    merchant_id: val("merchant"),
+    product_id: val("product"),
+    inspection_level: normLevel(val("level")),
+    aql_value: parseFloat(val("aql")) || 0,
+    lot_size: parseInt(val("lot")) || 0,
+    critical_count: parseInt(val("critical")) || 0,
+    major_count: parseInt(val("major")) || 0,
+    minor_count: parseInt(val("minor")) || 0
   };
-}
-
-/* ================= SUBMIT ================= */
-async function submitInspection() {
-
-  const resultBox = document.getElementById("result");
-  resultBox.innerHTML = `<div class="loading">Running AQL Engine...</div>`;
 
   try {
 
-    const payload = {
-      inspector: val("inspector"),
-      brand_id: val("brand"),
-      merchant_id: val("merchant"),
-      product_id: val("product"),
-      inspection_level: val("inspectionLevel"),
-      aql_value: parseFloat(val("aqlValue")) || 0,
-      lot_size: parseInt(val("lot")) || 0,
-      critical_count: parseInt(val("critical")) || 0,
-      major_count: parseInt(val("major")) || 0,
-      minor_count: parseInt(val("minor")) || 0
-    };
+    const res = await fetch(API, {
+      method: "POST",
+      body: JSON.stringify(payload)
+    });
 
-    const data = await api("createInspection", payload);
+    const data = await res.json();
 
-if (!data || !data.aql_result) {
-  throw new Error(data?.error || "Invalid API response");
-}
+    if(!data.aql_result){
+      show("result", `<div class="warn">API ERROR: ${JSON.stringify(data)}</div>`);
+      return;
+    }
 
-const r = data.aql_result;
+    const r = data.aql_result;
 
-    const record = {
-      time: new Date().toLocaleString(),
+    show("result", `
+      <div class="${r.decision === "PASS" ? "pass" : "fail"}">
+        <b>${r.decision}</b><br>
+        ID: ${data.inspection_id}<br>
+        Sample: ${r.sampleSize}<br>
+        Defects: ${r.defects}<br>
+        Accept: ${r.accept}<br>
+        Reject: ${r.reject}<br>
+        <div class="small">${r.reason}</div>
+      </div>
+    `);
+
+    show("debug", `
+      <div class="debug">
+        Level Sent: ${payload.inspection_level}<br>
+        AQL Sent: ${payload.aql_value}<br>
+        Lot: ${payload.lot_size}<br>
+      </div>
+    `);
+
+    saveHistory({
+      id: data.inspection_id,
       decision: r.decision,
-      id: data.inspection_id
-    };
-
-    historyLog.unshift(record);
-    historyLog = historyLog.slice(0, 10);
-    localStorage.setItem("qa_history", JSON.stringify(historyLog));
+      time: new Date().toLocaleString()
+    });
 
     renderHistory();
 
-    resultBox.innerHTML = `
-      <div class="${r.decision === 'PASS' ? 'pass' : 'fail'}">
-
-        <h3>${r.decision}</h3>
-
-        <p><b>ID:</b> ${data.inspection_id}</p>
-        <p><b>Sample:</b> ${r.sampleSize}</p>
-        <p><b>Defects:</b> ${r.defects}</p>
-        <p><b>Accept:</b> ${r.accept}</p>
-        <p><b>Reject:</b> ${r.reject}</p>
-
-        <p class="small">${r.reason}</p>
-      </div>
-    `;
-
-  } catch (err) {
-    resultBox.innerHTML = `<div class="fail">ERROR: ${err.message}</div>`;
-  }
-}
-
-/* ================= HISTORY ================= */
-function renderHistory() {
-  const el = document.getElementById("history");
-
-  if (!historyLog.length) {
-    el.innerHTML = `<div class="small">No inspections yet</div>`;
-    return;
+  } catch(err){
+    show("result", `<div class="fail">ERROR: ${err.message}</div>`);
   }
 
-  el.innerHTML = historyLog.map(h => `
-    <div class="history-item">
-      <b>${h.decision}</b> — ${h.id}<br>
-      <span class="small">${h.time}</span>
-    </div>
-  `).join("");
+  btn.disabled = false;
+  btn.innerText = "RUN INSPECTION";
 }
 
-/* ================= HELPERS ================= */
-function val(id) {
-  return document.getElementById(id).value;
-}
-
-/* ================= ENTER KEY ================= */
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") submitInspection();
-});
-
+renderHistory();
 </script>
 
 </body>
