@@ -8,9 +8,9 @@
 <style>
 body {
   margin: 0;
-  font-family: Arial;
+  font-family: Arial, sans-serif;
   background: #0f172a;
-  color: white;
+  color: #fff;
 }
 
 .container {
@@ -21,17 +21,18 @@ body {
 
 .sidebar {
   background: #111827;
-  padding: 10px;
+  padding: 12px;
 }
 
 .sidebar button {
   width: 100%;
-  margin-bottom: 10px;
   padding: 10px;
+  margin-bottom: 8px;
   background: #334155;
-  border: none;
-  color: white;
+  border: 0;
+  color: #fff;
   border-radius: 6px;
+  cursor: pointer;
 }
 
 .content {
@@ -46,13 +47,21 @@ body {
   margin-bottom: 12px;
 }
 
+h1 {
+  font-size: 20px;
+  margin: 0;
+}
+
+small { color: #94a3b8; }
+
 input, select {
   width: 100%;
   padding: 10px;
-  margin: 6px 0;
+  margin-top: 6px;
+  margin-bottom: 10px;
   background: #0f172a;
   border: 1px solid #334155;
-  color: white;
+  color: #fff;
   border-radius: 6px;
 }
 
@@ -66,17 +75,27 @@ button.run {
   width: 100%;
   padding: 12px;
   background: #22c55e;
-  border: none;
-  font-weight: bold;
+  border: 0;
   border-radius: 6px;
+  font-weight: bold;
   cursor: pointer;
 }
 
-.pass { background: #16a34a; padding: 10px; border-radius: 8px; }
-.fail { background: #ef4444; padding: 10px; border-radius: 8px; }
-.warn { background: #f59e0b; padding: 10px; border-radius: 8px; color: black; }
+.pass { background: #16a34a; padding: 12px; border-radius: 8px; }
+.fail { background: #ef4444; padding: 12px; border-radius: 8px; }
+.warn { background: #f59e0b; padding: 12px; border-radius: 8px; color: #000; }
 
-.small { font-size: 12px; color: #94a3b8; }
+.debug {
+  font-size: 12px;
+  color: #94a3b8;
+  border-top: 1px solid #334155;
+  margin-top: 10px;
+  padding-top: 10px;
+}
+
+.history {
+  font-size: 12px;
+}
 </style>
 </head>
 
@@ -94,46 +113,66 @@ button.run {
 <div class="content">
 
   <div class="card">
-    <h2>AQL Engine</h2>
-    <div class="small">Safe frontend (HTML-proof API parser)</div>
+    <h1>AQL Inspection Engine</h1>
+    <small>Stable production-safe API frontend</small>
   </div>
 
   <div class="card">
 
-    <input id="inspector" placeholder="Inspector">
+    <label>Inspector</label>
+    <input id="inspector">
 
     <div class="row">
-      <input id="brand" placeholder="Brand ID">
-      <input id="merchant" placeholder="Merchant ID">
+      <div>
+        <label>Brand ID</label>
+        <input id="brand">
+      </div>
+      <div>
+        <label>Merchant ID</label>
+        <input id="merchant">
+      </div>
     </div>
 
-    <input id="product" placeholder="Product ID">
+    <label>Product ID</label>
+    <input id="product">
 
     <div class="row">
-      <select id="level">
-        <option value="I">Level I</option>
-        <option value="II" selected>Level II</option>
-        <option value="III">Level III</option>
-      </select>
-
-      <input id="aql" value="2.5">
+      <div>
+        <label>Level</label>
+        <select id="level">
+          <option value="I">I</option>
+          <option value="II" selected>II</option>
+          <option value="III">III</option>
+        </select>
+      </div>
+      <div>
+        <label>AQL</label>
+        <input id="aql" value="2.5">
+      </div>
     </div>
 
-    <input id="lot" type="number" placeholder="Lot Size">
+    <label>Lot Size</label>
+    <input id="lot" type="number">
 
     <div class="row">
-      <input id="critical" type="number" value="0">
-      <input id="major" type="number" value="0">
+      <div>
+        <label>Critical</label>
+        <input id="critical" type="number" value="0">
+      </div>
+      <div>
+        <label>Major</label>
+        <input id="major" type="number" value="0">
+      </div>
     </div>
 
+    <label>Minor</label>
     <input id="minor" type="number" value="0">
 
     <button class="run" onclick="run()">RUN INSPECTION</button>
 
-  </div>
-
-  <div class="card">
     <div id="result"></div>
+    <div id="debug"></div>
+
   </div>
 
 </div>
@@ -141,85 +180,96 @@ button.run {
 
 <script>
 
-const API = "YOUR_APPS_SCRIPT_URL_HERE";
+const API_URL = "https://script.google.com/macros/s/AKfycbzcjIipaNkV_TbzV7XswF8J-JvO6PJX6cDkV3rk-I1INVMF71ZYk41OyQXJtoXgUGHziw/exec";
 
-/* ================= SAFE FETCH ================= */
-async function safeFetch(payload) {
+function v(id){ return document.getElementById(id).value; }
 
-  const res = await fetch(API, {
+function safeParse(text){
+  try { return JSON.parse(text); }
+  catch { return null; }
+}
+
+async function api(payload){
+
+  const res = await fetch(API_URL, {
     method: "POST",
-    headers: { "Content-Type": "text/plain" },
+    headers: {
+      "Content-Type": "text/plain;charset=utf-8"
+    },
     body: JSON.stringify(payload)
   });
 
   const text = await res.text();
 
-  // 🔥 HARD GUARD: prevents "<html>" crash
-  if (!text || text.trim().startsWith("<")) {
-    console.error("BAD RESPONSE:", text);
-    throw new Error("Backend returned HTML (deployment or permission issue)");
+  // detect HTML error response
+  if(text.trim().startsWith("<")){
+    throw new Error("Server returned HTML (Apps Script error)");
   }
 
-  try {
-    return JSON.parse(text);
-  } catch (e) {
-    console.error("INVALID JSON:", text);
-    throw new Error("Invalid JSON response from backend");
+  const json = safeParse(text);
+
+  if(!json){
+    throw new Error("Invalid JSON response: " + text.slice(0,100));
   }
+
+  return json;
 }
 
-/* ================= RUN ================= */
-async function run() {
-
-  const out = document.getElementById("result");
-  out.innerHTML = "Running...";
+async function run(){
 
   const payload = {
     action: "createInspection",
-    inspector: val("inspector"),
-    brand_id: val("brand"),
-    merchant_id: val("merchant"),
-    product_id: val("product"),
-    inspection_level: norm(val("level")),
-    aql_value: parseFloat(val("aql")) || 0,
-    lot_size: parseInt(val("lot")) || 0,
-    critical_count: parseInt(val("critical")) || 0,
-    major_count: parseInt(val("major")) || 0,
-    minor_count: parseInt(val("minor")) || 0
+    inspector: v("inspector"),
+    brand_id: v("brand"),
+    merchant_id: v("merchant"),
+    product_id: v("product"),
+    inspection_level: v("level"),
+    aql_value: parseFloat(v("aql")) || 0,
+    lot_size: parseInt(v("lot")) || 0,
+    critical_count: parseInt(v("critical")) || 0,
+    major_count: parseInt(v("major")) || 0,
+    minor_count: parseInt(v("minor")) || 0
   };
+
+  document.getElementById("result").innerHTML =
+    `<div class="warn">Running...</div>`;
 
   try {
 
-    const data = await safeFetch(payload);
+    const data = await api(payload);
 
-    if (!data.aql_result) {
-      out.innerHTML = `<div class="warn">${JSON.stringify(data)}</div>`;
+    if(!data.aql_result){
+      document.getElementById("result").innerHTML =
+        `<div class="warn">API ERROR: ${JSON.stringify(data)}</div>`;
       return;
     }
 
     const r = data.aql_result;
 
-    out.innerHTML = `
+    document.getElementById("result").innerHTML = `
       <div class="${r.decision === "PASS" ? "pass" : "fail"}">
         <b>${r.decision}</b><br>
+        ID: ${data.inspection_id}<br>
         Sample: ${r.sampleSize}<br>
         Defects: ${r.defects}<br>
         Accept: ${r.accept}<br>
         Reject: ${r.reject}<br>
-        <div class="small">${r.reason}</div>
+        <small>${r.reason}</small>
       </div>
     `;
 
-  } catch (err) {
-    out.innerHTML = `<div class="fail">${err.message}</div>`;
+    document.getElementById("debug").innerHTML = `
+      <div class="debug">
+        Lot: ${payload.lot_size}<br>
+        Level: ${payload.inspection_level}<br>
+        AQL: ${payload.aql_value}
+      </div>
+    `;
+
+  } catch(err){
+    document.getElementById("result").innerHTML =
+      `<div class="fail">${err.message}</div>`;
   }
-}
-
-/* ================= HELPERS ================= */
-function val(id){ return document.getElementById(id).value; }
-
-function norm(v){
-  return String(v).toUpperCase().replace("LEVEL","").replace(/\s+/g,"").trim();
 }
 
 </script>
