@@ -1,8 +1,5 @@
 const API_BASE = "https://script.google.com/macros/s/AKfycbzcjIipaNkV_TbzV7XswF8J-JvO6PJX6cDkV3rk-I1INVMF71ZYk41OyQXJtoXgUGHziw/exec";
 
-/**
- * Universal API wrapper
- */
 async function api(action, payload = {}) {
   try {
     const res = await fetch(`${API_BASE}?action=${action}`, {
@@ -13,9 +10,7 @@ async function api(action, payload = {}) {
       body: JSON.stringify(payload)
     });
 
-    if (!res.ok) {
-      throw new Error("Network response failed: " + res.status);
-    }
+    if (!res.ok) throw new Error("HTTP " + res.status);
 
     return await res.json();
 
