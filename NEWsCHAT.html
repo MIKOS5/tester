@@ -318,6 +318,15 @@ button{
 
 </div>
 
+<div id="linkPreview" class="chat-popup hidden" style="bottom:80px;height:420px;">
+  <div class="chat-popup-header">
+    <span>Link Preview</span>
+    <button onclick="closePreview()">✖</button>
+  </div>
+
+  <iframe id="previewFrame" style="flex:1;width:100%;border:none;"></iframe>
+</div>
+  
 <script>
 
 const API_URL = "https://script.google.com/macros/s/AKfycbzin84qDcZ9L1q4pTBtHZGKJSTDcZ_wnmgWmnmgPgf1jrc1nRprzbEBixKMSHcdkxiZBg/exec";
@@ -342,6 +351,11 @@ function slugify(text){
   return text.toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,40);
 }
 
+function extractUrl(text){
+  const match = text.match(/https?:\/\/[^\s|]+/);
+  return match ? match[0] : null;
+}
+  
 function openNewsRoom(article){
   const topic = slugify(article.title);
 
@@ -446,11 +460,28 @@ async function loadPopup(){
   const data = await res.json();
 
   document.getElementById("popupMessages").innerHTML =
-    data.map(m=>`
+  data.map(m => {
+    const url = extractUrl(m.message);
+
+    const cleanText = url
+      ? m.message.replace(url, "").replace("|", "").trim()
+      : m.message;
+
+    return `
       <div class="chat-msg">
-        <span class="chat-name">${m.name}:</span> ${m.message}
+        <span class="chat-name">${m.name}:</span>
+        ${cleanText}
+
+        ${url ? `
+          <div style="margin-top:6px;">
+            <a href="#" onclick="openPreview('${encodeURIComponent(url)}','${encodeURIComponent(cleanText)}')">
+              🔗 View Source
+            </a>
+          </div>
+        ` : ""}
       </div>
-    `).join("");
+    `;
+  }).join("");
 }
 
 async function sendPopupMsg(){
@@ -495,6 +526,18 @@ function createRoom(){
   load();
 }
 
+function openPreview(url, title){
+  const decodedUrl = decodeURIComponent(url);
+
+  document.getElementById("previewFrame").src = decodedUrl;
+  document.getElementById("linkPreview").classList.remove("hidden");
+}
+
+function closePreview(){
+  document.getElementById("linkPreview").classList.add("hidden");
+  document.getElementById("previewFrame").src = "";
+}
+  
 function refreshAll(){
   load();
   loadNews();
