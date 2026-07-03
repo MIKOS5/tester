@@ -241,6 +241,23 @@ button{
   border-radius:50%;
 }
 
+/* NEW SORT BAR */
+.room-tools{
+  display:flex;
+  gap:10px;
+  margin:10px 0;
+}
+
+.room-tools input,
+.room-tools select{
+  flex:1;
+  padding:8px;
+  border-radius:10px;
+  border:1px solid var(--line);
+  background:var(--panel);
+  color:var(--text);
+}
+
 </style>
 </head>
 
@@ -265,12 +282,18 @@ button{
 <div class="main">
 
   <div class="title">Live News</div>
-
   <div id="news" class="news-grid"></div>
 
   <div class="title">Chat Rooms</div>
 
-  <input id="searchBox" placeholder="Search rooms..." oninput="renderRooms()"/>
+  <div class="room-tools">
+    <input id="searchBox" placeholder="Search rooms..." oninput="renderRooms()"/>
+
+    <select id="sortBox" onchange="renderRooms()">
+      <option value="count">Sort: Most Messages</option>
+      <option value="name">Sort: Name A–Z</option>
+    </select>
+  </div>
 
   <div id="rooms"></div>
 
@@ -298,8 +321,6 @@ button{
 <script>
 
 const API_URL = "https://script.google.com/macros/s/AKfycbzin84qDcZ9L1q4pTBtHZGKJSTDcZ_wnmgWmnmgPgf1jrc1nRprzbEBixKMSHcdkxiZBg/exec";
-
-// ⚠️ You exposed this key already — consider rotating it
 const NEWS_API = "https://api.thenewsapi.com/v1/news/top?api_token=sFaR3pNJgYursoUKLlZvg71QTITi8BYMsFLGf8vB&locale=us&language=en";
 
 let messages = [];
@@ -314,9 +335,7 @@ async function loadNews(){
     const json = await res.json();
     newsData = json.data || [];
     renderNews();
-  }catch(e){
-    console.log("News error", e);
-  }
+  }catch(e){}
 }
 
 function slugify(text){
@@ -342,14 +361,13 @@ function openNewsRoom(article){
 }
 
 function renderNews(){
-  const el = document.getElementById("news");
-
-  el.innerHTML = newsData.slice(0,12).map(n=>`
-    <div class="news-card" onclick='openNewsRoom(${JSON.stringify(n)})'>
-      <div class="news-title">${n.title}</div>
-      <div class="news-desc">${n.description || ""}</div>
-    </div>
-  `).join("");
+  document.getElementById("news").innerHTML =
+    newsData.slice(0,12).map(n=>`
+      <div class="news-card" onclick='openNewsRoom(${JSON.stringify(n)})'>
+        <div class="news-title">${n.title}</div>
+        <div class="news-desc">${n.description || ""}</div>
+      </div>
+    `).join("");
 }
 
 /* ---------------- ROOMS ---------------- */
@@ -367,6 +385,7 @@ async function load(){
 function renderRooms(){
   const rooms = {};
   const q = document.getElementById("searchBox").value.toLowerCase();
+  const sort = document.getElementById("sortBox").value;
 
   for(let m of messages){
 
@@ -384,8 +403,17 @@ function renderRooms(){
     rooms[id].user = m.name;
   }
 
+  let list = Object.values(rooms);
+
+  // SORT LOGIC
+  if(sort === "name"){
+    list.sort((a,b)=>a.name.localeCompare(b.name));
+  } else {
+    list.sort((a,b)=>b.count - a.count);
+  }
+
   document.getElementById("rooms").innerHTML =
-    Object.values(rooms).map(r=>`
+    list.map(r=>`
       <div class="room" onclick="openRoom('${r.id}')">
         <div class="room-title">
           ${r.name}
@@ -423,7 +451,6 @@ async function loadPopup(){
         <span class="chat-name">${m.name}:</span> ${m.message}
       </div>
     `).join("");
-
 }
 
 async function sendPopupMsg(){
