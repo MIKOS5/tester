@@ -526,11 +526,23 @@ function createRoom(){
   load();
 }
 
-function openPreview(url, title){
-  const decodedUrl = decodeURIComponent(url);
+function openPreview(url){
+  const decoded = decodeURIComponent(url);
 
-  document.getElementById("previewFrame").src = decodedUrl;
+  const frame = document.getElementById("previewFrame");
+  frame.src = decoded;
+
   document.getElementById("linkPreview").classList.remove("hidden");
+
+  setTimeout(() => {
+    try {
+      if (!frame.contentDocument) {
+        window.open(decoded, "_blank");
+      }
+    } catch {
+      window.open(decoded, "_blank");
+    }
+  }, 800);
 }
 
 function closePreview(){
