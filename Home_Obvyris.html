@@ -3,11 +3,12 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Obvyris • Chat Rooms</title>
+
+<title>Chat Obvyris</title>
 
 <link rel="icon" type="image/png" href="https://mikos5.github.io/tester/navicon.png">
 <link rel="apple-touch-icon" href="https://mikos5.github.io/tester/navicon.png">
-  
+
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet"/>
 
 <style>
@@ -16,12 +17,10 @@
   --bg:#09111d;
   --panel:#111827;
   --line:#253347;
-  --text:#ffffff;
+  --text:#fff;
   --muted:#93a4bb;
   --blue:#2793ff;
   --blue-dark:#1869d9;
-  --green:#17c964;
-  --green-dark:#0ea85a;
   --panel-alt:#0b1220;
 }
 
@@ -44,77 +43,74 @@ body{
   font-family:Inter,sans-serif;
   background:var(--bg);
   color:var(--text);
+  display:flex;
+  height:100vh;
+  overflow:hidden;
 }
 
-/* HEADER */
-.header{
-  padding:18px 20px;
+/* SIDEBAR */
+.sidebar{
+  width:340px;
   background:var(--panel);
-  border-bottom:1px solid var(--line);
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+  border-right:1px solid var(--line);
+  padding:20px;
+  overflow:auto;
 }
 
 .logo{
   font-family:Orbitron;
-  font-size:26px;
+  font-size:42px;
   font-weight:900;
-  letter-spacing:2px;
 }
 
-.logo span{
-  color:var(--blue);
-}
+.logo span{ color:var(--blue); }
 
-.sub{
-  font-size:12px;
+.subtitle{
   color:var(--muted);
+  font-size:13px;
+  margin-bottom:20px;
 }
 
-/* STATS BAR */
-.stats{
+/* PLAYER STYLE CARD (USED AS STATS) */
+.player{
+  margin-top:10px;
+  padding:16px;
+  border-radius:16px;
+  background:var(--panel);
+  border:1px solid var(--line);
+}
+
+.now{font-weight:700;}
+.meta{font-size:12px;color:var(--muted);}
+
+.controls{
   display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:10px;
-  padding:15px;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin-top:12px;
 }
 
-.stat{
-  background:var(--panel);
-  border:1px solid var(--line);
-  border-radius:14px;
-  padding:10px;
-  text-align:center;
-}
-
-.stat b{
-  display:block;
-  font-size:18px;
-  color:var(--blue);
-}
-
-/* SEARCH */
-.search{
-  padding:0 15px 10px;
-}
-
-.search input{
-  width:100%;
-  padding:12px;
+button{
+  border:none;
   border-radius:12px;
-  border:1px solid var(--line);
-  background:var(--panel);
-  color:var(--text);
-  outline:none;
+  padding:10px;
+  background:linear-gradient(180deg,var(--blue),var(--blue-dark));
+  color:white;
+  font-weight:700;
+  cursor:pointer;
 }
 
-/* ROOMS */
-#rooms{
-  padding:15px;
-  display:flex;
-  flex-direction:column;
-  gap:12px;
+/* MAIN */
+.main{
+  flex:1;
+  padding:20px;
+  overflow:auto;
+}
+
+.title{
+  font-size:42px;
+  font-weight:800;
+  margin-bottom:15px;
 }
 
 /* ROOM CARD */
@@ -123,27 +119,19 @@ body{
   border:1px solid var(--line);
   border-radius:16px;
   padding:14px;
+  margin-bottom:10px;
   cursor:pointer;
-  transition:.2s;
 }
 
 .room:hover{
-  transform:translateY(-2px);
   border-color:var(--blue);
   background:rgba(39,147,255,0.08);
 }
 
 .room-title{
   font-weight:800;
-  font-size:18px;
   display:flex;
   justify-content:space-between;
-  align-items:center;
-}
-
-.room-title span{
-  font-size:11px;
-  color:var(--muted);
 }
 
 .room-meta{
@@ -158,397 +146,279 @@ body{
   font-weight:600;
 }
 
-/* EMPTY */
-.empty{
-  text-align:center;
-  padding:40px;
-  color:var(--muted);
+/* INPUT */
+.search input{
+  width:100%;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid var(--line);
+  background:var(--panel);
+  color:var(--text);
 }
 
-.brand{
-    cursor:pointer;
-    display:inline-block;
+/* CHAT POPUP */
+.chat-popup{
+  position:fixed;
+  bottom:160px;
+  right:20px;
+  width:360px;
+  height:520px;
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:16px;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  z-index:99999;
 }
 
-/* =========================
-   CHAT POPUP SCROLLBAR
-========================= */
+.chat-popup.hidden{display:none;}
 
-#popupMessages{
-  scrollbar-width: thin;              /* Firefox */
-  scrollbar-color: #2793ff #0b1220;   /* thumb + track */
+.chat-popup-header{
+  padding:10px;
+  font-weight:800;
+  display:flex;
+  justify-content:space-between;
+  border-bottom:1px solid var(--line);
+  background:var(--panel-alt);
 }
 
-/* Chrome / Edge / Safari */
-#popupMessages::-webkit-scrollbar{
-  width: 8px;
+.chat-popup-log{
+  flex:1;
+  overflow-y:auto;
+  padding:10px;
+  font-size:13px;
 }
 
-#popupMessages::-webkit-scrollbar-track{
-  background: #0b1220;
-  border-radius: 10px;
+.chat-msg{
+  margin-bottom:6px;
+  padding:6px;
+  background:var(--panel-alt);
+  border-radius:8px;
 }
 
-#popupMessages::-webkit-scrollbar-thumb{
-  background: #2793ff;
-  border-radius: 10px;
-  border: 2px solid #0b1220;
+.chat-name{
+  color:var(--blue);
+  font-weight:800;
 }
 
-#popupMessages::-webkit-scrollbar-thumb:hover{
-  background: #4fb0ff;
+.chat-input{
+  display:flex;
+  gap:5px;
+  padding:8px;
+  border-top:1px solid var(--line);
 }
+
+.chat-input input{
+  flex:1;
+  padding:6px;
+  border-radius:8px;
+  border:1px solid var(--line);
+  background:var(--bg);
+  color:var(--text);
+}
+
 /* FLOAT BUTTON */
-
+#chatFloatBtn{
+  position:fixed;
+  bottom:90px;
+  right:20px;
+  width:55px;
+  height:55px;
+  border-radius:50%;
+  font-size:22px;
+  z-index:99999;
+}
 
 </style>
 </head>
 
 <body>
 
-<!-- HEADER -->
-<div class="header">
-  <div>
-    <div class="brand" onclick="goHome()">
-    <div class="logo">
-        Chat <span>Obvyris</span> 
+<!-- SIDEBAR -->
+<div class="sidebar">
+
+  <div class="logo">Chat <span>Obvyris</span></div>
+  <div class="subtitle">Live chat rooms • stations • messages</div>
+
+  <div class="player">
+    <div class="now">Chat System</div>
+    <div class="meta">Rooms • Messages • Active</div>
+
+    <div class="controls">
+      <button onclick="refreshRooms()">↻</button>
+      <button onclick="showAll()">🏠</button>
+      <button onclick="toggleChatPopup()">💬</button>
+      <button onclick="toggleTheme()">🌙</button>
     </div>
-    <div class="subtitle">
-        Live radio stations • genres • favorites
-    </div>
-</div>
-
-  <button onclick="refreshRooms(this)" style="
-    background:var(--blue);
-    border:none;
-    color:white;
-    padding:10px 14px;
-    border-radius:10px;
-    cursor:pointer;
-    font-weight:700;
-  ">↻</button>
-</div>
-
-<!-- STATS -->
-<div class="stats">
-  <div class="stat">
-    <b id="roomCount">0</b>
-    Rooms
   </div>
-  <div class="stat">
-    <b id="msgCount">0</b>
-    Messages
-  </div>
-  <div class="stat">
-    <b id="activeCount">0</b>
-    Active
-  </div>
+
 </div>
 
-<!-- SEARCH -->
-<div class="search">
-  <input id="searchBox" placeholder="🔍 Search chat rooms..." oninput="renderRooms()"/>
+<!-- MAIN -->
+<div class="main">
+
+  <div class="title">Chat Rooms</div>
+
+  <div class="search">
+    <input id="searchBox" placeholder="Search rooms..." oninput="renderRooms()"/>
+  </div>
+
+  <div id="rooms"></div>
+
 </div>
 
-<!-- ROOMS -->
-<div id="rooms"></div>
+<!-- FLOAT BUTTON -->
+<button id="chatFloatBtn" onclick="toggleChatPopup()">💬</button>
 
-<!-- FLOAT REFRESH -->
+<!-- CHAT POPUP -->
+<div id="chatPopup" class="chat-popup hidden">
 
+  <div class="chat-popup-header">
+    <span id="popupTitle">💬 Chat</span>
+    <button onclick="toggleChatPopup()">✖</button>
+  </div>
+
+  <div id="popupMessages" class="chat-popup-log"></div>
+
+  <div class="chat-input">
+    <input id="popupName" placeholder="name" maxlength="10"/>
+    <input id="popupMsg" placeholder="message" maxlength="120"/>
+    <button onclick="sendPopupMsg()">Send</button>
+  </div>
+
+</div>
 
 <script>
+
 const API_URL = "https://script.google.com/macros/s/AKfycbzin84qDcZ9L1q4pTBtHZGKJSTDcZ_wnmgWmnmgPgf1jrc1nRprzbEBixKMSHcdkxiZBg/exec";
 
 let messages = [];
-let roomNames = {};
 let activeRoom = "global";
 let popupOpen = false;
-let lastHash = "";
 
-/* =========================
-   LOAD ALL ROOMS
-========================= */
+/* LOAD ROOMS */
 async function load(){
-  try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      body: JSON.stringify({
-        action: "get",
-        station: ""
-      })
-    });
+  const res = await fetch(API_URL,{
+    method:"POST",
+    body:JSON.stringify({action:"get",station:""})
+  });
 
-    const data = await res.json();
-    messages = Array.isArray(data) ? data : [];
-
-    // BUILD ROOM NAME MAP (station → stationName)
-    roomNames = {};
-
-    for (let m of messages) {
-      if (m.station && m.stationName) {
-        // only set once so it doesn't keep overwriting
-        if (!roomNames[m.station]) {
-          roomNames[m.station] = m.stationName;
-        }
-      }
-    }
-
-    renderRooms();
-
-  } catch (err){
-    console.log("Load failed:", err);
-  }
+  messages = await res.json();
+  renderRooms();
 }
 
-
-async function refreshRooms(btn){
-  if(btn){
-    btn.disabled=true;
-    const old=btn.innerHTML;
-    btn.dataset.old=old;
-    btn.innerHTML="⟳";
-  }
-  await load();
-  if(popupOpen) await loadPopup();
-  if(btn){
-    btn.innerHTML=btn.dataset.old||"↻";
-    btn.disabled=false;
-  }
-}
-
-function goHome(){
-  window.location.href = "./index99.html";
-}
-  
-/* =========================
-   RENDER ROOMS
-========================= */
+/* RENDER ROOMS */
 function renderRooms(){
 
   const rooms = {};
-  let totalMessages = 0;
-  let activeRooms = 0;
+  const q = document.getElementById("searchBox").value.toLowerCase();
 
-  const q = document.getElementById("searchBox")?.value?.toLowerCase() || "";
-
-  for (let m of messages){
+  for(let m of messages){
 
     const id = m.station || "global";
+    const text = `${m.stationName||""} ${m.name||""} ${m.message||""}`.toLowerCase();
 
-    const text = `${m.stationName || ""} ${m.name || ""} ${m.message || ""}`.toLowerCase();
+    if(q && !text.includes(q)) continue;
 
-    if (q && !text.includes(q)) continue;
-
-    if (!rooms[id]){
+    if(!rooms[id]){
       rooms[id] = {
         id,
         name: m.stationName || id,
-        count: 0,
-        last: m.message || "",
-        lastUser: m.name || "Anon",
-        lastTime: m.time || ""
+        count:0,
+        last:"",
+        user:""
       };
-      activeRooms++;
     }
 
     rooms[id].count++;
-    rooms[id].last = m.message || rooms[id].last;
-    rooms[id].lastUser = m.name || rooms[id].lastUser;
-
-    totalMessages++;
+    rooms[id].last = m.message;
+    rooms[id].user = m.name;
   }
 
-  document.getElementById("roomCount").innerText = Object.keys(rooms).length;
-  document.getElementById("msgCount").innerText = totalMessages;
-  document.getElementById("activeCount").innerText = activeRooms;
-
   const el = document.getElementById("rooms");
-  el.innerHTML = Object.values(rooms)
-    .sort((a,b)=>b.count-a.count)
-    .map(r => `
-      <div class="room" onclick="openRoom('${r.id}')">
-
-        <div class="room-title">
-          📻 ${r.name}
-          <span>${r.count} msgs</span>
-        </div>
-
-        <div class="last-msg">
-          ${r.lastUser}: ${r.last}
-        </div>
-
-        <div class="room-meta">${r.lastTime}</div>
-
+  el.innerHTML = Object.values(rooms).map(r=>`
+    <div class="room" onclick="openRoom('${r.id}')">
+      <div class="room-title">
+        ${r.name}
+        <span>${r.count}</span>
       </div>
-    `).join("");
+      <div class="last-msg">${r.user}: ${r.last}</div>
+    </div>
+  `).join("");
 }
 
-/* =========================
-   OPEN ROOM (CLICK CARD)
-========================= */
+/* OPEN ROOM */
 function openRoom(id){
   activeRoom = id;
-  if (!document.getElementById("chatPopup")) return;
-  toggleRoomPopup();
+  toggleChatPopup();
   loadPopup();
 }
 
-/* =========================
-   POPUP TOGGLE
-========================= */
-function toggleRoomPopup(){
-  const el = document.getElementById("chatPopup");
+/* POPUP */
+function toggleChatPopup(){
   popupOpen = !popupOpen;
-  el.style.display = popupOpen ? "flex" : "none";
+  document.getElementById("chatPopup")
+    .classList.toggle("hidden");
 
-  if (popupOpen) loadPopup();
+  if(popupOpen) loadPopup();
 }
 
-/* =========================
-   LOAD CHAT MESSAGES
-========================= */
+/* LOAD CHAT */
 async function loadPopup(){
 
-  const title = document.getElementById("popupTitle");
-  title.innerText = "💬 " + (roomNames[activeRoom] || activeRoom);
-
-  const res = await fetch(API_URL, {
+  const res = await fetch(API_URL,{
     method:"POST",
-    body: JSON.stringify({
+    body:JSON.stringify({
       action:"get",
-      station: activeRoom
+      station:activeRoom
     })
   });
 
   const data = await res.json();
-  const msgs = Array.isArray(data) ? data : [];
 
   const box = document.getElementById("popupMessages");
-  box.innerHTML = msgs.map(m => `
-    <div style="margin-bottom:6px;padding:6px;background:#0b1220;border-radius:8px;">
-      <b style="color:#2793ff">${m.name || "Anon"}:</b> ${m.message}
+
+  box.innerHTML = data.map(m=>`
+    <div class="chat-msg">
+      <span class="chat-name">${m.name}:</span> ${m.message}
     </div>
   `).join("");
 
   box.scrollTop = box.scrollHeight;
 }
 
-/* =========================
-   SEND MESSAGE
-========================= */
+/* SEND */
 async function sendPopupMsg(){
 
   const name = document.getElementById("popupName").value || "Anon";
   const msg = document.getElementById("popupMsg").value;
 
-  if (!msg) return;
+  if(!msg) return;
 
-  document.getElementById("popupMsg").value = "";
-
-  await fetch(API_URL, {
+  await fetch(API_URL,{
     method:"POST",
-    body: JSON.stringify({
+    body:JSON.stringify({
       action:"send",
-      station: activeRoom,
-
-      // ✅ ADD THIS LINE
-      stationName: roomNames[activeRoom] || activeRoom,
-
-      name: name.slice(0,10),
-      message: msg.slice(0,120)
+      station:activeRoom,
+      stationName:activeRoom,
+      name:name.slice(0,10),
+      message:msg.slice(0,120)
     })
   });
 
+  document.getElementById("popupMsg").value="";
   loadPopup();
 }
 
-/* =========================
-   AUTO REFRESH
-========================= */
-setInterval(() => {
-  if (popupOpen) loadPopup();
-}, 3000);
-
-setInterval(load, 5000);
+/* UTIL */
+function refreshRooms(){ load(); }
+function showAll(){ load(); }
+function toggleTheme(){ document.body.classList.toggle("light"); }
 
 load();
+
 </script>
 
-
-<!-- CHAT ROOM POPUP -->
-<div id="chatPopup" style="
-position:fixed;
-bottom:160px;
-right:20px;
-width:360px;
-height:520px;
-background:#111827;
-border:1px solid #253347;
-border-radius:16px;
-display:none;
-flex-direction:column;
-overflow:hidden;
-z-index:99999;
-box-shadow:0 20px 40px rgba(0,0,0,.6);
-">
-
-  <!-- HEADER -->
-  <div style="
-  padding:10px;
-  background:#0b1220;
-  border-bottom:1px solid #253347;
-  font-weight:800;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  ">
-    <span id="popupTitle">💬 Chat</span>
-    <button onclick="toggleRoomPopup()" style="
-      background:none;
-      border:none;
-      color:white;
-      font-size:18px;
-      cursor:pointer;
-    ">✖</button>
-  </div>
-
-  <!-- MESSAGES -->
-  <div id="popupMessages" style="
-  flex:1;
-  padding:10px;
-  overflow-y:auto;
-  font-size:13px;
-  color:white;
-  ">
-  </div>
-
-  <!-- INPUT -->
-  <div style="
-  display:flex;
-  gap:5px;
-  padding:8px;
-  border-top:1px solid #253347;
-  background:#111827;
-  ">
-    <input id="popupName" placeholder="name"
-    style="width:70px;padding:6px;border-radius:8px;border:1px solid #253347;background:#09111d;color:white;">
-
-    <input id="popupMsg" placeholder="message"
-    style="flex:1;padding:6px;border-radius:8px;border:1px solid #253347;background:#09111d;color:white;">
-
-    <button onclick="sendPopupMsg()" style="
-    padding:6px 10px;
-    border:none;
-    border-radius:8px;
-    background:#2793ff;
-    color:white;
-    font-weight:700;
-    cursor:pointer;
-    ">
-      Send
-    </button>
-  </div>
-
-</div>
 </body>
 </html>
