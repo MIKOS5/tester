@@ -246,8 +246,8 @@ button{
     <div class="meta">Rooms • Messages • Active</div>
 
     <div class="controls">
+      <button onclick="createRoom()">➕</button>
       <button onclick="refreshRooms()">↻</button>
-      <button onclick="showAll()">🏠</button>
       <button onclick="toggleChatPopup()">💬</button>
       <button onclick="toggleTheme()">🌙</button>
     </div>
@@ -308,6 +308,30 @@ async function load(){
   renderRooms();
 }
 
+async function createRoom(){
+
+  const name = prompt("Enter new chat room name:");
+
+  if(!name) return;
+
+  const roomId = name.trim().toLowerCase().replace(/\s+/g, "-");
+
+  await fetch(API_URL,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"send",
+      station: roomId,
+      stationName: name,
+      name: "System",
+      message: "🚀 Room created"
+    })
+  });
+
+  activeRoom = roomId;
+await load();
+openRoom(roomId);
+}
+  
 /* RENDER ROOMS */
 function renderRooms(){
 
