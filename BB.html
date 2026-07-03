@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>API-BASEBALL Dashboard</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+    background:#121212;
+    color:white;
+}
+
+header{
+    background:#1b1b1b;
+    padding:20px;
+    text-align:center;
+    font-size:30px;
+    font-weight:bold;
+    border-bottom:3px solid #28a745;
+}
+
+.container{
+    display:flex;
+}
+
+.sidebar{
+    width:260px;
+    background:#181818;
+    height:100vh;
+    overflow:auto;
+    border-right:1px solid #333;
+}
+
+.sidebar button{
+    width:100%;
+    padding:15px;
+    border:none;
+    background:#181818;
+    color:white;
+    text-align:left;
+    cursor:pointer;
+    border-bottom:1px solid #333;
+    font-size:15px;
+}
+
+.sidebar button:hover{
+    background:#28a745;
+}
+
+.main{
+    flex:1;
+    padding:20px;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    margin-bottom:15px;
+    font-size:16px;
+}
+
+.query{
+    margin:15px 0;
+}
+
+.query input{
+    margin-bottom:10px;
+}
+
+.run{
+    background:#28a745;
+    color:white;
+    border:none;
+    padding:12px 20px;
+    cursor:pointer;
+    font-size:16px;
+}
+
+pre{
+    margin-top:20px;
+    background:#000;
+    color:#00ff66;
+    padding:20px;
+    border-radius:5px;
+    overflow:auto;
+    height:650px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+⚾ API-BASEBALL Dashboard
+</header>
+
+<div class="container">
+
+<div class="sidebar">
+
+<button onclick="loadEndpoint('status')">Status</button>
+
+<button onclick="loadEndpoint('timezone')">Timezone</button>
+
+<button onclick="loadEndpoint('seasons')">Seasons</button>
+
+<button onclick="loadEndpoint('countries')">Countries</button>
+
+<button onclick="loadEndpoint('leagues')">Leagues</button>
+
+<button onclick="loadEndpoint('teams')">Teams</button>
+
+<button onclick="loadEndpoint('teams/statistics')">Team Statistics</button>
+
+<button onclick="loadEndpoint('standings')">Standings</button>
+
+<button onclick="loadEndpoint('standings/stages')">Standing Stages</button>
+
+<button onclick="loadEndpoint('standings/groups')">Standing Groups</button>
+
+<button onclick="loadEndpoint('games')">Games</button>
+
+<button onclick="loadEndpoint('games/h2h')">Head To Head</button>
+
+<button onclick="loadEndpoint('odds')">Odds</button>
+
+<button onclick="loadEndpoint('odds/bookmakers')">Bookmakers</button>
+
+<button onclick="loadEndpoint('odds/bets')">Bet Types</button>
+
+</div>
+
+<div class="main">
+
+<h2>API Key</h2>
+
+<input id="apikey" placeholder="Enter API-SPORTS API Key">
+
+<h2>Query Parameters</h2>
+
+<div class="query">
+
+<input id="params" placeholder="Example: league=1&season=2026">
+
+<button class="run" onclick="run()">Run Request</button>
+
+</div>
+
+<h2>Response</h2>
+
+<pre id="output">Ready...</pre>
+
+</div>
+
+</div>
+
+<script>
+
+const BASE="https://v1.baseball.api-sports.io/";
+
+let endpoint="status";
+
+function loadEndpoint(name){
+
+endpoint=name;
+
+document.getElementById("output").textContent=
+"Selected Endpoint:\n\n"+name;
+
+}
+
+async function run(){
+
+const key=document.getElementById("apikey").value;
+
+const params=document.getElementById("params").value;
+
+let url=BASE+endpoint;
+
+if(params!="")
+url+="?"+params;
+
+try{
+
+const response=await fetch(url,{
+headers:{
+"x-apisports-key":key
+}
+});
+
+const json=await response.json();
+
+document.getElementById("output").textContent=
+JSON.stringify(json,null,4);
+
+}
+catch(e){
+
+document.getElementById("output").textContent=e;
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
