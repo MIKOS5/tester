@@ -218,7 +218,7 @@ body{
     </div>
 </div>
 
-  <button onclick="location.reload()" style="
+  <button onclick="refreshRooms(this)" style="
     background:var(--blue);
     border:none;
     color:white;
@@ -297,6 +297,22 @@ async function load(){
 
   } catch (err){
     console.log("Load failed:", err);
+  }
+}
+
+
+async function refreshRooms(btn){
+  if(btn){
+    btn.disabled=true;
+    const old=btn.innerHTML;
+    btn.dataset.old=old;
+    btn.innerHTML="⟳";
+  }
+  await load();
+  if(popupOpen) await loadPopup();
+  if(btn){
+    btn.innerHTML=btn.dataset.old||"↻";
+    btn.disabled=false;
   }
 }
 
