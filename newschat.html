@@ -299,13 +299,20 @@ button{
   <div class="title">Chat Rooms</div>
 
   <div class="room-tools">
-    <input id="searchBox" placeholder="Search rooms..." oninput="renderRooms()"/>
+  <input id="searchBox" placeholder="Search rooms..." oninput="renderRooms()"/>
 
-    <select id="sortBox" onchange="renderRooms()">
-      <option value="count">Sort: Most Messages</option>
-      <option value="name">Sort: Name A–Z</option>
-    </select>
-  </div>
+  <select id="sortBox" onchange="renderRooms()">
+    <option value="count">Sort: Most Messages</option>
+    <option value="name">Sort: Name A–Z</option>
+  </select>
+</div>
+
+<!-- ✅ ADD THIS -->
+<div style="display:flex;gap:10px;margin-bottom:10px;">
+  <button onclick="setCategory('all')">All</button>
+  <button onclick="setCategory('sports')">Sports</button>
+  <button onclick="setCategory('general')">General</button>
+</div>
 
   <div id="rooms"></div>
 
@@ -405,6 +412,7 @@ let activeRoomName = "";
 let lastSendTime = 0;
 const SEND_COOLDOWN_MS = 1500; // 1.5 seconds
 let autoScroll = true;
+let activeCategory = "all";
 
 /* ---------------- NEWS ---------------- */
 let emojiPickerBuilt = false;
@@ -459,6 +467,11 @@ function slugify(text){
 function extractUrl(text){
   const match = text.match(/https?:\/\/[^\s|]+/);
   return match ? match[0] : null;
+}
+
+function setCategory(cat){
+  activeCategory = cat;
+  renderRooms();
 }
   
 function openNewsRoom(article){
@@ -571,8 +584,9 @@ function renderRoom(r){
   const groups = { sports: [], general: [] };
 
   list.forEach(r => {
-    (groups[r.category] || groups.general).push(r);
-  });
+  if (activeCategory !== "all" && r.category !== activeCategory) return;
+  (groups[r.category] || groups.general).push(r);
+});
 
   document.getElementById("rooms").innerHTML = `
     <div class="room-group-title">🏈 Sports</div>
