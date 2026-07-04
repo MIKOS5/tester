@@ -530,24 +530,47 @@ function openPreview(url){
   const decoded = decodeURIComponent(url);
 
   const frame = document.getElementById("previewFrame");
-  frame.src = decoded;
+  const modal = document.getElementById("linkPreview");
 
-  document.getElementById("linkPreview").classList.remove("hidden");
+  modal.classList.remove("hidden");
 
-  setTimeout(() => {
-    try {
-      if (!frame.contentDocument) {
-        window.open(decoded, "_blank");
-      }
-    } catch {
+  let done = false;
+
+  // reset iframe first (important for repeated clicks)
+  frame.src = "";
+
+  const fallback = setTimeout(() => {
+    if (!done) {
+      done = true;
+      closePreview();
       window.open(decoded, "_blank");
     }
-  }, 800);
+  }, 1200);
+
+  frame.onload = () => {
+    if (done) return;
+    done = true;
+    clearTimeout(fallback);
+    // stays open successfully loaded
+  };
+
+  frame.onerror = () => {
+    if (done) return;
+    done = true;
+    clearTimeout(fallback);
+    closePreview();
+    window.open(decoded, "_blank");
+  };
+
+  frame.src = decoded;
 }
 
 function closePreview(){
-  document.getElementById("linkPreview").classList.add("hidden");
-  document.getElementById("previewFrame").src = "";
+  const frame = document.getElementById("previewFrame");
+  const modal = document.getElementById("linkPreview");
+
+  modal.classList.add("hidden");
+  frame.src = "";
 }
   
 function refreshAll(){
