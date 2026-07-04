@@ -546,59 +546,86 @@ function renderRoom(r){
 
 
   function renderRooms(){
+
   const rooms = {};
   const q = document.getElementById("searchBox").value.toLowerCase();
   const sort = document.getElementById("sortBox").value;
 
-  for (let m of messages) {
-    if (!m || !m.station) continue;
+  // Build room list
+  for(const m of messages){
+
+    if(!m || !m.station) continue;
 
     const id = m.station.trim();
-    if (!id || id === "undefined") continue;
 
-    const text = `${m.stationName || ""} ${m.name || ""} ${m.message || ""}`.toLowerCase();
-    if (q && !text.includes(q)) continue;
+    if(!id || id === "undefined") continue;
 
-    if (!rooms[id]) {
+    const text =
+      `${m.stationName || ""} ${m.name || ""} ${m.message || ""}`.toLowerCase();
+
+    if(q && !text.includes(q)) continue;
+
+    if(!rooms[id]){
       rooms[id] = {
-        id,
+        id: id,
         name: m.stationName || id,
         count: 0,
         last: "",
         user: "",
-        source: m.source // 👈 Chat or Teams
+        source: (m.source || "chat").toLowerCase()
       };
     }
 
     rooms[id].count++;
-    rooms[id].last = m.message;
-    rooms[id].user = m.name;
+    rooms[id].last = m.message || "";
+    rooms[id].user = m.name || "Anon";
+
   }
 
   let list = Object.values(rooms);
 
-  if (sort === "name") {
-    list.sort((a,b) => a.name.localeCompare(b.name));
-  } else {
-    list.sort((a,b) => b.count - a.count);
+  // Sort
+  if(sort === "name"){
+    list.sort((a,b)=>a.name.localeCompare(b.name));
+  }else{
+    list.sort((a,b)=>b.count-a.count);
+  }
+
+  // Backend already filtered when Chat/Teams selected.
+  // We only separate into headings when viewing All.
+
+  if(activeCategory !== "all"){
+
+    document.getElementById("rooms").innerHTML =
+      list.map(renderRoom).join("");
+
+    return;
+
   }
 
   const chatRooms = [];
   const teamRooms = [];
 
-  list.forEach(r => {
-    if (r.source === "teams")
-    teamRooms.push(r);
-else
-    chatRooms.push(r);
+  for(const room of list){
+
+    if(room.source === "teams"){
+      teamRooms.push(room);
+    }else{
+      chatRooms.push(room);
+    }
+
+  }
 
   document.getElementById("rooms").innerHTML = `
+
     <div class="room-group-title">💬 Chat Sheet</div>
     ${chatRooms.map(renderRoom).join("")}
 
     <div class="room-group-title">🏈 Teams Sheet</div>
     ${teamRooms.map(renderRoom).join("")}
+
   `;
+
 }
 
 /* ---------------- CHAT ---------------- */
