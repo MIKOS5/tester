@@ -514,71 +514,6 @@ async function load(){
   renderRooms();
 }
 
-function renderRooms(){
-  const rooms = {};
-  const groups = {
-  sports: [],
-  general: []
-};
-  const q = document.getElementById("searchBox").value.toLowerCase();
-  const sort = document.getElementById("sortBox").value;
-
-  for (let m of messages) {
-
-    if (!m.station) continue; // 🔥 kill invalid rows
-
-    let id = m.station.trim();
-    if (!id || id === "undefined") continue;
-
-    const text = `${m.stationName || ""} ${m.name || ""} ${m.message || ""}`.toLowerCase();
-
-    if (q && !text.includes(q)) continue;
-
-    if (!rooms[id]) {
-
-  rooms[id] = {
-    id,
-    name: m.stationName || id,
-    count: 0,
-    last: "",
-    user: "",
-    source: null,
-    category: m.source === "teams" ? "sports" : (m.category || "general"),
-    lastTime: 0
-  };
-}
-    rooms[id].count++;
-
-    rooms[id].last = m.message;
-    rooms[id].user = m.name;
-
-    const urlMatch = m.message.match(/https?:\/\/[^\s|]+/);
-    const url = urlMatch ? urlMatch[0] : null;
-
-    if (m.name === "NewsBot" && url) {
-      rooms[id].source = url;
-    }
-  }
-
-  let list = Object.values(rooms);
-
-  // 🔥 optional but recommended: remove spam rooms
-  list = list.filter(r => r.count > 0 && r.name !== "test");
-
-  if (sort === "name") {
-    list.sort((a, b) => a.name.localeCompare(b.name));
-  } else {
-    list.sort((a, b) => b.count - a.count);
-  }
-
-  const groups = {
-  sports: [],
-  general: []
-};
-
-for (let r of list) {
-  groups[r.category || "general"].push(r);
-}
 
 function renderRoom(r){
   return `
@@ -587,7 +522,6 @@ function renderRoom(r){
         ${r.name}
         <span>${r.count}</span>
       </div>
-
       <div class="last-msg">
         ${r.user}: ${r.last}
       </div>
@@ -595,16 +529,8 @@ function renderRoom(r){
   `;
 }
 
-const groups = {
-  sports: [],
-  general: []
-};
 
-for (let r of list) {
-  groups[r.category || "general"].push(r);
-}
-
-function renderRooms(){
+  function renderRooms(){
   const rooms = {};
   const q = document.getElementById("searchBox").value.toLowerCase();
   const sort = document.getElementById("sortBox").value;
@@ -642,28 +568,11 @@ function renderRooms(){
     list.sort((a,b) => b.count - a.count);
   }
 
-  const groups = {
-    sports: [],
-    general: []
-  };
+  const groups = { sports: [], general: [] };
 
   list.forEach(r => {
     (groups[r.category] || groups.general).push(r);
   });
-
-  function renderRoom(r){
-    return `
-      <div class="room" onclick="openRoom('${r.id}')">
-        <div class="room-title">
-          ${r.name}
-          <span>${r.count}</span>
-        </div>
-        <div class="last-msg">
-          ${r.user}: ${r.last}
-        </div>
-      </div>
-    `;
-  }
 
   document.getElementById("rooms").innerHTML = `
     <div class="room-group-title">🏈 Sports</div>
@@ -673,6 +582,8 @@ function renderRooms(){
     ${groups.general.map(renderRoom).join("")}
   `;
 }
+
+
 /* ---------------- CHAT ---------------- */
 
 function openRoom(id){
