@@ -310,7 +310,6 @@ button{
 <!-- ✅ ADD THIS -->
 <div style="display:flex;gap:10px;margin-bottom:10px;">
   <button onclick="setCategory('all')">All</button>
-  <button onclick="setCategory('all')">All</button>
 <button onclick="setCategory('chat')">Chat</button>
 <button onclick="setCategory('teams')">Teams</button>
 </div>
@@ -471,8 +470,8 @@ function extractUrl(text){
 }
 
 function setCategory(cat){
-  activeCategory = cat; // "all" | "chat" | "teams"
-  renderRooms();
+    activeCategory = cat;
+    load();      // reload correct sheet(s)
 }
   
 function openNewsRoom(article){
@@ -510,27 +509,22 @@ function renderNews(){
 /* ---------------- ROOMS ---------------- */
 
 async function load(){
+
+  const source =
+      activeCategory === "all"
+      ? "all"
+      : activeCategory;
+
   const res = await fetch(API_URL,{
     method:"POST",
-    body:JSON.stringify({action:"get",station:""})
+    body:JSON.stringify({
+      action:"get",
+      station:"",
+      source:source
+    })
   });
 
-  const raw = await res.json();
-
-  // normalize BOTH sheets cleanly
-  messages = raw
-    .filter(m =>
-      m &&
-      m.station &&
-      m.station.trim() !== "" &&
-      m.station !== "undefined"
-    )
-    messages = raw.filter(m =>
-  m &&
-  m.station &&
-  m.station.trim() !== "" &&
-  m.station !== "undefined"
-);
+  messages = await res.json();
 
   renderRooms();
 }
@@ -593,12 +587,10 @@ function renderRoom(r){
   const teamRooms = [];
 
   list.forEach(r => {
-    if (activeCategory !== "all" && activeCategory === "chat" && r.source !== "Chat") return;
-    if (activeCategory !== "all" && activeCategory === "teams" && r.source !== "Teams") return;
-
-    if (r.source === "Teams") teamRooms.push(r);
-    else chatRooms.push(r);
-  });
+    if (r.source === "teams")
+    teamRooms.push(r);
+else
+    chatRooms.push(r);
 
   document.getElementById("rooms").innerHTML = `
     <div class="room-group-title">💬 Chat Sheet</div>
