@@ -530,35 +530,24 @@ function openPreview(url){
   const decoded = decodeURIComponent(url);
 
   const frame = document.getElementById("previewFrame");
-  const modal = document.getElementById("linkPreview");
-
-  modal.classList.remove("hidden");
-
-  let loaded = false;
-
-  // try loading
   frame.src = decoded;
 
-  // mark success when iframe loads
-  frame.onload = () => {
-    loaded = true;
-  };
+  document.getElementById("linkPreview").classList.remove("hidden");
 
-  // fallback if blocked / blank / never loads
   setTimeout(() => {
-    if (!loaded) {
-      closePreview();        // close modal
-      window.open(decoded, "_blank"); // fallback open
+    try {
+      if (!frame.contentDocument) {
+        window.open(decoded, "_blank");
+      }
+    } catch {
+      window.open(decoded, "_blank");
     }
-  }, 1200);
+  }, 800);
 }
 
 function closePreview(){
-  const frame = document.getElementById("previewFrame");
-  const modal = document.getElementById("linkPreview");
-
-  modal.classList.add("hidden");
-  frame.src = "";
+  document.getElementById("linkPreview").classList.add("hidden");
+  document.getElementById("previewFrame").src = "";
 }
   
 function refreshAll(){
