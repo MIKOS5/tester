@@ -405,11 +405,6 @@ let activeRoomName = "";
 let lastSendTime = 0;
 const SEND_COOLDOWN_MS = 1500; // 1.5 seconds
 let autoScroll = true;
-let category = "general";
-
-if (m.source === "teams") {
-  category = "sports";
-}
 
 /* ---------------- NEWS ---------------- */
 let emojiPickerBuilt = false;
@@ -541,12 +536,6 @@ function renderRooms(){
 
     if (!rooms[id]) {
 
-  let category = "general";
-
-  if (m.source === "teams") {
-    category = "sports";
-  }
-
   rooms[id] = {
     id,
     name: m.stationName || id,
@@ -554,11 +543,10 @@ function renderRooms(){
     last: "",
     user: "",
     source: null,
-    category: category,
+    category: m.source === "teams" ? "sports" : (m.category || "general")
     lastTime: 0
   };
 }
-
     rooms[id].count++;
 
     rooms[id].last = m.message;
@@ -583,9 +571,7 @@ function renderRooms(){
     list.sort((a, b) => b.count - a.count);
   }
 
-  document.getElementById("rooms").innerHTML =
-    list.map(r => `
-      const groups = {
+  const groups = {
   sports: [],
   general: []
 };
@@ -597,7 +583,6 @@ for (let r of list) {
 function renderRoom(r){
   return `
     <div class="room" onclick="openRoom('${r.id}')">
-
       <div class="room-title">
         ${r.name}
         <span>${r.count}</span>
@@ -606,18 +591,88 @@ function renderRoom(r){
       <div class="last-msg">
         ${r.user}: ${r.last}
       </div>
-
     </div>
   `;
 }
 
-document.getElementById("rooms").innerHTML = `
-  <div class="room-group-title">🏈 Sports</div>
-  ${groups.sports.map(renderRoom).join("")}
+const groups = {
+  sports: [],
+  general: []
+};
 
-  <div class="room-group-title">💬 General</div>
-  ${groups.general.map(renderRoom).join("")}
-`;
+for (let r of list) {
+  groups[r.category || "general"].push(r);
+}
+
+function renderRooms(){
+  const rooms = {};
+  const q = document.getElementById("searchBox").value.toLowerCase();
+  const sort = document.getElementById("sortBox").value;
+
+  for (let m of messages) {
+    if (!m || !m.station) continue;
+
+    const id = m.station.trim();
+    if (!id || id === "undefined") continue;
+
+    const text = `${m.stationName || ""} ${m.name || ""} ${m.message || ""}`.toLowerCase();
+    if (q && !text.includes(q)) continue;
+
+    if (!rooms[id]) {
+      rooms[id] = {
+        id,
+        name: m.stationName || id,
+        count: 0,
+        last: "",
+        user: "",
+        category: m.source === "teams" ? "sports" : "general"
+      };
+    }
+
+    rooms[id].count++;
+    rooms[id].last = m.message;
+    rooms[id].user = m.name;
+  }
+
+  let list = Object.values(rooms);
+
+  if (sort === "name") {
+    list.sort((a,b) => a.name.localeCompare(b.name));
+  } else {
+    list.sort((a,b) => b.count - a.count);
+  }
+
+  const groups = {
+    sports: [],
+    general: []
+  };
+
+  list.forEach(r => {
+    (groups[r.category] || groups.general).push(r);
+  });
+
+  function renderRoom(r){
+    return `
+      <div class="room" onclick="openRoom('${r.id}')">
+        <div class="room-title">
+          ${r.name}
+          <span>${r.count}</span>
+        </div>
+        <div class="last-msg">
+          ${r.user}: ${r.last}
+        </div>
+      </div>
+    `;
+  }
+
+  document.getElementById("rooms").innerHTML = `
+    <div class="room-group-title">🏈 Sports</div>
+    ${groups.sports.map(renderRoom).join("")}
+
+    <div class="room-group-title">💬 General</div>
+    ${groups.general.map(renderRoom).join("")}
+  `;
+}
 /* ---------------- CHAT ---------------- */
 
 function openRoom(id){
