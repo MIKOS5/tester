@@ -313,6 +313,7 @@ button{
   <div class="chat-input">
     <input id="popupName" placeholder="name" maxlength="10"/>
     <input id="popupMsg" placeholder="message" maxlength="120"/>
+    <button onclick="openGifPicker()">GIF</button>
     <button onclick="sendPopupMsg()">Send</button>
   </div>
 
@@ -326,11 +327,36 @@ button{
 
   <iframe id="previewFrame" style="flex:1;width:100%;border:none;"></iframe>
 </div>
+
+<div id="gifPicker" class="chat-popup hidden" style="height:500px;">
+
+    <div class="chat-popup-header">
+        <span>Search GIFs</span>
+        <button onclick="closeGifPicker()">✖</button>
+    </div>
+
+    <div style="padding:10px;">
+        <input
+            id="gifSearch"
+            placeholder="Search GIF..."
+            onkeydown="if(event.key==='Enter')searchGifs()"
+            style="width:100%;padding:8px;">
+    </div>
+
+    <div id="gifResults"
+         style="overflow:auto;flex:1;padding:10px;
+                display:grid;
+                grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+                gap:10px;">
+    </div>
+
+</div>
   
 <script>
 
 const API_URL = "https://script.google.com/macros/s/AKfycbzin84qDcZ9L1q4pTBtHZGKJSTDcZ_wnmgWmnmgPgf1jrc1nRprzbEBixKMSHcdkxiZBg/exec";
 const NEWS_API = "https://api.thenewsapi.com/v1/news/top?api_token=sFaR3pNJgYursoUKLlZvg71QTITi8BYMsFLGf8vB&locale=us&language=en";
+const GIPHY_API_KEY = "Jj5LhUt9MgP8OQYtxGukhQVwZuR6YJ4j";
 
 const blockedDomains = ["news.google.com", "facebook.com", "twitter.com"];
   
@@ -460,35 +486,38 @@ function toggleChatPopup(){
 }
 
 async function loadPopup(){
+
   const res = await fetch(API_URL,{
     method:"POST",
-    body:JSON.stringify({action:"get",station:activeRoom})
+    body:JSON.stringify({
+      action:"get",
+      station:activeRoom
+    })
   });
 
   const data = await res.json();
 
   if (!data.length) return;
 
-  // 🔥 find FIRST message (header)
-  const headerMsg = data[0];
+  // ======================
+  // 📌 PINNED HEADER
+  // ======================
 
-  // rest of messages
+  const headerMsg = data[0];
   const chatMsgs = data.slice(1);
 
   const headerUrl = extractUrl(headerMsg.message);
 
   const headerClean = headerUrl
-    ? headerMsg.message.replace(headerUrl, "").replace("|", "").trim()
-    : headerMsg.message;
+      ? headerMsg.message.replace(headerUrl,"").replace("|","").trim()
+      : headerMsg.message;
 
   let html = "";
 
-  // ======================
-  // 🧠 HEADER (PINNED)
-  // ======================
   html += `
-    <div class="chat-msg" style="border:2px solid var(--blue); background:var(--panel);">
+    <div class="chat-msg" style="border:2px solid var(--blue);background:var(--panel);">
       <div class="chat-name">📌 ${headerMsg.name} (Pinned)</div>
+
       ${headerClean}
 
       ${headerUrl ? `
@@ -502,32 +531,64 @@ async function loadPopup(){
   `;
 
   // ======================
-  // 💬 NORMAL CHAT
+  // 💬 CHAT MESSAGES
   // ======================
+
   html += chatMsgs.map(m => {
+
     const url = extractUrl(m.message);
 
     const cleanText = url
-      ? m.message.replace(url, "").replace("|", "").trim()
-      : m.message;
+        ? m.message.replace(url,"").replace("|","").trim()
+        : m.message;
+
+    // ----------------------
+    // GIF SUPPORT
+    // ----------------------
+
+    let body = "";
+
+    if (m.message.startsWith("[GIF]")) {
+
+      body = `
+        <img
+          src="${m.message.replace("[GIF]","")}"
+          style="
+            max-width:260px;
+            border-radius:10px;
+            display:block;
+            margin-top:6px;
+          ">
+      `;
+
+    } else {
+
+      body = cleanText;
+
+    }
 
     return `
       <div class="chat-msg">
-        <span class="chat-name">${m.name}:</span>
-        ${cleanText}
 
-        ${url ? `
+        <span class="chat-name">${m.name}:</span>
+
+        ${body}
+
+        ${url && !m.message.startsWith("[GIF]") ? `
           <div style="margin-top:6px;">
             <a href="#" onclick="openPreview('${encodeURIComponent(url)}')">
               🔗 View Source
             </a>
           </div>
         ` : ""}
+
       </div>
     `;
+
   }).join("");
 
   document.getElementById("popupMessages").innerHTML = html;
+
 }
 
 async function sendPopupMsg(){
@@ -633,6 +694,64 @@ function refreshAll(){
   loadNews();
 }
 
+async function searchGifs(){
+
+    const q = document.getElementById("gifSearch").value.trim();
+
+    if(!q) return;
+
+    const url =
+        `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}` +
+        `&limit=24&q=${encodeURIComponent(q)}`;
+
+    const res = await fetch(url);
+    const json = await res.json();
+
+    const html = json.data.map(g=>`
+
+        <img
+            src="${g.images.fixed_width.url}"
+            style="width:100%;cursor:pointer;border-radius:10px;"
+            onclick="sendGif('${g.images.original.url}')">
+
+    `).join("");
+
+    document.getElementById("gifResults").innerHTML = html;
+}
+
+function openGifPicker(){
+
+    document.getElementById("gifPicker").classList.remove("hidden");
+
+    document.getElementById("gifSearch").focus();
+
+}
+
+function closeGifPicker(){
+
+    document.getElementById("gifPicker").classList.add("hidden");
+
+}
+
+async function sendGif(url){
+
+    await fetch(API_URL,{
+        method:"POST",
+        body:JSON.stringify({
+            action:"send",
+            station:activeRoom,
+            stationName:activeRoomName,
+            name:popupName.value || "Anon",
+            message:"[GIF]"+url
+        })
+    });
+
+    closeGifPicker();
+
+    loadPopup();
+
+}
+  
 function toggleTheme(){
   document.body.classList.toggle("light");
 }
