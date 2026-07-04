@@ -461,8 +461,44 @@ async function loadPopup(){
 
   const data = await res.json();
 
-  document.getElementById("popupMessages").innerHTML =
-  data.map(m => {
+  if (!data.length) return;
+
+  // 🔥 find FIRST message (header)
+  const headerMsg = data[0];
+
+  // rest of messages
+  const chatMsgs = data.slice(1);
+
+  const headerUrl = extractUrl(headerMsg.message);
+
+  const headerClean = headerUrl
+    ? headerMsg.message.replace(headerUrl, "").replace("|", "").trim()
+    : headerMsg.message;
+
+  let html = "";
+
+  // ======================
+  // 🧠 HEADER (PINNED)
+  // ======================
+  html += `
+    <div class="chat-msg" style="border:2px solid var(--blue); background:var(--panel);">
+      <div class="chat-name">📌 ${headerMsg.name} (Pinned)</div>
+      ${headerClean}
+
+      ${headerUrl ? `
+        <div style="margin-top:6px;">
+          <a href="#" onclick="openPreview('${encodeURIComponent(headerUrl)}')">
+            🔗 View Source
+          </a>
+        </div>
+      ` : ""}
+    </div>
+  `;
+
+  // ======================
+  // 💬 NORMAL CHAT
+  // ======================
+  html += chatMsgs.map(m => {
     const url = extractUrl(m.message);
 
     const cleanText = url
@@ -476,7 +512,7 @@ async function loadPopup(){
 
         ${url ? `
           <div style="margin-top:6px;">
-            <a href="#" onclick="openPreview('${encodeURIComponent(url)}','${encodeURIComponent(cleanText)}')">
+            <a href="#" onclick="openPreview('${encodeURIComponent(url)}')">
               🔗 View Source
             </a>
           </div>
@@ -484,6 +520,8 @@ async function loadPopup(){
       </div>
     `;
   }).join("");
+
+  document.getElementById("popupMessages").innerHTML = html;
 }
 
 async function sendPopupMsg(){
