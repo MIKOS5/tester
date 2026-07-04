@@ -175,8 +175,8 @@ button{
   position:fixed;
   bottom:160px;
   right:20px;
-  width:360px;
-  height:520px;
+  width: min(90vw, 600px);
+  height: min(85vh, 700px);
   background:var(--panel);
   border:1px solid var(--line);
   border-radius:16px;
@@ -337,6 +337,7 @@ const blockedDomains = ["news.google.com", "facebook.com", "twitter.com"];
 let messages = [];
 let newsData = [];
 let activeRoom = "global";
+let activeRoomName = "";
 
 /* ---------------- NEWS ---------------- */
 
@@ -444,6 +445,11 @@ function renderRooms(){
 
 function openRoom(id){
   activeRoom = id;
+
+  // find room name from DOM/messages
+  const room = messages.find(m => m.station === id);
+  activeRoomName = room?.stationName || id;
+
   toggleChatPopup();
   loadPopup();
 }
