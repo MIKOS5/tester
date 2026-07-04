@@ -493,12 +493,29 @@ function renderRooms(){
     if(q && !text.includes(q)) continue;
 
     if(!rooms[id]){
-      rooms[id] = {id, name:m.stationName||id, count:0, last:"", user:""};
+      rooms[id] = {
+        id,
+        name: m.stationName || id,
+        count: 0,
+        last: "",
+        user: "",
+        source: null
+      };
     }
 
     rooms[id].count++;
+
+    const urlMatch = m.message.match(/https?:\/\/[^\s|]+/);
+    const url = urlMatch ? urlMatch[0] : null;
+
+    // always keep last fallback message
     rooms[id].last = m.message;
     rooms[id].user = m.name;
+
+    // ONLY store NewsBot source link
+    if (m.name === "NewsBot" && url) {
+      rooms[id].source = url;
+    }
   }
 
   let list = Object.values(rooms);
@@ -517,11 +534,18 @@ function renderRooms(){
           ${r.name}
           <span>${r.count}</span>
         </div>
-        <div class="last-msg">${r.user}: ${r.last}</div>
+
+        <div class="last-msg">
+          ${
+            r.source
+              ? `<a href="#" onclick="openPreview('${encodeURIComponent(r.source)}')">🔗 View Source</a>`
+              : `${r.user}: ${r.last}`
+          }
+        </div>
+
       </div>
     `).join("");
 }
-
 /* ---------------- CHAT ---------------- */
 
 function openRoom(id){
