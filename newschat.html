@@ -545,13 +545,13 @@ function renderRoom(r){
 }
 
 
-  function renderRooms(){
+function renderRooms(){
 
   const rooms = {};
   const q = document.getElementById("searchBox").value.toLowerCase();
   const sort = document.getElementById("sortBox").value;
 
-  // Build room list
+  // Build unique room list
   for(const m of messages){
 
     if(!m || !m.station) continue;
@@ -579,51 +579,42 @@ function renderRoom(r){
     rooms[id].count++;
     rooms[id].last = m.message || "";
     rooms[id].user = m.name || "Anon";
-
   }
 
   let list = Object.values(rooms);
 
-  // Sort
+  // Sort rooms
   if(sort === "name"){
     list.sort((a,b)=>a.name.localeCompare(b.name));
   }else{
     list.sort((a,b)=>b.count-a.count);
   }
 
-  // Backend already filtered when Chat/Teams selected.
-  // We only separate into headings when viewing All.
-
+  // Chat or Teams selected (backend already filtered)
   if(activeCategory !== "all"){
-
     document.getElementById("rooms").innerHTML =
       list.map(renderRoom).join("");
-
     return;
-
   }
 
+  // All selected - split into sections
   const chatRooms = [];
   const teamRooms = [];
 
-  for(const room of list){
-
-    if(room.source === "teams"){
-      teamRooms.push(room);
+  list.forEach(r => {
+    if(r.source === "teams"){
+      teamRooms.push(r);
     }else{
-      chatRooms.push(room);
+      chatRooms.push(r);
     }
-
-  }
+  });
 
   document.getElementById("rooms").innerHTML = `
-
     <div class="room-group-title">💬 Chat Sheet</div>
     ${chatRooms.map(renderRoom).join("")}
 
     <div class="room-group-title">🏈 Teams Sheet</div>
     ${teamRooms.map(renderRoom).join("")}
-
   `;
 
 }
