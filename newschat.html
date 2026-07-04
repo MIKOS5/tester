@@ -310,8 +310,9 @@ button{
 <!-- ✅ ADD THIS -->
 <div style="display:flex;gap:10px;margin-bottom:10px;">
   <button onclick="setCategory('all')">All</button>
-  <button onclick="setCategory('sports')">Sports</button>
-  <button onclick="setCategory('general')">General</button>
+  <button onclick="setCategory('all')">All</button>
+<button onclick="setCategory('chat')">Chat</button>
+<button onclick="setCategory('teams')">Teams</button>
 </div>
 
   <div id="rooms"></div>
@@ -470,7 +471,7 @@ function extractUrl(text){
 }
 
 function setCategory(cat){
-  activeCategory = cat;
+  activeCategory = cat; // "all" | "chat" | "teams"
   renderRooms();
 }
   
@@ -524,15 +525,12 @@ async function load(){
       m.station.trim() !== "" &&
       m.station !== "undefined"
     )
-    .map(m => ({
-      ...m,
-
-      // 🔥 FIX: explicit category from backend source
-      category:
-        m.source === "teams"
-          ? "sports"
-          : "chat"
-    }));
+    messages = raw.filter(m =>
+  m &&
+  m.station &&
+  m.station.trim() !== "" &&
+  m.station !== "undefined"
+);
 
   renderRooms();
 }
@@ -559,14 +557,12 @@ function renderRoom(r){
   const sort = document.getElementById("sortBox").value;
 
   for (let m of messages) {
-
     if (!m || !m.station) continue;
 
     const id = m.station.trim();
     if (!id || id === "undefined") continue;
 
     const text = `${m.stationName || ""} ${m.name || ""} ${m.message || ""}`.toLowerCase();
-
     if (q && !text.includes(q)) continue;
 
     if (!rooms[id]) {
@@ -576,12 +572,7 @@ function renderRoom(r){
         count: 0,
         last: "",
         user: "",
-
-        // 🔥 NEW: proper category detection
-        category:
-          m.source === "teams"
-            ? "sports"
-            : "chat"
+        source: m.source // 👈 Chat or Teams
       };
     }
 
@@ -598,24 +589,23 @@ function renderRoom(r){
     list.sort((a,b) => b.count - a.count);
   }
 
-  const groups = {
-    sports: [],
-    general: []
-  };
+  const chatRooms = [];
+  const teamRooms = [];
 
   list.forEach(r => {
-    if (activeCategory !== "all" && r.category !== activeCategory) return;
+    if (activeCategory !== "all" && activeCategory === "chat" && r.source !== "Chat") return;
+    if (activeCategory !== "all" && activeCategory === "teams" && r.source !== "Teams") return;
 
-    if (r.category === "sports") groups.sports.push(r);
-    else groups.general.push(r);
+    if (r.source === "Teams") teamRooms.push(r);
+    else chatRooms.push(r);
   });
 
   document.getElementById("rooms").innerHTML = `
-    <div class="room-group-title">🏈 Sports (Teams Sheet)</div>
-    ${groups.sports.map(renderRoom).join("")}
+    <div class="room-group-title">💬 Chat Sheet</div>
+    ${chatRooms.map(renderRoom).join("")}
 
-    <div class="room-group-title">💬 Chat (Chat Sheet)</div>
-    ${groups.general.map(renderRoom).join("")}
+    <div class="room-group-title">🏈 Teams Sheet</div>
+    ${teamRooms.map(renderRoom).join("")}
   `;
 }
 
