@@ -503,34 +503,37 @@ function renderRooms(){
   const q = document.getElementById("searchBox").value.toLowerCase();
   const sort = document.getElementById("sortBox").value;
 
-  for(let m of messages){
+  for (let m of messages) {
 
-    const id = m.station || "global";
-    const text = `${m.stationName||""} ${m.name||""} ${m.message||""}`.toLowerCase();
+    if (!m.station) continue; // 🔥 kill invalid rows
 
-    if(q && !text.includes(q)) continue;
+    const id = m.station.trim();
+    if (!id || id === "undefined") continue;
 
-    if(!rooms[id]){
+    const text = `${m.stationName || ""} ${m.name || ""} ${m.message || ""}`.toLowerCase();
+
+    if (q && !text.includes(q)) continue;
+
+    if (!rooms[id]) {
       rooms[id] = {
         id,
         name: m.stationName || id,
         count: 0,
         last: "",
         user: "",
-        source: null
+        source: null,
+        lastTime: 0
       };
     }
 
     rooms[id].count++;
 
-    const urlMatch = m.message.match(/https?:\/\/[^\s|]+/);
-    const url = urlMatch ? urlMatch[0] : null;
-
-    // always keep last fallback message
     rooms[id].last = m.message;
     rooms[id].user = m.name;
 
-    // ONLY store NewsBot source link
+    const urlMatch = m.message.match(/https?:\/\/[^\s|]+/);
+    const url = urlMatch ? urlMatch[0] : null;
+
     if (m.name === "NewsBot" && url) {
       rooms[id].source = url;
     }
@@ -538,15 +541,17 @@ function renderRooms(){
 
   let list = Object.values(rooms);
 
-  // SORT LOGIC
-  if(sort === "name"){
-    list.sort((a,b)=>a.name.localeCompare(b.name));
+  // 🔥 optional but recommended: remove spam rooms
+  list = list.filter(r => r.count > 0 && r.name !== "test");
+
+  if (sort === "name") {
+    list.sort((a, b) => a.name.localeCompare(b.name));
   } else {
-    list.sort((a,b)=>b.count - a.count);
+    list.sort((a, b) => b.count - a.count);
   }
 
   document.getElementById("rooms").innerHTML =
-    list.map(r=>`
+    list.map(r => `
       <div class="room" onclick="openRoom('${r.id}')">
         <div class="room-title">
           ${r.name}
@@ -560,7 +565,6 @@ function renderRooms(){
               : `${r.user}: ${r.last}`
           }
         </div>
-
       </div>
     `).join("");
 }
