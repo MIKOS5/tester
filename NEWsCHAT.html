@@ -8,7 +8,12 @@
 
 <link rel="icon" type="image/png" href="https://mikos5.github.io/tester/navicon.png">
 <link rel="apple-touch-icon" href="https://mikos5.github.io/tester/navicon.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/emoji-toolkit@9.0.0/extras/css/joypixels.min.css">
+<script src="https://cdn.jsdelivr.net/npm/emoji-toolkit@9.0.0/lib/js/joypixels.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/emoji-mart@latest/css/emoji-mart.css">
 
+<script src="https://cdn.jsdelivr.net/npm/emoji-mart@latest/dist/browser.js"></script>
+  
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet"/>
 
 <style>
@@ -313,8 +318,20 @@ button{
   <div class="chat-input">
     <input id="popupName" placeholder="name" maxlength="10"/>
     <input id="popupMsg" placeholder="message" maxlength="120"/>
+    <button onclick="toggleEmojiPicker()">😀</button>
     <button onclick="openGifPicker()">GIF</button>
     <button onclick="sendPopupMsg()">Send</button>
+  </div>
+
+  <!-- Emoji picker goes HERE -->
+  <div id="emojiPicker"
+       style="
+         display:none;
+         position:absolute;
+         bottom:70px;
+         right:10px;
+         z-index:999999;
+       ">
   </div>
 
 </div>
@@ -366,7 +383,41 @@ let activeRoom = "global";
 let activeRoomName = "";
 
 /* ---------------- NEWS ---------------- */
+let emojiPickerBuilt = false;
 
+function toggleEmojiPicker(){
+
+    const picker = document.getElementById("emojiPicker");
+
+    if(picker.style.display === "block"){
+        picker.style.display = "none";
+        return;
+    }
+
+    picker.style.display = "block";
+
+    if(emojiPickerBuilt) return;
+
+    const el = new EmojiMart.Picker({
+
+        theme: document.body.classList.contains("light") ? "light" : "dark",
+
+        onEmojiSelect(e){
+
+            popupMsg.value += e.native;
+
+            popupMsg.focus();
+
+        }
+
+    });
+
+    picker.appendChild(el);
+
+    emojiPickerBuilt = true;
+
+}
+  
 async function loadNews(){
   try{
     const res = await fetch(NEWS_API);
@@ -587,7 +638,9 @@ async function loadPopup(){
 
   }).join("");
 
-  document.getElementById("popupMessages").innerHTML = html;
+  const chat = document.getElementById("popupMessages");
+
+chat.innerHTML = joypixels.toImage(html);
 
 }
 
@@ -608,6 +661,7 @@ async function sendPopupMsg(){
   });
 
   popupMsg.value="";
+  document.getElementById("emojiPicker").style.display = "none";
   loadPopup();
 }
 
@@ -755,6 +809,22 @@ async function sendGif(url){
 function toggleTheme(){
   document.body.classList.toggle("light");
 }
+
+// Close emoji picker when clicking outside
+document.addEventListener("click", e=>{
+
+    const picker = document.getElementById("emojiPicker");
+
+    if (!picker) return;
+
+    if(
+        !picker.contains(e.target) &&
+        !e.target.closest("button[onclick='toggleEmojiPicker()']")
+    ){
+        picker.style.display = "none";
+    }
+
+});
 
 window.addEventListener("DOMContentLoaded", () => {
 
