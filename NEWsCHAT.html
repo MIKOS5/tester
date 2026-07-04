@@ -536,32 +536,41 @@ function openPreview(url){
 
   modal.classList.remove("hidden");
 
-  let done = false;
+  let finished = false;
 
-  // reset iframe first (important for repeated clicks)
-  frame.src = "";
+  // reset iframe
+  frame.src = "about:blank";
 
-  const fallback = setTimeout(() => {
-    if (!done) {
-      done = true;
+  // HARD fallback timer (primary safety net)
+  const timeout = setTimeout(() => {
+    if (finished) return;
+    finished = true;
+
+    closePreview();
+    window.open(decoded, "_blank");
+  }, 1500);
+
+  // iframe load attempt
+  frame.onload = () => {
+    if (finished) return;
+
+    try {
+      // try to detect "empty / blocked" pages
+      const doc = frame.contentWindow?.location?.href;
+
+      // if still blank or about:blank → treat as failure
+      if (!doc || doc === "about:blank") {
+        throw new Error("blocked or empty iframe");
+      }
+
+      finished = true;
+      clearTimeout(timeout);
+    } catch (e) {
+      finished = true;
+      clearTimeout(timeout);
       closePreview();
       window.open(decoded, "_blank");
     }
-  }, 1200);
-
-  frame.onload = () => {
-    if (done) return;
-    done = true;
-    clearTimeout(fallback);
-    // stays open successfully loaded
-  };
-
-  frame.onerror = () => {
-    if (done) return;
-    done = true;
-    clearTimeout(fallback);
-    closePreview();
-    window.open(decoded, "_blank");
   };
 
   frame.src = decoded;
@@ -572,7 +581,7 @@ function closePreview(){
   const modal = document.getElementById("linkPreview");
 
   modal.classList.add("hidden");
-  frame.src = "";
+  frame.src = "about:blank";
 }
   
 function refreshAll(){
