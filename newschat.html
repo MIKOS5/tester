@@ -545,29 +545,24 @@ function renderRoom(r){
 }
 
 
-function renderRooms(){
-
+function renderRooms() {
   const rooms = {};
   const q = document.getElementById("searchBox").value.toLowerCase();
   const sort = document.getElementById("sortBox").value;
 
-  // Build unique room list
-  for(const m of messages){
-
-    if(!m || !m.station) continue;
+  for (let m of messages) {
+    if (!m || !m.station) continue;
 
     const id = m.station.trim();
+    if (!id || id === "undefined") continue;
 
-    if(!id || id === "undefined") continue;
+    const text = `${m.stationName || ""} ${m.name || ""} ${m.message || ""}`.toLowerCase();
 
-    const text =
-      `${m.stationName || ""} ${m.name || ""} ${m.message || ""}`.toLowerCase();
+    if (q && !text.includes(q)) continue;
 
-    if(q && !text.includes(q)) continue;
-
-    if(!rooms[id]){
+    if (!rooms[id]) {
       rooms[id] = {
-        id: id,
+        id,
         name: m.stationName || id,
         count: 0,
         last: "",
@@ -583,31 +578,22 @@ function renderRooms(){
 
   let list = Object.values(rooms);
 
-  // Sort rooms
-  if(sort === "name"){
-    list.sort((a,b)=>a.name.localeCompare(b.name));
-  }else{
-    list.sort((a,b)=>b.count-a.count);
+  if (sort === "name") {
+    list.sort((a, b) => a.name.localeCompare(b.name));
+  } else {
+    list.sort((a, b) => b.count - a.count);
   }
 
-  // Chat or Teams selected (backend already filtered)
-  if(activeCategory !== "all"){
-    document.getElementById("rooms").innerHTML =
-      list.map(renderRoom).join("");
-    return;
-  }
-
-  // All selected - split into sections
   const chatRooms = [];
   const teamRooms = [];
 
-  list.forEach(r => {
-    if(r.source === "teams"){
+  for (const r of list) {
+    if (r.source === "teams") {
       teamRooms.push(r);
-    }else{
+    } else {
       chatRooms.push(r);
     }
-  });
+  }
 
   document.getElementById("rooms").innerHTML = `
     <div class="room-group-title">💬 Chat Sheet</div>
@@ -616,7 +602,6 @@ function renderRooms(){
     <div class="room-group-title">🏈 Teams Sheet</div>
     ${teamRooms.map(renderRoom).join("")}
   `;
-
 }
 
 /* ---------------- CHAT ---------------- */
