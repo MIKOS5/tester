@@ -514,15 +514,25 @@ async function load(){
     body:JSON.stringify({action:"get",station:""})
   });
 
-  messages = await res.json();
+  const raw = await res.json();
 
-  // 🔥 CLEAN DATA RIGHT HERE (IMPORTANT)
-  messages = messages.filter(m =>
-    m &&
-    m.station &&
-    m.station.trim() !== "" &&
-    m.station !== "undefined"
-  );
+  // normalize BOTH sheets cleanly
+  messages = raw
+    .filter(m =>
+      m &&
+      m.station &&
+      m.station.trim() !== "" &&
+      m.station !== "undefined"
+    )
+    .map(m => ({
+      ...m,
+
+      // 🔥 FIX: explicit category from backend source
+      category:
+        m.source === "teams"
+          ? "sports"
+          : "chat"
+    }));
 
   renderRooms();
 }
@@ -549,12 +559,14 @@ function renderRoom(r){
   const sort = document.getElementById("sortBox").value;
 
   for (let m of messages) {
+
     if (!m || !m.station) continue;
 
     const id = m.station.trim();
     if (!id || id === "undefined") continue;
 
     const text = `${m.stationName || ""} ${m.name || ""} ${m.message || ""}`.toLowerCase();
+
     if (q && !text.includes(q)) continue;
 
     if (!rooms[id]) {
@@ -564,7 +576,12 @@ function renderRoom(r){
         count: 0,
         last: "",
         user: "",
-        category: m.source === "teams" ? "sports" : "general"
+
+        // 🔥 NEW: proper category detection
+        category:
+          m.source === "teams"
+            ? "sports"
+            : "chat"
       };
     }
 
@@ -581,22 +598,26 @@ function renderRoom(r){
     list.sort((a,b) => b.count - a.count);
   }
 
-  const groups = { sports: [], general: [] };
+  const groups = {
+    sports: [],
+    general: []
+  };
 
   list.forEach(r => {
-  if (activeCategory !== "all" && r.category !== activeCategory) return;
-  (groups[r.category] || groups.general).push(r);
-});
+    if (activeCategory !== "all" && r.category !== activeCategory) return;
+
+    if (r.category === "sports") groups.sports.push(r);
+    else groups.general.push(r);
+  });
 
   document.getElementById("rooms").innerHTML = `
-    <div class="room-group-title">🏈 Sports</div>
+    <div class="room-group-title">🏈 Sports (Teams Sheet)</div>
     ${groups.sports.map(renderRoom).join("")}
 
-    <div class="room-group-title">💬 General</div>
+    <div class="room-group-title">💬 Chat (Chat Sheet)</div>
     ${groups.general.map(renderRoom).join("")}
   `;
 }
-
 
 /* ---------------- CHAT ---------------- */
 
@@ -605,7 +626,12 @@ function openRoom(id){
 
   // find room name from DOM/messages
   const room = messages.find(m => m.station === id);
-  activeRoomName = room?.stationName || id;
+activeRoomName = room?.stationName || id;
+
+// optional clarity label
+const isTeams = room?.source === "teams";
+document.getElementById("popupTitle").textContent =
+  isTeams ? `🏈 ${activeRoomName}` : `💬 ${activeRoomName}`;
 
   toggleChatPopup();
   loadPopup();
