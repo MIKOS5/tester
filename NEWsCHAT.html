@@ -437,21 +437,25 @@ function extractUrl(text){
 }
   
 function openNewsRoom(article){
+
   const topic = slugify(article.title);
+
+  activeRoom = topic;
+  activeRoomName = article.title;
 
   fetch(API_URL,{
     method:"POST",
     body:JSON.stringify({
       action:"send",
-      station: topic,
-      stationName: article.title,
+      station:topic,
+      stationName:article.title,
       name:"NewsBot",
-      message: article.description || "Breaking news"
+      message:article.description || "Breaking news"
     })
   });
 
-  activeRoom = topic;
   openRoom(topic);
+
 }
 
 function renderNews(){
@@ -650,15 +654,15 @@ async function sendPopupMsg(){
   if(!msg) return;
 
   await fetch(API_URL,{
-    method:"POST",
-    body:JSON.stringify({
-      action:"send",
-      station:activeRoom,
-      stationName:activeRoom,
-      name:name,
-      message:msg
-    })
-  });
+  method:"POST",
+  body:JSON.stringify({
+    action:"send",
+    station:activeRoom,
+    stationName:activeRoomName,
+    name:name,
+    message:msg
+  })
+});
 
   popupMsg.value="";
   document.getElementById("emojiPicker").style.display = "none";
@@ -668,10 +672,14 @@ async function sendPopupMsg(){
 /* ---------------- UTIL ---------------- */
 
 function createRoom(){
+
   const name = prompt("Room name?");
   if(!name) return;
 
   const id = slugify(name);
+
+  activeRoom = id;
+  activeRoomName = name;
 
   fetch(API_URL,{
     method:"POST",
@@ -685,6 +693,7 @@ function createRoom(){
   });
 
   load();
+
 }
 
 function openPreview(url){
