@@ -615,25 +615,28 @@ function renderNews(){
   }, 30000);
 }
 
-function discussNews(id, title){
+async function discussNews(id, title){
 
-  // make it behave like a real room click
-  activeRoom = id;
-  activeRoomName = title;
+  const safeId = slugify(id);
+  const safeTitle = title;
 
-  // optional: seed room if it doesn’t exist yet
-  fetch(API_URL,{
+  // 1. Seed room like your table/chat system expects
+  await fetch(API_URL,{
     method:"POST",
     body:JSON.stringify({
       action:"send",
-      station:id,
-      stationName:title,
+      station:safeId,
+      stationName:safeTitle,
       name:"NewsBot",
       message:"📰 Discussion started"
     })
   });
 
-  openRoom(id);
+  // 2. reload messages so renderRooms + grouping is correct
+  await load();
+
+  // 3. NOW open using same pipeline as table clicks
+  openRoom(safeId);
 }
   
 /* ---------------- ROOMS ---------------- */
