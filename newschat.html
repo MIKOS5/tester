@@ -542,9 +542,9 @@ function renderNews(){
           <div style="margin-top:8px; display:flex; gap:6px;">
             
             <!-- OPEN CHAT ROOM -->
-            <button onclick="openRoom('${topicId}', \`${headline.replace(/`/g,'')}\`)">
-              💬 Discuss
-            </button>
+            <button onclick="discussNews('${topicId}', \`${headline.replace(/`/g,'')}\`)">
+  💬 Discuss
+</button>
 
           </div>
 
@@ -553,6 +553,26 @@ function renderNews(){
     }).join("");
 }
 
+function discussNews(id, title){
+
+  // make it behave like a real room click
+  activeRoom = id;
+  activeRoomName = title;
+
+  // optional: seed room if it doesn’t exist yet
+  fetch(API_URL,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"send",
+      station:id,
+      stationName:title,
+      name:"NewsBot",
+      message:"📰 Discussion started"
+    })
+  });
+
+  openRoom(id);
+}
   
 /* ---------------- ROOMS ---------------- */
 
