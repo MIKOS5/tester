@@ -576,7 +576,8 @@ function renderNews(){
       const parts = (n.message || "").split("|");
       const link = parts[1] ? parts[1].trim() : "";
 
-      const topicId = (n.station && n.station.trim()) ? n.station.trim() : null;
+      const topicId = n.station?.trim();
+const topicName = n.stationName || headline;
 
       return `
         <div class="news-item">
@@ -591,9 +592,9 @@ function renderNews(){
           ` : ""}
 
           ${topicId ? `
-  <button onclick="discussNews('${topicId}', \`${headline.replace(/`/g,'')}\`)">
-    💬
-  </button>
+  <button onclick="discussNews('${topicId}', \`${topicName.replace(/`/g,'')}\`)">
+  💬
+</button>
 ` : ""}
         </div>
       `;
@@ -619,27 +620,32 @@ function renderNews(){
 
 async function discussNews(id, title){
 
-  // ❌ NEVER allow fake rooms
-  if (!id) {
-    console.error("Missing station ID for news room:", title);
-    return;
-  }
+  if (!id) return;
 
   const safeId = id.trim();
 
+  // ensure backend writes SAME structure as table
   await fetch(API_URL,{
     method:"POST",
     body:JSON.stringify({
       action:"send",
       station:safeId,
-      stationName:title,
+      stationName:title,   // 👈 critical
       name:"NewsBot",
       message:"📰 Discussion started"
     })
   });
 
   await load();
-  openRoom(safeId);
+
+  // 🔥 force identical behavior as table click
+  const room = messages.find(m => m.station === safeId);
+
+  activeRoom = safeId;
+  activeRoomName = room?.stationName || title || safeId;
+
+  toggleChatPopup();
+  loadPopup();
 }
   
 /* ---------------- ROOMS ---------------- */
