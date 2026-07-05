@@ -542,7 +542,7 @@ function renderNews(){
           <div style="margin-top:8px; display:flex; gap:6px;">
             
             <!-- OPEN CHAT ROOM -->
-            <button onclick="openNewsRoomFromCard('${topicId}', \`${headline.replace(/`/g,'')}\`)">
+            <button onclick="openRoom('${topicId}', \`${headline.replace(/`/g,'')}\`)">
               💬 Discuss
             </button>
 
@@ -553,26 +553,6 @@ function renderNews(){
     }).join("");
 }
 
-function openNewsRoomFromCard(topic, title){
-
-  activeRoom = topic;
-  activeRoomName = title;
-
-  // optional: create starter message in sheet
-  fetch(API_URL,{
-    method:"POST",
-    body:JSON.stringify({
-      action:"send",
-      station:topic,
-      stationName:title,
-      name:"NewsBot",
-      message:"📰 Discussion started for this article"
-    })
-  });
-
-  // open popup + load chat
-  openRoom(topic);
-}
   
 /* ---------------- ROOMS ---------------- */
 
