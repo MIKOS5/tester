@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>Chat Obvyris</title>
+
+<link rel="icon" type="image/png" href="https://mikos5.github.io/tester/navicon.png">
+<link rel="apple-touch-icon" href="https://mikos5.github.io/tester/navicon.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/emoji-toolkit@9.0.0/extras/css/joypixels.min.css">
+<script src="https://cdn.jsdelivr.net/npm/emoji-toolkit@9.0.0/lib/js/joypixels.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/emoji-mart@latest/css/emoji-mart.css">
+
+<script src="https://cdn.jsdelivr.net/npm/emoji-mart@latest/dist/browser.js"></script>
+  
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet"/>
+
+<style>
+
+:root{
+  --bg:#09111d;
+  --panel:#111827;
+  --line:#253347;
+  --text:#fff;
+  --muted:#93a4bb;
+  --blue:#2793ff;
+  --blue-dark:#1869d9;
+  --panel-alt:#0b1220;
+}
+
+body.light{
+  --bg:#f4f6f8;
+  --panel:#ffffff;
+  --line:#d9e2ec;
+  --text:#102a43;
+  --muted:#627d98;
+  --blue:#4f8ef7;
+  --blue-dark:#3b82f6;
+  --panel-alt:#eef3f8;
+}
+
+*{box-sizing:border-box;}
+
+body{
+  margin:0;
+  font-family:Inter,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  display:flex;
+  height:100vh;
+  overflow:hidden;
+}
+
+/* SIDEBAR */
+.sidebar{
+  width:340px;
+  background:var(--panel);
+  border-right:1px solid var(--line);
+  padding:20px;
+  overflow:auto;
+}
+
+.logo{
+  font-family:Orbitron;
+  font-size:42px;
+  font-weight:900;
+}
+
+.logo span{ color:var(--blue); }
+
+.subtitle{
+  color:var(--muted);
+  font-size:13px;
+  margin-bottom:20px;
+}
+
+.player{
+  margin-top:10px;
+  padding:16px;
+  border-radius:16px;
+  background:var(--panel);
+  border:1px solid var(--line);
+}
+
+.controls{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin-top:12px;
+}
+
+button{
+  border:none;
+  border-radius:12px;
+  padding:10px;
+  background:linear-gradient(180deg,var(--blue),var(--blue-dark));
+  color:white;
+  font-weight:700;
+  cursor:pointer;
+}
+
+/* MAIN */
+.main{
+  flex:1;
+  padding:20px;
+  overflow:auto;
+}
+
+.title{
+  font-size:42px;
+  font-weight:800;
+  margin-bottom:15px;
+}
+
+/* NEWS */
+.news-grid{
+  display:flex;
+  gap:12px;
+  overflow-x:auto;
+  padding-bottom:10px;
+  scroll-snap-type:x mandatory;
+  -webkit-overflow-scrolling:touch;
+}
+
+.news-card{
+  min-width:280px;
+  flex:0 0 auto;
+  scroll-snap-align:start;
+}
+
+.news-card:hover{
+  border-color:var(--blue);
+}
+
+.news-grid::-webkit-scrollbar{
+  height:6px;
+}
+
+.news-grid::-webkit-scrollbar-thumb{
+  background:var(--line);
+  border-radius:10px;
+}
+  
+.news-title{
+  font-weight:800;
+  font-size:14px;
+}
+
+.news-desc{
+  font-size:12px;
+  color:var(--muted);
+  margin-top:6px;
+}
+
+/* ROOMS */
+.room{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:14px;
+  margin-bottom:10px;
+  cursor:pointer;
+}
+
+.room:hover{
+  border-color:var(--blue);
+}
+
+.room-title{
+  font-weight:800;
+  display:flex;
+  justify-content:space-between;
+}
+
+.room-meta{
+  font-size:12px;
+  color:var(--muted);
+}
+
+.last-msg{
+  margin-top:8px;
+  font-size:13px;
+  font-weight:600;
+}
+
+/* CHAT */
+.chat-popup{
+  position:fixed;
+  bottom:160px;
+  right:20px;
+  width: min(90vw, 600px);
+  height: min(85vh, 700px);
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:16px;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  z-index:99999;
+}
+
+.chat-popup.hidden{display:none;}
+
+.chat-popup-header{
+  padding:10px;
+  font-weight:800;
+  display:flex;
+  justify-content:space-between;
+  border-bottom:1px solid var(--line);
+  background:var(--panel-alt);
+}
+
+.chat-popup-log{
+  flex:1;
+  overflow-y:auto;
+  padding:10px;
+  font-size:13px;
+}
+
+.chat-msg{
+  margin-bottom:6px;
+  padding:6px;
+  background:var(--panel-alt);
+  border-radius:8px;
+}
+
+.chat-name{
+  color:var(--blue);
+  font-weight:800;
+}
+
+.chat-input{
+  display:flex;
+  gap:5px;
+  padding:8px;
+  border-top:1px solid var(--line);
+}
+
+.chat-input input{
+  flex:1;
+  padding:6px;
+  border-radius:8px;
+  border:1px solid var(--line);
+  background:var(--bg);
+  color:var(--text);
+}
+
+#chatFloatBtn{
+  position:fixed;
+  bottom:90px;
+  right:20px;
+  width:55px;
+  height:55px;
+  border-radius:50%;
+}
+
+/* NEW SORT BAR */
+.room-tools{
+  display:flex;
+  gap:10px;
+  margin:10px 0;
+}
+
+.room-tools input,
+.room-tools select{
+  flex:1;
+  padding:8px;
+  border-radius:10px;
+  border:1px solid var(--line);
+  background:var(--panel);
+  color:var(--text);
+}
+
+.room-group-title{
+  margin:15px 0 8px;
+  font-weight:800;
+  font-size:14px;
+  color:var(--muted);
+}
+  
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+
+  <div class="logo">Chat <span>Obvyris</span></div>
+  <div class="subtitle">News • Rooms • Live Topics</div>
+
+  <div class="player">
+    <div class="controls">
+      <button onclick="createRoom()">➕</button>
+      <button onclick="refreshAll()">↻</button>
+      <button onclick="toggleChatPopup()">💬</button>
+      <button onclick="toggleTheme()">🌙</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="main">
+
+  <div class="title">Live News</div>
+  <div id="news" class="news-grid"></div>
+
+  <div class="title">Chat Rooms</div>
+
+  <div class="room-tools">
+    <input id="searchBox" placeholder="Search rooms..." oninput="renderRooms()"/>
+
+    <select id="sortBox" onchange="renderRooms()">
+      <option value="count">Sort: Most Messages</option>
+      <option value="name">Sort: Name A–Z</option>
+    </select>
+  </div>
+
+  <div style="display:flex;gap:10px;margin-bottom:10px;">
+    <button onclick="setCategory('all')">All</button>
+    <button onclick="setCategory('chat')">Chat</button>
+    <button onclick="setCategory('teams')">Teams</button>
+    <button onclick="setCategory('news')">News</button>
+  </div>
+
+  <!-- ✅ THIS MUST STAY INSIDE MAIN -->
+  <div id="rooms"></div>
+
+</div>
+
+<button id="chatFloatBtn" onclick="toggleChatPopup()">💬</button>
+
+<div id="chatPopup" class="chat-popup hidden">
+
+  <div class="chat-popup-header">
+    <span id="popupTitle">Chat</span>
+    <button onclick="toggleChatPopup()">✖</button>
+  </div>
+
+  <div id="popupMessages" class="chat-popup-log"></div>
+
+  <button id="scrollBottomBtn"
+        onclick="scrollToBottom()"
+        style="
+          position:absolute;
+          bottom:70px;
+          right:10px;
+          display:none;
+          border-radius:20px;
+          padding:8px 10px;
+          z-index:999999;
+        ">
+  ⬇ Bottom
+</button>
+  
+  <div class="chat-input">
+    <input id="popupName" placeholder="name" maxlength="10"/>
+    <input id="popupMsg" placeholder="message" maxlength="120"/>
+    <button onclick="toggleEmojiPicker()">😀</button>
+    <button onclick="openGifPicker()">GIF</button>
+    <button onclick="sendPopupMsg()">Send</button>
+  </div>
+
+  <!-- Emoji picker goes HERE -->
+  <div id="emojiPicker"
+       style="
+         display:none;
+         position:absolute;
+         bottom:70px;
+         right:10px;
+         z-index:999999;
+       ">
+  </div>
+
+</div>
+
+<div id="linkPreview" class="chat-popup hidden" style="bottom:80px;height:420px;">
+  <div class="chat-popup-header">
+    <span>Link Preview</span>
+    <button onclick="closePreview()">✖</button>
+  </div>
+
+  <iframe id="previewFrame" style="flex:1;width:100%;border:none;"></iframe>
+</div>
+
+<div id="gifPicker" class="chat-popup hidden" style="height:500px;">
+
+    <div class="chat-popup-header">
+        <span>Search GIFs</span>
+        <button onclick="closeGifPicker()">✖</button>
+    </div>
+
+    <div style="padding:10px;">
+        <input
+            id="gifSearch"
+            placeholder="Search GIF..."
+            onkeydown="if(event.key==='Enter')searchGifs()"
+            style="width:100%;padding:8px;">
+    </div>
+
+    <div id="gifResults"
+         style="overflow:auto;flex:1;padding:10px;
+                display:grid;
+                grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+                gap:10px;">
+    </div>
+
+</div>
+  
+<script>
+
+const API_URL = "https://script.google.com/macros/s/AKfycbzin84qDcZ9L1q4pTBtHZGKJSTDcZ_wnmgWmnmgPgf1jrc1nRprzbEBixKMSHcdkxiZBg/exec";
+const NEWS_API = "https://script.google.com/macros/s/AKfycbzin84qDcZ9L1q4pTBtHZGKJSTDcZ_wnmgWmnmgPgf1jrc1nRprzbEBixKMSHcdkxiZBg/exec";
+const GIPHY_API_KEY = "Jj5LhUt9MgP8OQYtxGukhQVwZuR6YJ4j";
+
+const blockedDomains = ["news.google.com", "facebook.com", "twitter.com"];
+  
+let messages = [];
+let newsData = [];
+let activeRoom = "global";
+let activeRoomName = "";
+let lastSendTime = 0;
+const SEND_COOLDOWN_MS = 1500; // 1.5 seconds
+let autoScroll = true;
+let activeCategory = "all";
+
+/* ---------------- NEWS ---------------- */
+let emojiPickerBuilt = false;
+
+
+function toggleEmojiPicker(){
+
+    const picker = document.getElementById("emojiPicker");
+
+    if(picker.style.display === "block"){
+        picker.style.display = "none";
+        return;
+    }
+
+    picker.style.display = "block";
+
+    if(emojiPickerBuilt) return;
+
+    const el = new EmojiMart.Picker({
+
+        theme: document.body.classList.contains("light") ? "light" : "dark",
+
+        onEmojiSelect(e){
+
+            popupMsg.value += e.native;
+
+            popupMsg.focus();
+
+        }
+
+    });
+
+    picker.appendChild(el);
+
+    emojiPickerBuilt = true;
+
+}
+  
+async function loadNews(){
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "get",
+        source: "news"
+      })
+    });
+
+    const data = await res.json();
+
+    console.log("RAW NEWS DATA:", data); // 🔥 DEBUG LINE
+
+    newsData = data.filter(m => m.source === "news" || m.stationName);
+
+    renderNews();
+  } catch (e) {
+    console.error("News load failed:", e);
+  }
+}
+
+function slugify(text){
+  return text.toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,40);
+}
+
+function extractUrl(text){
+  const match = text.match(/https?:\/\/[^\s|]+/);
+  return match ? match[0] : null;
+}
+
+function setCategory(cat){
+    activeCategory = cat;
+    load();      // reload correct sheet(s)
+}
+  
+function openNewsRoom(article){
+
+  const topic = slugify(article.title);
+
+  activeRoom = topic;
+  activeRoomName = article.title;
+
+  fetch(API_URL,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"send",
+      station:topic,
+      stationName:article.title,
+      name:"NewsBot",
+      message:article.description || "Breaking news"
+    })
+  });
+
+  openRoom(topic);
+
+}
+
+function renderNews(){
+  document.getElementById("news").innerHTML =
+    [...newsData].reverse().map(n => {
+
+      const headline = n.stationName || "Untitled";
+
+      const parts = (n.message || "").split("|");
+      const link = parts[1] ? parts[1].trim() : "";
+
+      const topicId = slugify(headline);
+
+      return `
+        <div class="news-card">
+
+          <div class="news-title">${headline}</div>
+
+          <div class="news-desc">
+            ${link ? `<a href="#" onclick="window.open('${link}','_blank')">View source →</a>` : "No link available"}
+          </div>
+
+          <div style="margin-top:8px; display:flex; gap:6px;">
+            
+            <!-- OPEN CHAT ROOM -->
+            <button onclick="openRoom('${topicId}', \`${headline.replace(/`/g,'')}\`)">
+              💬 Discuss
+            </button>
+
+          </div>
+
+        </div>
+      `;
+    }).join("");
+}
+
+  
+/* ---------------- ROOMS ---------------- */
+
+async function load(){
+
+  const res = await fetch(API_URL,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"get",
+      station:"",
+      source:activeCategory === "all" ? "all" : activeCategory
+    })
+  });
+
+  messages = await res.json();
+  renderRooms();
+}
+
+
+function renderRoom(r){
+  return `
+    <div class="room" onclick="openRoom('${r.id}')">
+      <div class="room-title">
+        ${r.name}
+        <span>${r.count}</span>
+      </div>
+      <div class="last-msg">
+        ${r.user}: ${r.last}
+      </div>
+    </div>
+  `;
+}
+
+
+function renderRooms() {
+  const rooms = {};
+  const q = document.getElementById("searchBox").value.toLowerCase();
+  const sort = document.getElementById("sortBox").value;
+
+  for (let m of messages) {
+    if (!m || !m.station) continue;
+
+    const id = m.station.trim();
+    if (!id || id === "undefined") continue;
+
+    const text = `${m.stationName || ""} ${m.name || ""} ${m.message || ""}`.toLowerCase();
+
+    if (q && !text.includes(q)) continue;
+
+    if (!rooms[id]) {
+      rooms[id] = {
+        id,
+        name: m.stationName || id,
+        count: 0,
+        last: "",
+        user: "",
+        source: (m.source || "chat").toLowerCase()
+      };
+    }
+
+    rooms[id].count++;
+    rooms[id].last = m.message || "";
+    rooms[id].user = m.name || "Anon";
+  }
+
+  let list = Object.values(rooms);
+
+  if (sort === "name") {
+    list.sort((a, b) => a.name.localeCompare(b.name));
+  } else {
+    list.sort((a, b) => b.count - a.count);
+  }
+
+  // =========================
+  // GROUPS (NOW 3 SOURCES)
+  // =========================
+  const chatRooms = [];
+const teamRooms = [];
+const newsRooms = [];
+
+for (const r of list) {
+  const srcs = r.sources || new Set();
+
+  if (srcs.has("news")) {
+    newsRooms.push(r);
+  } 
+  else if (srcs.has("teams")) {
+    teamRooms.push(r);
+  } 
+  else {
+    chatRooms.push(r);
+  }
+}
+
+  document.getElementById("rooms").innerHTML = `
+    <div class="room-group-title">💬 Chat Sheet</div>
+    ${chatRooms.map(renderRoom).join("")}
+
+    <div class="room-group-title">🏈 Teams Sheet</div>
+    ${teamRooms.map(renderRoom).join("")}
+
+    <div class="room-group-title">📰 News Sheet</div>
+    ${newsRooms.map(renderRoom).join("")}
+  `;
+}
+/* ---------------- CHAT ---------------- */
+
+function openRoom(id){
+  activeRoom = id;
+
+  // find room name from DOM/messages
+  const room = messages.find(m => m.station === id);
+activeRoomName = room?.stationName || id;
+
+// optional clarity label
+const isTeams = room?.source === "teams";
+document.getElementById("popupTitle").textContent =
+  isTeams ? `🏈 ${activeRoomName}` : `💬 ${activeRoomName}`;
+
+  toggleChatPopup();
+  loadPopup();
+}
+
+function toggleChatPopup(){
+  document.getElementById("chatPopup").classList.toggle("hidden");
+  loadPopup();
+}
+
+async function loadPopup(){
+
+  const res = await fetch(API_URL,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"get",
+      station:activeRoom
+    })
+  });
+
+  const data = await res.json();
+
+  if (!data.length) return;
+
+  // ======================
+  // 📌 PINNED HEADER
+  // ======================
+
+  const headerMsg = data[0];
+  const chatMsgs = data.slice(1);
+
+  const headerUrl = extractUrl(headerMsg.message);
+
+  const headerClean = headerUrl
+      ? headerMsg.message.replace(headerUrl,"").replace("|","").trim()
+      : headerMsg.message;
+
+  let html = "";
+
+  html += `
+    <div class="chat-msg" style="border:2px solid var(--blue);background:var(--panel);">
+      <div class="chat-name">📌 ${headerMsg.name} (Pinned)</div>
+
+      ${headerClean}
+
+      ${headerUrl ? `
+        <div style="margin-top:6px;">
+          <a href="#" onclick="openPreview('${encodeURIComponent(headerUrl)}')">
+            🔗 View Source
+          </a>
+        </div>
+      ` : ""}
+    </div>
+  `;
+
+  // ======================
+  // 💬 CHAT MESSAGES
+  // ======================
+
+  html += chatMsgs.map(m => {
+
+    const url = extractUrl(m.message);
+
+    const cleanText = url
+        ? m.message.replace(url,"").replace("|","").trim()
+        : m.message;
+
+    // ----------------------
+    // GIF SUPPORT
+    // ----------------------
+
+    let body = "";
+
+    if (m.message.startsWith("[GIF]")) {
+
+      body = `
+        <img
+          src="${m.message.replace("[GIF]","")}"
+          style="
+            max-width:260px;
+            border-radius:10px;
+            display:block;
+            margin-top:6px;
+          ">
+      `;
+
+    } else {
+
+      body = cleanText;
+
+    }
+
+    return `
+      <div class="chat-msg">
+
+        <span class="chat-name">${m.name}:</span>
+
+        ${body}
+
+        ${url && !m.message.startsWith("[GIF]") ? `
+          <div style="margin-top:6px;">
+            <a href="#" onclick="openPreview('${encodeURIComponent(url)}')">
+              🔗 View Source
+            </a>
+          </div>
+        ` : ""}
+
+      </div>
+    `;
+
+  }).join("");
+
+  const chat = document.getElementById("popupMessages");
+
+chat.innerHTML = joypixels.toImage(html);
+
+// 🧠 auto scroll only if user is already at bottom
+if (autoScroll) {
+  chat.scrollTo({
+  top: chat.scrollHeight,
+  behavior: "smooth"
+});
+}
+
+}
+
+async function sendPopupMsg(){
+  const now = Date.now();
+
+  // 🚫 cooldown check
+  if (now - lastSendTime < SEND_COOLDOWN_MS) {
+    return;
+  }
+
+  const name = popupName.value || "Anon";
+  const msg = popupMsg.value;
+  if(!msg) return;
+
+  lastSendTime = now;
+
+  // 🔒 disable send button immediately (prevents double click spam)
+  setSendDisabled(true);
+
+  await fetch(API_URL,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"send",
+      station:activeRoom,
+      stationName:activeRoomName,
+      name:name,
+      message:msg
+    })
+  });
+
+  popupMsg.value="";
+  document.getElementById("emojiPicker").style.display = "none";
+
+  loadPopup();
+
+  // 🔓 re-enable after cooldown delay
+  setTimeout(() => {
+    setSendDisabled(false);
+  }, SEND_COOLDOWN_MS);
+}
+
+/* ---------------- UTIL ---------------- */
+function setSendDisabled(state){
+  const btn = document.querySelector(".chat-input button[onclick='sendPopupMsg()']");
+  if (btn) btn.disabled = state;
+}
+
+function scrollToBottom(){
+  const chatLog = document.getElementById("popupMessages");
+
+  chatLog.scrollTop = chatLog.scrollHeight;
+
+  autoScroll = true;
+
+  document.getElementById("scrollBottomBtn").style.display = "none";
+}
+  
+function createRoom(){
+
+  const name = prompt("Room name?");
+  if(!name) return;
+
+  const id = slugify(name);
+
+  activeRoom = id;
+  activeRoomName = name;
+
+  fetch(API_URL,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"send",
+      station:id,
+      stationName:name,
+      name:"System",
+      message:"Room created"
+    })
+  });
+
+  load().then(() => {
+    openRoom(id);   // 👈 auto-open after refresh
+  });
+
+}
+
+function openPreview(url){
+  const decoded = decodeURIComponent(url);
+
+  const frame = document.getElementById("previewFrame");
+  const modal = document.getElementById("linkPreview");
+
+  modal.classList.remove("hidden");
+
+  let finished = false;
+
+  // reset iframe
+  frame.src = "about:blank";
+
+  // HARD fallback timer (primary safety net)
+  const timeout = setTimeout(() => {
+    if (finished) return;
+    finished = true;
+
+    closePreview();
+    window.open(decoded, "_blank");
+  }, 1500);
+
+  // iframe load attempt
+  frame.onload = () => {
+    if (finished) return;
+
+    try {
+      // try to detect "empty / blocked" pages
+      const doc = frame.contentWindow?.location?.href;
+
+      // if still blank or about:blank → treat as failure
+      if (!doc || doc === "about:blank") {
+        throw new Error("blocked or empty iframe");
+      }
+
+      finished = true;
+      clearTimeout(timeout);
+    } catch (e) {
+      finished = true;
+      clearTimeout(timeout);
+      closePreview();
+      window.open(decoded, "_blank");
+    }
+  };
+
+  frame.src = decoded;
+}
+
+function closePreview(){
+  const frame = document.getElementById("previewFrame");
+  const modal = document.getElementById("linkPreview");
+
+  modal.classList.add("hidden");
+  frame.src = "about:blank";
+}
+  
+function refreshAll(){
+  load();
+  loadNews();
+}
+
+async function searchGifs(){
+
+    const q = document.getElementById("gifSearch").value.trim();
+
+    if(!q) return;
+
+    const url =
+        `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}` +
+        `&limit=24&q=${encodeURIComponent(q)}`;
+
+    const res = await fetch(url);
+    const json = await res.json();
+
+    const html = json.data.map(g=>`
+
+        <img
+            src="${g.images.fixed_width.url}"
+            style="width:100%;cursor:pointer;border-radius:10px;"
+            onclick="sendGif('${g.images.original.url}')">
+
+    `).join("");
+
+    document.getElementById("gifResults").innerHTML = html;
+}
+
+function openGifPicker(){
+
+    document.getElementById("gifPicker").classList.remove("hidden");
+
+    document.getElementById("gifSearch").focus();
+
+}
+
+function closeGifPicker(){
+
+    document.getElementById("gifPicker").classList.add("hidden");
+
+}
+
+async function sendGif(url){
+
+    await fetch(API_URL,{
+        method:"POST",
+        body:JSON.stringify({
+            action:"send",
+            station:activeRoom,
+            stationName:activeRoomName,
+            name:popupName.value || "Anon",
+            message:"[GIF]"+url
+        })
+    });
+
+    closeGifPicker();
+
+    loadPopup();
+
+}
+  
+function toggleTheme(){
+  document.body.classList.toggle("light");
+}
+
+// Close emoji picker when clicking outside
+document.addEventListener("click", e=>{
+
+    const picker = document.getElementById("emojiPicker");
+
+    if (!picker) return;
+
+    if(
+        !picker.contains(e.target) &&
+        !e.target.closest("button[onclick='toggleEmojiPicker()']")
+    ){
+        picker.style.display = "none";
+    }
+
+});
+
+window.addEventListener("DOMContentLoaded", () => {
+
+  load();
+  loadNews();
+
+  document.getElementById("popupMsg").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendPopupMsg();
+    }
+  });
+
+});
+
+  const chatLog = document.getElementById("popupMessages");
+
+  chatLog.addEventListener("scroll", () => {
+
+    const nearBottom =
+      chatLog.scrollHeight - chatLog.scrollTop - chatLog.clientHeight < 50;
+
+    autoScroll = nearBottom;
+
+    document.getElementById("scrollBottomBtn").style.display =
+      nearBottom ? "none" : "block";
+  });
+  
+</script>
+
+</body>
+</html>
