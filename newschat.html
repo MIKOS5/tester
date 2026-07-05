@@ -153,6 +153,42 @@ button{
   margin-top:6px;
 }
 
+.news-ticker-wrap{
+  overflow:hidden;
+  white-space:nowrap;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:var(--panel-alt);
+  padding:8px 0;
+  margin-bottom:15px;
+}
+
+.news-ticker{
+  animation: tickerMove 35s linear infinite;
+  width:max-content;
+}
+
+@keyframes tickerMove {
+  0%   { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+.news-item{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  padding:0 10px;
+  font-size:13px;
+  font-weight:600;
+  color:var(--text);
+  flex:0 0 auto;
+}
+
+.news-dot{
+  color:var(--blue);
+  font-weight:900;
+}
+  
 /* ROOMS */
 .room{
   background:var(--panel);
@@ -303,7 +339,9 @@ button{
 <div class="main">
 
   <div class="title">Live News</div>
-  <div id="news" class="news-grid"></div>
+  <div class="news-ticker-wrap">
+  <div id="news" class="news-ticker"></div>
+</div>
 
   <div class="title">Chat Rooms</div>
 
@@ -520,37 +558,38 @@ function openNewsRoom(article){
 }
 
 function renderNews(){
-  document.getElementById("news").innerHTML =
-    [...newsData].reverse().map(n => {
+  const el = document.getElementById("news");
 
-      const headline = n.stationName || "Untitled";
+  el.innerHTML = [...newsData].reverse().map(n => {
 
-      const parts = (n.message || "").split("|");
-      const link = parts[1] ? parts[1].trim() : "";
+    const headline = n.stationName || "Untitled";
 
-      const topicId = slugify(headline);
+    const parts = (n.message || "").split("|");
+    const link = parts[1] ? parts[1].trim() : "";
 
-      return `
-        <div class="news-card">
+    const topicId = slugify(headline);
 
-          <div class="news-title">${headline}</div>
+    return `
+      <div class="news-item">
+        <span class="news-dot">📰</span>
 
-          <div class="news-desc">
-            ${link ? `<a href="#" onclick="window.open('${link}','_blank')">View source →</a>` : "No link available"}
-          </div>
+        <span>${headline}</span>
 
-          <div style="margin-top:8px; display:flex; gap:6px;">
-            
-            <!-- OPEN CHAT ROOM -->
-            <button onclick="discussNews('${topicId}', \`${headline.replace(/`/g,'')}\`)">
-  💬 Discuss
-</button>
+        ${link ? `
+          <a href="#" onclick="window.open('${link}','_blank')" style="color:var(--blue);font-size:12px;">
+            source
+          </a>
+        ` : ""}
 
-          </div>
+        <button onclick="discussNews('${topicId}', \`${headline.replace(/`/g,'')}\`)">
+          💬
+        </button>
+      </div>
+    `;
+  }).join("");
 
-        </div>
-      `;
-    }).join("");
+  // 🔥 duplicate content for seamless looping
+  el.innerHTML += el.innerHTML;
 }
 
 function discussNews(id, title){
