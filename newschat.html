@@ -164,7 +164,7 @@ button{
 }
 
 .news-ticker{
-  animation: tickerMove 555s linear infinite;
+  animation: tickerMove 55s linear infinite;
   width:max-content;
 }
 
@@ -647,11 +647,9 @@ function renderRoom(r){
 
 
 function renderRooms() {
-  const roomsContainer = document.getElementById("rooms");
+  const rooms = {};
   const q = document.getElementById("searchBox").value.toLowerCase();
   const sort = document.getElementById("sortBox").value;
-
-  const rooms = {};
 
   for (let m of messages) {
     if (!m || !m.station) continue;
@@ -670,7 +668,7 @@ function renderRooms() {
         count: 0,
         last: "",
         user: "",
-        source: (m.source || "chat").toLowerCase() // ONLY field you actually have
+        source: (m.source || "chat").toLowerCase()
       };
     }
 
@@ -687,17 +685,28 @@ function renderRooms() {
     list.sort((a, b) => b.count - a.count);
   }
 
+  // =========================
+  // GROUPS (NOW 3 SOURCES)
+  // =========================
   const chatRooms = [];
-  const teamRooms = [];
-  const newsRooms = [];
+const teamRooms = [];
+const newsRooms = [];
 
-  for (const r of list) {
-    if (r.source === "news") newsRooms.push(r);
-    else if (r.source === "teams") teamRooms.push(r);
-    else chatRooms.push(r);
+for (const r of list) {
+  const srcs = r.sources || new Set();
+
+  if (srcs.has("news")) {
+    newsRooms.push(r);
+  } 
+  else if (srcs.has("teams")) {
+    teamRooms.push(r);
+  } 
+  else {
+    chatRooms.push(r);
   }
+}
 
-  roomsContainer.innerHTML = `
+  document.getElementById("rooms").innerHTML = `
     <div class="room-group-title">💬 Chat Sheet</div>
     ${chatRooms.map(renderRoom).join("")}
 
