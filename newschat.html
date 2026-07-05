@@ -576,7 +576,7 @@ function renderNews(){
       const parts = (n.message || "").split("|");
       const link = parts[1] ? parts[1].trim() : "";
 
-      const topicId = n.station || slugify(headline);
+      const topicId = (n.station && n.station.trim()) ? n.station.trim() : null;
 
       return `
         <div class="news-item">
@@ -590,9 +590,11 @@ function renderNews(){
             </a>
           ` : ""}
 
-          <button onclick="discussNews('${topicId}', \`${headline.replace(/`/g,'')}\`)">
-            💬
-          </button>
+          ${topicId ? `
+  <button onclick="discussNews('${topicId}', \`${headline.replace(/`/g,'')}\`)">
+    💬
+  </button>
+` : ""}
         </div>
       `;
     }).join("");
