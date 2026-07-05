@@ -153,16 +153,19 @@ button{
   margin-top:6px;
 }
 
-.news-ticker {
-  display: flex;
-  width: max-content;
-  animation: tickerMove 40s linear infinite;
+.news-ticker-wrap{
+  overflow:hidden;
+  white-space:nowrap;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:var(--panel-alt);
+  padding:8px 0;
+  margin-bottom:15px;
 }
 
-.news-track {
-  display: flex;
-  gap: 20px;
-  white-space: nowrap;
+.news-ticker{
+  animation: tickerMove 1035s linear infinite;
+  width:max-content;
 }
 
 @keyframes tickerMove {
@@ -337,9 +340,7 @@ button{
 
   <div class="title">Live News</div>
   <div class="news-ticker-wrap">
-  <div class="news-ticker">
-    <div id="news" class="news-track"></div>
-  </div>
+  <div id="news" class="news-ticker"></div>
 </div>
 
   <div class="title">Chat Rooms</div>
@@ -559,7 +560,7 @@ function openNewsRoom(article){
 function renderNews(){
   const el = document.getElementById("news");
 
-  const items = [...newsData].reverse().map(n => {
+  el.innerHTML = [...newsData].reverse().map(n => {
 
     const headline = n.stationName || "Untitled";
 
@@ -587,8 +588,8 @@ function renderNews(){
     `;
   }).join("");
 
-  // 🔥 ONLY ONCE (no duplication)
-  el.innerHTML = items;
+  // 🔥 duplicate content for seamless looping
+  el.innerHTML += el.innerHTML;
 }
 
 function discussNews(id, title){
