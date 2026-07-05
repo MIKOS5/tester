@@ -519,18 +519,52 @@ function renderNews(){
       const parts = (n.message || "").split("|");
       const link = parts[1] ? parts[1].trim() : "";
 
+      const topicId = slugify(headline);
+
       return `
-        <div class="news-card"
-             onclick="${link ? `window.open('${link}','_blank')` : ''}">
+        <div class="news-card">
+
           <div class="news-title">${headline}</div>
+
           <div class="news-desc">
-            ${link ? "View source →" : "No link available"}
+            ${link ? `<a href="#" onclick="window.open('${link}','_blank')">View source →</a>` : "No link available"}
           </div>
+
+          <div style="margin-top:8px; display:flex; gap:6px;">
+            
+            <!-- OPEN CHAT ROOM -->
+            <button onclick="openNewsRoomFromCard('${topicId}', \`${headline.replace(/`/g,'')}\`)">
+              💬 Discuss
+            </button>
+
+          </div>
+
         </div>
       `;
     }).join("");
 }
 
+function openNewsRoomFromCard(topic, title){
+
+  activeRoom = topic;
+  activeRoomName = title;
+
+  // optional: create starter message in sheet
+  fetch(API_URL,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"send",
+      station:topic,
+      stationName:title,
+      name:"NewsBot",
+      message:"📰 Discussion started for this article"
+    })
+  });
+
+  // open popup + load chat
+  openRoom(topic);
+}
+  
 /* ---------------- ROOMS ---------------- */
 
 async function load(){
