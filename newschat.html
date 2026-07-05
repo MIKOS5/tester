@@ -619,25 +619,26 @@ function renderNews(){
 
 async function discussNews(id, title){
 
-  const safeId = slugify(id);
-  const safeTitle = title;
+  // ❌ NEVER allow fake rooms
+  if (!id) {
+    console.error("Missing station ID for news room:", title);
+    return;
+  }
 
-  // 1. Seed room like your table/chat system expects
+  const safeId = id.trim();
+
   await fetch(API_URL,{
     method:"POST",
     body:JSON.stringify({
       action:"send",
       station:safeId,
-      stationName:safeTitle,
+      stationName:title,
       name:"NewsBot",
       message:"📰 Discussion started"
     })
   });
 
-  // 2. reload messages so renderRooms + grouping is correct
   await load();
-
-  // 3. NOW open using same pipeline as table clicks
   openRoom(safeId);
 }
   
