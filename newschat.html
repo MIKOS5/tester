@@ -528,9 +528,7 @@ function renderNews(){
       const parts = (n.message || "").split("|");
       const link = parts[1] ? parts[1].trim() : "";
 
-      const station = n.station;
-
-<button onclick="openRoom('${station}',`${headline}`)">
+      const topicId = slugify(headline);
 
       return `
         <div class="news-card">
@@ -590,52 +588,35 @@ function renderRoom(r){
 
 
 function renderRooms() {
-
   const rooms = {};
   const q = document.getElementById("searchBox").value.toLowerCase();
   const sort = document.getElementById("sortBox").value;
 
-  // =========================
-  // BUILD ROOM LIST
-  // =========================
-
-  for (const m of messages) {
-
+  for (let m of messages) {
     if (!m || !m.station) continue;
 
-    const id = String(m.station).trim();
-
+    const id = m.station.trim();
     if (!id || id === "undefined") continue;
 
-    const text =
-      `${m.stationName || ""} ${m.name || ""} ${m.message || ""}`.toLowerCase();
+    const text = `${m.stationName || ""} ${m.name || ""} ${m.message || ""}`.toLowerCase();
 
     if (q && !text.includes(q)) continue;
 
     if (!rooms[id]) {
-
       rooms[id] = {
-        id: id,
+        id,
         name: m.stationName || id,
         count: 0,
         last: "",
         user: "",
-        sources: new Set()
+        source: (m.source || "chat").toLowerCase()
       };
-
     }
-
-    rooms[id].sources.add((m.source || "chat").toLowerCase());
 
     rooms[id].count++;
     rooms[id].last = m.message || "";
     rooms[id].user = m.name || "Anon";
-
   }
-
-  // =========================
-  // SORT
-  // =========================
 
   let list = Object.values(rooms);
 
@@ -646,34 +627,25 @@ function renderRooms() {
   }
 
   // =========================
-  // GROUP BY SOURCE
+  // GROUPS (NOW 3 SOURCES)
   // =========================
-
   const chatRooms = [];
-  const teamRooms = [];
-  const newsRooms = [];
+const teamRooms = [];
+const newsRooms = [];
 
-  for (const r of list) {
+for (const r of list) {
+  const srcs = r.sources || new Set();
 
-    if (r.sources.has("news")) {
-
-      newsRooms.push(r);
-
-    } else if (r.sources.has("teams")) {
-
-      teamRooms.push(r);
-
-    } else {
-
-      chatRooms.push(r);
-
-    }
-
+  if (srcs.has("news")) {
+    newsRooms.push(r);
+  } 
+  else if (srcs.has("teams")) {
+    teamRooms.push(r);
+  } 
+  else {
+    chatRooms.push(r);
   }
-
-  // =========================
-  // RENDER
-  // =========================
+}
 
   document.getElementById("rooms").innerHTML = `
     <div class="room-group-title">💬 Chat Sheet</div>
@@ -685,8 +657,8 @@ function renderRooms() {
     <div class="room-group-title">📰 News Sheet</div>
     ${newsRooms.map(renderRoom).join("")}
   `;
-
-}/* ---------------- CHAT ---------------- */
+}
+/* ---------------- CHAT ---------------- */
 
 function openRoom(id){
   activeRoom = id;
@@ -902,7 +874,7 @@ function createRoom(){
   });
 
   load().then(() => {
-    openRoom(id);
+    openRoom(id);   // 👈 auto-open after refresh
   });
 
 }
