@@ -583,22 +583,22 @@ function renderRooms() {
   // GROUPS (NOW 3 SOURCES)
   // =========================
   const chatRooms = [];
-  const teamRooms = [];
-  const newsRooms = [];
+const teamRooms = [];
+const newsRooms = [];
 
-  for (const r of list) {
-    const src = (r.source || "chat").toLowerCase();
+for (const r of list) {
+  const srcs = r.sources || new Set();
 
-    if (src === "teams") {
-      teamRooms.push(r);
-    } 
-    else if (src === "news") {
-      newsRooms.push(r);
-    } 
-    else {
-      chatRooms.push(r);
-    }
+  if (srcs.has("news")) {
+    newsRooms.push(r);
+  } 
+  else if (srcs.has("teams")) {
+    teamRooms.push(r);
+  } 
+  else {
+    chatRooms.push(r);
   }
+}
 
   document.getElementById("rooms").innerHTML = `
     <div class="room-group-title">💬 Chat Sheet</div>
