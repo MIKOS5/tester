@@ -340,7 +340,7 @@ button{
 
   <div class="title">Live News</div>
   <div class="news-ticker-wrap">
-  <div id="news" class="news-ticker"></div>
+  <div id="newsTicker" class="news-ticker"></div>
 </div>
 
   <div class="title">Chat Rooms</div>
@@ -461,6 +461,8 @@ let lastSendTime = 0;
 const SEND_COOLDOWN_MS = 1500; // 1.5 seconds
 let autoScroll = true;
 let activeCategory = "all";
+let tickerIndex = 0;
+let tickerInterval = null;
 
 /* ---------------- NEWS ---------------- */
 let emojiPickerBuilt = false;
@@ -558,38 +560,59 @@ function openNewsRoom(article){
 }
 
 function renderNews(){
-  const el = document.getElementById("news");
+  const el = document.getElementById("newsTicker");
 
-  el.innerHTML = [...newsData].reverse().map(n => {
+  const items = [...newsData].reverse();
 
-    const headline = n.stationName || "Untitled";
+  if (!items.length) return;
 
-    const parts = (n.message || "").split("|");
-    const link = parts[1] ? parts[1].trim() : "";
+  function renderBatch() {
+    const batch = items.slice(tickerIndex, tickerIndex + 3);
 
-    const topicId = slugify(headline);
+    el.innerHTML = batch.map(n => {
 
-    return `
-      <div class="news-item">
-        <span class="news-dot">📰</span>
+      const headline = n.stationName || "Untitled";
 
-        <span>${headline}</span>
+      const parts = (n.message || "").split("|");
+      const link = parts[1] ? parts[1].trim() : "";
 
-        ${link ? `
-          <a href="#" onclick="window.open('${link}','_blank')" style="color:var(--blue);font-size:12px;">
-            source
-          </a>
-        ` : ""}
+      const topicId = slugify(headline);
 
-        <button onclick="discussNews('${topicId}', \`${headline.replace(/`/g,'')}\`)">
-          💬
-        </button>
-      </div>
-    `;
-  }).join("");
+      return `
+        <div class="news-item">
+          <span class="news-dot">📰</span>
+          <span>${headline}</span>
 
-  // 🔥 duplicate content for seamless looping
-  el.innerHTML += el.innerHTML;
+          ${link ? `
+            <a href="#" onclick="window.open('${link}','_blank')"
+               style="color:var(--blue);font-size:12px;">
+              source
+            </a>
+          ` : ""}
+
+          <button onclick="discussNews('${topicId}', \`${headline.replace(/`/g,'')}\`)">
+            💬
+          </button>
+        </div>
+      `;
+    }).join("");
+  }
+
+  // initial render
+  renderBatch();
+
+  // clear old interval if reload happens
+  if (tickerInterval) clearInterval(tickerInterval);
+
+  tickerInterval = setInterval(() => {
+    tickerIndex += 3;
+
+    if (tickerIndex >= items.length) {
+      tickerIndex = 0;
+    }
+
+    renderBatch();
+  }, 5000);
 }
 
 function discussNews(id, title){
