@@ -310,8 +310,10 @@ button{
 <!-- ✅ ADD THIS -->
 <div style="display:flex;gap:10px;margin-bottom:10px;">
   <button onclick="setCategory('all')">All</button>
-<button onclick="setCategory('chat')">Chat</button>
-<button onclick="setCategory('teams')">Teams</button>
+  <button onclick="setCategory('chat')">Chat</button>
+  <button onclick="setCategory('teams')">Teams</button>
+  <button onclick="setCategory('news')">News</button> <!-- ✅ ADD -->
+</div>
 </div>
 
   <div id="rooms"></div>
@@ -510,22 +512,16 @@ function renderNews(){
 
 async function load(){
 
-  const source =
-      activeCategory === "all"
-      ? "all"
-      : activeCategory;
-
   const res = await fetch(API_URL,{
     method:"POST",
     body:JSON.stringify({
       action:"get",
       station:"",
-      source:source
+      source:activeCategory === "all" ? "all" : activeCategory
     })
   });
 
   messages = await res.json();
-
   renderRooms();
 }
 
@@ -584,13 +580,23 @@ function renderRooms() {
     list.sort((a, b) => b.count - a.count);
   }
 
+  // =========================
+  // GROUPS (NOW 3 SOURCES)
+  // =========================
   const chatRooms = [];
   const teamRooms = [];
+  const newsRooms = [];
 
   for (const r of list) {
-    if (r.source === "teams") {
+    const src = (r.source || "chat").toLowerCase();
+
+    if (src === "teams") {
       teamRooms.push(r);
-    } else {
+    } 
+    else if (src === "news") {
+      newsRooms.push(r);
+    } 
+    else {
       chatRooms.push(r);
     }
   }
@@ -601,9 +607,11 @@ function renderRooms() {
 
     <div class="room-group-title">🏈 Teams Sheet</div>
     ${teamRooms.map(renderRoom).join("")}
+
+    <div class="room-group-title">📰 News Sheet</div>
+    ${newsRooms.map(renderRoom).join("")}
   `;
 }
-
 /* ---------------- CHAT ---------------- */
 
 function openRoom(id){
