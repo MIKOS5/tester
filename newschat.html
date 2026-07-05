@@ -651,25 +651,24 @@ function renderRooms() {
   const q = document.getElementById("searchBox").value.toLowerCase();
   const sort = document.getElementById("sortBox").value;
 
-  const uniqueRooms = new Map(); 
-  // key = station (or stationName), value = latest message
+  if (!Array.isArray(messages)) messages = [];
+
+  const uniqueRooms = new Map();
 
   for (let m of messages) {
     if (!m || !m.station) continue;
 
-    // 🔥 ONLY NewsBot rooms
-    if ((m.stationName || "").trim() !== "NewsBot") continue;
+    // ONLY NewsBot
+    if ((m.stationName || "").toLowerCase().trim() !== "newsbot") continue;
 
     const id = m.station.trim();
     if (!id || id === "undefined") continue;
 
-    // keep only latest row per station
-    uniqueRooms.set(key, m);
+    uniqueRooms.set(id, m); // ✅ FIXED
   }
 
   let rooms = Array.from(uniqueRooms.values());
 
-  // search filter
   if (q) {
     rooms = rooms.filter(r =>
       (r.stationName || "").toLowerCase().includes(q) ||
@@ -677,19 +676,18 @@ function renderRooms() {
     );
   }
 
-  // optional sort
-  if (sort === "newest") {
-    rooms.reverse();
+  if (sort === "name") {
+    rooms.sort((a, b) =>
+      (a.stationName || "").localeCompare(b.stationName || "")
+    );
   }
 
-  roomsContainer.innerHTML = rooms.map(r => {
-    return `
-      <div class="room" onclick="openRoom('${r.station}')">
-        <div class="room-title">${r.stationName}</div>
-        <div class="room-sub">${r.message || ""}</div>
-      </div>
-    `;
-  }).join("");
+  roomsContainer.innerHTML = rooms.map(r => `
+    <div class="room" onclick="openRoom('${r.station}')">
+      <div class="room-title">${r.stationName}</div>
+      <div class="room-sub">${r.message || ""}</div>
+    </div>
+  `).join("");
 }
 /* ---------------- CHAT ---------------- */
 
