@@ -528,7 +528,9 @@ function renderNews(){
       const parts = (n.message || "").split("|");
       const link = parts[1] ? parts[1].trim() : "";
 
-      const topicId = slugify(headline);
+      const station = n.station;
+
+<button onclick="openRoom('${station}',`${headline}`)">
 
       return `
         <div class="news-card">
@@ -588,35 +590,52 @@ function renderRoom(r){
 
 
 function renderRooms() {
+
   const rooms = {};
   const q = document.getElementById("searchBox").value.toLowerCase();
   const sort = document.getElementById("sortBox").value;
 
-  for (let m of messages) {
+  // =========================
+  // BUILD ROOM LIST
+  // =========================
+
+  for (const m of messages) {
+
     if (!m || !m.station) continue;
 
-    const id = m.station.trim();
+    const id = String(m.station).trim();
+
     if (!id || id === "undefined") continue;
 
-    const text = `${m.stationName || ""} ${m.name || ""} ${m.message || ""}`.toLowerCase();
+    const text =
+      `${m.stationName || ""} ${m.name || ""} ${m.message || ""}`.toLowerCase();
 
     if (q && !text.includes(q)) continue;
 
     if (!rooms[id]) {
+
       rooms[id] = {
-        id,
+        id: id,
         name: m.stationName || id,
         count: 0,
         last: "",
         user: "",
-        source: (m.source || "chat").toLowerCase()
+        sources: new Set()
       };
+
     }
+
+    rooms[id].sources.add((m.source || "chat").toLowerCase());
 
     rooms[id].count++;
     rooms[id].last = m.message || "";
     rooms[id].user = m.name || "Anon";
+
   }
+
+  // =========================
+  // SORT
+  // =========================
 
   let list = Object.values(rooms);
 
@@ -627,25 +646,34 @@ function renderRooms() {
   }
 
   // =========================
-  // GROUPS (NOW 3 SOURCES)
+  // GROUP BY SOURCE
   // =========================
+
   const chatRooms = [];
-const teamRooms = [];
-const newsRooms = [];
+  const teamRooms = [];
+  const newsRooms = [];
 
-for (const r of list) {
-  const srcs = r.sources || new Set();
+  for (const r of list) {
 
-  if (srcs.has("news")) {
-    newsRooms.push(r);
-  } 
-  else if (srcs.has("teams")) {
-    teamRooms.push(r);
-  } 
-  else {
-    chatRooms.push(r);
+    if (r.sources.has("news")) {
+
+      newsRooms.push(r);
+
+    } else if (r.sources.has("teams")) {
+
+      teamRooms.push(r);
+
+    } else {
+
+      chatRooms.push(r);
+
+    }
+
   }
-}
+
+  // =========================
+  // RENDER
+  // =========================
 
   document.getElementById("rooms").innerHTML = `
     <div class="room-group-title">💬 Chat Sheet</div>
@@ -657,8 +685,8 @@ for (const r of list) {
     <div class="room-group-title">📰 News Sheet</div>
     ${newsRooms.map(renderRoom).join("")}
   `;
-}
-/* ---------------- CHAT ---------------- */
+
+}/* ---------------- CHAT ---------------- */
 
 function openRoom(id){
   activeRoom = id;
@@ -874,7 +902,7 @@ function createRoom(){
   });
 
   load().then(() => {
-    openRoom(id);   // 👈 auto-open after refresh
+    openRoom(id);
   });
 
 }
