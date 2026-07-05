@@ -401,7 +401,7 @@ button{
 <script>
 
 const API_URL = "https://script.google.com/macros/s/AKfycbzin84qDcZ9L1q4pTBtHZGKJSTDcZ_wnmgWmnmgPgf1jrc1nRprzbEBixKMSHcdkxiZBg/exec";
-const NEWS_API = "https://api.thenewsapi.com/v1/news/top?api_token=sFaR3pNJgYursoUKLlZvg71QTITi8BYMsFLGf8vB&locale=us&language=en";
+const NEWS_API = "https://script.google.com/macros/s/AKfycbzin84qDcZ9L1q4pTBtHZGKJSTDcZ_wnmgWmnmgPgf1jrc1nRprzbEBixKMSHcdkxiZBg/exec";
 const GIPHY_API_KEY = "Jj5LhUt9MgP8OQYtxGukhQVwZuR6YJ4j";
 
 const blockedDomains = ["news.google.com", "facebook.com", "twitter.com"];
@@ -453,12 +453,24 @@ function toggleEmojiPicker(){
 }
   
 async function loadNews(){
-  try{
-    const res = await fetch(NEWS_API);
-    const json = await res.json();
-    newsData = json.data || [];
+  try {
+    const res = await fetch(NEWS_API, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "get",
+        source: "news"
+      })
+    });
+
+    const data = await res.json();
+
+    // filter only news rows from your sheet
+    newsData = data.filter(m => m.source === "news");
+
     renderNews();
-  }catch(e){}
+  } catch (e) {
+    console.error("News load failed:", e);
+  }
 }
 
 function slugify(text){
@@ -499,12 +511,23 @@ function openNewsRoom(article){
 
 function renderNews(){
   document.getElementById("news").innerHTML =
-    newsData.slice(0,12).map(n=>`
-      <div class="news-card" onclick='openNewsRoom(${JSON.stringify(n)})'>
-        <div class="news-title">${n.title}</div>
-        <div class="news-desc">${n.description || ""}</div>
-      </div>
-    `).join("");
+    newsData.slice(-12).reverse().map(n => {
+
+      const headline = n.stationName || "Untitled";
+
+      // extract URL from "📰 headline | link"
+      const parts = (n.message || "").split("|");
+      const link = parts[1] ? parts[1].trim() : "";
+
+      return `
+        <div class="news-card" onclick="${link ? `window.open('${link}', '_blank')` : ''}">
+          <div class="news-title">${headline}</div>
+          <div class="news-desc">
+            ${link ? "View source →" : "No link available"}
+          </div>
+        </div>
+      `;
+    }).join("");
 }
 
 /* ---------------- ROOMS ---------------- */
