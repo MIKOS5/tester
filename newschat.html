@@ -115,18 +115,18 @@ button{
 
 /* NEWS */
 .news-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  display:flex;
   gap:12px;
-  margin-bottom:20px;
+  overflow-x:auto;
+  padding-bottom:10px;
+  scroll-snap-type:x mandatory;
+  -webkit-overflow-scrolling:touch;
 }
 
 .news-card{
-  background:var(--panel);
-  border:1px solid var(--line);
-  border-radius:14px;
-  padding:12px;
-  cursor:pointer;
+  min-width:280px;
+  flex:0 0 auto;
+  scroll-snap-align:start;
 }
 
 .news-card:hover{
@@ -512,7 +512,7 @@ function openNewsRoom(article){
 
 function renderNews(){
   document.getElementById("news").innerHTML =
-    newsData.slice(-12).reverse().map(n => {
+    [...newsData].reverse().map(n => {
 
       const headline = n.stationName || "Untitled";
 
