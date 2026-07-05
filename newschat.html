@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
 
 <title>Chat x Obvyris</title>
 
@@ -40,6 +40,20 @@ body.light{
   --panel-alt:#eef3f8;
 }
 
+
+/* ✅ BASE MOBILE/TAP FIXES (GLOBAL) */
+button, input {
+  font-size: 16px; /* prevents iOS zoom + improves readability */
+}
+
+.room, button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.room {
+  touch-action: manipulation;
+}
+  
 *{box-sizing:border-box;}
 
 body{
@@ -48,8 +62,12 @@ body{
   background:var(--bg);
   color:var(--text);
   display:flex;
-  height:100vh;
-  overflow:hidden;
+  height:100dvh;
+  overflow: hidden;
+}
+
+.main, .sidebar {
+  -webkit-overflow-scrolling: touch;
 }
 
 /* SIDEBAR */
@@ -309,6 +327,79 @@ button{
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--line) var(--panel-alt);
+}
+
+@media (max-width: 768px) {
+
+  body {
+    flex-direction: column;
+    height: 100dvh; /* better than 100vh on mobile */
+  }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .main {
+    padding: 10px;
+  }
+
+  .title {
+    font-size: 26px;
+  }
+
+  .room {
+    padding: 12px;
+  }
+
+  .controls button {
+    padding: 14px; /* bigger touch targets */
+  }
+
+}
+
+@media (max-width: 768px) {
+
+  .chat-popup {
+    width: 100%;
+    height: 100dvh;
+    right: 0;
+    bottom: 0;
+    border-radius: 0;
+  }
+  .chat-popup-log {
+    padding-bottom: 120px; /* prevents keyboard overlap */
+  }
+
+}
+  #chatFloatBtn {
+    bottom: 20px;
+    right: 15px;
+    width: 60px;
+    height: 60px;
+  }
+
+}
+
+.room {
+  margin-bottom: 12px;
+}
+
+.chat-input input {
+  font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  .chat-input {
+    flex-wrap: wrap;
+  }
+
+  .chat-input input {
+    flex: 1 1 100%;
+  }
 }
   
 </style>
