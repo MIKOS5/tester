@@ -525,10 +525,11 @@ function renderNews(){
 
       const headline = n.stationName || "Untitled";
 
-      const parts = (n.message || "").split("|");
-      const link = parts[1] ? parts[1].trim() : "";
+const parts = (n.message || "").split("|");
+const link = parts[1] ? parts[1].trim() : "";
 
-      const topicId = slugify(headline);
+// Use the station already stored in the News sheet
+const topicId = n.station;
 
       return `
         <div class="news-card">
@@ -542,9 +543,9 @@ function renderNews(){
           <div style="margin-top:8px; display:flex; gap:6px;">
             
             <!-- OPEN CHAT ROOM -->
-            <button onclick="openNewsRoomFromCard('${topicId}', \`${headline.replace(/`/g,'')}\`)">
-              💬 Discuss
-            </button>
+            <button onclick="openNewsRoomFromCard('${topicId}', \`${headline.replace(/`/g,"")}\`)">
+    💬 Discuss
+</button>
 
           </div>
 
@@ -553,25 +554,40 @@ function renderNews(){
     }).join("");
 }
 
-function openNewsRoomFromCard(topic, title){
+async function openNewsRoomFromCard(station, title){
 
-  activeRoom = topic;
-  activeRoomName = title;
+    activeRoom = station;
+    activeRoomName = title;
 
-  // optional: create starter message in sheet
-  fetch(API_URL,{
-    method:"POST",
-    body:JSON.stringify({
-      action:"send",
-      station:topic,
-      stationName:title,
-      name:"NewsBot",
-      message:"📰 Discussion started for this article"
-    })
-  });
+    // Does this room already have messages?
+    const res = await fetch(API_URL,{
+        method:"POST",
+        body:JSON.stringify({
+            action:"get",
+            station:station
+        })
+    });
 
-  // open popup + load chat
-  openRoom(topic);
+    const messages = await res.json();
+
+    // Only create the starter message once
+    if(messages.length === 0){
+
+        await fetch(API_URL,{
+            method:"POST",
+            body:JSON.stringify({
+                action:"send",
+                station:station,
+                stationName:title,
+                name:"NewsBot",
+                message:`📰 ${title}`
+            })
+        });
+
+    }
+
+    openRoom(station);
+
 }
   
 /* ---------------- ROOMS ---------------- */
@@ -625,7 +641,7 @@ function renderRooms() {
     if (!rooms[id]) {
       rooms[id] = {
         id,
-        name: m.stationName || id,
+        name: m.stationName || m.station || id,
         count: 0,
         last: "",
         user: "",
@@ -654,7 +670,7 @@ const teamRooms = [];
 const newsRooms = [];
 
 for (const r of list) {
-  const srcs = r.sources || new Set();
+  const srcs = r.sources;
 
   if (srcs.has("news")) {
     newsRooms.push(r);
