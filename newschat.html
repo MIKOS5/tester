@@ -455,7 +455,6 @@ const blockedDomains = ["news.google.com", "facebook.com", "twitter.com"];
   
 let messages = [];
 let newsData = [];
-let rooms = [];
 let activeRoom = "global";
 let activeRoomName = "";
 let lastSendTime = 0;
@@ -500,18 +499,6 @@ function toggleEmojiPicker(){
 
     emojiPickerBuilt = true;
 
-}
-
-async function loadRooms(){
-  const res = await fetch(API_URL,{
-    method:"POST",
-    body:JSON.stringify({
-      action:"getRooms"
-    })
-  });
-
-  rooms = await res.json();
-  renderRooms();
 }
   
 async function loadNews(){
@@ -695,66 +682,73 @@ function renderRoom(r){
 
 
 function renderRooms() {
-
+  const rooms = {};
   const q = document.getElementById("searchBox").value.toLowerCase();
   const sort = document.getElementById("sortBox").value;
 
-  let list = rooms.filter(r => {
+  for (let m of messages) {
+    if (!m || !m.station) continue;
 
-    const text = (r.name || "").toLowerCase();
+    const id = m.station.trim();
+    if (!id || id === "undefined") continue;
 
-    return !q || text.includes(q);
+    const text = `${m.stationName || ""}`.toLowerCase();
 
-  });
+    if (q && !text.includes(q)) continue;
 
-  if (sort === "name") {
-
-    list.sort((a,b)=>
-      (a.name || "").localeCompare(b.name || "")
-    );
-
-  } else {
-
-    list.sort((a,b)=>
-      new Date(b.created || 0) - new Date(a.created || 0)
-    );
-
-  }
-
-  const chatRooms = [];
-  const teamRooms = [];
-  const newsRooms = [];
-
-  for (const r of list) {
-
-    switch ((r.type || "chat").toLowerCase()) {
-
-      case "teams":
-        teamRooms.push(r);
-        break;
-
-      case "news":
-        newsRooms.push(r);
-        break;
-
-      default:
-        chatRooms.push(r);
-
+    if (!rooms[id]) {
+      rooms[id] = {
+        id,
+        name: m.stationName || id,
+        count: 0,
+        last: "",
+        user: "",
+        source: (m.source || "chat").toLowerCase()
+      };
     }
 
+    rooms[id].count++;
   }
 
+  let list = Object.values(rooms);
+
+  if (sort === "name") {
+    list.sort((a, b) => a.name.localeCompare(b.name));
+  } else {
+    list.sort((a, b) => b.count - a.count);
+  }
+
+  // =========================
+  // GROUPS (NOW 3 SOURCES)
+  // =========================
+  const chatRooms = [];
+const teamRooms = [];
+const newsRooms = [];
+
+for (const r of list) {
+  const srcs = r.sources || new Set();
+
+  if (srcs.has("news")) {
+    newsRooms.push(r);
+  } 
+  else if (srcs.has("teams")) {
+    teamRooms.push(r);
+  } 
+  else {
+    chatRooms.push(r);
+  }
+}
+
   document.getElementById("rooms").innerHTML = `
-    <div class="room-group-title">💬 Chat Rooms</div>
+    <div class="room-group-title">💬 Chat Sheet</div>
     ${chatRooms.map(renderRoom).join("")}
 
-    <div class="room-group-title">🏈 Team Rooms</div>
+    <div class="room-group-title">🏈 Teams Sheet</div>
     ${teamRooms.map(renderRoom).join("")}
 
-    <div class="room-group-title">📰 News Rooms</div>
+    <div class="room-group-title">📰 News Sheet</div>
     ${newsRooms.map(renderRoom).join("")}
   `;
-
 }
 /* ---------------- CHAT ---------------- */
 
@@ -1120,7 +1114,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
   load();
   loadNews();
-  loadRooms();
 
   document.getElementById("popupMsg").addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
