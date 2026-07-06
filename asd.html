@@ -218,26 +218,19 @@ function renderTeams(teams) {
     return;
   }
 
-  const headers = teams[0];
   const rows = teams.slice(1);
-
-  const get = (row, name) => {
-    const i = headers.indexOf(name);
-    return i >= 0 ? row[i] : "";
-  };
 
   rows.forEach(t => {
     html += `
       <div class="team">
-        <div class="team-name">
-          ${get(t, "Team") || get(t, "TeamID")}
-        </div>
+        <div class="team-name">${t[2] || "Unknown Team"}</div>
         <div class="small">
-          Sport: ${get(t, "Sport")}<br>
-          League: ${get(t, "League")}<br>
-          Record: ${get(t, "Wins")} - ${get(t, "Losses")}<br>
-          Win%: ${get(t, "Win%")}<br>
-          Rank: ${get(t, "Rank")}
+          Sport: ${t[3] || ""}<br>
+          League: ${t[4] || ""}<br>
+          Country: ${t[5] || ""}<br>
+          Stadium: ${t[6] || ""}<br>
+          Record: ${t[12] || 0}-${t[13] || 0}<br>
+          Win%: ${t[14] || ""}
         </div>
       </div>
     `;
