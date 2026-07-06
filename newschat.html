@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="format-detection" content="telephone=no">
 <title>Chat x Obvyris</title>
 
 <link rel="icon" type="image/png" href="https://mikos5.github.io/tester/navicon.png">
@@ -39,6 +40,15 @@ body.light{
   --panel-alt:#eef3f8;
 }
 
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+/* STOP iOS / Android auto zoom on inputs */
+input, textarea {
+  font-size: 16px !important;
+}
 
 /* ✅ BASE MOBILE/TAP FIXES (GLOBAL) */
 button, input {
@@ -275,14 +285,23 @@ button{
 
 /* FULLSCREEN CHAT MODE */
 .chat-popup.fullscreen {
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  width: 100% !important;
-  height: 100dvh !important;
-  border-radius: 0 !important;
+
+  width: 100%;
+  height: 100dvh;
+
+  border-radius: 0;
   z-index: 99999999;
+
+  display: flex;
+  flex-direction: column;
+
+  /* IMPORTANT: remove transform usage */
+  transform: none !important;
 }
 
 /* =========================
@@ -545,6 +564,12 @@ button{
   }
 }
 
+.chat-popup.fullscreen .chat-input {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+}
+  
 #emojiPicker, #gifPicker {
   position: fixed;
   left: 0;
@@ -1246,6 +1271,14 @@ function openPreview(url){
   frame.src = decoded;
 }
 
+function adjustForKeyboard() {
+  const popup = document.getElementById("chatPopup");
+  if (!popup.classList.contains("fullscreen")) return;
+
+  // DO NOTHING on Android resize
+  // Let browser handle keyboard naturally
+}
+  
 function closePreview(){
   const frame = document.getElementById("previewFrame");
   const modal = document.getElementById("linkPreview");
@@ -1317,20 +1350,7 @@ async function sendGif(url){
 
 }
 
-function adjustForKeyboard() {
-  const popup = document.getElementById("chatPopup");
-  if (!popup.classList.contains("fullscreen")) return;
 
-  const vv = window.visualViewport;
-  if (!vv) return;
-
-  const keyboardHeight = window.innerHeight - vv.height;
-
-  popup.style.transform =
-    keyboardHeight > 0
-      ? `translateY(-${keyboardHeight}px)`
-      : "translateY(0)";
-}
   
 function goHome(){
   window.location.href = "./index99.html";
