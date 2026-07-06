@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <title>Chat   Obvyris</title>
 
 <link rel="icon" type="image/png" href="https://mikos5.github.io/tester/navicon.png">
@@ -329,7 +328,7 @@ button{
   scrollbar-color: var(--line) var(--panel-alt);
 }
 
-@media (max-width: 768px) {
+ 
 
   body {
     flex-direction: column;
@@ -361,15 +360,18 @@ button{
 
 }
 
-@media (max-width: 768px) {
+ 
 
   .chat-popup {
-    width: 100%;
-    height: 100dvh;
-    right: 0;
-    bottom: 0;
-    border-radius: 0;
-  }
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: env(safe-area-inset-bottom);
+}
   .chat-popup-log {
     padding-bottom: 120px; /* prevents keyboard overlap */
   }
@@ -392,10 +394,13 @@ button{
   font-size: 16px;
 }
 
-@media (max-width: 768px) {
+ 
   .chat-input {
-    flex-wrap: wrap;
-  }
+  position: sticky;
+  bottom: 0;
+  background: var(--panel);
+  z-index: 10;
+}
 
   .chat-input input {
     flex: 1 1 100%;
@@ -415,6 +420,61 @@ button{
 .logo:hover{
   opacity:0.85;
 }
+
+@media (max-width: 768px) {
+
+  /* layout */
+  body {
+    flex-direction: column;
+    height: 100dvh;
+  }
+
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .main {
+    padding: 10px;
+  }
+
+  .title {
+    font-size: 26px;
+  }
+
+  /* chat usability */
+  .chat-input button {
+    min-height: 44px;
+  }
+
+  .chat-input input {
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .chat-popup {
+    width: 100%;
+    height: 100dvh;
+    right: 0;
+    bottom: 0;
+    border-radius: 0;
+  }
+
+  .controls button {
+    padding: 14px;
+  }
+}
+
+#emojiPicker, #gifPicker {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 70px;
+  width: 100%;
+  z-index: 999999;
+}
+
   
 </style>
 </head>
@@ -947,14 +1007,9 @@ async function loadPopup(){
 
   const chat = document.getElementById("popupMessages");
 
-  chat.innerHTML = joypixels.toImage(html);
+chat.innerHTML = joypixels.toImage(html);
 
-  if (autoScroll) {
-    chat.scrollTo({
-      top: chat.scrollHeight,
-      behavior: "smooth"
-    });
-  }
+smartScroll();
 }
 
 async function sendPopupMsg(){
@@ -1039,6 +1094,20 @@ function createRoom(){
 
 }
 
+function smartScroll() {
+  const chat = document.getElementById("popupMessages");
+
+  const atBottom =
+    chat.scrollHeight - chat.scrollTop - chat.clientHeight < 80;
+
+  if (atBottom) {
+    chat.scrollTo({
+      top: chat.scrollHeight,
+      behavior: "smooth"
+    });
+  }
+}
+  
 function openPreview(url){
   const decoded = decodeURIComponent(url);
 
@@ -1158,6 +1227,24 @@ async function sendGif(url){
 
 }
 
+function adjustForKeyboard() {
+  const popup = document.getElementById("chatPopup");
+  const vv = window.visualViewport;
+
+  if (!vv) return;
+
+  const offset = window.innerHeight - vv.height - vv.offsetTop;
+
+  popup.style.transform = offset > 0
+    ? `translateY(-${offset}px)`
+    : "translateY(0)";
+}
+
+if (window.visualViewport) {
+  window.visualViewport.addEventListener("resize", adjustForKeyboard);
+  window.visualViewport.addEventListener("scroll", adjustForKeyboard);
+}
+  
 function goHome(){
   window.location.href = "./index99.html";
 }
