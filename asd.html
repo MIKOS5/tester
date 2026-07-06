@@ -1,107 +1,144 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Sports x API Dashboard</title>
+<meta charset="UTF-8">
+<title>Sports Dashboard</title>
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #0f0f0f;
-      color: #eee;
-      margin: 0;
-      padding: 20px;
-    }
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #0b0b0b;
+  color: white;
+}
 
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
+/* HEADER */
+.header {
+  background: #111;
+  padding: 15px 20px;
+  font-size: 22px;
+  font-weight: bold;
+  color: #ff3c3c;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
-    h1 {
-      color: #4dd0e1;
-      margin: 0;
-    }
+button {
+  background: #222;
+  color: white;
+  border: 1px solid #333;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
 
-    button {
-      background: #222;
-      color: white;
-      border: 1px solid #444;
-      padding: 10px 14px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
+/* LAYOUT */
+.container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 15px;
+  padding: 15px;
+}
 
-    button:hover {
-      background: #333;
-    }
+/* CARD BASE */
+.card {
+  background: #151515;
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.4);
+}
 
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 25px;
-    }
+.title {
+  font-size: 16px;
+  color: #ff3c3c;
+  margin-bottom: 10px;
+}
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: #161616;
-    }
+/* NEWS */
+.news-item {
+  border-bottom: 1px solid #222;
+  padding: 10px 0;
+}
 
-    th, td {
-      border: 1px solid #2a2a2a;
-      padding: 6px;
-      font-size: 13px;
-      text-align: left;
-    }
+.news-title {
+  font-weight: bold;
+  font-size: 14px;
+}
 
-    th {
-      background: #1f1f1f;
-      color: #4dd0e1;
-      position: sticky;
-      top: 0;
-    }
+.news-meta {
+  font-size: 11px;
+  color: #aaa;
+}
 
-    tr:nth-child(even) {
-      background: #141414;
-    }
+/* LIVE GAMES */
+.game {
+  background: #1c1c1c;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
 
-    .card {
-      border: 1px solid #2a2a2a;
-      padding: 10px;
-      border-radius: 6px;
-      background: #151515;
-    }
+.teams {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}
 
-    .title {
-      font-size: 18px;
-      margin-bottom: 8px;
-      color: #4dd0e1;
-    }
-  </style>
+.score {
+  font-size: 18px;
+  font-weight: bold;
+  color: #00ff88;
+}
+
+/* TEAMS */
+.team {
+  background: #1a1a1a;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+}
+
+.team-name {
+  font-weight: bold;
+}
+
+.small {
+  font-size: 12px;
+  color: #aaa;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .container {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
 </head>
 
 <body>
 
-<header>
-  <h1>🏟 Sports Dashboard</h1>
+<div class="header">
+  🏟 Sports Center
   <button onclick="loadData()">Refresh</button>
-</header>
+</div>
 
-<div class="grid">
+<div class="container">
 
+  <!-- NEWS -->
   <div class="card">
-    <div class="title">📰 News</div>
+    <div class="title">📰 Top News</div>
     <div id="news"></div>
   </div>
 
+  <!-- LIVE -->
   <div class="card">
-    <div class="title">📊 Sports</div>
-    <div id="sports"></div>
+    <div class="title">📊 Live Games</div>
+    <div id="live"></div>
   </div>
 
+  <!-- TEAMS -->
   <div class="card">
     <div class="title">👥 Teams</div>
     <div id="teams"></div>
@@ -113,76 +150,90 @@
 const API = "https://script.google.com/macros/s/AKfycbybcVX6Lv8EdXnDocZxTPM2xFYO0Zda_EoqOQQA6s5Rts67mIGIGLlKmi7vuZo__9W1/exec";
 
 async function loadData() {
-  try {
-    console.log("Fetching:", API);
+  const res = await fetch(API);
+  const data = await res.json();
 
-    const res = await fetch(API);
-
-    console.log("Status:", res.status);
-    console.log("OK:", res.ok);
-
-    const text = await res.text();
-
-    console.log("RAW RESPONSE:");
-    console.log(text);
-
-    const data = JSON.parse(text);
-
-    renderTable("news", data.news);
-    renderTable("sports", data.sports);
-    renderTable("teams", data.teams);
-
-  } catch (err) {
-    console.error("FULL ERROR:", err);
-    alert("Failed to load data. Check console.");
-  }
+  renderNews(data.news);
+  renderLive(data.live);
+  renderTeams(data.teams);
 }
 
-function renderTable(id, data) {
-  if (!data || data.length === 0) {
-    document.getElementById(id).innerHTML = "<p>No data</p>";
+/* ---------------- NEWS ---------------- */
+function renderNews(news) {
+  let html = "";
+
+  if (!news || news.length === 0) {
+    document.getElementById("news").innerHTML = "No news";
     return;
   }
 
-  // If it's OBJECTS (your case)
-  if (typeof data[0] === "object" && !Array.isArray(data[0])) {
+  news.slice(1).forEach(n => {
+    html += `
+      <div class="news-item">
+        <div class="news-title">${n[3] || ""}</div>
+        <div class="news-meta">${n[4] || ""}</div>
+      </div>
+    `;
+  });
 
-    const keys = Object.keys(data[0]);
+  document.getElementById("news").innerHTML = html;
+}
 
-    let html = "<table><tr>";
-    keys.forEach(k => html += `<th>${k}</th>`);
-    html += "</tr>";
+/* ---------------- LIVE GAMES ---------------- */
+function renderLive(games) {
+  let html = "";
 
-    data.forEach(row => {
-      html += "<tr>";
-      keys.forEach(k => {
-        html += `<td>${row[k] ?? ""}</td>`;
-      });
-      html += "</tr>";
-    });
-
-    html += "</table>";
-    document.getElementById(id).innerHTML = html;
+  if (!games || games.length === 0) {
+    document.getElementById("live").innerHTML = "No games";
     return;
   }
 
-  // fallback (your old sheet format)
-  let html = "<table><tr>";
-  data[0].forEach(h => html += `<th>${h}</th>`);
-  html += "</tr>";
+  games.forEach(g => {
+    html += `
+      <div class="game">
+        <div class="teams">
+          <div>${g.away.team}</div>
+          <div class="score">${g.away.score}</div>
+        </div>
+        <div class="teams">
+          <div>${g.home.team}</div>
+          <div class="score">${g.home.score}</div>
+        </div>
+        <div class="small">${g.status} • ${g.sport}</div>
+      </div>
+    `;
+  });
 
-  for (let i = 1; i < data.length; i++) {
-    html += "<tr>";
-    data[i].forEach(cell => html += `<td>${cell ?? ""}</td>`);
-    html += "</tr>";
-  }
-
-  html += "</table>";
-  document.getElementById(id).innerHTML = html;
+  document.getElementById("live").innerHTML = html;
 }
 
-// auto-load on open
+/* ---------------- TEAMS ---------------- */
+function renderTeams(teams) {
+  let html = "";
+
+  if (!teams || teams.length === 0) {
+    document.getElementById("teams").innerHTML = "No teams";
+    return;
+  }
+
+  // skip header row if sheet format
+  teams.slice(1).forEach(t => {
+    html += `
+      <div class="team">
+        <div class="team-name">${t[2]} (${t[3]})</div>
+        <div class="small">
+          League: ${t[4]}<br>
+          Record: ${t[13]}-${t[14]} • Win% ${t[15]}
+        </div>
+      </div>
+    `;
+  });
+
+  document.getElementById("teams").innerHTML = html;
+}
+
 loadData();
+setInterval(loadData, 30000); // auto refresh every 30s
 </script>
 
 </body>
