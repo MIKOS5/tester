@@ -284,7 +284,61 @@ button{
   border-radius: 0 !important;
   z-index: 99999999;
 }
-  
+
+/* =========================
+   FULLSCREEN MOBILE CHAT MODE
+   ========================= */
+.chat-popup.fullscreen {
+  font-size: 18px; /* base scale up */
+}
+
+/* bigger messages like SMS */
+.chat-popup.fullscreen .chat-msg {
+  font-size: 20px;
+  padding: 14px;
+  border-radius: 14px;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+/* name larger */
+.chat-popup.fullscreen .chat-name {
+  font-size: 20px;
+}
+
+/* input bar bigger + fixed like app */
+.chat-popup.fullscreen .chat-input {
+  position: sticky;
+  bottom: 0;
+  background: var(--panel);
+  padding: 12px;
+  gap: 8px;
+}
+
+/* input fields bigger touch targets */
+.chat-popup.fullscreen .chat-input input {
+  font-size: 18px;
+  min-height: 48px;
+  padding: 10px;
+}
+
+/* buttons bigger like Android chat apps */
+.chat-popup.fullscreen .chat-input button {
+  min-width: 48px;
+  min-height: 48px;
+  font-size: 18px;
+}
+
+/* message area padding so it doesn't hide behind keyboard */
+.chat-popup.fullscreen .chat-popup-log {
+  padding-bottom: 160px;
+}
+
+/* smoother bubbles like messaging apps */
+.chat-popup.fullscreen .chat-msg {
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(6px);
+}
 /* NEW SORT BAR */
 .room-tools{
   display:flex;
@@ -1265,20 +1319,17 @@ async function sendGif(url){
 
 function adjustForKeyboard() {
   const popup = document.getElementById("chatPopup");
-  const vv = window.visualViewport;
+  if (!popup.classList.contains("fullscreen")) return;
 
+  const vv = window.visualViewport;
   if (!vv) return;
 
-  const offset = window.innerHeight - vv.height - vv.offsetTop;
+  const keyboardHeight = window.innerHeight - vv.height;
 
-  popup.style.transform = offset > 0
-    ? `translateY(-${offset}px)`
-    : "translateY(0)";
-}
-
-if (window.visualViewport) {
-  window.visualViewport.addEventListener("resize", adjustForKeyboard);
-  window.visualViewport.addEventListener("scroll", adjustForKeyboard);
+  popup.style.transform =
+    keyboardHeight > 0
+      ? `translateY(-${keyboardHeight}px)`
+      : "translateY(0)";
 }
   
 function goHome(){
@@ -1304,7 +1355,18 @@ document.addEventListener("click", e=>{
     }
 
 });
+document.addEventListener("focusin", (e) => {
+  const popup = document.getElementById("chatPopup");
 
+  if (popup.classList.contains("fullscreen")) {
+    setTimeout(() => {
+      e.target.scrollIntoView({
+        block: "center",
+        behavior: "smooth"
+      });
+    }, 150);
+  }
+});
 window.addEventListener("DOMContentLoaded", () => {
 
   load();
