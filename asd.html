@@ -1,143 +1,91 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Live Sports Dashboard</title>
-
-<style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #0f172a;
-  color: white;
-}
-
-header {
-  padding: 16px;
-  background: #111827;
-  font-size: 20px;
-  font-weight: bold;
-  text-align: center;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  padding: 12px;
-}
-
-.card {
-  background: #1f2937;
-  border-radius: 10px;
-  padding: 12px;
-  overflow: hidden;
-}
-
-h2 {
-  margin: 0 0 10px 0;
-  font-size: 14px;
-  color: #38bdf8;
-}
-
-.item {
-  font-size: 12px;
-  padding: 6px 0;
-  border-bottom: 1px solid #374151;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.badge {
-  color: #22c55e;
-}
-</style>
+  <title>Live Sports Dashboard</title>
+  <style>
+    body { font-family: Arial; background:#0f172a; color:white; padding:20px; }
+    h2 { margin-top:30px; color:#38bdf8; }
+    .box { background:#1e293b; padding:10px; margin:5px 0; border-radius:8px; }
+  </style>
 </head>
-
 <body>
 
-<header>⚡ LIVE SPORTS DASHBOARD</header>
+<h1>⚡ LIVE SPORTS DASHBOARD</h1>
 
-<div class="grid">
+<h2>LIVE SCORES</h2>
+<div id="live">Loading...</div>
 
-  <div class="card">
-    <h2>LIVE SCORES</h2>
-    <div id="live"></div>
-  </div>
+<h2>GAMES</h2>
+<div id="games">Loading...</div>
 
-  <div class="card">
-    <h2>GAMES</h2>
-    <div id="games"></div>
-  </div>
+<h2>STANDINGS</h2>
+<div id="standings">Loading...</div>
 
-  <div class="card">
-    <h2>STANDINGS</h2>
-    <div id="standings"></div>
-  </div>
-
-  <div class="card">
-    <h2>TEAMS</h2>
-    <div id="teams"></div>
-  </div>
-
-</div>
+<h2>TEAMS</h2>
+<div id="teams">Loading...</div>
 
 <script>
+const API = "https://script.google.com/macros/s/AKfycbybcVX6Lv8EdXnDocZxTPM2xFYO0Zda_EoqOQQA6s5Rts67mIGIGLlKmi7vuZo__9W1/exec";
 
-const API_URL = "https://script.google.com/macros/s/AKfycbybcVX6Lv8EdXnDocZxTPM2xFYO0Zda_EoqOQQA6s5Rts67mIGIGLlKmi7vuZo__9W1/exec";
+async function load() {
+  const res = await fetch(API);
+  const data = await res.json();
 
-async function load(section, elementId) {
-  try {
-    const res = await fetch(`${API_URL}?action=${section}`);
-    const data = await res.json();
-
-    const el = document.getElementById(elementId);
-    el.innerHTML = "";
-
-    if (!Array.isArray(data)) {
-      el.innerHTML = "<div class='item'>No data</div>";
-      return;
-    }
-
-    data.slice(0, 20).forEach(row => {
-      const div = document.createElement("div");
-      div.className = "item";
-
-      // Clean display instead of raw JSON
-      if (section === "live") {
-        div.innerHTML = `
-          <span class="badge">${row[2] || ""}</span> |
-          ${row[3] || ""} vs ${row[4] || ""} |
-          ${row[5] || ""} - ${row[6] || ""} |
-          ${row[7] || ""}
-        `;
-      } else if (section === "games") {
-        div.innerText = `${row[2]} | ${row[3]} | ${row[5]} vs ${row[6]}`;
-      } else if (section === "standings") {
-        div.innerText = `${row[2]} - W:${row[3]} L:${row[4]} PCT:${row[5]}`;
-      } else {
-        div.innerText = JSON.stringify(row);
-      }
-
-      el.appendChild(div);
-    });
-
-  } catch (e) {
-    console.log("ERROR:", e);
-  }
+  renderLive(data.live);
+  renderGames(data.games);
+  renderStandings(data.standings);
+  renderTeams(data.teams);
 }
 
-function refresh() {
-  load("live", "live");
-  load("games", "games");
-  load("standings", "standings");
-  load("teams", "teams");
+function renderLive(items) {
+  const el = document.getElementById("live");
+  if (!items.length) return el.innerHTML = "No data";
+
+  el.innerHTML = items.map(i => `
+    <div class="box">
+      ${i.sport} | ${i.status} | ${i.clock}<br>
+      ${i.away.team} ${i.away.score} vs ${i.home.team} ${i.home.score}
+    </div>
+  `).join("");
 }
 
-refresh();
-setInterval(refresh, 15000);
+function renderGames(items) {
+  const el = document.getElementById("games");
+  if (!items.length) return el.innerHTML = "No data";
 
+  el.innerHTML = items.map(i => `
+    <div class="box">
+      ${i.sport} | ${i.status}<br>
+      ${i.away} ${i.awayScore} vs ${i.home} ${i.homeScore}
+    </div>
+  `).join("");
+}
+
+function renderStandings(items) {
+  const el = document.getElementById("standings");
+  if (!items.length) return el.innerHTML = "No data";
+
+  el.innerHTML = items.map(i => `
+    <div class="box">
+      ${i.league} - ${i.team}<br>
+      W:${i.wins} L:${i.losses} PCT:${i.winPct}
+    </div>
+  `).join("");
+}
+
+function renderTeams(items) {
+  const el = document.getElementById("teams");
+  if (!items.length) return el.innerHTML = "No data";
+
+  el.innerHTML = items.map(i => `
+    <div class="box">
+      ${i.sport} - ${i.name}
+    </div>
+  `).join("");
+}
+
+load();
+setInterval(load, 30000);
 </script>
 
 </body>
