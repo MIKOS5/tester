@@ -144,13 +144,33 @@ function renderTable(id, data) {
     return;
   }
 
-  let html = "<table><tr>";
+  // If it's OBJECTS (your case)
+  if (typeof data[0] === "object" && !Array.isArray(data[0])) {
 
-  // headers
+    const keys = Object.keys(data[0]);
+
+    let html = "<table><tr>";
+    keys.forEach(k => html += `<th>${k}</th>`);
+    html += "</tr>";
+
+    data.forEach(row => {
+      html += "<tr>";
+      keys.forEach(k => {
+        html += `<td>${row[k] ?? ""}</td>`;
+      });
+      html += "</tr>";
+    });
+
+    html += "</table>";
+    document.getElementById(id).innerHTML = html;
+    return;
+  }
+
+  // fallback (your old sheet format)
+  let html = "<table><tr>";
   data[0].forEach(h => html += `<th>${h}</th>`);
   html += "</tr>";
 
-  // rows
   for (let i = 1; i < data.length; i++) {
     html += "<tr>";
     data[i].forEach(cell => html += `<td>${cell ?? ""}</td>`);
