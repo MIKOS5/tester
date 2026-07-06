@@ -1,246 +1,156 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Sports xDashboard</title>
+  <meta charset="UTF-8">
+  <title>Teams Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      margin: 0;
+      padding: 20px;
+    }
 
-<style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #0b0b0b;
-  color: white;
-}
+    h1 {
+      margin-bottom: 10px;
+    }
 
-/* HEADER */
-.header {
-  background: #111;
-  padding: 15px 20px;
-  font-size: 22px;
-  font-weight: bold;
-  color: #ff3c3c;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+    input {
+      padding: 10px;
+      width: 300px;
+      margin-bottom: 15px;
+      border-radius: 6px;
+      border: none;
+    }
 
-button {
-  background: #222;
-  color: white;
-  border: 1px solid #333;
-  padding: 8px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-}
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #1e293b;
+      border-radius: 10px;
+      overflow: hidden;
+    }
 
-/* LAYOUT */
-.container {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 15px;
-  padding: 15px;
-}
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #334155;
+      text-align: left;
+      font-size: 14px;
+    }
 
-/* CARD BASE */
-.card {
-  background: #151515;
-  border-radius: 10px;
-  padding: 10px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.4);
-}
+    th {
+      background: #111827;
+      cursor: pointer;
+      position: sticky;
+      top: 0;
+    }
 
-.title {
-  font-size: 16px;
-  color: #ff3c3c;
-  margin-bottom: 10px;
-}
+    tr:hover {
+      background: #334155;
+    }
 
-/* NEWS */
-.news-item {
-  border-bottom: 1px solid #222;
-  padding: 10px 0;
-}
+    a {
+      color: #38bdf8;
+      text-decoration: none;
+    }
 
-.news-title {
-  font-weight: bold;
-  font-size: 14px;
-}
+    .win-high {
+      color: #22c55e;
+      font-weight: bold;
+    }
 
-.news-meta {
-  font-size: 11px;
-  color: #aaa;
-}
-
-/* LIVE GAMES */
-.game {
-  background: #1c1c1c;
-  padding: 10px;
-  border-radius: 8px;
-  margin-bottom: 10px;
-}
-
-.teams {
-  display: flex;
-  justify-content: space-between;
-  font-size: 14px;
-}
-
-.score {
-  font-size: 18px;
-  font-weight: bold;
-  color: #00ff88;
-}
-
-/* TEAMS */
-.team {
-  background: #1a1a1a;
-  padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 8px;
-}
-
-.team-name {
-  font-weight: bold;
-}
-
-.small {
-  font-size: 12px;
-  color: #aaa;
-}
-
-/* RESPONSIVE */
-@media (max-width: 900px) {
-  .container {
-    grid-template-columns: 1fr;
-  }
-}
-</style>
+    .win-low {
+      color: #ef4444;
+    }
+  </style>
 </head>
 
 <body>
 
-<div class="header">
-  🏟 Sports Center
-  <button onclick="loadData()">Refresh</button>
-</div>
+<h1>🏟️ Teams Dashboard</h1>
 
-<div class="container">
+<input type="text" id="search" placeholder="Search teams..." />
 
-  <!-- NEWS -->
-  <div class="card">
-    <div class="title">📰 Top News</div>
-    <div id="news"></div>
-  </div>
-
-  <!-- LIVE -->
-  <div class="card">
-    <div class="title">📊 Live Games</div>
-    <div id="live"></div>
-  </div>
-
-  <!-- TEAMS -->
-  <div class="card">
-    <div class="title">👥 Teams</div>
-    <div id="teams"></div>
-  </div>
-
-</div>
+<table id="teamsTable">
+  <thead>
+    <tr>
+      <th>Team</th>
+      <th>Sport</th>
+      <th>League</th>
+      <th>Division</th>
+      <th>Country</th>
+      <th>Stadium</th>
+      <th>Conference</th>
+      <th>W</th>
+      <th>L</th>
+      <th>Win %</th>
+      <th>Website</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
 
 <script>
-const API = "https://script.google.com/macros/s/AKfycbybcVX6Lv8EdXnDocZxTPM2xFYO0Zda_EoqOQQA6s5Rts67mIGIGLlKmi7vuZo__9W1/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbybcVX6Lv8EdXnDocZxTPM2xFYO0Zda_EoqOQQA6s5Rts67mIGIGLlKmi7vuZo__9W1/exec";
+
+let teamsData = [];
 
 async function loadData() {
-  const res = await fetch(API);
-  const data = await res.json();
+  const res = await fetch(API_URL);
+  const json = await res.json();
 
-  renderNews(data.news);
-  renderLive(data.live);
-  renderTeams(data.teams);
+  // Teams sheet comes as raw rows
+  teamsData = json.teams || [];
+
+  renderTable(teamsData);
 }
 
-/* ---------------- NEWS ---------------- */
-function renderNews(news) {
-  let html = "";
+function renderTable(data) {
+  const tbody = document.querySelector("#teamsTable tbody");
+  tbody.innerHTML = "";
 
-  if (!news || news.length < 2) {
-    document.getElementById("news").innerHTML = "No news";
-    return;
-  }
+  data.slice(1).forEach(row => {
+    const [
+      time, teamID, team, sport, league, country,
+      stadium, website, division, description,
+      conference, wins, losses, winPct
+    ] = row;
 
-  const rows = news.slice(1);
+    const winClass = parseFloat(winPct) >= 0.5 ? "win-high" : "win-low";
 
-  rows.forEach(n => {
-    html += `
-      <div class="news-item">
-        <div class="news-title">${n[3] || "No title"}</div>
-        <div class="news-meta">${n[4] || ""}</div>
-      </div>
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td><strong>${team || ""}</strong></td>
+      <td>${sport || ""}</td>
+      <td>${league || ""}</td>
+      <td>${division || ""}</td>
+      <td>${country || ""}</td>
+      <td>${stadium || ""}</td>
+      <td>${conference || ""}</td>
+      <td>${wins || 0}</td>
+      <td>${losses || 0}</td>
+      <td class="${winClass}">${winPct || ""}</td>
+      <td>${website ? `<a href="${website}" target="_blank">Link</a>` : ""}</td>
     `;
-  });
 
-  document.getElementById("news").innerHTML = html;
+    tbody.appendChild(tr);
+  });
 }
 
-/* ---------------- LIVE GAMES ---------------- */
-function renderLive(games) {
-  let html = "";
+// Search filter
+document.getElementById("search").addEventListener("input", function(e) {
+  const q = e.target.value.toLowerCase();
 
-  if (!games || games.length === 0) {
-    document.getElementById("live").innerHTML = "No games";
-    return;
-  }
+  const filtered = teamsData.filter(row =>
+    JSON.stringify(row).toLowerCase().includes(q)
+  );
 
-  games.forEach(g => {
-    html += `
-      <div class="game">
-        <div class="teams">
-          <div>${g.away.team}</div>
-          <div class="score">${g.away.score}</div>
-        </div>
-        <div class="teams">
-          <div>${g.home.team}</div>
-          <div class="score">${g.home.score}</div>
-        </div>
-        <div class="small">${g.status} • ${g.sport}</div>
-      </div>
-    `;
-  });
-
-  document.getElementById("live").innerHTML = html;
-}
-
-/* ---------------- TEAMS ---------------- */
-function renderTeams(teams) {
-  let html = "";
-
-  if (!teams || teams.length < 2) {
-    document.getElementById("teams").innerHTML = "No teams";
-    return;
-  }
-
-  const rows = teams.slice(1);
-
-  rows.forEach(t => {
-    html += `
-      <div class="team">
-        <div class="team-name">${t[2] || "Unknown Team"}</div>
-        <div class="small">
-          Sport: ${t[3] || ""}<br>
-          League: ${t[4] || ""}<br>
-          Country: ${t[5] || ""}<br>
-          Stadium: ${t[6] || ""}<br>
-          Record: ${t[12] || 0}-${t[13] || 0}<br>
-          Win%: ${t[14] || ""}
-        </div>
-      </div>
-    `;
-  });
-
-  document.getElementById("teams").innerHTML = html;
-}
+  renderTable(filtered);
+});
 
 loadData();
-setInterval(loadData, 30000); // auto refresh every 30s
 </script>
 
 </body>
