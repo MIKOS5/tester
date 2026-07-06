@@ -1,91 +1,157 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Live Sports x Dashboard</title>
+  <meta charset="UTF-8">
+  <title>Sports API Dashboard</title>
+
   <style>
-    body { font-family: Arial; background:#0f172a; color:white; padding:20px; }
-    h2 { margin-top:30px; color:#38bdf8; }
-    .box { background:#1e293b; padding:10px; margin:5px 0; border-radius:8px; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f0f0f;
+      color: #eee;
+      margin: 0;
+      padding: 20px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      color: #4dd0e1;
+      margin: 0;
+    }
+
+    button {
+      background: #222;
+      color: white;
+      border: 1px solid #444;
+      padding: 10px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #333;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 25px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #161616;
+    }
+
+    th, td {
+      border: 1px solid #2a2a2a;
+      padding: 6px;
+      font-size: 13px;
+      text-align: left;
+    }
+
+    th {
+      background: #1f1f1f;
+      color: #4dd0e1;
+      position: sticky;
+      top: 0;
+    }
+
+    tr:nth-child(even) {
+      background: #141414;
+    }
+
+    .card {
+      border: 1px solid #2a2a2a;
+      padding: 10px;
+      border-radius: 6px;
+      background: #151515;
+    }
+
+    .title {
+      font-size: 18px;
+      margin-bottom: 8px;
+      color: #4dd0e1;
+    }
   </style>
 </head>
+
 <body>
 
-<h1>⚡ LIVE SPORTS DASHBOARD</h1>
+<header>
+  <h1>🏟 Sports Dashboard</h1>
+  <button onclick="loadData()">Refresh</button>
+</header>
 
-<h2>LIVE SCORES</h2>
-<div id="live">Loading...</div>
+<div class="grid">
 
-<h2>GAMES</h2>
-<div id="games">Loading...</div>
+  <div class="card">
+    <div class="title">📰 News</div>
+    <div id="news"></div>
+  </div>
 
-<h2>STANDINGS</h2>
-<div id="standings">Loading...</div>
+  <div class="card">
+    <div class="title">📊 Sports</div>
+    <div id="sports"></div>
+  </div>
 
-<h2>TEAMS</h2>
-<div id="teams">Loading...</div>
+  <div class="card">
+    <div class="title">👥 Teams</div>
+    <div id="teams"></div>
+  </div>
+
+</div>
 
 <script>
 const API = "https://script.google.com/macros/s/AKfycbybcVX6Lv8EdXnDocZxTPM2xFYO0Zda_EoqOQQA6s5Rts67mIGIGLlKmi7vuZo__9W1/exec";
 
-async function load() {
-  const res = await fetch(API);
-  const data = await res.json();
+async function loadData() {
+  try {
+    const res = await fetch(API);
+    const data = await res.json();
 
-  renderLive(data.live);
-  renderGames(data.games);
-  renderStandings(data.standings);
-  renderTeams(data.teams);
+    renderTable("news", data.news);
+    renderTable("sports", data.sports);
+    renderTable("teams", data.teams);
+
+  } catch (err) {
+    console.error("API error:", err);
+    alert("Failed to load data");
+  }
 }
 
-function renderLive(items) {
-  const el = document.getElementById("live");
-  if (!items.length) return el.innerHTML = "No data";
+function renderTable(id, data) {
+  if (!data || data.length === 0) {
+    document.getElementById(id).innerHTML = "<p>No data</p>";
+    return;
+  }
 
-  el.innerHTML = items.map(i => `
-    <div class="box">
-      ${i.sport} | ${i.status} | ${i.clock}<br>
-      ${i.away.team} ${i.away.score} vs ${i.home.team} ${i.home.score}
-    </div>
-  `).join("");
+  let html = "<table><tr>";
+
+  // headers
+  data[0].forEach(h => html += `<th>${h}</th>`);
+  html += "</tr>";
+
+  // rows
+  for (let i = 1; i < data.length; i++) {
+    html += "<tr>";
+    data[i].forEach(cell => html += `<td>${cell ?? ""}</td>`);
+    html += "</tr>";
+  }
+
+  html += "</table>";
+  document.getElementById(id).innerHTML = html;
 }
 
-function renderGames(items) {
-  const el = document.getElementById("games");
-  if (!items.length) return el.innerHTML = "No data";
-
-  el.innerHTML = items.map(i => `
-    <div class="box">
-      ${i.sport} | ${i.status}<br>
-      ${i.away} ${i.awayScore} vs ${i.home} ${i.homeScore}
-    </div>
-  `).join("");
-}
-
-function renderStandings(items) {
-  const el = document.getElementById("standings");
-  if (!items.length) return el.innerHTML = "No data";
-
-  el.innerHTML = items.map(i => `
-    <div class="box">
-      ${i.league} - ${i.team}<br>
-      W:${i.wins} L:${i.losses} PCT:${i.winPct}
-    </div>
-  `).join("");
-}
-
-function renderTeams(items) {
-  const el = document.getElementById("teams");
-  if (!items.length) return el.innerHTML = "No data";
-
-  el.innerHTML = items.map(i => `
-    <div class="box">
-      ${i.sport} - ${i.name}
-    </div>
-  `).join("");
-}
-
-load();
-setInterval(load, 30000);
+// auto-load on open
+loadData();
 </script>
 
 </body>
