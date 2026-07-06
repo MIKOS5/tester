@@ -115,15 +115,21 @@ const API = "https://script.google.com/macros/s/AKfycbybcVX6Lv8EdXnDocZxTPM2xFYO
 async function loadData() {
   try {
     const res = await fetch(API);
-    const data = await res.json();
+
+    console.log("STATUS:", res.status);
+
+    const text = await res.text();
+    console.log("RAW RESPONSE:", text);
+
+    const data = JSON.parse(text);
 
     renderTable("news", data.news);
     renderTable("sports", data.sports);
     renderTable("teams", data.teams);
 
   } catch (err) {
-    console.error("API error:", err);
-    alert("Failed to load data");
+    console.error("FULL ERROR:", err);
+    alert("Failed to load data. Check console.");
   }
 }
 
