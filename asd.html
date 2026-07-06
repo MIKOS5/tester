@@ -162,15 +162,17 @@ async function loadData() {
 function renderNews(news) {
   let html = "";
 
-  if (!news || news.length === 0) {
+  if (!news || news.length < 2) {
     document.getElementById("news").innerHTML = "No news";
     return;
   }
 
-  news.slice(1).forEach(n => {
+  const rows = news.slice(1);
+
+  rows.forEach(n => {
     html += `
       <div class="news-item">
-        <div class="news-title">${n[3] || ""}</div>
+        <div class="news-title">${n[3] || "No title"}</div>
         <div class="news-meta">${n[4] || ""}</div>
       </div>
     `;
@@ -211,19 +213,31 @@ function renderLive(games) {
 function renderTeams(teams) {
   let html = "";
 
-  if (!teams || teams.length === 0) {
+  if (!teams || teams.length < 2) {
     document.getElementById("teams").innerHTML = "No teams";
     return;
   }
 
-  // skip header row if sheet format
-  teams.slice(1).forEach(t => {
+  const headers = teams[0];
+  const rows = teams.slice(1);
+
+  const get = (row, name) => {
+    const i = headers.indexOf(name);
+    return i >= 0 ? row[i] : "";
+  };
+
+  rows.forEach(t => {
     html += `
       <div class="team">
-        <div class="team-name">${t[2]} (${t[3]})</div>
+        <div class="team-name">
+          ${get(t, "Team") || get(t, "TeamID")}
+        </div>
         <div class="small">
-          League: ${t[4]}<br>
-          Record: ${t[13]}-${t[14]} • Win% ${t[15]}
+          Sport: ${get(t, "Sport")}<br>
+          League: ${get(t, "League")}<br>
+          Record: ${get(t, "Wins")} - ${get(t, "Losses")}<br>
+          Win%: ${get(t, "Win%")}<br>
+          Rank: ${get(t, "Rank")}
         </div>
       </div>
     `;
