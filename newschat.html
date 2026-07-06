@@ -273,6 +273,18 @@ button{
   border-radius:50%;
 }
 
+/* FULLSCREEN CHAT MODE */
+.chat-popup.fullscreen {
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100% !important;
+  height: 100dvh !important;
+  border-radius: 0 !important;
+  z-index: 99999999;
+}
+  
 /* NEW SORT BAR */
 .room-tools{
   display:flex;
@@ -544,9 +556,13 @@ button{
 <div id="chatPopup" class="chat-popup hidden">
 
   <div class="chat-popup-header">
-    <span id="popupTitle">Chat</span>
+  <span id="popupTitle">Chat</span>
+
+  <div style="display:flex;gap:6px;">
+    <button onclick="toggleChatFullscreen()">⛶</button>
     <button onclick="toggleChatPopup()">✖</button>
   </div>
+</div>
 
   <div id="popupMessages" class="chat-popup-log"></div>
 
@@ -1119,6 +1135,13 @@ function smartScroll() {
       behavior: "smooth"
     });
   }
+}
+
+function toggleChatFullscreen() {
+  const popup = document.getElementById("chatPopup");
+  popup.classList.toggle("fullscreen");
+
+  if (navigator.vibrate) navigator.vibrate(10);
 }
   
 function openPreview(url){
