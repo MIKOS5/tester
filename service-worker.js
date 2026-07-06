@@ -2,7 +2,7 @@ const CACHE_NAME = "obvyris-v1";
 
 // Cache only real files (NO folders)
 const FILES = [
-  "./index8.html",
+  "./index99.html",
   "./manifest.json",
   "./R192.png",
   "./R512.png",
