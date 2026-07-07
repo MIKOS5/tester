@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
 
 <title>Radio Obvyris</title>
 
@@ -71,7 +71,7 @@ body{
   background:var(--bg);
   color:var(--text);
   display:flex;
-  height:100vh;
+  height:calc(var(--vh) * 100);
   overflow:hidden;
 
   transition: background 0.3s, color 0.3s;
@@ -155,7 +155,9 @@ body{
 button{
   border:none;
   border-radius:12px;
-  padding:10px;
+  padding:14px 16px;
+  min-height:52px;
+  font-size:18px;
   background:linear-gradient(180deg,
     var(--blue),
     var(--blue-dark));
@@ -165,8 +167,19 @@ button{
 }
 
 .controls button {
-  font-size: 30px;   /* 👈 emoji + text size */
-  padding: 12px;
+  font-size:30px;
+  padding:12px;
+}
+
+
+/* 📱 Bigger player buttons on phones */
+@media (max-width:700px){
+
+  .controls button{
+    font-size:34px;
+    min-height:65px;
+  }
+
 }
   
 /* MAIN */
@@ -174,6 +187,9 @@ button{
   flex:1;
   padding:20px;
   overflow:auto;
+
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
 }
 
 .title{
@@ -186,8 +202,8 @@ button{
   background:var(--panel);
   border:1px solid var(--line);
   border-radius:16px;
-  padding:14px;
-  margin-bottom:10px;
+  padding:18px;
+  margin-bottom:14px;
 }
 
 .station{
@@ -220,9 +236,25 @@ button{
 }
 
 /* MOBILE */
-@media(max-width:900px){
-  body{flex-direction:column;height:auto;}
-  .sidebar{width:100%;}
+@media (max-width:900px){
+
+body{
+    flex-direction:column;
+    height:calc(var(--vh) * 100);
+}
+
+.sidebar{
+    width:100%;
+    max-height:240px;
+    overflow-y:auto;
+    flex-shrink:0;
+}
+
+.main{
+    flex:1;
+    overflow-y:auto;
+}
+
 }
 
 ::-webkit-scrollbar{
@@ -282,11 +314,15 @@ button{
 
 /* header bar */
 .genre{
-  padding:8px 10px;        /* smaller padding */
-  border-radius:12px;      /* slightly tighter */
-  font-size:13px;          /* smaller text */
+  padding:10px;
+  min-height:46px;
+  border-radius:12px;
+  font-size:14px;
   background:var(--panel);
   border:1px solid var(--line);
+  display:flex;
+  align-items:center;
+  justify-content:center;
   text-align:center;
   cursor:pointer;
   font-weight:700;
@@ -412,6 +448,12 @@ button{
   color:var(--text);
 }
 
+input,
+select,
+button{
+  font-size:16px;
+}
+  
 .chat-popup .chat-input{
   display:flex;
   gap:5px;
@@ -435,13 +477,13 @@ button{
 
 #chatMsg,
 #chatMsgPopup {
-  flex: 0 1 120px;   /* shrink + max width */
-  max-width: 120px;
+  flex:1;
+  max-width:none;
 }
   
 #backToTop{
   position: fixed;
-  bottom: 20px;
+  bottom:calc(env(safe-area-inset-bottom) + 20px);
   right: 20px;
   z-index: 9999;
 
@@ -479,7 +521,7 @@ button{
 
 #chatFloatBtn{
   position: fixed;
-  bottom: 90px;
+  bottom:calc(env(safe-area-inset-bottom) + 90px);
   right: 20px;
   width: 55px;
   height: 55px;
@@ -494,7 +536,7 @@ button{
   bottom: 160px;
   right: 20px;
   width: 35vw;
-  height: 70vh;
+  height:calc(var(--vh) * 70);
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 16px;
@@ -535,6 +577,62 @@ button{
   opacity: 1;
   pointer-events: auto;
 }
+/* Fullscreen chat on phones */
+@media (max-width:900px){
+
+  .chat-popup{
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    width: 100%;
+    height: 100%;
+
+    border-radius: 0;
+  }
+
+}
+
+@media (max-width:700px){
+
+  .station{
+    font-size:24px;
+  }
+
+  .small{
+    font-size:15px;
+  }
+
+  /* STEP 7 */
+  .genre-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+}
+
+/* Prevent accidental selection on app controls */
+button,
+.genre,
+.station{
+  -webkit-user-select:none;
+  user-select:none;
+}
+
+/* ANDROID APP FEEL */
+html,
+body{
+  overscroll-behavior:none;
+  touch-action:manipulation;
+}
+
+button,
+.genre,
+.station{
+  -webkit-user-select:none;
+  user-select:none;
+}
+  
 </style>
 </head>
 
@@ -616,13 +714,13 @@ button{
   oninput="render()"
   style="
     width:100%;
-    padding:12px;
+    padding:16px;
     margin-bottom:15px;
     border-radius:12px;
     border:1px solid var(--line);
     background:var(--panel);
     color:var(--text);
-    font-size:16px;
+    font-size:18px;
   "
 >
 
@@ -1471,6 +1569,18 @@ async function sendPopupMessage(){
 
   await loadPopupChat();
 }
+
+function setVH(){
+  document.documentElement.style.setProperty(
+    "--vh",
+    `${window.innerHeight * 0.01}px`
+  );
+}
+
+setVH();
+
+window.addEventListener("resize", setVH);
+window.addEventListener("orientationchange", setVH);
   
 function showAll() {
 
