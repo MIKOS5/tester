@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
 <title>Radio Obvyris</title>
 
@@ -39,9 +39,6 @@
   --button-dark2:#222;
 
   --panel-alt:#0b1220;
-
-  /* Height of bottom player */
-  --player-height:70px;
 }
 
 /* 🌙 LIGHT MODE */
@@ -74,7 +71,7 @@ body{
   background:var(--bg);
   color:var(--text);
   display:flex;
-  height:calc(var(--vh) * 100);
+  height:100vh;
   overflow:hidden;
 
   transition: background 0.3s, color 0.3s;
@@ -86,7 +83,6 @@ body{
   background:var(--panel);
   border-right:1px solid var(--line);
   padding:20px;
-  padding-bottom:20px;
   overflow:auto;
 }
 
@@ -159,9 +155,7 @@ body{
 button{
   border:none;
   border-radius:12px;
-  padding:14px 16px;
-  min-height:52px;
-  font-size:18px;
+  padding:10px;
   background:linear-gradient(180deg,
     var(--blue),
     var(--blue-dark));
@@ -170,52 +164,16 @@ button{
   cursor:pointer;
 }
 
-.controls{
-    display:flex;
-    gap:6px;
-    margin:0;
-}
-
-
-.controls button{
-
-  height:64px;
-  min-height:64px;
-
-  border-radius:50%;
-
-  font-size:30px;
-
-  padding:0;
-
-  display:flex;
-  align-items:center;
-  justify-content:center;
-
-  touch-action:manipulation;
-}
-
-
-/* 📱 Bigger player buttons on phones */
-@media (max-width:700px){
-
-  .controls button{
-    font-size:34px;
-    min-height:65px;
-  }
-
+.controls button {
+  font-size: 30px;   /* 👈 emoji + text size */
+  padding: 12px;
 }
   
 /* MAIN */
 .main{
   flex:1;
   padding:20px;
-  padding-bottom:100px; /* space above fixed player */
-  overflow-y:auto;
-  overflow-x:hidden;
-
-  -webkit-overflow-scrolling:touch;
-  overscroll-behavior:contain;
+  overflow:auto;
 }
 
 .title{
@@ -228,8 +186,8 @@ button{
   background:var(--panel);
   border:1px solid var(--line);
   border-radius:16px;
-  padding:18px;
-  margin-bottom:14px;
+  padding:14px;
+  margin-bottom:10px;
 }
 
 .station{
@@ -262,25 +220,9 @@ button{
 }
 
 /* MOBILE */
-@media (max-width:900px){
-
-body{
-    flex-direction:column;
-    height:calc(var(--vh) * 100);
-}
-
-.sidebar{
-    width:100%;
-    max-height:240px;
-    overflow-y:auto;
-    flex-shrink:0;
-}
-
-.main{
-    flex:1;
-    overflow-y:auto;
-}
-
+@media(max-width:900px){
+  body{flex-direction:column;height:auto;}
+  .sidebar{width:100%;}
 }
 
 ::-webkit-scrollbar{
@@ -340,15 +282,11 @@ body{
 
 /* header bar */
 .genre{
-  padding:10px;
-  min-height:46px;
-  border-radius:12px;
-  font-size:14px;
+  padding:8px 10px;        /* smaller padding */
+  border-radius:12px;      /* slightly tighter */
+  font-size:13px;          /* smaller text */
   background:var(--panel);
   border:1px solid var(--line);
-  display:flex;
-  align-items:center;
-  justify-content:center;
   text-align:center;
   cursor:pointer;
   font-weight:700;
@@ -474,12 +412,6 @@ body{
   color:var(--text);
 }
 
-input,
-select,
-button{
-  font-size:16px;
-}
-  
 .chat-popup .chat-input{
   display:flex;
   gap:5px;
@@ -503,13 +435,13 @@ button{
 
 #chatMsg,
 #chatMsgPopup {
-  flex:1;
-  max-width:none;
+  flex: 0 1 120px;   /* shrink + max width */
+  max-width: 120px;
 }
   
 #backToTop{
   position: fixed;
-  bottom:calc(env(safe-area-inset-bottom) + 20px);
+  bottom: 20px;
   right: 20px;
   z-index: 9999;
 
@@ -547,7 +479,7 @@ button{
 
 #chatFloatBtn{
   position: fixed;
-  bottom:calc(env(safe-area-inset-bottom) + 90px);
+  bottom: 90px;
   right: 20px;
   width: 55px;
   height: 55px;
@@ -562,7 +494,7 @@ button{
   bottom: 160px;
   right: 20px;
   width: 35vw;
-  height:calc(var(--vh) * 70);
+  height: 70vh;
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 16px;
@@ -603,183 +535,6 @@ button{
   opacity: 1;
   pointer-events: auto;
 }
-/* Fullscreen chat on phones */
-@media (max-width:900px){
-
-  .chat-popup{
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-
-    width: 100%;
-    height: 100%;
-
-    border-radius: 0;
-  }
-
-}
-
-@media (max-width:700px){
-
-  .station{
-    font-size:24px;
-  }
-
-  .small{
-    font-size:15px;
-  }
-
-  /* STEP 7 */
-  .genre-grid{
-    grid-template-columns:repeat(2,1fr);
-  }
-
-}
-
-/* Prevent accidental selection on app controls */
-button,
-.genre,
-.station{
-  -webkit-user-select:none;
-  user-select:none;
-}
-
-/* ANDROID APP FEEL */
-html,
-body{
-  overscroll-behavior:none;
-  touch-action:manipulation;
-  padding-bottom:env(safe-area-inset-bottom);
-}
-
-button,
-.genre,
-.station{
-  -webkit-user-select:none;
-  user-select:none;
-}
-
-/* MOBILE PLAYER */
-@media(max-width:900px){
-
-.player{
-  position:sticky;
-  top:0;
-  z-index:1000;
-
-  border-radius:0 0 20px 20px;
-
-  padding:14px;
-
-  backdrop-filter:blur(10px);
-}
-
-.now{
-  font-size:18px;
-}
-
-.meta{
-  font-size:14px;
-}
-
-}
-
-#volume{
-    width:90px;
-    margin:0;
-}
-
-.player{
-    position:fixed;
-    left:0;
-    right:0;
-    bottom:0;
-    z-index:5000;
-
-    background:var(--panel);
-    border-top:1px solid var(--line);
-    box-shadow:0 -8px 25px rgba(0,0,0,.35);
-
-    padding:12px 16px calc(12px + env(safe-area-inset-bottom));
-}
-
-/* Android / phones */
-@media (max-width:900px){
-
-  .player{
-    position:fixed;
-    left:0;
-    right:0;
-    bottom:0;
-
-    width:100%;
-    height:70px;
-
-    display:flex;
-    align-items:center;
-    gap:10px;
-
-    padding:8px 12px;
-
-    background:var(--panel);
-    border-top:1px solid var(--line);
-
-    z-index:99999;
-
-    box-shadow:0 -5px 20px rgba(0,0,0,.35);
-  }
-
-}
-  .now{
-    font-size:16px;
-  }
-
-  .meta{
-    font-size:12px;
-    margin-top:2px;
-  }
-
-  .controls{
-    margin-top:8px;
-    gap:8px;
-  }
-
-  .controls button{
-    width:42px;
-    height:42px;
-    min-height:42px;
-
-    border-radius:50%;
-
-    font-size:20px;
-
-    padding:0;
-}
-
-  #volume{
-    margin-top:8px;
-  }
-
-}
-
-.now{
-    font-size:15px;
-    font-weight:700;
-
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-}
-
-.meta{
-    font-size:11px;
-
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-}
-  
 </style>
 </head>
 
@@ -796,42 +551,25 @@ button,
         Live radio stations • genres • favorites
     </div>
 </div>
-  
+  <div class="player">
+
+    <div class="now" id="npName">Not Playing</div>
+    <div class="meta" id="npMeta">Select station</div>
+
+    <audio id="audio"></audio>
+
+    <div class="controls">
+  <button onclick="prev()">⏮</button>
+  <button onclick="toggle()">▶</button>
+  <button onclick="next()">⏭</button>
+  <button id="themeBtn" onclick="toggleTheme()">🌙</button>
+  </div>
+  </div>
   <div class="action-grid" id="actionGrid"></div>
 
   
 </div>
 
-<div class="player">
-
-
-
-    <div class="player-info">
-
-    <div class="now" id="npName">Not Playing</div>
-
-    <div class="meta" id="npMeta">Select station</div>
-
-</div>
-
-
-
-    <audio id="audio" preload="none"></audio>
-
-
-
-    <div class="controls">
-
-  <button onclick="prev()">⏮</button>
-
-  <button id="mainPlay" onclick="toggle()">▶</button>
-
-  <button onclick="next()">⏭</button>
-
-  <button id="themeBtn" onclick="toggleTheme()">🌙</button>
-
-  </div>
-  </div>
 <!-- MAIN -->
 <div class="main">
 
@@ -878,13 +616,13 @@ button,
   oninput="render()"
   style="
     width:100%;
-    padding:16px;
+    padding:12px;
     margin-bottom:15px;
     border-radius:12px;
     border:1px solid var(--line);
     background:var(--panel);
     color:var(--text);
-    font-size:18px;
+    font-size:16px;
   "
 >
 
@@ -1364,72 +1102,30 @@ async function listenNowPlaying(streamUrl, callback){
 /* PLAY */
 async function play(i){
 
-  const list = getActiveList();
-
-  const s = list[i];
-
-  if(!s) return;
-
   index = i;
-  window.activeList = list;
 
+  const s = current[i];
   const audio = document.getElementById("audio");
 
   audio.src = s.url_resolved || s.url;
+  audio.play();
 
-  try{
+  document.getElementById("npName").innerText = s.name;
+  document.getElementById("npMeta").innerText = "Loading track...";
 
-    await audio.play();
-
-    document.getElementById("mainPlay").innerHTML = "⏸";
-
-  }catch(err){
-
-    console.log("Audio play blocked:", err);
-
-    document.getElementById("mainPlay").innerHTML = "▶";
-
-  }
-
-
-  document.getElementById("npName").innerText =
-    s.name;
-
-
-  document.getElementById("npMeta").innerText =
-    `${getGenre(s)} • ${s.country || ""}`;
-
-
-  // stop old metadata reader
-  if(metadataAbort){
-
+  // ✅ STOP previous listener cleanly
+  if (metadataAbort) {
     metadataAbort.abort();
-
   }
 
-
-  // start metadata listener
-  if(s.url){
-
-    listenNowPlaying(
-      s.url,
-      (title)=>{
-
-        document.getElementById("npMeta").innerText =
-          `${title} • ${s.country || ""}`;
-
-      }
-    );
-
-  }
-
+  // Start new listener
+  listenNowPlaying(s.url, (title) => {
+    document.getElementById("npMeta").innerText =
+      `${title} • ${s.country || ""}`;
+  });
 
   stationStarted = true;
-
-
-  // update chat
   loadPopupChat();
-
 }
 
 async function loadPopupChat(){
@@ -1456,131 +1152,55 @@ async function loadPopupChat(){
   }
 }
   
-async function playFiltered(i){
+function playFiltered(i){
 
   const list = getActiveList();
-
   const s = list[i];
-
   if(!s) return;
 
-
   index = i;
-
   window.activeList = list;
-
 
   const audio = document.getElementById("audio");
 
-
   audio.src = s.url_resolved || s.url;
+  audio.play();
 
-
-  try{
-
-    await audio.play();
-
-    document.getElementById("mainPlay").innerHTML = "⏸";
-
-
-  }catch(err){
-
-    console.log("Audio play blocked:", err);
-
-    document.getElementById("mainPlay").innerHTML = "▶";
-
-  }
-
-
-  document.getElementById("npName").innerText =
-    s.name;
-
+  document.getElementById("npName").innerText = s.name;
 
   document.getElementById("npMeta").innerText =
     `${getGenre(s)} • ${s.country || ""}`;
 
-
-
-  // reset previous station button
-  if(
-    playingIndex !== null &&
-    document.getElementById(`playBtn-${playingIndex}`)
-  ){
-
-    document.getElementById(`playBtn-${playingIndex}`)
-      .innerText = "▶ Play";
-
+  // fix button state
+  if (playingIndex !== null && document.getElementById(`playBtn-${playingIndex}`)) {
+    document.getElementById(`playBtn-${playingIndex}`).innerText = "▶ Play";
   }
-
 
   playingIndex = i;
-
-
-  const btn =
-    document.getElementById(`playBtn-${i}`);
-
-
-  if(btn){
-
-    btn.innerText = "⏸ Pause";
-
-  }
-
-
-
-  // stop old metadata
-  if(metadataAbort){
-
-    metadataAbort.abort();
-
-  }
-
-
-  // start metadata
-  if(s.url){
-
-    listenNowPlaying(
-      s.url,
-      (title)=>{
-
-        document.getElementById("npMeta").innerText =
-          `${title} • ${s.country || ""}`;
-
-      }
-    );
-
-  }
-
-
+  const btn = document.getElementById(`playBtn-${i}`);
+  if (btn) btn.innerText = "⏸ Pause";
+  // ✅ ADD THIS HERE (THIS IS THE IMPORTANT PART)
   stationStarted = true;
-
-
   loadPopupChat();
-
 }
   
 /* CONTROLS */
 function toggle(){
+  const a = document.getElementById("audio");
 
-const a=document.getElementById("audio");
-const btn=document.getElementById("mainPlay");
-
-
-if(a.paused){
-
+  if(a.paused){
     a.play();
-
-    btn.innerHTML="⏸";
-
-}
-else{
-
+    if (playingIndex !== null) {
+      const btn = document.getElementById(`playBtn-${playingIndex}`);
+      if (btn) btn.innerText = "⏸ Pause";
+    }
+  } else {
     a.pause();
-
-    btn.innerHTML="▶";
-
-}
-
+    if (playingIndex !== null) {
+      const btn = document.getElementById(`playBtn-${playingIndex}`);
+      if (btn) btn.innerText = "▶ Play";
+    }
+  }
 }
 
 function next(){
@@ -1851,18 +1471,6 @@ async function sendPopupMessage(){
 
   await loadPopupChat();
 }
-
-function setVH(){
-  document.documentElement.style.setProperty(
-    "--vh",
-    `${window.innerHeight * 0.01}px`
-  );
-}
-
-setVH();
-
-window.addEventListener("resize", setVH);
-window.addEventListener("orientationchange", setVH);
   
 function showAll() {
 
@@ -1937,13 +1545,6 @@ renderGenres();
 loadCountries();   // ✅ add this
 load();
 
-
-document.getElementById("volume").oninput = function(){
-
-  document.getElementById("audio").volume = this.value;
-
-};
-  
 document.querySelector(".main").addEventListener("scroll", () => {
   const btn = document.getElementById("backToTop");
 
@@ -2246,21 +1847,6 @@ if ("serviceWorker" in navigator) {
       .catch(err => console.error(err));
   });
 }
-
-const audio = document.getElementById("audio");
-
-audio.onplay = () => {
-  document.getElementById("mainPlay").innerHTML = "⏸";
-};
-
-audio.onpause = () => {
-  document.getElementById("mainPlay").innerHTML = "▶";
-};
-
-audio.onerror = () => {
-  console.log("Stream error");
-};
-  
 </script>
 <button id="chatFloatBtn" onclick="toggleChatPopup()">
   💬
@@ -2280,15 +1866,5 @@ audio.onerror = () => {
   </div>
 </div>
 <button id="backToTop" onclick="scrollToTop()">⬆ Top</button>
-
-  <input 
-  type="range"
-  id="volume"
-  min="0"
-  max="1"
-  step="0.05"
-  value="1">
-    
-  </div>
 </body>
 </html>
