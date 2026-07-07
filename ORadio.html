@@ -166,9 +166,29 @@ button{
   cursor:pointer;
 }
 
-.controls button {
+.controls{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+}
+
+
+.controls button{
+
+  height:64px;
+  min-height:64px;
+
+  border-radius:50%;
+
   font-size:30px;
-  padding:12px;
+
+  padding:0;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  touch-action:manipulation;
 }
 
 
@@ -624,6 +644,7 @@ html,
 body{
   overscroll-behavior:none;
   touch-action:manipulation;
+  padding-bottom:env(safe-area-inset-bottom);
 }
 
 button,
@@ -631,6 +652,53 @@ button,
 .station{
   -webkit-user-select:none;
   user-select:none;
+}
+
+/* MOBILE PLAYER */
+@media(max-width:900px){
+
+.player{
+  position:sticky;
+  top:0;
+  z-index:1000;
+
+  border-radius:0 0 20px 20px;
+
+  padding:14px;
+
+  backdrop-filter:blur(10px);
+}
+
+.now{
+  font-size:18px;
+}
+
+.meta{
+  font-size:14px;
+}
+
+}
+
+#volume{
+  width:100%;
+  margin-top:15px;
+  height:8px;
+  cursor:pointer;
+}
+
+.player{
+
+box-shadow:
+0 10px 30px rgba(0,0,0,.25);
+
+}
+
+.now{
+
+white-space:nowrap;
+overflow:hidden;
+text-overflow:ellipsis;
+
 }
   
 </style>
@@ -654,14 +722,23 @@ button,
     <div class="now" id="npName">Not Playing</div>
     <div class="meta" id="npMeta">Select station</div>
 
-    <audio id="audio"></audio>
+    <audio id="audio" preload="none"></audio>
 
     <div class="controls">
   <button onclick="prev()">⏮</button>
-  <button onclick="toggle()">▶</button>
+  <button id="mainPlay" onclick="toggle()">▶</button>
   <button onclick="next()">⏭</button>
   <button id="themeBtn" onclick="toggleTheme()">🌙</button>
   </div>
+
+  <input 
+  type="range"
+  id="volume"
+  min="0"
+  max="1"
+  step="0.05"
+  value="1">
+    
   </div>
   <div class="action-grid" id="actionGrid"></div>
 
@@ -1200,30 +1277,72 @@ async function listenNowPlaying(streamUrl, callback){
 /* PLAY */
 async function play(i){
 
-  index = i;
+  const list = getActiveList();
 
-  const s = current[i];
+  const s = list[i];
+
+  if(!s) return;
+
+  index = i;
+  window.activeList = list;
+
   const audio = document.getElementById("audio");
 
   audio.src = s.url_resolved || s.url;
-  audio.play();
 
-  document.getElementById("npName").innerText = s.name;
-  document.getElementById("npMeta").innerText = "Loading track...";
+  try{
 
-  // ✅ STOP previous listener cleanly
-  if (metadataAbort) {
-    metadataAbort.abort();
+    await audio.play();
+
+    document.getElementById("mainPlay").innerHTML = "⏸";
+
+  }catch(err){
+
+    console.log("Audio play blocked:", err);
+
+    document.getElementById("mainPlay").innerHTML = "▶";
+
   }
 
-  // Start new listener
-  listenNowPlaying(s.url, (title) => {
-    document.getElementById("npMeta").innerText =
-      `${title} • ${s.country || ""}`;
-  });
+
+  document.getElementById("npName").innerText =
+    s.name;
+
+
+  document.getElementById("npMeta").innerText =
+    `${getGenre(s)} • ${s.country || ""}`;
+
+
+  // stop old metadata reader
+  if(metadataAbort){
+
+    metadataAbort.abort();
+
+  }
+
+
+  // start metadata listener
+  if(s.url){
+
+    listenNowPlaying(
+      s.url,
+      (title)=>{
+
+        document.getElementById("npMeta").innerText =
+          `${title} • ${s.country || ""}`;
+
+      }
+    );
+
+  }
+
 
   stationStarted = true;
+
+
+  // update chat
   loadPopupChat();
+
 }
 
 async function loadPopupChat(){
@@ -1250,55 +1369,131 @@ async function loadPopupChat(){
   }
 }
   
-function playFiltered(i){
+async function playFiltered(i){
 
   const list = getActiveList();
+
   const s = list[i];
+
   if(!s) return;
 
+
   index = i;
+
   window.activeList = list;
+
 
   const audio = document.getElementById("audio");
 
-  audio.src = s.url_resolved || s.url;
-  audio.play();
 
-  document.getElementById("npName").innerText = s.name;
+  audio.src = s.url_resolved || s.url;
+
+
+  try{
+
+    await audio.play();
+
+    document.getElementById("mainPlay").innerHTML = "⏸";
+
+
+  }catch(err){
+
+    console.log("Audio play blocked:", err);
+
+    document.getElementById("mainPlay").innerHTML = "▶";
+
+  }
+
+
+  document.getElementById("npName").innerText =
+    s.name;
+
 
   document.getElementById("npMeta").innerText =
     `${getGenre(s)} • ${s.country || ""}`;
 
-  // fix button state
-  if (playingIndex !== null && document.getElementById(`playBtn-${playingIndex}`)) {
-    document.getElementById(`playBtn-${playingIndex}`).innerText = "▶ Play";
+
+
+  // reset previous station button
+  if(
+    playingIndex !== null &&
+    document.getElementById(`playBtn-${playingIndex}`)
+  ){
+
+    document.getElementById(`playBtn-${playingIndex}`)
+      .innerText = "▶ Play";
+
   }
 
+
   playingIndex = i;
-  const btn = document.getElementById(`playBtn-${i}`);
-  if (btn) btn.innerText = "⏸ Pause";
-  // ✅ ADD THIS HERE (THIS IS THE IMPORTANT PART)
+
+
+  const btn =
+    document.getElementById(`playBtn-${i}`);
+
+
+  if(btn){
+
+    btn.innerText = "⏸ Pause";
+
+  }
+
+
+
+  // stop old metadata
+  if(metadataAbort){
+
+    metadataAbort.abort();
+
+  }
+
+
+  // start metadata
+  if(s.url){
+
+    listenNowPlaying(
+      s.url,
+      (title)=>{
+
+        document.getElementById("npMeta").innerText =
+          `${title} • ${s.country || ""}`;
+
+      }
+    );
+
+  }
+
+
   stationStarted = true;
+
+
   loadPopupChat();
+
 }
   
 /* CONTROLS */
 function toggle(){
-  const a = document.getElementById("audio");
 
-  if(a.paused){
+const a=document.getElementById("audio");
+const btn=document.getElementById("mainPlay");
+
+
+if(a.paused){
+
     a.play();
-    if (playingIndex !== null) {
-      const btn = document.getElementById(`playBtn-${playingIndex}`);
-      if (btn) btn.innerText = "⏸ Pause";
-    }
-  } else {
+
+    btn.innerHTML="⏸";
+
+}
+else{
+
     a.pause();
-    if (playingIndex !== null) {
-      const btn = document.getElementById(`playBtn-${playingIndex}`);
-      if (btn) btn.innerText = "▶ Play";
-    }
-  }
+
+    btn.innerHTML="▶";
+
+}
+
 }
 
 function next(){
@@ -1655,6 +1850,13 @@ renderGenres();
 loadCountries();   // ✅ add this
 load();
 
+
+document.getElementById("volume").oninput = function(){
+
+  document.getElementById("audio").volume = this.value;
+
+};
+  
 document.querySelector(".main").addEventListener("scroll", () => {
   const btn = document.getElementById("backToTop");
 
@@ -1957,6 +2159,21 @@ if ("serviceWorker" in navigator) {
       .catch(err => console.error(err));
   });
 }
+
+const audio = document.getElementById("audio");
+
+audio.onplay = () => {
+  document.getElementById("mainPlay").innerHTML = "⏸";
+};
+
+audio.onpause = () => {
+  document.getElementById("mainPlay").innerHTML = "▶";
+};
+
+audio.onerror = () => {
+  console.log("Stream error");
+};
+  
 </script>
 <button id="chatFloatBtn" onclick="toggleChatPopup()">
   💬
