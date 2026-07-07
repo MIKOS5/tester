@@ -472,13 +472,64 @@ setInterval(()=>{
 ========================= */
 
 async function load(){
-  const r=await fetch(PLAYLIST);
-  const t=await r.text();
 
-  list=parseM3U(t);
+  const r = await fetch(PLAYLIST);
+  const t = await r.text();
+
+  let raw = parseM3U(t);
+
+  console.log("Total streams:", raw.length);
+
+  list = await filterWorkingStreams(raw);
+
+  console.log("Working streams:", list.length);
 
   buildGroups();
   applyFilters();
+}
+
+async function filterWorkingStreams(channels){
+
+  const good=[];
+
+  const checks = channels.map(async s=>{
+
+    try{
+
+      const controller=new AbortController();
+
+      const timer=setTimeout(()=>{
+        controller.abort();
+      },4000);
+
+
+      const res=await fetch(s.url,{
+        method:"GET",
+        signal:controller.signal,
+        headers:{
+          "Range":"bytes=0-1"
+        }
+      });
+
+
+      clearTimeout(timer);
+
+
+      if(res.ok){
+        good.push(s);
+      }
+
+
+    }catch(e){
+      // dead stream ignored
+    }
+
+  });
+
+
+  await Promise.all(checks);
+
+  return good;
 }
 
 function parseM3U(t){
