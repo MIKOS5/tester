@@ -361,6 +361,43 @@ button{
   }
 }
 
+/* MOBILE ACTION DROPDOWN */
+@media(max-width:900px){
+
+  .action-grid{
+    display:none;
+    margin-top:10px;
+  }
+
+  .action-grid.open{
+    display:grid;
+  }
+
+  .action-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:12px;
+    border-radius:12px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    font-weight:800;
+    cursor:pointer;
+  }
+
+}
+
+/* desktop hide dropdown title */
+.action-header{
+  display:none;
+}
+
+@media(min-width:901px){
+  .action-grid{
+    display:grid;
+  }
+}
+  
 /* ACTION GRID */
 .action-grid {
   display: grid;
@@ -673,7 +710,12 @@ body{
     </div>
 </div>
   
-  <div class="action-grid" id="actionGrid"></div>
+  <div class="action-header" onclick="toggleActions()">
+  ⭐ Radio Tools
+  <span id="actionArrow">▼</span>
+</div>
+
+<div class="action-grid" id="actionGrid"></div>
 
   
 </div>
@@ -2005,6 +2047,25 @@ if ("serviceWorker" in navigator) {
       .catch(err => console.error(err));
   });
 }
+
+let actionsOpen = false;
+
+function toggleActions(){
+
+  const grid = document.getElementById("actionGrid");
+  const arrow = document.getElementById("actionArrow");
+
+  actionsOpen = !actionsOpen;
+
+  if(actionsOpen){
+    grid.classList.add("open");
+    arrow.innerText = "▲";
+  }else{
+    grid.classList.remove("open");
+    arrow.innerText = "▼";
+  }
+}
+  
 </script>
 <button id="chatFloatBtn" onclick="toggleChatPopup()">
   💬
