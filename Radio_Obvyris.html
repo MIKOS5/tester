@@ -722,6 +722,51 @@ body{
   cursor:pointer;
   margin-bottom:10px;
 }
+
+.app-menu{
+    position:absolute;
+    top:80px;
+    left:20px;
+
+    width:240px;
+
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:16px;
+
+    overflow:hidden;
+
+    z-index:99999;
+
+    display:none;
+
+    box-shadow:0 15px 40px rgba(0,0,0,.5);
+}
+
+
+.app-menu div{
+
+    padding:14px;
+
+    cursor:pointer;
+
+    font-weight:700;
+
+    transition:.15s;
+}
+
+
+.app-menu div:hover{
+
+    background:var(--blue);
+    color:white;
+
+}
+
+
+.app-menu.open{
+    display:block;
+}
   
 </style>
 </head>
@@ -2103,6 +2148,35 @@ function shareStation(station){
   document.body.appendChild(menu);
 }
 
+function toggleAppMenu(){
+
+    const menu=document.getElementById("appMenu");
+
+    menu.classList.toggle("open");
+
+}
+
+
+function navigateApp(page){
+
+    window.location.href = page;
+
+}
+
+
+// close menu if clicking elsewhere
+
+document.addEventListener("click",function(e){
+
+    const menu=document.getElementById("appMenu");
+    const brand=document.querySelector(".brand");
+
+    if(!brand.contains(e.target)){
+        menu.classList.remove("open");
+    }
+
+});
+  
 function shareFiltered(i){
   shareStation(window.filtered[i]);
 }
