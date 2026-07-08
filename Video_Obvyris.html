@@ -163,6 +163,71 @@ video{
   font-size:13px;
   margin-bottom:20px;
 }
+
+.brand{
+  cursor:pointer;
+  user-select:none;
+  padding:8px;
+  border-radius:12px;
+  transition:.2s;
+}
+
+.brand:hover{
+  background:rgba(255,255,255,.08);
+}
+
+
+.app-menu{
+
+  position:absolute;
+
+  top:90px;
+  left:20px;
+
+  width:240px;
+
+  background:var(--panel);
+
+  border:1px solid var(--border);
+
+  border-radius:16px;
+
+  overflow:hidden;
+
+  z-index:999999;
+
+  display:none;
+
+  box-shadow:0 20px 40px rgba(0,0,0,.5);
+
+}
+
+
+.app-menu div{
+
+  padding:14px;
+
+  font-weight:800;
+
+  cursor:pointer;
+
+}
+
+
+.app-menu div:hover{
+
+  background:var(--blue);
+
+  color:white;
+
+}
+
+
+.app-menu.open{
+
+  display:block;
+
+}
    
 /* =========================
    INPUT / SEARCH
@@ -344,12 +409,37 @@ video:fullscreen{
 
 <!-- LEFT SIDEBAR -->
 <div id="sidebar">
-   <div class="logo" onclick="goHome()">
-  Video <span>Obvyris</span>
+   <div class="brand" onclick="toggleAppMenu()">
+
+  <div class="logo">
+    Video <span>Obvyris</span>
+  </div>
+
+  <div class="subtitle">
+    Live TV stations
+  </div>
+
 </div>
 
-<div class="subtitle">
-  Live TV stations
+
+<div id="appMenu" class="app-menu">
+
+  <div onclick="navigateApp('index99.html')">
+    🏠 Obvyris Home
+  </div>
+
+  <div onclick="navigateApp('Video_Obvyris.html')">
+    📺 Video Obvyris
+  </div>
+
+  <div onclick="navigateApp('Radio_Obvyris.html')">
+    📻 Radio Obvyris
+  </div>
+
+  <div onclick="navigateApp('newschat.html')">
+    💬 Chat Obvyris
+  </div>
+
 </div>
 
   <input id="search" placeholder="Search..." oninput="applyFilters()"/>
@@ -645,6 +735,37 @@ function buildGroups(){
   });
 }
 
+function toggleAppMenu(){
+
+  const menu=document.getElementById("appMenu");
+
+  menu.classList.toggle("open");
+
+}
+
+
+function navigateApp(page){
+
+  window.location.href="./"+page;
+
+}
+
+
+// close dropdown when clicking outside
+document.addEventListener("click",function(e){
+
+  const menu=document.getElementById("appMenu");
+  const brand=document.querySelector(".brand");
+
+
+  if(menu && brand && !brand.contains(e.target)){
+
+    menu.classList.remove("open");
+
+  }
+
+});
+   
 function applyFilters(){
   const q=document.getElementById("search").value.toLowerCase();
   filtered=list.filter(s=>s.name.toLowerCase().includes(q));
