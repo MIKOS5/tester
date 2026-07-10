@@ -1,0 +1,2333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Audiobook Obvyris</title>
+
+<link rel="manifest" href="manifest.json">
+
+<meta name="theme-color" content="#2793ff">
+
+<link rel="icon" href="https://mikos5.github.io/tester/navicon.png">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+
+
+<style>
+
+:root{
+
+--bg:#09111d;
+--panel:#111827;
+--panel-alt:#0b1220;
+--line:#253347;
+
+--text:#fff;
+--muted:#93a4bb;
+
+--blue:#2793ff;
+--blue-dark:#1869d9;
+
+--green:#17c964;
+--green-dark:#0ea85a;
+
+--button-dark:#444;
+--button-dark2:#222;
+
+}
+
+
+body.light{
+
+--bg:#f4f6f8;
+--panel:#ffffff;
+--panel-alt:#eef3f8;
+
+--line:#d9e2ec;
+
+--text:#102a43;
+--muted:#627d98;
+
+--blue:#4f8ef7;
+--blue-dark:#3b82f6;
+
+--green:#16a34a;
+--green-dark:#15803d;
+
+--button-dark:#e9eef5;
+--button-dark2:#dbe4ef;
+
+}
+
+
+
+*{
+box-sizing:border-box;
+}
+
+
+
+body{
+
+margin:0;
+
+height:100vh;
+
+display:flex;
+
+overflow:hidden;
+
+font-family:Inter,sans-serif;
+
+background:var(--bg);
+
+color:var(--text);
+
+}
+
+
+
+/* APP FRAME */
+
+.app-frame{
+
+display:flex;
+
+width:100%;
+
+height:100vh;
+
+}
+
+
+
+/* SIDEBAR */
+
+.sidebar{
+
+width:300px;
+
+background:var(--panel);
+
+border-right:1px solid var(--line);
+
+padding:20px;
+
+overflow:auto;
+
+}
+
+
+
+.brand{
+
+cursor:pointer;
+
+}
+
+
+
+.logo{
+
+font-family:Orbitron,sans-serif;
+
+font-size:40px;
+
+font-weight:900;
+
+letter-spacing:2px;
+
+text-transform:uppercase;
+
+}
+
+
+
+.logo span{
+
+color:var(--blue);
+
+}
+
+
+
+.subtitle{
+
+font-size:13px;
+
+color:var(--muted);
+
+margin-bottom:20px;
+
+}
+
+
+
+
+/* MENU */
+
+
+.app-menu{
+
+position:absolute;
+
+top:80px;
+
+left:20px;
+
+width:240px;
+
+background:var(--panel);
+
+border:1px solid var(--line);
+
+border-radius:16px;
+
+display:none;
+
+overflow:hidden;
+
+z-index:9999;
+
+}
+
+
+
+.app-menu.open{
+
+display:block;
+
+}
+
+
+
+.app-menu div{
+
+padding:14px;
+
+font-weight:700;
+
+cursor:pointer;
+
+}
+
+
+
+.app-menu div:hover{
+
+background:var(--blue);
+
+color:white;
+
+}
+
+
+
+
+/* ACTIONS */
+
+
+.action-grid{
+
+display:grid;
+
+gap:10px;
+
+}
+
+
+
+.genre{
+
+padding:12px;
+
+border-radius:12px;
+
+background:var(--panel);
+
+border:1px solid var(--line);
+
+cursor:pointer;
+
+font-weight:700;
+
+text-align:center;
+
+}
+
+
+
+.genre:hover{
+
+border-color:var(--blue);
+
+background:rgba(39,147,255,.15);
+
+}
+
+
+
+.genre.active{
+
+background:var(--blue);
+
+color:white;
+
+}
+
+
+
+/* MAIN */
+
+
+.main{
+
+flex:1;
+
+padding:20px;
+
+overflow:auto;
+
+padding-bottom:130px;
+
+}
+
+
+
+.title{
+
+font-size:42px;
+
+font-weight:800;
+
+margin-bottom:20px;
+
+}
+
+
+
+/* SEARCH */
+
+
+input,
+select{
+
+
+padding:12px;
+
+border-radius:12px;
+
+border:1px solid var(--line);
+
+background:var(--panel);
+
+color:var(--text);
+
+font-size:16px;
+
+}
+
+
+
+.search{
+
+width:100%;
+
+margin-bottom:15px;
+
+}
+
+
+
+
+/* BOOK CARDS */
+
+
+.card{
+
+background:var(--panel);
+
+border:1px solid var(--line);
+
+border-radius:16px;
+
+padding:14px;
+
+margin-bottom:12px;
+
+display:flex;
+
+gap:15px;
+
+}
+
+
+
+.cover{
+
+width:120px;
+
+height:160px;
+
+object-fit:cover;
+
+border-radius:12px;
+
+background:#222;
+
+}
+
+
+
+.book-info{
+
+flex:1;
+
+}
+
+
+
+.book-title{
+
+font-size:22px;
+
+font-weight:800;
+
+}
+
+
+
+.small{
+
+font-size:13px;
+
+color:var(--muted);
+
+}
+
+
+
+.row{
+
+display:flex;
+
+gap:10px;
+
+margin-top:12px;
+
+}
+
+
+
+button{
+
+padding:10px 14px;
+
+border-radius:12px;
+
+border:none;
+
+background:linear-gradient(
+180deg,
+var(--blue),
+var(--blue-dark)
+);
+
+color:white;
+
+font-weight:800;
+
+cursor:pointer;
+
+}
+
+
+
+/* PLAYER */
+
+
+.player-bar{
+
+position:fixed;
+
+bottom:0;
+
+left:0;
+
+right:0;
+
+z-index:9999;
+
+background:var(--panel);
+
+border-top:1px solid var(--line);
+
+padding:10px;
+
+}
+
+
+
+#player{
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+gap:20px;
+
+}
+
+
+
+#coverPlayer{
+
+width:55px;
+
+height:55px;
+
+border-radius:10px;
+
+object-fit:cover;
+
+}
+
+
+
+#npName{
+
+font-weight:800;
+
+}
+
+
+
+#npMeta{
+
+font-size:12px;
+
+color:var(--muted);
+
+}
+
+
+
+.controls{
+
+display:flex;
+
+gap:8px;
+
+}
+
+
+
+.controls button{
+
+font-size:22px;
+
+padding:8px 12px;
+
+}
+
+
+
+/* PROGRESS */
+
+
+.progress{
+
+width:250px;
+
+}
+
+
+
+.speed{
+
+padding:8px;
+
+}
+
+
+
+
+
+/* MOBILE */
+
+
+@media(max-width:900px){
+
+
+body{
+
+overflow:auto;
+
+}
+
+
+
+.app-frame{
+
+flex-direction:column;
+
+}
+
+
+
+.sidebar{
+
+width:100%;
+
+max-height:35vh;
+
+}
+
+
+
+.title{
+
+font-size:28px;
+
+}
+
+
+
+.card{
+
+flex-direction:column;
+
+}
+
+
+
+.cover{
+
+width:100%;
+
+height:220px;
+
+}
+
+
+
+#player{
+
+flex-wrap:wrap;
+
+}
+
+
+
+}
+
+
+
+</style>
+
+</head>
+
+
+<body>
+
+
+
+<!-- PLAYER -->
+
+<div class="player-bar">
+
+
+<div id="player">
+
+
+<img id="coverPlayer"
+src="https://mikos5.github.io/tester/navicon.png">
+
+
+<div>
+
+<div id="npName">
+Not Playing
+</div>
+
+
+<div id="npMeta">
+Select audiobook
+</div>
+
+</div>
+
+
+
+<audio id="audio"></audio>
+
+
+<div class="controls">
+
+<button onclick="previousChapter()">⏮</button>
+
+<button onclick="toggle()">▶️</button>
+
+<button onclick="nextChapter()">⏭</button>
+
+</div>
+
+
+<input 
+class="progress"
+id="progress"
+type="range"
+min="0"
+max="100"
+value="0">
+
+
+<select id="speed" onchange="changeSpeed()">
+
+<option value="1">1x</option>
+
+<option value=".75">0.75x</option>
+
+<option value="1.25">1.25x</option>
+
+<option value="1.5">1.5x</option>
+
+<option value="2">2x</option>
+
+</select>
+
+
+
+<button onclick="toggleTheme()">
+🌙
+</button>
+
+
+</div>
+
+</div>
+
+
+
+
+
+<div class="app-frame">
+
+
+
+<!-- SIDEBAR -->
+
+
+<div class="sidebar">
+
+
+<div class="brand" onclick="toggleAppMenu()">
+
+
+<div class="logo">
+
+Book <span>Obvyris</span>
+
+</div>
+
+
+<div class="subtitle">
+
+Free audiobooks • chapters • stories
+
+</div>
+
+
+</div>
+
+
+
+<div id="appMenu" class="app-menu">
+
+<div onclick="navigateApp('index99.html')">
+🏠 Home
+</div>
+
+<div onclick="navigateApp('Radio_Obvyris.html')">
+📻 Radio Obvyris
+</div>
+
+<div onclick="navigateApp('Audiobook_Obvyris.html')">
+📚 Audiobooks
+</div>
+
+<div onclick="navigateApp('newschat.html')">
+💬 Chat
+</div>
+
+</div>
+
+
+
+
+<div class="action-grid">
+
+
+<div class="genre" onclick="loadFeatured()">
+🔥 Featured
+</div>
+
+
+<div class="genre" onclick="loadFavorites()">
+⭐ Favorites
+</div>
+
+
+<div class="genre" onclick="loadContinue()">
+▶ Continue Reading
+</div>
+
+
+<div class="genre" onclick="loadRandom()">
+🎲 Random Book
+</div>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+<!-- MAIN -->
+
+
+<div class="main">
+
+
+<div class="title" id="title">
+
+Audiobooks
+
+</div>
+
+
+<input 
+id="searchBox"
+class="search"
+placeholder="🔎 Search books..."
+oninput="searchBooks()"
+>
+
+
+
+<div id="categories" class="action-grid">
+
+
+<div class="genre" onclick="loadCategory('fiction')">
+📖 Fiction
+</div>
+
+
+<div class="genre" onclick="loadCategory('fantasy')">
+🧙 Fantasy
+</div>
+
+
+<div class="genre" onclick="loadCategory('horror')">
+👻 Horror
+</div>
+
+
+<div class="genre" onclick="loadCategory('mystery')">
+🕵 Mystery
+</div>
+
+
+<div class="genre" onclick="loadCategory('history')">
+🏛 History
+</div>
+
+
+<div class="genre" onclick="loadCategory('kids')">
+🧒 Kids
+</div>
+
+
+</div>
+
+
+
+<div id="list"></div>
+
+
+</div>
+
+
+</div>
+
+
+<script>
+
+
+let books=[];
+
+let currentBook=null;
+
+let chapters=[];
+
+let chapterIndex=0;
+
+
+const AUDIO_API =
+"https://librivox.org/api/feed/audiobooks";
+
+
+
+</script>
+
+  /* =========================
+   LIBRIVOX ENGINE
+========================= */
+
+
+let favorites = new Set(
+    JSON.parse(localStorage.getItem("bookFavorites") || "[]")
+);
+
+
+
+async function loadBooks(){
+
+    try{
+
+        const url =
+        AUDIO_API +
+        "?format=json&extended=1&limit=50";
+
+
+        const res = await fetch(url);
+
+        const data = await res.json();
+
+
+        books = data.books || [];
+
+
+        renderBooks();
+
+
+        setTitle(
+            "📚 Audiobooks"
+        );
+
+
+    }catch(e){
+
+        console.log(
+            "Audiobook API failed",
+            e
+        );
+
+    }
+
+}
+
+
+
+
+/* =========================
+   CATEGORY SEARCH
+========================= */
+
+
+async function loadCategory(cat){
+
+
+    try{
+
+
+        const url =
+        AUDIO_API +
+        "?format=json" +
+        "&extended=1" +
+        "&title=" +
+        encodeURIComponent(cat) +
+        "&limit=50";
+
+
+        const res =
+        await fetch(url);
+
+
+        const data =
+        await res.json();
+
+
+        books =
+        data.books || [];
+
+
+        renderBooks();
+
+
+        setTitle(
+            "📚 " + cat
+        );
+
+
+    }catch(e){
+
+        console.log(e);
+
+    }
+
+
+}
+
+
+
+
+
+/* =========================
+ SEARCH
+========================= */
+
+
+function searchBooks(){
+
+
+    const q =
+    document
+    .getElementById("searchBox")
+    .value
+    .toLowerCase();
+
+
+    if(!q){
+
+        renderBooks();
+
+        return;
+
+    }
+
+
+
+    const filtered =
+    books.filter(b=>{
+
+
+        let text =
+        `
+        ${b.title}
+        ${b.authors?.map(a=>a.first_name+" "+a.last_name)}
+        `.toLowerCase();
+
+
+
+        return text.includes(q);
+
+
+    });
+
+
+
+    renderBooks(filtered);
+
+
+}
+
+
+
+
+
+/* =========================
+ RENDER BOOKS
+========================= */
+
+
+function renderBooks(list=books){
+
+
+    const el =
+    document.getElementById("list");
+
+
+    el.innerHTML="";
+
+
+
+    list.forEach((book,index)=>{
+
+
+        let cover =
+        book.coverart_jpg ||
+        "https://mikos5.github.io/tester/navicon.png";
+
+
+
+        let author =
+        book.authors?.map(a=>
+
+            a.first_name+
+            " "+
+            a.last_name
+
+        ).join(", ")
+        ||
+        "Unknown Author";
+
+
+
+
+        el.innerHTML += `
+
+
+        <div class="card">
+
+
+        <img 
+        class="cover"
+        src="${cover}"
+        >
+
+
+
+        <div class="book-info">
+
+
+        <div class="book-title">
+
+        ${book.title}
+
+        </div>
+
+
+        <div class="small">
+
+        🎙 ${author}
+
+        </div>
+
+
+
+        <div class="small">
+
+        ⏱ ${book.totaltime || "Unknown"}
+
+        </div>
+
+
+
+        <div class="row">
+
+
+        <button onclick="
+        openBook(${index})
+        ">
+
+        ▶ Chapters
+
+        </button>
+
+
+
+        <button onclick="
+        favoriteBook(${index})
+        ">
+
+        ${
+        favorites.has(book.id)
+        ?
+        "⭐ Saved"
+        :
+        "☆ Favorite"
+        }
+
+        </button>
+
+
+
+        </div>
+
+
+        </div>
+
+
+        </div>
+
+
+        `;
+
+
+    });
+
+
+}
+
+
+
+
+
+
+
+/* =========================
+ OPEN BOOK
+========================= */
+
+
+function openBook(index){
+
+
+    currentBook =
+    books[index];
+
+
+    chapters =
+    currentBook.sections ||
+    [];
+
+
+
+    chapterIndex=0;
+
+
+
+    if(chapters.length===0){
+
+
+        alert(
+        "No chapters found"
+        );
+
+
+        return;
+
+    }
+
+
+
+    playChapter(0);
+
+
+}
+
+
+
+
+
+/* =========================
+ PLAY CHAPTER
+========================= */
+
+
+function playChapter(i){
+
+
+    if(!chapters[i])
+    return;
+
+
+
+    chapterIndex=i;
+
+
+
+    let chapter =
+    chapters[i];
+
+
+
+    let url =
+    chapter.listen_url ||
+    chapter.url;
+
+
+
+    if(!url){
+
+        console.log(
+        "No audio URL"
+        );
+
+        return;
+
+    }
+
+
+
+    const audio =
+    document.getElementById("audio");
+
+
+
+    audio.src=url;
+
+
+
+    audio.play();
+
+
+
+    document.getElementById(
+    "npName"
+    ).innerText =
+    currentBook.title;
+
+
+
+    document.getElementById(
+    "npMeta"
+    ).innerText =
+
+    "Chapter " +
+    (i+1);
+
+
+
+    document.getElementById(
+    "coverPlayer"
+    ).src =
+
+    currentBook.coverart_jpg;
+
+
+
+    saveProgress();
+
+
+
+}
+
+
+
+
+
+
+/* =========================
+ PLAYER
+========================= */
+
+
+function toggle(){
+
+
+    const audio =
+    document.getElementById("audio");
+
+
+    if(audio.paused)
+
+        audio.play();
+
+    else
+
+        audio.pause();
+
+
+}
+
+
+
+
+
+function nextChapter(){
+
+
+    if(
+    chapterIndex <
+    chapters.length-1
+    ){
+
+        playChapter(
+        chapterIndex+1
+        );
+
+    }
+
+
+}
+
+
+
+
+
+function previousChapter(){
+
+
+    if(
+    chapterIndex>0
+    ){
+
+        playChapter(
+        chapterIndex-1
+        );
+
+    }
+
+
+}
+
+
+
+
+
+
+/* =========================
+ PROGRESS
+========================= */
+
+
+const audio =
+document.getElementById("audio");
+
+
+
+audio.addEventListener(
+"timeupdate",
+()=>{
+
+
+let p =
+(audio.currentTime /
+audio.duration)
+*100;
+
+
+
+document.getElementById(
+"progress"
+).value =
+p || 0;
+
+
+
+saveProgress();
+
+
+
+}
+
+);
+
+
+
+
+
+document
+.getElementById("progress")
+.addEventListener(
+"input",
+function(){
+
+
+audio.currentTime =
+(audio.duration *
+this.value)
+/100;
+
+
+}
+
+);
+
+
+
+
+
+
+
+/* =========================
+ RESUME
+========================= */
+
+
+function saveProgress(){
+
+
+if(!currentBook)
+return;
+
+
+
+let data =
+JSON.parse(
+localStorage.getItem(
+"bookProgress"
+)||"{}"
+);
+
+
+
+data[currentBook.id]={
+
+
+chapter:
+chapterIndex,
+
+
+time:
+audio.currentTime
+
+
+
+};
+
+
+
+localStorage.setItem(
+"bookProgress",
+JSON.stringify(data)
+
+);
+
+
+}
+
+
+
+
+
+
+
+function loadContinue(){
+
+
+let data =
+JSON.parse(
+localStorage.getItem(
+"bookProgress"
+)||"{}"
+);
+
+
+
+let ids =
+Object.keys(data);
+
+
+
+books =
+books.filter(
+b=>ids.includes(
+String(b.id)
+)
+);
+
+
+
+renderBooks();
+
+
+
+setTitle(
+"▶ Continue Reading"
+);
+
+
+
+}
+
+
+
+
+
+/* =========================
+ FAVORITES
+========================= */
+
+
+function favoriteBook(i){
+
+
+let id =
+String(
+books[i].id
+);
+
+
+
+if(
+favorites.has(id)
+){
+
+favorites.delete(id);
+
+}else{
+
+
+favorites.add(id);
+
+
+}
+
+
+
+localStorage.setItem(
+"bookFavorites",
+JSON.stringify(
+[...favorites]
+)
+
+);
+
+
+
+renderBooks();
+
+
+}
+
+
+
+
+function loadFavorites(){
+
+
+books =
+books.filter(
+b=>
+favorites.has(
+String(b.id)
+)
+
+);
+
+
+
+renderBooks();
+
+
+setTitle(
+"⭐ Favorites"
+);
+
+
+
+}
+
+
+
+
+
+
+/* =========================
+ RANDOM
+========================= */
+
+
+function loadRandom(){
+
+
+if(
+books.length
+){
+
+let i =
+Math.floor(
+Math.random()
+*
+books.length
+);
+
+
+openBook(i);
+
+
+}
+
+
+}
+
+
+
+
+
+
+/* =========================
+ SPEED
+========================= */
+
+
+function changeSpeed(){
+
+
+document
+.getElementById("audio")
+.playbackRate =
+
+Number(
+document
+.getElementById("speed")
+.value
+);
+
+
+}
+
+
+
+
+
+
+/* =========================
+ THEME
+========================= */
+
+
+function toggleTheme(){
+
+
+document.body
+.classList.toggle(
+"light"
+);
+
+
+}
+
+
+
+
+
+/* =========================
+ APP MENU
+========================= */
+
+
+function toggleAppMenu(){
+
+
+document
+.getElementById("appMenu")
+.classList.toggle(
+"open"
+);
+
+
+}
+
+
+
+
+function navigateApp(page){
+
+window.location.href=page;
+
+}
+
+
+
+
+function setTitle(t){
+
+document
+.getElementById("title")
+.innerText=t;
+
+}
+
+
+
+
+
+
+/* START */
+
+loadBooks();
+
+<script>
+
+
+/* =========================
+   CHAPTER POPUP
+========================= */
+
+
+function showChapters(){
+
+
+if(!currentBook)
+return;
+
+
+let box =
+document.createElement("div");
+
+
+box.id="chapterPopup";
+
+
+box.innerHTML=`
+
+
+<div style="
+
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.65);
+z-index:99999;
+display:flex;
+align-items:center;
+justify-content:center;
+
+">
+
+
+<div style="
+
+background:var(--panel);
+border:1px solid var(--line);
+border-radius:16px;
+padding:20px;
+width:90%;
+max-width:500px;
+max-height:70vh;
+overflow:auto;
+
+">
+
+
+<h2>
+
+📖 ${currentBook.title}
+
+</h2>
+
+
+<div id="chapterList"></div>
+
+
+<button onclick="
+document.getElementById('chapterPopup').remove()
+">
+
+Close
+
+</button>
+
+
+</div>
+
+</div>
+
+`;
+
+
+
+document.body.appendChild(box);
+
+
+
+let list =
+document.getElementById(
+"chapterList"
+);
+
+
+
+chapters.forEach((c,i)=>{
+
+
+list.innerHTML += `
+
+
+<div class="genre"
+onclick="
+playChapter(${i});
+document.getElementById('chapterPopup').remove()
+">
+
+
+▶ Chapter ${i+1}
+
+${c.title || ""}
+
+
+</div>
+
+
+`;
+
+
+});
+
+
+}
+
+
+
+
+
+
+/* =========================
+   ADD CHAPTER BUTTON
+========================= */
+
+
+document
+.addEventListener(
+"click",
+e=>{
+
+
+if(
+e.target.innerText==="▶ Chapters"
+){
+
+showChapters();
+
+}
+
+
+});
+
+
+
+
+
+
+/* =========================
+   SLEEP TIMER
+========================= */
+
+
+let sleepTimer=null;
+
+
+
+function sleep(minutes){
+
+
+if(sleepTimer)
+
+clearTimeout(
+sleepTimer
+);
+
+
+
+sleepTimer =
+setTimeout(()=>{
+
+
+document
+.getElementById("audio")
+.pause();
+
+
+
+alert(
+"😴 Sleep timer finished"
+);
+
+
+
+},minutes*60000);
+
+
+
+}
+
+
+
+
+function sleepMenu(){
+
+
+let choice =
+prompt(
+
+"Sleep timer minutes:\n\n15\n30\n60"
+
+);
+
+
+
+if(choice){
+
+sleep(
+Number(choice)
+);
+
+}
+
+
+}
+
+
+
+
+
+
+
+/* =========================
+   SHARE BOOK
+========================= */
+
+
+function shareBook(){
+
+
+if(!currentBook)
+return;
+
+
+
+let text =
+`
+Listening to:
+${currentBook.title}
+on Book Obvyris
+`;
+
+
+
+if(
+navigator.share
+){
+
+
+navigator.share({
+
+title:
+currentBook.title,
+
+text:text
+
+
+});
+
+
+}else{
+
+
+navigator.clipboard.writeText(
+text
+);
+
+
+alert(
+"Copied!"
+);
+
+
+}
+
+
+}
+
+
+
+
+
+
+
+/* =========================
+   KEYBOARD CONTROLS
+========================= */
+
+
+document
+.addEventListener(
+"keydown",
+e=>{
+
+
+let tag =
+document
+.activeElement
+.tagName
+.toLowerCase();
+
+
+
+if(
+tag==="input" ||
+tag==="select"
+)
+return;
+
+
+
+switch(
+e.key.toLowerCase()
+){
+
+
+case " ":
+
+e.preventDefault();
+
+toggle();
+
+break;
+
+
+
+case "arrowright":
+
+nextChapter();
+
+break;
+
+
+
+case "arrowleft":
+
+previousChapter();
+
+break;
+
+
+
+case "s":
+
+document
+.getElementById(
+"searchBox"
+)
+.focus();
+
+break;
+
+
+
+case "f":
+
+loadFavorites();
+
+break;
+
+
+
+case "c":
+
+showChapters();
+
+break;
+
+
+
+case "r":
+
+loadBooks();
+
+break;
+
+
+
+case "t":
+
+toggleTheme();
+
+break;
+
+
+
+case "?":
+
+alert(`
+
+BOOK OBVYRIS KEYS
+
+Space
+Play / Pause
+
+← →
+Previous / Next Chapter
+
+S
+Search
+
+F
+Favorites
+
+C
+Chapters
+
+R
+Reload
+
+T
+Theme
+
+
+`);
+
+break;
+
+
+}
+
+
+
+});
+
+
+
+
+
+
+
+/* =========================
+   AUTO RESUME
+========================= */
+
+
+audio
+.addEventListener(
+"loadedmetadata",
+()=>{
+
+
+if(!currentBook)
+return;
+
+
+
+let data =
+JSON.parse(
+localStorage.getItem(
+"bookProgress"
+)||"{}"
+);
+
+
+
+let save =
+data[currentBook.id];
+
+
+
+if(save && save.time){
+
+
+audio.currentTime =
+save.time;
+
+
+}
+
+
+
+});
+
+
+
+
+
+
+
+/* =========================
+   END EVENTS
+========================= */
+
+
+
+document
+.addEventListener(
+"click",
+e=>{
+
+
+let menu =
+document
+.getElementById(
+"appMenu"
+);
+
+
+
+let brand =
+document
+.querySelector(
+".brand"
+);
+
+
+
+if(
+menu &&
+brand &&
+!brand.contains(e.target)
+){
+
+
+menu.classList.remove(
+"open"
+);
+
+
+}
+
+
+
+});
+
+
+
+
+
+
+/* =========================
+   PWA
+========================= */
+
+
+if(
+"serviceWorker" in navigator
+){
+
+
+window.addEventListener(
+"load",
+()=>{
+
+
+navigator.serviceWorker
+.register(
+"./sw.js"
+)
+.then(
+()=>console.log(
+"Book Obvyris PWA Ready"
+)
+);
+
+
+
+});
+
+
+}
+
+
+
+
+</script>
+
+
+
+</body>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
