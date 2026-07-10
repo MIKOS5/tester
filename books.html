@@ -212,28 +212,20 @@ flex-direction:column;
 }
 
 .sidebar{
-
 width:100%;
-
 }
 
 .card{
-
 flex-direction:column;
-
 }
 
 .cover{
-
 width:100%;
 height:220px;
-
 }
 
 .player{
-
 flex-wrap:wrap;
-
 }
 
 }
@@ -282,12 +274,12 @@ Book <span>Obvyris</span>
 <div class="main">
 
 
-<h1 id="heading">
+<h1>
 Audiobooks
 </h1>
 
 
-<input 
+<input
 id="search"
 placeholder="🔎 Search books..."
 oninput="searchBooks()"
@@ -295,12 +287,11 @@ oninput="searchBooks()"
 
 
 <div id="list" class="cards">
-Loading books...
+Loading...
 </div>
 
 
 </div>
-
 
 </div>
 
@@ -342,7 +333,7 @@ Not Playing
 </button>
 
 
-<input 
+<input
 id="progress"
 class="progress"
 type="range"
@@ -365,7 +356,7 @@ value="0"
 
 
 const API =
-"https://librivox.org/api/feed/audiobooks";
+"https://librivox.org/api/feed/audiobooks/";
 
 
 let books=[];
@@ -386,32 +377,32 @@ let chapter=0;
 
 async function loadBooks(){
 
-let box=document.getElementById("list");
+let box =
+document.getElementById("list");
 
 box.innerHTML="Loading books...";
 
 
 try{
 
+
 let res =
 await fetch(
-API+"?format=json&extended=1&limit=50"
+API+
+"?format=json&extended=1&limit=50"
 );
-
-
-if(!res.ok)
-throw new Error(res.status);
 
 
 let data =
 await res.json();
 
 
-books=data.books || [];
+books =
+data.books || [];
 
 
 console.log(
-"Loaded books:",
+"Books:",
 books.length
 );
 
@@ -420,25 +411,18 @@ render(books);
 
 
 }
-catch(err){
 
-console.error(err);
+catch(e){
+
+console.error(e);
 
 box.innerHTML =
-`
-<h2>
-❌ Could not load LibriVox
-</h2>
-
-<p>
-${err.message}
-</p>
-`;
+"❌ API failed: "+e;
 
 }
 
-}
 
+}
 
 
 
@@ -453,7 +437,7 @@ document.getElementById("list");
 box.innerHTML="";
 
 
-list.forEach((b)=>{
+list.forEach(b=>{
 
 
 box.innerHTML += `
@@ -462,7 +446,7 @@ box.innerHTML += `
 
 
 <img class="cover"
-src="${b.coverart_jpg || 
+src="${b.coverart_jpg ||
 'https://mikos5.github.io/tester/navicon.png'}">
 
 
@@ -475,15 +459,17 @@ ${b.title}
 
 
 <div class="small">
+
 ${
-b.authors
-?
+b.authors ?
 b.authors.map(
 a=>a.first_name+" "+a.last_name
 ).join(", ")
 :
 "Unknown"
+
 }
+
 </div>
 
 
@@ -507,6 +493,7 @@ a=>a.first_name+" "+a.last_name
 
 `;
 
+
 });
 
 
@@ -518,20 +505,22 @@ a=>a.first_name+" "+a.last_name
 
 function searchBooks(){
 
+
 let q =
-document
-.getElementById("search")
+document.getElementById("search")
 .value
 .toLowerCase();
 
 
 render(
+
 books.filter(
 b =>
 b.title
 .toLowerCase()
 .includes(q)
 )
+
 );
 
 
@@ -542,7 +531,7 @@ b.title
 
 
 
-function openBook(id){
+async function openBook(id){
 
 
 current =
@@ -553,6 +542,25 @@ b=>b.id==id
 
 if(!current)
 return;
+
+
+
+// Get full book data
+
+let res =
+await fetch(
+API+
+id+
+"?format=json"
+);
+
+
+let data =
+await res.json();
+
+
+current =
+data.books[0];
 
 
 chapters =
@@ -571,13 +579,15 @@ playChapter();
 
 
 
+
 function playChapter(){
 
 
-if(!chapters[chapter])
-{
+if(!chapters[chapter]){
 
-alert("No audio chapters found");
+alert(
+"No audio chapters available"
+);
 
 return;
 
@@ -595,6 +605,7 @@ chapters[chapter].listen_url;
 audio.play();
 
 
+
 document.getElementById("now")
 .innerText =
 current.title;
@@ -603,6 +614,7 @@ current.title;
 document.getElementById("chapter")
 .innerText =
 "Chapter "+(chapter+1);
+
 
 
 document.getElementById("coverPlayer")
@@ -618,16 +630,16 @@ current.coverart_jpg ||
 
 
 
+
 function playPause(){
+
 
 let audio =
 document.getElementById("audio");
 
 
-if(audio.paused)
-audio.play();
-
-else
+audio.paused ?
+audio.play():
 audio.pause();
 
 
@@ -638,7 +650,9 @@ audio.pause();
 
 
 
+
 function next(){
+
 
 if(
 chapter <
@@ -651,6 +665,7 @@ playChapter();
 
 }
 
+
 }
 
 
@@ -658,6 +673,7 @@ playChapter();
 
 
 function previous(){
+
 
 if(chapter>0){
 
@@ -667,7 +683,9 @@ playChapter();
 
 }
 
+
 }
+
 
 
 
@@ -676,17 +694,21 @@ playChapter();
 function favorite(id){
 
 
-if(favorites.includes(id)){
+if(
+favorites.includes(id)
+){
 
 favorites =
 favorites.filter(
 x=>x!=id
 );
 
-}
-else{
+
+}else{
+
 
 favorites.push(id);
+
 
 }
 
@@ -706,11 +728,16 @@ JSON.stringify(favorites)
 
 function loadFavorites(){
 
+
 render(
+
 books.filter(
-b=>favorites.includes(b.id)
+b =>
+favorites.includes(b.id)
 )
+
 );
+
 
 }
 
@@ -729,8 +756,6 @@ document.body.classList.toggle("light");
 
 
 
-
-
 let audio =
 document.getElementById("audio");
 
@@ -743,11 +768,11 @@ audio.addEventListener(
 
 if(audio.duration){
 
-document.getElementById("progress").value =
-(
+document.getElementById("progress")
+.value =
 audio.currentTime /
-audio.duration
-)*100;
+audio.duration *
+100;
 
 }
 
@@ -757,22 +782,17 @@ audio.duration
 
 
 
-
 audio.addEventListener(
 "ended",
-()=>{
-
-next();
-
-});
-
-
+next
+);
 
 
 
 document
 .getElementById("progress")
 .oninput=function(){
+
 
 if(audio.duration){
 
@@ -783,8 +803,6 @@ audio.duration *
 }
 
 };
-
-
 
 
 
