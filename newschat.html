@@ -159,6 +159,10 @@ button{
   -webkit-overflow-scrolling:touch;
 }
 
+.room.active {
+  border-left: 5px solid var(--blue);
+}
+  
 .news-card{
   min-width:280px;
   flex:0 0 auto;
@@ -671,6 +675,16 @@ button{
     display:block;
 
 }
+
+.room.active {
+  border-color: var(--blue);
+  background: rgba(39,147,255,0.15);
+  box-shadow: 0 0 10px rgba(39,147,255,0.35);
+}
+
+.room.active .room-title {
+  color: var(--blue);
+}
   
 </style>
 </head>
@@ -993,8 +1007,11 @@ async function load(){
 
 
 function renderRoom(r){
+
+  const active = r.id === activeRoom ? "active" : "";
+
   return `
-    <div class="room" onclick="openRoom('${r.id}')">
+    <div class="room ${active}" onclick="openRoom('${r.id}')">
       <div class="room-title">
         ${r.name}
         <span>${r.count}</span>
@@ -1068,12 +1085,6 @@ for (const r of list) {
   document.getElementById("rooms").innerHTML = `
     <div class="room-group-title">💬 Chat Sheet</div>
     ${chatRooms.map(renderRoom).join("")}
-
-    <div class="room-group-title">🏈 Teams Sheet</div>
-    ${teamRooms.map(renderRoom).join("")}
-
-    <div class="room-group-title">📰 News Sheet</div>
-    ${newsRooms.map(renderRoom).join("")}
   `;
 }
 /* ---------------- CHAT ---------------- */
@@ -1081,7 +1092,7 @@ for (const r of list) {
 function openRoom(id){
 
   activeRoom = id;
-  lastPopupHash = "";   // <-- add this
+  lastPopupHash = "";
 
   const room = messages.find(m => m.station === id);
   activeRoomName = room?.stationName || id;
@@ -1090,6 +1101,8 @@ function openRoom(id){
 
   document.getElementById("popupTitle").textContent =
       isTeams ? `🏈 ${activeRoomName}` : `💬 ${activeRoomName}`;
+
+  renderRooms();   // <-- ADD THIS
 
   toggleChatPopup();
 }
