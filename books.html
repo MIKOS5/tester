@@ -354,9 +354,11 @@ value="0"
 
 <script>
 
-
 const API =
 "https://librivox.org/api/feed/audiobooks/";
+
+const PROXY =
+"https://api.allorigins.win/raw?url=";
 
 
 let books=[];
@@ -368,10 +370,27 @@ localStorage.getItem("favorites") || "[]"
 
 
 let current=null;
-
 let chapters=[];
-
 let chapter=0;
+
+
+
+async function apiFetch(url){
+
+let proxyURL =
+PROXY + encodeURIComponent(url);
+
+let res =
+await fetch(proxyURL);
+
+if(!res.ok)
+throw new Error(res.status);
+
+return await res.json();
+
+}
+
+
 
 
 
@@ -386,15 +405,10 @@ box.innerHTML="Loading books...";
 try{
 
 
-let res =
-await fetch(
-API+
-"?format=json&extended=1&limit=50"
-);
-
-
 let data =
-await res.json();
+await apiFetch(
+API+"?format=json&extended=1&limit=50"
+);
 
 
 books =
@@ -402,7 +416,7 @@ data.books || [];
 
 
 console.log(
-"Books:",
+"Loaded books:",
 books.length
 );
 
@@ -411,24 +425,25 @@ render(books);
 
 
 }
-
 catch(e){
 
 console.error(e);
 
 box.innerHTML =
-"❌ API failed: "+e;
+`
+<h2>❌ API failed</h2>
+<p>${e}</p>
+`;
 
 }
 
-
 }
+
 
 
 
 
 function render(list){
-
 
 let box =
 document.getElementById("list");
@@ -461,7 +476,8 @@ ${b.title}
 <div class="small">
 
 ${
-b.authors ?
+b.authors
+?
 b.authors.map(
 a=>a.first_name+" "+a.last_name
 ).join(", ")
@@ -493,7 +509,6 @@ a=>a.first_name+" "+a.last_name
 
 `;
 
-
 });
 
 
@@ -505,9 +520,9 @@ a=>a.first_name+" "+a.last_name
 
 function searchBooks(){
 
-
 let q =
-document.getElementById("search")
+document
+.getElementById("search")
 .value
 .toLowerCase();
 
@@ -523,9 +538,7 @@ b.title
 
 );
 
-
 }
-
 
 
 
@@ -540,23 +553,16 @@ b=>b.id==id
 );
 
 
-if(!current)
-return;
-
-
-
-// Get full book data
-
-let res =
-await fetch(
-API+
-id+
-"?format=json"
-);
+try{
 
 
 let data =
-await res.json();
+await apiFetch(
+API+
+id+
+"?format=json&extended=1"
+);
+
 
 
 current =
@@ -574,7 +580,17 @@ playChapter();
 
 
 }
+catch(e){
 
+console.error(e);
+
+alert(
+"Could not load audiobook"
+);
+
+}
+
+}
 
 
 
@@ -586,7 +602,7 @@ function playChapter(){
 if(!chapters[chapter]){
 
 alert(
-"No audio chapters available"
+"No chapters found"
 );
 
 return;
@@ -629,23 +645,18 @@ current.coverart_jpg ||
 
 
 
-
-
 function playPause(){
-
 
 let audio =
 document.getElementById("audio");
 
 
-audio.paused ?
-audio.play():
+if(audio.paused)
+audio.play();
+else
 audio.pause();
 
-
 }
-
-
 
 
 
@@ -653,18 +664,15 @@ audio.pause();
 
 function next(){
 
-
 if(
 chapter <
 chapters.length-1
 ){
 
 chapter++;
-
 playChapter();
 
 }
-
 
 }
 
@@ -674,18 +682,14 @@ playChapter();
 
 function previous(){
 
-
 if(chapter>0){
 
 chapter--;
-
 playChapter();
 
 }
 
-
 }
-
 
 
 
@@ -706,9 +710,7 @@ x=>x!=id
 
 }else{
 
-
 favorites.push(id);
-
 
 }
 
@@ -725,9 +727,7 @@ JSON.stringify(favorites)
 
 
 
-
 function loadFavorites(){
-
 
 render(
 
@@ -738,9 +738,7 @@ favorites.includes(b.id)
 
 );
 
-
 }
-
 
 
 
@@ -770,14 +768,13 @@ if(audio.duration){
 
 document.getElementById("progress")
 .value =
-audio.currentTime /
-audio.duration *
-100;
+(audio.currentTime /
+audio.duration)*100;
 
 }
 
-
 });
+
 
 
 
@@ -789,10 +786,11 @@ next
 
 
 
+
+
 document
 .getElementById("progress")
 .oninput=function(){
-
 
 if(audio.duration){
 
@@ -807,11 +805,11 @@ audio.duration *
 
 
 
+
 loadBooks();
 
 
 </script>
-
 
 </body>
 </html>
