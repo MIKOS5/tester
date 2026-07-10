@@ -457,7 +457,13 @@ video:fullscreen{
 <!-- MAIN -->
 <div id="main">
 
-  <video id="video" controls playsinline></video>
+  <video 
+ id="video" 
+ controls 
+ playsinline
+ autoplay
+ muted>
+</video>
 
 <div id="bar">
 
@@ -829,16 +835,80 @@ document.getElementById("list").onscroll=(e)=>{
 function playMedia(url){
   const v=document.getElementById("video");
 
-  if(window.Hls && Hls.isSupported()){
-    if(window.hls) window.hls.destroy();
+  v.pause();
+  v.removeAttribute("src");
+  v.load();
 
-    window.hls=new Hls();
+  if(window.Hls && Hls.isSupported()){
+
+    if(window.hls){
+      window.hls.destroy();
+    }
+
+    window.hls = new Hls({
+      enableWorker:true,
+
+      // buffer settings
+      maxBufferLength:30,
+      maxMaxBufferLength:60,
+      maxBufferSize:60 * 1000 * 1000,
+
+      // faster recovery
+      liveSyncDurationCount:3,
+      liveMaxLatencyDurationCount:5,
+
+      // reduce stalls
+      fragLoadingTimeOut:20000,
+      manifestLoadingTimeOut:20000,
+      levelLoadingTimeOut:20000
+    });
+
+
+    window.hls.on(Hls.Events.ERROR,(event,data)=>{
+
+      console.log("HLS ERROR:",data);
+
+      if(data.fatal){
+
+        switch(data.type){
+
+          case Hls.ErrorTypes.NETWORK_ERROR:
+            console.log("Retrying network...");
+            window.hls.startLoad();
+            break;
+
+
+          case Hls.ErrorTypes.MEDIA_ERROR:
+            console.log("Recovering media...");
+            window.hls.recoverMediaError();
+            break;
+
+
+          default:
+            window.hls.destroy();
+            break;
+        }
+
+      }
+
+    });
+
+
     window.hls.loadSource(url);
     window.hls.attachMedia(v);
-    v.play();
+
+
+    window.hls.on(Hls.Events.MANIFEST_PARSED,()=>{
+      v.play().catch(e=>console.log(e));
+    });
+
+
   }else{
+
+    // Safari native HLS
     v.src=url;
     v.play();
+
   }
 }
 
