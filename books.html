@@ -291,6 +291,19 @@ Loading...
 </div>
 
 
+<div style="display:flex;gap:10px;margin-top:20px">
+
+<button onclick="previousPage()">
+⬅ Previous
+</button>
+
+<button onclick="nextPage()">
+Next ➡
+</button>
+
+</div>
+
+
 </div>
 
 </div>
@@ -373,7 +386,8 @@ let current=null;
 let chapters=[];
 let chapter=0;
 
-
+let page = 0;
+const limit = 50;
 
 async function apiFetch(url){
 
@@ -404,10 +418,11 @@ box.innerHTML="Loading books...";
 
 try{
 
-
 let data =
 await apiFetch(
-API+"?format=json&extended=1&limit=50"
+API+
+"?format=json&extended=1&limit="+limit+
+"&offset="+(page*limit)
 );
 
 
@@ -416,7 +431,9 @@ data.books || [];
 
 
 console.log(
-"Loaded books:",
+"Loaded page:",
+page+1,
+"Books:",
 books.length
 );
 
@@ -658,7 +675,30 @@ audio.pause();
 
 }
 
+function nextPage(){
 
+page++;
+
+loadBooks();
+
+window.scrollTo(0,0);
+
+}
+
+
+function previousPage(){
+
+if(page>0){
+
+page--;
+
+loadBooks();
+
+window.scrollTo(0,0);
+
+}
+
+}
 
 
 
