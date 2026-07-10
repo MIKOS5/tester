@@ -294,7 +294,9 @@ oninput="searchBooks()"
 >
 
 
-<div id="list" class="cards"></div>
+<div id="list" class="cards">
+Loading books...
+</div>
 
 
 </div>
@@ -346,6 +348,7 @@ class="progress"
 type="range"
 min="0"
 max="100"
+value="0"
 >
 
 
@@ -357,18 +360,19 @@ max="100"
 
 
 
+
 <script>
 
 
 const API =
-"https://librivox.org/api/feed/audiobooks/";
+"https://librivox.org/api/feed/audiobooks";
 
 
 let books=[];
 
-let favorites=
+let favorites =
 JSON.parse(
-localStorage.getItem("favorites")||"[]"
+localStorage.getItem("favorites") || "[]"
 );
 
 
@@ -382,46 +386,83 @@ let chapter=0;
 
 async function loadBooks(){
 
+let box=document.getElementById("list");
+
+box.innerHTML="Loading books...";
+
+
+try{
 
 let res =
 await fetch(
-API+
-"?format=json&extended=1&limit=50"
+API+"?format=json&extended=1&limit=50"
 );
+
+
+if(!res.ok)
+throw new Error(res.status);
 
 
 let data =
 await res.json();
 
 
-books=data.books||[];
+books=data.books || [];
+
+
+console.log(
+"Loaded books:",
+books.length
+);
+
 
 render(books);
 
+
 }
+catch(err){
+
+console.error(err);
+
+box.innerHTML =
+`
+<h2>
+❌ Could not load LibriVox
+</h2>
+
+<p>
+${err.message}
+</p>
+`;
+
+}
+
+}
+
+
 
 
 
 function render(list){
 
 
-let box=
+let box =
 document.getElementById("list");
 
 
 box.innerHTML="";
 
 
-list.forEach((b,i)=>{
+list.forEach((b)=>{
 
 
-box.innerHTML+=`
+box.innerHTML += `
 
 <div class="card">
 
 
 <img class="cover"
-src="${b.coverart_jpg ||
+src="${b.coverart_jpg || 
 'https://mikos5.github.io/tester/navicon.png'}">
 
 
@@ -434,21 +475,27 @@ ${b.title}
 
 
 <div class="small">
-${b.authors?.map(
+${
+b.authors
+?
+b.authors.map(
 a=>a.first_name+" "+a.last_name
-).join(", ")||"Unknown"}
+).join(", ")
+:
+"Unknown"
+}
 </div>
 
 
 <br>
 
 
-<button onclick="openBook(${i})">
+<button onclick="openBook('${b.id}')">
 ▶ Play
 </button>
 
 
-<button onclick="favorite(${i})">
+<button onclick="favorite('${b.id}')">
 ⭐
 </button>
 
@@ -467,9 +514,11 @@ a=>a.first_name+" "+a.last_name
 
 
 
+
+
 function searchBooks(){
 
-let q=
+let q =
 document
 .getElementById("search")
 .value
@@ -478,8 +527,9 @@ document
 
 render(
 books.filter(
-b=>
-b.title.toLowerCase()
+b =>
+b.title
+.toLowerCase()
 .includes(q)
 )
 );
@@ -489,16 +539,24 @@ b.title.toLowerCase()
 
 
 
-function openBook(i){
 
 
-current=books[i];
+
+function openBook(id){
 
 
-chapters=
-current.sections||
-current.parts||
-[];
+current =
+books.find(
+b=>b.id==id
+);
+
+
+if(!current)
+return;
+
+
+chapters =
+current.sections || [];
 
 
 chapter=0;
@@ -506,7 +564,10 @@ chapter=0;
 
 playChapter();
 
+
 }
+
+
 
 
 
@@ -514,69 +575,85 @@ function playChapter(){
 
 
 if(!chapters[chapter])
+{
+
+alert("No audio chapters found");
+
 return;
 
-
-let c=
-chapters[chapter];
+}
 
 
-let url=
-c.listen_url||
-c.url;
-
-
-let audio=
+let audio =
 document.getElementById("audio");
 
 
-audio.src=url;
+audio.src =
+chapters[chapter].listen_url;
+
 
 audio.play();
 
 
 document.getElementById("now")
-.innerText=current.title;
+.innerText =
+current.title;
 
 
 document.getElementById("chapter")
-.innerText=
+.innerText =
 "Chapter "+(chapter+1);
 
 
 document.getElementById("coverPlayer")
-.src=
-current.coverart_jpg;
+.src =
+current.coverart_jpg ||
+"https://mikos5.github.io/tester/navicon.png";
 
 
 }
+
+
+
 
 
 
 function playPause(){
 
-let a=
+let audio =
 document.getElementById("audio");
 
 
-a.paused?
-a.play():
-a.pause();
+if(audio.paused)
+audio.play();
+
+else
+audio.pause();
+
 
 }
+
+
+
 
 
 
 function next(){
 
-if(chapter < chapters.length-1){
+if(
+chapter <
+chapters.length-1
+){
 
 chapter++;
+
 playChapter();
 
 }
 
 }
+
+
 
 
 
@@ -585,6 +662,7 @@ function previous(){
 if(chapter>0){
 
 chapter--;
+
 playChapter();
 
 }
@@ -593,18 +671,20 @@ playChapter();
 
 
 
-function favorite(i){
 
-let id=
-books[i].id;
+
+function favorite(id){
 
 
 if(favorites.includes(id)){
 
-favorites=
-favorites.filter(x=>x!=id);
+favorites =
+favorites.filter(
+x=>x!=id
+);
 
-}else{
+}
+else{
 
 favorites.push(id);
 
@@ -621,6 +701,9 @@ JSON.stringify(favorites)
 
 
 
+
+
+
 function loadFavorites(){
 
 render(
@@ -633,6 +716,9 @@ b=>favorites.includes(b.id)
 
 
 
+
+
+
 function toggleTheme(){
 
 document.body.classList.toggle("light");
@@ -641,32 +727,65 @@ document.body.classList.toggle("light");
 
 
 
-let audio=
+
+
+
+
+let audio =
 document.getElementById("audio");
+
 
 
 audio.addEventListener(
 "timeupdate",
 ()=>{
 
+
 if(audio.duration){
 
-document.getElementById("progress").value=
-(audio.currentTime/audio.duration)*100;
+document.getElementById("progress").value =
+(
+audio.currentTime /
+audio.duration
+)*100;
 
 }
 
+
 });
+
+
+
+
+
+audio.addEventListener(
+"ended",
+()=>{
+
+next();
+
+});
+
+
+
 
 
 document
 .getElementById("progress")
 .oninput=function(){
 
-audio.currentTime=
-audio.duration*(this.value/100);
+if(audio.duration){
+
+audio.currentTime =
+audio.duration *
+(this.value/100);
+
+}
 
 };
+
+
+
 
 
 
