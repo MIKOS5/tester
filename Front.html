@@ -1,242 +1,754 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Used & Restored Gear Store</title>
-    <style>
-        body {
-            font-family: Verdana, Geneva, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            display: flex;
-            flex-direction: column;
-        }
-        header {
-            background-color: #798a6a;
-            color: white;
-            text-align: center;
-            padding: 10px;
-        }
-        header h1 {
-            margin: 0;
-        }
-        .button-container {
-            text-align: center;
-            margin: 20px 0;
-        }
-        .button-container button {
-            padding: 10px 20px;
-            margin: 5px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        .button-container button:hover {
-            background-color: #45a049;
-        }
-        .product-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin: 20px;
-        }
-        .product-card {
-            background-color: white;
-            margin: 10px;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 200px;
-            text-align: center;
-        }
-        .product-card h3 {
-            font-size: 16px;
-            margin: 10px 0;
-        }
-        .product-card .price {
-            font-weight: bold;
-            font-size: 18px;
-            color: #2d6a4f;
-        }
-        .product-card .stock {
-            color: #f39c12;
-            margin-top: 10px;
-        }
-        .product-card .promo {
-            background-color: #e74c3c;
-            color: white;
-            padding: 5px;
-            border-radius: 5px;
-            margin-top: 5px;
-        }
-        .product-card .view-results {
-            background-color: #3498db;
-            color: white;
-            padding: 10px;
-            margin-top: 10px;
-            text-decoration: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            display: inline-block;
-        }
-        .product-card .view-results:hover {
-            background-color: #2980b9;
-        }
 
-        .product-card .f-button {
-            background-color: #add8e6; /* Light blue */
-            color: white;
-            padding: 10px;
-            margin-top: 10px;
-            text-decoration: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            display: inline-block;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        .product-card .f-button:hover {
-            background-color: #87ceeb; /* Lighter blue on hover */
-        }
-    </style>
-</head>
-<body>
+<title>Gear Store</title>
 
-<header>
-    <h1>Used & Restored Gear Store</h1>
-    <p>Your trusted source for quality gear</p>
-</header>
 
-<div class="button-container">
-    <button onclick="sortProducts('name', 'asc')">Sort by Name (Asc)</button>
-    <button onclick="sortProducts('name', 'desc')">Sort by Name (Desc)</button>
-    <button onclick="sortProducts('price', 'asc')">Sort by Price (Asc)</button>
-    <button onclick="sortProducts('price', 'desc')">Sort by Price (Desc)</button>
-    <button onclick="sortProducts('stock', 'asc')">Sort by Stock (Asc)</button>
-    <button onclick="sortProducts('stock', 'desc')">Sort by Stock (Desc)</button>
-</div>
+<style>
 
-<div id="productsContainer" class="product-container">
-    <!-- Product cards will be dynamically inserted here -->
-</div>
-
-<script>
-    const csvFilePath = 'https://script.google.com/macros/s/AKfycbw2ygas7GeNtrOUSVo2L8xMe3pHHyYZmHS936xmude6D70z6byyFnIaQtd1aOqSPl-ueg/exec';
-    let products = [];
-
-    function parseCSV(data) {
-    const rows = data.split('\n');
-    products = [];
-
-    function csvSplit(row) {
-        const regex = /(".*?"|[^",\s]+)(?=\s*,|\s*$)/g;
-        const result = [];
-        let match;
-        while ((match = regex.exec(row)) !== null) {
-            let val = match[0];
-            // remove surrounding quotes
-            if (val.startsWith('"') && val.endsWith('"')) {
-                val = val.slice(1, -1);
-            }
-            result.push(val);
-        }
-        return result;
-    }
-
-    rows.slice(1).forEach(row => {
-        if (!row.trim()) return;
-
-        const columns = csvSplit(row);
-
-        const getCol = (index, fallback = '') => (columns[index] ? columns[index].trim() : fallback);
-
-        const itemName = getCol(1, "No Item Name");
-        const category = getCol(2, "No Category");
-        const brand = getCol(3, "No Brand");
-        const model = getCol(4, "No Model");
-        const condition = getCol(6, "No Condition");
-        const description = getCol(7, "No Description");
-        const promo = getCol(19, "");
-        const weight = getCol(20, "0.0");
-
-        const stockLevel = parseInt(getCol(16, "0")) || 0;
-        const price = parseFloat(getCol(29, "0")) || 0;
-
-        products.push({
-            itemName,
-            category,
-            brand,
-            model,
-            condition,
-            description,
-            price,
-            stockLevel,
-            promo,
-            weight
-        });
-    });
-
-    displayProducts(products);
+*{
+box-sizing:border-box;
 }
 
-    function displayProducts(products) {
-        const productsContainer = document.getElementById('productsContainer');
-        productsContainer.innerHTML = '';
 
-        products.forEach(product => {
-            const productCard = document.createElement('div');
-            productCard.classList.add('product-card');
+body{
 
-            productCard.innerHTML = `
-                <h3>${product.itemName}</h3>
-                <p><strong>Category:</strong> ${product.category}</p>
-                <p><strong>Brand:</strong> ${product.brand}</p>
-                <p><strong>Model/Series:</strong> ${product.model}</p>
-                <p><strong>Condition:</strong> ${product.condition}</p>
-                <p><strong>Description:</strong> ${product.description}</p>
-                <p><strong>Price:</strong> ${product.price}</p>
-                <p class="price">${product.price > 0 ? `$${product.price.toFixed(2)}` : 'Price Unavailable'}</p>
-                ${product.promo ? `<p class="promo">Promo: ${product.promo}</p>` : ''}
-                ${product.stockLevel > 0 ? `<p class="stock">Stock: ${product.stockLevel}</p>` : ''}
-                ${product.weight && product.weight !== '0.0' ? `<p class="weight">Weight: ${product.weight} lbs</p>` : ''}
-                <a href="https://www.google.com/search?hl=en&tbm=isch&q=${encodeURIComponent(product.itemName)}" target="_blank" class="view-results">View Results</a>
-                <a href="https://www.facebook.com/marketplace/la/search/?query=${encodeURIComponent(product.itemName)}" target="_blank" class="f-button">F</a>
-            `;
-            productsContainer.appendChild(productCard);
-        });
-    }
+margin:0;
+padding:20px;
 
-    function sortProducts(column, order) {
-        let sortedProducts = [...products];
+font-family:Inter,Arial,sans-serif;
 
-        if (column === 'name') {
-            sortedProducts.sort((a, b) => {
-                return order === 'asc' ? a.itemName.localeCompare(b.itemName) : b.itemName.localeCompare(a.itemName);
-            });
-        } else if (column === 'price') {
-            sortedProducts.sort((a, b) => {
-                return order === 'asc' ? a.price - b.price : b.price - a.price;
-            });
-        } else if (column === 'stock') {
-            sortedProducts.sort((a, b) => {
-                return order === 'asc' ? a.stockLevel - b.stockLevel : b.stockLevel - a.stockLevel;
-            });
-        }
+background:#0f172a;
 
-        displayProducts(sortedProducts);
-    }
+color:white;
 
-    fetch(csvFilePath)
-        .then(response => response.text())
-        .then(data => parseCSV(data))
-        .catch(error => console.error('Error fetching the CSV file:', error));
+}
+
+
+/* Title */
+
+
+.page-title{
+
+margin-bottom:20px;
+
+}
+
+
+.page-title h1{
+
+margin:0;
+
+font-size:26px;
+
+}
+
+
+.page-title p{
+
+margin-top:6px;
+
+color:#94a3b8;
+
+}
+
+
+
+/* Controls */
+
+
+.controls{
+
+display:flex;
+
+gap:10px;
+
+flex-wrap:wrap;
+
+margin-bottom:20px;
+
+}
+
+
+
+button,
+.action-btn{
+
+
+background:#2563eb;
+
+border:none;
+
+color:white;
+
+padding:10px 15px;
+
+border-radius:10px;
+
+cursor:pointer;
+
+font-weight:600;
+
+transition:.2s;
+
+}
+
+
+button:hover,
+.action-btn:hover{
+
+background:#3b82f6;
+
+transform:translateY(-2px);
+
+}
+
+
+
+#searchInput{
+
+flex:1;
+
+min-width:220px;
+
+padding:12px 15px;
+
+background:#1e293b;
+
+border:1px solid rgba(255,255,255,.1);
+
+border-radius:12px;
+
+color:white;
+
+outline:none;
+
+font-size:14px;
+
+}
+
+
+
+#searchInput:focus{
+
+border-color:#2563eb;
+
+box-shadow:0 0 15px rgba(37,99,235,.4);
+
+}
+
+
+
+/* Product grid */
+
+
+.products{
+
+display:grid;
+
+grid-template-columns:
+
+repeat(auto-fill,minmax(250px,1fr));
+
+gap:18px;
+
+}
+
+
+
+/* Cards */
+
+
+.card{
+
+background:#111827;
+
+border-radius:18px;
+
+padding:18px;
+
+border:1px solid rgba(255,255,255,.08);
+
+box-shadow:
+
+0 15px 35px rgba(0,0,0,.3);
+
+transition:.25s;
+
+}
+
+
+
+.card:hover{
+
+transform:translateY(-5px);
+
+box-shadow:
+
+0 20px 45px rgba(0,0,0,.45);
+
+}
+
+
+
+.card h3{
+
+margin:0 0 12px;
+
+font-size:18px;
+
+color:#60a5fa;
+
+}
+
+
+
+.card p{
+
+margin:7px 0;
+
+font-size:14px;
+
+color:#d1d5db;
+
+}
+
+
+
+.price{
+
+font-size:22px !important;
+
+font-weight:700;
+
+color:#22c55e !important;
+
+margin-top:15px !important;
+
+}
+
+
+
+.stock{
+
+color:#facc15 !important;
+
+font-weight:bold;
+
+}
+
+
+
+.promo{
+
+background:#dc2626;
+
+padding:6px;
+
+border-radius:8px;
+
+text-align:center;
+
+font-weight:bold;
+
+color:white !important;
+
+}
+
+
+
+/* Images */
+
+
+.product-img{
+
+width:100%;
+
+height:150px;
+
+object-fit:cover;
+
+border-radius:12px;
+
+margin-bottom:12px;
+
+}
+
+
+
+/* Buttons */
+
+
+.card-buttons{
+
+display:flex;
+
+gap:8px;
+
+margin-top:15px;
+
+}
+
+
+
+.google-btn{
+
+flex:1;
+
+text-align:center;
+
+text-decoration:none;
+
+background:#2563eb;
+
+color:white;
+
+padding:10px;
+
+border-radius:10px;
+
+font-size:14px;
+
+font-weight:600;
+
+}
+
+
+
+.fb-btn{
+
+background:#1877f2;
+
+color:white;
+
+text-decoration:none;
+
+padding:10px 15px;
+
+border-radius:10px;
+
+font-weight:bold;
+
+}
+
+
+
+#status{
+
+text-align:center;
+
+padding:20px;
+
+color:#94a3b8;
+
+}
+
+
+
+@media(max-width:600px){
+
+body{
+
+padding:12px;
+
+}
+
+.controls{
+
+flex-direction:column;
+
+}
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="page-title">
+
+<h1>🏷️ Gear Store</h1>
+
+<p>Available used and restored equipment</p>
+
+</div>
+
+
+
+<div class="controls">
+
+
+<input 
+id="searchInput"
+placeholder="Search products..."
+>
+
+
+<button onclick="sortProducts('name','asc')">
+Name ↑
+</button>
+
+
+<button onclick="sortProducts('name','desc')">
+Name ↓
+</button>
+
+
+<button onclick="sortProducts('price','asc')">
+Price ↑
+</button>
+
+
+<button onclick="sortProducts('price','desc')">
+Price ↓
+</button>
+
+
+<button onclick="sortProducts('stock','desc')">
+Stock
+</button>
+
+
+</div>
+
+
+
+<div id="status">
+Loading products...
+</div>
+
+
+
+<div id="productsContainer" class="products"></div>
+
+
+
+<script>
+
+
+const csvFilePath =
+'https://script.google.com/macros/s/AKfycbw2ygas7GeNtrOUSVo2L8xMe3pHHyYZmHS936xmude6D70z6byyFnIaQtd1aOqSPl-ueg/exec';
+
+
+let products=[];
+
+
+
+function csvSplit(row){
+
+let result=[];
+
+let current="";
+
+let quotes=false;
+
+
+for(let char of row){
+
+if(char=='"'){
+
+quotes=!quotes;
+
+}
+
+else if(char=="," && !quotes){
+
+result.push(current);
+
+current="";
+
+}
+
+else{
+
+current+=char;
+
+}
+
+}
+
+
+result.push(current);
+
+return result;
+
+}
+
+
+
+
+
+function parseCSV(data){
+
+
+let rows=data.split(/\r?\n/);
+
+
+products=[];
+
+
+
+rows.slice(1).forEach(row=>{
+
+
+if(!row.trim()) return;
+
+
+let c=csvSplit(row);
+
+
+products.push({
+
+itemName:c[1]||"Unnamed",
+
+category:c[2]||"",
+
+brand:c[3]||"",
+
+model:c[4]||"",
+
+condition:c[6]||"",
+
+description:c[7]||"",
+
+stock:parseInt(c[16])||0,
+
+promo:c[19]||"",
+
+weight:c[20]||"",
+
+price:parseFloat(c[22])||0,
+
+image:c[29]||""
+
+});
+
+
+});
+
+
+displayProducts(products);
+
+document.getElementById("status").style.display="none";
+
+
+}
+
+
+
+
+
+function displayProducts(list){
+
+
+let container=
+document.getElementById("productsContainer");
+
+
+container.innerHTML="";
+
+
+
+list.forEach(p=>{
+
+
+let card=document.createElement("div");
+
+card.className="card";
+
+
+
+card.innerHTML=`
+
+${p.image ?
+`<img class="product-img" src="${p.image}">`
+:""}
+
+
+<h3>${p.itemName}</h3>
+
+
+<p><b>Category:</b> ${p.category}</p>
+
+<p><b>Brand:</b> ${p.brand}</p>
+
+<p><b>Model:</b> ${p.model}</p>
+
+<p><b>Condition:</b> ${p.condition}</p>
+
+
+<p>${p.description}</p>
+
+
+<p class="price">
+
+${p.price ?
+"$"+p.price.toFixed(2)
+:
+"Contact"}
+
+</p>
+
+
+${p.promo ?
+`<p class="promo">${p.promo}</p>`
+:
+""}
+
+
+${p.stock ?
+`<p class="stock">Stock: ${p.stock}</p>`
+:
+""}
+
+
+${p.weight ?
+`<p>Weight: ${p.weight} lbs</p>`
+:
+""}
+
+
+<div class="card-buttons">
+
+
+<a class="google-btn"
+target="_blank"
+href="https://www.google.com/search?tbm=isch&q=${encodeURIComponent(p.itemName)}">
+
+🔍 Images
+
+</a>
+
+
+<a class="fb-btn"
+target="_blank"
+href="https://www.facebook.com/marketplace/la/search/?query=${encodeURIComponent(p.itemName)}">
+
+F
+
+</a>
+
+
+</div>
+
+`;
+
+
+container.appendChild(card);
+
+
+});
+
+
+}
+
+
+
+
+function sortProducts(type,order){
+
+
+let sorted=[...products];
+
+
+if(type==="name"){
+
+sorted.sort((a,b)=>
+order==="asc"
+?
+a.itemName.localeCompare(b.itemName)
+:
+b.itemName.localeCompare(a.itemName)
+);
+
+}
+
+
+if(type==="price"){
+
+sorted.sort((a,b)=>
+order==="asc"
+?
+a.price-b.price
+:
+b.price-a.price
+);
+
+}
+
+
+if(type==="stock"){
+
+sorted.sort((a,b)=>b.stock-a.stock);
+
+}
+
+
+displayProducts(sorted);
+
+
+}
+
+
+
+
+document
+.getElementById("searchInput")
+.addEventListener("input",function(){
+
+
+let text=this.value.toLowerCase();
+
+
+displayProducts(
+
+products.filter(p=>
+
+p.itemName.toLowerCase().includes(text) ||
+
+p.brand.toLowerCase().includes(text) ||
+
+p.category.toLowerCase().includes(text)
+
+)
+
+);
+
+
+});
+
+
+
+
+
+fetch(csvFilePath)
+
+.then(r=>r.text())
+
+.then(parseCSV)
+
+.catch(e=>{
+
+document.getElementById("status").innerHTML=
+"❌ Failed loading store";
+
+console.error(e);
+
+});
+
 
 </script>
 
+
 </body>
+
 </html>
