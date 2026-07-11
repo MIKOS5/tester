@@ -1095,14 +1095,26 @@ const GENRES = [
       const id = item.dataset.id;
       if (!id) return;
 
-      document.querySelectorAll(".genre")
-        .forEach(x => x.classList.remove("active"));
+      const g = GENRES.find(x => x.id === id);
+      
+      document.querySelectorAll("#genreGrid .genre")
+  .forEach(x => x.classList.remove("active"));
 
-      item.classList.add("active");
+item.classList.add("active");
 
-      page = 0;
-      currentGenre = id;
-      load(id);
+page = 0;
+currentGenre = id;
+
+// Update dropdown title
+document.querySelector(".genre-header").innerHTML =
+  `${g.label} <span id="genreArrow">▼</span>`;
+
+// Close dropdown
+genresOpen = false;
+document.getElementById("genreGrid").classList.add("collapsed");
+
+// Load stations
+load(id);
     });
   }
 
@@ -1973,6 +1985,14 @@ function showAll() {
 
   document.querySelectorAll(".genre")
     .forEach(x => x.classList.remove("active"));
+
+  // Reset the genre dropdown title
+  document.querySelector(".genre-header").innerHTML =
+    `🎚 Genres <span id="genreArrow">▼</span>`;
+
+  // Close the dropdown
+  genresOpen = false;
+  document.getElementById("genreGrid").classList.add("collapsed");
 
   load();
 }
