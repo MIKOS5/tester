@@ -955,6 +955,12 @@ body{
 <script>
 
 let currentGenre = "";
+// Audiobooks
+let books = [];
+let bookPage = 0;
+let currentBook = null;
+let chapters = [];
+let chapter = 0;
 let filterMode = false;
 let current = [];
 let index = 0;
@@ -965,6 +971,12 @@ let currentCountry = "United States";
 let playingIndex = null;
 let stationStarted = false;
 let metadataAbort = null;
+
+const BOOK_API =
+"https://librivox.org/api/feed/audiobooks/";
+
+const BOOK_PROXY =
+"https://corsproxy.io/?";
   
 /* API */
 const RADIO =
@@ -1102,6 +1114,7 @@ const GENRES = [
     <div class="genre" onclick="loadArtistMz()">🎧 Artist M - Z</div>
     <div class="genre" onclick="loadFavorites()">⭐ Favorites</div>
     <div class="genre" onclick="loadMood()">☁️ Mood</div>
+    <div class="genre" onclick="loadAudiobooks()">📚 Audiobooks</div>
     <div class="genre" onclick="loadMISC()">📻 Misc</div>
     <div class="genre" onclick="loadUndiscovered()">🕵️ Undiscovered</div>
     <div class="genre" onclick="loadInternational()">🌎 Mexico</div>
@@ -1226,6 +1239,28 @@ async function loadMood() {
 
   render();
   setTitle("☁️ Mood");
+}
+
+async function loadAudiobooks(){
+
+setTitle("📚 Audiobook Obvyris");
+
+const url =
+BOOK_PROXY +
+encodeURIComponent(
+BOOK_API+
+"?format=json&extended=1&limit=50&offset="+
+(bookPage*50)
+);
+
+const res = await fetch(url);
+
+const data = await res.json();
+
+books=data.books || [];
+
+renderBooks();
+
 }
   
 async function loadUndiscovered(){
@@ -1448,6 +1483,53 @@ function playMedia(url) {
     audio.play();
   }
 }
+
+function playBookChapter(){
+
+    if(!chapters.length){
+        alert("No chapters found.");
+        return;
+    }
+
+    const audio = document.getElementById("audio");
+    const video = document.getElementById("video");
+
+    video.pause();
+    video.src="";
+    video.style.display="none";
+
+    audio.src = chapters[chapter].listen_url;
+    audio.play();
+
+    document.getElementById("npName").innerText =
+        currentBook.title;
+
+    document.getElementById("npMeta").innerText =
+        "Chapter " + (chapter + 1);
+}
+
+async function openBook(id){
+
+    const url =
+        BOOK_PROXY +
+        encodeURIComponent(
+            BOOK_API +
+            id +
+            "?format=json&extended=1"
+        );
+
+    const res = await fetch(url);
+
+    const data = await res.json();
+
+    currentBook = data.books[0];
+
+    chapters = currentBook.sections || [];
+
+    chapter = 0;
+
+    playBookChapter();
+}
   
 /* PLAY */
 async function play(i){
@@ -1570,15 +1652,45 @@ function toggle() {
 }
 
 function next(){
-  const list = getActiveList();
-  index = (index + 1) % list.length;
-  playFiltered(index);
+
+    if(currentBook){
+
+        if(chapter < chapters.length-1){
+
+            chapter++;
+            playBookChapter();
+
+        }
+
+        return;
+    }
+
+    const list=getActiveList();
+
+    index=(index+1)%list.length;
+
+    playFiltered(index);
 }
 
 function prev(){
-  const list = getActiveList();
-  index = (index - 1 + list.length) % list.length;
-  playFiltered(index);
+
+    if(currentBook){
+
+        if(chapter>0){
+
+            chapter--;
+            playBookChapter();
+
+        }
+
+        return;
+    }
+
+    const list=getActiveList();
+
+    index=(index-1+list.length)%list.length;
+
+    playFiltered(index);
 }
 
 function getActiveList(){
@@ -2206,7 +2318,58 @@ function toggleAppMenu(){
 
 }
 
+function renderBooks(){
 
+const el=document.getElementById("list");
+
+el.innerHTML="";
+
+
+books.forEach(b=>{
+
+el.innerHTML += `
+
+<div class="card">
+
+<div class="station">
+${b.title}
+</div>
+
+
+<div class="small">
+${
+b.authors ?
+b.authors.map(
+a=>a.first_name+" "+a.last_name
+).join(", ")
+:
+"Unknown"
+}
+</div>
+
+
+<div class="row">
+
+<button onclick="openBook(${b.id})">
+▶ Play
+</button>
+
+
+<button onclick="favoriteBook(${b.id})">
+⭐
+</button>
+
+
+</div>
+
+</div>
+
+`;
+
+});
+
+}
+  
 function navigateApp(page){
 
     window.location.href = page;
