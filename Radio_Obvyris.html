@@ -1243,7 +1243,9 @@ async function loadMood() {
 
 async function loadAudiobooks(){
 
-setTitle("📚 Audiobook Obvyris");
+setTitle(
+  `📚 Audiobook Obvyris (${bookPage*50}-${bookPage*50+49})`
+);
 
 const url =
 BOOK_PROXY +
@@ -1988,19 +1990,38 @@ function changeCountry(){
 }
   
 function nextPage(){
+
+  // 📚 Audiobooks
+  if(document.getElementById("title").innerText.includes("Audiobook")){
+    bookPage++;
+    loadAudiobooks();
+    return;
+  }
+
+  // 📻 Radio
   if(filterMode){
-    // in genre mode, just reload same genre (no paging)
     load(currentGenre);
-  } else {
+  }else{
     page++;
     load();
   }
 }
 
 function prevPage(){
+
+  // 📚 Audiobooks
+  if(document.getElementById("title").innerText.includes("Audiobook")){
+    if(bookPage > 0){
+      bookPage--;
+      loadAudiobooks();
+    }
+    return;
+  }
+
+  // 📻 Radio
   if(filterMode){
     load(currentGenre);
-  } else if(page > 0){
+  }else if(page > 0){
     page--;
     load();
   }
