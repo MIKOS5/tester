@@ -517,7 +517,7 @@ video:fullscreen{
 <script>
 
 const PLAYLIST="https://iptv-org.github.io/iptv/index.m3u";
-const PLUTO_API="https://api.pluto.tv/v2/channels";
+const PLUTO_API="https://script.google.com/macros/s/AKfycbynB1gx8xRVH4cNtulKZv3Kr5CUyV7rATcZgyCJ73JStoxOw0meB6vqCV3AkIAUMkqZ/exec";
 
 let list=[],filtered=[],index=0;
 let renderIndex=0;
@@ -648,31 +648,29 @@ async function load(){
 
 }
 
-async function loadPluto(){
+async function loadPluto() {
 
-    const r = await fetch(PLUTO_API);
-    const data = await r.json();
+    const data = await fetch(PLUTO_API).then(r => r.json());
 
-    return data
-      .filter(c => c.stitched && c.stitched.urls)
-      .map(c => ({
+    return data.map(c => ({
 
-          name: c.name,
+        provider: c.provider,
 
-          group: c.category || "Pluto",
+        name: c.name,
 
-          url: c.stitched.urls.find(x=>x.type==="hls")?.url,
+        group: c.group,
 
-          logo: c.logo?.path || "",
+        url: c.stream,
 
-          thumb: c.thumbnail?.path || "",
+        logo: c.logo,
 
-          description: c.summary || "",
+        thumb: c.thumbnail,
 
-          provider:"Pluto"
+        description: c.summary,
 
-      }))
-      .filter(x=>x.url);
+        number: c.number
+
+    }));
 
 }
    
