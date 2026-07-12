@@ -409,6 +409,20 @@ video:fullscreen{
   object-fit:contain;
 }
 
+
+.card{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.logoImg{
+    width:70px;
+    height:40px;
+    object-fit:contain;
+    border-radius:6px;
+    background:#111;
+}
    
 </style>
 </head>
@@ -503,6 +517,7 @@ video:fullscreen{
 <script>
 
 const PLAYLIST="https://iptv-org.github.io/iptv/index.m3u";
+const PLUTO_API="https://api.pluto.tv/v2/channels";
 
 let list=[],filtered=[],index=0;
 let renderIndex=0;
@@ -610,21 +625,57 @@ setInterval(()=>{
 
 async function load(){
 
-  const r = await fetch(PLAYLIST);
-  const t = await r.text();
+    const [iptvText,pluto] = await Promise.all([
 
-  let raw = parseM3U(t);
+        fetch(PLAYLIST).then(r=>r.text()),
 
-  console.log("Total streams:", raw.length);
+        loadPluto()
 
-  list = raw;
+    ]);
 
-  console.log("Working streams:", list.length);
+    const iptv = parseM3U(iptvText);
 
-  buildGroups();
-  applyFilters();
+    list=[
+
+        ...iptv,
+
+        ...pluto
+
+    ];
+
+    buildGroups();
+    applyFilters();
+
 }
 
+async function loadPluto(){
+
+    const r = await fetch(PLUTO_API);
+    const data = await r.json();
+
+    return data
+      .filter(c => c.stitched && c.stitched.urls)
+      .map(c => ({
+
+          name: c.name,
+
+          group: c.category || "Pluto",
+
+          url: c.stitched.urls.find(x=>x.type==="hls")?.url,
+
+          logo: c.logo?.path || "",
+
+          thumb: c.thumbnail?.path || "",
+
+          description: c.summary || "",
+
+          provider:"Pluto"
+
+      }))
+      .filter(x=>x.url);
+
+}
+   
 async function filterWorkingStreams(channels){
 
   const good=[];
@@ -816,11 +867,20 @@ function render(reset){
     const real=renderIndex+i;
 
     el.innerHTML+=`
-      <div class="card" onclick="play(${real})">
-        <b>${s.name}</b><br/>
+<div class="card" onclick="play(${real})">
+
+    ${s.logo ? `<img src="${s.logo}" class="logoImg">` : ""}
+
+    <div>
+
+        <b>${s.name}</b><br>
+
         <small>${s.group}</small>
-      </div>
-    `;
+
+    </div>
+
+</div>
+`;
   });
 
   renderIndex+=CHUNK;
