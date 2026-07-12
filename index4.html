@@ -1,844 +1,1036 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+   
+<title>Video Obvyris</title>
 
-<title>🌍 Echo Shards v13 — Global War Command</title>
-
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-
+<link rel="icon" type="image/png" href="https://mikos5.github.io/tester/navicon.png">
+<link rel="apple-touch-icon" href="https://mikos5.github.io/tester/navicon.png">
+   
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet"/>
+   
 <style>
+/* =========================
+   🎨 DESIGN SYSTEM THEME
+========================= */
 
+:root{
+  --bg:#09111d;
+  --panel:#111827;
+  --border:#253347;
+
+  --blue:#2793ff;
+  --blue-dark:#1869d9;
+
+  --green:#17c964;
+  --green-dark:#0ea85a;
+
+  --text:#ffffff;
+  --muted:#93a4bb;
+}
+
+/* 🌙 DARK MODE BASE */
 body{
   margin:0;
-  overflow:hidden;
-  font-family:Arial;
-  background:#05070b;
-  color:white;
-}
-
-#map{
-  width:100vw;
+  display:flex;
   height:100vh;
+  overflow:hidden; /* stops whole page scrolling */
+  font-family:Inter, Arial, sans-serif;
+  background:var(--bg);
+  color:var(--text);
 }
 
-/* ================= MAIN UI ================= */
+/* =========================
+   PLAYER + MAIN PANELS
+========================= */
 
-#ui{
-  position:absolute;
-  top:10px;
-  left:10px;
-  width:340px;
-  background:rgba(10,15,25,0.92);
-  backdrop-filter:blur(6px);
-  padding:14px;
-  border-radius:12px;
-  z-index:9999;
-  border:1px solid rgba(255,255,255,0.08);
-  box-shadow:0 0 25px rgba(0,0,0,0.6);
+#main{
+  flex:1;
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  background:var(--bg);
+  overflow:hidden;
 }
 
-h2{
-  margin-top:0;
-  margin-bottom:10px;
-}
-
-input,button,select{
+video{
   width:100%;
-  margin-top:6px;
+  background:#000;
+  max-height:65vh;
+  border-bottom:1px solid var(--border);
+}
+
+/* TOP BAR */
+#bar{
+  background:var(--panel);
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  padding:8px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+/* NOW PLAYING */
+#now{
+  width:100%;
+  color:var(--text);
+  font-weight:700;
+  text-align:center;
+
+  white-space:normal;
+  overflow:hidden;
+  text-overflow:ellipsis;
+
+  line-height:18px;
+  min-height:18px;
+}
+
+/* BUTTON ROW */
+#controls{
+  display:flex;
+  justify-content:center;
+  gap:6px;
+}
+
+#controls button{
+  width:45px;
+  padding:6px 8px;
+  font-size:14px;
+}
+
+/* keeps buttons together */
+#bar button:first-of-type{
+  margin-left:0;
+}
+   
+/* =========================
+   SIDEBAR
+========================= */
+
+#sidebar{
+  width:260px;
+  height:100vh;
+  background:var(--panel);
+  border-right:1px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  overflow-y:auto; /* sidebar scroll */
+  flex-shrink:0;
+}
+
+.group{
+  padding:9px;
+  margin-bottom:6px;
+  background:var(--bg);
+  border:1px solid var(--border);
+  border-radius:10px;
+  cursor:pointer;
+  font-size:12px;
+  color:var(--text);
+  transition:.15s;
+}
+
+.group:hover{
+  background:rgba(39,147,255,0.12);
+  border-color:var(--blue);
+}
+
+.group:active{
+  transform:scale(0.98);
+}
+
+.logo{
+  font-family:Orbitron;
+  font-size:42px;
+  font-weight:900;
+  cursor:pointer;
+  user-select:none;
+  transition:.2s;
+}
+
+.logo span{
+  color:var(--blue);
+}
+
+.logo:hover{
+  opacity:.85;
+}
+
+.logo:active{
+  transform:scale(.98);
+}
+
+.subtitle{
+  color:var(--muted);
+  font-size:13px;
+  margin-bottom:20px;
+}
+
+.brand{
+  cursor:pointer;
+  user-select:none;
+  padding:8px;
+  border-radius:12px;
+  transition:.2s;
+}
+
+.brand:hover{
+  background:rgba(255,255,255,.08);
+}
+
+
+.app-menu{
+
+  position:absolute;
+
+  top:90px;
+  left:20px;
+
+  width:240px;
+
+  background:var(--panel);
+
+  border:1px solid var(--border);
+
+  border-radius:16px;
+
+  overflow:hidden;
+
+  z-index:999999;
+
+  display:none;
+
+  box-shadow:0 20px 40px rgba(0,0,0,.5);
+
+}
+
+
+.app-menu div{
+
+  padding:14px;
+
+  font-weight:800;
+
+  cursor:pointer;
+
+}
+
+
+.app-menu div:hover{
+
+  background:var(--blue);
+
+  color:white;
+
+}
+
+
+.app-menu.open{
+
+  display:block;
+
+}
+   
+/* =========================
+   INPUT / SEARCH
+========================= */
+
+#search{
+  width:100%;
   padding:10px;
   border:none;
-  border-radius:8px;
+  outline:none;
+  background:var(--panel);
+  color:var(--text);
+  border-bottom:1px solid var(--border);
 }
 
-input,select{
-  background:#1d2430;
-  color:white;
+#search::placeholder{
+  color:var(--muted);
 }
+
+/* =========================
+   STATION LIST
+========================= */
+
+#list{
+  flex:1;
+  overflow-y:auto;
+  overflow-x:hidden;
+  background:var(--bg);
+  min-height:0;
+}
+
+.card{
+  padding:12px;
+  border-bottom:1px solid var(--border);
+  cursor:pointer;
+  transition:.15s;
+}
+
+.card:hover{
+  background:rgba(39,147,255,0.08);
+}
+
+.card b{
+  color:var(--text);
+}
+
+.card small{
+  color:var(--muted);
+}
+
+/* =========================
+   BUTTONS
+========================= */
 
 button{
-  cursor:pointer;
-  background:#2d6cdf;
+  background:linear-gradient(180deg,var(--blue),var(--blue-dark));
+  border:none;
   color:white;
-  font-weight:bold;
-  transition:0.2s;
+  padding:8px 10px;
+  border-radius:10px;
+  font-weight:700;
+  cursor:pointer;
+  transition:.15s;
 }
 
-button:hover{
-  transform:scale(1.02);
+button:hover{ filter:brightness(1.1); }
+button:active{ transform:scale(0.97); }
+
+/* =========================
+   SCROLLBAR FIX
+========================= */
+
+*::-webkit-scrollbar{ width:10px; }
+*::-webkit-scrollbar-track{ background:var(--panel); }
+*::-webkit-scrollbar-thumb{
+  background:var(--border);
+  border-radius:999px;
+  border:2px solid var(--panel);
+}
+*::-webkit-scrollbar-thumb:hover{ background:var(--blue); }
+
+*{ scrollbar-width:thin; scrollbar-color:var(--border) var(--panel); }
+
+@media(max-width:900px){
+  #sidebar{ width:200px; }
 }
 
-/* ================= STATUS ================= */
+/* =========================
+   💬 CHAT SYSTEM (ADDED)
+========================= */
 
-#status{
-  margin-top:8px;
-  font-size:13px;
+#chatFloatBtn{
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  font-size: 22px;
+  z-index: 99999;
+  box-shadow: 0 10px 25px rgba(0,0,0,.4);
+  background: linear-gradient(180deg,var(--blue),var(--blue-dark));
+  border:none;
+  color:white;
+  cursor:pointer;
+}
+
+.chat-popup{
+  position: fixed;
+  bottom: 90px;
+  right: 20px;
+  width: 320px;
+  height: 420px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 99999;
+}
+
+.chat-popup.hidden{ display:none; }
+
+.chat-popup-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px;
+  font-weight:700;
+  border-bottom:1px solid var(--border);
+}
+
+.chat-popup-log{
+  flex:1;
+  overflow-y:auto;
+  padding:10px;
+  font-size:12px;
+}
+
+.chat-msg{
+  margin-bottom:6px;
+  padding:6px;
+  border-radius:8px;
+  background: rgba(255,255,255,0.04);
+}
+
+.chat-name{
+  color:var(--blue);
+  font-weight:700;
+}
+
+.chat-input{
+  display:flex;
+  gap:6px;
   padding:8px;
-  background:#111827;
+  border-top:1px solid var(--border);
+}
+
+.chat-input input{
+  flex:1;
+  padding:6px;
   border-radius:8px;
+  border:1px solid var(--border);
+  background:var(--bg);
+  color:var(--text);
 }
 
-/* ================= LOG ================= */
-
-#log{
-  position:absolute;
-  bottom:10px;
-  left:10px;
-  width:380px;
-  height:220px;
-  overflow:auto;
-  background:rgba(10,15,25,0.92);
-  backdrop-filter:blur(6px);
-  border-radius:10px;
-  padding:10px;
-  font-size:12px;
-  z-index:9999;
+video:fullscreen{
+  width:100vw;
+  height:100vh;
+  background:black;
+  object-fit:contain;
 }
 
-/* ================= TOP BAR ================= */
 
-#topbar{
-  position:absolute;
-  top:10px;
-  right:10px;
-  width:340px;
-  background:rgba(10,15,25,0.92);
-  padding:12px;
-  border-radius:12px;
-  z-index:9999;
-  border:1px solid rgba(255,255,255,0.08);
+.card{
+    display:flex;
+    align-items:center;
+    gap:12px;
 }
 
-.bar{
-  height:10px;
-  background:#111;
-  border-radius:10px;
-  overflow:hidden;
-  margin-bottom:8px;
+.logoImg{
+    width:70px;
+    height:40px;
+    object-fit:contain;
+    border-radius:6px;
+    background:#111;
 }
-
-.fill{
-  height:100%;
-  width:0%;
-  transition:0.4s;
-}
-
-.stat{
-  margin-top:4px;
-  font-size:13px;
-}
-
-/* ================= FACTION PANEL ================= */
-
-.factionRow{
-  margin-top:10px;
-  padding:10px;
-  border-radius:10px;
-  background:#131a24;
-}
-
-.powerBar{
-  height:8px;
-  border-radius:8px;
-  margin-top:4px;
-  overflow:hidden;
-  background:#222;
-}
-
-.powerFill{
-  height:100%;
-}
-
-/* ================= WAR FEED ================= */
-
-#warfeed{
-  position:absolute;
-  right:10px;
-  bottom:10px;
-  width:340px;
-  height:240px;
-  overflow:auto;
-  background:rgba(10,15,25,0.92);
-  border-radius:10px;
-  padding:10px;
-  z-index:9999;
-  font-size:12px;
-}
-
-.flash{
-  animation:flash 0.5s linear;
-}
-
-@keyframes flash{
-  0%{opacity:1;}
-  50%{opacity:0.2;}
-  100%{opacity:1;}
-}
-
+   
 </style>
 </head>
 
 <body>
 
-<div id="map"></div>
+<!-- LEFT SIDEBAR -->
+<div id="sidebar">
+   <div class="brand" onclick="toggleAppMenu()">
 
-<!-- ================= LEFT UI ================= -->
+  <div class="logo">
+    Video <span>Obvyris</span>
+  </div>
 
-<div id="ui">
-
-  <h2>🌍 Echo Shards v13</h2>
-
-  <input id="nick" placeholder="Commander Name">
-
-  <select id="faction">
-    <option>VOID</option>
-    <option>ORDER</option>
-    <option>CHAOS</option>
-  </select>
-
-  <button onclick="join()">⚔ Join War</button>
-  <button onclick="spawn()">🏰 Deploy Capital</button>
-
-  <div id="status">
-    OFFLINE
+  <div class="subtitle">
+    Live TV stations
   </div>
 
 </div>
 
-<!-- ================= TOP RIGHT ================= -->
 
-<div id="topbar">
+<div id="appMenu" class="app-menu">
 
-  <b>⚔ GLOBAL WAR STATUS</b>
-
-  <div style="margin-top:8px;">War Intensity</div>
-
-  <div class="bar">
-    <div id="warFill" class="fill" style="background:#ff3b3b"></div>
+  <div onclick="navigateApp('index99.html')">
+    🏠 Obvyris Home
   </div>
 
-  <div class="stat">
-    🌍 Total Territories:
-    <span id="territories">0</span>
+  <div onclick="navigateApp('Video_Obvyris.html')">
+    📺 Video Obvyris
   </div>
 
-  <div class="stat">
-    🔥 Active Frontlines:
-    <span id="fronts">0</span>
+  <div onclick="navigateApp('Radio_Obvyris.html')">
+    📻 Radio Obvyris
   </div>
 
-  <div class="stat">
-    👑 Dominant Faction:
-    <span id="dominant">NONE</span>
-  </div>
-
-  <!-- FACTIONS -->
-
-  <div class="factionRow">
-
-    <b style="color:#7a2cff">VOID</b>
-
-    <div class="powerBar">
-      <div id="voidBar" class="powerFill" style="background:#7a2cff;width:0%"></div>
-    </div>
-
-    <div id="voidStats">0 territories</div>
-
-  </div>
-
-  <div class="factionRow">
-
-    <b style="color:#2cc7ff">ORDER</b>
-
-    <div class="powerBar">
-      <div id="orderBar" class="powerFill" style="background:#2cc7ff;width:0%"></div>
-    </div>
-
-    <div id="orderStats">0 territories</div>
-
-  </div>
-
-  <div class="factionRow">
-
-    <b style="color:#ff2c6d">CHAOS</b>
-
-    <div class="powerBar">
-      <div id="chaosBar" class="powerFill" style="background:#ff2c6d;width:0%"></div>
-    </div>
-
-    <div id="chaosStats">0 territories</div>
-
+  <div onclick="navigateApp('newschat.html')">
+    💬 Chat Obvyris
   </div>
 
 </div>
 
-<!-- ================= LOGS ================= -->
+  <input id="search" placeholder="Search..." oninput="applyFilters()"/>
+  <div id="sourceList">
 
-<div id="log"></div>
+  <div class="group" onclick="loadIPTV()">
+    🌐 IPTV Channels
+  </div>
 
-<div id="warfeed">
-  <b>🛰 LIVE WAR FEED</b>
-  <div id="feed"></div>
+  <div class="group" onclick="loadPlutoSource()">
+    🪐 Pluto TV
+  </div>
+
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<div id="groupList"></div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+
+  <video 
+ id="video" 
+ controls 
+ playsinline
+ autoplay
+ muted>
+</video>
+
+<div id="bar">
+
+  <div id="now">Loading...</div>
+
+  <div id="controls">
+    <button onclick="prev()">⏮</button>
+    <button onclick="toggle()">⏯</button>
+    <button onclick="next()">⏭</button>
+    <button onclick="fullscreenPlayer()">⛶</button>
+  </div>
+
+</div>
+
+  <div id="list"></div>
+
+</div>
+
+<!-- 💬 CHAT UI -->
+<button id="chatFloatBtn" onclick="toggleChat()">💬</button>
+
+<div id="chatPopup" class="chat-popup hidden">
+  <div class="chat-popup-header">
+    <span>💬 Chat</span>
+    <button onclick="toggleChat()">✖</button>
+  </div>
+
+  <div id="chatLog" class="chat-popup-log"></div>
+
+  <div class="chat-input">
+    <input id="chatName" placeholder="name" maxlength="8"/>
+    <input id="chatMsg" placeholder="message" maxlength="100"/>
+    <button onclick="sendChat()">Send</button>
+  </div>
+</div>
 
 <script>
 
-// ======================================================
-// API
-// ======================================================
+const PLAYLIST="https://iptv-org.github.io/iptv/index.m3u";
+const PLUTO_API="https://script.google.com/macros/s/AKfycbynB1gx8xRVH4cNtulKZv3Kr5CUyV7rATcZgyCJ73JStoxOw0meB6vqCV3AkIAUMkqZ/exec";
 
-const API =
-"https://script.google.com/macros/s/AKfycbwfFHG9LeEzzYlVYCEXswjxeP_mVsevAqCtGybKBt9O5ww1Pn5d57S2yScP_2_rAinY/exec";
+let list=[];
+let filtered=[];
+let index=0;
 
-// ======================================================
-// MAP
-// ======================================================
+let currentSource="";
 
-const map = L.map('map').setView([20,0], 3);
+let iptvList=[];
+let plutoList=[];
+let renderIndex=0;
+const CHUNK=120;
 
-L.tileLayer(
-'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-{
-  maxZoom:19
-}).addTo(map);
+/* CHAT API */
+const API_URL = "https://script.google.com/macros/s/AKfycbzin84qDcZ9L1q4pTBtHZGKJSTDcZ_wnmgWmnmgPgf1jrc1nRprzbEBixKMSHcdkxiZBg/exec";
 
-// ======================================================
-// STATE
-// ======================================================
+let chatOpen=false;
+let chatData=[];
 
-let nick="";
-let faction="VOID";
-
-let nodes={};
-let visuals=[];
-
-// ======================================================
-// COLORS
-// ======================================================
-
-function col(f){
-
-  return {
-    VOID:"#7a2cff",
-    ORDER:"#2cc7ff",
-    CHAOS:"#ff2c6d",
-    Neutral:"#777"
-  }[f] || "#999";
+/* ROOM ID (video stream based) */
+function getRoom(){
+  return filtered?.[index]?.url || "global-video";
 }
 
-// ======================================================
-// LOG
-// ======================================================
-
-function log(msg){
-
-  const el=document.getElementById("log");
-
-  el.innerHTML=
-    "• "+msg+"<br>"+el.innerHTML;
+/* TOGGLE CHAT */
+function toggleChat(){
+  const box=document.getElementById("chatPopup");
+  chatOpen=!chatOpen;
+  box.classList.toggle("hidden");
+  if(chatOpen) loadChat();
 }
 
-// ======================================================
-// WAR FEED
-// ======================================================
-
-function feed(msg){
-
-  const el=document.getElementById("feed");
-
-  el.innerHTML=
-    "⚔ "+msg+"<br>"+el.innerHTML;
-}
-
-// ======================================================
-// NETWORK
-// ======================================================
-
-async function post(data){
-
-  try{
-
-    const r=await fetch(API,{
-      method:"POST",
-      body:JSON.stringify(data)
-    });
-
-    return await r.json();
-
-  }catch(err){
-
-    console.log(err);
-
-    log("❌ Network failure");
-
-    return {};
-  }
-}
-
-// ======================================================
-// JOIN
-// ======================================================
-
-function join(){
-
-  nick=document.getElementById("nick").value;
-
-  if(!nick){
-    alert("Enter commander name");
-    return;
-  }
-
-  faction=
-    document.getElementById("faction").value;
-
-  document.getElementById("status").innerHTML=
-    "🟢 ACTIVE COMMAND";
-
-  log("Commander "+nick+" joined "+faction);
-
-  sync();
-
-  setInterval(sync,3000);
-}
-
-// ======================================================
-// SPAWN
-// ======================================================
-
-async function spawn(){
-
-  const c=map.getCenter();
-
-  await post({
-
-    action:"spawn",
-
-    id:crypto.randomUUID(),
-
-    lat:c.lat,
-    lng:c.lng,
-
-    owner:faction
-
+/* LOAD CHAT */
+async function loadChat(){
+  const res=await fetch(API_URL,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"get",
+      station:getRoom()
+    })
   });
 
-  feed(faction+" deployed new capital");
+  const data=await res.json();
+  chatData=Array.isArray(data)?data:[];
+  renderChat();
 
-  sync();
+  const title = document.querySelector(".chat-popup-header span");
+  title.innerText = "💬 " + (document.getElementById("now").innerText || getRoom());
 }
 
-// ======================================================
-// ATTACK
-// ======================================================
+/* SEND CHAT */
+async function sendChat(){
+  let name=document.getElementById("chatName").value||"Anon";
+  let msg=document.getElementById("chatMsg").value;
 
-async function attack(id){
+  if(!msg) return;
 
-  const node=nodes[id];
+  name=name.trim().slice(0,8);
+  msg=msg.trim().slice(0,100);
 
-  if(!node) return;
+  document.getElementById("chatMsg").value="";
 
-  const target=node.getLatLng();
+  const station = getRoom();
+  const stationName = document.getElementById("now").innerText || station;
 
-  await post({
-
-    action:"attack",
-
-    id,
-    nick:faction
-
+  await fetch(API_URL,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"send",
+      station,
+      stationName,   // ✅ THIS is what you were missing
+      name,
+      message:msg
+    })
   });
 
-  laserFX(map.getCenter(),target,faction);
-
-  feed(faction+" launched strike");
-
-  sync();
+  loadChat();
 }
 
-// ======================================================
-// UPGRADE
-// ======================================================
-
-async function upgrade(id){
-
-  await post({
-
-    action:"upgrade",
-    id
-
-  });
-
-  feed(faction+" fortified territory");
-
-  sync();
-}
-
-// ======================================================
-// LASER EFFECT
-// ======================================================
-
-function laserFX(a,b,f){
-
-  const line=L.polyline([a,b],{
-
-    color:col(f),
-    weight:3,
-    opacity:0.9
-
-  }).addTo(map);
-
-  visuals.push(line);
-
-  setTimeout(()=>{
-
-    map.removeLayer(line);
-
-  },1500);
-}
-
-// ======================================================
-// CLEAR
-// ======================================================
-
-function clearMap(){
-
-  Object.values(nodes).forEach(n=>{
-
-    map.removeLayer(n);
-
-  });
-
-  visuals.forEach(v=>{
-
-    map.removeLayer(v);
-
-  });
-
-  visuals=[];
-  nodes={};
-}
-
-// ======================================================
-// DRAW NODE
-// ======================================================
-
-function draw(n){
-
-  if(!n.id) return;
-
-  const lvl=Number(n.level||1);
-  const energy=Number(n.energy||0);
-
-  const radius=
-    300 + (lvl * 120);
-
-  // CORE
-
-  const circle=L.circle(
-    [n.lat,n.lng],
-    {
-      radius:radius,
-      color:col(n.owner),
-      fillColor:col(n.owner),
-      fillOpacity:0.35,
-      weight:2
-    }
-  ).addTo(map);
-
-  // INFLUENCE
-
-  const influence=L.circle(
-    [n.lat,n.lng],
-    {
-      radius:radius*2,
-      color:col(n.owner),
-      fillOpacity:0,
-      opacity:0.15,
-      dashArray:"5,7"
-    }
-  ).addTo(map);
-
-  visuals.push(influence);
-
-  // ENERGY GLOW
-
-  if(energy>120){
-
-    const glow=L.circle(
-      [n.lat,n.lng],
-      {
-        radius:radius*3,
-        color:"#ffee66",
-        fillOpacity:0,
-        opacity:0.12
-      }
-    ).addTo(map);
-
-    visuals.push(glow);
-  }
-
-  // MEGA CITY
-
-  if(lvl>8){
-
-    const mega=L.circleMarker(
-      [n.lat,n.lng],
-      {
-        radius:12,
-        color:"#fff",
-        fillOpacity:1
-      }
-    ).addTo(map);
-
-    visuals.push(mega);
-  }
-
-  // POPUP
-
-  circle.on("click",()=>{
-
-    circle.bindPopup(`
-
-      <div style="color:black;width:220px;">
-
-      <h3>⚔ Territory Node</h3>
-
-      <b>Faction:</b> ${n.owner}<br>
-      <b>Level:</b> ${lvl}<br>
-      <b>Energy:</b> ${energy}<br>
-      <b>Population:</b> ${n.population || 0}<br>
-      <b>Type:</b> ${n.type || "CITY"}<br>
-
-      <hr>
-
-      <button onclick="attack('${n.id}')">
-      ⚔ Launch Attack
-      </button>
-
-      <button onclick="upgrade('${n.id}')">
-      ⬆ Upgrade
-      </button>
-
-      </div>
-
-    `).openPopup();
-
-  });
-
-  nodes[n.id]=circle;
-}
-
-// ======================================================
-// DRAW WAR CONNECTIONS
-// ======================================================
-
-function connections(data){
-
-  for(let i=0;i<data.length;i++){
-
-    for(let j=i+1;j<data.length;j++){
-
-      const a=data[i];
-      const b=data[j];
-
-      const dist=Math.hypot(
-        a.lat-b.lat,
-        a.lng-b.lng
-      );
-
-      if(dist < 12){
-
-        const hostile=
-          a.owner !== b.owner;
-
-        const line=L.polyline(
-          [
-            [a.lat,a.lng],
-            [b.lat,b.lng]
-          ],
-          {
-            color:
-              hostile
-              ? "#ff4444"
-              : col(a.owner),
-
-            weight:
-              hostile
-              ? 2
-              : 1,
-
-            opacity:
-              hostile
-              ? 0.5
-              : 0.2,
-
-            dashArray:
-              hostile
-              ? "5,8"
-              : ""
-          }
-        ).addTo(map);
-
-        visuals.push(line);
-      }
-    }
-  }
-}
-
-// ======================================================
-// UPDATE UI
-// ======================================================
-
-function updateStats(data){
-
-  let counts={
-    VOID:0,
-    ORDER:0,
-    CHAOS:0
+/* RENDER CHAT */
+function renderChat(){
+  const box=document.getElementById("chatLog");
+  box.innerHTML="";
+
+  const welcome={
+    system:true,
+    name:"System",
+    message:`Chat for ${getRoom()}`
   };
 
-  let warzones=0;
-
-  data.forEach(a=>{
-
-    counts[a.owner] =
-      (counts[a.owner]||0)+1;
-
-    data.forEach(b=>{
-
-      if(a===b) return;
-
-      const d=Math.hypot(
-        a.lat-b.lat,
-        a.lng-b.lng
-      );
-
-      if(d<5 && a.owner!==b.owner){
-
-        warzones++;
-      }
-    });
-
+  [welcome,...chatData].forEach(m=>{
+    box.innerHTML+=`
+      <div class="chat-msg" style="${m.system?"opacity:0.6;text-align:center;":""}">
+        <span class="chat-name">${m.system?"":m.name+": "}</span>
+        ${m.message}
+      </div>
+    `;
   });
 
-  const total=data.length || 1;
+  box.scrollTop=box.scrollHeight;
+}
 
-  const v=Math.round((counts.VOID/total)*100);
-  const o=Math.round((counts.ORDER/total)*100);
-  const c=Math.round((counts.CHAOS/total)*100);
+/* AUTO REFRESH */
+setInterval(()=>{
+  if(chatOpen && document.visibilityState==="visible"){
+    loadChat();
+  }
+},3000);
 
-  document.getElementById("voidBar").style.width=v+"%";
-  document.getElementById("orderBar").style.width=o+"%";
-  document.getElementById("chaosBar").style.width=c+"%";
+/* =========================
+   ORIGINAL VIDEO CODE (UNCHANGED)
+========================= */
 
-  document.getElementById("voidStats").innerHTML=
-    counts.VOID+" territories";
+async function load(){
 
-  document.getElementById("orderStats").innerHTML=
-    counts.ORDER+" territories";
+    const iptvText = await fetch(PLAYLIST)
+        .then(r=>r.text());
 
-  document.getElementById("chaosStats").innerHTML=
-    counts.CHAOS+" territories";
+    iptvList=parseM3U(iptvText);
 
-  document.getElementById("territories").innerHTML=
-    total;
+    list=iptvList;
 
-  document.getElementById("fronts").innerHTML=
-    warzones;
+    currentSource="IPTV";
 
-  let dominant="VOID";
+    buildGroups();
+    applyFilters();
 
-  if(counts.ORDER > counts[dominant])
-    dominant="ORDER";
+}
 
-  if(counts.CHAOS > counts[dominant])
-    dominant="CHAOS";
+async function loadPluto(){
 
-  document.getElementById("dominant").innerHTML=
-    dominant;
+    return await fetch(PLUTO_API)
+        .then(r=>r.json());
 
-  const warIntensity=
-    Math.min(
-      100,
-      warzones
+}
+
+async function loadPlutoSource(){
+
+    currentSource="Pluto";
+
+    if(plutoList.length===0){
+
+        console.log("Loading Pluto TV...");
+
+        plutoList=await fetch(PLUTO_API)
+            .then(r=>r.json());
+
+    }
+
+
+    list=plutoList;
+
+    buildGroups();
+
+    filtered=list;
+
+    render(true);
+
+}
+
+function loadIPTV(){
+
+    currentSource="IPTV";
+
+    list=iptvList;
+
+    buildGroups();
+
+    filtered=list;
+
+    render(true);
+
+}
+  
+async function filterWorkingStreams(channels){
+
+  const good=[];
+  const max=50;
+
+  for(let i=0;i<channels.length;i+=max){
+
+    const batch=channels.slice(i,i+max);
+
+    const results=await Promise.all(
+      batch.map(async s=>{
+
+        return new Promise(resolve=>{
+
+          let test=document.createElement("video");
+
+          let done=false;
+
+          let timer=setTimeout(()=>{
+            if(!done){
+              done=true;
+              resolve(null);
+            }
+          },5000);
+
+
+          test.src=s.url;
+          test.muted=true;
+
+
+          test.onloadedmetadata=()=>{
+            if(!done){
+              done=true;
+              clearTimeout(timer);
+              resolve(s);
+            }
+          };
+
+
+          test.onerror=()=>{
+            if(!done){
+              done=true;
+              clearTimeout(timer);
+              resolve(null);
+            }
+          };
+
+
+        });
+
+      })
     );
 
-  document.getElementById("warFill").style.width=
-    warIntensity+"%";
-}
 
-// ======================================================
-// SYNC
-// ======================================================
-
-async function sync(){
-
-  const data=
-    await post({
-      action:"getWorld"
+    results.forEach(x=>{
+      if(x) good.push(x);
     });
 
-  if(!data.nodes) return;
 
-  clearMap();
+    console.log(
+      "Checked:",
+      Math.min(i+max,channels.length),
+      "/",
+      channels.length,
+      "Working:",
+      good.length
+    );
 
-  data.nodes.forEach(draw);
-
-  connections(data.nodes);
-
-  updateStats(data.nodes);
-
-  log("🌍 Global sync complete");
-}
-
-// ======================================================
-// AUTO WORLD
-// ======================================================
-
-setInterval(async ()=>{
-
-  await post({
-    action:"tick"
-  });
-
-},7000);
-
-// ======================================================
-// RANDOM EVENTS
-// ======================================================
-
-const worldEvents=[
-
-  "VOID STORM DETECTED",
-  "ORDER FLEET MOBILIZING",
-  "CHAOS REBELLION IGNITED",
-  "ENERGY SURGE DETECTED",
-  "PORTAL COLLAPSE",
-  "CIVILIZATION UPRISING",
-  "NUCLEAR SHARD ACTIVATED"
-
-];
-
-setInterval(()=>{
-
-  if(Math.random()<0.4){
-
-    const e=
-      worldEvents[
-        Math.floor(
-          Math.random()*worldEvents.length
-        )
-      ];
-
-    feed(e);
   }
 
-},9000);
+
+  return good;
+}
+
+function parseM3U(t){
+  const lines=t.split("\n");
+  let out=[],item=null;
+
+  for(let l of lines){
+    if(l.startsWith("#EXTINF")){
+      item={
+        name:l.split(",").pop(),
+        group:(l.match(/group-title="([^"]+)"/)||[])[1]||"Other"
+      };
+    }
+    else if(item && l.startsWith("http")){
+      item.url=l.trim();
+      out.push(item);
+      item=null;
+    }
+  }
+  return out;
+}
+
+function buildGroups(){
+  const set=new Set();
+  list.forEach(s=>set.add(s.group));
+
+  const box=document.getElementById("groupList");
+  box.innerHTML="";
+
+  const all=document.createElement("div");
+  all.className="group";
+  all.textContent="📺 All Channels";
+  all.onclick=()=>{
+    filtered=list;
+    render(true);
+  };
+  box.appendChild(all);
+
+  [...set].sort().forEach(g=>{
+    const d=document.createElement("div");
+    d.className="group";
+    d.textContent=g;
+
+    d.onclick=()=>{
+      filtered=list.filter(x=>x.group===g);
+      render(true);
+    };
+
+    box.appendChild(d);
+  });
+}
+
+function toggleAppMenu(){
+
+  const menu=document.getElementById("appMenu");
+
+  menu.classList.toggle("open");
+
+}
+
+
+function navigateApp(page){
+
+  window.location.href="./"+page;
+
+}
+
+
+// close dropdown when clicking outside
+document.addEventListener("click",function(e){
+
+  const menu=document.getElementById("appMenu");
+  const brand=document.querySelector(".brand");
+
+
+  if(menu && brand && !brand.contains(e.target)){
+
+    menu.classList.remove("open");
+
+  }
+
+});
+   
+function applyFilters(){
+  const q=document.getElementById("search").value.toLowerCase();
+  filtered=list.filter(s=>s.name.toLowerCase().includes(q));
+  render(true);
+}
+
+function fullscreenPlayer(){
+
+  const video=document.getElementById("video");
+
+  if(video.requestFullscreen){
+    video.requestFullscreen();
+  }
+  else if(video.webkitRequestFullscreen){
+    video.webkitRequestFullscreen();
+  }
+  else if(video.msRequestFullscreen){
+    video.msRequestFullscreen();
+  }
+
+}
+   
+function render(reset){
+  const el=document.getElementById("list");
+
+  if(reset){
+    el.innerHTML="";
+    renderIndex=0;
+  }
+
+  const slice=filtered.slice(renderIndex,renderIndex+CHUNK);
+
+  slice.forEach((s,i)=>{
+    const real=renderIndex+i;
+
+    el.innerHTML+=`
+<div class="card" onclick="play(${real})">
+
+    ${s.logo ? `<img src="${s.logo}" class="logoImg">` : ""}
+
+    <div>
+
+        <b>${s.name}</b><br>
+
+        <small>${s.group}</small>
+
+    </div>
+
+</div>
+`;
+  });
+
+  renderIndex+=CHUNK;
+}
+
+document.getElementById("list").onscroll=(e)=>{
+  if(e.target.scrollTop+e.target.clientHeight>=e.target.scrollHeight-100){
+    render(false);
+  }
+};
+
+function playMedia(url){
+  const v=document.getElementById("video");
+
+  v.pause();
+  v.removeAttribute("src");
+  v.load();
+
+  if(window.Hls && Hls.isSupported()){
+
+    if(window.hls){
+      window.hls.destroy();
+    }
+
+    window.hls = new Hls({
+      enableWorker:true,
+
+      // buffer settings
+      maxBufferLength:30,
+      maxMaxBufferLength:60,
+      maxBufferSize:60 * 1000 * 1000,
+
+      // faster recovery
+      liveSyncDurationCount:3,
+      liveMaxLatencyDurationCount:5,
+
+      // reduce stalls
+      fragLoadingTimeOut:20000,
+      manifestLoadingTimeOut:20000,
+      levelLoadingTimeOut:20000
+    });
+
+
+    window.hls.on(Hls.Events.ERROR,(event,data)=>{
+
+      console.log("HLS ERROR:",data);
+
+      if(data.fatal){
+
+        switch(data.type){
+
+          case Hls.ErrorTypes.NETWORK_ERROR:
+            console.log("Retrying network...");
+            window.hls.startLoad();
+            break;
+
+
+          case Hls.ErrorTypes.MEDIA_ERROR:
+            console.log("Recovering media...");
+            window.hls.recoverMediaError();
+            break;
+
+
+          default:
+            window.hls.destroy();
+            break;
+        }
+
+      }
+
+    });
+
+
+    window.hls.loadSource(url);
+    window.hls.attachMedia(v);
+
+
+    window.hls.on(Hls.Events.MANIFEST_PARSED,()=>{
+      v.play().catch(e=>console.log(e));
+    });
+
+
+  }else{
+
+    // Safari native HLS
+    v.src=url;
+    v.play();
+
+  }
+}
+
+function play(i){
+  index=i;
+  const s=filtered[i];
+  if(!s) return;
+
+  document.getElementById("now").innerText=s.name;
+  playMedia(s.url);
+
+  if(chatOpen) loadChat();
+}
+
+function next(){
+  index=(index+1)%filtered.length;
+  play(index);
+}
+
+function prev(){
+  index=(index-1+filtered.length)%filtered.length;
+  play(index);
+}
+
+function toggle(){
+  const v=document.getElementById("video");
+  v.paused?v.play():v.pause();
+}
+
+function goHome(){
+  window.location.href = "./index99.html";
+}
+   
+load();
 
 </script>
-
 </body>
 </html>
