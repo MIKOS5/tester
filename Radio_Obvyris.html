@@ -1,2516 +1,570 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-<title>Radio Obvyris</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link rel="manifest" href="manifest.json">
+<title>Obvyris Directory</title>
 
-<meta name="theme-color" content="#2793ff">
-<meta name="mobile-web-app-capable" content="yes">
-
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Radio Obvyris">
-
-<link rel="icon" type="image/png" href="https://mikos5.github.io/tester/navicon.png">
-<link rel="apple-touch-icon" href="https://mikos5.github.io/tester/navicon.png">
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
 
 <style>
 
 :root{
-  --bg:#09111d;
-  --panel:#111827;
-  --line:#253347;
-  --text:#fff;
-  --muted:#93a4bb;
 
-  --blue:#2793ff;
-  --blue-dark:#1869d9;
+--bg:#09111d;
+--panel:#111827;
+--panel-alt:#0b1220;
+--line:#253347;
+--text:white;
+--muted:#93a4bb;
 
-  --green:#17c964;
-  --green-dark:#0ea85a;
+--blue:#2793ff;
+--blue-dark:#1869d9;
 
-  --button-dark:#444;
-  --button-dark2:#222;
-
-  --panel-alt:#0b1220;
-}
-
-/* 🌙 LIGHT MODE  */
-body.light{
-  --bg:#f4f6f8;
-  --panel:#ffffff;
-
-  --line:#d9e2ec;
-
-  --text:#102a43;
-  --muted:#627d98;
-
-  --blue:#4f8ef7;
-  --blue-dark:#3b82f6;
-
-  --green:#16a34a;
-  --green-dark:#15803d;
-
-  --button-dark:#e9eef5;
-  --button-dark2:#dbe4ef;
-
-  --panel-alt:#eef3f8;
-}
-
-*{box-sizing:border-box;}
-
-
-/* SIDEBAR */
-.sidebar{
-  width:300px;
-  background:var(--panel);
-  border-right:1px solid var(--line);
-  padding:20px;
-  overflow:auto;
-}
-
-.logo{
-  font-family:'Orbitron', sans-serif;
-  font-size:30px;
-  font-weight:900;
-  letter-spacing:2px;
-  text-transform:uppercase;
-  text-shadow:0 0 8px rgba(39,147,255,.35);
-}
-
-.logo span{
-  color:var(--blue);
-}
-
-.subtitle{
-  color:var(--muted);
-  font-size:13px;
-  margin-bottom:20px;
-}
-
-/* GENRES */
-.genre-grid{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-  max-height:2000px;
-  overflow:hidden;
-  transition: max-height 0.3s ease, opacity 0.2s ease;
-}
-
-.genre:hover{
-  transform:translateY(-1px);
-  border-color:var(--blue);
-  background:rgba(39,147,255,0.12);
-}
-
-.genre:hover{
-  border-color:var(--blue);
-  transform:translateY(-2px);
-}
-
-.genre.active{
-  background:var(--blue);
-  color:white;
-  border-color:var(--blue-dark);
-  box-shadow:0 4px 14px rgba(39,147,255,0.35);
-}
-
-/* PLAYER */
-/* PLAYER BaR (new style) */
-.player-bar{
-  margin-top:20px;
-  padding:12px;
-  border-radius:16px;
-  background:var(--panel);
-  border:1px solid var(--line);
-}
-
-/* PLAYER INNER */
-#player{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  width:100%;
-  text-align:center;
-}
-
-/* NOW PLAYING TEXT */
-#npName{
-  font-weight:800;
-  font-size:16px;
-}
-
-#npMeta{
-  font-size:12px;
-  color:var(--muted);
-  opacity:.8;
-}
-
-/* CONTROLS */
-.controls{
-  display:flex;
-  gap:10px;
-  margin-top:10px;
-}
-
-.controls button{
-  padding:10px 14px;
-  border:none;
-  border-radius:10px;
-  background:linear-gradient(180deg, var(--blue), var(--blue-dark));
-  color:white;
-  font-weight:700;
-  cursor:pointer;
-  font-size:18px;
-}
-
-button{
-  border:none;
-  border-radius:12px;
-  padding:10px;
-  background:linear-gradient(180deg,
-    var(--blue),
-    var(--blue-dark));
-  color:var(--text);
-  font-weight:700;
-  cursor:pointer;
-}
-
-.controls button {
-  font-size: 30px;   /* 👈 emoji + text size */
-  padding: 12px;
-}
-  
-/* MAIN */
-.main{
-  flex:1;
-  padding:20px;
-  overflow:auto;
-}
-
-.title{
-  font-size:46px;
-  font-weight:800;
-  margin-bottom:10px;
-}
-
-.card{
-  background:var(--panel);
-  border:1px solid var(--line);
-  border-radius:16px;
-  padding:14px;
-  margin-bottom:10px;
-}
-
-.station{
-  font-weight:700;
-  font-size:22px; /* <-- change this */
-}
-.small{font-size:12px;color:var(--muted);}
-
-.row{
-  display:flex;
-  gap:10px;
-  margin-top:10px;
-}
-
-/* FAVORITE BUTTON */
-.fav-btn{
-  background:linear-gradient(
-    180deg,
-    var(--button-dark),
-    var(--button-dark2)
-  );
-}
-
-.fav-btn.saved{
-  background:linear-gradient(
-    180deg,
-    var(--green),
-    var(--green-dark)
-  );
-}
-
-/* MOBILE */
-@media(max-width:900px){
-  body{flex-direction:column;height:auto;}
-  .sidebar{width:100%;}
-}
-
-::-webkit-scrollbar{
-  width:10px;
-}
-
-::-webkit-scrollbar-track{
-  background:transparent;
-}
-
-::-webkit-scrollbar-thumb{
-  background:rgba(39,147,255,.7);
-  border-radius:999px;
-  backdrop-filter:blur(10px);
-}
-
-::-webkit-scrollbar-thumb:hover{
-  background:rgba(39,147,255,1);
-}
-
-.app-frame { display:flex; height:100vh; }
-  
-.dropdown {
-  position: relative;
-  user-select: none;
-}
-
-.dropdown-menu {
-  display: none;
-  position: absolute;
-  left: 0;
-  top: 100%;
-  width: 100%;
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  z-index: 999;
-  overflow: hidden;
-}
-
-.dropdown-menu div {
-  padding: 10px;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.dropdown-menu div:hover {
-  background:var(--blue);
-}
-
-/* show on hover */
-.dropdown:hover .dropdown-menu {
-  display: block;
-}
-
-.genre-section {
-  margin-top: 10px;
 }
 
-/* header bar */
-.genre{
-  padding:8px 10px;        /* smaller padding */
-  border-radius:12px;      /* slightly tighter */
-  font-size:13px;          /* smaller text */
-  background:var(--panel);
-  border:1px solid var(--line);
-  text-align:center;
-  cursor:pointer;
-  font-weight:700;
-  transition:.15s;
-  line-height:1.2;
+*{
+box-sizing:border-box;
 }
 
-/* collapse animation */
-.genre-grid {
-  display: grid;
-  grid-template-columns: repeat(10, minmax(0, 1fr));
-  gap: 6px;
-
-  padding: 10px;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: var(--panel);
-
-  max-height: 2000px;
-  overflow: hidden;
-  transition: max-height 0.3s ease, opacity 0.2s ease;
-}
-
-/* collapsed state */
-.genre-grid.collapsed {
-  max-height: 0;
-  opacity: 0;
-  pointer-events: none;
-  padding-top: 0;
-  padding-bottom: 0;
-  border: 0;
-}
-
-/* responsive columns */
-@media (max-width: 1400px) {
-  .genre-grid {
-    grid-template-columns: repeat(6, 1fr);
-  }
-}
-
-@media (max-width: 1000px) {
-  .genre-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-@media (max-width: 700px) {
-  .genre-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-/* MOBILE ACTION DROPDOWN */
-
-
-  .action-header{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:12px;
-    border-radius:12px;
-    background:var(--panel);
-    border:1px solid var(--line);
-    font-weight:800;
-    cursor:pointer;
-  }
-
-}
-
-/* desktop hide dropdown title */
-.action-header{
-  display:none;
-}
-
-@media(min-width:901px){
-  .action-grid{
-    display:grid;
-  }
-}
-  
-/* ACTION GRID */
-.action-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 10px;
-  margin-top: 12px;
-  margin-bottom: 10px;
-}
-
-.action-grid .genre{
-    min-height:35px;
-    font-size:18px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:4px 12px;
-}
-
-/* MOBILE ACTION DROPDOWN FIX */
-@media(max-width:900px){
-
-  .action-header{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:12px;
-    border-radius:12px;
-    background:var(--panel);
-    border:1px solid var(--line);
-    font-weight:800;
-    cursor:pointer;
-  }
-
-  .action-grid{
-    display:none;
-  }
-
-  .action-grid.open{
-    display:grid;
-  }
-
-}
-
-@media (max-width:900px){
-  .title{
-    font-size:12px;   /* about 1/4 of 46px */
-  }
-}
-  
-/* DESKTOP */
-@media(min-width:901px){
-
-  .action-header{
-    display:none;
-  }
-
-  .action-grid{
-    display:grid;
-  }
-
-}
-  
-/* CHAT */
-.chat-box {
-  margin-top: 15px;
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  overflow: hidden;
-  background: var(--panel);
-}
-
-.chat-header{
-  padding:10px;
-  font-weight:800;
-  background:var(--panel-alt);
-  border-bottom:1px solid var(--line);
-}
-
-.chat-log{
-  height:180px;
-  overflow-y:auto;
-  padding:10px;
-  font-size:12px;
-}
-
-.chat-msg{
-  margin-bottom:6px;
-  padding:6px;
-  background:var(--panel-alt);
-  border-radius:8px;
-}
-
-.chat-name{
-  color:var(--blue);
-  font-weight:800;
-}
-
-.chat-input{
-  display:flex;
-  gap:5px;
-  padding:8px;
-  border-top:1px solid var(--line);
-}
-
-.chat-input{
-  display:flex;
-  gap:5px;
-}
-
-.chat-input input{
-  padding:6px;
-  border-radius:8px;
-  border:1px solid var(--line);
-  background:var(--bg);
-  color:var(--text);
-}
-
-.chat-popup .chat-input{
-  display:flex;
-  gap:5px;
-  padding:8px;
-  border-top:1px solid var(--line);
-  background: var(--panel);
-}
-
-.chat-popup .chat-input input{
-  padding:6px;
-  border-radius:8px;
-  border:1px solid var(--line);
-  background:var(--bg);
-  color:var(--text);
-}
-  
-#chatName{
-  width:70px;
-  flex:0 0 auto;
-}
-
-#chatMsg,
-#chatMsgPopup {
-  flex: 0 1 120px;   /* shrink + max width */
-  max-width: 120px;
-}
-  
-#backToTop{
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 9999;
-
-  padding: 12px 14px;
-  border-radius: 999px;
-
-  background: linear-gradient(180deg, var(--blue), var(--blue-dark));
-  color:var(--text);
-  border: none;
-  cursor: pointer;
-
-  font-weight: 800;
-  box-shadow: 0 10px 25px rgba(0,0,0,.4);
-
-  opacity: 0;
-  pointer-events: none;
-  transition: 0.2s ease;
-}
-
-.brand{
-    cursor:pointer;
-    user-select:none;
-    padding:8px;
-    border-radius:10px;
-    transition:.2s;
-}
-
-.brand:hover{
-    background:rgba(255,255,255,.08);
-}
-
-.logo{
-    font-family:'Orbitron', sans-serif;
-    font-size:42px;
-    font-weight:900;
-    letter-spacing:2px;
-    text-transform:uppercase;
-    text-shadow:0 0 8px rgba(39,147,255,.35);
-    transition:.2s;
-}
-
-.logo span{
-    color:var(--blue);
-}
-
-.logo:hover{
-    transform:scale(1.03);
-    text-shadow:
-      0 0 10px var(--blue),
-      0 0 20px var(--blue),
-      0 0 30px var(--blue);
-}
-
-.logo span:hover{
-    text-shadow:
-      0 0 12px var(--blue),
-      0 0 25px var(--blue);
-}
-
-.brand:active{
-    transform:scale(.98);
-}
-
-#chatFloatBtn{
-  position: fixed;
-  bottom: 90px;
-  right: 20px;
-  width: 55px;
-  height: 55px;
-  border-radius: 50%;
-  font-size: 22px;
-  z-index: 99999;
-  box-shadow: 0 10px 25px rgba(0,0,0,.4);
-}
 
 body{
-  margin:0;
-  display:flex;
-  height:100vh;
-  overflow:hidden;
-  font-family:Inter,sans-serif;
-  background:var(--bg);
-  color:var(--text);
-}
 
+margin:0;
+height:100vh;
+overflow:auto;
 
-/* FORCE PLAYER TO BOTTOM */
-.player-bar{
-  position:fixed;
-  bottom:0;
-  left:0;
-  right:0;
-  z-index:9999;
+font-family:Inter,sans-serif;
 
-  margin:0;
-  border-radius:0;
-  border-top:1px solid var(--line);
-}
-
-/* prevent content hiding behind player */
-.main{
-  padding-bottom:120px;
-}
-  
-.chat-popup{
-  position: fixed;
-  bottom: 160px;
-  right: 20px;
-  width: 35vw;
-  height: 70vh;
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  z-index: 99999;
-  box-shadow: 0 20px 40px rgba(0,0,0,.5);
-}
-
-.chat-popup.hidden{
-  display: none;
-}
-
-.chat-popup-header{
-  display:flex;
-  justify-content: space-between;
-  align-items:center;
-  padding:10px;
-  background: var(--panel-alt);
-  font-weight: 800;
-  border-bottom: 1px solid var(--line);
-}
-
-.chat-popup-log{
-  flex:1;
-  overflow-y:auto;
-  padding:10px;
-  font-size:12px;
-}
-
-.chat-popup .chat-input{
-  padding:8px;
-  border-top:1px solid var(--line);
-}
-  
-#backToTop.show{
-  opacity: 1;
-  pointer-events: auto;
-}
-
-/* ANDROID MOBILE STACK FIX */
-@media(max-width:900px){
-
-  .app-frame{
-    flex-direction:column;
-    height:100vh;
-  }
-
-  .sidebar{
-    width:100%;
-    flex:none;
-    max-height:35vh;
-    overflow-y:auto;
-  }
-
-  .main{
-    flex:1;
-    overflow:auto;
-    padding-bottom:120px;
-  }
-
-}
-
-.genre-header{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:12px;
-  border-radius:12px;
-  background:var(--panel);
-  border:1px solid var(--line);
-  font-weight:800;
-  cursor:pointer;
-  margin-bottom:10px;
-}
-
-.app-menu{
-    position:absolute;
-    top:80px;
-    left:20px;
-
-    width:240px;
-
-    background:var(--panel);
-    border:1px solid var(--line);
-    border-radius:16px;
-
-    overflow:hidden;
-
-    z-index:99999;
-
-    display:none;
-
-    box-shadow:0 15px 40px rgba(0,0,0,.5);
-}
-
-
-.app-menu div{
-
-    padding:14px;
-
-    cursor:pointer;
-
-    font-weight:700;
-
-    transition:.15s;
-}
-
-
-.app-menu div:hover{
-
-    background:var(--blue);
-    color:white;
+background:var(--bg);
+color:var(--text);
 
 }
 
 
-.app-menu.open{
-    display:block;
-}
 
-/* DESKTOP: shorter player bar */
-/* DESKTOP: shorter player bar */
-@media (min-width:901px){
+/* HEADER */
 
-  .player-bar{
-    padding:6px 12px;
-  }
+.header{
 
-  #player{
-    flex-direction:row;
-    justify-content:center;
-    align-items:center;
-    gap:18px;
-  }
+padding:25px;
 
-  #npName{
-    font-size:15px;
-  }
+background:var(--panel);
 
-  #npMeta{
-    font-size:11px;
-  }
-
-  .controls{
-    margin-top:0;
-    gap:6px;
-  }
-
-  .controls button{
-    font-size:16px;
-    padding:4px 5px;
-  }
-
-  /* reduce reserved space below page */
-  .main{
-    padding-bottom:75px;
-  }
+border-bottom:1px solid var(--line);
 
 }
 
-#countryFilter{
-    width:160px;
+
+.logo{
+
+font-family:Orbitron,sans-serif;
+
+font-size:42px;
+
+font-weight:900;
+
+letter-spacing:3px;
+
+text-shadow:
+0 0 10px rgba(39,147,255,.5);
+
 }
 
-@media (max-width:900px){
-    #countryFilter{
-        width:50px;
-        font-size:14px;
-        padding:8px;
-    }
+
+.logo span{
+
+color:var(--blue);
+
 }
+
+
+.subtitle{
+
+color:var(--muted);
+
+margin-top:8px;
+
+}
+
+
+
+
+/* APP GRID */
+
+.container{
+
+padding:25px;
+
+display:grid;
+
+grid-template-columns:
+repeat(auto-fit,minmax(320px,1fr));
+
+gap:20px;
+
+}
+
+
+
+.card{
+
+background:var(--panel);
+
+border:1px solid var(--line);
+
+border-radius:18px;
+
+padding:22px;
+
+transition:.2s;
+
+box-shadow:
+0 10px 30px rgba(0,0,0,.25);
+
+}
+
+
+
+.card:hover{
+
+transform:translateY(-5px);
+
+border-color:var(--blue);
+
+box-shadow:
+0 0 20px rgba(39,147,255,.25);
+
+}
+
+
+
+.icon{
+
+font-size:45px;
+
+}
+
+
+
+.title{
+
+font-size:24px;
+
+font-weight:800;
+
+margin:12px 0;
+
+}
+
+
+
+.description{
+
+color:#cbd5e1;
+
+line-height:1.5;
+
+min-height:75px;
+
+}
+
+
+
+
+.tags span{
+
+display:inline-block;
+
+padding:5px 10px;
+
+border-radius:20px;
+
+background:var(--panel-alt);
+
+border:1px solid var(--line);
+
+font-size:12px;
+
+margin:3px;
+
+}
+
+
+
+
+
+button,a{
+
+display:inline-block;
+
+margin-top:15px;
+
+padding:12px 18px;
+
+border-radius:12px;
+
+border:0;
+
+background:
+linear-gradient(
+180deg,
+var(--blue),
+var(--blue-dark)
+);
+
+color:white;
+
+font-weight:800;
+
+text-decoration:none;
+
+cursor:pointer;
+
+}
+
+
+
+
+
+/* SYSTEM INFO */
+
+
+.info{
+
+margin:25px;
+
+background:var(--panel);
+
+border:1px solid var(--line);
+
+border-radius:18px;
+
+padding:25px;
+
+}
+
+
+.info h2{
+
+font-family:Orbitron;
+
+}
+
+
+
+.tree{
+
+background:var(--panel-alt);
+
+border-radius:12px;
+
+padding:20px;
+
+font-family:monospace;
+
+line-height:1.8;
+
+color:#cbd5e1;
+
+}
+
+
+
+
+footer{
+
+text-align:center;
+
+padding:30px;
+
+color:var(--muted);
+
+}
+
+
+
+
+@media(max-width:700px){
+
+.logo{
+
+font-size:30px;
+
+}
+
+.container{
+
+padding:15px;
+
+}
+
+
+}
+
 </style>
+
+
 </head>
 
+
 <body>
-<div class="player-bar">
-  <div id="player">
-    <div id="npName">Not Playing</div>
-    <div id="npMeta">Select a station</div>
-    <audio id="audio"></audio>
-    <video id="video" style="display:none; width:100%; max-height:180px;" controls></video>
-    
-    <div class="controls">
-      <button onclick="prev()">⏮</button>
-      <button onclick="toggle()">▶ / ⏸</button>
-      <button onclick="next()">⏭</button>
-      <button id="themeBtn" onclick="toggleTheme()">🌙</button>
-    </div>
-  </div>
+
+
+<div class="header">
+
+<div class="logo">
+Obvyris <span>Directory</span>
 </div>
 
-<!-- ✅ NEW WRAPPER START -->
-<div class="app-frame">
 
-  <!-- SIDEBAR -->
-  <div class="sidebar">
+<div class="subtitle">
+Entertainment • Media • Community Platform
+</div>
 
-  <div class="brand" onclick="toggleAppMenu()">
-
-    <div class="logo">
-        Radio <span>Obvyris</span>
-    </div>
-
-    <div class="subtitle">
-        Live radio • video • chat
-    </div>
 
 </div>
 
-<div id="appMenu" class="app-menu">
-    <div onclick="navigateApp('index99.html')">
-        🏠 Home
-    </div>
 
-    <div onclick="navigateApp('Video_Obvyris.html')">
-        📺 Video Obvyris
-    </div>
 
-    <div onclick="navigateApp('Radio_Obvyris.html')">
-        📻 Radio Obvyris
-    </div>
 
-    <div onclick="navigateApp('newschat.html')">
-        💬 Chat Obvyris
-    </div>
-</div>
-  
-  <div class="action-header" onclick="toggleActions()">
-  ⭐ Radio Tools
-  <span id="actionArrow">▼</span>
-</div>
+<div class="container">
 
-<div class="action-grid" id="actionGrid"></div>
 
-  
-</div>
-
-  <!-- MAIN -->
-  <div class="main">
-
-    <div class="title" id="title">Stations</div>
-
-    <div style="display:flex;gap:10px;margin-bottom:15px;align-items:center;flex-wrap:wrap;">
-
-      <div class="genre" onclick="showAll()" style="white-space:nowrap;">
-        📻 Show All
-      </div>
-
-      <!-- everything else stays the same -->
-
-    
-  <select
-  id="countryFilter"
-  onchange="changeCountry()"
-  style="
-    padding:12px;
-    border-radius:12px;
-    background:var(--panel);
-    color:var(--text);
-    border:1px solid var(--line);
-  "
->
-    <option value="United States">🇺🇸 United States</option>
-    <option value="Canada">🇨🇦 Canada</option>
-    <option value="United Kingdom">🇬🇧 United Kingdom</option>
-    <option value="Australia">🇦🇺 Australia</option>
-    <option value="">🌎 All Countries</option>
-  </select>
-
-  <!-- 🔥 NEW: Genre dropdown moved here -->
-  <div class="genre-header" onclick="toggleGenres()" style="margin:0;">
-  🎚 Genres <span id="genreArrow">▼</span>
-  </div>
-</div>
-
-<!-- 🔥 STEP 3 GOES HERE -->
-<div class="genre-grid collapsed" id="genreGrid" style="margin-bottom:15px;"></div>
-  
-  <input
-  type="text"
-  id="searchBox"
-  placeholder="🔎 Search stations..."
-  oninput="render()"
-  style="
-    width:100%;
-    padding:12px;
-    margin-bottom:15px;
-    border-radius:12px;
-    border:1px solid var(--line);
-    background:var(--panel);
-    color:var(--text);
-    font-size:16px;
-  "
->
-
-<div style="display:flex;gap:10px;margin-bottom:15px;">
-  <button onclick="prevPage()">⬅ Prev</button>
-  <button onclick="nextPage()">Next ➡</button>
-</div>
-
-  <div id="list"></div>
-
-</div>
-
-<script>
-
-let currentGenre = "";
-// Audiobooks
-let books = [];
-let bookPage = 0;
-let currentBook = null;
-let chapters = [];
-let chapter = 0;
-let filterMode = false;
-let current = [];
-let index = 0;
-let favorites = new Set();
-let page = 0;
-const PAGE_SIZE = 500;
-let currentCountry = "United States";
-let playingIndex = null;
-let stationStarted = false;
-let metadataAbort = null;
-
-const BOOK_API =
-"https://librivox.org/api/feed/audiobooks/";
-
-const BOOK_PROXY =
-"https://corsproxy.io/?";
-  
-/* API */
-const RADIO =
-"https://all.api.radio-browser.info/json/stations/search";
-
-const SHEET =
-"https://script.google.com/macros/s/AKfycbzZ5MwOcYUY_bpsUKSxPd810xE8rV_Y3z2GwzPublb_4O60CP8L_lC_V2kqkCQ_JdF5/exec";
-
-  
-const GENRES = [
-  { id:"50s", label:"📻 50s Hits" },
-  { id:"60s", label:"🎙 60s Hits" },
-  { id:"70s", label:"✌️ 70s Hits" },
-  { id:"80s", label:"📼 80s Hits" },
-  { id:"90s", label:"💿 90s Hits" },
-  { id:"2000s", label:"📀 2000s Hits" },
-
-  { id:"acoustic", label:"🎸 Acoustic" },
-  { id:"afrobeats", label:"🌍 Afrobeats" },
-  { id:"ambient", label:"🌫 Ambient" },
-  { id:"alternative", label:"🎸 Alternative" },
-  { id:"anime", label:"🌸 Anime Music" },
-
-  { id:"blues", label:"🎺 Blues" },
-  { id:"bollywood", label:"🎬 Bollywood" },
-  { id:"bluegrass", label:"🪕 Bluegrass" },
-
-  { id:"celtic", label:"☘️ Celtic" },
-  { id:"chillout", label:"😌 Chillout" },
-  { id:"christian", label:"✝️ Christian" },
-  { id:"classical", label:"🎻 Classical" },
-  { id:"comedy", label:"😂 Comedy" },
-  { id:"country", label:"🤠 Country" },
-
-  { id:"disco", label:"🪩 Disco" },
-  { id:"drum and bass", label:"🥁 Drum & Bass" },
-  { id:"dubstep", label:"💥 Dubstep" },
-
-  { id:"edm", label:"⚡ EDM" },
-  { id:"electronic", label:"🎛 Electronic" },
-  { id:"experimental", label:"🧪 Experimental" },
-
-  { id:"folk", label:"🪕 Folk" },
-  { id:"funk", label:"🕺 Funk" },
-
-  { id:"gospel", label:"🙏 Gospel" },
-  { id:"grunge", label:"☔ Grunge" },
-
-  { id:"hardstyle", label:"⚙️ Hardstyle" },
-  { id:"hip hop", label:"🔥 Hip Hop" },
-  { id:"holiday", label:"🎄 Holiday" },
-  { id:"house", label:"🏠 House" },
-  { id:"hits", label:"⭐ Hits" },
-
-  { id:"indie", label:"🎧 Indie" },
-
-  { id:"jazz", label:"🎷 Jazz" },
-  { id:"jpop", label:"🇯🇵 J-Pop" },
-
-  { id:"kids", label:"🧒 Kids" },
-  { id:"kpop", label:"🇰🇷 K-Pop" },
-
-  { id:"latin", label:"💃 Latin" },
-  { id:"lofi", label:"🌙 Lo-Fi" },
-
-  { id:"meditation", label:"🧘 Meditation" },
-  { id:"metal", label:"🤘 Metal" },
-
-  { id:"news", label:"📰 News" },
-  { id:"oldies", label:"📻 Oldies" },
-
-  { id:"pop", label:"🎤 Pop" },
-  { id:"podcast", label:"🎧 Podcasts" },
-  { id:"punk", label:"🤟 Punk" },
-
-  { id:"rnb", label:"🎶 R&B" },
-  { id:"reggae", label:"🌴 Reggae" },
-  { id:"rock", label:"🎸 Rock" },
-
-  { id:"soul", label:"💖 Soul" },
-  { id:"soundtracks", label:"🎬 Soundtracks" },
-  { id:"sports", label:"🏈 Sports Talk" },
-  { id:"study", label:"📚 Study Beats" },
-  { id:"swing", label:"🎷 Swing" },
-  { id:"sleep", label:"😴 Sleep Music" },
-
-  { id:"talk", label:"🎙 Talk Radio" },
-  { id:"techno", label:"🔊 Techno" },
-  { id:"top 40", label:"🔥 Top 40" },
-  { id:"trance", label:"🌌 Trance" },
-
-  { id:"video game", label:"🎮 Video Game Music" },
-
-  { id:"workout", label:"💪 Workout" },
-  { id:"world", label:"🌐 World Music" }
-];
-
-  function renderGenres(){
-
-  const grid = document.getElementById("genreGrid");
-
-  grid.innerHTML = GENRES.map(g => `
-    <div class="genre" data-id="${g.id}">
-      ${g.label}
-    </div>
-  `).join("");
-
-  // prevent duplicate listeners
-  if (!grid.dataset.bound) {
-    grid.dataset.bound = "true";
-
-    grid.addEventListener("click", (e) => {
-      const item = e.target.closest(".genre");
-      if (!item) return;
-
-      const id = item.dataset.id;
-      if (!id) return;
-
-      const g = GENRES.find(x => x.id === id);
-      
-      document.querySelectorAll("#genreGrid .genre")
-  .forEach(x => x.classList.remove("active"));
-
-item.classList.add("active");
-
-page = 0;
-currentGenre = id;
-
-// Update dropdown title
-document.querySelector(".genre-header").innerHTML =
-  `${g.label} <span id="genreArrow">▼</span>`;
-
-// Close dropdown
-genresOpen = false;
-document.getElementById("genreGrid").classList.add("collapsed");
-
-// Load stations
-load(id);
-    });
-  }
-
-  // actions panel
-  const actions = document.getElementById("actionGrid");
-
-  actions.innerHTML = `
-  <div class="genre" onclick="selectTool('🎤 Artist A - L', loadArtistAl)">🎤 Artist A - L</div>
-  <div class="genre" onclick="selectTool('🎧 Artist M - Z', loadArtistMz)">🎧 Artist M - Z</div>
-  <div class="genre" onclick="selectTool('⭐ Favorites', loadFavorites)">⭐ Favorites</div>
-  <div class="genre" onclick="selectTool('☁️ Mood', loadMood)">☁️ Mood</div>
-  <div class="genre" onclick="selectTool('📚 Audiobooks', loadAudiobooks)">📚 Audiobooks</div>
-  <div class="genre" onclick="selectTool('📻 Misc', loadMISC)">📻 Misc</div>
-  <div class="genre" onclick="selectTool('🕵️ Undiscovered', loadUndiscovered)">🕵️ Undiscovered</div>
-  <div class="genre" onclick="selectTool('🌎 Mexico', loadInternational)">🌎 Mexico</div>
-  <div class="genre" onclick="selectTool('🛰️ International', loadInternational2)">🛰️ International</div>
-  `;
-}
-/* =========================
-   🔥 FIXED GENRE FUNCTION
-========================= */
-function getGenre(s){
-  return (s.tags?.trim())
-    || (s.genre?.trim())
-    || "Genre not listed - Radio";
-}
-
-/* LOAD */
-async function load(g){
-
-  currentGenre = g || "";
-  filterMode = !!g;
-
-  let url =
-    `${RADIO}?hidebroken=true&order=clickcount&reverse=true`;
-
-  // COUNTRY FILTER
-  if(currentCountry){
-    url += `&country=${encodeURIComponent(currentCountry)}`;
-  }
-
-  // GENRE MODE (FULL FILTER LOAD)
-  if(g){
-    url += `&tag=${encodeURIComponent(g)}`;
-
-    // IMPORTANT: no pagination in genre mode
-    page = 0;
-  }
-
-  // ALL STATIONS MODE (pagination ON)
-  if(!g){
-    url += `&limit=${PAGE_SIZE}&offset=${page * PAGE_SIZE}`;
-  }
-
-  const res = await fetch(url);
-  current = (await res.json()).map(normalize);
-
-  render();
-
-  setTitle(
-    `${currentCountry || "All Countries"} • ${g || "All Stations"}`
-  );
-}
-
-async function loadCountries(){
-  const res = await fetch("https://all.api.radio-browser.info/json/countries");
-  const data = await res.json();
-
-  const select = document.getElementById("countryFilter");
-
-  // keep "All Countries" first
-  select.innerHTML = `
-    <option value="">🌎 All Countries</option>
-  `;
-
-  // sort alphabetically
-  data.sort((a,b) => a.name.localeCompare(b.name));
-
-  for (let c of data){
-    const opt = document.createElement("option");
-    opt.value = c.name;
-    opt.textContent = `${c.name} (${c.stationcount})`;
-    select.appendChild(opt);
-  }
-
-  // ✅ set default AFTER loop
-  select.value = currentCountry;
-}
-
-async function loadArtistAl(){
-
-  const res = await fetch(SHEET + "?action=artistal");
-  const data = await res.json().catch(()=>[]);
-
-  current = (data.data || []).map(normalize);
-
-  render();
-  setTitle("🎤 Artist AL");
-}
-
-async function loadArtistMz(){
-
-  const res = await fetch(SHEET + "?action=artistmz");
-  const data = await res.json().catch(()=>[]);
-
-  current = (data.data || []).map(normalize);
-
-  render();
-  setTitle("🎧 Artist MZ");
-}
-
-  
-/* FAVORITES LOAD */
-async function loadFavorites(){
-
-  const res = await fetch(SHEET + "?action=get");
-  const data = await res.json().catch(()=>[]);
-
-  const list = (data.data || data).map(normalize);
-
-  current = list;
-  favorites = new Set(list.map(s => s.id));
-
-  render();
-  setTitle("⭐ Favorites");
-}
-
-async function loadMood() {
-
-  const res = await fetch(SHEET + "?action=mood");
-  const data = await res.json().catch(() => []);
-
-  current = (data.data || []).map(normalize);
-
-  render();
-  setTitle("☁️ Mood");
-}
-
-async function loadAudiobooks(){
-
-setTitle(
-  `📚 Audiobook Obvyris (${bookPage*50}-${bookPage*50+49})`
-);
-
-const url =
-BOOK_PROXY +
-encodeURIComponent(
-BOOK_API+
-"?format=json&extended=1&limit=50&offset="+
-(bookPage*50)
-);
-
-const res = await fetch(url);
-
-const data = await res.json();
-
-books=data.books || [];
-
-renderBooks();
-
-}
-  
-async function loadUndiscovered(){
-
-  const res = await fetch(SHEET + "?action=undiscovered");
-  const data = await res.json().catch(()=>[]);
-
-  current = (data.data || []).map(normalize);
-
-  render();
-  setTitle("🕵️ Undiscovered");
-}
-
-async function loadInternational2(){
-
-  try {
-    const res = await fetch(SHEET + "?action=international2");
-
-    const data = await res.json();
-
-    console.log("International2 response:", data);
-
-    current = (data.data || []).map(normalize);
-
-    render();
-    setTitle("🌍 International");
-
-  } catch (err) {
-    console.error("International2 failed:", err);
-    current = [];
-    render();
-    setTitle("🌍 International (error)");
-  }
-}
-  
-/* FAVORITE TOGGLE */
-async function fav(s){
-
-  const id = s.stationuuid || s.id;
-  if(!id) return;
-
-  const exists = favorites.has(id);
-
-  if(exists){
-
-    await fetch(SHEET,{
-      method:"POST",
-      body:new URLSearchParams({
-        action:"delete",
-        id:id
-      })
-    });
-
-    favorites.delete(id);
-    setTitle("Removed ⭐");
-    render();
-    return;
-  }
-
-  await fetch(SHEET,{
-    method:"POST",
-    body:new URLSearchParams({
-      action:"save",
-      id:id,
-      name:s.name || "",
-      url:s.url_resolved || s.url || "",
-      country:s.country || "",
-      genre:getGenre(s),
-      time:new Date().toISOString()
-    })
-  });
-
-  favorites.add(id);
-  setTitle("Saved ⭐");
-  render();
-}
-  
-async function loadMISC(){
-
-  const res = await fetch(SHEET + "?action=misc");
-  const data = await res.json().catch(()=>[]);
-
-  current = (data.data || []).map(normalize);
-
-  render();
-  setTitle("📻 MISC");
-}
-
-async function loadInternational(){
-
-  const res = await fetch(SHEET + "?action=international");
-  const data = await res.json().catch(()=>[]);
-
-  current = (data.data || []).map(normalize);
-
-  render();
-  setTitle("🌎 Mexico");
-}
-
-function selectTool(label, fn){
-
-  // Update dropdown title
-  document.querySelector(".action-header").innerHTML =
-    `${label} <span id="actionArrow">▼</span>`;
-
-  // Close dropdown
-  actionsOpen = false;
-  document.getElementById("actionGrid").classList.remove("open");
-
-  // Run selected tool
-  fn();
-}
-  
-async function listenNowPlaying(streamUrl, callback){
-
-    if(metadataAbort)
-        metadataAbort.abort();
-
-    metadataAbort = new AbortController();
-
-    try{
-
-        const response = await fetch(streamUrl,{
-            headers:{
-                "Icy-MetaData":"1"
-            },
-            signal:metadataAbort.signal
-        });
-
-        const metaInt =
-            parseInt(response.headers.get("icy-metaint"));
-
-        if(!metaInt)
-            return;
-
-        const reader = response.body.getReader();
-
-        const decoder = new TextDecoder();
-
-        while(true){
-
-            // Skip audio bytes
-
-            let remaining = metaInt;
-
-            while(remaining>0){
-
-                const {value,done}=await reader.read();
-
-                if(done) return;
-
-                remaining-=value.length;
-            }
-
-            // Metadata length
-
-            const lenChunk=await reader.read();
-
-            if(lenChunk.done) return;
-
-            const metaLength=lenChunk.value[0]*16;
-
-            if(metaLength===0)
-                continue;
-
-            let meta=new Uint8Array(metaLength);
-
-            let offset=0;
-
-            while(offset<metaLength){
-
-                const chunk=await reader.read();
-
-                if(chunk.done) return;
-
-                meta.set(chunk.value.slice(0,metaLength-offset),offset);
-
-                offset+=Math.min(
-                    chunk.value.length,
-                    metaLength-offset
-                );
-            }
-
-            const text=decoder.decode(meta);
-
-            const match=text.match(
-                /StreamTitle='([^']*)'/
-            );
-
-            if(match){
-
-                callback(match[1]);
-
-            }
-
-        }
-
-    }catch(e){
-
-        console.log("metadata stopped");
-
-    }
-
-}
-
-function playMedia(url) {
-  const audio = document.getElementById("audio");
-  const video = document.getElementById("video");
-
-  const isVideo =
-    url.includes(".mp4") ||
-    url.includes(".m3u8") ||
-    url.includes("youtube");
-
-  if (isVideo) {
-    // stop audio completely
-    audio.pause();
-    audio.src = "";
-
-    // start video
-    video.style.display = "block";
-    video.src = url;
-    video.play();
-
-  } else {
-    // stop video completely
-    video.pause();
-    video.src = "";
-    video.style.display = "none";
-
-    // start audio
-    audio.style.display = "block";
-    audio.src = url;
-    audio.play();
-  }
-}
-
-function playBookChapter(){
-
-    if(!chapters.length){
-        alert("No chapters found.");
-        return;
-    }
-
-    const audio = document.getElementById("audio");
-    const video = document.getElementById("video");
-
-    video.pause();
-    video.src="";
-    video.style.display="none";
-
-    audio.src = chapters[chapter].listen_url;
-    audio.play();
-
-    document.getElementById("npName").innerText =
-        currentBook.title;
-
-    document.getElementById("npMeta").innerText =
-        "Chapter " + (chapter + 1);
-}
-
-async function openBook(id){
-
-    const url =
-        BOOK_PROXY +
-        encodeURIComponent(
-            BOOK_API +
-            id +
-            "?format=json&extended=1"
-        );
-
-    const res = await fetch(url);
-
-    const data = await res.json();
-
-    currentBook = data.books[0];
-
-    chapters = currentBook.sections || [];
-
-    chapter = 0;
-
-    playBookChapter();
-}
-  
-/* PLAY */
-async function play(i){
-
-  index = i;
-
-  const s = current[i];
-  const url = s.url_resolved || s.url;
-
-  playMedia(url);
-
-  document.getElementById("npName").innerText = s.name;
-  document.getElementById("npMeta").innerText = "Loading track...";
-
-  // stop previous metadata listener
-  if (metadataAbort) {
-    metadataAbort.abort();
-  }
-
-  listenNowPlaying(s.url, (title) => {
-    document.getElementById("npMeta").innerText =
-      `${title} • ${s.country || ""}`;
-  });
-
-  stationStarted = true;
-  loadPopupChat();
-}
-
-async function loadPopupChat(){
-  try {
-    const stationId = getCurrentStationId();
-
-    const res = await fetch(API_URL, {
-      method: "POST",
-      body: JSON.stringify({
-        action: "get",
-        station: stationId
-      })
-    });
-
-    const data = await res.json();
-    const messages = Array.isArray(data) ? data : [];
-
-    chatData = messages;
-
-    renderPopupChat();
-
-  } catch(e){
-    console.log("popup chat load failed", e);
-  }
-}
-  
-function playFiltered(i){
-
-  const list = getActiveList();
-  const s = list[i];
-  if(!s) return;
-
-  index = i;
-  window.activeList = list;
-
-  const url = s.url_resolved || s.url;
-
-  playMedia(url);
-
-  document.getElementById("npName").innerText = s.name;
-  document.getElementById("npMeta").innerText =
-    `${getGenre(s)} • ${s.country || ""}`;
-
-  // reset old button
-  if (playingIndex !== null &&
-      document.getElementById(`playBtn-${playingIndex}`)) {
-    document.getElementById(`playBtn-${playingIndex}`).innerText = "▶ Play";
-  }
-
-  playingIndex = i;
-
-  const btn = document.getElementById(`playBtn-${i}`);
-  if (btn) btn.innerText = "⏸ Pause";
-
-  stationStarted = true;
-  loadPopupChat();
-}
-  
-/* CONTROLS */
-function toggle() {
-  const a = document.getElementById("audio");
-  const v = document.getElementById("video");
-
-  const isVideoVisible = v.style.display !== "none" && v.src;
-
-  // 🎬 VIDEO MODE
-  if (isVideoVisible) {
-    if (v.paused) {
-      v.play();
-    } else {
-      v.pause();
-    }
-
-    return;
-  }
-
-  // 🔊 AUDIO MODE
-  if (a.paused) {
-    a.play();
-
-    if (playingIndex !== null) {
-      const btn = document.getElementById(`playBtn-${playingIndex}`);
-      if (btn) btn.innerText = "⏸ Pause";
-    }
-
-  } else {
-    a.pause();
-
-    if (playingIndex !== null) {
-      const btn = document.getElementById(`playBtn-${playingIndex}`);
-      if (btn) btn.innerText = "▶ Play";
-    }
-  }
-}
-
-function next(){
-
-    if(currentBook){
-
-        if(chapter < chapters.length-1){
-
-            chapter++;
-            playBookChapter();
-
-        }
-
-        return;
-    }
-
-    const list=getActiveList();
-
-    index=(index+1)%list.length;
-
-    playFiltered(index);
-}
-
-function prev(){
-
-    if(currentBook){
-
-        if(chapter>0){
-
-            chapter--;
-            playBookChapter();
-
-        }
-
-        return;
-    }
-
-    const list=getActiveList();
-
-    index=(index-1+list.length)%list.length;
-
-    playFiltered(index);
-}
-
-function getActiveList(){
-  return window.filtered && window.filtered.length
-    ? window.filtered
-    : current;
-}
-  
-function normalize(s){
-  return {
-    id: s.stationuuid || s.id,
-    name: s.name || "Unknown",
-    url: s.url_resolved || s.url,
-    country: s.country || "",
-    genre: s.tags || s.genre || "Radio"
-  };
-}
-
-let genresOpen = false;
-
-function toggleGenres(){
-  const grid = document.getElementById("genreGrid");
-  const arrow = document.getElementById("genreArrow");
-
-  genresOpen = !genresOpen;
-
-  if(genresOpen){
-    grid.classList.remove("collapsed");
-    arrow.innerText = "▲";
-  } else {
-    grid.classList.add("collapsed");
-    arrow.innerText = "▼";
-  }
-}
-  
-/* CURRENT FAVORITE */
-function favCurrent(){
-  const s = current[index];
-  if(!s) return;
-  fav(s);
-}
-
-function scrollToTop(){
-  document.querySelector(".main").scrollTo({
-    top: 0,
-    behavior: "smooth"
-  });
-}
-  
-/* RENDER */
-function render(){
-
-  const el = document.getElementById("list");
-  el.innerHTML = "";
-
-  const q =
-    document.getElementById("searchBox")?.value
-      .toLowerCase()
-      .trim() || "";
-
-  let filtered = [];
-
-  for (let s of current) {
-
-    const text = `
-      ${s.name || ""}
-      ${getGenre(s)}
-      ${s.country || ""}
-    `.toLowerCase();
-
-    if (q && !text.includes(q)) continue;
-
-    filtered.push(s);
-  }
-
-  window.filtered = filtered;
-
-  filtered.forEach((s,i)=>{
-
-    const id = s.stationuuid || s.id;
-    const isFav = favorites.has(id);
-
-    el.innerHTML += `
-      <div class="card">
-        <div class="station">${s.name}</div>
-
-        <div class="small">${getGenre(s)} • ${s.country || ""}</div>
-
-        <div class="row">
-          <button id="playBtn-${i}" onclick="playFiltered(${i})">▶ Play</button>
-          <button class="fav-btn ${isFav ? "saved" : ""}"
-            onclick="favFiltered(${i})">
-            ${isFav ? "⭐ Saved" : "☆ Favorite"}
-          </button>
-          <button onclick="shareFiltered(${i})">🔗 Share</button>
-        </div>
-      </div>
-    `;
-  });
-}
-
-function getCurrentStationId(){
-  return current[index]?.id || "global";
-}
-
-function goHome(){
-  window.location.href = "./index99.html";
-}
-  
-function shareSite(){
-
-  const url = window.location.href;
-  const title = "Radio Obvyris - Live Radio Stations";
-  const text = "Listen to live radio stations on Radio Obvyris";
-
-  const cleanUrl = encodeURIComponent(url);
-  const cleanText = encodeURIComponent(text);
-  const cleanTitle = encodeURIComponent(title);
-
-  // Native share (mobile)
-  if (navigator.share) {
-    navigator.share({
-      title,
-      text,
-      url
-    });
-    return;
-  }
-
-  // fallback share menu
-  const menu = document.createElement("div");
-
-  menu.innerHTML = `
-    <div style="
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,.6);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      z-index:99999;
-    " onclick="this.remove()">
-
-      <div onclick="event.stopPropagation()" style="
-        background:var(--panel);
-        padding:20px;
-        border-radius:16px;
-        display:grid;
-        gap:10px;
-        min-width:260px;
-      ">
-
-        <button onclick="window.open(
-          'https://www.facebook.com/sharer/sharer.php?u=' + cleanUrl,
-          '_blank'
-        )">Facebook</button>
-
-        <button onclick="window.open(
-          'https://twitter.com/intent/tweet?text=' + cleanText + '&url=' + cleanUrl,
-          '_blank'
-        )">X / Twitter</button>
-
-        <button onclick="window.open(
-          'https://www.reddit.com/submit?url=' + cleanUrl + '&title=' + cleanTitle,
-          '_blank'
-        )">Reddit</button>
-
-        <button onclick="window.open(
-          'https://wa.me/?text=' + cleanText + '%20' + cleanUrl,
-          '_blank'
-        )">WhatsApp</button>
-
-        <button onclick="window.open(
-          'mailto:?subject=' + cleanTitle + '&body=' + cleanText + '%20' + cleanUrl,
-          '_self'
-        )">Email</button>
-
-      </div>
-    </div>
-  `;
-
-  document.body.appendChild(menu);
-}
-  
-function favFiltered(i){
-  fav(window.filtered[i]);
-}
-
-let chatOpen = false;
-
-function toggleChatPopup(){
-  const popup = document.getElementById("chatPopup");
-  chatOpen = !chatOpen;
-
-  popup.classList.toggle("hidden");
-
-  if(chatOpen){
-    loadPopupChat();   // 👈 ADD THIS
-  }
-}
-
-function renderPopupChat(){
-  const box = document.getElementById("chatLogPopup");
-  if (!box) return;
-
-  box.innerHTML = "";
-
-  if (!stationStarted) {
-    box.innerHTML = `
-      <div class="chat-msg" style="opacity:0.7;text-align:center;">
-        Select a station to join chat 💬
-      </div>
-    `;
-    return;
-  }
-
-  const welcome = {
-    system: true,
-    name: "System",
-    message: `Chat for "${getStationName()}"`
-  };
-
-  [welcome, ...chatData].forEach(m => {
-    box.innerHTML += `
-      <div class="chat-msg" style="${m.system ? "opacity:0.7;text-align:center;" : ""}">
-        <span class="chat-name">${m.system ? "" : (m.name + ":")}</span>
-        ${m.message}
-      </div>
-    `;
-  });
-
-  box.scrollTop = box.scrollHeight;
-}
-  
-async function sendPopupMessage(){
-  let name = document.getElementById("chatNamePopup").value || "Anon";
-  let msg = document.getElementById("chatMsgPopup").value;
-
-  if(!msg) return;
-
-  name = name.trim().slice(0,8);
-  msg = msg.trim().slice(0,100);
-
-  document.getElementById("chatMsgPopup").value = "";
-
-  await fetch(API_URL, {
-    method: "POST",
-    body: JSON.stringify({
-      action: "send",
-      station: getCurrentStationId(),
-      name,
-      message: msg
-    })
-  });
-
-  await loadPopupChat();
-}
-  
-function showAll() {
-
-  page = 0;
-  currentGenre = "";
-  filterMode = false;
-
-  document.querySelectorAll(".genre")
-    .forEach(x => x.classList.remove("active"));
-
-  // Reset the genre dropdown title
-  document.querySelector(".genre-header").innerHTML =
-    `🎚 Genres <span id="genreArrow">▼</span>`;
-
-  // Close the dropdown
-  genresOpen = false;
-  document.getElementById("genreGrid").classList.add("collapsed");
-
-  load();
-}
-
-/* GENRE */
-function setGenre(g){
-
-  document.querySelectorAll(".genre")
-    .forEach(x => x.classList.remove("active"));
-
-  event.target.classList.add("active");
-
-  load(g);
-}
-
-/* TITLE */
-function setTitle(t){
-  document.getElementById("title").innerText = t;
-}
-
-function changeCountry(){
-
-  currentCountry =
-    document.getElementById("countryFilter").value;
-
-  page = 0;
-
-  load();
-}
-  
-function nextPage(){
-
-  // 📚 Audiobooks
-  if(document.getElementById("title").innerText.includes("Audiobook")){
-    bookPage++;
-    loadAudiobooks();
-    return;
-  }
-
-  // 📻 Radio
-  if(filterMode){
-    load(currentGenre);
-  }else{
-    page++;
-    load();
-  }
-}
-
-function prevPage(){
-
-  // 📚 Audiobooks
-  if(document.getElementById("title").innerText.includes("Audiobook")){
-    if(bookPage > 0){
-      bookPage--;
-      loadAudiobooks();
-    }
-    return;
-  }
-
-  // 📻 Radio
-  if(filterMode){
-    load(currentGenre);
-  }else if(page > 0){
-    page--;
-    load();
-  }
-}
-
-function toggleTheme() {
-  document.body.classList.toggle("light");
-
-  const btn = document.getElementById("themeBtn");
-
-  if (document.body.classList.contains("light")) {
-    btn.textContent = "☀️";
-  } else {
-    btn.textContent = "🌙";
-  }
-}
-/* INIT */
-renderGenres();
-loadCountries();   // ✅ add this
-load();
-
-document.querySelector(".main").addEventListener("scroll", () => {
-  const btn = document.getElementById("backToTop");
-
-  if (document.querySelector(".main").scrollTop > 300) {
-    btn.classList.add("show");
-  } else {
-    btn.classList.remove("show");
-  }
-});
-
-/* CHAT */
-const API_URL = "https://script.google.com/macros/s/AKfycbzin84qDcZ9L1q4pTBtHZGKJSTDcZ_wnmgWmnmgPgf1jrc1nRprzbEBixKMSHcdkxiZBg/exec";
-
-let chatData = [];
-let currentChatStationId = null;
-
-async function loadChat(){
-  try {
-
-    const stationId = getCurrentStationId();
-
-    // detect station change
-    if (currentChatStationId !== stationId) {
-      currentChatStationId = stationId;
-
-      chatData = [{
-        system: true,
-        name: "System",
-        message: `Welcome to "${getStationName()}" chat 💬`
-      }];
-    }
-
-    const res = await fetch(API_URL, {
-      method: "POST",
-      body: JSON.stringify({
-        action: "get",
-        station: stationId
-      })
-    });
-
-    const data = await res.json();
-
-    const messages = Array.isArray(data) ? data : [];
-
-    // merge welcome + real messages
-    chatData = [
-      {
-        system: true,
-        name: "System",
-        message: `Welcome to "${getStationName()}" chat 💬`
-      },
-      ...messages
-    ];
-
-    renderChat();
-
-  } catch(e){
-    console.log("chat load failed", e);
-  }
-}
-
-async function sendMessage(){
-  let name = document.getElementById("chatName").value || "Anon";
-  let msg = document.getElementById("chatMsg").value;
-
-  if(!msg) return;
-
-  // 🔒 enforce limits in JS too
-  name = name.trim().slice(0, 8);
-  msg = msg.trim().slice(0, 100);
-
-  document.getElementById("chatMsg").value = "";
-
-  await fetch(API_URL, {
-    method: "POST",
-    body: JSON.stringify({
-      action: "send",
-      station: getCurrentStationId(),
-      name,
-      message: msg
-    })
-  });
-
-  renderChat();
-if (chatOpen) renderPopupChat();
-}
-
-function getStationName(){
-  return current?.[index]?.name || "this station";
-}
-  
-function renderChat(){
-  const box = document.getElementById("chatLog");
-  box.innerHTML = "";
-
-    if (!stationStarted) {
-  box.innerHTML = `
-    <div class="chat-msg" style="opacity:0.7;text-align:center;">
-      Select a station to join chat 💬
-    </div>
-  `;
-  return;
-}
-
-  chatData.forEach(m => {
-    box.innerHTML += `
-      <div class="chat-msg" style="${m.system ? "opacity:0.7;font-style:italic;text-align:center;" : ""}">
-        <span class="chat-name">${m.system ? "" : m.name + ":"}</span> ${m.message}
-    </div>
-`;
-  });
-
-  box.scrollTop = box.scrollHeight;
-}
-
-/* AUTO REFRESH (IMPORTANT PART) */
-loadPopupChat();
-setInterval(() => {
-  if (document.visibilityState === "visible" && chatOpen) {
-    loadPopupChat();
-  }
-}, 3000);
-  
-document.addEventListener("keydown", (e) => {
-
-  const tag = document.activeElement.tagName.toLowerCase();
-  const isTyping = tag === "input" || tag === "textarea" || tag === "select";
-
-  // Don't interfere while typing (except Esc and /)
-  if (isTyping && e.key !== "Escape") return;
-
-  switch (e.key.toLowerCase()) {
-
-    // Playback
-    case " ":
-      e.preventDefault();
-      toggle();
-      break;
-
-    case "arrowright":
-    case "n":
-      next();
-      break;
-
-    case "arrowleft":
-    case "p":
-      prev();
-      break;
-
-    // Search
-    case "/":
-    case "s":
-      e.preventDefault();
-      document.getElementById("searchBox").focus();
-      break;
-
-    // Favorites
-    case "f":
-      loadFavorites();
-      break;
-
-    // Escape
-    case "escape":
-      document.getElementById("searchBox").value = "";
-      document.getElementById("searchBox").blur();
-      render();
-      break;
-
-    // UI
-    case "g":
-      toggleGenres();
-      break;
-
-    case "a":
-      showAll();
-      break;
-
-    case "m":
-      loadMISC();
-      break;
-
-    case "i":
-      loadInternational();
-      break;
-
-    case "c":
-      document.getElementById("countryFilter").focus();
-      break;
-
-    case "home":
-      scrollToTop();
-      break;
-
-    case "pagedown":
-      nextPage();
-      break;
-
-    case "pageup":
-      prevPage();
-      break;
-
-    // Help
-    case "?":
-      e.preventDefault();
-      showKeyboardHelp();
-      break;
-  }
-});
-
-function shareStation(station){
-
-  if (!station) return;
-
-  const name = station.name || "Radio Station";
-  const url = station.url || station.url_resolved || "";
-  const genre = getGenre(station);
-
-  const shareText = `Listening to ${name} • ${genre}`;
-
-  const cleanUrl = encodeURIComponent(url || "");
-  const cleanText = encodeURIComponent(shareText);
-  const cleanName = encodeURIComponent(name);
-
-  // Native mobile share (best option)
-  if (navigator.share) {
-    navigator.share({
-      title: name,
-      text: shareText,
-      url: url
-    });
-    return;
-  }
-
-  // Fallback menu (station-based sharing)
-  const menu = document.createElement("div");
-
-  menu.innerHTML = `
-    <div style="
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,.6);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      z-index:99999;
-    " onclick="this.remove()">
-
-      <div onclick="event.stopPropagation()" style="
-        background:var(--panel);
-        padding:20px;
-        border-radius:16px;
-        display:grid;
-        gap:10px;
-        min-width:260px;
-      ">
-
-        <button onclick="window.open(
-          'https://www.facebook.com/sharer/sharer.php?u=' + cleanUrl,
-          '_blank'
-        )">Facebook</button>
-
-        <button onclick="window.open(
-          'https://twitter.com/intent/tweet?text=' + cleanText + '&url=' + cleanUrl,
-          '_blank'
-        )">X / Twitter</button>
-
-        <button onclick="window.open(
-          'https://www.reddit.com/submit?url=' + cleanUrl + '&title=' + cleanName,
-          '_blank'
-        )">Reddit</button>
-
-        <button onclick="window.open(
-          'https://wa.me/?text=' + cleanText + '%20' + cleanUrl,
-          '_blank'
-        )">WhatsApp</button>
-
-        <button onclick="window.open(
-          'mailto:?subject=' + cleanName + '&body=' + cleanText + '%20' + cleanUrl,
-          '_self'
-        )">Email</button>
-
-      </div>
-    </div>
-  `;
-
-  document.body.appendChild(menu);
-}
-
-function toggleAppMenu(){
-
-    const menu=document.getElementById("appMenu");
-
-    menu.classList.toggle("open");
-
-}
-
-function renderBooks(){
-
-const el=document.getElementById("list");
-
-el.innerHTML="";
-
-
-books.forEach(b=>{
-
-el.innerHTML += `
 
 <div class="card">
 
-<div class="station">
-${b.title}
+<div class="icon">
+🏠
+</div>
+
+<div class="title">
+Obvyris Home
 </div>
 
 
-<div class="small">
-${
-b.authors ?
-b.authors.map(
-a=>a.first_name+" "+a.last_name
-).join(", ")
-:
-"Unknown"
-}
-</div>
+<div class="description">
 
-
-<div class="row">
-
-<button onclick="openBook(${b.id})">
-▶ Play
-</button>
-
-
-<button onclick="favoriteBook(${b.id})">
-⭐
-</button>
-
+The main gateway for the Obvyris ecosystem.
+Access all applications from one central location.
 
 </div>
 
+
+<div class="tags">
+
+<span>Portal</span>
+<span>Launcher</span>
+
 </div>
 
-`;
 
-});
-
-}
-  
-function navigateApp(page){
-
-    window.location.href = page;
-
-}
+<a href="https://mikos5.github.io/tester/index99.html">
+Open
+</a>
 
 
-// close menu if clicking elsewhere
-
-document.addEventListener("click",function(e){
-
-    const menu=document.getElementById("appMenu");
-    const brand=document.querySelector(".brand");
-
-    if(!brand.contains(e.target)){
-        menu.classList.remove("open");
-    }
-
-});
-  
-function shareFiltered(i){
-  shareStation(window.filtered[i]);
-}
-</script>
-
-<script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js")
-      .then(() => console.log("PWA Ready"))
-      .catch(err => console.error(err));
-  });
-}
-
-let actionsOpen = false;
-
-function toggleActions(){
-
-  const grid = document.getElementById("actionGrid");
-  const arrow = document.getElementById("actionArrow");
-
-  actionsOpen = !actionsOpen;
-
-  if(actionsOpen){
-    grid.classList.add("open");
-    arrow.innerText = "▲";
-  }else{
-    grid.classList.remove("open");
-    arrow.innerText = "▼";
-  }
-}
-
-// Move Radio Tools below Genres on mobile
-window.addEventListener("load", () => {
-  if (window.innerWidth <= 900) {
-
-    const main = document.querySelector(".main");
-    const actionHeader = document.querySelector(".action-header");
-    const actionGrid = document.getElementById("actionGrid");
-    const genreGrid = document.getElementById("genreGrid");
-
-    if (main && actionHeader && actionGrid && genreGrid) {
-      genreGrid.after(actionHeader);
-      actionHeader.after(actionGrid);
-    }
-  }
-});
-  
-</script>
-<button id="chatFloatBtn" onclick="toggleChatPopup()">
-  💬
-</button>
-  <div id="chatPopup" class="chat-popup hidden">
-  <div class="chat-popup-header">
-    <span>💬 Chat</span>
-    <button onclick="toggleChatPopup()">✖</button>
-  </div>
-
-  <div id="chatLogPopup" class="chat-popup-log"></div>
-
-  <div class="chat-input">
-    <input id="chatNamePopup" placeholder="name" maxlength="8" />
-    <input id="chatMsgPopup" placeholder="message" maxlength="100" />
-    <button onclick="sendPopupMessage()">Send</button>
-  </div>
 </div>
-<button id="backToTop" onclick="scrollToTop()">⬆ Top</button>
+
+
+
+
+
+<div class="card">
+
+<div class="icon">
+📻
+</div>
+
+
+<div class="title">
+Radio Obvyris
+</div>
+
+
+<div class="description">
+
+Live internet radio platform.
+Discover stations, browse genres,
+save favorites, and listen anywhere.
+
+</div>
+
+
+<div class="tags">
+
+<span>Radio</span>
+<span>Streaming</span>
+<span>Music</span>
+
+</div>
+
+
+<a href="https://mikos5.github.io/tester/Radio_Obvyris.html">
+Open
+</a>
+
+
+</div>
+
+
+
+
+
+
+<div class="card">
+
+<div class="icon">
+📺
+</div>
+
+
+<div class="title">
+Video Obvyris
+</div>
+
+
+<div class="description">
+
+A media library experience for browsing
+and watching organized video content.
+
+</div>
+
+
+<div class="tags">
+
+<span>Video</span>
+<span>Media</span>
+
+</div>
+
+
+<a href="https://mikos5.github.io/tester/Video_Obvyris.html">
+Open
+</a>
+
+
+</div>
+
+
+
+
+
+
+<div class="card">
+
+<div class="icon">
+💬
+</div>
+
+
+<div class="title">
+Chat Obvyris
+</div>
+
+
+<div class="description">
+
+Community communication platform
+for conversations, discussions,
+and shared experiences.
+
+</div>
+
+
+<div class="tags">
+
+<span>Chat</span>
+<span>Community</span>
+
+</div>
+
+
+<a href="https://mikos5.github.io/tester/newschat.html">
+Open
+</a>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+<div class="info">
+
+<h2>
+⚙ Obvyris Ecosystem
+</h2>
+
+
+<div class="tree">
+
+Obvyris Platform
+
+        |
+        |
+   Homepage
+        |
+ --------------------
+ |          |        |
+Radio     Video    Chat
+Obvyris   Obvyris  Obvyris
+
+
+Future Applications:
+
+📚 Audiobooks
+🎮 Games
+📰 News
+⭐ More Services
+
+</div>
+
+
+</div>
+
+
+
+
+
+<div class="info">
+
+<h2>
+✨ Platform Features
+</h2>
+
+
+<p>
+
+✔ Unified application launcher<br>
+✔ Media discovery<br>
+✔ Streaming experiences<br>
+✔ Community interaction<br>
+✔ Expandable ecosystem
+
+</p>
+
+
+</div>
+
+
+
+
+<footer>
+
+Obvyris Platform © 2026
+
+</footer>
+
+
 </body>
 </html>
