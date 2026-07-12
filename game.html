@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Obvyris Galaxy Miner</title>
+
+<style>
+body{
+    margin:0;
+    background:#050816;
+    color:white;
+    text-align:center;
+    font-family:Arial;
+}
+
+h1{
+    color:#2793ff;
+}
+
+canvas{
+    background:#000;
+    border:2px solid #2793ff;
+    max-width:95%;
+}
+
+button{
+    padding:12px 25px;
+    margin:10px;
+    font-size:18px;
+    border-radius:10px;
+    border:none;
+    background:#2793ff;
+    color:white;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>🚀 Obvyris Galaxy Miner</h1>
+
+<div>
+Score:
+<span id="score">0</span>
+</div>
+
+<canvas id="game" width="600" height="700"></canvas>
+
+<br>
+
+<button onclick="moveLeft()">⬅</button>
+<button onclick="moveRight()">➡</button>
+
+
+<script>
+
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+
+let score=0;
+
+let ship={
+x:280,
+y:620,
+w:40,
+h:40,
+speed:8
+};
+
+
+let crystals=[];
+let asteroids=[];
+
+
+let keys={};
+
+
+document.addEventListener(
+"keydown",
+e=>keys[e.key]=true
+);
+
+document.addEventListener(
+"keyup",
+e=>keys[e.key]=false
+);
+
+
+
+function spawn(){
+
+if(Math.random()<0.03){
+
+crystals.push({
+
+x:Math.random()*560,
+y:-20,
+size:15
+
+});
+
+}
+
+
+if(Math.random()<0.02){
+
+asteroids.push({
+
+x:Math.random()*560,
+y:-30,
+size:25,
+speed:4
+
+});
+
+}
+
+}
+
+
+
+function update(){
+
+if(keys["ArrowLeft"])
+ship.x-=ship.speed;
+
+if(keys["ArrowRight"])
+ship.x+=ship.speed;
+
+
+ship.x=Math.max(
+0,
+Math.min(560,ship.x)
+);
+
+
+
+crystals.forEach(c=>{
+
+c.y+=3;
+
+
+if(
+c.x < ship.x+ship.w &&
+c.x+c.size > ship.x &&
+c.y < ship.y+ship.h &&
+c.y+c.size > ship.y
+){
+
+score+=10;
+
+c.y=800;
+
+}
+
+});
+
+
+
+asteroids.forEach(a=>{
+
+a.y+=a.speed;
+
+
+if(
+a.x < ship.x+ship.w &&
+a.x+a.size > ship.x &&
+a.y < ship.y+ship.h &&
+a.y+a.size > ship.y
+){
+
+alert(
+"🚀 Ship destroyed!\nScore: "+score
+);
+
+location.reload();
+
+}
+
+});
+
+
+crystals=
+crystals.filter(c=>c.y<750);
+
+asteroids=
+asteroids.filter(a=>a.y<750);
+
+
+spawn();
+
+}
+
+
+
+function draw(){
+
+ctx.clearRect(
+0,
+0,
+600,
+700
+);
+
+
+// stars
+
+ctx.fillStyle="white";
+
+for(let i=0;i<50;i++){
+
+ctx.fillRect(
+Math.random()*600,
+Math.random()*700,
+1,
+1
+);
+
+}
+
+
+// ship
+
+ctx.fillStyle="#2793ff";
+
+ctx.fillRect(
+ship.x,
+ship.y,
+ship.w,
+ship.h
+);
+
+
+// crystals
+
+ctx.fillStyle="#00ff99";
+
+crystals.forEach(c=>{
+
+ctx.beginPath();
+
+ctx.arc(
+c.x,
+c.y,
+c.size,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+});
+
+
+// asteroids
+
+ctx.fillStyle="#ff4444";
+
+asteroids.forEach(a=>{
+
+ctx.beginPath();
+
+ctx.arc(
+a.x,
+a.y,
+a.size,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+});
+
+
+document.getElementById("score")
+.innerText=score;
+
+}
+
+
+
+function loop(){
+
+update();
+draw();
+
+requestAnimationFrame(loop);
+
+}
+
+
+function moveLeft(){
+
+ship.x-=40;
+
+}
+
+function moveRight(){
+
+ship.x+=40;
+
+}
+
+
+loop();
+
+</script>
+
+</body>
+</html>
