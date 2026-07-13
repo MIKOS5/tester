@@ -467,13 +467,9 @@ video:fullscreen{
   <input id="search" placeholder="Search..." oninput="applyFilters()"/>
   <div id="sourceList">
 
-  <div class="group" onclick="loadIPTV()">
-    🌐 IPTV Channels
-  </div>
-
-  <div class="group" onclick="loadPlutoSource()">
-    🪐 Pluto TV
-  </div>
+<div class="group" onclick="load()">
+📺 Live Streams
+</div>
 
 </div>
 
@@ -528,8 +524,8 @@ video:fullscreen{
 
 <script>
 
-const PLAYLIST="https://iptv-org.github.io/iptv/index.m3u";
-const PLUTO_API="https://script.google.com/macros/s/AKfycbynB1gx8xRVH4cNtulKZv3Kr5CUyV7rATcZgyCJ73JStoxOw0meB6vqCV3AkIAUMkqZ/exec";
+const STREAM_API =
+"https://script.google.com/macros/s/AKfycbynB1gx8xRVH4cNtulKZv3Kr5CUyV7rATcZgyCJ73JStoxOw0meB6vqCV3AkIAUMkqZ/exec";
 
 let list=[];
 let filtered=[];
@@ -537,8 +533,7 @@ let index=0;
 
 let currentSource="";
 
-let iptvList=[];
-let plutoList=[];
+let streamList=[];
 let renderIndex=0;
 const CHUNK=120;
 
@@ -644,157 +639,51 @@ setInterval(()=>{
 
 async function load(){
 
-    const iptvText = await fetch(PLAYLIST)
-        .then(r=>r.text());
+    console.log("Loading Video Obvyris API...");
 
-    iptvList=parseM3U(iptvText);
-
-    list=iptvList;
-
-    currentSource="IPTV";
-
-    buildGroups();
-    applyFilters();
-
-}
-
-async function loadPluto(){
-
-    return await fetch(PLUTO_API)
+    const data = await fetch(STREAM_API)
         .then(r=>r.json());
 
-}
 
-async function loadPlutoSource(){
+    streamList = data.streams
+        .filter(s => 
+            s.status &&
+            s.status.toUpperCase() === "ONLINE"
+        )
+        .map(s=>({
 
-    currentSource="Pluto";
+            name:s.name || "Unknown",
 
-    if(plutoList.length===0){
+            group:s.group || "Other",
 
-        console.log("Loading Pluto TV...");
+            url:s.url,
 
-        plutoList=await fetch(PLUTO_API)
-            .then(r=>r.json());
+            logo:s.logo || ""
 
-    }
-
-
-    list=plutoList;
-
-    buildGroups();
-
-    filtered=list;
-
-    render(true);
-
-}
-
-function loadIPTV(){
-
-    currentSource="IPTV";
-
-    list=iptvList;
-
-    buildGroups();
-
-    filtered=list;
-
-    render(true);
-
-}
-  
-async function filterWorkingStreams(channels){
-
-  const good=[];
-  const max=50;
-
-  for(let i=0;i<channels.length;i+=max){
-
-    const batch=channels.slice(i,i+max);
-
-    const results=await Promise.all(
-      batch.map(async s=>{
-
-        return new Promise(resolve=>{
-
-          let test=document.createElement("video");
-
-          let done=false;
-
-          let timer=setTimeout(()=>{
-            if(!done){
-              done=true;
-              resolve(null);
-            }
-          },5000);
+        }));
 
 
-          test.src=s.url;
-          test.muted=true;
-
-
-          test.onloadedmetadata=()=>{
-            if(!done){
-              done=true;
-              clearTimeout(timer);
-              resolve(s);
-            }
-          };
-
-
-          test.onerror=()=>{
-            if(!done){
-              done=true;
-              clearTimeout(timer);
-              resolve(null);
-            }
-          };
-
-
-        });
-
-      })
+    // A-Z CHANNEL SORT
+    streamList.sort((a,b)=>
+        a.name.localeCompare(b.name)
     );
 
 
-    results.forEach(x=>{
-      if(x) good.push(x);
-    });
+    list = streamList;
+
+    currentSource="Google API";
+
+
+    buildGroups();
+
+    applyFilters();
 
 
     console.log(
-      "Checked:",
-      Math.min(i+max,channels.length),
-      "/",
-      channels.length,
-      "Working:",
-      good.length
+        "Loaded streams:",
+        list.length
     );
 
-  }
-
-
-  return good;
-}
-
-function parseM3U(t){
-  const lines=t.split("\n");
-  let out=[],item=null;
-
-  for(let l of lines){
-    if(l.startsWith("#EXTINF")){
-      item={
-        name:l.split(",").pop(),
-        group:(l.match(/group-title="([^"]+)"/)||[])[1]||"Other"
-      };
-    }
-    else if(item && l.startsWith("http")){
-      item.url=l.trim();
-      out.push(item);
-      item=null;
-    }
-  }
-  return out;
 }
 
 function buildGroups(){
