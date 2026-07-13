@@ -692,21 +692,25 @@ async function load(){
         })
         .map(s=>({
 
-            name:s.name || "Unknown",
+    name:String(s.name || "Unknown"),
 
-            group:s.group || "Other",
+    group:String(s.group || "Other"),
 
-            url:s.url,
+    url:String(s.url || ""),
 
-            logo:s.logo || ""
+    logo:String(s.logo || "")
 
-        }));
+}))
+.filter(s=>s.url);
 
 
 
         streamList.sort((a,b)=>
-            a.name.localeCompare(b.name)
-        );
+    String(a.name || "")
+    .localeCompare(
+        String(b.name || "")
+    )
+);
 
 
 
@@ -768,8 +772,8 @@ function buildGroups(){
 
 
     const groups=[...groupSet].sort((a,b)=>
-        a.localeCompare(b)
-    );
+    String(a).localeCompare(String(b))
+);
 
 
     const box=document.getElementById("groupList");
