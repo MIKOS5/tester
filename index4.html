@@ -550,11 +550,9 @@ button:disabled{
 <div id="main">
 
   <video 
- id="video" 
- controls 
+ id="video"
  playsinline
- autoplay
- muted>
+ autoplay>
 </video>
 
 <div id="bar">
@@ -1056,14 +1054,16 @@ async function loadStation(){
 
     try{
 
-        // Station mode
+        console.log("Loading Video Obvyris TV");
+
         stationMode = true;
 
         video.controls = false;
 
         document.getElementById("playBtn").disabled = true;
 
-        // Destroy any HLS stream
+
+        // destroy live HLS
         if(window.hls){
 
             window.hls.destroy();
@@ -1071,41 +1071,96 @@ async function loadStation(){
 
         }
 
+
         const response = await fetch(
             STATION_API + "?action=now"
         );
 
+
         const data = await response.json();
+
+
+        console.log("STATION DATA:", data);
+
+
+
+        if(!data.url){
+
+            throw new Error(
+                "No video URL returned"
+            );
+
+        }
+
+
+
+        // clear previous handlers
+        video.onloadedmetadata = null;
+
 
         video.pause();
 
+        video.removeAttribute("src");
+
+        video.load();
+
+
+
         video.src = data.url;
 
-        // Start muted (autoplay friendly)
+
+        // station mode always starts muted
         video.muted = true;
 
-        document.getElementById("muteBtn").innerText = "🔇";
+        document.getElementById("muteBtn").innerText="🔇";
 
-        video.onloadedmetadata = () => {
 
-            video.currentTime = data.seek;
 
-            video.play().catch(console.error);
+        video.onloadedmetadata = ()=>{
+
+
+            if(data.seek){
+
+                video.currentTime =
+                Number(data.seek);
+
+            }
+
+
+            video.play()
+            .catch(err=>{
+                console.log(
+                    "Autoplay blocked",
+                    err
+                );
+            });
+
 
         };
 
+
+
         document.getElementById("now").innerText =
-            data.program;
+        data.program || "Video Obvyris TV";
+
 
     }
     catch(err){
 
-        console.error("Station Error:", err);
+        console.error(
+            "Station Load Error:",
+            err
+        );
+
+
+        document.getElementById("now").innerText =
+        "Station Error";
 
     }
 
 }
-   
+
+
 function navigateApp(page){
 
   window.location.href="./"+page;
@@ -1304,11 +1359,11 @@ function playMedia(url){
 function play(i){
 
     // Exit station mode
-    stationMode = false;
+    stationMode=false;
 
-    video.controls = true;
+    video.controls=true;
 
-    document.getElementById("playBtn").disabled = false;
+    document.getElementById("playBtn").disabled=false;
 
     index = i;
 
