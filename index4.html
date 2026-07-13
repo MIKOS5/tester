@@ -496,6 +496,7 @@ video:fullscreen{
     <button onclick="toggle()">⏯</button>
     <button onclick="next()">⏭</button>
     <button onclick="fullscreenPlayer()">⛶</button>
+    <button onclick="reportBadLink()">🚩</button>
   </div>
 
 </div>
@@ -1058,6 +1059,46 @@ function toggle(){
   v.paused?v.play():v.pause();
 }
 
+async function reportBadLink(){
+
+    const stream = filtered[index];
+
+    if(!stream){
+        alert("No channel selected");
+        return;
+    }
+
+
+    const confirmReport =
+    confirm(
+        "Report this stream as broken?\n\n"+
+        stream.name
+    );
+
+
+    if(!confirmReport) return;
+
+
+    await fetch(STREAM_API,{
+        method:"POST",
+        body:JSON.stringify({
+
+            action:"badLink",
+
+            url:stream.url,
+
+            name:stream.name
+
+        })
+    });
+
+
+    alert(
+        "Reported. Thank you."
+    );
+
+}
+   
 function goHome(){
   window.location.href = "./index99.html";
 }
