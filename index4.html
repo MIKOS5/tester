@@ -592,6 +592,8 @@ const STREAM_API =
 
 const STATION_API =
 "https://script.google.com/macros/s/AKfycbyasf7oke6ZAhjgD-j2HGcR9bBysso2M9RuUuOgXZUQ7UkQ6CAOMV4PfGM3ViLUz6bygg/exec";
+
+const video = document.getElementById("video");
    
 let list=[];
 let filtered=[];
@@ -830,28 +832,6 @@ render(true);
 
 }
 
-async function loadStation(){
-
-    const response = await fetch(STATION_API + "?action=now");
-    const data = await response.json();
-
-    const video = document.getElementById("video");
-
-    // Stop HLS if it was playing
-    if(window.hls){
-        window.hls.destroy();
-        window.hls = null;
-    }
-
-    video.src = data.url;
-
-    video.onloadedmetadata = () => {
-        video.currentTime = data.seek;
-        video.play();
-    };
-
-    document.getElementById("now").innerText = data.program;
-}
    
 function buildCities(){
 
@@ -1006,30 +986,46 @@ function toggleAppMenu(){
 
 }
 
-async function playStation(){
+async function loadStation(){
 
- const res =
- await fetch(
- "https://script.google.com/macros/s/AKfycbyasf7oke6ZAhjgD-j2HGcR9bBysso2M9RuUuOgXZUQ7UkQ6CAOMV4PfGM3ViLUz6bygg/exec?action=now"
- );
+    try{
 
- const data =
- await res.json();
+        video.controls = false;
 
+        if(window.hls){
 
- const video =
- document.getElementById("video");
+            window.hls.destroy();
+            window.hls = null;
 
+        }
 
- video.src=data.url;
+        const response = await fetch(
+            STATION_API + "?action=now"
+        );
 
- video.currentTime=data.seek;
+        const data = await response.json();
 
- video.play();
+        video.pause();
 
+        video.src = data.url;
 
- document.getElementById("now").innerText =
- data.program;
+        video.onloadedmetadata = () => {
+
+            video.currentTime = data.seek;
+
+            video.play();
+
+        };
+
+        document.getElementById("now").innerText =
+            data.program;
+
+    }
+    catch(err){
+
+        console.error(err);
+
+    }
 
 }
    
@@ -1230,6 +1226,8 @@ function playMedia(url){
 
 function play(i){
 
+  video.controls = true;
+   
   index=i;
 
   const s=filtered[i];
