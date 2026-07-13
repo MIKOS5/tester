@@ -590,6 +590,9 @@ video:fullscreen{
 const STREAM_API =
 "https://script.google.com/macros/s/AKfycbynB1gx8xRVH4cNtulKZv3Kr5CUyV7rATcZgyCJ73JStoxOw0meB6vqCV3AkIAUMkqZ/exec";
 
+const STATION_API =
+"https://script.google.com/macros/s/AKfycbyasf7oke6ZAhjgD-j2HGcR9bBysso2M9RuUuOgXZUQ7UkQ6CAOMV4PfGM3ViLUz6bygg/exec";
+   
 let list=[];
 let filtered=[];
 let index=0;
@@ -827,6 +830,29 @@ render(true);
 
 }
 
+async function loadStation(){
+
+    const response = await fetch(STATION_API + "?action=now");
+    const data = await response.json();
+
+    const video = document.getElementById("video");
+
+    // Stop HLS if it was playing
+    if(window.hls){
+        window.hls.destroy();
+        window.hls = null;
+    }
+
+    video.src = data.url;
+
+    video.onloadedmetadata = () => {
+        video.currentTime = data.seek;
+        video.play();
+    };
+
+    document.getElementById("now").innerText = data.program;
+}
+   
 function buildCities(){
 
     const citySet = new Set();
