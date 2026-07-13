@@ -1087,14 +1087,36 @@ function playMedia(url){
 }
 
 function play(i){
+
   index=i;
+
   const s=filtered[i];
+
   if(!s) return;
 
+
+  // station name
   document.getElementById("now").innerText=s.name;
+
+
+  // station logo
+  const logo=document.getElementById("activeLogo");
+
+  logo.src = s.logo || "navicon.png";
+
+
+  logo.onerror=function(){
+
+      this.src="navicon.png";
+
+  };
+
+
   playMedia(s.url);
 
+
   if(chatOpen) loadChat();
+
 }
 
 function next(){
