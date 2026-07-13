@@ -514,6 +514,12 @@ video:fullscreen{
 </div>
 
 <div id="groupList"></div>
+
+<div class="group">
+🌎 Countries
+</div>
+
+<div id="countryList"></div>
 </div>
 
 <!-- MAIN -->
@@ -783,9 +789,11 @@ language:String(s.language || "Unknown"),
 
         buildGroups();
 
-        filtered=[...list];
+buildCountries();
 
-        render(true);
+filtered=[...list];
+
+render(true);
 
 
 
@@ -1150,6 +1158,88 @@ function prev(){
   play(index);
 }
 
+function buildCountries(){
+
+    const countrySet = new Set();
+
+    list.forEach(s=>{
+
+        if(s.country && s.country !== "Unknown"){
+
+            countrySet.add(
+                s.country.trim()
+            );
+
+        }
+
+    });
+
+
+    const countries=[...countrySet].sort((a,b)=>
+        a.localeCompare(b)
+    );
+
+
+    const box=document.getElementById("countryList");
+
+    box.innerHTML="";
+
+
+    const all=document.createElement("div");
+
+    all.className="group";
+
+    all.textContent="🌎 All Countries";
+
+    all.onclick=()=>{
+
+        filtered=[...list];
+
+        render(true);
+
+    };
+
+    box.appendChild(all);
+
+
+
+    countries.forEach(country=>{
+
+        const d=document.createElement("div");
+
+        d.className="group";
+
+        d.textContent="🌎 "+country;
+
+
+        d.onclick=()=>{
+
+
+            filtered=list.filter(s=>
+
+                s.country === country
+
+            );
+
+
+            filtered.sort((a,b)=>
+                a.name.localeCompare(b.name)
+            );
+
+
+            render(true);
+
+        };
+
+
+        box.appendChild(d);
+
+
+    });
+
+
+}
+   
 function toggle(){
   const v=document.getElementById("video");
   v.paused?v.play():v.pause();
