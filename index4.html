@@ -976,7 +976,33 @@ function toggleAppMenu(){
 
 }
 
+async function playStation(){
 
+ const res =
+ await fetch(
+ "https://script.google.com/macros/s/AKfycbyasf7oke6ZAhjgD-j2HGcR9bBysso2M9RuUuOgXZUQ7UkQ6CAOMV4PfGM3ViLUz6bygg/exec?action=now"
+ );
+
+ const data =
+ await res.json();
+
+
+ const video =
+ document.getElementById("video");
+
+
+ video.src=data.url;
+
+ video.currentTime=data.seek;
+
+ video.play();
+
+
+ document.getElementById("now").innerText =
+ data.program;
+
+}
+   
 function navigateApp(page){
 
   window.location.href="./"+page;
