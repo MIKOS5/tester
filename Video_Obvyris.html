@@ -13,11 +13,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet"/>
    
 <style>
+
 /* =========================
-   🎨 DESIGN SYSTEM THEME
+   🎨 DESIGN SYSTEM
 ========================= */
 
 :root{
+
   --bg:#09111d;
   --panel:#111827;
   --border:#253347;
@@ -25,176 +27,123 @@
   --blue:#2793ff;
   --blue-dark:#1869d9;
 
-  --green:#17c964;
-  --green-dark:#0ea85a;
-
   --text:#ffffff;
   --muted:#93a4bb;
+
 }
 
-/* 🌙 DARK MODE BASE */
-body{
-  margin:0;
-  display:flex;
-  height:100vh;
-  overflow:hidden; /* stops whole page scrolling */
-  font-family:Inter, Arial, sans-serif;
-  background:var(--bg);
-  color:var(--text);
-}
 
 /* =========================
-   PLAYER + MAIN PANELS
+   BASE
+========================= */
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+
+  margin:0;
+
+  display:flex;
+
+  height:100vh;
+
+  overflow:hidden;
+
+  font-family:Inter,Arial,sans-serif;
+
+  background:var(--bg);
+
+  color:var(--text);
+
+  user-select:none;
+  -webkit-user-select:none;
+
+}
+
+
+/* =========================
+   MAIN PLAYER
 ========================= */
 
 #main{
+
   flex:1;
+
   height:100vh;
+
   display:flex;
+
   flex-direction:column;
-  background:var(--bg);
+
   overflow:hidden;
+
 }
+
 
 video{
+
   width:100%;
-  background:#000;
+
   max-height:65vh;
+
+  background:#000;
+
   border-bottom:1px solid var(--border);
+
 }
 
-/* TOP BAR */
+
+
+/* =========================
+   PLAYER BAR
+========================= */
+
+
 #bar{
+
   background:var(--panel);
+
   border-top:1px solid var(--border);
+
   border-bottom:1px solid var(--border);
+
   padding:8px;
+
   display:flex;
+
   flex-direction:column;
+
+  align-items:center;
+
   gap:6px;
+
 }
 
-/* PLAYER CONTROLS CENTER */
-#controls{
-  width:100%;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  gap:6px;
-  flex-wrap:nowrap;
-}
 
-#bar{
-  align-items:center;
-}
+
+/* STATION INFO */
 
 #stationInfo{
+
   width:100%;
-}
-   
-/* NOW PLAYING 1 */
-#now{
-  width:100%;
-  color:var(--text);
-  font-weight:700;
-  text-align:center;
 
-  white-space:normal;
-  overflow:hidden;
-  text-overflow:ellipsis;
-
-  line-height:18px;
-  min-height:18px;
-}
-
-/* BUTTON ROW */
-/* ANDROID PLAYER CONTROLS */
-@media(max-width:600px){
-
-#controls{
-    gap:2px;
-}
-
-#controls button{
-    width:30px;
-    height:30px;
-    font-size:12px;
-}
-
-#volumeSlider{
-    width:40px;
-}
-
-}
-
-
-/* Android phones */
-@media(max-width:600px){
-
-  #bar{
-    padding:5px;
-    gap:4px;
-  }
-
-  #stationInfo{
-    width:100%;
-    gap:6px;
-  }
-
-  #activeLogo{
-    width:35px;
-    height:28px;
-    flex-shrink:0;
-  }
-
-  #now{
-    font-size:11px;
-    line-height:14px;
-    max-width:calc(100vw - 80px);
-
-    white-space:normal;
-    overflow:hidden;
-    text-overflow:clip;
-
-    display:-webkit-box;
-    -webkit-line-clamp:2;
-    -webkit-box-orient:vertical;
-  }
-
-  #controls{
-    gap:3px;
-  }
-
-
-  #controls button{
-    width:34px;
-    height:34px;
-    font-size:14px;
-  }
-
-
-  #volumeSlider{
-    width:55px;
-  }
-
-}
-
-/* keeps buttons together */
-#bar button:first-of-type{
-  margin-left:0;
-}
-
-#stationInfo{
   display:flex;
-  align-items:center;
+
   justify-content:center;
-  gap:12px;
+
+  align-items:center;
+
+  gap:10px;
+
 }
 
 
 #activeLogo{
 
   width:55px;
+
   height:40px;
 
   object-fit:contain;
@@ -205,365 +154,512 @@ video{
 
   border:1px solid var(--border);
 
+  flex-shrink:0;
+
 }
 
-/* NOW PLAYING 3 */
+
+
 #now{
+
   font-size:16px;
+
   font-weight:800;
+
   max-width:400px;
 
-  overflow:hidden;
-  text-overflow:ellipsis;
-
-  white-space:normal;
-  word-break:break-word;
-
   text-align:center;
+
   line-height:18px;
+
+  overflow:hidden;
+
+  display:-webkit-box;
+
+  -webkit-line-clamp:2;
+
+  -webkit-box-orient:vertical;
+
 }
-   
+
+
+
+/* CONTROLS */
+
+
+#controls{
+
+  width:100%;
+
+  display:flex;
+
+  justify-content:center;
+
+  align-items:center;
+
+  gap:6px;
+
+  flex-wrap:nowrap;
+
+}
+
+
+
+button{
+
+  background:linear-gradient(
+    180deg,
+    var(--blue),
+    var(--blue-dark)
+  );
+
+  border:none;
+
+  color:white;
+
+  padding:8px 10px;
+
+  border-radius:10px;
+
+  font-weight:700;
+
+  cursor:pointer;
+
+}
+
+
+#controls button{
+
+  width:38px;
+
+  height:38px;
+
+  padding:0;
+
+  font-size:16px;
+
+  flex-shrink:0;
+
+}
+
+
+
+#volumeSlider{
+
+  width:80px;
+
+}
+
+
+
 /* =========================
    SIDEBAR
 ========================= */
 
+
 #sidebar{
+
   width:180px;
+
   height:100vh;
+
   background:var(--panel);
+
   border-right:1px solid var(--border);
+
   display:flex;
+
   flex-direction:column;
-  overflow-y:auto; /* sidebar scroll */
+
+  overflow-y:auto;
+
   flex-shrink:0;
+
 }
 
-.group{
-  padding:6px;
-  margin-bottom:6px;
-  background:var(--bg);
-  border:1px solid var(--border);
-  border-radius:10px;
-  cursor:pointer;
-  font-size:11px;
-  color:var(--text);
-  transition:.15s;
-}
 
-.group:hover{
-  background:rgba(39,147,255,0.12);
-  border-color:var(--blue);
-}
-
-.group:active{
-  transform:scale(0.98);
-}
 
 .logo{
+
   font-family:Orbitron;
+
   font-size:21px;
+
   font-weight:900;
-  cursor:pointer;
-  user-select:none;
-  transition:.2s;
+
 }
+
 
 .logo span{
+
   color:var(--blue);
+
 }
 
-.logo:hover{
-  opacity:.85;
-}
 
-.logo:active{
-  transform:scale(.98);
-}
 
 .subtitle{
+
   color:var(--muted);
+
   font-size:11px;
-  margin-bottom:10px;
+
 }
+
+
 
 .brand{
-  cursor:pointer;
-  user-select:none;
+
   padding:8px;
-  border-radius:12px;
-  transition:.2s;
-}
 
-.brand:hover{
-  background:rgba(255,255,255,.08);
 }
 
 
-.app-menu{
 
-  position:absolute;
+.group{
 
-  top:90px;
-  left:20px;
+  padding:6px;
 
-  width:240px;
+  margin-bottom:6px;
+
+  background:var(--bg);
+
+  border:1px solid var(--border);
+
+  border-radius:10px;
+
+  cursor:pointer;
+
+  font-size:11px;
+
+}
+
+
+
+.group:hover{
+
+  border-color:var(--blue);
+
+}
+
+
+
+/* =========================
+ SEARCH
+========================= */
+
+
+#search{
+
+  width:100%;
+
+  padding:10px;
+
+  border:none;
+
+  outline:none;
+
+  background:var(--panel);
+
+  color:white;
+
+}
+
+
+
+/* =========================
+ CHANNEL LIST
+========================= */
+
+
+#list{
+
+  flex:1;
+
+  overflow-y:auto;
+
+  background:var(--bg);
+
+}
+
+
+
+.card{
+
+  display:flex;
+
+  align-items:center;
+
+  gap:12px;
+
+  padding:12px;
+
+  border-bottom:1px solid var(--border);
+
+}
+
+
+
+.card small{
+
+  color:var(--muted);
+
+}
+
+
+
+.logoImg{
+
+  width:70px;
+
+  height:40px;
+
+  object-fit:contain;
+
+  border-radius:6px;
+
+  background:#111;
+
+}
+
+
+
+/* =========================
+ CHAT
+========================= */
+
+
+#chatFloatBtn{
+
+  position:fixed;
+
+  bottom:20px;
+
+  right:20px;
+
+  width:55px;
+
+  height:55px;
+
+  border-radius:50%;
+
+  font-size:22px;
+
+  z-index:99999;
+
+}
+
+
+
+.chat-popup{
+
+  position:fixed;
+
+  bottom:90px;
+
+  right:20px;
+
+  width:320px;
+
+  height:420px;
 
   background:var(--panel);
 
   border:1px solid var(--border);
 
-  border-radius:16px;
+  border-radius:14px;
 
-  overflow:hidden;
+  display:flex;
 
-  z-index:999999;
+  flex-direction:column;
+
+  z-index:99999;
+
+}
+
+
+
+.chat-popup.hidden{
 
   display:none;
 
-  box-shadow:0 20px 40px rgba(0,0,0,.5);
-
 }
 
 
-.app-menu div{
-
-  padding:14px;
-
-  font-weight:800;
-
-  cursor:pointer;
-
-}
-
-
-.app-menu div:hover{
-
-  background:var(--blue);
-
-  color:white;
-
-}
-
-
-.app-menu.open{
-
-  display:block;
-
-}
-   
-/* =========================
-   INPUT / SEARCH
-========================= */
-
-#search{
-  width:100%;
-  padding:10px;
-  border:none;
-  outline:none;
-  background:var(--panel);
-  color:var(--text);
-  border-bottom:1px solid var(--border);
-}
-
-#search::placeholder{
-  color:var(--muted);
-}
 
 /* =========================
-   STATION LIST
+ FULLSCREEN
 ========================= */
 
-#list{
-  flex:1;
-  overflow-y:auto;
-  overflow-x:hidden;
-  background:var(--bg);
-  min-height:0;
-}
-
-.card{
-  padding:12px;
-  border-bottom:1px solid var(--border);
-  cursor:pointer;
-  transition:.15s;
-}
-
-.card:hover{
-  background:rgba(39,147,255,0.08);
-}
-
-.card b{
-  color:var(--text);
-}
-
-.card small{
-  color:var(--muted);
-}
-
-/* =========================
-   BUTTONS
-========================= */
-
-button{
-  background:linear-gradient(180deg,var(--blue),var(--blue-dark));
-  border:none;
-  color:white;
-  padding:8px 10px;
-  border-radius:10px;
-  font-weight:700;
-  cursor:pointer;
-  transition:.15s;
-}
-
-button:hover{ filter:brightness(1.1); }
-button:active{ transform:scale(0.97); }
-
-/* =========================
-   SCROLLBAR FIX
-========================= */
-
-*::-webkit-scrollbar{ width:10px; }
-*::-webkit-scrollbar-track{ background:var(--panel); }
-*::-webkit-scrollbar-thumb{
-  background:var(--border);
-  border-radius:999px;
-  border:2px solid var(--panel);
-}
-*::-webkit-scrollbar-thumb:hover{ background:var(--blue); }
-
-*{ scrollbar-width:thin; scrollbar-color:var(--border) var(--panel); }
-
-@media(max-width:900px){
-  #sidebar{ width:150px; }
-}
-
-/* =========================
-   💬 CHAT SYSTEM (ADDED)
-========================= */
-
-#chatFloatBtn{
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 55px;
-  height: 55px;
-  border-radius: 50%;
-  font-size: 22px;
-  z-index: 99999;
-  box-shadow: 0 10px 25px rgba(0,0,0,.4);
-  background: linear-gradient(180deg,var(--blue),var(--blue-dark));
-  border:none;
-  color:white;
-  cursor:pointer;
-}
-
-.chat-popup{
-  position: fixed;
-  bottom: 90px;
-  right: 20px;
-  width: 320px;
-  height: 420px;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  z-index: 99999;
-}
-
-.chat-popup.hidden{ display:none; }
-
-.chat-popup-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:10px;
-  font-weight:700;
-  border-bottom:1px solid var(--border);
-}
-
-.chat-popup-log{
-  flex:1;
-  overflow-y:auto;
-  padding:10px;
-  font-size:12px;
-}
-
-.chat-msg{
-  margin-bottom:6px;
-  padding:6px;
-  border-radius:8px;
-  background: rgba(255,255,255,0.04);
-}
-
-.chat-name{
-  color:var(--blue);
-  font-weight:700;
-}
-
-.chat-input{
-  display:flex;
-  gap:6px;
-  padding:8px;
-  border-top:1px solid var(--border);
-}
-
-.chat-input input{
-  flex:1;
-  padding:6px;
-  border-radius:8px;
-  border:1px solid var(--border);
-  background:var(--bg);
-  color:var(--text);
-}
 
 video:fullscreen{
+
   width:100vw;
+
   height:100vh;
+
   background:black;
+
   object-fit:contain;
+
 }
 
 
-.card{
-    display:flex;
-    align-items:center;
-    gap:12px;
+
+/* =========================
+ ANDROID FIX
+========================= */
+
+
+@media(max-width:600px){
+
+
+body{
+
+  height:100dvh;
+
 }
 
-.logoImg{
-    width:70px;
-    height:40px;
-    object-fit:contain;
-    border-radius:6px;
-    background:#111;
+
+
+#sidebar{
+
+  width:120px;
+
+}
+
+
+
+#bar{
+
+  padding:4px;
+
+  gap:3px;
+
+}
+
+
+
+#activeLogo{
+
+  width:32px;
+
+  height:28px;
+
+}
+
+
+
+#now{
+
+  font-size:11px;
+
+  line-height:13px;
+
+  max-width:calc(100vw - 60px);
+
+}
+
+
+
+#controls{
+
+  gap:2px;
+
+}
+
+
+
+#controls button{
+
+  width:30px;
+
+  height:30px;
+
+  font-size:13px;
+
+}
+
+
+
+#volumeSlider{
+
+  width:45px;
+
+}
+
+
+
+}
+
+
+
+/* =========================
+ SMALL ANDROID
+========================= */
+
+
+@media(max-width:360px){
+
+
+#sidebar{
+
+  width:100px;
+
+}
+
+
+
+#controls button{
+
+  width:27px;
+
+  height:27px;
+
+  font-size:12px;
+
+}
+
+
+
+#volumeSlider{
+
+  width:35px;
+
+}
+
+
+
+}
+
+
+/* SCROLLBAR */
+
+*::-webkit-scrollbar{
+
+  width:8px;
+
+}
+
+
+*::-webkit-scrollbar-thumb{
+
+  background:var(--border);
+
+  border-radius:20px;
+
 }
 
 
 button:disabled{
 
-    opacity:.4;
+  opacity:.4;
 
-    cursor:not-allowed;
-
-    filter:grayscale(100%);
+  filter:grayscale(100%);
 
 }
 
-body{
-    user-select:none;
-    -webkit-user-select:none;
-}
 
-@media(max-width:600px){
-
-#volumeSlider{
-    width:45px;
-}
-
-}
-   
 </style>
 </head>
 
