@@ -1069,37 +1069,33 @@ async function reportBadLink(){
     }
 
 
-    const confirmReport =
-    confirm(
-        "Report this stream as broken?\n\n"+
-        stream.name
-    );
-
-
-    if(!confirmReport) return;
+    console.log("REPORTING STREAM:");
+    console.log(stream);
 
 
     const result = await fetch(STREAM_API,{
-    method:"POST",
-    headers:{
-        "Content-Type":"application/json"
-    },
-    body:JSON.stringify({
-        action:"badLink",
-        url:stream.url,
-        name:stream.name
-    })
-});
+        method:"POST",
+        headers:{
+            "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+
+            action:"badLink",
+
+            url:stream.url,
+
+            name:stream.name
+
+        })
+    });
 
 
-const response = await result.json();
+    const text = await result.text();
 
-console.log("BAD LINK RESPONSE:",response);
+    console.log("BACKEND RAW RESPONSE:",text);
 
 
-    alert(
-        "Reported. Thank you."
-    );
+    alert(text);
 
 }
    
