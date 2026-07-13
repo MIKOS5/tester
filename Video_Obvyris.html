@@ -106,6 +106,46 @@ video{
 #bar button:first-of-type{
   margin-left:0;
 }
+
+#stationInfo{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+}
+
+
+#activeLogo{
+
+  width:55px;
+  height:40px;
+
+  object-fit:contain;
+
+  background:#111;
+
+  border-radius:8px;
+
+  border:1px solid var(--border);
+
+}
+
+
+#now{
+
+  font-size:16px;
+
+  font-weight:800;
+
+  max-width:400px;
+
+  overflow:hidden;
+
+  text-overflow:ellipsis;
+
+  white-space:nowrap;
+
+}
    
 /* =========================
    SIDEBAR
@@ -423,6 +463,31 @@ video:fullscreen{
     border-radius:6px;
     background:#111;
 }
+
+#volumeSlider{
+
+    width:120px;
+
+    cursor:pointer;
+
+    accent-color:var(--blue);
+
+}
+
+button:disabled{
+
+    opacity:.4;
+
+    cursor:not-allowed;
+
+    filter:grayscale(100%);
+
+}
+
+body{
+    user-select:none;
+    -webkit-user-select:none;
+}
    
 </style>
 </head>
@@ -465,30 +530,71 @@ video:fullscreen{
 </div>
 
   <input id="search" placeholder="Search..." oninput="applyFilters()"/>
-  <div id="groupList"></div>
+  <div id="sourceList">
+
+<div class="group" onclick="load()">
+📺 Live Streams
+</div>
+
+<div class="group" onclick="loadStation()">
+🎬 Video Obvyris TV
+</div>
+
+</div>
+
+<div id="groupList"></div>
+
+<div id="countryList"></div>
+
+<div id="cityList"></div>
+
 </div>
 
 <!-- MAIN -->
 <div id="main">
 
   <video 
- id="video" 
- controls 
+ id="video"
  playsinline
- autoplay
- muted>
+ autoplay>
 </video>
 
 <div id="bar">
 
-  <div id="now">Loading...</div>
+  <div id="stationInfo">
+
+      <img 
+      id="activeLogo"
+      src="navicon.png"
+      onerror="this.src='navicon.png'"
+      >
+
+      <div id="now">
+        Loading...
+      </div>
+
+  </div>
+
 
   <div id="controls">
     <button onclick="prev()">⏮</button>
-    <button onclick="toggle()">⏯</button>
+    <button id="playBtn" onclick="toggle()">⏯</button>
     <button onclick="next()">⏭</button>
+
+    <button id="muteBtn" onclick="toggleMute()">🔇</button>
+
+    <input
+        id="volumeSlider"
+        type="range"
+        min="0"
+        max="100"
+        value="100"
+        oninput="setVolume(this.value)"
+    >
+
     <button onclick="fullscreenPlayer()">⛶</button>
-  </div>
+    <button onclick="reportBadLink()">🚩</button>
+</div>
 
 </div>
 
@@ -516,10 +622,26 @@ video:fullscreen{
 
 <script>
 
-const PLAYLIST="https://iptv-org.github.io/iptv/index.m3u";
-const PLUTO_API="https://script.google.com/macros/s/AKfycbynB1gx8xRVH4cNtulKZv3Kr5CUyV7rATcZgyCJ73JStoxOw0meB6vqCV3AkIAUMkqZ/exec";
+const STREAM_API =
+"https://script.google.com/macros/s/AKfycbynB1gx8xRVH4cNtulKZv3Kr5CUyV7rATcZgyCJ73JStoxOw0meB6vqCV3AkIAUMkqZ/exec";
 
-let list=[],filtered=[],index=0;
+const STATION_API =
+"https://script.google.com/macros/s/AKfycbyasf7oke6ZAhjgD-j2HGcR9bBysso2M9RuUuOgXZUQ7UkQ6CAOMV4PfGM3ViLUz6bygg/exec";
+
+const video = document.getElementById("video");
+video.volume = 1;
+document.getElementById("volumeSlider").value = 100;
+   
+let list=[];
+let filtered=[];
+let index=0;
+
+let currentSource="";
+
+let currentStationURL = "";
+let stationWatcher = null;
+let stationMode = false;
+let streamList=[];
 let renderIndex=0;
 const CHUNK=120;
 
@@ -531,7 +653,11 @@ let chatData=[];
 
 /* ROOM ID (video stream based) */
 function getRoom(){
-  return filtered?.[index]?.url || "global-video";
+
+  const stream = filtered[index];
+
+  return stream?.url || "global-video";
+
 }
 
 /* TOGGLE CHAT */
@@ -625,167 +751,301 @@ setInterval(()=>{
 
 async function load(){
 
-    try{
-
-        const res = await fetch(STREAM_API);
-
-        const data = await res.json();
+    document.getElementById("list").innerHTML =
+    `<div class="card">Connecting to Video API...</div>`;
 
 
-        if(!data.success){
+    try {
 
-            console.error("Stream API failed");
-            return;
+        console.log("API:", STREAM_API);
 
+
+        const response = await fetch(STREAM_API, {
+            method:"GET",
+            redirect:"follow"
+        });
+
+
+        console.log("HTTP STATUS:", response.status);
+
+
+        const text = await response.text();
+
+
+        console.log("RAW API:", text.substring(0,500));
+
+
+        const data = JSON.parse(text);
+
+
+        console.log("JSON DATA:", data);
+
+
+
+        if(!data.streams){
+            throw new Error("No streams array found");
         }
 
 
-        list = data.streams
-.filter(s=>s.status==="ONLINE")
-.map(s=>({
 
-            url:s.url,
+        streamList = data.streams
+        .filter(s=>{
 
-            name:s.name,
+            return (
+                s.status &&
+                s.status.toUpperCase()==="ONLINE" &&
+                s.url
+            );
 
-            group:s.group || "Other",
+        })
+        .map(s=>({
 
-            logo:s.logo || "",
+    name:String(s.name || "Unknown"),
 
-            country:s.country || "",
+    group:String(s.group || "Other"),
 
-            language:s.language || "",
+    country:String(s.country || "Unknown"),
 
-            status:s.status || ""
+    city:String(s.language || "Unknown"),
 
-        }));
+    url:String(s.url || ""),
+
+    logo:String(s.logo || "")
+
+}))
+.filter(s=>s.url);
+
+
+
+        streamList.sort((a,b)=>
+    String(a.name || "")
+    .localeCompare(
+        String(b.name || "")
+    )
+);
+
+
+
+        list=[...streamList];
 
 
         console.log(
-            "Loaded streams:",
+            "ONLINE CHANNELS:",
             list.length
         );
 
 
         buildGroups();
 
-        applyFilters();
+buildCountries();
+
+buildCities();
+
+filtered=[...list];
+
+render(true);
 
 
-    }catch(e){
+
+        document.getElementById("now").innerText =
+        list.length+" Channels Loaded";
+
+
+    }
+    catch(err){
 
         console.error(
-            "API LOAD ERROR:",
-            e
+            "VIDEO API ERROR:",
+            err
         );
+
+
+        document.getElementById("list").innerHTML =
+        `
+        <div class="card">
+        ❌ API ERROR<br>
+        ${err.message}
+        </div>
+        `;
 
     }
 
 }
+
+
+function setVolume(value){
+
+    video.volume = value / 100;
+
+    if(video.volume === 0){
+
+        video.muted = true;
+
+    }else{
+
+        video.muted = false;
+
+    }
+
+    document.getElementById("muteBtn").innerText =
+        video.muted ? "🔇" : "🔊";
+
+}
    
-async function filterWorkingStreams(channels){
+function buildCities(){
 
-  const good=[];
-  const max=50;
+    const citySet = new Set();
 
-  for(let i=0;i<channels.length;i+=max){
+    list.forEach(s=>{
 
-    const batch=channels.slice(i,i+max);
+        if(s.city && s.city !== "Unknown"){
 
-    const results=await Promise.all(
-      batch.map(async s=>{
+            citySet.add(s.city.trim());
 
-        return new Promise(resolve=>{
+        }
 
-          let test=document.createElement("video");
-
-          let done=false;
-
-          let timer=setTimeout(()=>{
-            if(!done){
-              done=true;
-              resolve(null);
-            }
-          },5000);
-
-
-          test.src=s.url;
-          test.muted=true;
-
-
-          test.onloadedmetadata=()=>{
-            if(!done){
-              done=true;
-              clearTimeout(timer);
-              resolve(s);
-            }
-          };
-
-
-          test.onerror=()=>{
-            if(!done){
-              done=true;
-              clearTimeout(timer);
-              resolve(null);
-            }
-          };
-
-
-        });
-
-      })
-    );
-
-
-    results.forEach(x=>{
-      if(x) good.push(x);
     });
 
 
-    console.log(
-      "Checked:",
-      Math.min(i+max,channels.length),
-      "/",
-      channels.length,
-      "Working:",
-      good.length
-    );
-
-  }
+    const cities=[...citySet].sort();
 
 
-  return good;
-}
+    const box=document.getElementById("cityList");
+
+    box.innerHTML="";
 
 
-function buildGroups(){
-  const set=new Set();
-  list.forEach(s=>set.add(s.group));
+    const all=document.createElement("div");
 
-  const box=document.getElementById("groupList");
-  box.innerHTML="";
+    all.className="group";
+    all.textContent="🏙️ All Cities";
 
-  const all=document.createElement("div");
-  all.className="group";
-  all.textContent="📺 All Channels";
-  all.onclick=()=>{
-    filtered=list;
-    render(true);
-  };
-  box.appendChild(all);
+    all.onclick=()=>{
 
-  [...set].sort().forEach(g=>{
-    const d=document.createElement("div");
-    d.className="group";
-    d.textContent=g;
+        filtered=[...list];
+        render(true);
 
-    d.onclick=()=>{
-      filtered=list.filter(x=>x.group===g);
-      render(true);
     };
 
-    box.appendChild(d);
-  });
+    box.appendChild(all);
+
+
+
+    cities.forEach(city=>{
+
+        const d=document.createElement("div");
+
+        d.className="group";
+        d.textContent="🏙️ "+city;
+
+
+        d.onclick=()=>{
+
+            filtered=list.filter(s=>
+                s.city === city
+            );
+
+            render(true);
+
+        };
+
+
+        box.appendChild(d);
+
+    });
+
+}
+
+function toggleMute(){
+
+    const video = document.getElementById("video");
+    const btn = document.getElementById("muteBtn");
+
+    video.muted = !video.muted;
+
+    btn.innerText = video.muted ? "🔇" : "🔊";
+
+}
+   
+function buildGroups(){
+
+    const groupSet = new Set();
+
+    list.forEach(s=>{
+
+        s.group
+        .split(";")
+        .forEach(g=>{
+            groupSet.add(g.trim());
+        });
+
+    });
+
+
+    const groups=[...groupSet].sort((a,b)=>
+    String(a).localeCompare(String(b))
+);
+
+
+    const box=document.getElementById("groupList");
+
+    box.innerHTML="";
+
+
+    const all=document.createElement("div");
+
+    all.className="group";
+
+    all.textContent="📺 All Channels";
+
+    all.onclick=()=>{
+
+        filtered=[...list];
+
+        render(true);
+
+    };
+
+    box.appendChild(all);
+
+
+
+    groups.forEach(g=>{
+
+        const d=document.createElement("div");
+
+        d.className="group";
+
+        d.textContent="📂 "+g;
+
+
+        d.onclick=()=>{
+
+
+            filtered=list.filter(s=>
+
+                s.group
+                .split(";")
+                .map(x=>x.trim())
+                .includes(g)
+
+            );
+
+
+            filtered.sort((a,b)=>
+                a.name.localeCompare(b.name)
+            );
+
+
+            render(true);
+
+        };
+
+
+        box.appendChild(d);
+
+    });
+
 }
 
 function toggleAppMenu(){
@@ -793,6 +1053,146 @@ function toggleAppMenu(){
   const menu=document.getElementById("appMenu");
 
   menu.classList.toggle("open");
+
+}
+
+async function loadStation(){
+
+    try{
+
+        console.log("Loading Video Obvyris TV");
+
+        stationMode = true;
+
+
+        // START STATION WATCHER
+        if(stationWatcher){
+            clearInterval(stationWatcher);
+        }
+
+        stationWatcher = setInterval(
+            checkStationUpdate,
+            5000
+        );
+
+
+        video.controls = false;
+
+        document.getElementById("playBtn").disabled = true;
+
+
+        // destroy live HLS
+        if(window.hls){
+
+            window.hls.destroy();
+            window.hls = null;
+
+        }
+
+
+        const response = await fetch(
+            STATION_API + "?action=now&t=" + Date.now()
+        );
+
+
+        const data = await response.json();
+
+
+        console.log("STATION DATA:", data);
+
+
+
+        if(!data.url){
+
+            throw new Error(
+                "No video URL returned"
+            );
+
+        }
+
+
+
+        // clear previous handlers
+        video.onloadedmetadata = null;
+
+
+        video.pause();
+
+        video.removeAttribute("src");
+
+        video.load();
+
+
+
+        currentStationURL = data.url;
+
+        video.src = data.url;
+
+
+
+        // station mode always starts muted
+        video.muted = true;
+
+        document.getElementById("muteBtn").innerText="🔇";
+
+
+
+        video.onloadedmetadata = ()=>{
+
+
+            if(data.seek){
+
+                video.currentTime =
+                Number(data.seek);
+
+            }
+
+
+            video.play()
+            .catch(err=>{
+                console.log(
+                    "Autoplay blocked",
+                    err
+                );
+            });
+
+
+        };
+
+
+
+        document.getElementById("now").innerText =
+        data.program || "Video Obvyris TV";
+
+
+        // Set Video Obvyris TV logo
+        const activeLogo = document.getElementById("activeLogo");
+
+        activeLogo.src =
+        "https://mikos5.github.io/tester/navicon.png";
+
+
+        activeLogo.onerror = function(){
+
+            this.src =
+            "https://mikos5.github.io/tester/navicon.png";
+
+        };
+
+
+    }
+    catch(err){
+
+        console.error(
+            "Station Load Error:",
+            err
+        );
+
+
+        document.getElementById("now").innerText =
+        "Station Error";
+
+    }
 
 }
 
@@ -820,9 +1220,33 @@ document.addEventListener("click",function(e){
 });
    
 function applyFilters(){
-  const q=document.getElementById("search").value.toLowerCase();
-  filtered=list.filter(s=>s.name.toLowerCase().includes(q));
+
+  const q=document
+  .getElementById("search")
+  .value
+  .toLowerCase();
+
+
+  filtered=list.filter(s=>
+
+    s.name.toLowerCase().includes(q) ||
+
+    s.group.toLowerCase().includes(q) ||
+
+    s.country.toLowerCase().includes(q) ||
+
+    s.city.toLowerCase().includes(q)
+
+);
+
+
+  filtered.sort((a,b)=>
+      a.name.localeCompare(b.name)
+  );
+
+
   render(true);
+
 }
 
 function fullscreenPlayer(){
@@ -857,13 +1281,21 @@ function render(reset){
     el.innerHTML+=`
 <div class="card" onclick="play(${real})">
 
-    ${s.logo ? `<img src="${s.logo}" class="logoImg">` : ""}
+    <img 
+    src="${s.logo || 'navicon.png'}"
+    class="logoImg"
+    onerror="this.src='navicon.png'"
+    >
 
     <div>
 
         <b>${s.name}</b><br>
 
-        <small>${s.group}</small>
+        <small>
+📂 ${s.group}<br>
+🌎 ${s.country}<br>
+🏙️ ${s.city}
+</small>
 
     </div>
 
@@ -961,16 +1393,70 @@ function playMedia(url){
 }
 
 function play(i){
-  index=i;
-  const s=filtered[i];
-  if(!s) return;
 
-  document.getElementById("now").innerText=s.name;
-  playMedia(s.url);
+    // Exit station mode
+    stationMode=false;
 
-  if(chatOpen) loadChat();
+    // Stop Video Obvyris TV watcher
+    if(stationWatcher){
+        clearInterval(stationWatcher);
+        stationWatcher=null;
+    }
+
+    currentStationURL = "";
+
+    video.controls=true;
+
+    document.getElementById("playBtn").disabled=false;
+
+    index = i;
+
+    const s = filtered[i];
+
+    if(!s) return;
+
+
+    // Update station name
+    document.getElementById("now").innerText = s.name;
+
+
+    // Update station logo
+    const activeLogo = document.getElementById("activeLogo");
+
+    if(s.logo && s.logo.trim() !== ""){
+
+        activeLogo.src = s.logo;
+
+    }else{
+
+        activeLogo.src =
+        "https://mikos5.github.io/tester/navicon.png";
+
+    }
+
+
+    // Fallback logo
+    activeLogo.onerror = function(){
+
+        this.src =
+        "https://mikos5.github.io/tester/navicon.png";
+
+    };
+
+
+    // Start live stream
+    playMedia(s.url);
+
+
+    // Refresh chat for new station
+    if(chatOpen){
+
+        loadChat();
+
+    }
+
 }
-
+   
 function next(){
   index=(index+1)%filtered.length;
   play(index);
@@ -981,17 +1467,285 @@ function prev(){
   play(index);
 }
 
+function buildCountries(){
+
+    const countrySet = new Set();
+
+    list.forEach(s=>{
+
+        if(s.country && s.country !== "Unknown"){
+
+            countrySet.add(
+                s.country.trim()
+            );
+
+        }
+
+    });
+
+
+    const countries=[...countrySet].sort((a,b)=>
+        a.localeCompare(b)
+    );
+
+
+    const box=document.getElementById("countryList");
+
+    box.innerHTML="";
+
+
+    const all=document.createElement("div");
+
+    all.className="group";
+
+    all.textContent="🌎 All Countries";
+
+    all.onclick=()=>{
+
+        filtered=[...list];
+
+        render(true);
+
+    };
+
+    box.appendChild(all);
+
+
+
+    countries.forEach(country=>{
+
+        const d=document.createElement("div");
+
+        d.className="group";
+
+        d.textContent="🌎 "+country;
+
+
+        d.onclick=()=>{
+
+
+            filtered=list.filter(s=>
+
+                s.country === country
+
+            );
+
+
+            filtered.sort((a,b)=>
+                a.name.localeCompare(b.name)
+            );
+
+
+            render(true);
+
+        };
+
+
+        box.appendChild(d);
+
+
+    });
+
+
+}
+   
 function toggle(){
-  const v=document.getElementById("video");
-  v.paused?v.play():v.pause();
+
+    // Live TV stations cannot be paused
+    if(stationMode){
+        return;
+    }
+
+    if(video.paused){
+
+        video.play();
+
+    }else{
+
+        video.pause();
+
+    }
+
 }
 
+async function reportBadLink(){
+
+    const stream = filtered[index] || list[index];
+
+    console.log("REPORT CLICKED", stream);
+
+    if(!stream){
+        alert("No channel selected");
+        return;
+    }
+
+
+    if(!confirm(
+        "Report this stream as broken?\n\n" +
+        stream.name
+    )){
+        return;
+    }
+
+
+    try{
+
+        const result = await fetch(STREAM_API,{
+    method:"POST",
+    body:JSON.stringify({
+        action:"badLink",
+        url:stream.url,
+        name:stream.name
+    })
+});
+
+
+        const text = await result.text();
+
+        console.log(
+            "BAD LINK RAW RESPONSE:",
+            text
+        );
+
+
+        alert("Reported. Thank you.");
+
+    }
+    catch(err){
+
+        console.error(
+            "REPORT ERROR:",
+            err
+        );
+
+        alert(
+            "Report failed: " + err.message
+        );
+
+    }
+
+}
+
+async function checkStationUpdate(){
+
+    if(!stationMode) return;
+
+    try{
+
+        const response = await fetch(
+            STATION_API + "?action=now&t=" + Date.now()
+        );
+
+        const data = await response.json();
+
+
+        if(!data.url) return;
+
+
+        // Backend moved to next video
+        if(data.url !== currentStationURL){
+
+            console.log(
+                "NEW VIDEO DETECTED",
+                data.url
+            );
+
+
+            currentStationURL = data.url;
+
+
+            video.pause();
+
+            video.src = data.url;
+
+            video.load();
+
+
+            video.onloadedmetadata = ()=>{
+
+                if(data.seek){
+
+                    video.currentTime =
+                    Number(data.seek);
+
+                }
+
+
+                video.play()
+                .catch(e=>console.log(e));
+
+            };
+
+
+            document.getElementById("now").innerText =
+            data.program || "Video Obvyris TV";
+
+        }
+
+
+    }
+    catch(err){
+
+        console.log(
+            "Station watcher error:",
+            err
+        );
+
+    }
+
+}
+   
 function goHome(){
   window.location.href = "./index99.html";
 }
-   
+
+
+// Anti DevTools detection
+setInterval(()=>{
+
+    if(
+      window.outerWidth - window.innerWidth > 160 ||
+      window.outerHeight - window.innerHeight > 160
+    ){
+
+        document.body.innerHTML =
+        "<h2 style='color:white;background:black;text-align:center'>Developer tools detected</h2>";
+
+    }
+
+},1000);
+
+
 load();
 
+// Disable right click
+document.addEventListener("contextmenu", function(e){
+    e.preventDefault();
+});
+
+document.addEventListener("keydown", function(e){
+
+    // F12
+    if(e.key === "F12"){
+        e.preventDefault();
+    }
+
+    // Ctrl + Shift + I (DevTools)
+    if(
+        e.ctrlKey &&
+        e.shiftKey &&
+        (e.key === "I" || e.key === "J" || e.key === "C")
+    ){
+        e.preventDefault();
+    }
+
+    // Ctrl + U (view source)
+    if(e.ctrlKey && e.key === "u"){
+        e.preventDefault();
+    }
+
+});
+   
 </script>
 </body>
 </html>
