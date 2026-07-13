@@ -473,6 +473,17 @@ video:fullscreen{
     accent-color:var(--blue);
 
 }
+
+button:disabled{
+
+    opacity:.4;
+
+    cursor:not-allowed;
+
+    filter:grayscale(100%);
+
+}
+
    
 </style>
 </head>
@@ -565,7 +576,7 @@ video:fullscreen{
 
   <div id="controls">
     <button onclick="prev()">⏮</button>
-    <button onclick="toggle()">⏯</button>
+    <button id="playBtn" onclick="toggle()">⏯</button>
     <button onclick="next()">⏭</button>
 
     <button id="muteBtn" onclick="toggleMute()">🔇</button>
@@ -625,6 +636,7 @@ let index=0;
 
 let currentSource="";
 
+let stationMode = false;
 let streamList=[];
 let renderIndex=0;
 const CHUNK=120;
@@ -1044,8 +1056,14 @@ async function loadStation(){
 
     try{
 
+        // Station mode
+        stationMode = true;
+
         video.controls = false;
 
+        document.getElementById("playBtn").disabled = true;
+
+        // Destroy any HLS stream
         if(window.hls){
 
             window.hls.destroy();
@@ -1063,11 +1081,16 @@ async function loadStation(){
 
         video.src = data.url;
 
+        // Start muted (autoplay friendly)
+        video.muted = true;
+
+        document.getElementById("muteBtn").innerText = "🔇";
+
         video.onloadedmetadata = () => {
 
             video.currentTime = data.seek;
 
-            video.play();
+            video.play().catch(console.error);
 
         };
 
@@ -1077,7 +1100,7 @@ async function loadStation(){
     }
     catch(err){
 
-        console.error(err);
+        console.error("Station Error:", err);
 
     }
 
@@ -1280,46 +1303,49 @@ function playMedia(url){
 
 function play(i){
 
-  video.controls = true;
-   
-  index=i;
+    // Exit station mode
+    stationMode = false;
 
-  const s=filtered[i];
+    video.controls = true;
 
-  if(!s) return;
+    document.getElementById("playBtn").disabled = false;
 
+    index = i;
 
-  // Update station name
-  document.getElementById("now").innerText = s.name;
+    const s = filtered[i];
 
+    if(!s) return;
 
-  // Update station logo from H column (Logo)
-  const activeLogo = document.getElementById("activeLogo");
+    // Update station name
+    document.getElementById("now").innerText = s.name;
 
-  if(s.logo && s.logo.trim() !== ""){
+    // Update station logo
+    const activeLogo = document.getElementById("activeLogo");
 
-      activeLogo.src = s.logo;
+    if(s.logo && s.logo.trim() !== ""){
 
-  }else{
+        activeLogo.src = s.logo;
 
-      activeLogo.src = "https://mikos5.github.io/tester/navicon.png";
+    }else{
 
-  }
+        activeLogo.src = "https://mikos5.github.io/tester/navicon.png";
 
+    }
 
-  // fallback if image fails
-  activeLogo.onerror=function(){
+    // Fallback logo
+    activeLogo.onerror = function(){
 
-      this.src="https://mikos5.github.io/tester/navicon.png";
+        this.src = "https://mikos5.github.io/tester/navicon.png";
 
-  };
+    };
 
+    // Start stream
+    playMedia(s.url);
 
-  // Start stream
-  playMedia(s.url);
-
-
-  if(chatOpen) loadChat();
+    // Refresh chat
+    if(chatOpen){
+        loadChat();
+    }
 
 }
 
@@ -1416,8 +1442,22 @@ function buildCountries(){
 }
    
 function toggle(){
-  const v=document.getElementById("video");
-  v.paused?v.play():v.pause();
+
+    // Live TV stations cannot be paused
+    if(stationMode){
+        return;
+    }
+
+    if(video.paused){
+
+        video.play();
+
+    }else{
+
+        video.pause();
+
+    }
+
 }
 
 async function reportBadLink(){
