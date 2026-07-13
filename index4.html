@@ -643,17 +643,53 @@ setInterval(()=>{
 
 async function load(){
 
-    console.log("Loading Video Obvyris API...");
-
-    const data = await fetch(STREAM_API)
-        .then(r=>r.json());
+    document.getElementById("list").innerHTML =
+    `<div class="card">Connecting to Video API...</div>`;
 
 
-    streamList = data.streams
-        .filter(s => 
-            s.status &&
-            s.status.toUpperCase() === "ONLINE"
-        )
+    try {
+
+        console.log("API:", STREAM_API);
+
+
+        const response = await fetch(STREAM_API, {
+            method:"GET",
+            redirect:"follow"
+        });
+
+
+        console.log("HTTP STATUS:", response.status);
+
+
+        const text = await response.text();
+
+
+        console.log("RAW API:", text.substring(0,500));
+
+
+        const data = JSON.parse(text);
+
+
+        console.log("JSON DATA:", data);
+
+
+
+        if(!data.streams){
+            throw new Error("No streams array found");
+        }
+
+
+
+        streamList = data.streams
+        .filter(s=>{
+
+            return (
+                s.status &&
+                s.status.toUpperCase()==="ONLINE" &&
+                s.url
+            );
+
+        })
         .map(s=>({
 
             name:s.name || "Unknown",
@@ -667,26 +703,52 @@ async function load(){
         }));
 
 
-    // A-Z CHANNEL SORT
-    streamList.sort((a,b)=>
-        a.name.localeCompare(b.name)
-    );
+
+        streamList.sort((a,b)=>
+            a.name.localeCompare(b.name)
+        );
 
 
-    list = streamList;
 
-    currentSource="Google API";
-
-
-    buildGroups();
-
-    applyFilters();
+        list=[...streamList];
 
 
-    console.log(
-        "Loaded streams:",
-        list.length
-    );
+        console.log(
+            "ONLINE CHANNELS:",
+            list.length
+        );
+
+
+        buildGroups();
+
+        filtered=[...list];
+
+        render(true);
+
+
+
+        document.getElementById("now").innerText =
+        list.length+" Channels Loaded";
+
+
+    }
+    catch(err){
+
+        console.error(
+            "VIDEO API ERROR:",
+            err
+        );
+
+
+        document.getElementById("list").innerHTML =
+        `
+        <div class="card">
+        ❌ API ERROR<br>
+        ${err.message}
+        </div>
+        `;
+
+    }
 
 }
 
