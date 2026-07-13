@@ -766,7 +766,7 @@ async function load(){
 
     country:String(s.country || "Unknown"),
 
-city:String(s.city || "Unknown"),
+    city:String(s.language || "Unknown"),
 
     url:String(s.url || ""),
 
@@ -799,6 +799,8 @@ city:String(s.city || "Unknown"),
 
 buildCountries();
 
+buildCities();
+
 filtered=[...list];
 
 render(true);
@@ -830,6 +832,70 @@ render(true);
 
 }
 
+function buildCities(){
+
+    const citySet = new Set();
+
+    list.forEach(s=>{
+
+        if(s.city && s.city !== "Unknown"){
+
+            citySet.add(s.city.trim());
+
+        }
+
+    });
+
+
+    const cities=[...citySet].sort();
+
+
+    const box=document.getElementById("cityList");
+
+    box.innerHTML="";
+
+
+    const all=document.createElement("div");
+
+    all.className="group";
+    all.textContent="🏙️ All Cities";
+
+    all.onclick=()=>{
+
+        filtered=[...list];
+        render(true);
+
+    };
+
+    box.appendChild(all);
+
+
+
+    cities.forEach(city=>{
+
+        const d=document.createElement("div");
+
+        d.className="group";
+        d.textContent="🏙️ "+city;
+
+
+        d.onclick=()=>{
+
+            filtered=list.filter(s=>
+                s.city === city
+            );
+
+            render(true);
+
+        };
+
+
+        box.appendChild(d);
+
+    });
+
+}
+   
 function buildGroups(){
 
     const groupSet = new Set();
