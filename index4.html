@@ -1095,23 +1095,33 @@ function play(i){
   if(!s) return;
 
 
-  // station name
-  document.getElementById("now").innerText=s.name;
+  // Update station name
+  document.getElementById("now").innerText = s.name;
 
 
-  // station logo
-  const logo=document.getElementById("activeLogo");
+  // Update station logo from H column (Logo)
+  const activeLogo = document.getElementById("activeLogo");
 
-  logo.src = s.logo || "navicon.png";
+  if(s.logo && s.logo.trim() !== ""){
+
+      activeLogo.src = s.logo;
+
+  }else{
+
+      activeLogo.src = "https://mikos5.github.io/tester/navicon.png";
+
+  }
 
 
-  logo.onerror=function(){
+  // fallback if image fails
+  activeLogo.onerror=function(){
 
-      this.src="navicon.png";
+      this.src="https://mikos5.github.io/tester/navicon.png";
 
   };
 
 
+  // Start stream
   playMedia(s.url);
 
 
