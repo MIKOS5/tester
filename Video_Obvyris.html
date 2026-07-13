@@ -179,55 +179,6 @@ video{
 
 
 /* Android phones */
-@media(max-width:600px){
-
-  #bar{
-    padding:5px;
-    gap:4px;
-  }
-
-  #stationInfo{
-    width:100%;
-    gap:6px;
-  }
-
-  #activeLogo{
-    width:35px;
-    height:28px;
-    flex-shrink:0;
-  }
-
-  #now{
-    font-size:11px;
-    line-height:14px;
-    max-width:calc(100vw - 80px);
-
-    white-space:normal;
-    overflow:hidden;
-    text-overflow:clip;
-
-    display:-webkit-box;
-    -webkit-line-clamp:2;
-    -webkit-box-orient:vertical;
-  }
-
-  #controls{
-    gap:3px;
-  }
-
-
-  #controls button{
-    width:34px;
-    height:34px;
-    font-size:14px;
-  }
-
-
-  #volumeSlider{
-    width:55px;
-  }
-
-}
 
 /* keeps buttons together */
 #bar button:first-of-type{
@@ -613,7 +564,46 @@ body{
 }
 
 }
-   
+
+#controls{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+  width:100%;
+}
+
+
+.controlRow{
+  display:flex;
+  justify-content:center;
+  gap:8px;
+}
+
+
+.volumeRow{
+  display:flex;
+  justify-content:center;
+  width:100%;
+}
+
+
+#volumeSlider{
+  width:160px;
+}
+
+
+@media(max-width:600px){
+
+.controlRow button{
+
+  width:38px;
+  height:38px;
+  font-size:16px;
+
+}
+
+}
 </style>
 </head>
 
@@ -703,14 +693,14 @@ body{
 
   <div id="controls">
 
+<div class="controlRow top">
 <button onclick="prev()">⏮</button>
-
 <button id="playBtn" onclick="toggle()">⏯</button>
-
 <button onclick="next()">⏭</button>
+</div>
 
-<button id="muteBtn" onclick="toggleMute()">🔇</button>
 
+<div class="volumeRow">
 <input
  id="volumeSlider"
  type="range"
@@ -719,11 +709,18 @@ body{
  value="100"
  oninput="setVolume(this.value)"
 >
+</div>
+
+
+<div class="controlRow bottom">
+
+<button id="muteBtn" onclick="toggleMute()">🔇</button>
 
 <button onclick="fullscreenPlayer()">⛶</button>
 
 <button onclick="reportBadLink()">🚩</button>
 
+</div>
 
 </div>
 
