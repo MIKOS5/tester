@@ -463,6 +463,16 @@ video:fullscreen{
     border-radius:6px;
     background:#111;
 }
+
+#volumeSlider{
+
+    width:120px;
+
+    cursor:pointer;
+
+    accent-color:var(--blue);
+
+}
    
 </style>
 </head>
@@ -557,9 +567,21 @@ video:fullscreen{
     <button onclick="prev()">⏮</button>
     <button onclick="toggle()">⏯</button>
     <button onclick="next()">⏭</button>
+
+    <button id="muteBtn" onclick="toggleMute()">🔇</button>
+
+    <input
+        id="volumeSlider"
+        type="range"
+        min="0"
+        max="100"
+        value="100"
+        oninput="setVolume(this.value)"
+    >
+
     <button onclick="fullscreenPlayer()">⛶</button>
     <button onclick="reportBadLink()">🚩</button>
-  </div>
+</div>
 
 </div>
 
@@ -594,6 +616,8 @@ const STATION_API =
 "https://script.google.com/macros/s/AKfycbyasf7oke6ZAhjgD-j2HGcR9bBysso2M9RuUuOgXZUQ7UkQ6CAOMV4PfGM3ViLUz6bygg/exec";
 
 const video = document.getElementById("video");
+video.volume = 1;
+document.getElementById("volumeSlider").value = 100;
    
 let list=[];
 let filtered=[];
@@ -832,6 +856,25 @@ render(true);
 
 }
 
+
+function setVolume(value){
+
+    video.volume = value / 100;
+
+    if(video.volume === 0){
+
+        video.muted = true;
+
+    }else{
+
+        video.muted = false;
+
+    }
+
+    document.getElementById("muteBtn").innerText =
+        video.muted ? "🔇" : "🔊";
+
+}
    
 function buildCities(){
 
@@ -894,6 +937,17 @@ function buildCities(){
         box.appendChild(d);
 
     });
+
+}
+
+function toggleMute(){
+
+    const video = document.getElementById("video");
+    const btn = document.getElementById("muteBtn");
+
+    video.muted = !video.muted;
+
+    btn.innerText = video.muted ? "🔇" : "🔊";
 
 }
    
