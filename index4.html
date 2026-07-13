@@ -752,6 +752,8 @@ async function load(){
 
     country:String(s.country || "Unknown"),
 
+language:String(s.language || "Unknown"),
+
     url:String(s.url || ""),
 
     logo:String(s.logo || "")
@@ -932,8 +934,7 @@ function applyFilters(){
   .toLowerCase();
 
 
-  filtered=list
-.filter(s=>
+  filtered=list.filter(s=>
 
     s.name.toLowerCase().includes(q) ||
 
@@ -941,11 +942,10 @@ function applyFilters(){
 
     s.country.toLowerCase().includes(q)
 
-)
-.sort((a,b)=>
-    a.name.localeCompare(b.name)
-);
-  .sort((a,b)=>
+  );
+
+
+  filtered.sort((a,b)=>
       a.name.localeCompare(b.name)
   );
 
@@ -998,7 +998,8 @@ function render(reset){
 
         <small>
 📂 ${s.group}<br>
-🌎 ${s.country}
+🌎 ${s.country}<br>
+🗣 ${s.language}
 </small>
 
     </div>
