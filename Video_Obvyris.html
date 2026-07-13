@@ -625,33 +625,61 @@ setInterval(()=>{
 
 async function load(){
 
-    const [iptvText,pluto] = await Promise.all([
+    try{
 
-        fetch(PLAYLIST).then(r=>r.text()),
+        const res = await fetch(STREAM_API);
 
-        loadPluto()
+        const data = await res.json();
 
-    ]);
 
-    const iptv = parseM3U(iptvText);
+        if(!data.success){
 
-    list=[
+            console.error("Stream API failed");
+            return;
 
-        ...iptv,
+        }
 
-        ...pluto
 
-    ];
+        list = data.streams
+.filter(s=>s.status==="ONLINE")
+.map(s=>({
 
-    buildGroups();
-    applyFilters();
+            url:s.url,
 
-}
+            name:s.name,
 
-async function loadPluto(){
+            group:s.group || "Other",
 
-    return await fetch(PLUTO_API)
-        .then(r=>r.json());
+            logo:s.logo || "",
+
+            country:s.country || "",
+
+            language:s.language || "",
+
+            status:s.status || ""
+
+        }));
+
+
+        console.log(
+            "Loaded streams:",
+            list.length
+        );
+
+
+        buildGroups();
+
+        applyFilters();
+
+
+    }catch(e){
+
+        console.error(
+            "API LOAD ERROR:",
+            e
+        );
+
+    }
 
 }
    
@@ -729,25 +757,6 @@ async function filterWorkingStreams(channels){
   return good;
 }
 
-function parseM3U(t){
-  const lines=t.split("\n");
-  let out=[],item=null;
-
-  for(let l of lines){
-    if(l.startsWith("#EXTINF")){
-      item={
-        name:l.split(",").pop(),
-        group:(l.match(/group-title="([^"]+)"/)||[])[1]||"Other"
-      };
-    }
-    else if(item && l.startsWith("http")){
-      item.url=l.trim();
-      out.push(item);
-      item=null;
-    }
-  }
-  return out;
-}
 
 function buildGroups(){
   const set=new Set();
