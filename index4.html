@@ -1061,7 +1061,9 @@ function toggle(){
 
 async function reportBadLink(){
 
-    const stream = filtered[index];
+    const stream = filtered[index] || list[index];
+
+    console.log("REPORT CLICKED", stream);
 
     if(!stream){
         alert("No channel selected");
@@ -1069,35 +1071,55 @@ async function reportBadLink(){
     }
 
 
-    console.log("REPORTING STREAM:");
-    console.log(stream);
+    if(!confirm(
+        "Report this stream as broken?\n\n" +
+        stream.name
+    )){
+        return;
+    }
 
 
-    const result = await fetch(STREAM_API,{
-        method:"POST",
-        headers:{
-            "Content-Type":"application/json"
-        },
-        body:JSON.stringify({
+    try{
 
-            action:"badLink",
-
-            url:stream.url,
-
-            name:stream.name
-
-        })
-    });
+        const result = await fetch(STREAM_API,{
+    method:"POST",
+    headers:{
+        "Content-Type":"application/json"
+    },
+    body:JSON.stringify({
+                action:"badLink",
+                url:stream.url,
+                name:stream.name
+            })
+        });
 
 
-    const text = await result.text();
+        const text = await result.text();
 
-    console.log("BACKEND RAW RESPONSE:",text);
+        console.log(
+            "BAD LINK RAW RESPONSE:",
+            text
+        );
 
 
-    alert(text);
+        alert("Reported. Thank you.");
+
+    }
+    catch(err){
+
+        console.error(
+            "REPORT ERROR:",
+            err
+        );
+
+        alert(
+            "Report failed: " + err.message
+        );
+
+    }
 
 }
+
    
 function goHome(){
   window.location.href = "./index99.html";
