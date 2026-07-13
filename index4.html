@@ -638,6 +638,8 @@ let index=0;
 
 let currentSource="";
 
+let currentStationURL = "";
+let stationWatcher = null;
 let stationMode = false;
 let streamList=[];
 let renderIndex=0;
@@ -1062,6 +1064,18 @@ async function loadStation(){
 
         stationMode = true;
 
+
+        // START STATION WATCHER
+        if(stationWatcher){
+            clearInterval(stationWatcher);
+        }
+
+        stationWatcher = setInterval(
+            checkStationUpdate,
+            5000
+        );
+
+
         video.controls = false;
 
         document.getElementById("playBtn").disabled = true;
@@ -1077,7 +1091,7 @@ async function loadStation(){
 
 
         const response = await fetch(
-            STATION_API + "?action=now"
+            STATION_API + "?action=now&t=" + Date.now()
         );
 
 
@@ -1110,7 +1124,10 @@ async function loadStation(){
 
 
 
+        currentStationURL = data.url;
+
         video.src = data.url;
+
 
 
         // station mode always starts muted
@@ -1146,18 +1163,21 @@ async function loadStation(){
 
         document.getElementById("now").innerText =
         data.program || "Video Obvyris TV";
+
+
         // Set Video Obvyris TV logo
-const activeLogo = document.getElementById("activeLogo");
+        const activeLogo = document.getElementById("activeLogo");
 
-activeLogo.src =
-"https://mikos5.github.io/tester/navicon.png";
+        activeLogo.src =
+        "https://mikos5.github.io/tester/navicon.png";
 
-activeLogo.onerror = function(){
 
-    this.src =
-    "https://mikos5.github.io/tester/navicon.png";
+        activeLogo.onerror = function(){
 
-};
+            this.src =
+            "https://mikos5.github.io/tester/navicon.png";
+
+        };
 
 
     }
@@ -1377,6 +1397,14 @@ function play(i){
     // Exit station mode
     stationMode=false;
 
+    // Stop Video Obvyris TV watcher
+    if(stationWatcher){
+        clearInterval(stationWatcher);
+        stationWatcher=null;
+    }
+
+    currentStationURL = "";
+
     video.controls=true;
 
     document.getElementById("playBtn").disabled=false;
@@ -1387,8 +1415,10 @@ function play(i){
 
     if(!s) return;
 
+
     // Update station name
     document.getElementById("now").innerText = s.name;
+
 
     // Update station logo
     const activeLogo = document.getElementById("activeLogo");
@@ -1399,27 +1429,34 @@ function play(i){
 
     }else{
 
-        activeLogo.src = "https://mikos5.github.io/tester/navicon.png";
+        activeLogo.src =
+        "https://mikos5.github.io/tester/navicon.png";
 
     }
+
 
     // Fallback logo
     activeLogo.onerror = function(){
 
-        this.src = "https://mikos5.github.io/tester/navicon.png";
+        this.src =
+        "https://mikos5.github.io/tester/navicon.png";
 
     };
 
-    // Start stream
+
+    // Start live stream
     playMedia(s.url);
 
-    // Refresh chat
+
+    // Refresh chat for new station
     if(chatOpen){
+
         loadChat();
+
     }
 
 }
-
+   
 function next(){
   index=(index+1)%filtered.length;
   play(index);
@@ -1589,6 +1626,74 @@ async function reportBadLink(){
 
 }
 
+async function checkStationUpdate(){
+
+    if(!stationMode) return;
+
+    try{
+
+        const response = await fetch(
+            STATION_API + "?action=now&t=" + Date.now()
+        );
+
+        const data = await response.json();
+
+
+        if(!data.url) return;
+
+
+        // Backend moved to next video
+        if(data.url !== currentStationURL){
+
+            console.log(
+                "NEW VIDEO DETECTED",
+                data.url
+            );
+
+
+            currentStationURL = data.url;
+
+
+            video.pause();
+
+            video.src = data.url;
+
+            video.load();
+
+
+            video.onloadedmetadata = ()=>{
+
+                if(data.seek){
+
+                    video.currentTime =
+                    Number(data.seek);
+
+                }
+
+
+                video.play()
+                .catch(e=>console.log(e));
+
+            };
+
+
+            document.getElementById("now").innerText =
+            data.program || "Video Obvyris TV";
+
+        }
+
+
+    }
+    catch(err){
+
+        console.log(
+            "Station watcher error:",
+            err
+        );
+
+    }
+
+}
    
 function goHome(){
   window.location.href = "./index99.html";
