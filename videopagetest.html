@@ -34,13 +34,13 @@
 
 /* 🌙 DARK MODE BASE */
 body{
-  margin:0;
-  display:flex;
-  height:100vh;
-  overflow:hidden; /* stops whole page scrolling */
-  font-family:Inter, Arial, sans-serif;
-  background:var(--bg);
-  color:var(--text);
+    margin:0;
+    display:flex;
+    height:100vh;
+    overflow:hidden;
+    font-family:Inter, Arial, sans-serif;
+    background:var(--bg);
+    color:var(--text);
 }
 
 /* =========================
@@ -48,12 +48,12 @@ body{
 ========================= */
 
 #main{
-  flex:1;
-  height:100vh;
-  display:flex;
-  flex-direction:column;
-  background:var(--bg);
-  overflow:hidden;
+    flex:1;
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    background:var(--bg);
 }
 
 video{
@@ -65,16 +65,35 @@ video{
 
 /* TOP BAR */
 #bar{
-  background:var(--panel);
-  border-top:1px solid var(--border);
-  border-bottom:1px solid var(--border);
-  padding:8px;
-  display:flex;
-  flex-direction:column;
-  gap:6px;
+    background:var(--panel);
+    border-top:1px solid var(--border);
+    border-bottom:1px solid var(--border);
+    padding:8px;
+
+    display:flex;
+    flex-direction:column;
+    flex-shrink:0;
 }
 
-/* NOW PLAYING */
+/* PLAYER CONTROLS CENTER */
+#controls{
+  width:100%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:6px;
+  flex-wrap:nowrap;
+}
+
+#bar{
+  align-items:center;
+}
+
+#stationInfo{
+  width:100%;
+}
+   
+/* NOW PLAYING 1 */
 #now{
   width:100%;
   color:var(--text);
@@ -90,17 +109,68 @@ video{
 }
 
 /* BUTTON ROW */
-#controls{
-  display:flex;
-  justify-content:center;
-  gap:6px;
+/* ANDROID PLAYER CONTROLS */
+/* ANDROID PLAYER CONTROLS LAYOUT */
+@media(max-width:600px){
+
+  #controls{
+    width:100%;
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    align-items:center;
+    gap:8px;
+  }
+
+
+  /* first row: previous play next */
+  #controls button:nth-child(1),
+  #controls button:nth-child(2),
+  #controls button:nth-child(3){
+
+    width:38px;
+    height:38px;
+    font-size:16px;
+
+  }
+
+
+  /* volume goes full row */
+  #volumeSlider{
+
+    order:5;
+
+    width:160px;
+    height:20px;
+
+    margin:4px auto;
+
+  }
+
+
+  /* bottom row: mute fullscreen report */
+  #controls button:nth-child(4),
+  #controls button:nth-child(6),
+  #controls button:nth-child(7){
+
+    width:38px;
+    height:38px;
+    font-size:16px;
+
+  }
+
+
+  /* force row breaks */
+
+
+  #controls button:nth-child(4){
+    margin-left:0;
+  }
+
 }
 
-#controls button{
-  width:45px;
-  padding:6px 8px;
-  font-size:14px;
-}
+
+/* Android phones */
 
 /* keeps buttons together */
 #bar button:first-of-type{
@@ -130,21 +200,20 @@ video{
 
 }
 
-
+/* NOW PLAYING 3 */
 #now{
-
   font-size:16px;
-
   font-weight:800;
-
   max-width:400px;
 
   overflow:hidden;
-
   text-overflow:ellipsis;
 
-  white-space:nowrap;
+  white-space:normal;
+  word-break:break-word;
 
+  text-align:center;
+  line-height:18px;
 }
    
 /* =========================
@@ -152,7 +221,7 @@ video{
 ========================= */
 
 #sidebar{
-  width:260px;
+  width:180px;
   height:100vh;
   background:var(--panel);
   border-right:1px solid var(--border);
@@ -163,13 +232,13 @@ video{
 }
 
 .group{
-  padding:9px;
+  padding:6px;
   margin-bottom:6px;
   background:var(--bg);
   border:1px solid var(--border);
   border-radius:10px;
   cursor:pointer;
-  font-size:12px;
+  font-size:11px;
   color:var(--text);
   transition:.15s;
 }
@@ -185,7 +254,7 @@ video{
 
 .logo{
   font-family:Orbitron;
-  font-size:42px;
+  font-size:21px;
   font-weight:900;
   cursor:pointer;
   user-select:none;
@@ -206,8 +275,8 @@ video{
 
 .subtitle{
   color:var(--muted);
-  font-size:13px;
-  margin-bottom:20px;
+  font-size:11px;
+  margin-bottom:10px;
 }
 
 .brand{
@@ -298,11 +367,10 @@ video{
 ========================= */
 
 #list{
-  flex:1;
-  overflow-y:auto;
-  overflow-x:hidden;
-  background:var(--bg);
-  min-height:0;
+    flex:1;
+    overflow-y:auto;
+    overflow-x:hidden;
+    background:var(--bg);
 }
 
 .card{
@@ -358,7 +426,7 @@ button:active{ transform:scale(0.97); }
 *{ scrollbar-width:thin; scrollbar-color:var(--border) var(--panel); }
 
 @media(max-width:900px){
-  #sidebar{ width:200px; }
+  #sidebar{ width:150px; }
 }
 
 /* =========================
@@ -464,15 +532,6 @@ video:fullscreen{
     background:#111;
 }
 
-#volumeSlider{
-
-    width:120px;
-
-    cursor:pointer;
-
-    accent-color:var(--blue);
-
-}
 
 button:disabled{
 
@@ -487,6 +546,164 @@ button:disabled{
 body{
     user-select:none;
     -webkit-user-select:none;
+}
+
+@media(max-width:600px){
+
+#volumeSlider{
+    width:45px;
+}
+
+}
+
+/* =========================
+   PLAYER CONTROLS
+========================= */
+
+#controls{
+  width:100%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:8px;
+}
+
+
+/* desktop keeps one line */
+.controlRow{
+  display:contents;
+}
+
+
+.volumeRow{
+  display:contents;
+}
+
+
+#volumeSlider{
+  width:120px;
+}
+
+
+
+/* ANDROID ONLY */
+@media(max-width:600px){
+
+  #controls{
+
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    gap:6px;
+
+  }
+
+
+  .controlRow{
+
+    display:flex;
+    justify-content:center;
+    gap:8px;
+
+  }
+
+
+  .volumeRow{
+
+    display:flex;
+    justify-content:center;
+
+  }
+
+
+  #volumeSlider{
+
+    width:150px;
+
+  }
+
+
+  .controlRow button{
+
+    width:36px;
+    height:36px;
+    padding:0;
+    font-size:16px;
+
+  }
+
+}
+
+/* DEFAULT DESKTOP CONTROLS */
+#controls{
+  display:flex;
+  flex-direction:row;
+  justify-content:center;
+  align-items:center;
+  gap:8px;
+  width:100%;
+}
+
+.controlRow{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+}
+
+.volumeRow{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+
+/* DESKTOP = ONE LINE */
+.controlRow.top,
+.controlRow.bottom{
+  display:flex;
+}
+
+
+/* ANDROID ONLY */
+@media(max-width:600px){
+
+  #controls{
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    gap:6px;
+  }
+
+
+  .controlRow{
+    display:flex;
+    justify-content:center;
+    gap:8px;
+
+    /* move rows right to align with slider */
+    transform:translateX(22px);
+  }
+
+
+  .volumeRow{
+    width:100%;
+    justify-content:center;
+  }
+
+
+  #volumeSlider{
+    width:160px;
+  }
+
+
+  .controlRow button{
+    width:38px;
+    height:38px;
+    font-size:16px;
+  }
+
 }
    
 </style>
@@ -577,30 +794,41 @@ body{
 
 
   <div id="controls">
-    <button onclick="prev()">⏮</button>
-    <button id="playBtn" onclick="toggle()">⏯</button>
-    <button onclick="next()">⏭</button>
 
-    <button id="muteBtn" onclick="toggleMute()">🔇</button>
+<div class="controlRow top">
+<button onclick="prev()">⏮</button>
+<button id="playBtn" onclick="toggle()">⏯</button>
+<button onclick="next()">⏭</button>
+</div>
 
-    <input
-        id="volumeSlider"
-        type="range"
-        min="0"
-        max="100"
-        value="100"
-        oninput="setVolume(this.value)"
-    >
 
-    <button onclick="fullscreenPlayer()">⛶</button>
-    <button onclick="reportBadLink()">🚩</button>
+<div class="volumeRow">
+<input
+ id="volumeSlider"
+ type="range"
+ min="0"
+ max="100"
+ value="100"
+ oninput="setVolume(this.value)"
+>
+</div>
+
+
+<div class="controlRow bottom">
+
+<button id="muteBtn" onclick="toggleMute()">🔇</button>
+
+<button onclick="fullscreenPlayer()">⛶</button>
+
+<button onclick="reportBadLink()">🚩</button>
+
 </div>
 
 </div>
-
+</div>
   <div id="list"></div>
 
-</div>
+
 
 <!-- 💬 CHAT UI -->
 <button id="chatFloatBtn" onclick="toggleChat()">💬</button>
