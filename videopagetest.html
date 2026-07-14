@@ -776,6 +776,13 @@ body{
  autoplay>
 </video>
 
+<iframe
+ id="youtubePlayer"
+ style="display:none;width:100%;height:65vh;background:#000;border:0;"
+ allow="autoplay; fullscreen"
+ allowfullscreen>
+</iframe>
+
 <div id="bar">
 
   <div id="stationInfo">
@@ -859,6 +866,73 @@ const STATION_API =
 const video = document.getElementById("video");
 video.volume = 1;
 document.getElementById("volumeSlider").value = 100;
+const youtubePlayer =
+document.getElementById("youtubePlayer");
+
+
+function isYouTube(url){
+
+    return url.includes("youtube.com") ||
+           url.includes("youtu.be");
+
+}
+
+
+function getYouTubeID(url){
+
+    try{
+
+        let u = new URL(url);
+
+        if(u.hostname.includes("youtu.be")){
+            return u.pathname.substring(1);
+        }
+
+        return u.searchParams.get("v");
+
+    }
+    catch(e){
+
+        return null;
+
+    }
+
+}
+
+
+function playYouTube(url){
+
+    const id=getYouTubeID(url);
+
+    if(!id){
+        console.log("Invalid YouTube URL");
+        return;
+    }
+
+
+    video.style.display="none";
+
+    youtubePlayer.style.display="block";
+
+
+    youtubePlayer.src =
+    "https://www.youtube.com/embed/"
+    + id +
+    "?autoplay=1";
+
+
+}
+
+
+function hideYouTube(){
+
+    youtubePlayer.src="";
+
+    youtubePlayer.style.display="none";
+
+    video.style.display="block";
+
+}
    
 let list=[];
 let filtered=[];
@@ -1354,7 +1428,19 @@ async function loadStation(){
 
         currentStationURL = data.url;
 
-        video.src = data.url;
+
+if(data.type==="youtube"){
+
+    playYouTube(data.url);
+
+}
+else{
+
+    hideYouTube();
+
+    video.src=data.url;
+
+}
 
 
 
@@ -1365,7 +1451,9 @@ async function loadStation(){
 
 
 
-        video.onloadedmetadata = ()=>{
+        if(data.type!=="youtube"){
+
+video.onloadedmetadata = ()=>{
 
 
             if(data.seek){
@@ -1386,6 +1474,8 @@ async function loadStation(){
 
 
         };
+
+}
 
 
 
@@ -1884,9 +1974,20 @@ async function checkStationUpdate(){
 
             video.pause();
 
-            video.src = data.url;
+            if(data.type==="youtube"){
 
-            video.load();
+    playYouTube(data.url);
+
+}
+else{
+
+    hideYouTube();
+
+    video.src=data.url;
+
+    video.load();
+
+}
 
 
             video.onloadedmetadata = ()=>{
