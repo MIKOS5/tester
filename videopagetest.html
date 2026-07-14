@@ -916,9 +916,9 @@ function playYouTube(url){
 
 
     youtubePlayer.src =
-    "https://www.youtube.com/embed/"
-    + id +
-    "?autoplay=1";
+"https://www.youtube.com/embed/"
++ id +
+"?autoplay=1&mute=1";
 
 
 }
@@ -1401,6 +1401,13 @@ async function loadStation(){
 
 
         console.log("STATION DATA:", data);
+       
+        console.log(
+"TYPE:",
+data.type,
+"URL:",
+data.url
+);
 
 
 
@@ -1420,9 +1427,11 @@ async function loadStation(){
 
         video.pause();
 
-        video.removeAttribute("src");
+video.removeAttribute("src");
 
-        video.load();
+video.load();
+
+hideYouTube();
 
 
 
@@ -1987,23 +1996,23 @@ else{
 
     video.load();
 
+
+    video.onloadedmetadata = ()=>{
+
+        if(data.seek){
+
+            video.currentTime =
+            Number(data.seek);
+
+        }
+
+
+        video.play()
+        .catch(e=>console.log(e));
+
+    };
+
 }
-
-
-            video.onloadedmetadata = ()=>{
-
-                if(data.seek){
-
-                    video.currentTime =
-                    Number(data.seek);
-
-                }
-
-
-                video.play()
-                .catch(e=>console.log(e));
-
-            };
 
 
             document.getElementById("now").innerText =
