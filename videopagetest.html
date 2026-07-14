@@ -1904,33 +1904,124 @@ async function reportBadLink(){
 
     console.log("REPORT CLICKED", stream);
 
+
     if(!stream){
+
         alert("No channel selected");
         return;
+
     }
 
 
-    if(!confirm(
+    // Step 1 - confirm broken stream
+    const broken = confirm(
         "Report this stream as broken?\n\n" +
-        stream.name
-    )){
+        stream.name +
+        "\n\nPress OK to report.\nPress Cancel to exit."
+    );
+
+
+    if(!broken){
+
         return;
+
     }
+
+
+
+    // Step 2 - correction suggestions
+
+    const suggestedName = prompt(
+        "Name\n\nCurrent:\n" +
+        stream.name +
+        "\n\nSuggested name (leave blank if no change):"
+    ) || "";
+
+
+    const suggestedGroup = prompt(
+        "Group\n\nCurrent:\n" +
+        stream.group +
+        "\n\nSuggested group (leave blank if no change):"
+    ) || "";
+
+
+    const suggestedCountry = prompt(
+        "Country\n\nCurrent:\n" +
+        stream.country +
+        "\n\nSuggested country (leave blank if no change):"
+    ) || "";
+
+
+    const suggestedLanguage = prompt(
+        "Language\n\nCurrent:\n" +
+        stream.language +
+        "\n\nSuggested language (leave blank if no change):"
+    ) || "";
+
+
+    const suggestedStatus = prompt(
+        "Status\n\nCurrent:\nONLINE\n\nSuggested status (leave blank if no change):"
+    ) || "";
+
+
+
+    const payload = {
+
+        action:"badLink",
+
+        url:stream.url,
+
+        name:stream.name,
+
+
+        current:{
+
+            name:stream.name || "",
+
+            group:stream.group || "",
+
+            country:stream.country || "",
+
+            language:stream.language || "",
+
+            status:stream.status || ""
+
+        },
+
+
+        suggested:{
+
+            name:suggestedName.trim(),
+
+            group:suggestedGroup.trim(),
+
+            country:suggestedCountry.trim(),
+
+            language:suggestedLanguage.trim(),
+
+            status:suggestedStatus.trim()
+
+        }
+
+    };
+
 
 
     try{
 
+
         const result = await fetch(STREAM_API,{
-    method:"POST",
-    body:JSON.stringify({
-        action:"badLink",
-        url:stream.url,
-        name:stream.name
-    })
-});
+
+            method:"POST",
+
+            body:JSON.stringify(payload)
+
+        });
+
 
 
         const text = await result.text();
+
 
         console.log(
             "BAD LINK RAW RESPONSE:",
@@ -1938,19 +2029,25 @@ async function reportBadLink(){
         );
 
 
-        alert("Reported. Thank you.");
+        alert(
+            "Reported. Thank you for helping improve Video Obvyris."
+        );
+
 
     }
     catch(err){
+
 
         console.error(
             "REPORT ERROR:",
             err
         );
 
+
         alert(
             "Report failed: " + err.message
         );
+
 
     }
 
