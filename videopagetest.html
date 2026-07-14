@@ -769,7 +769,7 @@ video,
 
 <div id="countryList"></div>
 
-<div id="cityList"></div>
+<div id="languageList"></div>
 
 </div>
 
@@ -1118,7 +1118,7 @@ async function load(){
 
     country:String(s.country || "Unknown"),
 
-    city:String(s.language || "Unknown"),
+    language:String(s.language || "Unknown"),
 
     url:String(s.url || ""),
 
@@ -1151,7 +1151,7 @@ async function load(){
 
 buildCountries();
 
-buildCities();
+buildLanguages();
 
 filtered=[...list];
 
@@ -1204,33 +1204,30 @@ function setVolume(value){
 
 }
    
-function buildCities(){
+function buildLanguages(){
 
-    const citySet = new Set();
+    const languageSet = new Set();
 
     list.forEach(s=>{
 
-        if(s.city && s.city !== "Unknown"){
+        if(s.language && s.language !== "Unknown"){
 
-            citySet.add(s.city.trim());
+            languageSet.add(s.language.trim());
 
         }
 
     });
 
+    const languages=[...languageSet].sort();
 
-    const cities=[...citySet].sort();
-
-
-    const box=document.getElementById("cityList");
+    const box=document.getElementById("languageList");
 
     box.innerHTML="";
-
 
     const all=document.createElement("div");
 
     all.className="group";
-    all.textContent="🏙️ All Cities";
+    all.textContent="🗣️ All Languages";
 
     all.onclick=()=>{
 
@@ -1241,26 +1238,22 @@ function buildCities(){
 
     box.appendChild(all);
 
-
-
-    cities.forEach(city=>{
+    languages.forEach(language=>{
 
         const d=document.createElement("div");
 
         d.className="group";
-        d.textContent="🏙️ "+city;
-
+        d.textContent="🗣️ "+language;
 
         d.onclick=()=>{
 
             filtered=list.filter(s=>
-                s.city === city
+                s.language === language
             );
 
             render(true);
 
         };
-
 
         box.appendChild(d);
 
@@ -1572,7 +1565,7 @@ function applyFilters(){
 
     s.country.toLowerCase().includes(q) ||
 
-    s.city.toLowerCase().includes(q)
+    s.language.toLowerCase().includes(q)
 
 );
 
@@ -1631,7 +1624,7 @@ function render(reset){
         <small>
 📂 ${s.group}<br>
 🌎 ${s.country}<br>
-🏙️ ${s.city}
+🗣️ ${s.language}
 </small>
 
     </div>
