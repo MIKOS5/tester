@@ -444,7 +444,7 @@ Select a game
 
 
 const GAME_API =
-"https://script.google.com/macros/s/AKfycbz_NGVTztTuc81a5_1K839CTu1V4bcc9IWXkqlNBYSJN8WSqSUbH2YP8xjqZPE3c7fzNg/exec?action=games";
+"https://script.google.com/macros/s/AKfycbz_NGVTztTuc81a5_1K839CTu1V4bcc9IWXkqlNBYSJN8WSqSUbH2YP8xjqZPE3c7fzNg/exec";
 
 
 
@@ -456,28 +456,37 @@ let filtered=[];
 
 async function loadGames(){
 
-
 try{
 
-
-const res =
-await fetch(GAME_API);
+console.log("Loading:", GAME_API);
 
 
-const data =
-await res.json();
+const res = await fetch(
+ GAME_API + "?action=games&t=" + Date.now()
+);
+
+
+console.log("STATUS:", res.status);
+
+
+const text = await res.text();
+
+
+console.log("RAW RESPONSE:", text);
 
 
 
-console.log(data);
+const data = JSON.parse(text);
+
+
+console.log("JSON:", data);
 
 
 
-games =
-data.games || [];
+games = data.games || [];
 
 
-filtered=[...games];
+filtered = [...games];
 
 
 buildCategories();
@@ -486,16 +495,20 @@ render();
 
 
 }
-
 catch(e){
 
-console.error(e);
+console.error("GAME API ERROR:", e);
 
-document.getElementById("list").innerHTML=
-"API ERROR";
+
+document.getElementById("list").innerHTML =
+`
+<div class="card">
+API ERROR<br>
+${e.message}
+</div>
+`;
 
 }
-
 
 }
 
