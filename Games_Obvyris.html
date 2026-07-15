@@ -456,19 +456,54 @@ let filtered=[];
 
 async function loadGames(){
 
-try{
+    try {
 
-console.log("Loading:", GAME_API);
+        const url =
+        "https://script.google.com/macros/s/AKfycbz_NGVTztTuc81a5_1K839CTu1V4bcc9IWXkqlNBYSJN8WSqSUbH2YP8xjqZPE3c7fzNg/exec";
 
 
-const script=document.createElement("script");
+        console.log("Loading API:", url);
 
-script.src=
-GAME_API+
-"?callback=loadGamesCallback";
 
-document.body.appendChild(script);
+        const res = await fetch(url);
 
+
+        console.log("Response:", res);
+
+
+        const data = await res.json();
+
+
+        console.log("DATA:", data);
+
+
+        games = data.games || [];
+
+        filtered = [...games];
+
+
+        buildCategories();
+
+        render();
+
+
+    }
+    catch(err){
+
+        console.error("GAME API ERROR:", err);
+
+
+        document.getElementById("list").innerHTML =
+        `
+        <div class="card">
+        API ERROR<br>
+        ${err.message}
+        </div>
+        `;
+
+    }
+
+}
 
 function loadGamesCallback(data){
 
