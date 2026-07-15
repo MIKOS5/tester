@@ -7,132 +7,313 @@
 
 <title>Games Obvyris</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+<link rel="icon" href="https://mikos5.github.io/tester/navicon.png">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+
 
 <style>
+
+
+:root{
+
+--bg:#09111d;
+--panel:#111827;
+--border:#253347;
+
+--blue:#2793ff;
+--blue-dark:#1869d9;
+
+--text:#fff;
+--muted:#93a4bb;
+
+}
+
+
 
 *{
 box-sizing:border-box;
 }
 
+
+
 body{
+
 margin:0;
-background:#050505;
-color:white;
-font-family:Arial,sans-serif;
-overflow-x:hidden;
-}
 
+height:100vh;
 
-/* TOP BAR */
-
-#topbar{
-
-height:60px;
-background:#111;
 display:flex;
-align-items:center;
-padding:0 20px;
-border-bottom:1px solid #222;
-font-family:Orbitron;
+
+overflow:hidden;
+
+background:var(--bg);
+
+color:var(--text);
+
+font-family:Inter,Arial;
 
 }
 
-.logo{
-
-font-size:22px;
-color:#00aaff;
-
-}
 
 
 /* SIDEBAR */
 
+
 #sidebar{
 
-position:fixed;
-top:60px;
-left:0;
-bottom:0;
-width:220px;
-background:#0c0c0c;
-border-right:1px solid #222;
-padding:20px;
+width:180px;
+
+height:100vh;
+
+background:var(--panel);
+
+border-right:1px solid var(--border);
+
+display:flex;
+
+flex-direction:column;
+
+overflow-y:auto;
+
+flex-shrink:0;
 
 }
 
 
-.menu{
+
+.brand{
 
 padding:12px;
-margin-bottom:10px;
-background:#151515;
-border-radius:8px;
+
 cursor:pointer;
 
 }
 
 
-.menu:hover{
 
-background:#008cff;
+.logo{
+
+font-family:Orbitron;
+
+font-size:22px;
+
+font-weight:900;
+
+}
+
+
+
+.logo span{
+
+color:var(--blue);
 
 }
 
 
 
-/* CONTENT */
+.subtitle{
 
+font-size:11px;
 
-#content{
-
-margin-left:220px;
-padding:25px;
+color:var(--muted);
 
 }
+
+
+
+.group{
+
+margin:6px;
+
+padding:10px;
+
+border-radius:10px;
+
+background:var(--bg);
+
+border:1px solid var(--border);
+
+cursor:pointer;
+
+font-size:13px;
+
+}
+
+
+
+.group:hover{
+
+border-color:var(--blue);
+
+background:#132238;
+
+}
+
+
+
+/* APP MENU */
+
+
+.app-menu{
+
+display:none;
+
+position:absolute;
+
+top:70px;
+
+left:15px;
+
+width:230px;
+
+background:var(--panel);
+
+border:1px solid var(--border);
+
+border-radius:14px;
+
+z-index:999;
+
+overflow:hidden;
+
+}
+
+
+
+.app-menu.open{
+
+display:block;
+
+}
+
+
+
+.app-menu div{
+
+padding:14px;
+
+cursor:pointer;
+
+font-weight:700;
+
+}
+
+
+
+.app-menu div:hover{
+
+background:var(--blue);
+
+}
+
+
+
+
+
+/* MAIN */
+
+
+#main{
+
+flex:1;
+
+height:100vh;
+
+overflow:auto;
+
+padding:20px;
+
+}
+
+
+
+/* SEARCH */
+
+
+#search{
+
+width:100%;
+
+padding:12px;
+
+background:var(--panel);
+
+border:1px solid var(--border);
+
+border-radius:10px;
+
+color:white;
+
+margin-bottom:20px;
+
+outline:none;
+
+}
+
+
+
+#search::placeholder{
+
+color:var(--muted);
+
+}
+
+
+
+/* HEADER */
 
 
 h1{
 
 font-family:Orbitron;
+
 margin-top:0;
 
 }
 
 
-/* GAME GRID */
+
+
+
+/* GAMES */
 
 
 #games{
 
 display:grid;
-grid-template-columns:
-repeat(auto-fill,minmax(220px,1fr));
 
-gap:20px;
+grid-template-columns:
+repeat(auto-fill,minmax(230px,1fr));
+
+gap:18px;
 
 }
 
 
 
-/* CARD */
-
 
 .game{
 
-background:#111;
-border:1px solid #222;
-border-radius:12px;
+background:var(--panel);
+
+border:1px solid var(--border);
+
+border-radius:14px;
+
 overflow:hidden;
+
 transition:.2s;
 
 }
 
 
+
 .game:hover{
 
 transform:translateY(-5px);
-border-color:#008cff;
+
+border-color:var(--blue);
 
 }
 
@@ -141,33 +322,42 @@ border-color:#008cff;
 .game img{
 
 width:100%;
+
 height:150px;
+
 object-fit:cover;
+
 background:#000;
 
 }
 
 
 
+
 .info{
 
-padding:15px;
+padding:14px;
 
 }
+
 
 
 .game h2{
 
 font-family:Orbitron;
+
 font-size:18px;
-margin:0 0 10px;
+
+margin:0 0 8px;
 
 }
 
 
+
 .game p{
 
-color:#aaa;
+color:var(--muted);
+
 font-size:14px;
 
 }
@@ -177,25 +367,37 @@ font-size:14px;
 button{
 
 width:100%;
-padding:12px;
+
+padding:11px;
 
 border:0;
-border-radius:8px;
 
-background:#008cff;
+border-radius:10px;
+
+background:
+linear-gradient(
+180deg,
+var(--blue),
+var(--blue-dark)
+);
+
 color:white;
 
-font-weight:bold;
+font-weight:800;
+
 cursor:pointer;
 
 }
 
 
+
 button:hover{
 
-background:#00bfff;
+filter:brightness(1.15);
 
 }
+
+
 
 
 
@@ -207,6 +409,8 @@ color:red;
 
 
 
+
+
 /* MOBILE */
 
 
@@ -215,15 +419,36 @@ color:red;
 
 #sidebar{
 
-display:none;
+width:70px;
 
 }
 
 
-#content{
+.logo{
 
-margin-left:0;
-padding:15px;
+font-size:15px;
+
+}
+
+
+.subtitle,
+.group{
+
+font-size:0;
+
+}
+
+
+.group{
+
+height:40px;
+
+}
+
+
+#main{
+
+padding:12px;
 
 }
 
@@ -234,7 +459,6 @@ grid-template-columns:
 repeat(2,1fr);
 
 }
-
 
 
 }
@@ -250,49 +474,103 @@ repeat(2,1fr);
 <body>
 
 
-<div id="topbar">
-
-<div class="logo">
-🎮 Obvyris Games
-</div>
-
-</div>
-
-
 
 <div id="sidebar">
 
-<div class="menu">
-🏠 Home
+
+<div class="brand" onclick="toggleMenu()">
+
+
+<div class="logo">
+
+Games <span>Obvyris</span>
+
 </div>
 
-<div class="menu">
+
+<div class="subtitle">
+
+Game Library
+
+</div>
+
+
+</div>
+
+
+
+<div id="appMenu" class="app-menu">
+
+
+<div onclick="go('index99.html')">
+🏠 Obvyris Home
+</div>
+
+
+<div onclick="go('Video_Obvyris.html')">
+📺 Video Obvyris
+</div>
+
+
+<div onclick="go('Radio_Obvyris.html')">
+📻 Radio Obvyris
+</div>
+
+
+<div onclick="go('newschat.html')">
+💬 Chat Obvyris
+</div>
+
+
+</div>
+
+
+
+
+<div class="group">
 🎮 Games
 </div>
 
-<div class="menu">
+
+<div class="group">
 ⭐ Favorites
 </div>
 
-<div class="menu">
-⚙ Settings
+
+<div class="group">
+🕹 Categories
 </div>
 
 
+
 </div>
 
 
 
 
-<div id="content">
 
 
-<h1>Game Library</h1>
+<div id="main">
+
+
+<h1>
+🎮 Game Library
+</h1>
+
+
+
+<input id="search"
+placeholder="Search games..."
+oninput="filterGames()">
+
 
 
 <div id="games">
+
 Loading...
+
 </div>
+
 
 
 <div id="error"></div>
@@ -303,45 +581,50 @@ Loading...
 
 
 
+
+
 <script>
 
 
-const API = 
+const API =
 "https://script.google.com/macros/s/AKfycbz_NGVTztTuc81a5_1K839CTu1V4bcc9IWXkqlNBYSJN8WSqSUbH2YP8xjqZPE3c7fzNg/exec";
 
+
+
+let allGames=[];
 
 
 
 function showGames(data){
 
 
-console.log("Games API:",data);
+console.log(data);
 
 
-
-const container =
-document.getElementById("games");
+allGames=data.games || [];
 
 
+renderGames(allGames);
 
-if(!data.games){
-
-container.innerHTML="No games found";
-
-return;
 
 }
 
 
 
+function renderGames(games){
+
+
+const container=
+document.getElementById("games");
+
+
 container.innerHTML="";
 
 
+games.forEach(game=>{
 
-data.games.forEach(game=>{
 
-
-if(game.Status !== "Active")
+if(game.Status!=="Active")
 return;
 
 
@@ -353,8 +636,7 @@ container.innerHTML += `
 
 
 <img src="${game.Image}"
-onerror="this.style.display='none'">
-
+onerror="this.src='https://mikos5.github.io/tester/navicon.png'">
 
 
 <div class="info">
@@ -366,14 +648,15 @@ ${game.Name}
 
 
 <p>
-${game.Category}
+🎮 ${game.Category}
+<br>
+🕹 ${game.Type}
 </p>
 
 
 <p>
 ${game.Description}
 </p>
-
 
 
 <button onclick="playGame('${game.URL}')">
@@ -400,6 +683,31 @@ PLAY
 
 
 
+function filterGames(){
+
+
+let q=document
+.getElementById("search")
+.value
+.toLowerCase();
+
+
+
+renderGames(
+allGames.filter(g=>
+
+g.Name.toLowerCase().includes(q)
+||
+g.Category.toLowerCase().includes(q)
+
+)
+
+);
+
+
+}
+
+
 
 function playGame(url){
 
@@ -409,22 +717,37 @@ window.location.href=url;
 
 
 
+function toggleMenu(){
+
+document
+.getElementById("appMenu")
+.classList.toggle("open");
+
+}
+
+
+
+function go(page){
+
+location.href="./"+page;
+
+}
+
+
+
 
 const script=document.createElement("script");
 
-
-script.src =
-API + "?callback=showGames";
-
+script.src=
+API+"?callback=showGames";
 
 
 script.onerror=function(){
 
-document.getElementById("error").innerHTML =
-"API ERROR - Unable to load games";
+document.getElementById("error").innerHTML=
+"API ERROR";
 
 };
-
 
 
 document.body.appendChild(script);
