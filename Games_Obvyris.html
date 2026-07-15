@@ -463,7 +463,85 @@ repeat(2,1fr);
 
 }
 
+#gamePlayer{
 
+display:none;
+
+position:fixed;
+
+top:50%;
+
+left:50%;
+
+transform:translate(-50%,-50%);
+
+width:80vw;
+
+height:80vh;
+
+background:#000;
+
+border:2px solid var(--blue);
+
+border-radius:15px;
+
+z-index:5000;
+
+box-shadow:0 0 40px #000;
+
+resize:both;
+
+overflow:hidden;
+
+min-width:320px;
+
+min-height:240px;
+
+}
+
+
+.playerHeader{
+
+height:45px;
+
+background:var(--panel);
+
+display:flex;
+
+align-items:center;
+
+justify-content:space-between;
+
+padding:8px 12px;
+
+font-family:Orbitron;
+
+}
+
+
+.playerHeader button{
+
+width:auto;
+
+padding:6px 10px;
+
+margin-left:5px;
+
+}
+
+
+#gameFrame{
+
+width:100%;
+
+height:calc(100% - 45px);
+
+border:0;
+
+background:black;
+
+}
+  
 
 </style>
 
@@ -580,7 +658,30 @@ Loading...
 
 
 
+<div id="gamePlayer">
 
+<div class="playerHeader">
+
+<span id="playerTitle">
+Game Player
+</span>
+
+<div>
+<button onclick="reloadGame()">🔄</button>
+<button onclick="fullscreenGame()">⛶</button>
+<button onclick="closeGame()">✖</button>
+</div>
+
+</div>
+
+
+<iframe 
+id="gameFrame"
+allowfullscreen>
+</iframe>
+
+
+</div>
 
 
 <script>
@@ -659,7 +760,7 @@ ${game.Description}
 </p>
 
 
-<button onclick="playGame('${game.URL}')">
+<button onclick="playGame('${game.URL}','${game.Name}')">
 
 PLAY
 
@@ -708,10 +809,18 @@ g.Category.toLowerCase().includes(q)
 }
 
 
+function playGame(url,name){
 
-function playGame(url){
 
-window.location.href=url;
+document.getElementById("gamePlayer").style.display="block";
+
+
+document.getElementById("gameFrame").src=url;
+
+
+document.getElementById("playerTitle").innerHTML=
+name || "Game Player";
+
 
 }
 
@@ -752,7 +861,38 @@ document.getElementById("error").innerHTML=
 
 document.body.appendChild(script);
 
+function closeGame(){
 
+document.getElementById("gamePlayer").style.display="none";
+
+document.getElementById("gameFrame").src="";
+
+}
+
+
+
+function reloadGame(){
+
+let frame=document.getElementById("gameFrame");
+
+frame.src=frame.src;
+
+}
+
+
+
+function fullscreenGame(){
+
+let frame=document.getElementById("gameFrame");
+
+
+if(frame.requestFullscreen){
+
+frame.requestFullscreen();
+
+}
+
+}
 
 </script>
 
