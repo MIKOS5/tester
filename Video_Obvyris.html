@@ -864,6 +864,12 @@ let list=[];
 let filtered=[];
 let index=0;
 
+const urlParams = new URLSearchParams(window.location.search);
+
+const requestedStation = urlParams.get("station");
+
+console.log("Requested Station:", requestedStation);
+   
 let currentSource="";
 
 let currentStationURL = "";
@@ -2061,7 +2067,29 @@ setInterval(()=>{
 },1000);
 
 
-load();
+load().then(()=>{
+
+    if(requestedStation){
+
+        const match = list.find(s =>
+            s.name.toLowerCase()
+            .includes(
+                requestedStation.toLowerCase()
+            )
+        );
+
+
+        if(match){
+
+            const channelIndex = list.indexOf(match);
+
+            play(channelIndex);
+
+        }
+
+    }
+
+});
 
 // Disable right click
 document.addEventListener("contextmenu", function(e){
