@@ -5,73 +5,244 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Obvyris Games</title>
+<title>Games Obvyris</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
 
-body{
-    background:#111;
-    color:white;
-    font-family:Arial, sans-serif;
-    margin:0;
-    padding:20px;
+*{
+box-sizing:border-box;
 }
+
+body{
+margin:0;
+background:#050505;
+color:white;
+font-family:Arial,sans-serif;
+overflow-x:hidden;
+}
+
+
+/* TOP BAR */
+
+#topbar{
+
+height:60px;
+background:#111;
+display:flex;
+align-items:center;
+padding:0 20px;
+border-bottom:1px solid #222;
+font-family:Orbitron;
+
+}
+
+.logo{
+
+font-size:22px;
+color:#00aaff;
+
+}
+
+
+/* SIDEBAR */
+
+#sidebar{
+
+position:fixed;
+top:60px;
+left:0;
+bottom:0;
+width:220px;
+background:#0c0c0c;
+border-right:1px solid #222;
+padding:20px;
+
+}
+
+
+.menu{
+
+padding:12px;
+margin-bottom:10px;
+background:#151515;
+border-radius:8px;
+cursor:pointer;
+
+}
+
+
+.menu:hover{
+
+background:#008cff;
+
+}
+
+
+
+/* CONTENT */
+
+
+#content{
+
+margin-left:220px;
+padding:25px;
+
+}
+
 
 h1{
-    text-align:center;
+
+font-family:Orbitron;
+margin-top:0;
+
 }
+
+
+/* GAME GRID */
+
 
 #games{
-    display:flex;
-    flex-wrap:wrap;
-    justify-content:center;
-    gap:20px;
+
+display:grid;
+grid-template-columns:
+repeat(auto-fill,minmax(220px,1fr));
+
+gap:20px;
+
 }
+
+
+
+/* CARD */
+
 
 .game{
-    background:#222;
-    width:250px;
-    padding:15px;
-    border-radius:12px;
-    box-shadow:0 0 10px #000;
+
+background:#111;
+border:1px solid #222;
+border-radius:12px;
+overflow:hidden;
+transition:.2s;
+
 }
+
+
+.game:hover{
+
+transform:translateY(-5px);
+border-color:#008cff;
+
+}
+
+
 
 .game img{
-    width:100%;
-    height:160px;
-    object-fit:cover;
-    border-radius:8px;
+
+width:100%;
+height:150px;
+object-fit:cover;
+background:#000;
+
 }
+
+
+
+.info{
+
+padding:15px;
+
+}
+
 
 .game h2{
-    margin:10px 0;
+
+font-family:Orbitron;
+font-size:18px;
+margin:0 0 10px;
+
 }
+
 
 .game p{
-    color:#ccc;
+
+color:#aaa;
+font-size:14px;
+
 }
+
+
 
 button{
-    width:100%;
-    padding:12px;
-    border:0;
-    border-radius:8px;
-    background:#008cff;
-    color:white;
-    font-size:16px;
-    cursor:pointer;
+
+width:100%;
+padding:12px;
+
+border:0;
+border-radius:8px;
+
+background:#008cff;
+color:white;
+
+font-weight:bold;
+cursor:pointer;
+
 }
+
 
 button:hover{
-    background:#00aaff;
+
+background:#00bfff;
+
 }
+
+
 
 #error{
-    color:red;
-    text-align:center;
+
+color:red;
+
 }
 
+
+
+/* MOBILE */
+
+
+@media(max-width:700px){
+
+
+#sidebar{
+
+display:none;
+
+}
+
+
+#content{
+
+margin-left:0;
+padding:15px;
+
+}
+
+
+#games{
+
+grid-template-columns:
+repeat(2,1fr);
+
+}
+
+
+
+}
+
+
+
 </style>
+
 
 </head>
 
@@ -79,14 +250,56 @@ button:hover{
 <body>
 
 
-<h1>🎮 Obvyris Games</h1>
+<div id="topbar">
+
+<div class="logo">
+🎮 Obvyris Games
+</div>
+
+</div>
+
+
+
+<div id="sidebar">
+
+<div class="menu">
+🏠 Home
+</div>
+
+<div class="menu">
+🎮 Games
+</div>
+
+<div class="menu">
+⭐ Favorites
+</div>
+
+<div class="menu">
+⚙ Settings
+</div>
+
+
+</div>
+
+
+
+
+<div id="content">
+
+
+<h1>Game Library</h1>
 
 
 <div id="games">
 Loading...
 </div>
 
+
 <div id="error"></div>
+
+
+</div>
+
 
 
 
@@ -98,14 +311,17 @@ const API =
 
 
 
+
 function showGames(data){
 
 
 console.log("Games API:",data);
 
 
+
 const container =
 document.getElementById("games");
+
 
 
 if(!data.games){
@@ -132,18 +348,25 @@ return;
 
 container.innerHTML += `
 
+
 <div class="game">
 
 
-<img src="${game.Image}" 
+<img src="${game.Image}"
 onerror="this.style.display='none'">
 
 
-<h2>${game.Name}</h2>
+
+<div class="info">
+
+
+<h2>
+${game.Name}
+</h2>
 
 
 <p>
-<b>Category:</b> ${game.Category}
+${game.Category}
 </p>
 
 
@@ -152,20 +375,29 @@ ${game.Description}
 </p>
 
 
+
 <button onclick="playGame('${game.URL}')">
+
 PLAY
+
 </button>
 
 
 </div>
 
+
+</div>
+
+
 `;
+
 
 
 });
 
 
 }
+
 
 
 
@@ -177,12 +409,13 @@ window.location.href=url;
 
 
 
-// JSONP LOAD
 
 const script=document.createElement("script");
 
+
 script.src =
 API + "?callback=showGames";
+
 
 
 script.onerror=function(){
@@ -191,6 +424,7 @@ document.getElementById("error").innerHTML =
 "API ERROR - Unable to load games";
 
 };
+
 
 
 document.body.appendChild(script);
