@@ -382,6 +382,54 @@ cursor:pointer;
 
 }
 
+/* VIDEO GUIDE */
+
+.guideBox{
+
+max-width:1150px;
+
+margin:25px auto;
+
+background:var(--panel);
+
+border:1px solid var(--line);
+
+border-radius:18px;
+
+padding:25px;
+
+}
+
+
+.guideBox h2{
+
+font-family:Orbitron;
+
+}
+
+
+.guideStatus{
+
+background:var(--panel-alt);
+
+border:1px solid var(--line);
+
+border-radius:12px;
+
+padding:15px;
+
+color:#cbd5e1;
+
+}
+
+
+.guideStatus span{
+
+color:var(--blue);
+
+font-weight:800;
+
+}
 
 </style>
 
@@ -653,7 +701,41 @@ Open Games
 
 </div>
 
+<div class="guideBox">
 
+<h2>
+📺 Video Guide
+</h2>
+
+
+<div class="guideStatus">
+
+Current Program:
+
+<span id="currentProgram">
+Loading...
+</span>
+
+
+<br><br>
+
+
+Stream Status:
+
+<span id="streamStatus">
+Connecting...
+</span>
+
+
+</div>
+
+
+<button onclick="loadGuide()">
+🔄 Refresh Guide
+</button>
+
+
+</div>
 
 
 
@@ -737,38 +819,75 @@ Obvyris Platform © 2026
 <script>
 
 
-function openApp(app){
+const STATION_API =
+"https://script.google.com/macros/s/AKfycbyasf7oke6ZAhjgD-j2HGcR9bBysso2M9RuUuOgXZUQ7UkQ6CAOMV4PfGM3ViLUz6bygg/exec";
 
 
-if(app=="radio"){
 
-location.href="Radio_Obvyris.html";
+async function loadGuide(){
+
+try{
+
+
+let response =
+await fetch(
+STATION_API+"?action=now"
+);
+
+
+let data =
+await response.json();
+
+
+
+console.log(
+"VIDEO GUIDE",
+data
+);
+
+
+
+document.getElementById(
+"currentProgram"
+).innerText =
+data.program || "No Program";
+
+
+document.getElementById(
+"streamStatus"
+).innerText =
+data.url ? "Online" : "Offline";
+
+
+
+}
+
+catch(e){
+
+
+document.getElementById(
+"streamStatus"
+).innerText =
+"Error";
+
+
+console.error(e);
+
 
 }
 
 
-if(app=="video"){
-
-location.href="Video_Obvyris.html";
-
 }
 
 
-if(app=="chat"){
 
-location.href="newschat.html";
-
-}
+loadGuide();
 
 
-if(app=="games"){
-
-location.href="Games_Obvyris.html";
-
-}
-
-
-}
+setInterval(
+loadGuide,
+30000
+);
 
 
 
