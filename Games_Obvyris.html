@@ -461,9 +461,26 @@ try{
 console.log("Loading:", GAME_API);
 
 
-const res = await fetch(
- GAME_API
-);
+const script=document.createElement("script");
+
+script.src=
+GAME_API+
+"?callback=loadGamesCallback";
+
+document.body.appendChild(script);
+
+
+function loadGamesCallback(data){
+
+games=data.games;
+
+filtered=[...games];
+
+buildCategories();
+
+render();
+
+}
 
 
 console.log("STATUS:", res.status);
