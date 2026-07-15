@@ -10,8 +10,6 @@
 <link rel="manifest" href="manifest.json">
 
 <meta name="theme-color" content="#2793ff">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
 
 <link rel="apple-touch-icon" href="navicon.png">
 <link rel="icon" href="navicon.png">
@@ -46,7 +44,9 @@ color:white;
 }
 
 
+
 /* HEADER */
+
 
 .header{
 
@@ -146,6 +146,8 @@ transition:.2s;
 box-shadow:
 0 10px 30px rgba(0,0,0,.25);
 
+cursor:pointer;
+
 }
 
 
@@ -220,8 +222,7 @@ margin:3px;
 
 
 
-button,
-.open{
+button{
 
 display:inline-block;
 
@@ -248,13 +249,41 @@ font-weight:800;
 
 cursor:pointer;
 
-text-decoration:none;
+}
+
+
+/* VIDEO GUIDE */
+
+
+.guideStatus{
+
+background:var(--panel-alt);
+
+border:1px solid var(--line);
+
+border-radius:12px;
+
+padding:15px;
+
+color:#cbd5e1;
+
+margin-top:15px;
 
 }
 
-<style>
+
+.guideStatus span{
+
+color:var(--blue);
+
+font-weight:800;
+
+}
+
+
 
 /* INFO */
+
 
 .info{
 
@@ -311,7 +340,7 @@ color:var(--muted);
 
 
 
-/* MOBILE MODE */
+/* MOBILE */
 
 
 @media(max-width:700px){
@@ -331,7 +360,6 @@ font-size:32px;
 }
 
 
-
 .container{
 
 padding:15px;
@@ -348,15 +376,6 @@ padding:18px;
 }
 
 
-.card .description,
-.tags,
-.info{
-
-display:none;
-
-}
-
-
 .icon{
 
 width:60px;
@@ -366,9 +385,6 @@ height:60px;
 
 
 }
-
-
-/* SHARE BUTTON */
 
 .logoButton{
 
@@ -382,113 +398,12 @@ cursor:pointer;
 
 }
 
-/* VIDEO GUIDE */
-
-.guideBox{
-
-max-width:1150px;
-
-margin:25px auto;
-
-background:var(--panel);
-
-border:1px solid var(--line);
-
-border-radius:18px;
-
-padding:25px;
-
-}
-
-
-.guideBox h2{
-
-font-family:Orbitron;
-
-}
-
-
-.guideStatus{
-
-background:var(--panel-alt);
-
-border:1px solid var(--line);
-
-border-radius:12px;
-
-padding:15px;
-
-color:#cbd5e1;
-
-}
-
-
-.guideStatus span{
-
-color:var(--blue);
-
-font-weight:800;
-
-}
-
-.guideBox{
-
-max-width:1150px;
-
-margin:25px auto;
-
-background:var(--panel);
-
-border:1px solid var(--line);
-
-border-radius:18px;
-
-padding:25px;
-
-cursor:pointer;
-
-transition:.2s;
-
-}
-
-
-.guideBox:hover{
-
-transform:translateY(-4px);
-
-border-color:var(--blue);
-
-}
-
-
-.guideStatus{
-
-background:var(--panel-alt);
-
-border:1px solid var(--line);
-
-padding:15px;
-
-border-radius:12px;
-
-}
-
-
-.guideStatus span{
-
-color:var(--blue);
-
-font-weight:800;
-
-}
 </style>
 
 </head>
 
 
-
 <body>
-
 
 
 <header class="header">
@@ -521,11 +436,11 @@ Entertainment • Media • Community Platform
 
 
 
-
 <div class="container">
 
 
 <!-- RADIO -->
+
 
 <div class="card"
 onclick="openApp('radio')">
@@ -569,23 +484,41 @@ Open Radio
 </div>
 
 
-
-
-
 <!-- VIDEO -->
 
-<div class="guideBox" onclick="openVideoTV()">
+
+<div class="card"
+onclick="openVideoTV()">
+
+
+
+<div class="icon">
+
+<img src="video_icon_cutout.png">
+
+</div>
+
 
 <h2>
-📺 Video Guide
+Video Obvyris
 </h2>
+
+
+<div class="description">
+
+Live Video Obvyris TV with current
+program information and streaming.
+
+</div>
 
 
 <div class="guideStatus">
 
+
 Now Playing:
 
 <br>
+
 
 <span id="currentProgram">
 Loading...
@@ -606,14 +539,15 @@ Connecting...
 
 
 <button>
-▶ Watch Video Obvyris TV
+
+▶ Open Video Obvyris TV
+
 </button>
 
 
 </div>
 
-
-<!-- CHAT -->
+        <!-- CHAT -->
 
 <div class="card"
 onclick="openApp('chat')">
@@ -648,7 +582,9 @@ for discussions and shared experiences.
 
 
 <button>
+
 Open Chat
+
 </button>
 
 
@@ -659,6 +595,7 @@ Open Chat
 
 
 <!-- GAMES -->
+
 
 <div class="card"
 onclick="openApp('games')">
@@ -695,7 +632,9 @@ experiences.
 
 
 <button>
+
 Open Games
+
 </button>
 
 
@@ -705,42 +644,11 @@ Open Games
 
 </div>
 
-<div class="guideBox">
-
-<h2>
-📺 Video Guide
-</h2>
 
 
-<div class="guideStatus">
-
-Current Program:
-
-<span id="currentProgram">
-Loading...
-</span>
 
 
-<br><br>
-
-
-Stream Status:
-
-<span id="streamStatus">
-Connecting...
-</span>
-
-
-</div>
-
-
-<button onclick="loadGuide()">
-🔄 Refresh Guide
-</button>
-
-
-</div>
-
+<!-- ECOSYSTEM -->
 
 
 <div class="info">
@@ -753,34 +661,48 @@ Connecting...
 
 <div class="tree">
 
+
 Obvyris Platform
+
 
         |
         |
      Homepage
+
         |
  --------------------------------
+
  |          |          |          |
+
 Radio     Video      Chat      Games
+
 Obvyris   Obvyris    Obvyris   Obvyris
+
 
 
 Future:
 
+
 📚 Audiobooks
 
+
 📰 News
+
 
 ⭐ More Services
 
 
-</div>
-
 
 </div>
 
 
+</div>
 
+
+
+
+
+<!-- FEATURES -->
 
 
 <div class="info">
@@ -795,18 +717,21 @@ Future:
 
 ✔ Unified application launcher<br>
 
-✔ Media discovery<br>
+✔ Live media discovery<br>
 
 ✔ Streaming experiences<br>
 
 ✔ Community interaction<br>
 
-✔ Expandable ecosystem
+✔ Expandable ecosystem<br>
+
+✔ Cross-platform web apps
 
 </p>
 
 
 </div>
+
 
 
 
@@ -820,41 +745,70 @@ Obvyris Platform © 2026
 
 
 
+
 <script>
 
 
 const STATION_API =
+
 "https://script.google.com/macros/s/AKfycbyasf7oke6ZAhjgD-j2HGcR9bBysso2M9RuUuOgXZUQ7UkQ6CAOMV4PfGM3ViLUz6bygg/exec";
 
 
 
+
+
+/*
+VIDEO GUIDE
+Gets current Video Obvyris TV program
+*/
+
+
 async function loadGuide(){
+
 
 try{
 
 
-const res =
-await fetch(
-STATION_API+"?action=now&t="+Date.now()
+const res = await fetch(
+
+STATION_API +
+
+"?action=now&t=" +
+
+Date.now()
+
 );
 
 
-const data =
-await res.json();
+
+const data = await res.json();
 
 
 
 document.getElementById(
 "currentProgram"
 ).innerText =
-data.program || "Video Obvyris TV";
+
+data.program ||
+
+"Video Obvyris TV";
+
+
 
 
 
 document.getElementById(
 "streamStatus"
 ).innerText =
-data.url ? "ONLINE" : "OFFLINE";
+
+data.url ?
+
+"ONLINE"
+
+:
+
+"OFFLINE";
+
 
 
 }
@@ -865,6 +819,7 @@ catch(e){
 document.getElementById(
 "streamStatus"
 ).innerText =
+
 "ERROR";
 
 
@@ -875,23 +830,72 @@ document.getElementById(
 
 
 
+
+
+/*
+Open Video Obvyris
+*/
+
+
 function openVideoTV(){
 
+
 window.location.href =
+
 "Video_Obvyris.html";
+
 
 }
 
 
 
-loadGuide();
 
 
-setInterval(
-loadGuide,
-15000
-);
+/*
+APP NAVIGATION
+*/
 
+
+function openApp(app){
+
+
+if(app=="radio"){
+
+location.href="Radio_Obvyris.html";
+
+}
+
+
+if(app=="video"){
+
+location.href="Video_Obvyris.html";
+
+}
+
+
+if(app=="chat"){
+
+location.href="newschat.html";
+
+}
+
+
+if(app=="games"){
+
+location.href="Games_Obvyris.html";
+
+}
+
+
+}
+
+
+
+
+
+/*
+SHARE HUB
+*/
 
 
 function shareApp(){
@@ -899,49 +903,93 @@ function shareApp(){
 
 let data={
 
+
 title:"Obvyris Hub",
+
 
 text:"Check out Obvyris Hub!",
 
+
 url:location.href
+
 
 };
 
 
+
 if(navigator.share){
 
+
 navigator.share(data);
+
 
 }
 
 else{
 
-navigator.clipboard.writeText(location.href);
 
-alert("Link copied!");
+navigator.clipboard.writeText(
+location.href
+);
+
+
+alert(
+"Link copied!"
+);
+
 
 }
 
 
 }
 
+
+
+
+
+/*
+PWA SERVICE WORKER
+*/
 
 
 if("serviceWorker" in navigator){
 
+
 navigator.serviceWorker.register(
+
 "/tester/service-worker.js"
+
 );
 
+
 }
+
+
+
+
+
+/*
+LOAD GUIDE
+*/
+
+
+loadGuide();
+
+
+
+setInterval(
+
+loadGuide,
+
+15000
+
+);
+
 
 
 </script>
 
 
 </body>
+
 </html>
-
-
-
-        
