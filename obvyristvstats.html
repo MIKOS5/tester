@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Video Obvyris TV</title>
+
+<link rel="icon" href="https://mikos5.github.io/tester/navicon.png">
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+<style>
+
+body{
+margin:0;
+background:#09111d;
+color:white;
+font-family:Arial;
+text-align:center;
+}
+
+
+#header{
+
+background:#111827;
+padding:15px;
+font-size:22px;
+font-weight:bold;
+
+}
+
+
+video{
+
+width:100%;
+height:75vh;
+background:black;
+
+}
+
+
+#controls{
+
+background:#111827;
+padding:10px;
+
+}
+
+
+button,input{
+
+padding:10px;
+margin:5px;
+
+}
+
+
+#status{
+
+color:#2793ff;
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div id="header">
+
+📺 Video Obvyris TV
+
+</div>
+
+
+
+<video
+id="video"
+playsinline
+autoplay
+controls>
+</video>
+
+
+
+<div id="controls">
+
+
+<button onclick="reloadStation()">
+🔄 Reload
+</button>
+
+
+<button onclick="fullscreenPlayer()">
+⛶
+</button>
+
+
+<button onclick="toggleMute()">
+🔇
+</button>
+
+
+<input
+type="range"
+min="0"
+max="100"
+value="100"
+oninput="volume(this.value)"
+>
+
+
+</div>
+
+
+
+<h3 id="status">
+Loading...
+</h3>
+
+
+
+
+<script>
+
+
+const STATION_API =
+"https://script.google.com/macros/s/AKfycbyasf7oke6ZAhjgD-j2HGcR9bBysso2M9RuUuOgXZUQ7UkQ6CAOMV4PfGM3ViLUz6bygg/exec";
+
+
+
+const video =
+document.getElementById("video");
+
+
+let currentSeek=0;
+let currentURL="";
+let hls=null;
+
+
+
+async function loadStation(){
+
+
+try{
+
+
+const r =
+await fetch(
+STATION_API+"?action=now"
+);
+
+
+const data =
+await r.json();
+
+
+
+console.log(
+"STATION:",
+data
+);
+
+
+
+if(!data.url)
+throw new Error(
+"No URL"
+);
+
+
+
+currentURL=data.url;
+
+currentSeek=
+Number(data.seek || 0);
+
+
+
+document.getElementById("status")
+.innerText =
+data.program || "Video Obvyris TV";
+
+
+
+playStream();
+
+
+
+}
+catch(e){
+
+
+console.error(e);
+
+
+document.getElementById("status")
+.innerText =
+"ERROR "+e.message;
+
+
+}
+
+
+
+}
+
+
+
+
+function playStream(){
+
+
+
+if(hls){
+
+hls.destroy();
+
+}
+
+
+
+if(
+Hls.isSupported() &&
+currentURL.includes(".m3u8")
+){
+
+
+hls=new Hls({
+
+liveSyncDuration:3,
+enableWorker:true
+
+});
+
+
+
+hls.loadSource(
+currentURL
+);
+
+
+hls.attachMedia(
+video
+);
+
+
+
+hls.on(
+Hls.Events.MANIFEST_PARSED,
+()=>{
+
+syncTimer();
+
+video.play();
+
+});
+
+
+}
+else{
+
+
+video.src=currentURL;
+
+
+
+video.onloadedmetadata=()=>{
+
+syncTimer();
+
+video.play();
+
+};
+
+
+}
+
+
+
+}
+
+
+
+
+function syncTimer(){
+
+
+console.log(
+"SYNC:",
+currentSeek
+);
+
+
+
+if(currentSeek>0){
+
+
+try{
+
+video.currentTime =
+currentSeek;
+
+
+}
+catch(e){
+
+console.log(e);
+
+}
+
+
+}
+
+
+
+}
+
+
+
+
+
+/*
+Keep aligned with station clock
+*/
+
+setInterval(()=>{
+
+
+if(video.readyState>=2 && currentSeek){
+
+
+let difference =
+Math.abs(
+video.currentTime-currentSeek
+);
+
+
+
+if(difference>10){
+
+
+console.log(
+"Resyncing..."
+);
+
+
+video.currentTime=currentSeek;
+
+
+}
+
+
+}
+
+
+
+},15000);
+
+
+
+
+
+function reloadStation(){
+
+loadStation();
+
+}
+
+
+
+
+function volume(v){
+
+video.volume =
+v/100;
+
+}
+
+
+
+function toggleMute(){
+
+video.muted =
+!video.muted;
+
+}
+
+
+
+function fullscreenPlayer(){
+
+
+if(video.requestFullscreen)
+video.requestFullscreen();
+
+
+}
+
+
+
+
+
+/*
+Restrictions
+*/
+
+
+document.addEventListener(
+"contextmenu",
+e=>e.preventDefault()
+);
+
+
+
+document.addEventListener(
+"keydown",
+e=>{
+
+
+if(e.key==="F12")
+e.preventDefault();
+
+
+
+if(
+e.ctrlKey &&
+e.shiftKey &&
+["I","J","C"]
+.includes(e.key)
+)
+e.preventDefault();
+
+
+
+if(
+e.ctrlKey &&
+e.key==="u"
+)
+e.preventDefault();
+
+
+
+});
+
+
+
+
+loadStation();
+
+
+</script>
+
+
+</body>
+</html>
