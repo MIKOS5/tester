@@ -2069,48 +2069,31 @@ setInterval(()=>{
 },1000);
 
 
-load().then(()=>{
+(async () => {
+
+    await load();
 
     console.log("PAGE PARAM:", requestedStation);
 
+    if (!requestedStation) return;
 
-if(requestedStation){
+    if (requestedStation.trim().toLowerCase() === "video obvyris tv") {
 
-    if(requestedStation.toLowerCase() === "video obvyris tv"){
-
-        console.log("AUTO START VIDEO OBVYRIS TV");
-
-        loadStation();
-
-    } else {
-
-        load().then(()=>{
-
-            const match = list.find(s =>
-                s.name.toLowerCase()
-                .includes(
-                    requestedStation.toLowerCase()
-                )
-            );
-
-            if(match){
-
-                play(list.indexOf(match));
-
-            }
-
-        });
+        console.log("Opening Video Obvyris TV...");
+        await loadStation();
+        return;
 
     }
 
-}else{
+    const match = list.find(s =>
+        s.name.trim().toLowerCase() === requestedStation.trim().toLowerCase()
+    );
 
-    load();
+    if (match) {
+        play(list.indexOf(match));
+    }
 
-}
-
-
-
+})();
    
 // Disable right click
 document.addEventListener("contextmenu", function(e){
