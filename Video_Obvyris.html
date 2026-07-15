@@ -1223,7 +1223,9 @@ function buildGroups(){
 
     const box=document.getElementById("groupList");
 
-    box.innerHTML="";
+if(!box) return;
+
+box.innerHTML="";
 
 
     const all=document.createElement("div");
@@ -2069,7 +2071,9 @@ setInterval(()=>{
 },1000);
 
 
-(async () => {
+window.addEventListener("DOMContentLoaded", async () => {
+
+    console.log("DOM READY");
 
     await load();
 
@@ -2077,23 +2081,37 @@ setInterval(()=>{
 
     if (!requestedStation) return;
 
-    if (requestedStation.trim().toLowerCase() === "video obvyris tv") {
 
-        console.log("Opening Video Obvyris TV...");
+    if (
+        requestedStation.trim().toLowerCase()
+        ===
+        "video obvyris tv"
+    ) {
+
+        console.log("AUTO START VIDEO OBVYRIS TV");
+
         await loadStation();
+
         return;
 
     }
 
+
     const match = list.find(s =>
-        s.name.trim().toLowerCase() === requestedStation.trim().toLowerCase()
+        s.name.trim().toLowerCase()
+        ===
+        requestedStation.trim().toLowerCase()
     );
 
-    if (match) {
+
+    if(match){
+
         play(list.indexOf(match));
+
     }
 
-})();
+
+});
    
 // Disable right click
 document.addEventListener("contextmenu", function(e){
