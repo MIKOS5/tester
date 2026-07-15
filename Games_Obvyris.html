@@ -33,11 +33,21 @@
 }
 
 
-
 *{
 box-sizing:border-box;
 }
 
+
+html,body{
+
+width:100%;
+height:100%;
+
+overscroll-behavior:none;
+
+-webkit-tap-highlight-color:transparent;
+
+}
 
 
 body{
@@ -59,9 +69,7 @@ font-family:Inter,Arial;
 }
 
 
-
 /* SIDEBAR */
-
 
 #sidebar{
 
@@ -84,7 +92,6 @@ flex-shrink:0;
 }
 
 
-
 .brand{
 
 padding:12px;
@@ -92,7 +99,6 @@ padding:12px;
 cursor:pointer;
 
 }
-
 
 
 .logo{
@@ -106,13 +112,11 @@ font-weight:900;
 }
 
 
-
 .logo span{
 
 color:var(--blue);
 
 }
-
 
 
 .subtitle{
@@ -122,7 +126,6 @@ font-size:11px;
 color:var(--muted);
 
 }
-
 
 
 .group{
@@ -141,8 +144,9 @@ cursor:pointer;
 
 font-size:13px;
 
-}
+touch-action:manipulation;
 
+}
 
 
 .group:hover{
@@ -154,9 +158,7 @@ background:#132238;
 }
 
 
-
 /* APP MENU */
-
 
 .app-menu{
 
@@ -183,13 +185,11 @@ overflow:hidden;
 }
 
 
-
 .app-menu.open{
 
 display:block;
 
 }
-
 
 
 .app-menu div{
@@ -203,7 +203,6 @@ font-weight:700;
 }
 
 
-
 .app-menu div:hover{
 
 background:var(--blue);
@@ -211,11 +210,7 @@ background:var(--blue);
 }
 
 
-
-
-
 /* MAIN */
-
 
 #main{
 
@@ -227,12 +222,12 @@ overflow:auto;
 
 padding:20px;
 
+-webkit-overflow-scrolling:touch;
+
 }
 
 
-
 /* SEARCH */
-
 
 #search{
 
@@ -255,7 +250,6 @@ outline:none;
 }
 
 
-
 #search::placeholder{
 
 color:var(--muted);
@@ -263,9 +257,7 @@ color:var(--muted);
 }
 
 
-
 /* HEADER */
-
 
 h1{
 
@@ -276,11 +268,7 @@ margin-top:0;
 }
 
 
-
-
-
 /* GAMES */
-
 
 #games{
 
@@ -292,8 +280,6 @@ repeat(auto-fill,minmax(230px,1fr));
 gap:18px;
 
 }
-
-
 
 
 .game{
@@ -308,8 +294,9 @@ overflow:hidden;
 
 transition:.2s;
 
-}
+touch-action:manipulation;
 
+}
 
 
 .game:hover{
@@ -319,7 +306,6 @@ transform:translateY(-5px);
 border-color:var(--blue);
 
 }
-
 
 
 .game img{
@@ -332,9 +318,11 @@ object-fit:cover;
 
 background:#000;
 
+user-select:none;
+
+-webkit-user-drag:none;
+
 }
-
-
 
 
 .info{
@@ -342,7 +330,6 @@ background:#000;
 padding:14px;
 
 }
-
 
 
 .game h2{
@@ -356,7 +343,6 @@ margin:0 0 8px;
 }
 
 
-
 .game p{
 
 color:var(--muted);
@@ -364,7 +350,6 @@ color:var(--muted);
 font-size:14px;
 
 }
-
 
 
 button{
@@ -390,8 +375,9 @@ font-weight:800;
 
 cursor:pointer;
 
-}
+touch-action:manipulation;
 
+}
 
 
 button:hover{
@@ -401,9 +387,6 @@ filter:brightness(1.15);
 }
 
 
-
-
-
 #error{
 
 color:red;
@@ -411,17 +394,114 @@ color:red;
 }
 
 
+/* GAME PLAYER */
 
+#gamePlayer{
+
+display:none;
+
+position:fixed;
+
+top:50%;
+
+left:50%;
+
+transform:translate(-50%,-50%);
+
+width:80vw;
+
+height:80vh;
+
+background:#000;
+
+border:2px solid var(--blue);
+
+border-radius:15px;
+
+z-index:5000;
+
+box-shadow:0 0 40px #000;
+
+resize:both;
+
+overflow:hidden;
+
+min-width:320px;
+
+min-height:240px;
+
+}
+
+
+.playerHeader{
+
+height:45px;
+
+background:var(--panel);
+
+display:flex;
+
+align-items:center;
+
+justify-content:space-between;
+
+padding:8px 12px;
+
+font-family:Orbitron;
+
+}
+
+
+.playerHeader button{
+
+width:auto;
+
+padding:6px 10px;
+
+margin-left:5px;
+
+}
+
+
+#gameFrame{
+
+width:100%;
+
+height:calc(100% - 45px);
+
+border:0;
+
+background:black;
+
+-webkit-overflow-scrolling:touch;
+
+}
+
+
+/* FULLSCREEN */
+
+#gamePlayer:fullscreen{
+
+width:100vw;
+
+height:100vh;
+
+border:0;
+
+border-radius:0;
+
+}
 
 
 /* MOBILE */
-
 
 @media(max-width:700px){
 
 
 body{
-    overflow:auto;
+
+overflow:auto;
+
 }
 
 
@@ -430,9 +510,12 @@ body{
 position:fixed;
 
 left:0;
+
 top:0;
 
 width:65px;
+
+height:100vh;
 
 z-index:1000;
 
@@ -521,6 +604,7 @@ font-size:14px;
 }
 
 
+/* mobile game window */
 
 #gamePlayer{
 
@@ -528,8 +612,13 @@ width:95vw;
 
 height:85vh;
 
-}
+top:50%;
 
+left:50%;
+
+transform:translate(-50%,-50%);
+
+}
 
 
 .playerHeader{
@@ -537,78 +626,6 @@ height:85vh;
 height:50px;
 
 }
-
-
-}
-
-.playerHeader button{
-
-width:auto;
-
-padding:6px 10px;
-
-margin-left:5px;
-
-}
-
-
-#gameFrame{
-
-width:100%;
-
-height:calc(100% - 45px);
-
-border:0;
-
-background:black;
-
-}
-  
-/* ANDROID TOUCH SUPPORT */
-
-html,body{
-    width:100%;
-    height:100%;
-    overscroll-behavior:none;
-    -webkit-tap-highlight-color:transparent;
-}
-
-
-button,
-.group,
-.brand,
-.game{
-    touch-action:manipulation;
-}
-
-
-#main{
-    -webkit-overflow-scrolling:touch;
-}
-
-
-img{
-    user-select:none;
-    -webkit-user-drag:none;
-}
-
-
-
-/* Android fullscreen player */
-
-#gamePlayer:fullscreen{
-
-width:100vw;
-height:100vh;
-border:0;
-border-radius:0;
-
-}
-
-
-#gameFrame{
-
--webkit-overflow-scrolling:touch;
 
 }
 
