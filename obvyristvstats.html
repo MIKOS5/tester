@@ -1,64 +1,280 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 
-<title>Video Obvyris TV</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link rel="icon" href="https://mikos5.github.io/tester/navicon.png">
-
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<title>Video Obvyris Live Preview</title>
 
 <style>
 
+*{
+box-sizing:border-box;
+}
+
 body{
+
 margin:0;
-background:#09111d;
-color:white;
-font-family:Arial;
-text-align:center;
+background:#080808;
+color:#eee;
+font-family:Arial,Helvetica,sans-serif;
+
 }
 
 
-#header{
+header{
 
-background:#111827;
-padding:15px;
+height:60px;
+background:#111;
+border-bottom:1px solid #333;
+
+display:flex;
+align-items:center;
+justify-content:space-between;
+
+padding:0 20px;
+
+}
+
+
+h1{
+
 font-size:22px;
+margin:0;
+
+}
+
+
+.status{
+
 font-weight:bold;
 
 }
 
 
+.live{
+
+color:#00ff66;
+
+margin-right:15px;
+
+}
+
+
+
+main{
+
+display:grid;
+
+grid-template-columns:
+2fr 1fr;
+
+gap:15px;
+
+padding:15px;
+
+}
+
+
+
+.preview{
+
+background:#000;
+
+border:1px solid #333;
+
+}
+
+
+
 video{
 
 width:100%;
-height:75vh;
+
+aspect-ratio:16/9;
+
 background:black;
 
+display:block;
+
 }
 
 
-#controls{
 
-background:#111827;
+
+.panel{
+
+display:flex;
+
+flex-direction:column;
+
+gap:15px;
+
+}
+
+
+
+.card{
+
+background:#151515;
+
+border:1px solid #333;
+
+border-radius:8px;
+
+padding:15px;
+
+}
+
+
+
+.card h2{
+
+font-size:14px;
+
+text-transform:uppercase;
+
+color:#aaa;
+
+margin:0 0 12px;
+
+}
+
+
+
+.row{
+
+display:flex;
+
+justify-content:space-between;
+
+padding:6px 0;
+
+border-bottom:1px solid #222;
+
+}
+
+
+
+.value{
+
+font-weight:bold;
+
+}
+
+
+
+.good{
+
+color:#00ff66;
+
+}
+
+
+.warn{
+
+color:#ffaa00;
+
+}
+
+
+.bad{
+
+color:#ff4444;
+
+}
+
+
+
+
+.guide{
+
+margin:15px;
+
+background:#111;
+
+border:1px solid #333;
+
+border-radius:8px;
+
+padding:15px;
+
+}
+
+
+
+.guideRow{
+
+display:grid;
+
+grid-template-columns:
+70px 1fr 80px;
+
+padding:8px;
+
+border-bottom:1px solid #222;
+
+}
+
+
+
+.guideRow.active{
+
+background:#10351d;
+
+border-left:4px solid #00ff66;
+
+}
+
+
+
+.progress{
+
+height:5px;
+
+background:#00ff66;
+
+width:0%;
+
+margin-top:5px;
+
+}
+
+
+
+.log{
+
+margin:15px;
+
+background:#000;
+
+border:1px solid #333;
+
+height:180px;
+
+overflow:auto;
+
 padding:10px;
 
-}
+font-size:12px;
 
-
-button,input{
-
-padding:10px;
-margin:5px;
+color:#aaa;
 
 }
 
 
-#status{
 
-color:#2793ff;
+@media(max-width:900px){
+
+main{
+
+grid-template-columns:1fr;
 
 }
+
+}
+
 
 </style>
 
@@ -68,66 +284,219 @@ color:#2793ff;
 <body>
 
 
-<div id="header">
+<header>
 
-📺 Video Obvyris TV
+<h1>
+📺 Video Obvyris Live Preview
+</h1>
+
+
+<div class="status">
+
+<span class="live">
+● LIVE
+</span>
+
+<span id="syncStatus">
+CONNECTING
+</span>
 
 </div>
 
+
+</header>
+
+
+<main>
+
+
+<section class="preview">
 
 
 <video
 id="video"
-playsinline
 autoplay
-controls>
+muted
+playsinline
+preload="auto">
 </video>
 
 
-
-<div id="controls">
-
-
-<button onclick="reloadStation()">
-🔄 Reload
-</button>
+</section>
 
 
-<button onclick="fullscreenPlayer()">
-⛶
-</button>
+
+<section class="panel">
 
 
-<button onclick="toggleMute()">
-🔇
-</button>
+<div class="card">
 
 
-<input
-type="range"
-min="0"
-max="100"
-value="100"
-oninput="volume(this.value)"
->
+<h2>
+Now Playing
+</h2>
+
+
+<div class="row">
+<span>Program</span>
+<span id="program" class="value">
+-
+</span>
+</div>
+
+
+<div class="row">
+<span>Channel</span>
+<span id="channel" class="value">
+-
+</span>
+</div>
+
+
+<div class="row">
+<span>Type</span>
+<span id="type" class="value">
+-
+</span>
+</div>
 
 
 </div>
 
 
 
-<h3 id="status">
+
+<div class="card">
+
+
+<h2>
+Timing
+</h2>
+
+
+<div class="row">
+<span>Seek</span>
+<span id="seek" class="value">
+-
+</span>
+</div>
+
+
+<div class="row">
+<span>Duration</span>
+<span id="duration" class="value">
+-
+</span>
+</div>
+
+
+<div class="row">
+<span>Remaining</span>
+<span id="remaining" class="value">
+-
+</span>
+</div>
+
+
+<div class="row">
+<span>Offset</span>
+<span id="offset" class="value">
+-
+</span>
+</div>
+
+
+</div>
+
+
+
+
+<div class="card">
+
+
+<h2>
+Diagnostics
+</h2>
+
+
+<div class="row">
+<span>Buffered</span>
+<span id="buffer" class="value">
+-
+</span>
+</div>
+
+
+<div class="row">
+<span>Ready State</span>
+<span id="ready" class="value">
+-
+</span>
+</div>
+
+
+<div class="row">
+<span>State</span>
+<span id="state" class="value">
+-
+</span>
+</div>
+
+
+</div>
+
+
+</section>
+
+
+</main>
+
+
+
+<section class="guide">
+
+
+<h2>
+TV GUIDE
+</h2>
+
+
+<div id="guide">
+
 Loading...
-</h3>
+
+</div>
 
 
+</section>
+
+
+
+
+<div class="log">
+
+<div id="log">
+
+Starting monitor...
+
+</div>
+
+</div>
 
 
 <script>
 
+// ================================
+// VIDEO OBVYRIS LIVE SYNC ENGINE
+// ================================
 
-const STATION_API =
-"https://script.google.com/macros/s/AKfycbyasf7oke6ZAhjgD-j2HGcR9bBysso2M9RuUuOgXZUQ7UkQ6CAOMV4PfGM3ViLUz6bygg/exec";
+
+const DEBUG_API =
+"https://script.google.com/macros/s/AKfycbyasf7oke6ZAhjgD-j2HGcR9bBysso2M9RuUuOgXZUQ7UkQ6CAOMV4PfGM3ViLUz6bygg/exec?action=now";
+
+
+const GUIDE_API =
+"https://script.google.com/macros/s/AKfycbyasf7oke6ZAhjgD-j2HGcR9bBysso2M9RuUuOgXZUQ7UkQ6CAOMV4PfGM3ViLUz6bygg/exec?action=guide";
 
 
 
@@ -135,311 +504,501 @@ const video =
 document.getElementById("video");
 
 
-let currentSeek=0;
-let currentURL="";
-let hls=null;
+let currentAPI=null;
+
+let lastURL="";
+
+let apiReceived=0;
+
+let guide=[];
 
 
 
-async function loadStation(){
+// -------------------------------
+// Format seconds
+// -------------------------------
+
+function fmt(sec){
+
+if(!isFinite(sec))
+return "0:00";
+
+
+sec=Math.floor(sec);
+
+
+let h=Math.floor(sec/3600);
+
+let m=Math.floor((sec%3600)/60);
+
+let s=sec%60;
+
+
+if(h>0){
+
+return h+":"+
+String(m).padStart(2,"0")+":"+
+String(s).padStart(2,"0");
+
+}
+
+
+return m+":"+
+String(s).padStart(2,"0");
+
+}
+
+
+
+// -------------------------------
+// Logging
+// -------------------------------
+
+
+function log(msg){
+
+let box=
+document.getElementById("log");
+
+
+box.innerHTML=
+
+new Date()
+.toLocaleTimeString()
++" | "
++msg
++"<br>"
++box.innerHTML;
+
+
+}
+
+
+
+// -------------------------------
+// Load Current Program
+// -------------------------------
+
+
+async function updateNow(){
 
 
 try{
 
 
-const r =
-await fetch(
-STATION_API+"?action=now"
-);
+let r =
+await fetch(DEBUG_API+
+"&t="+Date.now());
 
 
-const data =
+let data =
 await r.json();
 
 
 
-console.log(
-"STATION:",
-data
+currentAPI=data;
+
+apiReceived=Date.now();
+
+
+
+program.textContent =
+data.program || "-";
+
+
+channel.textContent =
+data.channel || "-";
+
+
+type.textContent =
+data.type || "-";
+
+
+seek.textContent =
+fmt(data.seek);
+
+
+duration.textContent =
+fmt(data.duration);
+
+
+remaining.textContent =
+fmt(data.remaining);
+
+
+
+syncStatus.textContent =
+"LOCKED";
+
+
+
+if(lastURL !== data.url){
+
+
+lastURL=data.url;
+
+
+
+log(
+"NEW PROGRAM: "+
+data.program
 );
 
 
 
-if(!data.url)
-throw new Error(
-"No URL"
+video.src=data.url;
+
+
+
+video.onloadedmetadata=function(){
+
+
+video.currentTime =
+data.seek;
+
+
+video.play()
+.catch(()=>{});
+
+
+
+log(
+"VIDEO SYNCED "+
+fmt(data.seek)
 );
 
-
-
-currentURL=data.url;
-
-currentSeek=
-Number(data.seek || 0);
-
-
-
-document.getElementById("status")
-.innerText =
-data.program || "Video Obvyris TV";
-
-
-
-playStream();
-
-
-
-}
-catch(e){
-
-
-console.error(e);
-
-
-document.getElementById("status")
-.innerText =
-"ERROR "+e.message;
-
-
-}
-
-
-
-}
-
-
-
-
-function playStream(){
-
-
-
-if(hls){
-
-hls.destroy();
-
-}
-
-
-
-if(
-Hls.isSupported() &&
-currentURL.includes(".m3u8")
-){
-
-
-hls=new Hls({
-
-liveSyncDuration:3,
-enableWorker:true
-
-});
-
-
-
-hls.loadSource(
-currentURL
-);
-
-
-hls.attachMedia(
-video
-);
-
-
-
-hls.on(
-Hls.Events.MANIFEST_PARSED,
-()=>{
-
-syncTimer();
-
-video.play();
-
-});
-
-
-}
-else{
-
-
-video.src=currentURL;
-
-
-
-video.onloadedmetadata=()=>{
-
-syncTimer();
-
-video.play();
 
 };
 
 
-}
-
-
 
 }
 
-
-
-
-function syncTimer(){
-
-
-console.log(
-"SYNC:",
-currentSeek
-);
-
-
-
-if(currentSeek>0){
-
-
-try{
-
-video.currentTime =
-currentSeek;
 
 
 }
 catch(e){
 
-console.log(e);
+
+syncStatus.textContent =
+"OFFLINE";
+
+
+log(
+"API ERROR "+e
+);
+
 
 }
 
 
-}
-
-
 
 }
 
 
 
 
-
-/*
-Keep aligned with station clock
-*/
-
-setInterval(()=>{
+// -------------------------------
+// Live clock analysis
+// -------------------------------
 
 
-if(video.readyState>=2 && currentSeek){
+function analyze(){
 
 
-let difference =
-Math.abs(
-video.currentTime-currentSeek
+if(!currentAPI)
+return;
+
+
+
+let livePosition =
+
+currentAPI.seek +
+
+(
+(Date.now()-apiReceived)
+/1000
 );
 
 
 
-if(difference>10){
+let drift =
 
-
-console.log(
-"Resyncing..."
-);
-
-
-video.currentTime=currentSeek;
-
-
-}
-
-
-}
+video.currentTime -
+livePosition;
 
 
 
-},15000);
+offset.textContent =
+drift.toFixed(2)
++" sec";
 
 
 
+buffer.textContent =
 
+video.buffered.length ?
 
-function reloadStation(){
-
-loadStation();
-
-}
-
-
-
-
-function volume(v){
-
-video.volume =
-v/100;
-
-}
-
-
-
-function toggleMute(){
-
-video.muted =
-!video.muted;
-
-}
-
-
-
-function fullscreenPlayer(){
-
-
-if(video.requestFullscreen)
-video.requestFullscreen();
-
-
-}
-
-
-
-
-
-/*
-Restrictions
-*/
-
-
-document.addEventListener(
-"contextmenu",
-e=>e.preventDefault()
-);
-
-
-
-document.addEventListener(
-"keydown",
-e=>{
-
-
-if(e.key==="F12")
-e.preventDefault();
-
-
-
-if(
-e.ctrlKey &&
-e.shiftKey &&
-["I","J","C"]
-.includes(e.key)
+fmt(
+video.buffered.end(
+video.buffered.length-1
 )
-e.preventDefault();
-
-
-
-if(
-e.ctrlKey &&
-e.key==="u"
 )
-e.preventDefault();
+
+:"0";
+
+
+
+ready.textContent =
+video.readyState;
+
+
+
+state.textContent =
+
+video.paused ?
+
+"PAUSED"
+
+:
+
+"PLAYING";
+
+
+
+
+
+if(Math.abs(drift)<2){
+
+
+syncStatus.textContent =
+"LOCKED";
+
+
+syncStatus.className =
+"good";
+
+
+}
+
+else if(Math.abs(drift)<5){
+
+
+syncStatus.textContent =
+"DRIFT";
+
+
+syncStatus.className =
+"warn";
+
+
+}
+
+else{
+
+
+syncStatus.textContent =
+"RESYNC";
+
+
+syncStatus.className =
+"bad";
+
+
+}
+
+
+
+}
+
+
+
+// -------------------------------
+// Video events
+// -------------------------------
+
+
+video.addEventListener(
+"playing",
+()=>{
+
+log(
+"PLAYING"
+);
+
+});
+
+
+video.addEventListener(
+"waiting",
+()=>{
+
+log(
+"BUFFERING"
+);
+
+});
+
+
+video.addEventListener(
+"error",
+()=>{
+
+log(
+"VIDEO ERROR"
+);
+
+});
+
+
+
+// -------------------------------
+// Startup
+// -------------------------------
+
+
+updateNow();
+
+
+setInterval(
+updateNow,
+10000
+);
+
+
+setInterval(
+analyze,
+1000
+);
+
+// ================================
+// TV GUIDE SYSTEM
+// ================================
+
+
+async function loadGuide(){
+
+
+try{
+
+
+let r =
+await fetch(
+GUIDE_API+
+"&t="+Date.now()
+);
+
+
+guide =
+await r.json();
+
+
+
+renderGuide();
+
+
+
+log(
+"GUIDE LOADED "+
+guide.length+
+" PROGRAMS"
+);
+
+
+
+}
+catch(e){
+
+
+log(
+"GUIDE ERROR "+e
+);
+
+
+}
+
+
+
+}
+
+
+
+
+// -------------------------------
+// Render Guide
+// -------------------------------
+
+
+function renderGuide(){
+
+
+let html="";
+
+
+guide.forEach(
+(item,index)=>{
+
+
+let duration =
+
+Number(
+item["End Time (Seconds)"]
+)
+
+-
+
+Number(
+item["Start Time (Seconds)"]
+);
+
+
+
+html += `
+
+
+<div
+class="guideRow"
+id="guide_${index}">
+
+
+<div>
+
+${index+1}
+
+</div>
+
+
+
+<div>
+
+
+<div>
+${item["Program Name"]}
+</div>
+
+
+<div
+class="progress"
+id="progress_${index}">
+</div>
+
+
+</div>
+
+
+
+<div>
+
+${fmt(duration)}
+
+</div>
+
+
+
+</div>
+
+
+`;
 
 
 
@@ -447,12 +1006,156 @@ e.preventDefault();
 
 
 
+document
+.getElementById("guide")
+.innerHTML =
+html;
 
-loadStation();
+
+}
+
+
+
+
+// -------------------------------
+// Highlight Playing Program
+// -------------------------------
+
+
+function updateGuide(){
+
+
+if(!currentAPI)
+return;
+
+
+
+guide.forEach(
+(item,index)=>{
+
+
+let row =
+document.getElementById(
+"guide_"+index
+);
+
+
+let bar =
+document.getElementById(
+"progress_"+index
+);
+
+
+
+if(!row)
+return;
+
+
+
+row.classList.remove(
+"active"
+);
+
+
+
+bar.style.width="0%";
+
+
+
+if(
+item["Video URL"] === currentAPI.url
+){
+
+
+row.classList.add(
+"active"
+);
+
+
+
+let elapsed =
+
+(
+currentAPI.seek -
+Number(
+item["Start Time (Seconds)"]
+)
+
+);
+
+
+
+let duration =
+
+Number(
+item["End Time (Seconds)"]
+)
+
+-
+
+Number(
+item["Start Time (Seconds)"]
+);
+
+
+
+let percent =
+
+(
+elapsed /
+duration
+)
+*100;
+
+
+
+percent =
+Math.max(
+0,
+Math.min(
+100,
+percent
+)
+);
+
+
+
+bar.style.width =
+percent+"%";
+
+
+
+}
+
+
+
+});
+
+
+
+}
+
+
+
+// -------------------------------
+// Update Guide Timer
+// -------------------------------
+
+
+setInterval(
+updateGuide,
+1000
+);
+
+
+
+// Initial guide load
+
+loadGuide();
 
 
 </script>
 
-
 </body>
+
 </html>
