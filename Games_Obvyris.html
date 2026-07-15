@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>Games Obvyris</title>
+
+<link rel="icon" href="https://mikos5.github.io/tester/navicon.png">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+
+
+<style>
+
+:root{
+
+--bg:#09111d;
+--panel:#111827;
+--border:#253347;
+
+--blue:#2793ff;
+--blueDark:#1869d9;
+
+--text:#fff;
+--muted:#93a4bb;
+
+}
+
+
+*{
+box-sizing:border-box;
+}
+
+
+body{
+
+margin:0;
+height:100vh;
+overflow:hidden;
+
+display:flex;
+
+font-family:Inter,Arial;
+
+background:var(--bg);
+color:white;
+
+}
+
+
+
+/* SIDEBAR */
+
+#sidebar{
+
+width:220px;
+
+background:var(--panel);
+
+border-right:1px solid var(--border);
+
+display:flex;
+
+flex-direction:column;
+
+overflow:auto;
+
+}
+
+
+
+.brand{
+
+padding:15px;
+
+cursor:pointer;
+
+}
+
+
+.logo{
+
+font-family:Orbitron;
+
+font-size:24px;
+
+font-weight:900;
+
+}
+
+
+.logo span{
+
+color:var(--blue);
+
+}
+
+
+.subtitle{
+
+font-size:12px;
+
+color:var(--muted);
+
+}
+
+
+
+#search{
+
+margin:10px;
+
+padding:10px;
+
+background:var(--bg);
+
+border:1px solid var(--border);
+
+color:white;
+
+border-radius:10px;
+
+}
+
+
+
+.group{
+
+margin:5px 10px;
+
+padding:10px;
+
+border-radius:10px;
+
+background:var(--bg);
+
+border:1px solid var(--border);
+
+cursor:pointer;
+
+font-size:13px;
+
+}
+
+
+.group:hover{
+
+border-color:var(--blue);
+
+}
+
+
+
+/* MAIN */
+
+
+#main{
+
+flex:1;
+
+display:flex;
+
+flex-direction:column;
+
+}
+
+
+
+#player{
+
+height:60%;
+
+background:black;
+
+border-bottom:1px solid var(--border);
+
+}
+
+
+
+iframe{
+
+width:100%;
+
+height:100%;
+
+border:0;
+
+background:black;
+
+}
+
+
+
+#bar{
+
+padding:10px;
+
+background:var(--panel);
+
+border-bottom:1px solid var(--border);
+
+display:flex;
+
+justify-content:center;
+
+gap:10px;
+
+align-items:center;
+
+}
+
+
+
+button{
+
+background:linear-gradient(
+180deg,
+var(--blue),
+var(--blueDark)
+);
+
+border:0;
+
+color:white;
+
+padding:9px 15px;
+
+border-radius:10px;
+
+font-weight:bold;
+
+cursor:pointer;
+
+}
+
+
+
+#now{
+
+font-weight:900;
+
+}
+
+
+
+#list{
+
+flex:1;
+
+overflow:auto;
+
+display:grid;
+
+grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+
+gap:10px;
+
+padding:15px;
+
+}
+
+
+
+.card{
+
+background:var(--panel);
+
+border:1px solid var(--border);
+
+border-radius:15px;
+
+overflow:hidden;
+
+cursor:pointer;
+
+transition:.2s;
+
+}
+
+
+
+.card:hover{
+
+transform:scale(1.03);
+
+border-color:var(--blue);
+
+}
+
+
+
+.card img{
+
+width:100%;
+
+height:120px;
+
+object-fit:cover;
+
+background:black;
+
+}
+
+
+
+.info{
+
+padding:10px;
+
+}
+
+
+
+.info small{
+
+color:var(--muted);
+
+}
+
+
+
+/* MOBILE */
+
+
+@media(max-width:700px){
+
+#sidebar{
+
+width:150px;
+
+}
+
+
+#player{
+
+height:45%;
+
+}
+
+
+#list{
+
+grid-template-columns:1fr;
+
+}
+
+
+}
+
+
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div id="sidebar">
+
+
+<div class="brand">
+
+<div class="logo">
+Games <span>Obvyris</span>
+</div>
+
+<div class="subtitle">
+Interactive Game Library
+</div>
+
+</div>
+
+
+<input 
+id="search"
+placeholder="Search games..."
+oninput="filterGames()">
+
+
+<div class="group"
+onclick="showAll()">
+
+🎮 All Games
+
+</div>
+
+
+<div id="categories"></div>
+
+
+</div>
+
+
+
+
+
+<div id="main">
+
+
+<div id="player">
+
+<iframe 
+id="gameFrame"
+allowfullscreen>
+</iframe>
+
+
+</div>
+
+
+
+<div id="bar">
+
+
+<div id="now">
+Select a game
+</div>
+
+
+<button onclick="fullscreenGame()">
+⛶ Fullscreen
+</button>
+
+
+</div>
+
+
+
+<div id="list"></div>
+
+
+
+</div>
+
+
+
+
+<script>
+
+
+const GAME_API =
+"https://script.google.com/macros/s/AKfycbz_NGVTztTuc81a5_1K839CTu1V4bcc9IWXkqlNBYSJN8WSqSUbH2YP8xjqZPE3c7fzNg/exec?action=games";
+
+
+
+let games=[];
+
+let filtered=[];
+
+
+
+async function loadGames(){
+
+
+try{
+
+
+const res =
+await fetch(GAME_API);
+
+
+const data =
+await res.json();
+
+
+
+console.log(data);
+
+
+
+games =
+data.games || [];
+
+
+filtered=[...games];
+
+
+buildCategories();
+
+render();
+
+
+}
+
+catch(e){
+
+console.error(e);
+
+document.getElementById("list").innerHTML=
+"API ERROR";
+
+}
+
+
+}
+
+
+
+
+function render(){
+
+
+const box =
+document.getElementById("list");
+
+
+box.innerHTML="";
+
+
+
+filtered.forEach((g,i)=>{
+
+
+box.innerHTML += `
+
+
+<div class="card"
+onclick="playGame(${i})">
+
+
+<img 
+src="${g.Image || 'navicon.png'}"
+onerror="this.src='navicon.png'">
+
+
+<div class="info">
+
+
+<b>${g.Name}</b>
+
+
+<br>
+
+<small>
+
+🎮 ${g.Category || "Game"}
+
+<br>
+
+🖥️ ${g.Type || "HTML5"}
+
+</small>
+
+
+</div>
+
+
+</div>
+
+
+`;
+
+
+});
+
+
+}
+
+
+
+
+
+function playGame(i){
+
+
+let g=filtered[i];
+
+
+document.getElementById("now")
+.innerText=g.Name;
+
+
+document.getElementById("gameFrame")
+.src=g.URL;
+
+
+}
+
+
+
+
+
+function buildCategories(){
+
+
+let cats=new Set();
+
+
+games.forEach(g=>{
+
+if(g.Category)
+
+cats.add(g.Category);
+
+});
+
+
+
+let box=
+document.getElementById("categories");
+
+
+box.innerHTML="";
+
+
+
+cats.forEach(c=>{
+
+
+box.innerHTML += `
+
+<div class="group"
+onclick="filterCategory('${c}')">
+
+🎲 ${c}
+
+</div>
+
+`;
+
+
+});
+
+
+}
+
+
+
+
+function filterCategory(c){
+
+
+filtered =
+games.filter(g=>
+g.Category===c
+);
+
+
+render();
+
+
+}
+
+
+
+function showAll(){
+
+
+filtered=[...games];
+
+render();
+
+
+}
+
+
+
+function filterGames(){
+
+
+let q =
+document.getElementById("search")
+.value
+.toLowerCase();
+
+
+
+filtered =
+games.filter(g=>
+
+
+(g.Name||"")
+.toLowerCase()
+.includes(q)
+
+||
+
+(g.Category||"")
+.toLowerCase()
+.includes(q)
+
+);
+
+
+
+render();
+
+
+}
+
+
+
+function fullscreenGame(){
+
+
+const f=
+document.getElementById("gameFrame");
+
+
+if(f.requestFullscreen)
+
+f.requestFullscreen();
+
+
+}
+
+
+
+
+
+loadGames();
+
+
+
+</script>
+
+
+</body>
+</html>
