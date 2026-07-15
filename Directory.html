@@ -431,6 +431,56 @@ font-weight:800;
 
 }
 
+.guideBox{
+
+max-width:1150px;
+
+margin:25px auto;
+
+background:var(--panel);
+
+border:1px solid var(--line);
+
+border-radius:18px;
+
+padding:25px;
+
+cursor:pointer;
+
+transition:.2s;
+
+}
+
+
+.guideBox:hover{
+
+transform:translateY(-4px);
+
+border-color:var(--blue);
+
+}
+
+
+.guideStatus{
+
+background:var(--panel-alt);
+
+border:1px solid var(--line);
+
+padding:15px;
+
+border-radius:12px;
+
+}
+
+
+.guideStatus span{
+
+color:var(--blue);
+
+font-weight:800;
+
+}
 </style>
 
 </head>
@@ -524,40 +574,39 @@ Open Radio
 
 <!-- VIDEO -->
 
-<div class="card"
-onclick="openApp('video')">
-
-
-<div class="icon">
-
-<img src="video_icon_cutout.png">
-
-</div>
-
+<div class="guideBox" onclick="openVideoTV()">
 
 <h2>
-Video Obvyris
+📺 Video Guide
 </h2>
 
 
-<div class="description">
+<div class="guideStatus">
 
-Media library experience for browsing
-and watching organized content.
+Now Playing:
 
-</div>
+<br>
+
+<span id="currentProgram">
+Loading...
+</span>
 
 
-<div class="tags">
+<br><br>
 
-<span>Video</span>
-<span>Media</span>
+
+Status:
+
+<span id="streamStatus">
+Connecting...
+</span>
+
 
 </div>
 
 
 <button>
-Open Video
+▶ Watch Video Obvyris TV
 </button>
 
 
@@ -784,35 +833,28 @@ async function loadGuide(){
 try{
 
 
-let response =
+const res =
 await fetch(
-STATION_API+"?action=now"
+STATION_API+"?action=now&t="+Date.now()
 );
 
 
-let data =
-await response.json();
-
-
-
-console.log(
-"VIDEO GUIDE",
-data
-);
+const data =
+await res.json();
 
 
 
 document.getElementById(
 "currentProgram"
 ).innerText =
-data.program || "No Program";
+data.program || "Video Obvyris TV";
+
 
 
 document.getElementById(
 "streamStatus"
 ).innerText =
-data.url ? "Online" : "Offline";
-
+data.url ? "ONLINE" : "OFFLINE";
 
 
 }
@@ -823,14 +865,20 @@ catch(e){
 document.getElementById(
 "streamStatus"
 ).innerText =
-"Error";
-
-
-console.error(e);
+"ERROR";
 
 
 }
 
+
+}
+
+
+
+function openVideoTV(){
+
+window.location.href =
+"Video_Obvyris.html";
 
 }
 
@@ -841,7 +889,7 @@ loadGuide();
 
 setInterval(
 loadGuide,
-30000
+15000
 );
 
 
