@@ -3,7 +3,10 @@
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#09111d">
 
 <title>Games Obvyris</title>
 
@@ -417,38 +420,63 @@ color:red;
 @media(max-width:700px){
 
 
+body{
+    overflow:auto;
+}
+
+
 #sidebar{
 
-width:70px;
+position:fixed;
 
-}
+left:0;
+top:0;
 
+width:65px;
 
-.logo{
-
-font-size:15px;
-
-}
-
-
-.subtitle,
-.group{
-
-font-size:0;
-
-}
-
-
-.group{
-
-height:40px;
+z-index:1000;
 
 }
 
 
 #main{
 
+margin-left:65px;
+
 padding:12px;
+
+height:100vh;
+
+overflow-y:auto;
+
+}
+
+
+.logo{
+
+font-size:14px;
+
+}
+
+
+.subtitle{
+
+display:none;
+
+}
+
+
+.group{
+
+font-size:0;
+
+height:42px;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
 
 }
 
@@ -456,68 +484,62 @@ padding:12px;
 #games{
 
 grid-template-columns:
-repeat(2,1fr);
+repeat(2,minmax(140px,1fr));
+
+gap:10px;
 
 }
 
 
+.game img{
+
+height:110px;
+
 }
+
+
+.game h2{
+
+font-size:14px;
+
+}
+
+
+.game p{
+
+font-size:12px;
+
+}
+
+
+button{
+
+padding:12px;
+
+font-size:14px;
+
+}
+
+
 
 #gamePlayer{
 
-display:none;
+width:95vw;
 
-position:fixed;
-
-top:50%;
-
-left:50%;
-
-transform:translate(-50%,-50%);
-
-width:80vw;
-
-height:80vh;
-
-background:#000;
-
-border:2px solid var(--blue);
-
-border-radius:15px;
-
-z-index:5000;
-
-box-shadow:0 0 40px #000;
-
-resize:both;
-
-overflow:hidden;
-
-min-width:320px;
-
-min-height:240px;
+height:85vh;
 
 }
+
 
 
 .playerHeader{
 
-height:45px;
-
-background:var(--panel);
-
-display:flex;
-
-align-items:center;
-
-justify-content:space-between;
-
-padding:8px 12px;
-
-font-family:Orbitron;
+height:50px;
 
 }
 
+
+}
 
 .playerHeader button{
 
@@ -542,7 +564,55 @@ background:black;
 
 }
   
+/* ANDROID TOUCH SUPPORT */
 
+html,body{
+    width:100%;
+    height:100%;
+    overscroll-behavior:none;
+    -webkit-tap-highlight-color:transparent;
+}
+
+
+button,
+.group,
+.brand,
+.game{
+    touch-action:manipulation;
+}
+
+
+#main{
+    -webkit-overflow-scrolling:touch;
+}
+
+
+img{
+    user-select:none;
+    -webkit-user-drag:none;
+}
+
+
+
+/* Android fullscreen player */
+
+#gamePlayer:fullscreen{
+
+width:100vw;
+height:100vh;
+border:0;
+border-radius:0;
+
+}
+
+
+#gameFrame{
+
+-webkit-overflow-scrolling:touch;
+
+}
+
+  
 </style>
 
 
@@ -883,17 +953,33 @@ frame.src=frame.src;
 
 function fullscreenGame(){
 
-let frame=document.getElementById("gameFrame");
+let player=document.getElementById("gamePlayer");
 
 
-if(frame.requestFullscreen){
+if(player.requestFullscreen){
 
-frame.requestFullscreen();
+player.requestFullscreen();
+
+}
+else if(player.webkitRequestFullscreen){
+
+player.webkitRequestFullscreen();
 
 }
 
 }
 
+window.addEventListener("popstate",()=>{
+
+let player=document.getElementById("gamePlayer");
+
+if(player.style.display==="block"){
+
+closeGame();
+
+}
+
+});
 </script>
 
 
