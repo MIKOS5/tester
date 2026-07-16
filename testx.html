@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>YouTube API Tester</title>
+
+<style>
+body{
+    font-family:Arial;
+    background:#111;
+    color:white;
+    margin:20px;
+}
+input,select,button{
+    padding:8px;
+    margin:4px;
+}
+#results{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+    gap:15px;
+    margin-top:20px;
+}
+.card{
+    background:#222;
+    padding:10px;
+    border-radius:8px;
+}
+.card img{
+    width:100%;
+    border-radius:5px;
+}
+pre{
+    background:#000;
+    color:#00ff00;
+    padding:10px;
+    overflow:auto;
+    height:300px;
+}
+iframe{
+    width:100%;
+    aspect-ratio:16/9;
+}
+</style>
+
+</head>
+<body>
+
+<h2>YouTube Data API Tester</h2>
+
+API Key
+
+<input id="apikey" size="60"
+value="YOUR_API_KEY_HERE">
+
+<br>
+
+Search
+
+<input id="search" size="40"
+value="Tool Sober">
+
+<select id="type">
+<option value="video">Videos</option>
+<option value="channel">Channels</option>
+<option value="playlist">Playlists</option>
+</select>
+
+<button onclick="search()">Search</button>
+
+<button onclick="trending()">
+Trending Music
+</button>
+
+<button onclick="clearOutput()">
+Clear
+</button>
+
+<div id="results"></div>
+
+<h3>Raw JSON</h3>
+
+<pre id="json"></pre>
+
+<script>
+
+function key(){
+    return document.getElementById("apikey").value;
+}
+
+function show(json){
+
+document.getElementById("json").textContent=
+JSON.stringify(json,null,2);
+
+const div=document.getElementById("results");
+
+div.innerHTML="";
+
+if(!json.items) return;
+
+json.items.forEach(item=>{
+
+const card=document.createElement("div");
+card.className="card";
+
+let thumb="";
+let title="";
+let id="";
+
+title=item.snippet?.title||"";
+
+if(item.snippet?.thumbnails)
+thumb=item.snippet.thumbnails.high.url;
+
+if(item.id.videoId)
+id=item.id.videoId;
+
+if(item.id.channelId)
+id=item.id.channelId;
+
+if(item.id.playlistId)
+id=item.id.playlistId;
+
+if(item.id)
+id=item.id;
+
+card.innerHTML=
+`
+<img src="${thumb}">
+<h4>${title}</h4>
+
+<button onclick="videoDetails('${id}')">
+Video Details
+</button>
+
+<button onclick="channelDetails('${item.snippet.channelId}')">
+Channel
+</button>
+
+<button onclick="related('${id}')">
+Related
+</button>
+
+${item.id.videoId?
+`<iframe
+src="https://www.youtube.com/embed/${item.id.videoId}"
+allowfullscreen></iframe>`:""}
+
+`;
+
+div.appendChild(card);
+
+});
+
+}
+
+function search(){
+
+let q=document.getElementById("search").value;
+
+let type=document.getElementById("type").value;
+
+fetch(
+
+`https://www.googleapis.com/youtube/v3/search?part=snippet&type=${type}&maxResults=10&q=${encodeURIComponent(q)}&key=${key()}`
+
+)
+
+.then(r=>r.json())
+
+.then(show);
+
+}
+
+function trending(){
+
+fetch(
+
+`https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&chart=mostPopular&videoCategoryId=10&regionCode=US&maxResults=12&key=${key()}`
+
+)
+
+.then(r=>r.json())
+
+.then(show);
+
+}
+
+function videoDetails(id){
+
+fetch(
+
+`https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${id}&key=${key()}`
+
+)
+
+.then(r=>r.json())
+
+.then(j=>{
+
+document.getElementById("json").textContent=
+JSON.stringify(j,null,2);
+
+});
+
+}
+
+function channelDetails(id){
+
+fetch(
+
+`https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${id}&key=${key()}`
+
+)
+
+.then(r=>r.json())
+
+.then(j=>{
+
+document.getElementById("json").textContent=
+JSON.stringify(j,null,2);
+
+});
+
+}
+
+function related(id){
+
+fetch(
+
+`https://www.googleapis.com/youtube/v3/search?part=snippet&relatedToVideoId=${id}&type=video&maxResults=10&key=${key()}`
+
+)
+
+.then(r=>r.json())
+
+.then(show);
+
+}
+
+function clearOutput(){
+
+document.getElementById("results").innerHTML="";
+document.getElementById("json").textContent="";
+
+}
+
+</script>
+
+</body>
+</html>
