@@ -880,7 +880,7 @@ let currentSource="";
 
 let currentStationURL = "";
 let stationWatcher = null;
-let stationMode = false;
+let stationMode = "";
 let streamList=[];
 let renderIndex=0;
 const CHUNK=120;
@@ -1305,7 +1305,7 @@ async function loadStation(){
 
         console.log("Loading Video Obvyris TV");
 
-        stationMode = true;
+        stationMode = "station1";
 
 
         // START STATION WATCHER
@@ -1469,7 +1469,7 @@ async function loadStation2(){
 
         console.log("Loading Video Obvyris TV");
 
-        stationMode = true;
+        stationMode = "station2";
 
 
         // START STATION WATCHER
@@ -2134,8 +2134,8 @@ async function checkStationUpdate(){
 
     try{
 
-        // Choose API
-        const apiURL = stationMode === "station2"
+        const apiURL =
+            stationMode === "station2"
             ? STATION2_API
             : STATION_API;
 
@@ -2151,11 +2151,11 @@ async function checkStationUpdate(){
         if(!data.url) return;
 
 
-        // Backend moved to next video
         if(data.url !== currentStationURL){
 
             console.log(
                 "NEW VIDEO DETECTED",
+                stationMode,
                 data.url
             );
 
@@ -2172,10 +2172,11 @@ async function checkStationUpdate(){
 
             video.onloadedmetadata = ()=>{
 
+
                 if(data.seek){
 
                     video.currentTime =
-                        Number(data.seek);
+                    Number(data.seek);
 
                 }
 
