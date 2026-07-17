@@ -8,23 +8,36 @@
 
 <style>
 
-body{
-    margin:0;
-    background:#080808;
-    color:white;
-    font-family:Arial,Helvetica,sans-serif;
+*{
+box-sizing:border-box;
 }
+
+
+body{
+
+margin:0;
+background:#080808;
+color:white;
+font-family:
+Arial,
+Helvetica,
+sans-serif;
+
+}
+
 
 
 header{
 
-background:#111;
 padding:20px;
+background:#111;
 font-size:28px;
 font-weight:bold;
-letter-spacing:2px;
+letter-spacing:3px;
+border-bottom:1px solid #333;
 
 }
+
 
 
 .controls{
@@ -38,36 +51,31 @@ flex-wrap:wrap;
 }
 
 
-input,button{
-
-padding:12px;
-border-radius:6px;
-border:none;
-
-}
-
 
 input{
 
+background:#222;
+color:white;
+border:1px solid #444;
+padding:12px;
+border-radius:6px;
 width:300px;
 
 }
+
 
 
 button{
 
 background:#e50914;
 color:white;
+border:0;
+padding:12px 20px;
+border-radius:6px;
 cursor:pointer;
 
 }
 
-
-.main{
-
-display:flex;
-flex-direction:column;
-}
 
 
 .player{
@@ -79,13 +87,15 @@ text-align:center;
 }
 
 
+
 iframe{
 
 width:90%;
 height:500px;
-border:none;
+border:0;
 
 }
+
 
 
 
@@ -97,70 +107,119 @@ background:#111;
 }
 
 
-.grid{
 
-display:grid;
-grid-template-columns:
-repeat(auto-fill,minmax(260px,1fr));
+.info h2{
 
-gap:20px;
-padding:20px;
+margin-top:0;
 
 }
+
+
+
+.grid{
+
+padding:20px;
+
+display:grid;
+
+grid-template-columns:
+repeat(
+auto-fill,
+minmax(260px,1fr)
+);
+
+gap:20px;
+
+}
+
 
 
 
 .card{
 
 background:#151515;
+
 border-radius:10px;
+
 overflow:hidden;
+
 cursor:pointer;
+
 transition:.2s;
 
+border:1px solid #222;
+
 }
+
 
 
 .card:hover{
 
-transform:scale(1.03);
+transform:scale(1.04);
+
+border-color:#e50914;
 
 }
+
 
 
 .card img{
 
 width:100%;
-height:150px;
+
+height:160px;
+
 object-fit:cover;
 
 }
 
 
+
 .card h3{
 
-margin:10px;
+padding:10px;
+
+margin:0;
+
 font-size:18px;
 
 }
 
 
+
 .card p{
 
-margin:8px;
+margin:8px 10px;
+
 color:#aaa;
+
 font-size:13px;
 
 }
 
 
+
 .badge{
 
-display:inline-block;
 background:#e50914;
-padding:5px 8px;
+
+padding:5px;
+
 border-radius:5px;
-font-size:12px;
+
+color:white;
+
+}
+
+
+
+.loading{
+
+text-align:center;
+
+padding:30px;
+
+font-size:20px;
 
 }
 
@@ -170,12 +229,13 @@ font-size:12px;
 </head>
 
 
+
 <body>
 
 
 <header>
 
-🎵 Video Obvyris Music
+🎵 VIDEO OBVYRIS MUSIC
 
 </header>
 
@@ -183,15 +243,11 @@ font-size:12px;
 
 <div class="controls">
 
+
 <input 
 id="search"
-placeholder="Search artist or song..."
+placeholder="Search artist, song, channel..."
 >
-
-
-<button onclick="loadVideos()">
-Refresh
-</button>
 
 
 <button onclick="searchVideos()">
@@ -199,7 +255,13 @@ Search
 </button>
 
 
+<button onclick="loadVideos()">
+Reload
+</button>
+
+
 </div>
+
 
 
 
@@ -207,8 +269,14 @@ Search
 
 
 <iframe
+
 id="player"
+
+allow=
+"autoplay; encrypted-media"
+
 allowfullscreen>
+
 </iframe>
 
 
@@ -216,21 +284,43 @@ allowfullscreen>
 
 
 
+
 <div class="info">
 
+
 <h2 id="title">
+
 Select a music video
+
 </h2>
 
-<p id="details"></p>
 
-<p id="description"></p>
+
+<div id="details">
 
 </div>
 
 
 
-<div class="grid" id="videos">
+<p id="description">
+
+</p>
+
+
+</div>
+
+
+
+
+<div 
+id="videos"
+class="grid">
+
+<div class="loading">
+
+Loading videos...
+
+</div>
 
 </div>
 
@@ -241,7 +331,8 @@ Select a music video
 <script>
 
 
-const API_URL = 
+const API_URL =
+
 "https://script.google.com/macros/s/AKfycbwA1FraODA7b2LLXhJfDzvdbK9TfNtSFVqcKQl67P0WjFg4ysOIGHGyq9JyeSN9axy2/exec";
 
 
@@ -250,22 +341,40 @@ let library=[];
 
 
 
+
+
 async function loadVideos(){
 
 
-let res =
+try{
+
+
+let response =
+
 await fetch(
+
 API_URL+
+
 "?action=all&limit=500"
+
 );
 
 
+
 let data =
-await res.json();
+
+await response.json();
+
+
+
+console.log(data);
+
 
 
 library =
-data.videos;
+
+data.videos || [];
+
 
 
 displayVideos(
@@ -273,54 +382,38 @@ library
 );
 
 
-}
 
+if(library.length){
 
-
-function searchVideos(){
-
-
-let q =
-document
-.getElementById("search")
-.value
-.toLowerCase();
-
-
-
-let results =
-library.filter(v=>{
-
-
-return (
-
-String(v.Artist)
-.toLowerCase()
-.includes(q)
-
-||
-
-String(v.Title)
-.toLowerCase()
-.includes(q)
-
-||
-
-String(v.Channel)
-.toLowerCase()
-.includes(q)
-
+playVideo(
+library[0]
 );
 
+}
 
-});
-
-
-
-displayVideos(results);
 
 
 }
+
+catch(error){
+
+console.error(error);
+
+
+document
+.getElementById("videos")
+.innerHTML =
+
+"API ERROR";
+
+
+}
+
+
+}
+
+
+
 
 
 
@@ -329,67 +422,94 @@ function displayVideos(list){
 
 
 let box =
+
 document
-.getElementById("videos");
+.getElementById(
+"videos"
+);
+
 
 
 box.innerHTML="";
 
 
 
-list.forEach(v=>{
+list.forEach(video=>{
 
 
 let card =
-document.createElement("div");
+
+document.createElement(
+"div"
+);
+
 
 
 card.className="card";
 
 
 
-card.onclick=()=>playVideo(v);
+card.onclick=()=>{
+
+playVideo(video);
+
+};
 
 
 
 card.innerHTML=`
 
-<img src="${v.Thumbnail}">
+<img src="${video["Thumbnail"]}">
 
 
 <h3>
-${v.Title}
+
+${video["Title"]}
+
 </h3>
 
 
+
 <p>
+
 <span class="badge">
-${v.Artist}
+
+${video["Artist"]}
+
 </span>
+
+</p>
+
+
+
+<p>
+
+📺 ${video["Channel"]}
+
 </p>
 
 
 <p>
-Channel:
-${v.Channel}
+
+👁 
+${Number(video["Views"]).toLocaleString()}
+
 </p>
 
 
 <p>
-Views:
-${Number(v.Views).toLocaleString()}
+
+👍 
+${Number(video["Likes"]).toLocaleString()}
+
 </p>
 
 
 <p>
-Duration:
-${v.Duration}
-</p>
 
+⏱ 
+${video["Duration"]}
 
-<p>
-Published:
-${new Date(v.Published).getFullYear()}
 </p>
 
 
@@ -410,72 +530,206 @@ box.appendChild(card);
 
 
 
-function playVideo(v){
+
+
+
+function playVideo(video){
 
 
 let id =
-v["Video ID"];
+
+video["Video ID"];
 
 
 
 document
-.getElementById("player")
+
+.getElementById(
+"player"
+)
+
 .src =
+
 "https://www.youtube.com/embed/"
+
 +
+
 id
+
 +
+
 "?autoplay=1";
 
 
 
+
+
 document
-.getElementById("title")
+
+.getElementById(
+"title"
+)
+
 .innerHTML =
-v.Title;
+
+video["Title"];
+
+
+
 
 
 
 document
-.getElementById("details")
+
+.getElementById(
+"details"
+)
+
 .innerHTML =
 
 `
-<b>${v.Artist}</b><br>
 
-${v.Channel}<br>
+<b>Artist:</b>
+${video["Artist"]}
 
-Views:
-${Number(v.Views).toLocaleString()}
 <br>
 
-Likes:
-${Number(v.Likes).toLocaleString()}
+<b>Channel:</b>
+${video["Channel"]}
+
 <br>
 
-Duration:
-${v.Duration}
+<b>Published:</b>
+${video["Published"]}
+
+<br>
+
+<b>Duration:</b>
+${video["Duration"]}
+
+<br>
+
+<b>Views:</b>
+${Number(video["Views"]).toLocaleString()}
+
+<br>
+
+<b>Likes:</b>
+${Number(video["Likes"]).toLocaleString()}
+
+<br>
+
+<a href="${video["URL"]}" target="_blank">
+
+Open YouTube
+
+</a>
 
 `;
 
 
 
+
+
 document
-.getElementById("description")
-.innerHTML =
-v.Description || "";
+
+.getElementById(
+"description"
+)
+
+.innerText =
+
+video["Description"] || "";
 
 
 
-window.scrollTo(
-{
+window.scrollTo({
+
 top:0,
+
 behavior:"smooth"
+
+});
+
+
 }
+
+
+
+
+
+
+
+
+function searchVideos(){
+
+
+let q =
+
+document
+
+.getElementById(
+"search"
+)
+
+.value
+
+.toLowerCase();
+
+
+
+let results =
+
+library.filter(video=>{
+
+
+return (
+
+
+String(video["Artist"])
+
+.toLowerCase()
+
+.includes(q)
+
+
+
+||
+
+
+String(video["Title"])
+
+.toLowerCase()
+
+.includes(q)
+
+
+
+||
+
+
+String(video["Channel"])
+
+.toLowerCase()
+
+.includes(q)
+
+
+
+);
+
+
+});
+
+
+
+displayVideos(
+results
 );
 
 
 }
+
 
 
 
@@ -487,5 +741,7 @@ loadVideos();
 </script>
 
 
+
 </body>
+
 </html>
