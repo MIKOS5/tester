@@ -1641,17 +1641,33 @@ function applyFilters(){
 
 function fullscreenPlayer(){
 
-  const video=document.getElementById("video");
+    if(youtubeMode){
 
-  if(video.requestFullscreen){
-    video.requestFullscreen();
-  }
-  else if(video.webkitRequestFullscreen){
-    video.webkitRequestFullscreen();
-  }
-  else if(video.msRequestFullscreen){
-    video.msRequestFullscreen();
-  }
+        const yt=document.getElementById("youtubePlayer");
+
+        if(yt.requestFullscreen){
+
+            yt.requestFullscreen();
+
+        }
+
+        return;
+
+    }
+
+
+    const video=document.getElementById("video");
+
+
+    if(video.requestFullscreen){
+        video.requestFullscreen();
+    }
+    else if(video.webkitRequestFullscreen){
+        video.webkitRequestFullscreen();
+    }
+    else if(video.msRequestFullscreen){
+        video.msRequestFullscreen();
+    }
 
 }
    
@@ -2272,34 +2288,70 @@ function playYouTube(videoId){
 
     youtubeMode = true;
 
-    // hide normal player
+
     video.style.display="none";
 
-    // show youtube
+
     const yt=document.getElementById("youtubePlayer");
+
     yt.style.display="block";
+
+
+    if(typeof YT === "undefined" || !YT.Player){
+
+        console.log("Waiting for YouTube API...");
+
+        setTimeout(()=>{
+
+            playYouTube(videoId);
+
+        },500);
+
+        return;
+
+    }
 
 
     if(youtubePlayer){
 
         youtubePlayer.loadVideoById(videoId);
 
-    }else{
+    }
+    else{
 
-        youtubePlayer = new YT.Player("youtubePlayer",{
+
+        youtubePlayer = new YT.Player(
+            "youtubePlayer",
+            {
 
             height:"100%",
             width:"100%",
 
+
             videoId:videoId,
 
+
             playerVars:{
+
                 autoplay:1,
                 controls:1,
                 playsinline:1
+
+            },
+
+
+            events:{
+
+                onReady:function(e){
+
+                    e.target.playVideo();
+
+                }
+
             }
 
         });
+
 
     }
 
@@ -2307,10 +2359,13 @@ function playYouTube(videoId){
     document.getElementById("now").innerText =
     "YouTube Video";
 
-
 }
 
 function isYouTube(url){
+
+    function isYouTube(url){
+
+    if(!url) return false;
 
     return url.includes("youtube.com") ||
            url.includes("youtu.be");
