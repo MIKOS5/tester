@@ -537,14 +537,19 @@ Connecting...
 
 </div>
 
+<button onclick="openVideoTV()">
 
-<button>
-
-▶ Open Video Obvyris TV
+▶ Open Station 1
 
 </button>
 
 
+<button onclick="switchStation('2')">
+
+▶ Open Station 2
+
+</button>
+        
 </div>
 
         <!-- CHAT -->
@@ -768,9 +773,24 @@ Obvyris Platform © 2026
 <script>
 
 
-const STATION_API =
+const STATIONS = {
 
-"https://script.google.com/macros/s/AKfycbyasf7oke6ZAhjgD-j2HGcR9bBysso2M9RuUuOgXZUQ7UkQ6CAOMV4PfGM3ViLUz6bygg/exec";
+    "1": {
+        name: "Video Obvyris TV",
+        api:
+        "https://script.google.com/macros/s/AKfycbyasf7oke6ZAhjgD-j2HGcR9bBysso2M9RuUuOgXZUQ7UkQ6CAOMV4PfGM3ViLUz6bygg/exec"
+    },
+
+    "2": {
+        name: "Video Obvyris TV Station 2",
+        api:
+        "https://script.google.com/macros/s/AKfycbwA1FraODA7b2LLXhJfDzvdbK9TfNtSFVqcKQl67P0WjFg4ysOIGHGyq9JyeSN9axy2/exec"
+    }
+
+};
+
+
+let CURRENT_STATION = "1";
 
 
 
@@ -784,13 +804,11 @@ Gets current Video Obvyris TV program
 
 async function loadGuide(){
 
-
 try{
-
 
 const res = await fetch(
 
-STATION_API +
+STATIONS[CURRENT_STATION].api +
 
 "?action=now&t=" +
 
@@ -799,9 +817,7 @@ Date.now()
 );
 
 
-
 const data = await res.json();
-
 
 
 document.getElementById(
@@ -810,9 +826,7 @@ document.getElementById(
 
 data.program ||
 
-"Video Obvyris TV";
-
-
+STATIONS[CURRENT_STATION].name;
 
 
 
@@ -829,11 +843,9 @@ data.url ?
 "OFFLINE";
 
 
-
 }
 
 catch(e){
-
 
 document.getElementById(
 "streamStatus"
@@ -841,9 +853,7 @@ document.getElementById(
 
 "ERROR";
 
-
 }
-
 
 }
 
@@ -913,6 +923,21 @@ location.href="Games_Obvyris.html";
 SHARE HUB
 */
 
+function switchStation(id){
+
+CURRENT_STATION = id;
+
+loadGuide();
+
+
+window.location.href =
+"Video_Obvyris.html?station=" +
+encodeURIComponent(
+STATIONS[id].name
+);
+
+}
+        
 
 function shareApp(){
 
