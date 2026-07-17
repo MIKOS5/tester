@@ -757,6 +757,10 @@ body{
 🎬 Video Obvyris TV
 </div>
 
+<div class="group" onclick="loadStation2()">
+🎬 Video Obvyris TV 2
+</div>
+     
 </div>
 
 <div id="groupList"></div>
@@ -856,6 +860,9 @@ const STREAM_API =
 const STATION_API =
 "https://script.google.com/macros/s/AKfycbyasf7oke6ZAhjgD-j2HGcR9bBysso2M9RuUuOgXZUQ7UkQ6CAOMV4PfGM3ViLUz6bygg/exec";
 
+const STATION2_API =
+"https://script.google.com/macros/s/AKfycbysfjhqpffSPuSrApR1UitbyuxGKBmdq0p7kD5C7qH6X391fl-RnSAnepjwLpeA6B80/exec";
+   
 const video = document.getElementById("video");
 video.volume = 1;
 document.getElementById("volumeSlider").value = 100;
@@ -1454,6 +1461,148 @@ document.addEventListener("click",function(e){
   }
 
 });
+
+async function loadStation2(){
+
+
+    try{
+
+        console.log("Loading Video Obvyris TV");
+
+        stationMode = true;
+
+
+        // START STATION WATCHER
+        if(stationWatcher){
+            clearInterval(stationWatcher);
+        }
+
+        stationWatcher = setInterval(
+            checkStationUpdate,
+            5000
+        );
+
+
+        video.controls = false;
+
+        document.getElementById("playBtn").disabled = true;
+
+
+        // destroy live HLS
+        if(window.hls){
+
+            window.hls.destroy();
+            window.hls = null;
+
+        }
+
+
+        const response = await fetch(
+            STATION2_API + "?action=now&t=" + Date.now()
+        );
+
+
+        const data = await response.json();
+
+
+        console.log("STATION DATA:", data);
+
+
+
+        if(!data.url){
+
+            throw new Error(
+                "No video URL returned"
+            );
+
+        }
+
+
+
+        // clear previous handlers
+        video.onloadedmetadata = null;
+
+
+        video.pause();
+
+        video.removeAttribute("src");
+
+        video.load();
+
+
+
+        currentStationURL = data.url;
+
+        video.src = data.url;
+
+
+
+        // station mode always starts muted
+        video.muted = true;
+
+        document.getElementById("muteBtn").innerText="🔇";
+
+
+
+        video.onloadedmetadata = ()=>{
+
+
+            if(data.seek){
+
+                video.currentTime =
+                Number(data.seek);
+
+            }
+
+
+            video.play()
+            .catch(err=>{
+                console.log(
+                    "Autoplay blocked",
+                    err
+                );
+            });
+
+
+        };
+
+
+
+        document.getElementById("now").innerText =
+        data.program || "Video Obvyris TV";
+
+
+        // Set Video Obvyris TV logo
+        const activeLogo = document.getElementById("activeLogo");
+
+        activeLogo.src =
+        "https://mikos5.github.io/tester/navicon.png";
+
+
+        activeLogo.onerror = function(){
+
+            this.src =
+            "https://mikos5.github.io/tester/navicon.png";
+
+        };
+
+
+    }
+    catch(err){
+
+        console.error(
+            "Station Load Error:",
+            err
+        );
+
+
+        document.getElementById("now").innerText =
+        "Station Error";
+
+    }
+
+}
+
    
 function applyFilters(){
 
@@ -1985,9 +2134,16 @@ async function checkStationUpdate(){
 
     try{
 
+        // Choose API
+        const apiURL = stationMode === "station2"
+            ? STATION2_API
+            : STATION_API;
+
+
         const response = await fetch(
-            STATION_API + "?action=now&t=" + Date.now()
+            apiURL + "?action=now&t=" + Date.now()
         );
+
 
         const data = await response.json();
 
@@ -2019,7 +2175,7 @@ async function checkStationUpdate(){
                 if(data.seek){
 
                     video.currentTime =
-                    Number(data.seek);
+                        Number(data.seek);
 
                 }
 
@@ -2031,7 +2187,7 @@ async function checkStationUpdate(){
 
 
             document.getElementById("now").innerText =
-            data.program || "Video Obvyris TV";
+                data.program || "Video Obvyris TV";
 
         }
 
