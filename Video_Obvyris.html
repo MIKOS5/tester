@@ -8,10 +8,11 @@
 
 <link rel="icon" type="image/png" href="https://mikos5.github.io/tester/navicon.png">
 <link rel="apple-touch-icon" href="https://mikos5.github.io/tester/navicon.png">
-   
+
+<script src="https://www.youtube.com/iframe_api"></script>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet"/>
-   
+
 <style>
 /* =========================
    🎨 DESIGN SYSTEM THEME
@@ -780,6 +781,8 @@ body{
  autoplay>
 </video>
 
+<div id="youtubePlayer" style="display:none;width:100%;height:65vh;"></div>
+
 <div id="bar">
 
   <div id="stationInfo">
@@ -870,6 +873,8 @@ document.getElementById("volumeSlider").value = 100;
 let list=[];
 let filtered=[];
 let index=0;
+let youtubePlayer = null;
+let youtubeMode = false;
 
 const urlParams = new URLSearchParams(window.location.search);
 
@@ -1698,85 +1703,143 @@ document.getElementById("list").onscroll=(e)=>{
 };
 
 function playMedia(url){
-  const v=document.getElementById("video");
 
-  v.pause();
-  v.removeAttribute("src");
-  v.load();
+    const v=document.getElementById("video");
+    const yt=document.getElementById("youtubePlayer");
 
-  if(window.Hls && Hls.isSupported()){
 
-    if(window.hls){
-      window.hls.destroy();
+    // =========================
+    // YOUTUBE MODE
+    // =========================
+    if(isYouTube(url)){
+
+        const id=getYouTubeID(url);
+
+        // hide HLS video
+        v.style.display="none";
+
+        // show youtube iframe
+        yt.style.display="block";
+
+
+        playYouTube(id);
+
+        return;
+
     }
 
-    window.hls = new Hls({
-      enableWorker:true,
 
-      // buffer settings
-      maxBufferLength:30,
-      maxMaxBufferLength:60,
-      maxBufferSize:60 * 1000 * 1000,
+    // =========================
+    // NORMAL VIDEO / HLS MODE
+    // =========================
 
-      // faster recovery
-      liveSyncDurationCount:3,
-      liveMaxLatencyDurationCount:5,
-
-      // reduce stalls
-      fragLoadingTimeOut:20000,
-      manifestLoadingTimeOut:20000,
-      levelLoadingTimeOut:20000
-    });
+    youtubeMode=false;
 
 
-    window.hls.on(Hls.Events.ERROR,(event,data)=>{
-
-      console.log("HLS ERROR:",data);
-
-      if(data.fatal){
-
-        switch(data.type){
-
-          case Hls.ErrorTypes.NETWORK_ERROR:
-            console.log("Retrying network...");
-            window.hls.startLoad();
-            break;
+    // hide youtube
+    yt.style.display="none";
 
 
-          case Hls.ErrorTypes.MEDIA_ERROR:
-            console.log("Recovering media...");
-            window.hls.recoverMediaError();
-            break;
+    // show normal video
+    v.style.display="block";
 
 
-          default:
+    // destroy youtube if active
+    if(youtubePlayer){
+
+        youtubePlayer.stopVideo();
+
+    }
+
+
+    v.pause();
+    v.removeAttribute("src");
+    v.load();
+
+
+    if(window.Hls && Hls.isSupported()){
+
+
+        if(window.hls){
             window.hls.destroy();
-            break;
         }
 
-      }
 
-    });
+        window.hls = new Hls({
+
+            enableWorker:true,
+
+            maxBufferLength:30,
+            maxMaxBufferLength:60,
+            maxBufferSize:60 * 1000 * 1000,
+
+            liveSyncDurationCount:3,
+            liveMaxLatencyDurationCount:5,
+
+            fragLoadingTimeOut:20000,
+            manifestLoadingTimeOut:20000,
+            levelLoadingTimeOut:20000
+
+        });
 
 
-    window.hls.loadSource(url);
-    window.hls.attachMedia(v);
+
+        window.hls.on(Hls.Events.ERROR,(event,data)=>{
+
+            console.log("HLS ERROR:",data);
 
 
-    window.hls.on(Hls.Events.MANIFEST_PARSED,()=>{
-      v.play().catch(e=>console.log(e));
-    });
+            if(data.fatal){
+
+                switch(data.type){
+
+                    case Hls.ErrorTypes.NETWORK_ERROR:
+                        window.hls.startLoad();
+                        break;
 
 
-  }else{
+                    case Hls.ErrorTypes.MEDIA_ERROR:
+                        window.hls.recoverMediaError();
+                        break;
 
-    // Safari native HLS
-    v.src=url;
-    v.play();
 
-  }
+                    default:
+                        window.hls.destroy();
+                        break;
+
+                }
+
+            }
+
+        });
+
+
+
+        window.hls.loadSource(url);
+
+        window.hls.attachMedia(v);
+
+
+
+        window.hls.on(Hls.Events.MANIFEST_PARSED,()=>{
+
+            v.play()
+            .catch(e=>console.log(e));
+
+        });
+
+
+    }else{
+
+
+        // Safari HLS
+        v.src=url;
+
+        v.play();
+
+    }
+
 }
-
 function play(i){
 
     // Exit station mode
@@ -2202,6 +2265,76 @@ async function checkStationUpdate(){
         );
 
     }
+
+}
+
+function playYouTube(videoId){
+
+    youtubeMode = true;
+
+    // hide normal player
+    video.style.display="none";
+
+    // show youtube
+    const yt=document.getElementById("youtubePlayer");
+    yt.style.display="block";
+
+
+    if(youtubePlayer){
+
+        youtubePlayer.loadVideoById(videoId);
+
+    }else{
+
+        youtubePlayer = new YT.Player("youtubePlayer",{
+
+            height:"100%",
+            width:"100%",
+
+            videoId:videoId,
+
+            playerVars:{
+                autoplay:1,
+                controls:1,
+                playsinline:1
+            }
+
+        });
+
+    }
+
+
+    document.getElementById("now").innerText =
+    "YouTube Video";
+
+
+}
+
+function isYouTube(url){
+
+    return url.includes("youtube.com") ||
+           url.includes("youtu.be");
+
+}
+
+
+function getYouTubeID(url){
+
+    let id="";
+
+    if(url.includes("youtu.be")){
+
+        id=url.split("youtu.be/")[1];
+
+    }
+
+    if(url.includes("youtube.com/watch")){
+
+        id=new URL(url).searchParams.get("v");
+
+    }
+
+    return id;
 
 }
    
