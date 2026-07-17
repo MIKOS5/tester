@@ -814,58 +814,58 @@ Gets current Video Obvyris TV program
 */
 
 
-async function loadGuide(){
+async function loadGuide() {
 
-try{
+    // ---------- Station 1 ----------
+    try {
 
-const res = await fetch(
+        const res1 = await fetch(
+            STATIONS["1"].api +
+            "?action=now&t=" + Date.now()
+        );
 
-STATIONS[CURRENT_STATION].api +
+        const data1 = await res1.json();
 
-"?action=now&t=" +
+        document.getElementById("currentProgram").innerText =
+            data1.program || STATIONS["1"].name;
 
-Date.now()
+        document.getElementById("streamStatus").innerText =
+            data1.url ? "ONLINE" : "OFFLINE";
 
-);
+    } catch (e) {
 
+        document.getElementById("currentProgram").innerText = "Unavailable";
+        document.getElementById("streamStatus").innerText = "ERROR";
 
-const data = await res.json();
+        console.error("Station 1:", e);
 
-
-document.getElementById(
-"currentProgram"
-).innerText =
-
-data.program ||
-
-STATIONS[CURRENT_STATION].name;
-
-
-
-document.getElementById(
-"streamStatus"
-).innerText =
-
-data.url ?
-
-"ONLINE"
-
-:
-
-"OFFLINE";
+    }
 
 
-}
+    // ---------- Station 2 ----------
+    try {
 
-catch(e){
+        const res2 = await fetch(
+            STATIONS["2"].api +
+            "?action=now&t=" + Date.now()
+        );
 
-document.getElementById(
-"streamStatus"
-).innerText =
+        const data2 = await res2.json();
 
-"ERROR";
+        document.getElementById("currentProgram2").innerText =
+            data2.program || STATIONS["2"].name;
 
-}
+        document.getElementById("streamStatus2").innerText =
+            data2.url ? "ONLINE" : "OFFLINE";
+
+    } catch (e) {
+
+        document.getElementById("currentProgram2").innerText = "Unavailable";
+        document.getElementById("streamStatus2").innerText = "ERROR";
+
+        console.error("Station 2:", e);
+
+    }
 
 }
 
