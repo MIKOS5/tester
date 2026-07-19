@@ -1,44 +1,50 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
-<title>Radio Obvyris - YouTube Station</title>
+<title>Video Obvyris Station</title>
+
 
 <style>
 
 body{
-    margin:0;
-    background:#111;
-    color:white;
-    font-family:Arial,Helvetica,sans-serif;
+
+background:#111;
+color:white;
+font-family:Arial;
+margin:0;
+
 }
 
 
-.station{
+.container{
 
-    max-width:800px;
-    margin:auto;
-    padding:20px;
+max-width:800px;
+margin:auto;
+padding:20px;
 
 }
 
 
 h1{
 
-    text-align:center;
-    color:#2793ff;
+text-align:center;
+color:#2793ff;
 
 }
 
 
+
 #player{
 
-    width:100%;
-    aspect-ratio:16/9;
-    background:black;
+width:100%;
+aspect-ratio:16/9;
+background:black;
 
 }
 
@@ -46,34 +52,26 @@ h1{
 
 .now{
 
-    display:flex;
-    gap:20px;
-    align-items:center;
-    margin-top:20px;
-    padding:15px;
-    background:#222;
-    border-radius:10px;
+display:flex;
+gap:20px;
+align-items:center;
+
+background:#222;
+padding:15px;
+margin-top:20px;
+
+border-radius:12px;
 
 }
 
 
 
-#cover{
+#thumb{
 
-    width:120px;
-    height:120px;
-    border-radius:10px;
+width:120px;
+height:120px;
 
-}
-
-
-
-.controls{
-
-    display:flex;
-    justify-content:center;
-    gap:15px;
-    margin:20px;
+border-radius:10px;
 
 }
 
@@ -81,58 +79,34 @@ h1{
 
 button{
 
-    font-size:25px;
-    padding:10px 20px;
-    border-radius:10px;
-    cursor:pointer;
+padding:12px 25px;
+
+font-size:18px;
+
+margin:20px 5px;
+
+border-radius:10px;
+
+cursor:pointer;
 
 }
 
 
 
-input{
+.controls{
 
-    width:100%;
-    box-sizing:border-box;
-    padding:12px;
-    font-size:18px;
-    margin-bottom:15px;
+text-align:center;
 
 }
 
 
+.status{
 
-.song{
-
-    padding:15px;
-    border-bottom:1px solid #333;
-    cursor:pointer;
+text-align:center;
+color:#aaa;
 
 }
 
-
-
-.song:hover{
-
-    background:#222;
-
-}
-
-
-
-.active{
-
-    background:#2793ff;
-
-}
-
-
-
-.small{
-
-    color:#aaa;
-
-}
 
 
 </style>
@@ -144,14 +118,12 @@ input{
 <body>
 
 
-<div class="station">
+<div class="container">
 
 
-<h1>🎸 Radio Obvyris</h1>
-
-<h3 style="text-align:center">
-YouTube Music Station
-</h3>
+<h1>
+📺 Video Obvyris Station
+</h1>
 
 
 <div id="player"></div>
@@ -161,22 +133,20 @@ YouTube Music Station
 <div class="now">
 
 
-<img id="cover">
+<img id="thumb">
 
 
 <div>
 
 <h2 id="title">
-Loading...
+Connecting...
 </h2>
 
 
-<p id="artist"></p>
+<h3 id="artist"></h3>
 
 
-<p class="small" id="status">
-Connecting...
-</p>
+<p id="timer"></p>
 
 
 </div>
@@ -189,25 +159,23 @@ Connecting...
 
 <div class="controls">
 
-<button onclick="previous()">⏮</button>
+<button onclick="playVideo()">
+▶ Play
+</button>
 
-<button onclick="playPause()">▶️</button>
 
-<button onclick="next()">⏭</button>
+<button onclick="mute()">
+🔇 Mute
+</button>
+
 
 </div>
 
 
 
-
-<input 
-id="search"
-placeholder="Search artist or song..."
-onkeyup="filterSongs()">
-
-
-
-<div id="playlist"></div>
+<p class="status" id="status">
+Station connecting...
+</p>
 
 
 
@@ -220,27 +188,30 @@ onkeyup="filterSongs()">
 <script src="https://www.youtube.com/iframe_api"></script>
 
 
+
 <script>
 
 
-const API = 
-"https://script.google.com/macros/s/AKfycbwA1FraODA7b2LLXhJfDzvdbK9TfNtSFVqcKQl67P0WjFg4ysOIGHGyq9JyeSN9axy2/exec";
+
+const STATION_API =
+
+"https://script.google.com/macros/s/AKfycbwA1FraODA7b2LLXhJfDzvdbK9TfNtSFVqcKQl67P0WjFg4ysOIGHGyq9JyeSN9axy2/exec?action=station";
 
 
 
-let songs=[];
 
-let queue=[];
-
-let current=0;
 
 let player;
 
+let currentVideo="";
+
+let synced=false;
 
 
-// Load YouTube Player
+
 
 function onYouTubeIframeAPIReady(){
+
 
 
 player = new YT.Player(
@@ -254,9 +225,18 @@ width:"640",
 videoId:"",
 
 
+playerVars:{
+
+autoplay:1,
+
+controls:1
+
+},
+
+
 events:{
 
-'onStateChange':stateChange
+onStateChange:onState
 
 }
 
@@ -269,79 +249,122 @@ events:{
 
 
 
-// Load API playlist
 
 
-fetch(API)
 
-.then(response=>response.json())
-
-.then(data=>{
+function onState(e){
 
 
-songs=data.videos;
 
-queue=[...songs];
+if(
+e.data===YT.PlayerState.PLAYING
+){
+
+document.getElementById("status")
+.innerHTML=
+"ON AIR";
 
 
-renderPlaylist();
+}
 
 
-loadSong(0);
-
-
-})
-
-.catch(error=>{
-
-document.getElementById("status").innerHTML=
-"API ERROR";
-
-console.log(error);
-
-});
+}
 
 
 
 
 
 
-function loadSong(index){
 
 
-current=index;
-
-
-let song=queue[index];
+async function updateStation(){
 
 
 
-document.getElementById("title").innerHTML=
+try{
+
+
+let response =
+await fetch(
+STATION_API
+);
+
+
+let data =
+await response.json();
+
+
+
+
+
+let song =
+data.current;
+
+
+
+if(!song)
+return;
+
+
+
+
+
+document.getElementById("title")
+.innerHTML=
 song.Title;
 
 
 
-document.getElementById("artist").innerHTML=
+document.getElementById("artist")
+.innerHTML=
 song.Artist;
 
 
 
-document.getElementById("cover").src=
+document.getElementById("thumb")
+.src=
 song.Thumbnail;
 
 
 
-document.getElementById("status").innerHTML=
-"Playing";
+
+
+// new song
+
+if(
+currentVideo !== song["Video ID"]
+){
+
+
+
+currentVideo =
+song["Video ID"];
 
 
 
 player.loadVideoById(
-song["Video ID"]
+currentVideo
 );
 
 
-highlight();
+
+// sync station time
+
+setTimeout(()=>{
+
+
+player.seekTo(
+data.position,
+true
+);
+
+
+player.playVideo();
+
+
+
+},2000);
+
 
 
 }
@@ -350,63 +373,34 @@ highlight();
 
 
 
+document.getElementById("timer")
+.innerHTML=
 
-function stateChange(event){
-
-
-if(event.data===YT.PlayerState.ENDED){
-
-next();
-
-}
-
-
-}
+"Station time: "
++
+data.position
++
+" sec";
 
 
 
-
-
-
-
-function next(){
-
-
-current++;
-
-
-if(current>=queue.length){
-
-current=0;
-
-}
-
-
-loadSong(current);
 
 
 }
 
+catch(e){
 
 
+document.getElementById("status")
+.innerHTML=
+"Station offline";
 
 
+console.log(e);
 
-
-function previous(){
-
-
-current--;
-
-
-if(current<0){
-
-current=queue.length-1;
 
 }
 
-
-loadSong(current);
 
 
 }
@@ -417,22 +411,9 @@ loadSong(current);
 
 
 
-function playPause(){
 
 
-
-let state =
-player.getPlayerState();
-
-
-
-if(state===YT.PlayerState.PLAYING){
-
-player.pauseVideo();
-
-}
-
-else{
+function playVideo(){
 
 player.playVideo();
 
@@ -440,63 +421,11 @@ player.playVideo();
 
 
 
-}
 
 
+function mute(){
 
-
-
-
-
-
-function renderPlaylist(list=queue){
-
-
-let box=
-document.getElementById("playlist");
-
-
-box.innerHTML="";
-
-
-
-list.forEach((song)=>{
-
-
-let div=document.createElement("div");
-
-
-div.className="song";
-
-
-
-div.innerHTML=
-
-`
-<b>${song.Artist}</b><br>
-${song.Title}
-`;
-
-
-
-div.onclick=function(){
-
-
-let index=queue.indexOf(song);
-
-loadSong(index);
-
-
-};
-
-
-
-box.appendChild(div);
-
-
-
-});
-
+player.mute();
 
 }
 
@@ -506,93 +435,28 @@ box.appendChild(div);
 
 
 
+// sync every 5 seconds
 
+setInterval(
 
-function filterSongs(){
+updateStation,
 
-
-let text =
-document
-.getElementById("search")
-.value
-.toLowerCase();
-
-
-
-
-let filtered =
-songs.filter(song=>{
-
-
-return (
-
-song.Artist
-.toLowerCase()
-.includes(text)
-
-
-||
-
-
-song.Title
-.toLowerCase()
-.includes(text)
-
+5000
 
 );
 
 
-});
 
+// initial load
 
-
-renderPlaylist(filtered);
-
-
-
-}
-
-
-
-
-
-
-
-
-function highlight(){
-
-
-let items=
-document.querySelectorAll(".song");
-
-
-
-items.forEach((item,index)=>{
-
-
-item.classList.remove("active");
-
-
-
-if(index===current){
-
-item.classList.add("active");
-
-}
-
-
-
-});
-
-
-}
-
-
+updateStation();
 
 
 
 </script>
 
 
+
 </body>
+
 </html>
