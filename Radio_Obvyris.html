@@ -831,7 +831,11 @@ body{
   <div id="player">
     <div id="npName">Not Playing</div>
     <div id="npMeta">Select a station</div>
-    <audio id="audio"></audio>
+    <audio 
+id="audio"
+preload="auto"
+playsinline>
+</audio>
 
 <video 
 id="video"
@@ -1243,6 +1247,7 @@ async function loadVideoRadio(){
         console.log(
             "Video Radio:",
             data
+        console.log("STREAM URL:", data.url);
         );
 
 
@@ -1271,53 +1276,44 @@ async function loadVideoRadio(){
 
         // audio mode
 
-        audio.src =
-        data.url;
+        audio.pause();
+
+audio.src =
+data.url_resolved || data.url;
+
+audio.load();
 
 
-        audio.currentTime =
-        data.seek || 0;
+audio.oncanplay = async ()=>{
+
+    try{
+
+        if(data.seek){
+
+            audio.currentTime =
+            Number(data.seek);
+
+        }
 
 
-        audio.play();
+        await audio.play();
 
-
-
-        document.getElementById("npName")
-        .innerText =
-        data.program || "Video Obvyris";
-
-
-        document.getElementById("npMeta")
-        .innerText =
-        `${data.artist || ""} • ${data.genre || ""}`;
-
-
-        stationStarted=true;
-
-
-        // keep synced
-
-        if(videoRadioTimer)
-            clearInterval(videoRadioTimer);
-
-
-
-        videoRadioTimer =
-        setInterval(updateVideoRadio,5000);
+        console.log(
+          "Audio playing"
+        );
 
 
     }
     catch(e){
 
         console.log(
-            "Video Radio Error",
-            e
+          "Play blocked:",
+          e
         );
 
     }
 
-}
+};
 
 
 
@@ -1633,135 +1629,226 @@ async function listenNowPlaying(streamUrl, callback){
 
 function playMedia(url){
 
-const audio =
-document.getElementById("audio");
+const audio = document.getElementById("audio");
+const video = document.getElementById("video");
+const yt = document.getElementById("ytPlayer");
 
-const video =
-document.getElementById("video");
-
-const yt =
-document.getElementById("ytPlayer");
+console.log("Playing:", url);
 
 
-// stop everything
+// STOP EVERYTHING
 
 audio.pause();
-audio.src="";
+audio.removeAttribute("src");
+audio.load();
 
 video.pause();
+video.removeAttribute("src");
+video.load();
+
 
 if(hls){
     hls.destroy();
     hls=null;
 }
 
+
 if(ytPlayer){
-    ytPlayer.stopVideo();
+
+    try{
+        ytPlayer.stopVideo();
+    }
+    catch(e){}
+
 }
 
 
 video.style.display="none";
 yt.style.display="none";
+audio.style.display="none";
 
 
 
+// =====================
 // YOUTUBE
+// =====================
 
 if(
 url.includes("youtube.com") ||
 url.includes("youtu.be")
 ){
 
-playerMode="youtube";
+    playerMode="youtube";
 
-yt.style.display="block";
+    yt.style.display="block";
 
-let id =
-extractYoutubeID(url);
+    let id = extractYoutubeID(url);
 
+    loadYoutube(id);
 
-loadYoutube(id);
-
-return;
+    return;
 
 }
 
 
 
-// HLS
+// =====================
+// HLS STREAM
+// =====================
 
 if(
 url.includes(".m3u8")
 ){
 
-playerMode="hls";
+    playerMode="hls";
 
-video.style.display="block";
-
-
-if(Hls.isSupported()){
-
-hls=new Hls();
-
-hls.loadSource(url);
-
-hls.attachMedia(video);
+    video.style.display="block";
 
 
-hls.on(
-Hls.Events.MANIFEST_PARSED,
-()=>{
+    if(Hls.isSupported()){
 
-video.play();
+        hls = new Hls();
 
-});
+        hls.loadSource(url);
 
+        hls.attachMedia(video);
+
+
+        hls.on(
+        Hls.Events.MANIFEST_PARSED,
+        ()=>{
+
+            video.play()
+            .catch(err=>{
+
+                console.log(
+                "HLS autoplay blocked",
+                err
+                );
+
+            });
+
+        });
+
+
+        hls.on(
+        Hls.Events.ERROR,
+        function(event,data){
+
+            console.log(
+            "HLS ERROR",
+            data
+            );
+
+        });
+
+
+    }
+    else{
+
+        video.src=url;
+
+        video.play()
+        .catch(err=>{
+
+            console.log(
+            "Video play blocked",
+            err
+            );
+
+        });
+
+    }
+
+
+    return;
 
 }
-else{
-
-video.src=url;
-
-video.play();
-
-}
-
-return;
-
-}
 
 
 
+// =====================
 // VIDEO FILE
+// =====================
 
 if(
 url.match(/\.(mp4|webm|ogg)$/i)
 ){
 
-playerMode="video";
+    playerMode="video";
 
-video.style.display="block";
+    video.style.display="block";
 
-video.src=url;
+    video.src=url;
 
-video.play();
 
-return;
+    video.play()
+    .catch(err=>{
+
+        console.log(
+        "Video play blocked",
+        err
+        );
+
+    });
+
+
+    return;
 
 }
 
 
 
-// DEFAULT RADIO
+// =====================
+// NORMAL RADIO
+// MP3 / AAC / ICECAST
+// =====================
 
 playerMode="audio";
 
+audio.style.display="block";
+
+
 audio.src=url;
 
-audio.play();
+audio.load();
+
+
+audio.oncanplay = async ()=>{
+
+    try{
+
+        await audio.play();
+
+        console.log(
+        "RADIO PLAYING"
+        );
+
+    }
+
+    catch(err){
+
+        console.log(
+        "Radio autoplay blocked",
+        err
+        );
+
+    }
+
+};
+
+
+audio.onerror=function(){
+
+    console.log(
+    "Audio error:",
+    audio.error
+    );
+
+};
+
 
 }
-
 function extractYoutubeID(url){
 
 let id="";
