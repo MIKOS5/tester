@@ -20,6 +20,10 @@
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet"/>
 
+<script src="https://cdn.jsdelivr.net/npm/hls.js"></script>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+  
 <style>
 
 :root{
@@ -828,7 +832,14 @@ body{
     <div id="npName">Not Playing</div>
     <div id="npMeta">Select a station</div>
     <audio id="audio"></audio>
-    <video id="video" style="display:none; width:100%; max-height:180px;" controls></video>
+
+<video 
+id="video"
+playsinline
+style="display:none;width:100%;max-height:180px;">
+</video>
+
+<div id="ytPlayer" style="display:none;"></div>
     
     <div class="controls">
       <button onclick="prev()">⏮</button>
@@ -971,7 +982,11 @@ let currentCountry = "United States";
 let playingIndex = null;
 let stationStarted = false;
 let metadataAbort = null;
-
+let hls = null;
+let ytPlayer = null;
+let ytReady = false;
+let playerMode = "";
+  
 const BOOK_API =
 "https://librivox.org/api/feed/audiobooks/";
 
@@ -985,6 +1000,8 @@ const RADIO =
 const SHEET =
 "https://script.google.com/macros/s/AKfycbzZ5MwOcYUY_bpsUKSxPd810xE8rV_Y3z2GwzPublb_4O60CP8L_lC_V2kqkCQ_JdF5/exec";
 
+const VIDEO_RADIO_API =
+"https://script.google.com/macros/s/AKfycbwA1FraODA7b2LLXhJfDzvdbK9TfNtSFVqcKQl67P0WjFg4ysOIGHGyq9JyeSN9axy2/exec?action=now";
   
 const GENRES = [
   { id:"50s", label:"📻 50s Hits" },
@@ -1122,6 +1139,7 @@ load(id);
   const actions = document.getElementById("actionGrid");
 
   actions.innerHTML = `
+  <div class="genre" onclick="selectTool('📺 Obvyris Radio', loadVideoRadio)">📺 Video Obvyris Radio</div>
   <div class="genre" onclick="selectTool('🎤 Artist A - L', loadArtistAl)">🎤 Artist A - L</div>
   <div class="genre" onclick="selectTool('🎧 Artist M - Z', loadArtistMz)">🎧 Artist M - Z</div>
   <div class="genre" onclick="selectTool('⭐ Favorites', loadFavorites)">⭐ Favorites</div>
@@ -1204,6 +1222,139 @@ async function loadCountries(){
   select.value = currentCountry;
 }
 
+let videoRadioTimer = null;
+
+
+async function loadVideoRadio(){
+
+    setTitle("📺 Video Obvyris Radio");
+
+
+    try{
+
+        const res =
+        await fetch(VIDEO_RADIO_API);
+
+
+        const data =
+        await res.json();
+
+
+        console.log(
+            "Video Radio:",
+            data
+        );
+
+
+        if(!data.url){
+
+            alert("No audio stream available");
+
+            return;
+        }
+
+
+        const audio =
+        document.getElementById("audio");
+
+
+        const video =
+        document.getElementById("video");
+
+
+        // stop video mode
+
+        video.pause();
+        video.src="";
+        video.style.display="none";
+
+
+        // audio mode
+
+        audio.src =
+        data.url;
+
+
+        audio.currentTime =
+        data.seek || 0;
+
+
+        audio.play();
+
+
+
+        document.getElementById("npName")
+        .innerText =
+        data.program || "Video Obvyris";
+
+
+        document.getElementById("npMeta")
+        .innerText =
+        `${data.artist || ""} • ${data.genre || ""}`;
+
+
+        stationStarted=true;
+
+
+        // keep synced
+
+        if(videoRadioTimer)
+            clearInterval(videoRadioTimer);
+
+
+
+        videoRadioTimer =
+        setInterval(updateVideoRadio,5000);
+
+
+    }
+    catch(e){
+
+        console.log(
+            "Video Radio Error",
+            e
+        );
+
+    }
+
+}
+
+
+
+
+
+async function updateVideoRadio(){
+
+    try{
+
+        const res =
+        await fetch(VIDEO_RADIO_API);
+
+
+        const data =
+        await res.json();
+
+
+        document.getElementById("npName")
+        .innerText =
+        data.program;
+
+
+        document.getElementById("npMeta")
+        .innerText =
+        `${data.artist} • ${data.genre}`;
+
+
+
+    }
+    catch(e){
+
+        console.log(e);
+
+    }
+
+}
+  
 async function loadArtistAl(){
 
   const res = await fetch(SHEET + "?action=artistal");
@@ -1480,38 +1631,217 @@ async function listenNowPlaying(streamUrl, callback){
 
 }
 
-function playMedia(url) {
-  const audio = document.getElementById("audio");
-  const video = document.getElementById("video");
+function playMedia(url){
 
-  const isVideo =
-    url.includes(".mp4") ||
-    url.includes(".m3u8") ||
-    url.includes("youtube");
+const audio =
+document.getElementById("audio");
 
-  if (isVideo) {
-    // stop audio completely
-    audio.pause();
-    audio.src = "";
+const video =
+document.getElementById("video");
 
-    // start video
-    video.style.display = "block";
-    video.src = url;
-    video.play();
+const yt =
+document.getElementById("ytPlayer");
 
-  } else {
-    // stop video completely
-    video.pause();
-    video.src = "";
-    video.style.display = "none";
 
-    // start audio
-    audio.style.display = "block";
-    audio.src = url;
-    audio.play();
-  }
+// stop everything
+
+audio.pause();
+audio.src="";
+
+video.pause();
+
+if(hls){
+    hls.destroy();
+    hls=null;
 }
 
+if(ytPlayer){
+    ytPlayer.stopVideo();
+}
+
+
+video.style.display="none";
+yt.style.display="none";
+
+
+
+// YOUTUBE
+
+if(
+url.includes("youtube.com") ||
+url.includes("youtu.be")
+){
+
+playerMode="youtube";
+
+yt.style.display="block";
+
+let id =
+extractYoutubeID(url);
+
+
+loadYoutube(id);
+
+return;
+
+}
+
+
+
+// HLS
+
+if(
+url.includes(".m3u8")
+){
+
+playerMode="hls";
+
+video.style.display="block";
+
+
+if(Hls.isSupported()){
+
+hls=new Hls();
+
+hls.loadSource(url);
+
+hls.attachMedia(video);
+
+
+hls.on(
+Hls.Events.MANIFEST_PARSED,
+()=>{
+
+video.play();
+
+});
+
+
+}
+else{
+
+video.src=url;
+
+video.play();
+
+}
+
+return;
+
+}
+
+
+
+// VIDEO FILE
+
+if(
+url.match(/\.(mp4|webm|ogg)$/i)
+){
+
+playerMode="video";
+
+video.style.display="block";
+
+video.src=url;
+
+video.play();
+
+return;
+
+}
+
+
+
+// DEFAULT RADIO
+
+playerMode="audio";
+
+audio.src=url;
+
+audio.play();
+
+}
+
+function extractYoutubeID(url){
+
+let id="";
+
+if(url.includes("youtu.be")){
+
+id=url.split("/")
+.pop();
+
+}
+else{
+
+let u=new URL(url);
+
+id=u.searchParams.get("v");
+
+}
+
+return id;
+
+}
+
+
+
+function loadYoutube(id){
+
+if(!ytReady){
+
+window.pendingYT=id;
+
+return;
+
+}
+
+
+ytPlayer.loadVideoById(id);
+
+}
+
+
+
+function onYouTubeIframeAPIReady(){
+
+ytPlayer=new YT.Player(
+"ytPlayer",
+{
+
+height:"180",
+width:"320",
+
+videoId:"",
+
+playerVars:{
+autoplay:1,
+controls:0,
+playsinline:1
+},
+
+events:{
+
+onReady(){
+
+ytReady=true;
+
+if(window.pendingYT){
+
+ytPlayer.loadVideoById(
+window.pendingYT
+);
+
+}
+
+}
+
+}
+
+});
+
+}
+  
 function playBookChapter(){
 
     if(!chapters.length){
@@ -1652,7 +1982,31 @@ function toggle() {
   const a = document.getElementById("audio");
   const v = document.getElementById("video");
 
-  const isVideoVisible = v.style.display !== "none" && v.src;
+  if(playerMode==="youtube"){
+
+let state =
+ytPlayer.getPlayerState();
+
+if(state===YT.PlayerState.PLAYING)
+    ytPlayer.pauseVideo();
+else
+    ytPlayer.playVideo();
+
+return;
+
+}
+
+
+if(playerMode==="hls" || playerMode==="video"){
+
+if(v.paused)
+    v.play();
+else
+    v.pause();
+
+return;
+
+}
 
   // 🎬 VIDEO MODE
   if (isVideoVisible) {
