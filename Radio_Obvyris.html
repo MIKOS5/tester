@@ -15,6 +15,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Radio Obvyris">
 
+<script src="https://www.youtube.com/iframe_api"></script>
+  
 <link rel="icon" type="image/png" href="https://mikos5.github.io/tester/navicon.png">
 <link rel="apple-touch-icon" href="https://mikos5.github.io/tester/navicon.png">
 
@@ -829,6 +831,16 @@ body{
     <div id="npMeta">Select a station</div>
     <audio id="audio"></audio>
     <video id="video" style="display:none; width:100%; max-height:180px;" controls></video>
+    <div id="ytWrapper" style="
+position:fixed;
+left:-9999px;
+top:-9999px;
+width:200px;
+height:120px;
+">
+    <div id="ytPlayer"></div>
+</div>
+
     
     <div class="controls">
       <button onclick="prev()">⏮</button>
@@ -952,6 +964,13 @@ body{
 
 </div>
 
+<div class="genre-header" onclick="toggleObvyris()">
+📡 Obvyris Stations
+<span id="obvyrisArrow">▼</span>
+</div>
+
+<div id="obvyrisGrid" class="genre-grid collapsed"></div>
+  
 <script>
 
 let currentGenre = "";
@@ -971,7 +990,10 @@ let currentCountry = "United States";
 let playingIndex = null;
 let stationStarted = false;
 let metadataAbort = null;
-
+let ytPlayer = null;
+let ytLoaded = false;
+let ytPending = null;
+  
 const BOOK_API =
 "https://librivox.org/api/feed/audiobooks/";
 
@@ -1133,6 +1155,47 @@ load(id);
   <div class="genre" onclick="selectTool('🛰️ International', loadInternational2)">🛰️ International</div>
   `;
 }
+
+let obvyrisOpen = false;
+
+function toggleObvyris(){
+
+    obvyrisOpen = !obvyrisOpen;
+
+    document
+        .getElementById("obvyrisGrid")
+        .classList.toggle("collapsed");
+
+    document
+        .getElementById("obvyrisArrow")
+        .innerText =
+            obvyrisOpen ? "▲" : "▼";
+
+}
+
+function renderObvyris(){
+
+const grid=document.getElementById("obvyrisGrid");
+
+grid.innerHTML="";
+
+OBVYRIS_STATIONS.forEach((s,i)=>{
+
+grid.innerHTML+=`
+
+<div class="genre"
+onclick="playObvyris(${i})">
+
+📻 ${s.name}
+
+</div>
+
+`;
+
+});
+
+}
+  
 /* =========================
    🔥 FIXED GENRE FUNCTION
 ========================= */
@@ -1374,6 +1437,23 @@ async function loadInternational(){
   setTitle("🌎 Mexico");
 }
 
+function onYouTubeIframeAPIReady(){
+
+    console.log("YouTube Ready");
+
+    ytLoaded = true;
+
+    if(ytPending){
+
+        createYoutubePlayer(
+            ytPending.videoId,
+            ytPending.seek
+        );
+
+    }
+
+}
+  
 function selectTool(label, fn){
 
   // Update dropdown title
@@ -2077,7 +2157,36 @@ function toggleTheme() {
     btn.textContent = "🌙";
   }
 }
+
+async function playObvyris(i){
+
+    const station = OBVYRIS_STATIONS[i];
+
+    const res = await fetch(
+        station.api + "?action=now"
+    );
+
+    const data = await res.json();
+
+    console.log("Obvyris data:", data);
+
+
+    // update player text
+    document.getElementById("npName").innerText =
+        data.program || station.name;
+
+
+    document.getElementById("npMeta").innerText =
+        data.artist + " • " + data.genre;
+
+
+    // START YOUTUBE ENGINE
+    playYoutubeRadio(data);
+
+}
+  
 /* INIT */
+renderObvyris();
 renderGenres();
 loadCountries();   // ✅ add this
 load();
@@ -2497,6 +2606,116 @@ window.addEventListener("load", () => {
     }
   }
 });
+
+function playYoutubeRadio(data){
+
+    console.log("Starting YouTube:", data);
+
+
+    if(!data.videoId){
+
+        console.log("No YouTube video");
+        return;
+
+    }
+
+
+    if(!ytLoaded){
+
+        ytPending = {
+            videoId:data.videoId,
+            seek:data.seek || 0
+        };
+
+        return;
+
+    }
+
+
+    createYoutubePlayer(
+        data.videoId,
+        data.seek
+    );
+
+}
+
+function createYoutubePlayer(id,seek){
+
+
+    if(ytPlayer){
+
+        ytPlayer.loadVideoById(id);
+
+        if(seek){
+
+            ytPlayer.seekTo(
+                Number(seek),
+                true
+            );
+
+        }
+
+        return;
+    }
+
+
+
+    ytPlayer = new YT.Player(
+        "ytPlayer",
+        {
+
+        height:"120",
+        width:"200",
+
+        videoId:id,
+
+
+        playerVars:{
+
+            autoplay:1,
+            controls:0,
+            disablekb:1,
+            playsinline:1,
+            rel:0,
+            modestbranding:1
+
+        },
+
+
+        events:{
+
+            onReady:function(e){
+
+                if(seek){
+
+                    e.target.seekTo(
+                        Number(seek),
+                        true
+                    );
+
+                }
+
+
+                e.target.playVideo();
+
+            },
+
+
+            onStateChange:function(e){
+
+                console.log(
+                    "YT state:",
+                    e.data
+                );
+
+            }
+
+        }
+
+        }
+    );
+
+}
   
 </script>
 <button id="chatFloatBtn" onclick="toggleChatPopup()">
