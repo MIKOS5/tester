@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
-<title>Radio Obvyris</title>
+<title>Radio Obvyris Test</title>
 
 <style>
 
@@ -45,6 +45,11 @@ cursor:pointer;
 }
 
 
+button:hover{
+background:#1869d9;
+}
+
+
 #title{
 
 font-size:20px;
@@ -53,9 +58,20 @@ margin-top:20px;
 }
 
 
+#artist,
 #genre{
 
 color:#aaa;
+margin-top:5px;
+
+}
+
+
+#status{
+
+margin-top:15px;
+font-size:13px;
+color:#17c964;
 
 }
 
@@ -64,6 +80,21 @@ audio{
 
 width:100%;
 margin-top:20px;
+
+}
+
+
+#debug{
+
+margin-top:20px;
+font-size:11px;
+text-align:left;
+background:#000;
+padding:10px;
+border-radius:8px;
+max-height:200px;
+overflow:auto;
+color:#0f0;
 
 }
 
@@ -93,17 +124,25 @@ Loading...
 <div id="genre"></div>
 
 
-<audio id="radio"
-controls>
-</audio>
+<audio id="radio" controls></audio>
 
 
 <br><br>
 
 
 <button onclick="startRadio()">
-PLAY RADIO
+▶ PLAY RADIO
 </button>
+
+
+<div id="status">
+Waiting...
+</div>
+
+
+<div id="debug">
+Debug output...
+</div>
 
 
 </div>
@@ -120,65 +159,174 @@ const API =
 
 
 
-let audio =
+const audio =
 document.getElementById("radio");
 
 
+
+function debug(msg){
+
+console.log(msg);
+
+document.getElementById("debug").innerHTML +=
+"<br>" + msg;
+
+}
 
 
 
 async function startRadio(){
 
 
-let r =
+document.getElementById("status").innerHTML =
+"Connecting...";
+
+
+document.getElementById("debug").innerHTML =
+"";
+
+
+
+try{
+
+
+let response =
 await fetch(API);
 
 
 
+debug(
+"HTTP STATUS: " + response.status
+);
+
+
+
+let raw =
+await response.text();
+
+
+
+debug(
+"RAW RESPONSE:"
+);
+
+
+
+debug(
+raw
+);
+
+
+
 let data =
-await r.json();
+JSON.parse(raw);
 
 
 
-console.log(data);
+console.log("DATA:",data);
+
+
+
+document.getElementById("title").innerHTML =
+data.program ||
+"Unknown Program";
+
+
+
+document.getElementById("artist").innerHTML =
+data.artist ||
+"";
+
+
+document.getElementById("genre").innerHTML =
+data.genre ||
+"";
 
 
 
 
-document.getElementById("title")
-.innerHTML =
-data.program;
+
+let stream =
+
+data.audio ||
+
+data.url ||
+
+data.url_resolved ||
+
+data.stream ||
+
+data.streamUrl;
 
 
 
-document.getElementById("artist")
-.innerHTML =
-data.artist;
+debug(
+"STREAM:"
+);
 
 
 
-document.getElementById("genre")
-.innerHTML =
-data.genre;
+debug(
+stream || "NO STREAM FOUND"
+);
 
 
 
-/*
-Future audio stream URL
-*/
-
-audio.src =
-data.audio;
+if(!stream){
 
 
+document.getElementById("status").innerHTML =
+"❌ No stream returned";
 
-audio.play();
+
+return;
+
+
+}
+
+
+
+
+
+audio.src = stream;
+
+
+audio.load();
+
+
+
+await audio.play();
+
+
+
+document.getElementById("status").innerHTML =
+"✅ Playing";
 
 
 
 }
 
 
+catch(err){
+
+
+console.error(err);
+
+
+debug(
+"ERROR: " + err
+);
+
+
+document.getElementById("status").innerHTML =
+"❌ Error";
+
+
+}
+
+
+
+}
 
 
 
