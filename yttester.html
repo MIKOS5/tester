@@ -5,109 +5,30 @@
 
 <meta charset="UTF-8">
 
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>Video Obvyris Station</title>
-
+<title>Video Obvyris</title>
 
 <style>
 
-body{
+html,body{
 
-background:#111;
-color:white;
-font-family:Arial;
 margin:0;
+padding:0;
+background:black;
+width:100%;
+height:100%;
+overflow:hidden;
 
 }
-
-
-.container{
-
-max-width:800px;
-margin:auto;
-padding:20px;
-
-}
-
-
-h1{
-
-text-align:center;
-color:#2793ff;
-
-}
-
 
 
 #player{
 
 width:100%;
-aspect-ratio:16/9;
-background:black;
+height:100vh;
 
 }
-
-
-
-.now{
-
-display:flex;
-gap:20px;
-align-items:center;
-
-background:#222;
-padding:15px;
-margin-top:20px;
-
-border-radius:12px;
-
-}
-
-
-
-#thumb{
-
-width:120px;
-height:120px;
-
-border-radius:10px;
-
-}
-
-
-
-button{
-
-padding:12px 25px;
-
-font-size:18px;
-
-margin:20px 5px;
-
-border-radius:10px;
-
-cursor:pointer;
-
-}
-
-
-
-.controls{
-
-text-align:center;
-
-}
-
-
-.status{
-
-text-align:center;
-color:#aaa;
-
-}
-
-
 
 </style>
 
@@ -118,79 +39,13 @@ color:#aaa;
 <body>
 
 
-<div class="container">
-
-
-<h1>
-📺 Video Obvyris Station
-</h1>
-
-
 <div id="player"></div>
-
-
-
-<div class="now">
-
-
-<img id="thumb">
-
-
-<div>
-
-<h2 id="title">
-Connecting...
-</h2>
-
-
-<h3 id="artist"></h3>
-
-
-<p id="timer"></p>
-
-
-</div>
-
-
-</div>
-
-
-
-
-<div class="controls">
-
-<button onclick="playVideo()">
-▶ Play
-</button>
-
-
-<button onclick="mute()">
-🔇 Mute
-</button>
-
-
-</div>
-
-
-
-<p class="status" id="status">
-Station connecting...
-</p>
-
-
-
-</div>
-
-
-
 
 
 <script src="https://www.youtube.com/iframe_api"></script>
 
 
-
 <script>
-
 
 
 const STATION_API =
@@ -199,13 +54,10 @@ const STATION_API =
 
 
 
-
-
 let player;
 
 let currentVideo="";
 
-let synced=false;
 
 
 
@@ -213,14 +65,16 @@ let synced=false;
 function onYouTubeIframeAPIReady(){
 
 
-
 player = new YT.Player(
+
 "player",
+
 {
 
-height:"360",
+width:"100%",
 
-width:"640",
+height:"100%",
+
 
 videoId:"",
 
@@ -229,14 +83,9 @@ playerVars:{
 
 autoplay:1,
 
-controls:1
+controls:1,
 
-},
-
-
-events:{
-
-onStateChange:onState
+rel:0
 
 }
 
@@ -252,103 +101,50 @@ onStateChange:onState
 
 
 
-function onState(e){
-
-
-
-if(
-e.data===YT.PlayerState.PLAYING
-){
-
-document.getElementById("status")
-.innerHTML=
-"ON AIR";
-
-
-}
-
-
-}
-
-
-
-
-
-
-
-
-async function updateStation(){
-
+async function syncStation(){
 
 
 try{
 
 
-let response =
-await fetch(
-STATION_API
-);
+let r =
+await fetch(STATION_API);
+
 
 
 let data =
-await response.json();
+await r.json();
 
 
 
-
-
-let song =
+let video =
 data.current;
 
 
 
-if(!song)
+if(!video)
 return;
 
 
 
-
-
-document.getElementById("title")
-.innerHTML=
-song.Title;
-
-
-
-document.getElementById("artist")
-.innerHTML=
-song.Artist;
-
-
-
-document.getElementById("thumb")
-.src=
-song.Thumbnail;
+let id =
+video["Video ID"];
 
 
 
 
 
-// new song
-
-if(
-currentVideo !== song["Video ID"]
-){
+if(id !== currentVideo){
 
 
 
-currentVideo =
-song["Video ID"];
+currentVideo=id;
 
 
 
-player.loadVideoById(
-currentVideo
-);
+player.loadVideoById(id);
 
 
-
-// sync station time
 
 setTimeout(()=>{
 
@@ -357,6 +153,7 @@ player.seekTo(
 data.position,
 true
 );
+
 
 
 player.playVideo();
@@ -371,61 +168,16 @@ player.playVideo();
 
 
 
-
-
-document.getElementById("timer")
-.innerHTML=
-
-"Station time: "
-+
-data.position
-+
-" sec";
-
-
-
-
-
 }
+
+
 
 catch(e){
 
-
-document.getElementById("status")
-.innerHTML=
-"Station offline";
-
-
 console.log(e);
 
-
 }
 
-
-
-}
-
-
-
-
-
-
-
-
-
-function playVideo(){
-
-player.playVideo();
-
-}
-
-
-
-
-
-function mute(){
-
-player.mute();
 
 }
 
@@ -434,12 +186,10 @@ player.mute();
 
 
 
-
-// sync every 5 seconds
 
 setInterval(
 
-updateStation,
+syncStation,
 
 5000
 
@@ -447,14 +197,11 @@ updateStation,
 
 
 
-// initial load
-
-updateStation();
+syncStation();
 
 
 
 </script>
-
 
 
 </body>
