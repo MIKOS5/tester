@@ -1005,7 +1005,7 @@ const SHEET =
 "https://script.google.com/macros/s/AKfycbzZ5MwOcYUY_bpsUKSxPd810xE8rV_Y3z2GwzPublb_4O60CP8L_lC_V2kqkCQ_JdF5/exec";
 
 const VIDEO_RADIO_API =
-"https://script.google.com/macros/s/AKfycbwA1FraODA7b2LLXhJfDzvdbK9TfNtSFVqcKQl67P0WjFg4ysOIGHGyq9JyeSN9axy2/exec?action=now";
+"https://script.google.com/macros/s/AKfycbwA1FraODA7b2LLXhJfDzvdbK9TfNtSFVqcKQl67P0WjFg4ysOIGHGyq9JyeSN9axy2/exec";
   
 const GENRES = [
   { id:"50s", label:"📻 50s Hits" },
@@ -1235,133 +1235,135 @@ async function loadVideoRadio(){
 
     try{
 
-        const res = await fetch(VIDEO_RADIO_API);
+        console.log("Loading Video Radio...");
+
+        const res = await fetch(
+            VIDEO_RADIO_API + "&t=" + Date.now()
+        );
 
         const data = await res.json();
 
-        console.log("Video Radio:", data);
-        console.log("STREAM URL:", data.url);
+        console.log("VIDEO RADIO API RESPONSE:", data);
 
 
-        if(!data.url){
+        // support different API formats
+        let stream = data.url || data.url_resolved;
 
-            alert("No audio stream available");
+
+        if(!stream && data.streams){
+            stream = data.streams[0]?.url ||
+                     data.streams[0]?.url_resolved;
+        }
+
+
+        if(!stream){
+
+            document.getElementById("npName").innerText =
+                "No stream found";
+
+            document.getElementById("npMeta").innerText =
+                JSON.stringify(data);
+
+            console.log(
+                "Missing stream URL:",
+                data
+            );
 
             return;
         }
 
 
-        const audio = document.getElementById("audio");
-        const video = document.getElementById("video");
+        const audio =
+            document.getElementById("audio");
+
+        const video =
+            document.getElementById("video");
 
 
-        // Stop video mode
+        // stop video
         video.pause();
-        video.src = "";
-        video.style.display = "none";
+        video.removeAttribute("src");
+        video.style.display="none";
 
 
-        // Stop previous audio
+        // stop old audio
         audio.pause();
         audio.removeAttribute("src");
         audio.load();
 
 
-        // Set audio stream
-        audio.src = data.url_resolved || data.url;
+        audio.style.display="block";
 
-        console.log(
-            "FINAL AUDIO SRC:",
-            audio.src
-        );
 
+        audio.src = stream;
 
         audio.load();
 
 
-        audio.onerror = function(){
+        audio.oncanplay = async()=>{
+
+            try{
+
+                await audio.play();
+
+                console.log(
+                    "Obvyris Radio playing"
+                );
+
+
+            }catch(e){
+
+                console.log(
+                    "Autoplay blocked",
+                    e
+                );
+
+            }
+
+        };
+
+
+        audio.onerror = ()=>{
 
             console.log(
-                "AUDIO ERROR:",
+                "Audio failed",
                 audio.error
             );
 
         };
 
 
-        audio.onloadedmetadata = function(){
-
-            console.log(
-                "Audio metadata loaded"
-            );
-
-            if(data.seek){
-
-                audio.currentTime =
-                    Number(data.seek);
-
-            }
-
-        };
+        document.getElementById("npName").innerText =
+            data.program ||
+            data.title ||
+            "Video Obvyris Radio";
 
 
-        audio.oncanplay = async function(){
-
-            console.log(
-                "Audio can play"
-            );
+        document.getElementById("npMeta").innerText =
+            `${data.artist || ""} • ${data.genre || "Radio"}`;
 
 
-            try{
-
-                await audio.play();
-
-
-                console.log(
-                    "VIDEO RADIO AUDIO PLAYING"
-                );
+        // keep synced with server
+        if(videoRadioTimer)
+            clearInterval(videoRadioTimer);
 
 
-                document.getElementById("npName")
-                .innerText =
-                data.program || "Video Obvyris Radio";
-
-
-                document.getElementById("npMeta")
-                .innerText =
-                `${data.artist || ""} • ${data.genre || "Radio"}`;
-
-
-            }
-            catch(err){
-
-                console.log(
-                    "Autoplay blocked:",
-                    err
-                );
-
-
-                // fallback: wait for user interaction
-                document.addEventListener(
-                    "click",
-                    ()=>{
-                        audio.play();
-                    },
-                    {once:true}
-                );
-
-            }
-
-        };
+        videoRadioTimer=setInterval(
+            updateVideoRadio,
+            5000
+        );
 
 
     }
     catch(err){
 
-        console.log(
-            "Video Radio failed:",
+        console.error(
+            "Video Radio Error:",
             err
         );
+
+        document.getElementById("npName").innerText =
+            "Video Radio Error";
 
     }
 
