@@ -987,6 +987,7 @@ let metadataAbort = null;
 let ytPlayer = null;
 let ytLoaded = false;
 let ytPending = null;
+let obvyrisOpen = false;
   
 const BOOK_API =
 "https://librivox.org/api/feed/audiobooks/";
@@ -1097,7 +1098,7 @@ const GENRES = [
   { id:"world", label:"🌐 World Music" }
 ];
 
-  function renderGenres(){
+function renderGenres(){
 
   const grid = document.getElementById("genreGrid");
 
@@ -1107,104 +1108,136 @@ const GENRES = [
     </div>
   `).join("");
 
+
   // prevent duplicate listeners
   if (!grid.dataset.bound) {
+
     grid.dataset.bound = "true";
 
     grid.addEventListener("click", (e) => {
+
       const item = e.target.closest(".genre");
+
       if (!item) return;
 
       const id = item.dataset.id;
+
       if (!id) return;
 
       const g = GENRES.find(x => x.id === id);
-      
-      document.querySelectorAll("#genreGrid .genre")
-  .forEach(x => x.classList.remove("active"));
 
-item.classList.add("active");
+      document
+        .querySelectorAll("#genreGrid .genre")
+        .forEach(x => x.classList.remove("active"));
 
-page = 0;
-currentGenre = id;
+      item.classList.add("active");
 
-// Update dropdown title
-document.querySelector(".genre-header").innerHTML =
-  `${g.label} <span id="genreArrow">▼</span>`;
 
-// Close dropdown
-genresOpen = false;
-document.getElementById("genreGrid").classList.add("collapsed");
+      page = 0;
+      currentGenre = id;
 
-// Load stations
-load(id);
+
+      // update genre dropdown title
+      document.querySelector(".genre-header").innerHTML =
+        `${g.label} <span id="genreArrow">▼</span>`;
+
+
+      genresOpen = false;
+
+      document
+        .getElementById("genreGrid")
+        .classList.add("collapsed");
+
+
+      load(id);
+
     });
+
   }
 
-  // actions panel
-const actions = document.getElementById("actionGrid");
-
-actions.innerHTML = `
-
-  <div class="genre-header" onclick="toggleObvyris()">
-    📡 Obvyris Stations
-    <span id="obvyrisArrow">▼</span>
-  </div>
-
-  <div id="obvyrisGrid" class="genre-grid collapsed"></div>
 
 
-  <div class="genre" onclick="selectTool('🎤 Artist A - L', loadArtistAl)">
-    🎤 Artist A - L
-  </div>
+  // ACTIONS / RADIO TOOLS
+  const actions = document.getElementById("actionGrid");
 
-  <div class="genre" onclick="selectTool('🎧 Artist M - Z', loadArtistMz)">
-    🎧 Artist M - Z
-  </div>
 
-  <div class="genre" onclick="selectTool('⭐ Favorites', loadFavorites)">
-    ⭐ Favorites
-  </div>
+  actions.innerHTML = `
 
-  <div class="genre" onclick="selectTool('☁️ Mood', loadMood)">
-    ☁️ Mood
-  </div>
+    <div class="genre-header" onclick="toggleObvyris()">
+      📡 Obvyris Stations
+      <span id="obvyrisArrow">▼</span>
+    </div>
 
-  <div class="genre" onclick="selectTool('📚 Audiobooks', loadAudiobooks)">
-    📚 Audiobooks
-  </div>
+    <div id="obvyrisGrid" class="genre-grid collapsed"></div>
 
-  <div class="genre" onclick="selectTool('📻 Misc', loadMISC)">
-    📻 Misc
-  </div>
 
-  <div class="genre" onclick="selectTool('🕵️ Undiscovered', loadUndiscovered)">
-    🕵️ Undiscovered
-  </div>
+    <div class="genre" onclick="selectTool('🎤 Artist A - L', loadArtistAl)">
+      🎤 Artist A - L
+    </div>
 
-  <div class="genre" onclick="selectTool('🌎 Mexico', loadInternational)">
-    🌎 Mexico
-  </div>
 
-  <div class="genre" onclick="selectTool('🛰️ International', loadInternational2)">
-    🛰️ International
-  </div>
+    <div class="genre" onclick="selectTool('🎧 Artist M - Z', loadArtistMz)">
+      🎧 Artist M - Z
+    </div>
 
-`; 
+
+    <div class="genre" onclick="selectTool('⭐ Favorites', loadFavorites)">
+      ⭐ Favorites
+    </div>
+
+
+    <div class="genre" onclick="selectTool('☁️ Mood', loadMood)">
+      ☁️ Mood
+    </div>
+
+
+    <div class="genre" onclick="selectTool('📚 Audiobooks', loadAudiobooks)">
+      📚 Audiobooks
+    </div>
+
+
+    <div class="genre" onclick="selectTool('📻 Misc', loadMISC)">
+      📻 Misc
+    </div>
+
+
+    <div class="genre" onclick="selectTool('🕵️ Undiscovered', loadUndiscovered)">
+      🕵️ Undiscovered
+    </div>
+
+
+    <div class="genre" onclick="selectTool('🌎 Mexico', loadInternational)">
+      🌎 Mexico
+    </div>
+
+
+    <div class="genre" onclick="selectTool('🛰️ International', loadInternational2)">
+      🛰️ International
+    </div>
+
+  `;
+
+
+  // build Obvyris station list
+  renderObvyris();
+
 }
 function toggleObvyris(){
 
+    const grid = document.getElementById("obvyrisGrid");
+    const arrow = document.getElementById("obvyrisArrow");
+
+    if(!grid) return;
+
     obvyrisOpen = !obvyrisOpen;
 
-    document
-        .getElementById("obvyrisGrid")
-        .classList.toggle("collapsed");
-
-    document
-        .getElementById("obvyrisArrow")
-        .innerText =
-            obvyrisOpen ? "▲" : "▼";
-
+    if(obvyrisOpen){
+        grid.classList.remove("collapsed");
+        arrow.innerText = "▲";
+    }else{
+        grid.classList.add("collapsed");
+        arrow.innerText = "▼";
+    }
 }
 
 function renderObvyris(){
