@@ -1001,7 +1001,14 @@ const RADIO =
 const SHEET =
 "https://script.google.com/macros/s/AKfycbzZ5MwOcYUY_bpsUKSxPd810xE8rV_Y3z2GwzPublb_4O60CP8L_lC_V2kqkCQ_JdF5/exec";
 
-  
+const OBVYRIS_STATIONS = [
+
+{
+    name:"Obvyris Radio1",
+    api:"https://script.google.com/macros/s/AKfycbwA1FraODA7b2LLXhJfDzvdbK9TfNtSFVqcKQl67P0WjFg4ysOIGHGyq9JyeSN9axy2/exec"
+}
+
+];
 const GENRES = [
   { id:"50s", label:"📻 50s Hits" },
   { id:"60s", label:"🎙 60s Hits" },
@@ -2203,17 +2210,20 @@ async function playObvyris(i){
     console.log("Obvyris data:", data);
 
 
-    // update player text
     document.getElementById("npName").innerText =
         data.program || station.name;
 
 
     document.getElementById("npMeta").innerText =
-        data.artist + " • " + data.genre;
+        (data.artist || "") +
+        " • " +
+        (data.genre || "");
 
 
-    // START YOUTUBE ENGINE
-    playYoutubeRadio(data);
+    playYoutubeRadio({
+        videoId:data.videoId,
+        seek:data.seek || 0
+    });
 
 }
   
