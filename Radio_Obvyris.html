@@ -1233,87 +1233,77 @@ async function loadVideoRadio(){
 
     setTitle("📺 Video Obvyris Radio");
 
-
     try{
 
-        const res =
-        await fetch(VIDEO_RADIO_API);
+        const res = await fetch(VIDEO_RADIO_API + "&t=" + Date.now());
 
+        const data = await res.json();
 
-        const data =
-        await res.json();
-
-
-        console.log(
-            "Video Radio:",
-            data
+        console.log("Video Radio API:", data);
         console.log("STREAM URL:", data.url);
-        );
 
 
         if(!data.url){
 
             alert("No audio stream available");
-
             return;
+
         }
 
 
-        const audio =
-        document.getElementById("audio");
+        const audio = document.getElementById("audio");
+        const video = document.getElementById("video");
 
 
-        const video =
-        document.getElementById("video");
-
-
-        // stop video mode
-
+        // stop video
         video.pause();
-        video.src="";
+        video.removeAttribute("src");
         video.style.display="none";
 
 
         // audio mode
+        audio.style.display="block";
 
         audio.pause();
 
-audio.src =
-data.url_resolved || data.url;
+        audio.src =
+            data.url_resolved || data.url;
 
-audio.load();
-
-
-audio.oncanplay = async ()=>{
-
-    try{
-
-        if(data.seek){
-
-            audio.currentTime =
-            Number(data.seek);
-
-        }
+        audio.load();
 
 
-        await audio.play();
+        audio.play()
+        .then(()=>{
 
-        console.log(
-          "Audio playing"
-        );
+            console.log("Video Obvyris Radio playing");
+
+        })
+        .catch(err=>{
+
+            console.log("Autoplay blocked:",err);
+
+        });
+
+
+        document.getElementById("npName").innerText =
+            data.program || "Video Obvyris Radio";
+
+
+        document.getElementById("npMeta").innerText =
+            `${data.artist || ""} • ${data.genre || "Live"}`;
 
 
     }
     catch(e){
 
-        console.log(
-          "Play blocked:",
-          e
+        console.error(
+            "Video Radio API failed:",
+            e
         );
 
     }
 
-};
+}
 
 
 
