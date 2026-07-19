@@ -8,15 +8,19 @@
 
 <title>Video Obvyris TV</title>
 
+
 <style>
 
 html,body{
 
 margin:0;
 padding:0;
+
 background:black;
+
 width:100%;
 height:100%;
+
 overflow:hidden;
 
 }
@@ -26,35 +30,70 @@ overflow:hidden;
 
 width:100%;
 height:100vh;
+
 pointer-events:none;
 
 }
 
 
-/* invisible protection layer */
+/* audio unlock screen */
 
-#lock{
+#activate{
+
 
 position:absolute;
+
+z-index:20;
+
 
 top:0;
 left:0;
 
+
 width:100%;
 height:100%;
 
-z-index:10;
 
-background:transparent;
+display:flex;
 
-cursor:none;
+align-items:center;
+
+justify-content:center;
+
+
+background:black;
+
+
+color:white;
+
+
+font-family:Arial,sans-serif;
+
+font-size:28px;
+
+
+cursor:pointer;
+
+
+}
+
+
+#activate span{
+
+padding:20px 40px;
+
+border:2px solid white;
+
+border-radius:10px;
 
 }
 
 
 </style>
 
+
 </head>
+
 
 
 <body>
@@ -62,17 +101,26 @@ cursor:none;
 
 <div id="player"></div>
 
-<div id="lock"></div>
+
+<div id="activate">
+
+<span>
+START VIDEO OBVYRIS TV
+</span>
+
+</div>
 
 
 
 <script src="https://www.youtube.com/iframe_api"></script>
 
 
+
 <script>
 
 
 const API =
+
 "https://script.google.com/macros/s/AKfycbwA1FraODA7b2LLXhJfDzvdbK9TfNtSFVqcKQl67P0WjFg4ysOIGHGyq9JyeSN9axy2/exec?action=now";
 
 
@@ -83,6 +131,7 @@ let playerReady=false;
 
 let currentVideo="";
 
+let activated=false;
 
 
 
@@ -91,18 +140,20 @@ let currentVideo="";
 function onYouTubeIframeAPIReady(){
 
 
+
 player = new YT.Player(
 
 "player",
 
 {
 
+
 height:"100%",
+
 width:"100%",
 
 
 videoId:"",
-
 
 
 playerVars:{
@@ -117,8 +168,6 @@ disablekb:1,
 playsinline:1,
 
 rel:0,
-
-modestbranding:1,
 
 fs:0
 
@@ -137,19 +186,21 @@ playerReady=true;
 player.mute();
 
 
+player.playVideo();
+
+
 sync();
 
 
 },
 
 
-
-onError:function(error){
+onError:function(e){
 
 
 console.log(
 "YouTube Error",
-error.data
+e.data
 );
 
 
@@ -172,6 +223,44 @@ error.data
 
 
 
+/*
+ Audio unlock
+*/
+
+
+document
+.getElementById("activate")
+.onclick=function(){
+
+
+if(!playerReady)
+return;
+
+
+
+player.unMute();
+
+player.setVolume(100);
+
+player.playVideo();
+
+
+activated=true;
+
+
+this.style.display="none";
+
+
+};
+
+
+
+
+
+
+
+
+
 async function sync(){
 
 
@@ -179,15 +268,18 @@ if(!playerReady)
 return;
 
 
+
 try{
 
 
 let response =
+
 await fetch(API);
 
 
 
 let data =
+
 await response.json();
 
 
@@ -209,24 +301,22 @@ currentVideo=data.videoId;
 
 player.loadVideoById({
 
+
 videoId:data.videoId,
 
+
 startSeconds:Number(data.seek)
+
 
 });
 
 
 
-setTimeout(()=>{
+if(activated){
 
+player.unMute();
 
-player.mute();
-
-player.playVideo();
-
-
-
-},1000);
+}
 
 
 
@@ -234,22 +324,29 @@ player.playVideo();
 
 
 
+
 else{
 
 
 let current =
+
 player.getCurrentTime();
 
 
 
-let drift =
+let difference =
+
 Math.abs(
-current - Number(data.seek)
+
+current -
+
+Number(data.seek)
+
 );
 
 
 
-if(drift > 5){
+if(difference > 5){
 
 
 player.seekTo(
@@ -262,6 +359,7 @@ true
 
 
 }
+
 
 
 }
@@ -284,20 +382,8 @@ console.log(e);
 
 
 
-// block keyboard shortcuts
 
-document.addEventListener(
-"keydown",
-function(e){
-
-e.preventDefault();
-
-}
-);
-
-
-
-// station sync
+// station clock sync
 
 setInterval(
 
