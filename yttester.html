@@ -4,27 +4,34 @@
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
-<title>Video Obvyris</title>
+<title>Video Obvyris TV</title>
+
 
 <style>
 
 html,body{
+
 margin:0;
 padding:0;
 background:black;
 width:100%;
 height:100%;
 overflow:hidden;
+
 }
 
+
 #player{
+
 width:100%;
 height:100vh;
+
 }
 
 </style>
+
 
 </head>
 
@@ -41,13 +48,19 @@ height:100vh;
 <script>
 
 
-const STATION_API =
-"https://script.google.com/macros/s/AKfycbwA1FraODA7b2LLXhJfDzvdbK9TfNtSFVqcKQl67P0WjFg4ysOIGHGyq9JyeSN9axy2/exec?action=station";
+const API =
+
+"https://script.google.com/macros/s/AKfycbwA1FraODA7b2LLXhJfDzvdbK9TfNtSFVqcKQl67P0WjFg4ysOIGHGyq9JyeSN9axy2/exec?action=now";
+
 
 
 let player;
 
-let currentVideo="";
+let currentURL="";
+
+let ready=false;
+
+
 
 
 
@@ -65,8 +78,11 @@ height:"100%",
 playerVars:{
 
 autoplay:1,
-controls:1,
+
+controls:0,
+
 rel:0,
+
 playsinline:1
 
 },
@@ -76,9 +92,9 @@ events:{
 
 onReady:function(){
 
-player.mute();
+ready=true;
 
-syncStation();
+sync();
 
 },
 
@@ -87,15 +103,16 @@ onStateChange:function(e){
 
 
 if(
-e.data === YT.PlayerState.ENDED
+e.data === YT.PlayerState.PLAYING
 ){
 
-syncStation();
+checkSync();
 
 }
 
 
 }
+
 
 
 }
@@ -110,36 +127,59 @@ syncStation();
 
 
 
-async function syncStation(){
+
+
+async function sync(){
+
+
+if(!ready)
+return;
+
 
 
 try{
 
 
-let response =
-await fetch(STATION_API);
+let r =
+await fetch(API);
+
 
 
 let data =
-await response.json();
+await r.json();
 
 
 
-if(!data.current)
+if(data.error)
 return;
 
 
 
+let url=data.url;
+
+
+
+if(!url)
+return;
+
+
+
+// Extract YouTube ID
+
 let id =
-data.current["Video ID"];
+extractID(url);
 
 
 
 
-if(id !== currentVideo){
+
+// New program
+
+if(id !== currentURL){
 
 
-currentVideo=id;
+
+currentURL=id;
 
 
 
@@ -147,16 +187,34 @@ player.loadVideoById({
 
 videoId:id,
 
-startSeconds:data.position || 0
+startSeconds:data.seek
 
 });
 
 
+}
 
-player.mute();
 
-player.playVideo();
 
+else{
+
+
+// Keep clock synced
+
+let current =
+player.getCurrentTime();
+
+
+
+if(
+Math.abs(current-data.seek)>5
+){
+
+
+player.seekTo(
+data.seek,
+true
+);
 
 
 }
@@ -166,23 +224,69 @@ player.playVideo();
 }
 
 
-catch(err){
 
-console.log(err);
+}
+
+catch(e){
+
+console.log(e);
+
+}
+
 
 }
 
 
 
+
+
+
+
+
+function extractID(url){
+
+
+let reg =
+/(?:youtube\.com\/.*v=|youtu\.be\/)([^&]+)/;
+
+
+
+let match =
+url.match(reg);
+
+
+
+return match ? match[1] : url;
+
+
 }
 
 
 
 
+
+
+
+function checkSync(){
+
+
+sync();
+
+
+}
+
+
+
+
+
+// station clock poll
 
 setInterval(
-syncStation,
+
+sync,
+
 5000
+
 );
 
 
