@@ -12,6 +12,7 @@
 
 html,body{
 margin:0;
+padding:0;
 background:black;
 width:100%;
 height:100%;
@@ -41,14 +42,15 @@ height:100vh;
 
 
 const API =
-"YOUR_API_URL?action=now";
+"https://YOUR_SCRIPT_URL/exec?action=now";
 
 
 let player;
 
-let ready=false;
+let playerReady=false;
 
 let currentVideo="";
+
 
 
 
@@ -58,69 +60,54 @@ function onYouTubeIframeAPIReady(){
 
 
 player = new YT.Player(
-
 "player",
-
 {
 
+height:"100%",
 width:"100%",
 
-height:"100%",
+
+videoId:"",
 
 
 playerVars:{
 
 autoplay:1,
-
 controls:1,
-
 playsinline:1,
-
-rel:0,
-
-mute:1
+rel:0
 
 },
 
 
 events:{
 
-
 onReady:function(){
 
 
-ready=true;
+playerReady=true;
 
-
-// required for autoplay
 
 player.mute();
 
-player.playVideo();
 
-
-syncStation();
+sync();
 
 
 },
 
 
+onError:function(error){
 
-onStateChange:function(e){
 
-
-if(
-e.data === YT.PlayerState.PLAYING
-){
-
-console.log("ON AIR");
+console.log(
+"YouTube Error",
+error.data
+);
 
 
 }
 
-
-
-}
 
 
 }
@@ -137,24 +124,28 @@ console.log("ON AIR");
 
 
 
-async function syncStation(){
+
+async function sync(){
 
 
-if(!ready)
+if(!playerReady)
 return;
-
 
 
 try{
 
 
-let r =
+let response =
 await fetch(API);
 
 
 
 let data =
-await r.json();
+await response.json();
+
+
+
+console.log(data);
 
 
 
@@ -163,13 +154,11 @@ return;
 
 
 
-if(
-data.videoId !== currentVideo
-){
+if(data.videoId !== currentVideo){
 
 
-
-currentVideo=data.videoId;
+currentVideo =
+data.videoId;
 
 
 
@@ -177,16 +166,20 @@ player.loadVideoById({
 
 videoId:data.videoId,
 
-startSeconds:data.seek
+startSeconds:Number(data.seek)
 
 });
 
 
 
+setTimeout(()=>{
+
 player.mute();
 
-
 player.playVideo();
+
+
+},1000);
 
 
 
@@ -200,27 +193,23 @@ player.getCurrentTime();
 
 
 
-let drift =
+let difference =
 Math.abs(
-current-data.seek
+current - Number(data.seek)
 );
 
 
 
-if(drift > 5){
+if(difference > 5){
 
 
 player.seekTo(
-
-data.seek,
-
+Number(data.seek),
 true
-
 );
 
 
 }
-
 
 
 }
@@ -245,13 +234,9 @@ console.log(e);
 
 
 setInterval(
-
-syncStation,
-
+sync,
 5000
-
 );
-
 
 
 </script>
