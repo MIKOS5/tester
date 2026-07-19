@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>Radio Obvyris - YouTube Station</title>
+
+<style>
+
+body{
+    margin:0;
+    background:#111;
+    color:white;
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+
+.station{
+
+    max-width:800px;
+    margin:auto;
+    padding:20px;
+
+}
+
+
+h1{
+
+    text-align:center;
+    color:#2793ff;
+
+}
+
+
+#player{
+
+    width:100%;
+    aspect-ratio:16/9;
+    background:black;
+
+}
+
+
+
+.now{
+
+    display:flex;
+    gap:20px;
+    align-items:center;
+    margin-top:20px;
+    padding:15px;
+    background:#222;
+    border-radius:10px;
+
+}
+
+
+
+#cover{
+
+    width:120px;
+    height:120px;
+    border-radius:10px;
+
+}
+
+
+
+.controls{
+
+    display:flex;
+    justify-content:center;
+    gap:15px;
+    margin:20px;
+
+}
+
+
+
+button{
+
+    font-size:25px;
+    padding:10px 20px;
+    border-radius:10px;
+    cursor:pointer;
+
+}
+
+
+
+input{
+
+    width:100%;
+    box-sizing:border-box;
+    padding:12px;
+    font-size:18px;
+    margin-bottom:15px;
+
+}
+
+
+
+.song{
+
+    padding:15px;
+    border-bottom:1px solid #333;
+    cursor:pointer;
+
+}
+
+
+
+.song:hover{
+
+    background:#222;
+
+}
+
+
+
+.active{
+
+    background:#2793ff;
+
+}
+
+
+
+.small{
+
+    color:#aaa;
+
+}
+
+
+</style>
+
+
+</head>
+
+
+<body>
+
+
+<div class="station">
+
+
+<h1>🎸 Radio Obvyris</h1>
+
+<h3 style="text-align:center">
+YouTube Music Station
+</h3>
+
+
+<div id="player"></div>
+
+
+
+<div class="now">
+
+
+<img id="cover">
+
+
+<div>
+
+<h2 id="title">
+Loading...
+</h2>
+
+
+<p id="artist"></p>
+
+
+<p class="small" id="status">
+Connecting...
+</p>
+
+
+</div>
+
+
+</div>
+
+
+
+
+<div class="controls">
+
+<button onclick="previous()">⏮</button>
+
+<button onclick="playPause()">▶️</button>
+
+<button onclick="next()">⏭</button>
+
+</div>
+
+
+
+
+<input 
+id="search"
+placeholder="Search artist or song..."
+onkeyup="filterSongs()">
+
+
+
+<div id="playlist"></div>
+
+
+
+</div>
+
+
+
+
+
+<script src="https://www.youtube.com/iframe_api"></script>
+
+
+<script>
+
+
+const API = 
+"https://script.google.com/macros/s/AKfycbwA1FraODA7b2LLXhJfDzvdbK9TfNtSFVqcKQl67P0WjFg4ysOIGHGyq9JyeSN9axy2/exec";
+
+
+
+let songs=[];
+
+let queue=[];
+
+let current=0;
+
+let player;
+
+
+
+// Load YouTube Player
+
+function onYouTubeIframeAPIReady(){
+
+
+player = new YT.Player(
+"player",
+{
+
+height:"360",
+
+width:"640",
+
+videoId:"",
+
+
+events:{
+
+'onStateChange':stateChange
+
+}
+
+
+});
+
+
+}
+
+
+
+
+// Load API playlist
+
+
+fetch(API)
+
+.then(response=>response.json())
+
+.then(data=>{
+
+
+songs=data.videos;
+
+queue=[...songs];
+
+
+renderPlaylist();
+
+
+loadSong(0);
+
+
+})
+
+.catch(error=>{
+
+document.getElementById("status").innerHTML=
+"API ERROR";
+
+console.log(error);
+
+});
+
+
+
+
+
+
+function loadSong(index){
+
+
+current=index;
+
+
+let song=queue[index];
+
+
+
+document.getElementById("title").innerHTML=
+song.Title;
+
+
+
+document.getElementById("artist").innerHTML=
+song.Artist;
+
+
+
+document.getElementById("cover").src=
+song.Thumbnail;
+
+
+
+document.getElementById("status").innerHTML=
+"Playing";
+
+
+
+player.loadVideoById(
+song["Video ID"]
+);
+
+
+highlight();
+
+
+}
+
+
+
+
+
+
+function stateChange(event){
+
+
+if(event.data===YT.PlayerState.ENDED){
+
+next();
+
+}
+
+
+}
+
+
+
+
+
+
+
+function next(){
+
+
+current++;
+
+
+if(current>=queue.length){
+
+current=0;
+
+}
+
+
+loadSong(current);
+
+
+}
+
+
+
+
+
+
+
+function previous(){
+
+
+current--;
+
+
+if(current<0){
+
+current=queue.length-1;
+
+}
+
+
+loadSong(current);
+
+
+}
+
+
+
+
+
+
+
+function playPause(){
+
+
+
+let state =
+player.getPlayerState();
+
+
+
+if(state===YT.PlayerState.PLAYING){
+
+player.pauseVideo();
+
+}
+
+else{
+
+player.playVideo();
+
+}
+
+
+
+}
+
+
+
+
+
+
+
+
+function renderPlaylist(list=queue){
+
+
+let box=
+document.getElementById("playlist");
+
+
+box.innerHTML="";
+
+
+
+list.forEach((song)=>{
+
+
+let div=document.createElement("div");
+
+
+div.className="song";
+
+
+
+div.innerHTML=
+
+`
+<b>${song.Artist}</b><br>
+${song.Title}
+`;
+
+
+
+div.onclick=function(){
+
+
+let index=queue.indexOf(song);
+
+loadSong(index);
+
+
+};
+
+
+
+box.appendChild(div);
+
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+
+
+function filterSongs(){
+
+
+let text =
+document
+.getElementById("search")
+.value
+.toLowerCase();
+
+
+
+
+let filtered =
+songs.filter(song=>{
+
+
+return (
+
+song.Artist
+.toLowerCase()
+.includes(text)
+
+
+||
+
+
+song.Title
+.toLowerCase()
+.includes(text)
+
+
+);
+
+
+});
+
+
+
+renderPlaylist(filtered);
+
+
+
+}
+
+
+
+
+
+
+
+
+function highlight(){
+
+
+let items=
+document.querySelectorAll(".song");
+
+
+
+items.forEach((item,index)=>{
+
+
+item.classList.remove("active");
+
+
+
+if(index===current){
+
+item.classList.add("active");
+
+}
+
+
+
+});
+
+
+}
+
+
+
+
+
+</script>
+
+
+</body>
+</html>
