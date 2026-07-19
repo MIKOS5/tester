@@ -1538,17 +1538,22 @@ function playBookChapter(){
 
 async function openBook(id){
 
-    const url =
-        BOOK_PROXY +
-        encodeURIComponent(
-            BOOK_API +
-            id +
-            "?format=json&extended=1"
-        );
+    const apiUrl =
+      BOOK_API +
+      "?id=" + id +
+      "&format=json&extended=1";
 
-    const res = await fetch(url);
+    const url =
+      BOOK_PROXY +
+      encodeURIComponent(apiUrl);
+
+    console.log("Loading book:", id, url);
+
+    const res = await fetch(url + "&t=" + Date.now());
 
     const data = await res.json();
+
+    console.log(data);
 
     currentBook = data.books[0];
 
@@ -2405,7 +2410,7 @@ a=>a.first_name+" "+a.last_name
 
 <div class="row">
 
-<button onclick="openBook(${b.id})">
+<button onclick="openBook('${b.id}')">
 ▶ Play
 </button>
 
