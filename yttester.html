@@ -11,18 +11,46 @@
 <style>
 
 html,body{
+
 margin:0;
 padding:0;
 background:black;
 width:100%;
 height:100%;
 overflow:hidden;
+
 }
 
+
 #player{
+
 width:100%;
 height:100vh;
+pointer-events:none;
+
 }
+
+
+/* invisible protection layer */
+
+#lock{
+
+position:absolute;
+
+top:0;
+left:0;
+
+width:100%;
+height:100%;
+
+z-index:10;
+
+background:transparent;
+
+cursor:none;
+
+}
+
 
 </style>
 
@@ -34,6 +62,9 @@ height:100vh;
 
 <div id="player"></div>
 
+<div id="lock"></div>
+
+
 
 <script src="https://www.youtube.com/iframe_api"></script>
 
@@ -43,6 +74,7 @@ height:100vh;
 
 const API =
 "https://script.google.com/macros/s/AKfycbwA1FraODA7b2LLXhJfDzvdbK9TfNtSFVqcKQl67P0WjFg4ysOIGHGyq9JyeSN9axy2/exec?action=now";
+
 
 
 let player;
@@ -60,7 +92,9 @@ function onYouTubeIframeAPIReady(){
 
 
 player = new YT.Player(
+
 "player",
+
 {
 
 height:"100%",
@@ -70,17 +104,29 @@ width:"100%",
 videoId:"",
 
 
+
 playerVars:{
 
+
 autoplay:1,
-controls:1,
+
+controls:0,
+
+disablekb:1,
+
 playsinline:1,
-rel:0
+
+rel:0,
+
+modestbranding:1,
+
+fs:0
 
 },
 
 
 events:{
+
 
 onReady:function(){
 
@@ -97,6 +143,7 @@ sync();
 },
 
 
+
 onError:function(error){
 
 
@@ -109,7 +156,6 @@ error.data
 }
 
 
-
 }
 
 
@@ -117,6 +163,7 @@ error.data
 
 
 }
+
 
 
 
@@ -145,20 +192,18 @@ await response.json();
 
 
 
-console.log(data);
-
-
-
 if(!data.videoId)
 return;
+
+
 
 
 
 if(data.videoId !== currentVideo){
 
 
-currentVideo =
-data.videoId;
+
+currentVideo=data.videoId;
 
 
 
@@ -174,9 +219,11 @@ startSeconds:Number(data.seek)
 
 setTimeout(()=>{
 
+
 player.mute();
 
 player.playVideo();
+
 
 
 },1000);
@@ -184,6 +231,8 @@ player.playVideo();
 
 
 }
+
+
 
 else{
 
@@ -193,19 +242,22 @@ player.getCurrentTime();
 
 
 
-let difference =
+let drift =
 Math.abs(
 current - Number(data.seek)
 );
 
 
 
-if(difference > 5){
+if(drift > 5){
 
 
 player.seekTo(
+
 Number(data.seek),
+
 true
+
 );
 
 
@@ -232,11 +284,29 @@ console.log(e);
 
 
 
+// block keyboard shortcuts
+
+document.addEventListener(
+"keydown",
+function(e){
+
+e.preventDefault();
+
+}
+);
+
+
+
+// station sync
 
 setInterval(
+
 sync,
+
 5000
+
 );
+
 
 
 </script>
