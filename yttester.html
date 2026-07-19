@@ -4,7 +4,8 @@
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>Video Obvyris TV</title>
 
@@ -32,7 +33,6 @@ height:100vh;
 
 </style>
 
-
 </head>
 
 
@@ -42,7 +42,9 @@ height:100vh;
 <div id="player"></div>
 
 
+
 <script src="https://www.youtube.com/iframe_api"></script>
+
 
 
 <script>
@@ -56,9 +58,9 @@ const API =
 
 let player;
 
-let currentURL="";
+let currentVideo="";
 
-let ready=false;
+let playerReady=false;
 
 
 
@@ -67,46 +69,58 @@ let ready=false;
 function onYouTubeIframeAPIReady(){
 
 
+
 player = new YT.Player(
+
 "player",
+
 {
 
+
 width:"100%",
+
 height:"100%",
 
 
 playerVars:{
 
+
 autoplay:1,
 
-controls:0,
+controls:1,
 
-rel:0,
+playsinline:1,
 
-playsinline:1
+rel:0
+
 
 },
 
 
 events:{
 
+
 onReady:function(){
 
-ready=true;
 
-sync();
+playerReady=true;
+
+
+syncStation();
+
 
 },
+
 
 
 onStateChange:function(e){
 
 
 if(
-e.data === YT.PlayerState.PLAYING
+e.data === YT.PlayerState.ENDED
 ){
 
-checkSync();
+syncStation();
 
 }
 
@@ -114,8 +128,8 @@ checkSync();
 }
 
 
-
 }
+
 
 
 });
@@ -129,10 +143,13 @@ checkSync();
 
 
 
-async function sync(){
 
 
-if(!ready)
+async function syncStation(){
+
+
+
+if(!playerReady)
 return;
 
 
@@ -140,13 +157,15 @@ return;
 try{
 
 
-let r =
+let response =
+
 await fetch(API);
 
 
 
 let data =
-await r.json();
+
+await response.json();
 
 
 
@@ -155,65 +174,70 @@ return;
 
 
 
-let url=data.url;
+let videoID =
 
-
-
-if(!url)
-return;
-
-
-
-// Extract YouTube ID
-
-let id =
-extractID(url);
+getYoutubeID(
+data.url
+);
 
 
 
 
 
-// New program
+// new video
 
-if(id !== currentURL){
+if(
+videoID !== currentVideo
+){
 
 
 
-currentURL=id;
+currentVideo = videoID;
 
 
 
 player.loadVideoById({
 
-videoId:id,
+videoId:videoID,
 
 startSeconds:data.seek
+
 
 });
 
 
+
 }
-
-
 
 else{
 
 
-// Keep clock synced
+// sync clock
+
 
 let current =
+
 player.getCurrentTime();
 
 
 
-if(
-Math.abs(current-data.seek)>5
-){
+let drift =
+
+Math.abs(
+current-data.seek
+);
+
+
+
+if(drift > 5){
 
 
 player.seekTo(
+
 data.seek,
+
 true
+
 );
 
 
@@ -227,36 +251,14 @@ true
 
 }
 
-catch(e){
+catch(error){
 
-console.log(e);
+
+console.log(error);
+
 
 }
 
-
-}
-
-
-
-
-
-
-
-
-function extractID(url){
-
-
-let reg =
-/(?:youtube\.com\/.*v=|youtu\.be\/)([^&]+)/;
-
-
-
-let match =
-url.match(reg);
-
-
-
-return match ? match[1] : url;
 
 
 }
@@ -267,10 +269,25 @@ return match ? match[1] : url;
 
 
 
-function checkSync(){
+function getYoutubeID(url){
 
 
-sync();
+if(
+url.includes("youtu.be")
+){
+
+
+return url.split("/")
+.pop();
+
+
+}
+
+
+
+return new URL(url)
+.searchParams
+.get("v");
 
 
 }
@@ -279,11 +296,14 @@ sync();
 
 
 
-// station clock poll
+
+
+
+// check station clock
 
 setInterval(
 
-sync,
+syncStation,
 
 5000
 
