@@ -5,7 +5,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
-<title>Radio Obvyris Test</title>
+<title>Video Obvyris Radio Test</title>
+
+<script src="https://www.youtube.com/iframe_api"></script>
 
 <style>
 
@@ -20,20 +22,15 @@ align-items:center;
 height:100vh;
 }
 
-
 .player{
-
 background:#222;
 padding:30px;
 border-radius:15px;
-width:320px;
+width:360px;
 text-align:center;
-
 }
 
-
 button{
-
 background:#2793ff;
 border:0;
 padding:15px 30px;
@@ -41,68 +38,30 @@ border-radius:8px;
 color:white;
 font-size:18px;
 cursor:pointer;
-
 }
-
-
-button:hover{
-background:#1869d9;
-}
-
 
 #title{
-
 font-size:20px;
 margin-top:20px;
-
 }
 
-
-#artist,
-#genre{
-
+#artist,#genre{
 color:#aaa;
 margin-top:5px;
-
 }
 
+#ytPlayer{
+margin-top:20px;
+}
 
 #status{
-
 margin-top:15px;
-font-size:13px;
 color:#17c964;
-
 }
-
-
-audio{
-
-width:100%;
-margin-top:20px;
-
-}
-
-
-#debug{
-
-margin-top:20px;
-font-size:11px;
-text-align:left;
-background:#000;
-padding:10px;
-border-radius:8px;
-max-height:200px;
-overflow:auto;
-color:#0f0;
-
-}
-
 
 </style>
 
 </head>
-
 
 <body>
 
@@ -110,7 +69,7 @@ color:#0f0;
 <div class="player">
 
 
-<h2>📻 Radio Obvyris</h2>
+<h2>📺 Video Obvyris</h2>
 
 
 <div id="title">
@@ -124,14 +83,14 @@ Loading...
 <div id="genre"></div>
 
 
-<audio id="radio" controls></audio>
+<div id="ytPlayer"></div>
 
 
-<br><br>
+<br>
 
 
 <button onclick="startRadio()">
-▶ PLAY RADIO
+▶ PLAY
 </button>
 
 
@@ -140,146 +99,93 @@ Waiting...
 </div>
 
 
-<div id="debug">
-Debug output...
 </div>
-
-
-</div>
-
-
 
 
 
 <script>
 
 
-const API = 
+const API =
 "https://script.google.com/macros/s/AKfycbwA1FraODA7b2LLXhJfDzvdbK9TfNtSFVqcKQl67P0WjFg4ysOIGHGyq9JyeSN9axy2/exec?action=now";
 
 
 
-const audio =
-document.getElementById("radio");
+let ytPlayer;
+
+let currentVideo="";
 
 
 
-function debug(msg){
+function onYouTubeIframeAPIReady(){
 
-console.log(msg);
-
-document.getElementById("debug").innerHTML +=
-"<br>" + msg;
+console.log("YouTube API Ready");
 
 }
+
 
 
 
 async function startRadio(){
 
 
-document.getElementById("status").innerHTML =
-"Connecting...";
-
-
-document.getElementById("debug").innerHTML =
-"";
-
-
-
 try{
 
 
-let response =
+let res =
 await fetch(API);
 
 
 
-debug(
-"HTTP STATUS: " + response.status
-);
-
-
-
-let raw =
-await response.text();
-
-
-
-debug(
-"RAW RESPONSE:"
-);
-
-
-
-debug(
-raw
-);
-
-
-
 let data =
-JSON.parse(raw);
+await res.json();
 
 
 
-console.log("DATA:",data);
+console.log(data);
 
 
 
 document.getElementById("title").innerHTML =
-data.program ||
-"Unknown Program";
-
-
+data.program || "";
 
 document.getElementById("artist").innerHTML =
-data.artist ||
-"";
-
+data.artist || "";
 
 document.getElementById("genre").innerHTML =
-data.genre ||
-"";
+data.genre || "";
 
 
 
-
-
-let stream =
-
-data.audio ||
-
-data.url ||
-
-data.url_resolved ||
-
-data.stream ||
-
-data.streamUrl;
+let videoId =
+data.videoId;
 
 
 
-debug(
-"STREAM:"
-);
+if(!videoId){
 
-
-
-debug(
-stream || "NO STREAM FOUND"
-);
-
-
-
-if(!stream){
-
-
-document.getElementById("status").innerHTML =
-"❌ No stream returned";
-
+alert("No YouTube video ID");
 
 return;
+
+}
+
+
+
+loadVideo(videoId,data.seek);
+
+
+
+}
+
+catch(e){
+
+console.error(e);
+
+document.getElementById("status").innerHTML =
+"❌ Error";
+
+}
 
 
 }
@@ -287,39 +193,86 @@ return;
 
 
 
-
-audio.src = stream;
-
-
-audio.load();
+function loadVideo(id,seek){
 
 
+currentVideo=id;
 
-await audio.play();
 
+
+if(!ytPlayer){
+
+
+ytPlayer =
+new YT.Player(
+"ytPlayer",
+{
+
+height:"200",
+width:"350",
+
+videoId:id,
+
+
+playerVars:{
+
+autoplay:1,
+
+controls:1,
+
+playsinline:1
+
+},
+
+
+events:{
+
+
+onReady:function(event){
+
+
+if(seek){
+
+event.target.seekTo(
+Number(seek),
+true
+);
+
+}
+
+
+event.target.playVideo();
 
 
 document.getElementById("status").innerHTML =
 "✅ Playing";
 
 
+}
+
 
 }
 
 
-catch(err){
+});
 
 
-console.error(err);
+}
+
+else{
 
 
-debug(
-"ERROR: " + err
+ytPlayer.loadVideoById(id);
+
+
+if(seek){
+
+ytPlayer.seekTo(
+Number(seek),
+true
 );
 
-
-document.getElementById("status").innerHTML =
-"❌ Error";
+}
 
 
 }
@@ -327,7 +280,6 @@ document.getElementById("status").innerHTML =
 
 
 }
-
 
 
 </script>
