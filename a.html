@@ -47,11 +47,6 @@ cursor:pointer;
 }
 
 
-button:hover{
-background:#1869d9;
-}
-
-
 #title{
 
 font-size:20px;
@@ -69,24 +64,34 @@ margin-top:5px;
 }
 
 
-/* HIDDEN YOUTUBE PLAYER */
-
-#ytPlayer{
-
-position:absolute;
-width:1px;
-height:1px;
-overflow:hidden;
-opacity:0;
-pointer-events:none;
-
-}
-
-
 #status{
 
 margin-top:15px;
 color:#17c964;
+
+}
+
+
+/*
+YouTube engine
+kept alive but not visible
+*/
+
+#ytWrapper{
+
+position:fixed;
+left:-9999px;
+top:-9999px;
+width:200px;
+height:120px;
+
+}
+
+
+#ytPlayer{
+
+width:200px;
+height:120px;
 
 }
 
@@ -102,7 +107,7 @@ color:#17c964;
 <div class="player">
 
 
-<h2>📺 Video Obvyris Radio</h2>
+<h2>📻 Video Obvyris Radio</h2>
 
 
 <div id="title">
@@ -116,9 +121,11 @@ Loading...
 <div id="genre"></div>
 
 
-<!-- Hidden YouTube Audio Engine -->
+<div id="ytWrapper">
 
 <div id="ytPlayer"></div>
+
+</div>
 
 
 <br>
@@ -147,37 +154,31 @@ const API =
 "https://script.google.com/macros/s/AKfycbwA1FraODA7b2LLXhJfDzvdbK9TfNtSFVqcKQl67P0WjFg4ysOIGHGyq9JyeSN9axy2/exec?action=now";
 
 
+let ytPlayer=null;
 
-let ytPlayer = null;
+let ytLoaded=false;
 
-let ytReady = false;
-
-let pendingVideo = null;
-
+let pending=null;
 
 
-// YouTube API callback
 
 function onYouTubeIframeAPIReady(){
 
-console.log(
-"YouTube API Ready"
-);
+console.log("YouTube Ready");
 
-ytReady=true;
+ytLoaded=true;
 
 
-if(pendingVideo){
+if(pending){
 
 createPlayer(
-pendingVideo.id,
-pendingVideo.seek
+pending.id,
+pending.seek
 );
 
 }
 
 }
-
 
 
 
@@ -187,13 +188,12 @@ async function startRadio(){
 try{
 
 
-let res =
+const res =
 await fetch(API);
 
 
-let data =
+const data =
 await res.json();
-
 
 
 console.log(data);
@@ -215,9 +215,7 @@ data.genre || "";
 
 if(!data.videoId){
 
-alert(
-"No video ID found"
-);
+alert("No video ID");
 
 return;
 
@@ -225,16 +223,12 @@ return;
 
 
 
-if(!ytReady){
+if(!ytLoaded){
 
-pendingVideo = {
-
+pending={
 id:data.videoId,
-
 seek:data.seek
-
 };
-
 
 return;
 
@@ -251,17 +245,17 @@ data.seek
 
 }
 
-catch(err){
+catch(e){
 
-console.error(err);
+console.error(e);
 
 document.getElementById("status").innerHTML =
 "❌ Error";
 
 }
 
-
 }
+
 
 
 
@@ -288,7 +282,6 @@ true
 
 return;
 
-
 }
 
 
@@ -298,11 +291,9 @@ new YT.Player(
 "ytPlayer",
 {
 
+height:"120",
 
-height:"1",
-
-width:"1",
-
+width:"200",
 
 videoId:id,
 
@@ -318,9 +309,9 @@ disablekb:1,
 
 playsinline:1,
 
-modestbranding:1,
+rel:0,
 
-rel:0
+modestbranding:1
 
 
 },
@@ -329,26 +320,16 @@ rel:0
 events:{
 
 
-
-onReady:function(event){
-
+onReady:function(e){
 
 
-console.log(
-"Player Ready"
-);
-
-
-
-// mute allows autoplay
-
-event.target.mute();
+console.log("YT player ready");
 
 
 
 if(seek){
 
-event.target.seekTo(
+e.target.seekTo(
 Number(seek),
 true
 );
@@ -357,32 +338,30 @@ true
 
 
 
-event.target.playVideo();
+e.target.playVideo();
 
 
 
 document.getElementById("status").innerHTML =
-"✅ Radio Playing";
-
+"▶ Playing Audio";
 
 
 },
 
 
 
-onStateChange:function(event){
+onStateChange:function(e){
 
 
-
-if(event.data === YT.PlayerState.PLAYING){
+if(e.data === YT.PlayerState.PLAYING){
 
 document.getElementById("status").innerHTML =
-"▶ Playing";
+"▶ Playing Audio";
 
 }
 
 
-if(event.data === YT.PlayerState.PAUSED){
+if(e.data === YT.PlayerState.PAUSED){
 
 document.getElementById("status").innerHTML =
 "⏸ Paused";
@@ -390,21 +369,17 @@ document.getElementById("status").innerHTML =
 }
 
 
-
 }
 
 
 
 }
-
-
 
 });
 
 
 
 }
-
 
 
 </script>
