@@ -20,10 +20,6 @@
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet"/>
 
-<script src="https://cdn.jsdelivr.net/npm/hls.js"></script>
-
-<script src="https://www.youtube.com/iframe_api"></script>
-  
 <style>
 
 :root{
@@ -831,19 +827,8 @@ body{
   <div id="player">
     <div id="npName">Not Playing</div>
     <div id="npMeta">Select a station</div>
-    <audio 
-id="audio"
-preload="auto"
-playsinline>
-</audio>
-
-<video 
-id="video"
-playsinline
-style="display:none;width:100%;max-height:180px;">
-</video>
-
-<div id="ytPlayer" style="display:none;"></div>
+    <audio id="audio"></audio>
+    <video id="video" style="display:none; width:100%; max-height:180px;" controls></video>
     
     <div class="controls">
       <button onclick="prev()">⏮</button>
@@ -986,11 +971,7 @@ let currentCountry = "United States";
 let playingIndex = null;
 let stationStarted = false;
 let metadataAbort = null;
-let hls = null;
-let ytPlayer = null;
-let ytReady = false;
-let playerMode = "";
-  
+
 const BOOK_API =
 "https://librivox.org/api/feed/audiobooks/";
 
@@ -1004,8 +985,6 @@ const RADIO =
 const SHEET =
 "https://script.google.com/macros/s/AKfycbzZ5MwOcYUY_bpsUKSxPd810xE8rV_Y3z2GwzPublb_4O60CP8L_lC_V2kqkCQ_JdF5/exec";
 
-const VIDEO_RADIO_API =
-"https://script.google.com/macros/s/AKfycbwA1FraODA7b2LLXhJfDzvdbK9TfNtSFVqcKQl67P0WjFg4ysOIGHGyq9JyeSN9axy2/exec";
   
 const GENRES = [
   { id:"50s", label:"📻 50s Hits" },
@@ -1143,7 +1122,6 @@ load(id);
   const actions = document.getElementById("actionGrid");
 
   actions.innerHTML = `
-  <div class="genre" onclick="selectTool('📺 Obvyris Radio', loadVideoRadio)">📺 Video Obvyris Radio</div>
   <div class="genre" onclick="selectTool('🎤 Artist A - L', loadArtistAl)">🎤 Artist A - L</div>
   <div class="genre" onclick="selectTool('🎧 Artist M - Z', loadArtistMz)">🎧 Artist M - Z</div>
   <div class="genre" onclick="selectTool('⭐ Favorites', loadFavorites)">⭐ Favorites</div>
@@ -1226,249 +1204,6 @@ async function loadCountries(){
   select.value = currentCountry;
 }
 
-let videoRadioTimer = null;
-
-
-async function loadVideoRadio(){
-
-    setTitle("📺 Video Obvyris Radio");
-
-    try{
-
-        console.log("Loading Video Radio...");
-
-        const res = await fetch(
-            VIDEO_RADIO_API + "&t=" + Date.now()
-        );
-
-        const data = await res.json();
-
-        console.log("VIDEO RADIO API RESPONSE:", data);
-
-
-        // support different API formats
-        let stream = data.url || data.url_resolved;
-
-
-        if(!stream && data.streams){
-            stream = data.streams[0]?.url ||
-                     data.streams[0]?.url_resolved;
-        }
-
-
-        if(!stream){
-
-            document.getElementById("npName").innerText =
-                "No stream found";
-
-            document.getElementById("npMeta").innerText =
-                JSON.stringify(data);
-
-            console.log(
-                "Missing stream URL:",
-                data
-            );
-
-            return;
-        }
-
-
-        const audio =
-            document.getElementById("audio");
-
-        const video =
-            document.getElementById("video");
-
-
-        // stop video
-        video.pause();
-        video.removeAttribute("src");
-        video.style.display="none";
-
-
-        // stop old audio
-        audio.pause();
-        audio.removeAttribute("src");
-        audio.load();
-
-
-        audio.style.display="block";
-
-
-        audio.src = stream;
-
-        audio.load();
-
-
-        audio.oncanplay = async()=>{
-
-            try{
-
-                await audio.play();
-
-                console.log(
-                    "Obvyris Radio playing"
-                );
-
-
-            }catch(e){
-
-                console.log(
-                    "Autoplay blocked",
-                    e
-                );
-
-            }
-
-        };
-
-
-        audio.onerror = ()=>{
-
-            console.log(
-                "Audio failed",
-                audio.error
-            );
-
-        };
-
-
-        document.getElementById("npName").innerText =
-            data.program ||
-            data.title ||
-            "Video Obvyris Radio";
-
-
-        document.getElementById("npMeta").innerText =
-            `${data.artist || ""} • ${data.genre || "Radio"}`;
-
-
-        // keep synced with server
-        if(videoRadioTimer)
-            clearInterval(videoRadioTimer);
-
-
-        videoRadioTimer=setInterval(
-            updateVideoRadio,
-            5000
-        );
-
-
-    }
-    catch(err){
-
-        console.error(
-            "Video Radio Error:",
-            err
-        );
-
-        document.getElementById("npName").innerText =
-            "Video Radio Error";
-
-    }
-
-}
-
-
-
-
-async function updateVideoRadio(){
-
-    try{
-
-        const res = await fetch(VIDEO_RADIO_API);
-
-        const data = await res.json();
-
-        console.log("Video Radio Update:", data);
-
-
-        // Update Now Playing
-        document.getElementById("npName").innerText =
-            data.program || "Video Obvyris Radio";
-
-
-        document.getElementById("npMeta").innerText =
-            `${data.artist || ""} • ${data.genre || ""}`;
-
-
-        // If stream changed, reload audio
-        const audio = document.getElementById("audio");
-
-        const newUrl =
-            data.url_resolved || data.url;
-
-
-        if(newUrl && audio.src !== newUrl){
-
-            console.log("New stream detected:", newUrl);
-
-
-            audio.pause();
-
-            audio.src = newUrl;
-
-            audio.load();
-
-
-            audio.oncanplay = async ()=>{
-
-                try{
-
-                    await audio.play();
-
-                    console.log(
-                        "Video Obvyris Radio playing"
-                    );
-
-                }
-                catch(err){
-
-                    console.log(
-                        "Autoplay blocked:",
-                        err
-                    );
-
-                }
-
-            };
-
-        }
-
-
-        // Sync stream position if provided
-        if(data.seek){
-
-            try{
-
-                audio.currentTime =
-                    Number(data.seek);
-
-            }
-            catch(e){
-
-                console.log(
-                    "Seek failed",
-                    e
-                );
-
-            }
-
-        }
-
-
-    }
-    catch(e){
-
-        console.log(
-            "Video Radio Update Error:",
-            e
-        );
-
-    }
-
-}
-  
 async function loadArtistAl(){
 
   const res = await fetch(SHEET + "?action=artistal");
@@ -1745,308 +1480,38 @@ async function listenNowPlaying(streamUrl, callback){
 
 }
 
-function playMedia(url){
+function playMedia(url) {
+  const audio = document.getElementById("audio");
+  const video = document.getElementById("video");
 
-const audio = document.getElementById("audio");
-const video = document.getElementById("video");
-const yt = document.getElementById("ytPlayer");
+  const isVideo =
+    url.includes(".mp4") ||
+    url.includes(".m3u8") ||
+    url.includes("youtube");
 
-console.log("Playing:", url);
+  if (isVideo) {
+    // stop audio completely
+    audio.pause();
+    audio.src = "";
 
+    // start video
+    video.style.display = "block";
+    video.src = url;
+    video.play();
 
-// STOP EVERYTHING
+  } else {
+    // stop video completely
+    video.pause();
+    video.src = "";
+    video.style.display = "none";
 
-audio.pause();
-audio.removeAttribute("src");
-audio.load();
-
-video.pause();
-video.removeAttribute("src");
-video.load();
-
-
-if(hls){
-    hls.destroy();
-    hls=null;
+    // start audio
+    audio.style.display = "block";
+    audio.src = url;
+    audio.play();
+  }
 }
 
-
-if(ytPlayer){
-
-    try{
-        ytPlayer.stopVideo();
-    }
-    catch(e){}
-
-}
-
-
-video.style.display="none";
-yt.style.display="none";
-audio.style.display="none";
-
-
-
-// =====================
-// YOUTUBE
-// =====================
-
-if(
-url.includes("youtube.com") ||
-url.includes("youtu.be")
-){
-
-    playerMode="youtube";
-
-    yt.style.display="block";
-
-    let id = extractYoutubeID(url);
-
-    loadYoutube(id);
-
-    return;
-
-}
-
-
-
-// =====================
-// HLS STREAM
-// =====================
-
-if(
-url.includes(".m3u8")
-){
-
-    playerMode="hls";
-
-    video.style.display="block";
-
-
-    if(Hls.isSupported()){
-
-        hls = new Hls();
-
-        hls.loadSource(url);
-
-        hls.attachMedia(video);
-
-
-        hls.on(
-        Hls.Events.MANIFEST_PARSED,
-        ()=>{
-
-            video.play()
-            .catch(err=>{
-
-                console.log(
-                "HLS autoplay blocked",
-                err
-                );
-
-            });
-
-        });
-
-
-        hls.on(
-        Hls.Events.ERROR,
-        function(event,data){
-
-            console.log(
-            "HLS ERROR",
-            data
-            );
-
-        });
-
-
-    }
-    else{
-
-        video.src=url;
-
-        video.play()
-        .catch(err=>{
-
-            console.log(
-            "Video play blocked",
-            err
-            );
-
-        });
-
-    }
-
-
-    return;
-
-}
-
-
-
-// =====================
-// VIDEO FILE
-// =====================
-
-if(
-url.match(/\.(mp4|webm|ogg)$/i)
-){
-
-    playerMode="video";
-
-    video.style.display="block";
-
-    video.src=url;
-
-
-    video.play()
-    .catch(err=>{
-
-        console.log(
-        "Video play blocked",
-        err
-        );
-
-    });
-
-
-    return;
-
-}
-
-
-
-// =====================
-// NORMAL RADIO
-// MP3 / AAC / ICECAST
-// =====================
-
-playerMode="audio";
-
-audio.style.display="block";
-
-
-audio.src=url;
-
-audio.load();
-
-
-audio.oncanplay = async ()=>{
-
-    try{
-
-        await audio.play();
-
-        console.log(
-        "RADIO PLAYING"
-        );
-
-    }
-
-    catch(err){
-
-        console.log(
-        "Radio autoplay blocked",
-        err
-        );
-
-    }
-
-};
-
-
-audio.onerror=function(){
-
-    console.log(
-    "Audio error:",
-    audio.error
-    );
-
-};
-
-
-}
-function extractYoutubeID(url){
-
-let id="";
-
-if(url.includes("youtu.be")){
-
-id=url.split("/")
-.pop();
-
-}
-else{
-
-let u=new URL(url);
-
-id=u.searchParams.get("v");
-
-}
-
-return id;
-
-}
-
-
-
-function loadYoutube(id){
-
-if(!ytReady){
-
-window.pendingYT=id;
-
-return;
-
-}
-
-
-ytPlayer.loadVideoById(id);
-
-}
-
-
-
-function onYouTubeIframeAPIReady(){
-
-ytPlayer=new YT.Player(
-"ytPlayer",
-{
-
-height:"180",
-width:"320",
-
-videoId:"",
-
-playerVars:{
-autoplay:1,
-controls:0,
-playsinline:1
-},
-
-events:{
-
-onReady(){
-
-ytReady=true;
-
-if(window.pendingYT){
-
-ytPlayer.loadVideoById(
-window.pendingYT
-);
-
-}
-
-}
-
-}
-
-});
-
-}
-  
 function playBookChapter(){
 
     if(!chapters.length){
@@ -2187,31 +1652,7 @@ function toggle() {
   const a = document.getElementById("audio");
   const v = document.getElementById("video");
 
-  if(playerMode==="youtube"){
-
-let state =
-ytPlayer.getPlayerState();
-
-if(state===YT.PlayerState.PLAYING)
-    ytPlayer.pauseVideo();
-else
-    ytPlayer.playVideo();
-
-return;
-
-}
-
-
-if(playerMode==="hls" || playerMode==="video"){
-
-if(v.paused)
-    v.play();
-else
-    v.pause();
-
-return;
-
-}
+  const isVideoVisible = v.style.display !== "none" && v.src;
 
   // 🎬 VIDEO MODE
   if (isVideoVisible) {
