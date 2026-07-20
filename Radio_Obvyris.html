@@ -990,6 +990,37 @@ body{
 .obvyris-inline{
     margin-left:15px;
 }
+
+/* Sidebar vertical directory style */
+
+#actions {
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+}
+
+
+.sidebar-btn {
+    width:100%;
+    display:block;
+    text-align:left;
+    padding:8px 12px;
+    font-size:13px;
+    border-radius:4px;
+    box-sizing:border-box;
+}
+
+
+/* remove tile/grid behavior */
+.genre-grid {
+    display:block !important;
+}
+
+
+.genre {
+    margin:2px 0;
+}
+  
 </style>
 </head>
 
@@ -1332,65 +1363,53 @@ function renderGenres(){
 
   actions.innerHTML = `
 
-<div class="genre-header tool-header">
-  🛠 Radio Tools
-  <span>▲</span>
-</div>
-
-
-<div id="toolGrid" class="genre-grid">
-
-
-<div class="genre" onclick="selectTool('📡 Obvyris Stations', loadObvyrisStations)">
+<div class="genre sidebar-btn" onclick="selectTool('📡 Obvyris Stations', loadObvyrisStations)">
   📡 Obvyris Stations
 </div>
 
 
-<div class="genre" onclick="selectTool('🎤 Artist A - L', loadArtistAl)">
+<div class="genre sidebar-btn" onclick="selectTool('🎤 Artist A - L', loadArtistAl)">
   🎤 Artist A - L
 </div>
 
 
-<div class="genre" onclick="selectTool('🎧 Artist M - Z', loadArtistMz)">
+<div class="genre sidebar-btn" onclick="selectTool('🎧 Artist M - Z', loadArtistMz)">
   🎧 Artist M - Z
 </div>
 
 
-<div class="genre" onclick="selectTool('⭐ Favorites', loadFavorites)">
+<div class="genre sidebar-btn" onclick="selectTool('⭐ Favorites', loadFavorites)">
   ⭐ Favorites
 </div>
 
 
-<div class="genre" onclick="selectTool('☁️ Mood', loadMood)">
+<div class="genre sidebar-btn" onclick="selectTool('☁️ Mood', loadMood)">
   ☁️ Mood
 </div>
 
 
-<div class="genre" onclick="selectTool('📚 Audiobooks', loadAudiobooks)">
+<div class="genre sidebar-btn" onclick="selectTool('📚 Audiobooks', loadAudiobooks)">
   📚 Audiobooks
 </div>
 
 
-<div class="genre" onclick="selectTool('📻 Misc', loadMISC)">
+<div class="genre sidebar-btn" onclick="selectTool('📻 Misc', loadMISC)">
   📻 Misc
 </div>
 
 
-<div class="genre" onclick="selectTool('🕵️ Undiscovered', loadUndiscovered)">
+<div class="genre sidebar-btn" onclick="selectTool('🕵️ Undiscovered', loadUndiscovered)">
   🕵️ Undiscovered
 </div>
 
 
-<div class="genre" onclick="selectTool('🌎 Mexico', loadInternational)">
+<div class="genre sidebar-btn" onclick="selectTool('🌎 Mexico', loadInternational)">
   🌎 Mexico
 </div>
 
 
-<div class="genre" onclick="selectTool('🛰️ International', loadInternational2)">
+<div class="genre sidebar-btn" onclick="selectTool('🛰️ International', loadInternational2)">
   🛰️ International
-</div>
-
-
 </div>
 
 `;
@@ -1567,18 +1586,51 @@ async function loadMood() {
   setTitle("☁️ Mood");
 }
 
-function loadObvyrisStations(){
 
-    stations = [
-        {
-            name:"📻 Obvyris Radio1",
-            url:"YOUR_STREAM_URL",
-            favicon:"YOUR_LOGO_URL",
-            tags:"Obvyris Radio"
-        }
-    ];
 
-    renderStations(stations);
+async function loadObvyrisStations(){
+
+    try {
+
+        let response = await fetch(OBVYRIS_STATIONS[0].api);
+
+        let data = await response.json();
+
+
+        stations = data.streams || data.stations || data;
+
+
+        stations = stations.map(s => ({
+
+            name: "📻 " + (s.name || "Obvyris Radio1"),
+
+            url: s.url || s.stream || s.audio,
+
+            genre:"Obvyris",
+
+            country:"Obvyris"
+
+        }));
+
+
+        renderStations(stations);
+
+
+    } catch(error){
+
+        console.error("Obvyris Station Error:", error);
+
+        stations = [
+            {
+                name:"📻 Obvyris Radio1",
+                url:"",
+                genre:"Obvyris"
+            }
+        ];
+
+        renderStations(stations);
+
+    }
 
 }
   
