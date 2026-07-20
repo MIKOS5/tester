@@ -2057,39 +2057,63 @@ function playFiltered(i){
   
 /* CONTROLS */
 function toggle() {
-  const a = document.getElementById("audio");
-  const v = document.getElementById("video");
 
-  const isVideoVisible = v.style.display !== "none" && v.src;
+    /*
+    ==========================
+    YOUTUBE PLAYER
+    ==========================
+    */
 
-  // 🎬 VIDEO MODE
-  if (isVideoVisible) {
-    if (v.paused) {
-      v.play();
-    } else {
-      v.pause();
+    if(ytPlayer){
+
+        const state = ytPlayer.getPlayerState();
+
+
+        if(state === YT.PlayerState.PLAYING){
+
+            ytPlayer.pauseVideo();
+            return;
+
+        }
+
+
+        if(
+            state === YT.PlayerState.PAUSED ||
+            state === YT.PlayerState.CUED
+        ){
+
+            ytPlayer.playVideo();
+            return;
+
+        }
+
     }
 
-    return;
-  }
 
-  // 🔊 AUDIO MODE
-  if (a.paused) {
-    a.play();
+    /*
+    ==========================
+    MP3 / RADIO AUDIO
+    ==========================
+    */
 
-    if (playingIndex !== null) {
-      const btn = document.getElementById(`playBtn-${playingIndex}`);
-      if (btn) btn.innerText = "⏸ Pause";
+    const audio =
+        document.getElementById("audio");
+
+
+    if(audio.src){
+
+        if(audio.paused){
+
+            audio.play();
+
+        }else{
+
+            audio.pause();
+
+        }
+
     }
 
-  } else {
-    a.pause();
-
-    if (playingIndex !== null) {
-      const btn = document.getElementById(`playBtn-${playingIndex}`);
-      if (btn) btn.innerText = "▶ Play";
-    }
-  }
 }
 
 function next(){
@@ -2508,10 +2532,9 @@ function toggleTheme() {
 async function playObvyris(i){
 
     stopRadioPlayer();
-
+    stopYoutubePlayer();
 
     const station = OBVYRIS_STATIONS[i];
-
 
     try{
 
@@ -2519,12 +2542,9 @@ async function playObvyris(i){
             station.api + "?action=now&t=" + Date.now()
         );
 
-
         const data = await res.json();
 
-
         console.log("Obvyris Now:", data);
-
 
 
         document.getElementById("npName").innerText =
@@ -2538,61 +2558,66 @@ async function playObvyris(i){
 
 
 
-        playYoutubeRadio({
+        /*
+        ===================================
+        YOUTUBE MODE
+        ===================================
+        */
 
-            videoId:data.videoId,
+        if(data.videoId){
 
-            seek:data.seek || 0
-
-        });
-
-
-
-        // 🔊 Try browser gesture unmute
-        setTimeout(()=>{
-
-            if(ytPlayer){
-
-                ytPlayer.unMute();
-
-                ytPlayer.setVolume(100);
+            console.log("Playing YouTube:", data.videoId);
 
 
-                console.log(
-                    "Manual unmute:",
-                    ytPlayer.isMuted()
-                );
+            playYoutubeRadio({
 
-            }
+                videoId:data.videoId,
 
-        },1000);
+                seek:data.seek || 0
 
+            });
 
 
-        // 🔥 START AUTO NEXT TRACK WATCHER
-
-        clearInterval(window.obvyrisSync);
+        }
 
 
-        window.obvyrisSync = setInterval(()=>{
+        /*
+        ===================================
+        MP3 / AUDIO MODE
+        ===================================
+        */
+
+        else if(data.url){
+
+            console.log("Playing MP3:", data.url);
 
 
-            if(
-                ytPlayer &&
-                ytPlayer.getPlayerState() === YT.PlayerState.ENDED
-            ){
-
-                console.log(
-                    "Obvyris track ended - loading next"
-                );
+            const audio =
+                document.getElementById("audio");
 
 
-                playNextObvyris();
+            audio.src = data.url;
 
-            }
+            audio.volume = 1;
+
+            await audio.play();
 
 
-        },5000);
+            console.log("MP3 playing");
+
+        }
+
+
+        else{
+
+            console.log("No playable source");
+
+        }
+
+
+        stationStarted = true;
+
+        loadPopupChat();
 
 
 
