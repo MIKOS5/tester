@@ -1971,6 +1971,8 @@ async function openBook(id){
 /* PLAY */
 async function play(i){
 
+  stopYoutubePlayer();
+  
   index = i;
 
   const s = current[i];
@@ -2021,6 +2023,8 @@ async function loadPopupChat(){
   
 function playFiltered(i){
 
+  stopYoutubePlayer();
+  
   const list = getActiveList();
   const s = list[i];
   if(!s) return;
@@ -2503,6 +2507,8 @@ function toggleTheme() {
 
 async function playObvyris(i){
 
+    stopRadioPlayer();
+  
     const station = OBVYRIS_STATIONS[i];
 
     const res = await fetch(
@@ -2959,6 +2965,33 @@ window.addEventListener("load", () => {
   }
 });
 
+function stopRadioPlayer(){
+
+    const audio = document.getElementById("audio");
+    const video = document.getElementById("video");
+
+    audio.pause();
+    audio.removeAttribute("src");
+    audio.load();
+
+    video.pause();
+    video.removeAttribute("src");
+    video.load();
+
+}
+
+function stopYoutubePlayer(){
+
+    if(ytPlayer){
+
+        try{
+            ytPlayer.stopVideo();
+        }catch(e){}
+
+    }
+
+}
+  
 function playYoutubeRadio(data){
 
     console.log("Starting YouTube:", data);
@@ -3030,6 +3063,7 @@ function createYoutubePlayer(id,seek){
     rel:0,
     modestbranding:1,
     enablejsapi:1,
+    mute:0,
     origin:"https://mikos5.github.io"
 }
 
