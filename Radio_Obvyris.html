@@ -881,6 +881,47 @@ body{
     opacity:0;
     pointer-events:none;
 }
+
+/* Combined Radio Tools Layout */
+
+.obvyris-row{
+    display:flex;
+    gap:8px;
+    align-items:center;
+    margin-bottom:8px;
+}
+
+
+.obvyris-label{
+    flex:1;
+}
+
+
+.obvyris-inline{
+    flex:1;
+    display:flex;
+    gap:6px;
+}
+
+
+.obvyris-inline .obvyris-btn{
+    width:100%;
+}
+
+
+/* mobile stack */
+@media(max-width:900px){
+
+.obvyris-row{
+    flex-direction:column;
+}
+
+
+.obvyris-inline{
+    width:100%;
+}
+
+}
   
 </style>
 </head>
@@ -1224,60 +1265,76 @@ function renderGenres(){
 
   actions.innerHTML = `
 
-    <div class="genre-header obvyris-btn-header" onclick="toggleObvyris()">
-  📡 Obvyris Stations
-  <span id="obvyrisArrow">▼</span>
-</div>
-
-<div id="obvyrisGrid" class="genre-grid collapsed"></div>
-
-
-   <div class="genre-header tool-header" onclick="toggleTools()">
+<div class="genre-header tool-header" onclick="toggleTools()">
   🛠 Radio Tools
   <span id="toolArrow">▼</span>
 </div>
 
+
 <div id="toolGrid" class="genre-grid collapsed">
+
+
+<!-- Obvyris Stations -->
+<div class="obvyris-row">
+
+    <div class="genre obvyris-label">
+        📡 Obvyris Stations
+    </div>
+
+    <div id="obvyrisGrid" class="obvyris-inline">
+    </div>
+
+</div>
+
 
 <div class="genre" onclick="selectTool('🎤 Artist A - L', loadArtistAl)">
   🎤 Artist A - L
 </div>
 
+
 <div class="genre" onclick="selectTool('🎧 Artist M - Z', loadArtistMz)">
   🎧 Artist M - Z
 </div>
+
 
 <div class="genre" onclick="selectTool('⭐ Favorites', loadFavorites)">
   ⭐ Favorites
 </div>
 
+
 <div class="genre" onclick="selectTool('☁️ Mood', loadMood)">
   ☁️ Mood
 </div>
+
 
 <div class="genre" onclick="selectTool('📚 Audiobooks', loadAudiobooks)">
   📚 Audiobooks
 </div>
 
+
 <div class="genre" onclick="selectTool('📻 Misc', loadMISC)">
   📻 Misc
 </div>
+
 
 <div class="genre" onclick="selectTool('🕵️ Undiscovered', loadUndiscovered)">
   🕵️ Undiscovered
 </div>
 
+
 <div class="genre" onclick="selectTool('🌎 Mexico', loadInternational)">
   🌎 Mexico
 </div>
+
 
 <div class="genre" onclick="selectTool('🛰️ International', loadInternational2)">
   🛰️ International
 </div>
 
+
 </div>
 
-  `;
+`;
 
 
   // build Obvyris station list
@@ -1313,9 +1370,10 @@ if(!grid){
 
 grid.innerHTML="";
 
+
 OBVYRIS_STATIONS.forEach((s,i)=>{
 
-grid.innerHTML+=`
+grid.innerHTML += `
 
 <div class="genre obvyris-btn"
 onclick="playObvyris(${i})">
