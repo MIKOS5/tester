@@ -2560,20 +2560,35 @@ async function playObvyris(i){
 
         /*
         ===================================
-        YOUTUBE MODE
+        DETECT SOURCE
+        MP3 HAS PRIORITY WHEN NO VIDEO ID
         ===================================
         */
 
-        if(data.videoId){
 
-            console.log("Playing YouTube:", data.videoId);
+        // ================================
+        // YOUTUBE MODE
+        // ================================
+        if(data.videoId && data.videoId.trim() !== ""){
+
+            console.log(
+                "Playing YouTube:",
+                data.videoId
+            );
+
+
+            const audio =
+                document.getElementById("audio");
+
+            audio.pause();
+            audio.src = "";
 
 
             playYoutubeRadio({
 
                 videoId:data.videoId,
 
-                seek:data.seek || 0
+                seek:Number(data.seek || 0)
 
             });
 
@@ -2581,38 +2596,60 @@ async function playObvyris(i){
         }
 
 
-        /*
-        ===================================
-        MP3 / AUDIO MODE
-        ===================================
-        */
+        // ================================
+        // MP3 / AUDIO MODE
+        // ================================
+        else if(data.url && data.url.trim() !== ""){
 
-        else if(data.url){
+            console.log(
+                "Playing MP3:",
+                data.url
+            );
 
-            console.log("Playing MP3:", data.url);
+
+            stopYoutubePlayer();
 
 
             const audio =
                 document.getElementById("audio");
 
 
+            const video =
+                document.getElementById("video");
+
+
+            video.pause();
+            video.src="";
+            video.style.display="none";
+
+
             audio.src = data.url;
 
             audio.volume = 1;
 
+
             await audio.play();
 
 
-            console.log("MP3 playing");
+            console.log(
+                "MP3 playing"
+            );
 
         }
 
 
+        // ================================
+        // NOTHING FOUND
+        // ================================
         else{
 
-            console.log("No playable source");
+            console.log(
+                "No playable source returned",
+                data
+            );
 
         }
+
 
 
         stationStarted = true;
@@ -3093,14 +3130,20 @@ async function playNextObvyris(){
 
         const station = OBVYRIS_STATIONS[0];
 
+
         const res = await fetch(
             station.api + "?action=now&t=" + Date.now()
         );
 
+
         const data = await res.json();
 
 
-        console.log("Next track:", data);
+        console.log(
+            "Next Obvyris track:",
+            data
+        );
+
 
 
         document.getElementById("npName").innerText =
@@ -3113,21 +3156,126 @@ async function playNextObvyris(){
             (data.genre || "");
 
 
-        playYoutubeRadio({
 
-            videoId:data.videoId,
 
-            seek:data.seek || 0
+        /*
+        ===================================
+        YOUTUBE MODE
+        ===================================
+        */
 
-        });
+        if(data.videoId && data.videoId.trim() !== ""){
+
+
+            console.log(
+                "Next is YouTube:",
+                data.videoId
+            );
+
+
+            const audio =
+                document.getElementById("audio");
+
+
+            audio.pause();
+            audio.src="";
+
+
+            playYoutubeRadio({
+
+                videoId:data.videoId,
+
+                seek:Number(data.seek || 0)
+
+            });
+
+
+        }
+
+
+
+
+        /*
+        ===================================
+        MP3 / AUDIO MODE
+        ===================================
+        */
+
+        else if(data.url && data.url.trim() !== ""){
+
+
+            console.log(
+                "Next is MP3:",
+                data.url
+            );
+
+
+            stopYoutubePlayer();
+
+
+            const audio =
+                document.getElementById("audio");
+
+
+            const video =
+                document.getElementById("video");
+
+
+            video.pause();
+            video.src="";
+            video.style.display="none";
+
+
+            audio.src=data.url;
+
+            audio.volume=1;
+
+
+            await audio.play();
+
+
+            console.log(
+                "Next MP3 playing"
+            );
+
+
+        }
+
+
+
+
+        /*
+        ===================================
+        NO SOURCE
+        ===================================
+        */
+
+        else{
+
+
+            console.log(
+                "No playable next track",
+                data
+            );
+
+
+        }
+
+
+        stationStarted = true;
+
+        loadPopupChat();
+
 
 
     }catch(err){
 
+
         console.error(
-            "Failed loading next Obvyris song",
+            "Failed loading next Obvyris track:",
             err
         );
+
 
     }
 
