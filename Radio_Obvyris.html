@@ -1593,42 +1593,43 @@ const OBVYRIS_STATIONS = [
 
 async function loadObvyrisStations(){
 
-    try {
+    current = [];
 
-        let response = await fetch(OBVYRIS_STATIONS[0].api);
+    setTitle("📡 Obvyris Stations");
 
-        let data = await response.json();
+    const el = document.getElementById("list");
 
+    el.innerHTML = `
 
-        stations = [
-            {
-                name:"Obvyris Radio1",
-                
-                genre:"Obvyris Radio",
-                
-                country:"US",
-                
-                description:
-                "Obvyris Radio1 • 24/7 Music Station",
-                
-                url:
-                data.url || 
-                data.stream || 
-                data.streamUrl ||
-                data.audio ||
-                ""
-            }
-        ];
+    <div class="card">
 
+        <div class="station">
+            📻 Obvyris Radio1
+        </div>
 
-        renderStations(stations);
+        <div class="small">
+            Video Obvyris • YouTube Radio
+        </div>
 
+        <div class="small">
+            24/7 Music Video Stream
+        </div>
 
-    } catch(error){
+        <div class="row">
 
-        console.error("Obvyris API Error:", error);
+            <button onclick="playObvyris(0)">
+                ▶ Play
+            </button>
 
-    }
+            <button onclick="shareSite()">
+                🔗 Share
+            </button>
+
+        </div>
+
+    </div>
+
+    `;
 
 }
   
