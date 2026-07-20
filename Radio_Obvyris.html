@@ -1202,14 +1202,7 @@ const RADIO =
 const SHEET =
 "https://script.google.com/macros/s/AKfycbzZ5MwOcYUY_bpsUKSxPd810xE8rV_Y3z2GwzPublb_4O60CP8L_lC_V2kqkCQ_JdF5/exec";
 
-const OBVYRIS_STATIONS = [
 
-{
-    name:"Obvyris Radio1",
-    api:"https://script.google.com/macros/s/AKfycbwA1FraODA7b2LLXhJfDzvdbK9TfNtSFVqcKQl67P0WjFg4ysOIGHGyq9JyeSN9axy2/exec"
-}
-
-];
 const GENRES = [
   { id:"50s", label:"📻 50s Hits" },
   { id:"60s", label:"🎙 60s Hits" },
@@ -1588,6 +1581,16 @@ async function loadMood() {
 
 
 
+const OBVYRIS_STATIONS = [
+
+{
+    name:"Obvyris Radio1",
+    api:"https://script.google.com/macros/s/AKfycbwA1FraODA7b2LLXhJfDzvdbK9TfNtSFVqcKQl67P0WjFg4ysOIGHGyq9JyeSN9axy2/exec"
+}
+
+];
+
+
 async function loadObvyrisStations(){
 
     try {
@@ -1597,20 +1600,25 @@ async function loadObvyrisStations(){
         let data = await response.json();
 
 
-        stations = data.streams || data.stations || data;
-
-
-        stations = stations.map(s => ({
-
-            name: "📻 " + (s.name || "Obvyris Radio1"),
-
-            url: s.url || s.stream || s.audio,
-
-            genre:"Obvyris",
-
-            country:"Obvyris"
-
-        }));
+        stations = [
+            {
+                name:"Obvyris Radio1",
+                
+                genre:"Obvyris Radio",
+                
+                country:"US",
+                
+                description:
+                "Obvyris Radio1 • 24/7 Music Station",
+                
+                url:
+                data.url || 
+                data.stream || 
+                data.streamUrl ||
+                data.audio ||
+                ""
+            }
+        ];
 
 
         renderStations(stations);
@@ -1618,17 +1626,7 @@ async function loadObvyrisStations(){
 
     } catch(error){
 
-        console.error("Obvyris Station Error:", error);
-
-        stations = [
-            {
-                name:"📻 Obvyris Radio1",
-                url:"",
-                genre:"Obvyris"
-            }
-        ];
-
-        renderStations(stations);
+        console.error("Obvyris API Error:", error);
 
     }
 
