@@ -914,14 +914,21 @@ body{
 }
 
 #ytWrapper{
+
     position:fixed;
-    width:200px;
-    height:120px;
-    left:-9999px;
-    top:-9999px;
+
+    bottom:0;
+    right:0;
+
+    width:1px;
+    height:1px;
+
+    opacity:.01;
+
     overflow:hidden;
-    opacity:0;
+
     pointer-events:none;
+
 }
 
 /* Combined Radio Tools Layout */
@@ -2989,19 +2996,19 @@ function createYoutubePlayer(id,seek){
 
     if(ytPlayer){
 
-        ytPlayer.loadVideoById(id);
+    ytPlayer.loadVideoById({
+        videoId:id,
+        startSeconds:Number(seek || 0)
+    });
 
-        if(seek){
+    ytPlayer.setVolume(100);
 
-            ytPlayer.seekTo(
-                Number(seek),
-                true
-            );
+    ytPlayer.unMute();
 
-        }
+    ytPlayer.playVideo();
 
-        return;
-    }
+    return;
+}
 
 
 
@@ -3035,10 +3042,21 @@ function createYoutubePlayer(id,seek){
         e.target.seekTo(Number(seek), true);
     }
 
-    e.target.unMute();
     e.target.setVolume(100);
+
+    e.target.unMute();
+
     e.target.playVideo();
 
+    console.log(
+    "Muted:",
+    e.target.isMuted()
+);
+
+console.log(
+    "Volume:",
+    e.target.getVolume()
+);
 },
 
 
