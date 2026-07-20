@@ -3070,42 +3070,77 @@ function createYoutubePlayer(id,seek){
 
         events:{
 
-            onReady:function(e){
+            onReady: function (e) {
 
-    if(seek){
+    console.log("===== YouTube Ready =====");
+
+    if (seek) {
         e.target.seekTo(Number(seek), true);
     }
 
     e.target.setVolume(100);
 
+    console.log("Volume after setVolume:", e.target.getVolume());
+
     e.target.unMute();
+
+    console.log("Muted immediately:", e.target.isMuted());
 
     e.target.playVideo();
 
-    console.log(
-    "Muted:",
-    e.target.isMuted()
-);
+    console.log("State immediately:", e.target.getPlayerState());
 
-console.log(
-    "Volume:",
-    e.target.getVolume()
-);
+    // Wait 1 second after play starts
+    setTimeout(() => {
+
+        console.log("===== After 1 Second =====");
+
+        console.log("Muted:", e.target.isMuted());
+
+        console.log("Volume:", e.target.getVolume());
+
+        console.log("Player State:", e.target.getPlayerState());
+
+        console.log("Current Time:", e.target.getCurrentTime());
+
+        console.log("Playback Rate:", e.target.getPlaybackRate());
+
+        console.log("Video Loaded:", e.target.getVideoData());
+
+    }, 1000);
+
+    // Wait 3 seconds
+    setTimeout(() => {
+
+        console.log("===== After 3 Seconds =====");
+
+        console.log("Muted:", e.target.isMuted());
+
+        console.log("Volume:", e.target.getVolume());
+
+        console.log("Player State:", e.target.getPlayerState());
+
+        console.log("Current Time:", e.target.getCurrentTime());
+
+    }, 3000);
+
 },
 
 
-            onStateChange:function(e){
+            onStateChange: function (e) {
 
-                console.log(
-                    "YT state:",
-                    e.data
-                );
+    const states = {
+        "-1": "UNSTARTED",
+        "0": "ENDED",
+        "1": "PLAYING",
+        "2": "PAUSED",
+        "3": "BUFFERING",
+        "5": "VIDEO_CUED"
+    };
 
-            }
-
-        }
-
-        }
+    console.log(
+        "YT State:",
+        states[e.data] || e.data
     );
 
 }
