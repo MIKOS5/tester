@@ -862,6 +862,14 @@ body{
 
   border-radius:10px;
 }
+
+.obvyris-btn{
+    font-size:12px !important;
+    min-height:35px;
+    height:35px;
+    padding:4px 8px;
+    white-space:nowrap;
+}
   
 </style>
 </head>
@@ -1213,49 +1221,50 @@ function renderGenres(){
 <div id="obvyrisGrid" class="genre-grid collapsed"></div>
 
 
-    <div class="genre" onclick="selectTool('🎤 Artist A - L', loadArtistAl)">
-      🎤 Artist A - L
-    </div>
+   <div class="genre-header tool-header" onclick="toggleTools()">
+  🛠 Radio Tools
+  <span id="toolArrow">▼</span>
+</div>
 
+<div id="toolGrid" class="genre-grid collapsed">
 
-    <div class="genre" onclick="selectTool('🎧 Artist M - Z', loadArtistMz)">
-      🎧 Artist M - Z
-    </div>
+<div class="genre" onclick="selectTool('🎤 Artist A - L', loadArtistAl)">
+  🎤 Artist A - L
+</div>
 
+<div class="genre" onclick="selectTool('🎧 Artist M - Z', loadArtistMz)">
+  🎧 Artist M - Z
+</div>
 
-    <div class="genre" onclick="selectTool('⭐ Favorites', loadFavorites)">
-      ⭐ Favorites
-    </div>
+<div class="genre" onclick="selectTool('⭐ Favorites', loadFavorites)">
+  ⭐ Favorites
+</div>
 
+<div class="genre" onclick="selectTool('☁️ Mood', loadMood)">
+  ☁️ Mood
+</div>
 
-    <div class="genre" onclick="selectTool('☁️ Mood', loadMood)">
-      ☁️ Mood
-    </div>
+<div class="genre" onclick="selectTool('📚 Audiobooks', loadAudiobooks)">
+  📚 Audiobooks
+</div>
 
+<div class="genre" onclick="selectTool('📻 Misc', loadMISC)">
+  📻 Misc
+</div>
 
-    <div class="genre" onclick="selectTool('📚 Audiobooks', loadAudiobooks)">
-      📚 Audiobooks
-    </div>
+<div class="genre" onclick="selectTool('🕵️ Undiscovered', loadUndiscovered)">
+  🕵️ Undiscovered
+</div>
 
+<div class="genre" onclick="selectTool('🌎 Mexico', loadInternational)">
+  🌎 Mexico
+</div>
 
-    <div class="genre" onclick="selectTool('📻 Misc', loadMISC)">
-      📻 Misc
-    </div>
+<div class="genre" onclick="selectTool('🛰️ International', loadInternational2)">
+  🛰️ International
+</div>
 
-
-    <div class="genre" onclick="selectTool('🕵️ Undiscovered', loadUndiscovered)">
-      🕵️ Undiscovered
-    </div>
-
-
-    <div class="genre" onclick="selectTool('🌎 Mexico', loadInternational)">
-      🌎 Mexico
-    </div>
-
-
-    <div class="genre" onclick="selectTool('🛰️ International', loadInternational2)">
-      🛰️ International
-    </div>
+</div>
 
   `;
 
@@ -1960,6 +1969,25 @@ function favCurrent(){
   fav(s);
 }
 
+let toolsOpen = false;
+
+function toggleTools(){
+
+  const grid = document.getElementById("toolGrid");
+  const arrow = document.getElementById("toolArrow");
+
+  toolsOpen = !toolsOpen;
+
+  if(toolsOpen){
+    grid.classList.remove("collapsed");
+    arrow.innerText="▲";
+  }else{
+    grid.classList.add("collapsed");
+    arrow.innerText="▼";
+  }
+
+}
+  
 function scrollToTop(){
   document.querySelector(".main").scrollTo({
     top: 0,
