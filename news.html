@@ -13,7 +13,13 @@
 
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/emoji-toolkit@9.0.0/extras/css/joypixels.min.css">
 
+<script src="https://cdn.jsdelivr.net/npm/emoji-toolkit@9.0.0/lib/js/joypixels.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/emoji-mart@latest/css/emoji-mart.css">
+
+<script src="https://cdn.jsdelivr.net/npm/emoji-mart@latest/dist/browser.js"></script>
 
 <style>
 
@@ -1437,18 +1443,86 @@ CHAT POPUP
 <div class="chat-input">
 
 <input id="popupName"
-placeholder="Name"
-maxlength="15">
+placeholder="name"
+maxlength="10">
 
 
 <input id="popupMsg"
-placeholder="Message"
-maxlength="200">
+placeholder="message"
+maxlength="120">
+
+
+<button onclick="toggleEmojiPicker()">
+😀
+</button>
+
+
+<button onclick="openGifPicker()">
+GIF
+</button>
 
 
 <button onclick="sendPopupMsg()">
 Send
 </button>
+
+
+</div>
+
+
+<div id="emojiPicker"
+style="
+display:none;
+position:absolute;
+bottom:70px;
+right:10px;
+z-index:999999;
+">
+</div>
+
+
+
+<div id="gifPicker"
+class="chat-popup hidden"
+style="
+height:500px;
+">
+
+<div class="chat-header">
+
+<span>
+Search GIFs
+</span>
+
+<button onclick="closeGifPicker()">
+✖
+</button>
+
+</div>
+
+
+<div style="padding:10px">
+
+<input
+id="gifSearch"
+placeholder="Search GIF..."
+onkeydown="if(event.key==='Enter')searchGifs()"
+style="width:100%;padding:10px">
+
+</div>
+
+
+<div id="gifResults"
+style="
+overflow:auto;
+flex:1;
+padding:10px;
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+gap:10px;
+">
+
+</div>
 
 
 </div>
@@ -1464,6 +1538,11 @@ const API_URL =
 
 "https://script.google.com/macros/s/AKfycbzin84qDcZ9L1q4pTBtHZGKJSTDcZ_wnmgWmnmgPgf1jrc1nRprzbEBixKMSHcdkxiZBg/exec";
 
+const GIPHY_API_KEY =
+"Jj5LhUt9MgP8OQYtxGukhQVwZuR6YJ4";
+
+
+let emojiPickerBuilt=false;
 
 
 let news=[];
@@ -2126,6 +2205,36 @@ let html="";
 
 data.forEach(m=>{
 
+let body="";
+
+
+if(m.message.startsWith("[GIF]")){
+
+
+body=`
+
+<img
+
+src="${m.message.replace("[GIF]","")}"
+
+style="
+max-width:260px;
+border-radius:10px;
+">
+
+`;
+
+
+}else{
+
+
+body=m.message;
+
+
+}
+
+
+
 html += `
 
 <div class="chat-msg">
@@ -2134,11 +2243,11 @@ html += `
 ${m.name}
 </div>
 
-<div>
-${m.message}
-</div>
+${body}
 
 </div>
+
+`;
 
 `;
 
@@ -2260,6 +2369,159 @@ console.error("Chat error",e);
 
 }
 
+function toggleEmojiPicker(){
+
+const picker=document.getElementById("emojiPicker");
+
+
+if(picker.style.display==="block"){
+
+picker.style.display="none";
+return;
+
+}
+
+
+picker.style.display="block";
+
+
+if(emojiPickerBuilt)
+return;
+
+
+const el=new EmojiMart.Picker({
+
+theme:
+document.body.classList.contains("light")
+?"light"
+:"dark",
+
+
+onEmojiSelect(e){
+
+popupMsg.value += e.native;
+
+popupMsg.focus();
+
+}
+
+});
+
+
+picker.appendChild(el);
+
+
+emojiPickerBuilt=true;
+
+
+}
+
+async function searchGifs(){
+
+
+const q =
+document.getElementById("gifSearch").value.trim();
+
+
+if(!q)
+return;
+
+
+
+const url =
+`https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&limit=24&q=${encodeURIComponent(q)}`;
+
+
+
+const res =
+await fetch(url);
+
+
+const json =
+await res.json();
+
+
+
+document.getElementById("gifResults").innerHTML =
+
+json.data.map(g=>`
+
+<img
+
+src="${g.images.fixed_width.url}"
+
+style="
+width:100%;
+cursor:pointer;
+border-radius:10px;
+"
+
+onclick="sendGif('${g.images.original.url}')"
+
+>
+
+`).join("");
+
+}
+
+
+
+function openGifPicker(){
+
+document
+.getElementById("gifPicker")
+.classList
+.remove("hidden");
+
+
+}
+
+
+
+function closeGifPicker(){
+
+document
+.getElementById("gifPicker")
+.classList
+.add("hidden");
+
+}
+
+
+
+async function sendGif(url){
+
+
+await fetch(API_URL,{
+
+method:"POST",
+
+body:JSON.stringify({
+
+action:"send",
+
+station:activeRoom,
+
+stationName:activeRoomName,
+
+name:
+popupName.value || "Anon",
+
+message:"[GIF]"+url
+
+})
+
+});
+
+
+closeGifPicker();
+
+loadPopup();
+
+
+}
+
+    
 async function sendPopupMsg(){
 
 const msg =
