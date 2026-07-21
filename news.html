@@ -17,7 +17,6 @@
 
 <style>
 
-
 :root{
 
 --bg:#09111d;
@@ -32,7 +31,6 @@
 }
 
 
-
 body.light{
 
 --bg:#f4f6f8;
@@ -43,8 +41,6 @@ body.light{
 --muted:#627d98;
 
 }
-
-
 
 
 *{
@@ -73,6 +69,7 @@ overflow:hidden;
 
 
 
+/* BUTTONS */
 
 button{
 
@@ -107,9 +104,7 @@ opacity:.85;
 
 
 
-
 /* SIDEBAR */
-
 
 .sidebar{
 
@@ -121,8 +116,9 @@ border-right:1px solid var(--line);
 
 padding:20px;
 
-}
+flex-shrink:0;
 
+}
 
 
 
@@ -160,7 +156,6 @@ margin-bottom:20px;
 
 
 
-
 .side-buttons{
 
 display:flex;
@@ -173,10 +168,7 @@ gap:10px;
 
 
 
-
-
 /* MAIN */
-
 
 .main{
 
@@ -184,11 +176,9 @@ flex:1;
 
 padding:20px;
 
-overflow:auto;
+overflow-y:auto;
 
 }
-
-
 
 
 
@@ -204,6 +194,7 @@ margin-bottom:20px;
 
 
 
+/* SEARCH */
 
 .search{
 
@@ -230,8 +221,7 @@ margin-bottom:20px;
 
 
 
-
-/* NEWS CARD */
+/* NEWS CARDS */
 
 
 .news-card{
@@ -260,14 +250,13 @@ border-color:var(--blue);
 
 .news-title{
 
-font-size:20px;
+font-size:22px;
 
 font-weight:900;
 
 line-height:1.3;
 
 }
-
 
 
 
@@ -279,10 +268,9 @@ font-size:13px;
 
 color:var(--muted);
 
-line-height:1.6;
+line-height:1.7;
 
 }
-
 
 
 
@@ -298,9 +286,9 @@ margin-top:15px;
 
 display:block;
 
+object-fit:cover;
+
 }
-
-
 
 
 
@@ -316,21 +304,19 @@ line-height:1.5;
 
 
 
-
 .news-message{
 
 margin-top:12px;
 
-padding:10px;
+padding:12px;
 
 background:var(--panel2);
 
-border-radius:10px;
+border-radius:12px;
 
 font-size:14px;
 
 }
-
 
 
 
@@ -349,14 +335,11 @@ margin-top:15px;
 
 
 
-
 .news-actions a{
 
 text-decoration:none;
 
 }
-
-
 
 
 
@@ -414,6 +397,8 @@ display:flex;
 
 justify-content:space-between;
 
+align-items:center;
+
 font-weight:800;
 
 }
@@ -430,6 +415,7 @@ overflow-y:auto;
 padding:12px;
 
 }
+
 
 
 
@@ -458,7 +444,6 @@ font-weight:900;
 
 
 
-
 .chat-input{
 
 display:flex;
@@ -470,7 +455,6 @@ padding:10px;
 border-top:1px solid var(--line);
 
 }
-
 
 
 
@@ -497,6 +481,7 @@ font-size:16px;
 
 
 
+/* MOBILE */
 
 
 @media(max-width:768px){
@@ -513,6 +498,10 @@ flex-direction:column;
 .sidebar{
 
 width:100%;
+
+border-right:none;
+
+border-bottom:1px solid var(--line);
 
 }
 
@@ -534,13 +523,21 @@ font-size:28px;
 
 
 
+.news-title{
+
+font-size:18px;
+
+}
+
+
+
 .chat-popup{
 
 inset:0;
 
 width:100%;
 
-height:100%;
+height:100dvh;
 
 border-radius:0;
 
@@ -553,7 +550,6 @@ border-radius:0;
 
 
 
-
 </style>
 
 </head>
@@ -561,6 +557,7 @@ border-radius:0;
 
 
 <body>
+
 
 
 <div class="sidebar">
@@ -599,11 +596,13 @@ Live News • Community Discussions
 </button>
 
 
+
 <button onclick="loadNews()">
 
-↻ Refresh
+↻ Refresh News
 
 </button>
+
 
 
 <button onclick="toggleTheme()">
@@ -614,7 +613,6 @@ Live News • Community Discussions
 
 
 </div>
-
 
 
 </div>
@@ -634,12 +632,15 @@ Latest News
 
 
 
-<input 
-class="search"
-id="search"
-placeholder="Search news..."
-oninput="renderNews()">
+<input
 
+class="search"
+
+id="search"
+
+placeholder="Search news..."
+
+oninput="renderNews()">
 
 
 <div id="news"></div>
@@ -649,6 +650,8 @@ oninput="renderNews()">
 
 
 
+
+<!-- CHAT -->
 
 
 <div id="chatPopup" class="chat-popup hidden">
@@ -674,21 +677,33 @@ News Discussion
 
 
 
+
 <div id="chatLog" class="chat-log"></div>
+
 
 
 
 <div class="chat-input">
 
 
-<input id="chatName"
+<input
+
+id="chatName"
+
 placeholder="Name"
+
 maxlength="10">
 
 
-<input id="chatMsg"
+
+<input
+
+id="chatMsg"
+
 placeholder="Message"
+
 maxlength="120">
+
 
 
 <button onclick="sendChat()">
@@ -698,183 +713,106 @@ Send
 </button>
 
 
+
 </div>
 
 
 </div>
+
 <script>
-
 
 const API_URL =
 "https://script.google.com/macros/s/AKfycbzin84qDcZ9L1q4pTBtHZGKJSTDcZ_wnmgWmnmgPgf1jrc1nRprzbEBixKMSHcdkxiZBg/exec";
 
 
+let news = [];
 
-let news=[];
+let activeRoom = "";
 
-let activeRoom="";
+let activeName = "";
 
-let activeName="";
-
-let chatTimer=null;
-
+let chatTimer = null;
 
 
-
-/* ==========================
+/* =========================
    LOAD NEWS
-========================== */
-
+========================= */
 
 async function loadNews(){
 
-
 try{
 
-
 const res = await fetch(API_URL,{
-
 method:"POST",
-
 body:JSON.stringify({
-
 action:"get",
-
 source:"news"
-
 })
-
 });
-
 
 
 const data = await res.json();
 
 
-
 news = data.map(n=>({
 
+time:n.time || "",
 
-time:
-n.Time ||
-n.time ||
-"",
+station:n.station || "",
 
+stationName:n.stationName || "",
 
+name:n.name || "",
 
-station:
-n.Station ||
-n.station ||
-"",
+message:n.message || "",
 
+link:n.link || "",
 
+image:n.image || "",
 
-stationName:
-n["Station Name"] ||
-n.stationName ||
-"",
+sourceLink:n.sourceLink || "",
 
+type:n.type || "",
 
+details:n.details || "",
 
-name:
-n.Name ||
-n.name ||
-"",
-
-
-
-message:
-n.Message ||
-n.message ||
-"",
-
-
-
-link:
-n.Link ||
-n.link ||
-"",
-
-
-
-image:
-n["img link"] ||
-n.img ||
-"",
-
-
-
-sourceLink:
-n["Source link"] ||
-n.sourceLink ||
-"",
-
-
-
-type:
-n["new type"] ||
-n.newType ||
-"",
-
-
-
-details:
-n.Details ||
-n.details ||
-"",
-
-
-
-source:
-n.Source ||
-n.source ||
-""
-
-
+source:n.source || ""
 
 }));
-
 
 
 renderNews();
 
 
-
 }catch(e){
 
 console.error(
-"News loading failed",
+"News loading failed:",
 e
 );
 
 }
 
-
 }
 
 
 
 
-
-
-
-/* ==========================
-   DISPLAY NEWS
-========================== */
-
+/* =========================
+   RENDER NEWS
+========================= */
 
 function renderNews(){
 
 
-let search =
-document
-.getElementById("search")
+const search =
+document.getElementById("search")
 .value
 .toLowerCase();
 
 
 
-let html="";
+let html = "";
 
 
 
@@ -884,7 +822,7 @@ news
 .filter(n=>{
 
 
-let text = `
+const text = `
 
 ${n.stationName}
 
@@ -901,10 +839,7 @@ ${n.message}
 .toLowerCase();
 
 
-
-return !search ||
-text.includes(search);
-
+return !search || text.includes(search);
 
 
 })
@@ -913,11 +848,10 @@ text.includes(search);
 .forEach(n=>{
 
 
-html+=`
+html += `
 
 
 <div class="news-card">
-
 
 
 <div class="news-title">
@@ -931,27 +865,19 @@ ${n.stationName}
 
 <div class="news-meta">
 
-
 🕒 ${n.time}
 
-
 <br>
-
 
 🤖 ${n.name}
 
-
 <br>
-
 
 🏷️ ${n.type}
 
-
 <br>
 
-
 📡 ${n.source}
-
 
 </div>
 
@@ -961,14 +887,17 @@ ${n.stationName}
 
 ${n.image ? `
 
-<img 
+<img
+
 class="news-image"
+
 src="${n.image}"
+
 loading="lazy"
-onerror="this.style.display='none'">
+
+onerror="this.remove()">
 
 `:""}
-
 
 
 
@@ -978,7 +907,6 @@ onerror="this.style.display='none'">
 
 ${n.details}
 
-
 </div>
 
 
@@ -987,9 +915,9 @@ ${n.details}
 
 <div class="news-message">
 
-${n.message
-.replace(n.link,"")
-.trim()}
+<b>${n.name}</b><br>
+
+${cleanMessage(n.message,n.link)}
 
 </div>
 
@@ -1001,14 +929,12 @@ ${n.message
 <div class="news-actions">
 
 
-
 <button onclick="openChat(
 '${n.station}',
 '${escapeJS(n.stationName)}'
 )">
 
 💬 Discuss
-
 
 </button>
 
@@ -1031,6 +957,9 @@ ${n.link ? `
 `:""}
 
 
+
+
+
 ${n.sourceLink ? `
 
 <a href="${n.sourceLink}" target="_blank">
@@ -1047,27 +976,21 @@ ${n.sourceLink ? `
 
 
 
-
 </div>
 
 
 
 </div>
-
 
 
 `;
 
-
-
 });
-
 
 
 document
 .getElementById("news")
-.innerHTML=html;
-
+.innerHTML = html;
 
 
 }
@@ -1075,10 +998,23 @@ document
 
 
 
+function cleanMessage(msg,url){
+
+return (msg || "")
+
+.replace("📰","")
+
+.replace(url || "","")
+
+.replace("|","")
+
+.trim();
+
+}
+
 
 
 function escapeJS(text){
-
 
 return (text || "")
 
@@ -1090,25 +1026,25 @@ return (text || "")
 
 
 
-
-/* ==========================
+/* =========================
    CHAT CONNECTION
-========================== */
+   Uses SAME station ID
+   as Chat Obvyris
+========================= */
 
 
 function openChat(id,name){
 
 
-activeRoom=id;
+activeRoom = id;
 
-activeName=name;
-
+activeName = name;
 
 
 document
 .getElementById("chatTitle")
-.innerHTML=
-"💬 "+name;
+.innerHTML =
+"💬 " + name;
 
 
 
@@ -1126,8 +1062,7 @@ loadChat();
 clearInterval(chatTimer);
 
 
-
-chatTimer=setInterval(()=>{
+chatTimer = setInterval(()=>{
 
 loadChat();
 
@@ -1136,9 +1071,6 @@ loadChat();
 
 
 }
-
-
-
 
 
 
@@ -1168,19 +1100,18 @@ station:activeRoom
 
 
 
-const data =
-await res.json();
+const data = await res.json();
 
 
 
-let html="";
+let html = "";
 
 
 
 data.forEach(m=>{
 
 
-html+=`
+html += `
 
 
 <div class="chat-msg">
@@ -1196,7 +1127,6 @@ ${m.name}
 ${m.message}
 
 
-
 </div>
 
 
@@ -1209,7 +1139,7 @@ ${m.message}
 
 document
 .getElementById("chatLog")
-.innerHTML=html;
+.innerHTML = html;
 
 
 
@@ -1228,15 +1158,13 @@ log.scrollHeight;
 
 
 
-
 async function sendChat(){
 
 
-let msg =
+const msg =
 document
 .getElementById("chatMsg")
 .value;
-
 
 
 if(!msg)
@@ -1250,17 +1178,11 @@ method:"POST",
 
 body:JSON.stringify({
 
-
 action:"send",
 
+station:activeRoom,
 
-station:
-activeRoom,
-
-
-stationName:
-activeName,
-
+stationName:activeName,
 
 name:
 document
@@ -1268,9 +1190,7 @@ document
 .value ||
 "Anon",
 
-
 message:msg
-
 
 
 })
@@ -1284,13 +1204,10 @@ document
 .value="";
 
 
-
 loadChat();
 
 
 }
-
-
 
 
 
@@ -1305,7 +1222,6 @@ document
 .add("hidden");
 
 
-
 clearInterval(chatTimer);
 
 
@@ -1315,8 +1231,7 @@ clearInterval(chatTimer);
 
 
 
-
-/* ENTER TO SEND */
+/* ENTER SEND */
 
 
 document
@@ -1328,17 +1243,14 @@ e=>{
 
 if(e.key==="Enter"){
 
-
 e.preventDefault();
 
 sendChat();
-
 
 }
 
 
 });
-
 
 
 
@@ -1365,7 +1277,6 @@ document
 
 
 loadNews();
-
 
 
 </script>
