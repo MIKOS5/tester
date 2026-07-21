@@ -2509,47 +2509,101 @@ async function playObvyris(i){
 
     stopRadioPlayer();
 
+
     const station = OBVYRIS_STATIONS[i];
 
-    const res = await fetch(
-        station.api + "?action=now"
-    );
 
-    const data = await res.json();
+    try{
 
-
-    document.getElementById("npName").innerText =
-        data.program || station.name;
+        const res = await fetch(
+            station.api + "?action=now&t=" + Date.now()
+        );
 
 
-    document.getElementById("npMeta").innerText =
-        (data.artist || "") +
-        " • " +
-        (data.genre || "");
+        const data = await res.json();
 
 
-    playYoutubeRadio({
-        videoId:data.videoId,
-        seek:data.seek || 0
-    });
+        console.log("Obvyris Now:", data);
 
 
-    // USER GESTURE UNMUTE ATTEMPT
-    setTimeout(()=>{
 
-        if(ytPlayer){
+        document.getElementById("npName").innerText =
+            data.program || station.name;
 
-            ytPlayer.unMute();
-            ytPlayer.setVolume(100);
 
-            console.log(
-                "Manual unmute:",
-                ytPlayer.isMuted()
-            );
+        document.getElementById("npMeta").innerText =
+            (data.artist || "") +
+            " • " +
+            (data.genre || "");
 
-        }
 
-    },500);
+
+        playYoutubeRadio({
+
+            videoId:data.videoId,
+
+            seek:data.seek || 0
+
+        });
+
+
+
+        // 🔊 Try browser gesture unmute
+        setTimeout(()=>{
+
+            if(ytPlayer){
+
+                ytPlayer.unMute();
+
+                ytPlayer.setVolume(100);
+
+
+                console.log(
+                    "Manual unmute:",
+                    ytPlayer.isMuted()
+                );
+
+            }
+
+        },1000);
+
+
+
+        // 🔥 START AUTO NEXT TRACK WATCHER
+
+        clearInterval(window.obvyrisSync);
+
+
+        window.obvyrisSync = setInterval(()=>{
+
+
+            if(
+                ytPlayer &&
+                ytPlayer.getPlayerState() === YT.PlayerState.ENDED
+            ){
+
+                console.log(
+                    "Obvyris track ended - loading next"
+                );
+
+
+                playNextObvyris();
+
+            }
+
+
+        },5000);
+
+
+
+    }catch(err){
+
+        console.error(
+            "Obvyris Radio failed:",
+            err
+        );
+
+    }
 
 }
   
@@ -3007,6 +3061,52 @@ function stopYoutubePlayer(){
     }
 
 }
+
+async function playNextObvyris(){
+
+    try{
+
+        const station = OBVYRIS_STATIONS[0];
+
+        const res = await fetch(
+            station.api + "?action=now&t=" + Date.now()
+        );
+
+        const data = await res.json();
+
+
+        console.log("Next track:", data);
+
+
+        document.getElementById("npName").innerText =
+            data.program || station.name;
+
+
+        document.getElementById("npMeta").innerText =
+            (data.artist || "") +
+            " • " +
+            (data.genre || "");
+
+
+        playYoutubeRadio({
+
+            videoId:data.videoId,
+
+            seek:data.seek || 0
+
+        });
+
+
+    }catch(err){
+
+        console.error(
+            "Failed loading next Obvyris song",
+            err
+        );
+
+    }
+
+}
   
 function playYoutubeRadio(data){
 
@@ -3142,26 +3242,38 @@ function createYoutubePlayer(id, seek){
 
                 onStateChange:function(e){
 
-                    console.log(
-                        "YT State:",
-                        e.data
-                    );
+    console.log(
+        "YT State:",
+        e.data
+    );
 
 
-                    // when playing try again
-                    if(e.data === YT.PlayerState.PLAYING){
+    // Playing
+    if(e.data === YT.PlayerState.PLAYING){
 
-                        e.target.unMute();
-                        e.target.setVolume(100);
+        e.target.unMute();
+        e.target.setVolume(100);
 
-                        console.log(
-                            "After PLAYING muted:",
-                            e.target.isMuted()
-                        );
+        console.log(
+            "After PLAYING muted:",
+            e.target.isMuted()
+        );
 
-                    }
+    }
 
-                },
+
+    // 🔥 SONG FINISHED - LOAD NEXT SONG
+    if(e.data === YT.PlayerState.ENDED){
+
+        console.log("Song finished - loading next Obvyris track");
+
+        setTimeout(()=>{
+            playNextObvyris();
+        },1000);
+
+    }
+
+},
 
 
                 onError:function(e){
