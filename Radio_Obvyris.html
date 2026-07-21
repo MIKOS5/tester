@@ -1642,21 +1642,31 @@ async function loadObvyrisStations(){
 
 function openRequestedStation(){
 
-    const params = new URLSearchParams(window.location.search);
-
-    const stationName = params.get("station");
+    const stationName =
+        new URLSearchParams(location.search).get("station");
 
     if(!stationName) return;
 
+    const search =
+        stationName
+        .toLowerCase()
+        .replace(/\s+/g,"");
+
     const i = OBVYRIS_STATIONS.findIndex(s =>
-        s.name.toLowerCase() === stationName.toLowerCase()
+        s.name
+         .toLowerCase()
+         .replace(/\s+/g,"") === search
     );
 
     if(i >= 0){
 
+        console.log("Opening:", OBVYRIS_STATIONS[i].name);
+
         playObvyris(i);
 
-        setTitle("📡 " + OBVYRIS_STATIONS[i].name);
+    }else{
+
+        console.log("Station not found:", stationName);
 
     }
 
