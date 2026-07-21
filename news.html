@@ -2226,12 +2226,74 @@ border-radius:10px;
 }else{
 
 
-body=m.message;
+// Format NewsBot posts
 
+if(m.name === "NewsBot"){
+
+let parts = m.message.split("|");
+
+let headline = parts[0]
+.replace("📰","")
+.trim();
+
+let url = parts[1]
+? parts[1].trim()
+:"";
+
+
+body = `
+
+<div style="
+font-weight:900;
+color:var(--blue);
+margin-bottom:8px;
+">
+
+📌 NewsBot (Pinned)
+
+</div>
+
+
+<div style="
+font-weight:800;
+font-size:16px;
+">
+
+📰 ${headline}
+
+</div>
+
+
+${url ? `
+
+<div style="margin-top:12px">
+
+<a href="${url}" target="_blank">
+
+<button class="secondary">
+
+🔗 View Source
+
+</button>
+
+</a>
+
+</div>
+
+`:""}
+
+`;
+
+
+
+}else{
+
+
+body=m.message;
 
 }
 
-
+}
 
 html += `
 
