@@ -961,13 +961,11 @@ ${n.stationName}
 
 ${n.image ? `
 
-
-<img class="news-image"
-
+<img 
+class="news-image"
 src="${n.image}"
-
-loading="lazy">
-
+loading="lazy"
+onerror="this.style.display='none'">
 
 `:""}
 
@@ -989,9 +987,9 @@ ${n.details}
 
 <div class="news-message">
 
-
-${n.message}
-
+${n.message
+.replace(n.link,"")
+.trim()}
 
 </div>
 
@@ -1020,7 +1018,6 @@ ${n.message}
 
 ${n.link ? `
 
-
 <a href="${n.link}" target="_blank">
 
 <button>
@@ -1031,28 +1028,20 @@ ${n.link ? `
 
 </a>
 
-
 `:""}
 
 
-
-
-
-
-
 ${n.sourceLink ? `
-
 
 <a href="${n.sourceLink}" target="_blank">
 
 <button>
 
-🔗 Source
+🔗 ${n.source || "Source"}
 
 </button>
 
 </a>
-
 
 `:""}
 
