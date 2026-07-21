@@ -15,6 +15,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Radio Obvyris">
 
+<script src="https://www.youtube.com/iframe_api"></script>
+  
 <link rel="icon" type="image/png" href="https://mikos5.github.io/tester/navicon.png">
 <link rel="apple-touch-icon" href="https://mikos5.github.io/tester/navicon.png">
 
@@ -41,7 +43,7 @@
   --panel-alt:#0b1220;
 }
 
-/* 🌙 LIGHT MODE */
+/* 🌙 LIGHT MODE  */
 body.light{
   --bg:#f4f6f8;
   --panel:#ffffff;
@@ -65,21 +67,10 @@ body.light{
 
 *{box-sizing:border-box;}
 
-body{
-  margin:0;
-  font-family:Inter,sans-serif;
-  background:var(--bg);
-  color:var(--text);
-  display:flex;
-  height:100vh;
-  overflow:hidden;
-
-  transition: background 0.3s, color 0.3s;
-}
 
 /* SIDEBAR */
 .sidebar{
-  width:340px;
+  width:300px;
   background:var(--panel);
   border-right:1px solid var(--line);
   padding:20px;
@@ -88,7 +79,7 @@ body{
 
 .logo{
   font-family:'Orbitron', sans-serif;
-  font-size:42px;
+  font-size:30px;
   font-weight:900;
   letter-spacing:2px;
   text-transform:uppercase;
@@ -134,22 +125,53 @@ body{
 }
 
 /* PLAYER */
-.player{
+/* PLAYER BaR (new style) */
+.player-bar{
   margin-top:20px;
-  padding:16px;
-  border-radius:20px;
+  padding:12px;
+  border-radius:16px;
   background:var(--panel);
   border:1px solid var(--line);
 }
 
-.now{font-weight:700;}
-.meta{font-size:12px;color:var(--muted);}
+/* PLAYER INNER */
+#player{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  text-align:center;
+}
 
+/* NOW PLAYING TEXT */
+#npName{
+  font-weight:800;
+  font-size:16px;
+}
+
+#npMeta{
+  font-size:12px;
+  color:var(--muted);
+  opacity:.8;
+}
+
+/* CONTROLS */
 .controls{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:8px;
-  margin-top:12px;
+  display:flex;
+  gap:10px;
+  margin-top:10px;
+}
+
+.controls button{
+  padding:10px 14px;
+  border:none;
+  border-radius:10px;
+  background:linear-gradient(180deg, var(--blue), var(--blue-dark));
+  color:white;
+  font-weight:700;
+  cursor:pointer;
+  font-size:18px;
 }
 
 button{
@@ -243,6 +265,8 @@ button{
   background:rgba(39,147,255,1);
 }
 
+.app-frame { display:flex; height:100vh; }
+  
 .dropdown {
   position: relative;
   user-select: none;
@@ -276,6 +300,8 @@ button{
   display: block;
 }
 
+
+  
 .genre-section {
   margin-top: 10px;
 }
@@ -339,24 +365,138 @@ button{
   }
 }
 
-/* ACTION GRID */
-.action-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 10px;
-  margin-top: 12px;
-  margin-bottom: 10px;
-}
+/* MOBILE ACTION DROPDOWN */
 
-.action-grid .genre{
-    min-height:50px;
-    font-size:20px;
+
+  .action-header{
     display:flex;
     align-items:center;
-    justify-content:center;
-    padding:0 12px;
+    justify-content:space-between;
+    padding:12px;
+    border-radius:12px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    font-weight:800;
+    cursor:pointer;
+  }
+
 }
 
+/* desktop hide dropdown title */
+.action-header{
+  display:none;
+}
+
+@media(min-width:901px){
+  .action-grid{
+    display:grid;
+  }
+}
+  
+/* RADIO TOOLS DIRECTORY STYLE */
+
+.action-grid{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    margin-top:10px;
+}
+
+
+.action-grid .genre-header{
+    width:100%;
+}
+
+
+.action-grid .genre{
+    width:100%;
+    min-height:38px;
+
+    display:flex;
+    align-items:center;
+    justify-content:flex-start;
+
+    padding:10px 14px;
+
+    font-size:16px;
+    text-align:left;
+
+    border-radius:10px;
+}
+
+
+/* Obvyris station row */
+#obvyrisGrid{
+
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+
+    padding:0;
+    border:none;
+    background:transparent;
+
+}
+
+
+#obvyrisGrid .obvyris-btn{
+
+    width:100%;
+
+    display:flex;
+    align-items:center;
+    justify-content:flex-start;
+
+    padding:10px 14px;
+
+    font-size:16px;
+
+}
+
+/* MOBILE ACTION DROPDOWN FIX */
+@media(max-width:900px){
+
+  .action-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:12px;
+    border-radius:12px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    font-weight:800;
+    cursor:pointer;
+  }
+
+  .action-grid{
+    display:none;
+  }
+
+  .action-grid.open{
+    display:grid;
+  }
+
+}
+
+@media (max-width:900px){
+  .title{
+    font-size:12px;   /* about 1/4 of 46px */
+  }
+}
+  
+/* DESKTOP */
+@media(min-width:901px){
+
+  .action-header{
+    display:none;
+  }
+
+  .action-grid{
+    display:grid;
+  }
+
+}
+  
 /* CHAT */
 .chat-box {
   margin-top: 15px;
@@ -461,6 +601,8 @@ button{
   transition: 0.2s ease;
 }
 
+
+  
 .brand{
     cursor:pointer;
     user-select:none;
@@ -471,6 +613,34 @@ button{
 
 .brand:hover{
     background:rgba(255,255,255,.08);
+}
+
+.logo{
+    font-family:'Orbitron', sans-serif;
+    font-size:42px;
+    font-weight:900;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    text-shadow:0 0 8px rgba(39,147,255,.35);
+    transition:.2s;
+}
+
+.logo span{
+    color:var(--blue);
+}
+
+.logo:hover{
+    transform:scale(1.03);
+    text-shadow:
+      0 0 10px var(--blue),
+      0 0 20px var(--blue),
+      0 0 30px var(--blue);
+}
+
+.logo span:hover{
+    text-shadow:
+      0 0 12px var(--blue),
+      0 0 25px var(--blue);
 }
 
 .brand:active{
@@ -489,6 +659,36 @@ button{
   box-shadow: 0 10px 25px rgba(0,0,0,.4);
 }
 
+body{
+  margin:0;
+  display:flex;
+  height:100vh;
+  overflow:hidden;
+  font-family:Inter,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+
+
+/* FORCE PLAYER TO BOTTOM */
+.player-bar{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  z-index:9999;
+
+  margin:0;
+  border-radius:0;
+  border-top:1px solid var(--line);
+}
+
+
+/* prevent content hiding behind player */
+.main{
+  padding-bottom:120px;
+}
+  
 .chat-popup{
   position: fixed;
   bottom: 160px;
@@ -535,51 +735,393 @@ button{
   opacity: 1;
   pointer-events: auto;
 }
+
+/* ANDROID MOBILE STACK FIX */
+@media(max-width:900px){
+
+  .app-frame{
+    flex-direction:column;
+    height:100vh;
+  }
+
+  .sidebar{
+    width:100%;
+    flex:none;
+    max-height:35vh;
+    overflow-y:auto;
+  }
+
+  .main{
+    flex:1;
+    overflow:auto;
+    padding-bottom:120px;
+  }
+
+}
+
+.genre-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:12px;
+  border-radius:12px;
+  background:var(--panel);
+  border:1px solid var(--line);
+  font-weight:800;
+  cursor:pointer;
+  margin-bottom:10px;
+}
+
+.app-menu{
+    position:absolute;
+    top:80px;
+    left:20px;
+
+    width:240px;
+
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:16px;
+
+    overflow:hidden;
+
+    z-index:99999;
+
+    display:none;
+
+    box-shadow:0 15px 40px rgba(0,0,0,.5);
+}
+
+
+.app-menu div{
+
+    padding:14px;
+
+    cursor:pointer;
+
+    font-weight:700;
+
+    transition:.15s;
+}
+
+
+.app-menu div:hover{
+
+    background:var(--blue);
+    color:white;
+
+}
+
+
+.app-menu.open{
+    display:block;
+}
+
+/* DESKTOP: shorter player bar */
+/* DESKTOP: shorter player bar */
+@media (min-width:901px){
+
+  .player-bar{
+    padding:6px 12px;
+  }
+
+  #player{
+    flex-direction:row;
+    justify-content:center;
+    align-items:center;
+    gap:18px;
+  }
+
+  #npName{
+    font-size:15px;
+  }
+
+  #npMeta{
+    font-size:11px;
+  }
+
+  .controls{
+    margin-top:0;
+    gap:6px;
+  }
+
+  .controls button{
+    font-size:16px;
+    padding:4px 5px;
+  }
+
+  /* reduce reserved space below page */
+  .main{
+    padding-bottom:75px;
+  }
+
+}
+
+#countryFilter{
+    width:160px;
+}
+
+@media (max-width:900px){
+    #countryFilter{
+        width:50px;
+        font-size:14px;
+        padding:8px;
+    }
+}
+
+/* =========================
+   OBVYRIS STATION DROPDOWN
+========================= */
+
+/* Parent header */
+.obvyris-btn-header{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:10px 12px;
+  border-radius:12px;
+  background:var(--panel);
+  border:1px solid var(--line);
+  font-size:16px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+
+/* Child station buttons */
+#obvyrisGrid .obvyris-btn{
+  width:95%;              /* slightly smaller than header */
+  margin:5px auto;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+
+  padding:8px 10px;
+
+  font-size:14px;         /* fixes 📻 Obvyris Radio1 size */
+  line-height:1.2;
+
+  border-radius:10px;
+}
+
+.obvyris-btn{
+    font-size:12px !important;
+    min-height:35px;
+    height:35px;
+    padding:4px 8px;
+    white-space:nowrap;
+}
+
+#ytWrapper{
+    position:fixed;
+    width:200px;
+    height:120px;
+    left:-9999px;
+    top:-9999px;
+    overflow:hidden;
+    opacity:0;
+    pointer-events:none;
+}
+
+/* Combined Radio Tools Layout */
+
+.obvyris-row{
+    display:flex;
+    gap:8px;
+    align-items:center;
+    margin-bottom:8px;
+}
+
+
+.obvyris-label{
+    flex:1;
+}
+
+
+.obvyris-inline{
+    flex:1;
+    display:flex;
+    gap:6px;
+}
+
+
+.obvyris-inline .obvyris-btn{
+    width:100%;
+}
+
+
+/* mobile stack */
+@media(max-width:900px){
+
+.obvyris-row{
+    flex-direction:column;
+}
+
+
+.obvyris-inline{
+    width:100%;
+}
+
+}
+
+/* SMALL SIDEBAR RADIO TOOLS FONT */
+
+#toolGrid .genre{
+    font-size:13px;
+    min-height:32px;
+    padding:7px 10px;
+}
+
+
+#toolGrid .obvyris-label{
+    font-size:13px;
+}
+
+
+#obvyrisGrid .obvyris-btn{
+    font-size:12px;
+    min-height:30px;
+    padding:6px 10px;
+}
+
+
+/* keep directory spacing clean */
+.obvyris-inline{
+    margin-left:15px;
+}
+
+/* Sidebar vertical directory style */
+
+#actions {
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+}
+
+
+.sidebar-btn {
+    width:100%;
+    display:block;
+    text-align:left;
+    padding:8px 12px;
+    font-size:13px;
+    border-radius:4px;
+    box-sizing:border-box;
+}
+
+
+/* remove tile/grid behavior */
+.genre-grid {
+    display:block !important;
+}
+
+
+.genre {
+    margin:2px 0;
+}
+  
 </style>
 </head>
 
 <body>
-
-<!-- SIDEBAR -->
-<div class="sidebar">
-
-  <div class="brand" onclick="shareSite()">
-    <div class="logo">
-        Radio <span>Obvyris</span> 
-    </div>
-    <div class="subtitle">
-        Live radio stations • genres • favorites
-    </div>
-</div>
-  
-  <div class="action-grid" id="actionGrid"></div>
-
-  
+<div class="player-bar">
+  <div id="player">
+    <div id="npName">Not Playing</div>
+    <div id="npMeta">Select a station</div>
+    <audio id="audio"></audio>
+    <video id="video" style="display:none; width:100%; max-height:180px;" controls></video>
+    <div id="ytWrapper" style="
+position:fixed;
+left:-9999px;
+top:-9999px;
+width:200px;
+height:120px;
+">
+    <div id="ytPlayer"></div>
 </div>
 
-<!-- MAIN -->
-<div class="main">
-
-  <div class="title" id="title">Stations</div>
-  <div style="display:flex;gap:10px;margin-bottom:15px;align-items:center;flex-wrap:wrap;">
-
-  
-  <!-- 👇 MOVE SHOW ALL HERE -->
-  <div class="genre" onclick="showAll()" style="white-space:nowrap;">
-    📻 Show All
+    
+    <div class="controls">
+      <button onclick="prev()">⏮</button>
+      <button onclick="toggle()">▶ / ⏸</button>
+      <button onclick="next()">⏭</button>
+      <button id="themeBtn" onclick="toggleTheme()">🌙</button>
+    </div>
   </div>
+</div>
+
+<!-- ✅ NEW WRAPPER START -->
+<div class="app-frame">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+
+  <div class="brand" onclick="toggleAppMenu()">
+
+    <div class="logo">
+        Radio <span>Obvyris</span>
+    </div>
+
+    <div class="subtitle">
+        Live radio • video • chat
+    </div>
+
+</div>
+
+<div id="appMenu" class="app-menu">
+    <div onclick="navigateApp('index99.html')">
+        🏠 Home
+    </div>
+
+    <div onclick="navigateApp('Video_Obvyris.html')">
+        📺 Video Obvyris
+    </div>
+
+    <div onclick="navigateApp('Games_Obvyris.html')">
+        🕹️ Games Obvyris
+    </div>
+  
+    <div onclick="navigateApp('newschat.html')">
+        💬 Chat Obvyris
+    </div>
+</div>
+  
+  <div class="action-header" onclick="toggleActions()">
+  ⭐ Radio Tools
+  <span id="actionArrow">▼</span>
+</div>
+
+<div class="action-grid" id="actionGrid"></div>
+
+  
+</div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <div class="title" id="title">Stations</div>
+
+    <div style="display:flex;gap:10px;margin-bottom:15px;align-items:center;flex-wrap:wrap;">
+
+      <div class="genre" onclick="showAll()" style="white-space:nowrap;">
+        📻 Show All
+      </div>
+
+      <!-- everything else stays the same -->
+
     
   <select
-    id="countryFilter"
-    onchange="changeCountry()"
-    style="
-      padding:12px;
-      border-radius:12px;
-      background:var(--panel);
-      color:var(--text);
-      border:1px solid var(--line);
-    "
-  >
+  id="countryFilter"
+  onchange="changeCountry()"
+  style="
+    padding:12px;
+    border-radius:12px;
+    background:var(--panel);
+    color:var(--text);
+    border:1px solid var(--line);
+  "
+>
     <option value="United States">🇺🇸 United States</option>
     <option value="Canada">🇨🇦 Canada</option>
     <option value="United Kingdom">🇬🇧 United Kingdom</option>
@@ -622,9 +1164,16 @@ button{
 
 </div>
 
+  
 <script>
 
 let currentGenre = "";
+// Audiobooks
+let books = [];
+let bookPage = 0;
+let currentBook = null;
+let chapters = [];
+let chapter = 0;
 let filterMode = false;
 let current = [];
 let index = 0;
@@ -635,6 +1184,16 @@ let currentCountry = "United States";
 let playingIndex = null;
 let stationStarted = false;
 let metadataAbort = null;
+let ytPlayer = null;
+let ytLoaded = false;
+let ytPending = null;
+let obvyrisOpen = false;
+  
+const BOOK_API =
+"https://librivox.org/api/feed/audiobooks/";
+
+const BOOK_PROXY =
+"https://corsproxy.io/?";
   
 /* API */
 const RADIO =
@@ -643,7 +1202,7 @@ const RADIO =
 const SHEET =
 "https://script.google.com/macros/s/AKfycbzZ5MwOcYUY_bpsUKSxPd810xE8rV_Y3z2GwzPublb_4O60CP8L_lC_V2kqkCQ_JdF5/exec";
 
-  
+
 const GENRES = [
   { id:"50s", label:"📻 50s Hits" },
   { id:"60s", label:"🎙 60s Hits" },
@@ -732,7 +1291,7 @@ const GENRES = [
   { id:"world", label:"🌐 World Music" }
 ];
 
-  function renderGenres(){
+function renderGenres(){
 
   const grid = document.getElementById("genreGrid");
 
@@ -742,42 +1301,164 @@ const GENRES = [
     </div>
   `).join("");
 
+
   // prevent duplicate listeners
   if (!grid.dataset.bound) {
+
     grid.dataset.bound = "true";
 
     grid.addEventListener("click", (e) => {
+
       const item = e.target.closest(".genre");
+
       if (!item) return;
 
       const id = item.dataset.id;
+
       if (!id) return;
 
-      document.querySelectorAll(".genre")
+      const g = GENRES.find(x => x.id === id);
+
+      document
+        .querySelectorAll("#genreGrid .genre")
         .forEach(x => x.classList.remove("active"));
 
       item.classList.add("active");
 
+
       page = 0;
       currentGenre = id;
+
+
+      // update genre dropdown title
+      document.querySelector(".genre-header").innerHTML =
+        `${g.label} <span id="genreArrow">▼</span>`;
+
+
+      genresOpen = false;
+
+      document
+        .getElementById("genreGrid")
+        .classList.add("collapsed");
+
+
       load(id);
+
     });
+
   }
 
-  // actions panel
+
+
+  // ACTIONS / RADIO TOOLS
   const actions = document.getElementById("actionGrid");
 
+
   actions.innerHTML = `
-    <div class="genre" onclick="loadArtistAl()">🎤 Artist A - L</div>
-    <div class="genre" onclick="loadArtistMz()">🎧 Artist M - Z</div>
-    <div class="genre" onclick="loadFavorites()">⭐ Favorites</div>
-    <div class="genre" onclick="loadMood()">☁️ Mood</div>
-    <div class="genre" onclick="loadMISC()">📻 Misc</div>
-    <div class="genre" onclick="loadUndiscovered()">🕵️ Undiscovered</div>
-    <div class="genre" onclick="loadInternational()">🌎 Mexico</div>
-    <div class="genre" onclick="loadInternational2()">🛰️ International</div>
-  `;
+
+<div class="genre sidebar-btn" onclick="selectTool('📡 Obvyris Stations', loadObvyrisStations)">
+  📡 Obvyris Stations
+</div>
+
+
+<div class="genre sidebar-btn" onclick="selectTool('🎤 Artist A - L', loadArtistAl)">
+  🎤 Artist A - L
+</div>
+
+
+<div class="genre sidebar-btn" onclick="selectTool('🎧 Artist M - Z', loadArtistMz)">
+  🎧 Artist M - Z
+</div>
+
+
+<div class="genre sidebar-btn" onclick="selectTool('⭐ Favorites', loadFavorites)">
+  ⭐ Favorites
+</div>
+
+
+<div class="genre sidebar-btn" onclick="selectTool('☁️ Mood', loadMood)">
+  ☁️ Mood
+</div>
+
+
+<div class="genre sidebar-btn" onclick="selectTool('📚 Audiobooks', loadAudiobooks)">
+  📚 Audiobooks
+</div>
+
+
+<div class="genre sidebar-btn" onclick="selectTool('📻 Misc', loadMISC)">
+  📻 Misc
+</div>
+
+
+<div class="genre sidebar-btn" onclick="selectTool('🕵️ Undiscovered', loadUndiscovered)">
+  🕵️ Undiscovered
+</div>
+
+
+<div class="genre sidebar-btn" onclick="selectTool('🌎 Mexico', loadInternational)">
+  🌎 Mexico
+</div>
+
+
+<div class="genre sidebar-btn" onclick="selectTool('🛰️ International', loadInternational2)">
+  🛰️ International
+</div>
+
+`;
+
+
+  // build Obvyris station list
+  renderObvyris();
+
 }
+function toggleObvyris(){
+
+    const grid = document.getElementById("obvyrisGrid");
+    const arrow = document.getElementById("obvyrisArrow");
+
+    if(!grid) return;
+
+    obvyrisOpen = !obvyrisOpen;
+
+    if(obvyrisOpen){
+        grid.classList.remove("collapsed");
+        arrow.innerText = "▲";
+    }else{
+        grid.classList.add("collapsed");
+        arrow.innerText = "▼";
+    }
+}
+
+function renderObvyris(){
+
+const grid = document.getElementById("obvyrisGrid");
+
+if(!grid){
+    console.log("Obvyris grid not ready");
+    return;
+}
+
+grid.innerHTML="";
+
+
+OBVYRIS_STATIONS.forEach((s,i)=>{
+
+grid.innerHTML += `
+
+<div class="genre obvyris-btn"
+onclick="playObvyris(${i})">
+
+📻 ${s.name}
+
+</div>
+
+`;
+
+});
+
+}
+  
 /* =========================
    🔥 FIXED GENRE FUNCTION
 ========================= */
@@ -816,7 +1497,6 @@ async function load(g){
 
   const res = await fetch(url);
   current = (await res.json()).map(normalize);
-  window.parent.setStationList(current);
 
   render();
 
@@ -897,6 +1577,84 @@ async function loadMood() {
 
   render();
   setTitle("☁️ Mood");
+}
+
+
+
+const OBVYRIS_STATIONS = [
+
+{
+    name:"Obvyris Radio1",
+    api:"https://script.google.com/macros/s/AKfycbwA1FraODA7b2LLXhJfDzvdbK9TfNtSFVqcKQl67P0WjFg4ysOIGHGyq9JyeSN9axy2/exec"
+}
+
+];
+
+
+async function loadObvyrisStations(){
+
+    current = [];
+
+    setTitle("📡 Obvyris Stations");
+
+    const el = document.getElementById("list");
+
+    el.innerHTML = `
+
+    <div class="card">
+
+        <div class="station">
+            📻 Obvyris Radio1
+        </div>
+
+        <div class="small">
+            Video Obvyris • YouTube Radio
+        </div>
+
+        <div class="small">
+            24/7 Music Video Stream
+        </div>
+
+        <div class="row">
+
+            <button onclick="playObvyris(0)">
+                ▶ Play
+            </button>
+
+            <button onclick="shareSite()">
+                🔗 Share
+            </button>
+
+        </div>
+
+    </div>
+
+    `;
+
+}
+  
+async function loadAudiobooks(){
+
+setTitle(
+  `📚 Audiobook Obvyris (${bookPage*50}-${bookPage*50+49})`
+);
+
+const url =
+BOOK_PROXY +
+encodeURIComponent(
+BOOK_API+
+"?format=json&extended=1&limit=50&offset="+
+(bookPage*50)
+);
+
+const res = await fetch(url);
+
+const data = await res.json();
+
+books=data.books || [];
+
+renderBooks();
+
 }
   
 async function loadUndiscovered(){
@@ -996,6 +1754,37 @@ async function loadInternational(){
   setTitle("🌎 Mexico");
 }
 
+function onYouTubeIframeAPIReady(){
+
+    console.log("YouTube Ready");
+
+    ytLoaded = true;
+
+    if(ytPending){
+
+        createYoutubePlayer(
+            ytPending.videoId,
+            ytPending.seek
+        );
+
+    }
+
+}
+  
+function selectTool(label, fn){
+
+  // Update dropdown title
+  document.querySelector(".action-header").innerHTML =
+    `${label} <span id="actionArrow">▼</span>`;
+
+  // Close dropdown
+  actionsOpen = false;
+  document.getElementById("actionGrid").classList.remove("open");
+
+  // Run selected tool
+  fn();
+}
+  
 async function listenNowPlaying(streamUrl, callback){
 
     if(metadataAbort)
@@ -1087,26 +1876,109 @@ async function listenNowPlaying(streamUrl, callback){
     }
 
 }
+
+function playMedia(url) {
+  const audio = document.getElementById("audio");
+  const video = document.getElementById("video");
+
+  const isVideo =
+    url.includes(".mp4") ||
+    url.includes(".m3u8") ||
+    url.includes("youtube");
+
+  if (isVideo) {
+    // stop audio completely
+    audio.pause();
+    audio.src = "";
+
+    // start video
+    video.style.display = "block";
+    video.src = url;
+    video.play();
+
+  } else {
+    // stop video completely
+    video.pause();
+    video.src = "";
+    video.style.display = "none";
+
+    // start audio
+    audio.style.display = "block";
+    audio.src = url;
+    audio.play();
+  }
+}
+
+function playBookChapter(){
+
+    if(!chapters.length){
+        alert("No chapters found.");
+        return;
+    }
+
+    const audio = document.getElementById("audio");
+    const video = document.getElementById("video");
+
+    video.pause();
+    video.src="";
+    video.style.display="none";
+
+    audio.src = chapters[chapter].listen_url;
+    audio.play();
+
+    document.getElementById("npName").innerText =
+        currentBook.title;
+
+    document.getElementById("npMeta").innerText =
+        "Chapter " + (chapter + 1);
+}
+
+async function openBook(id){
+
+    const apiUrl =
+      BOOK_API +
+      "?id=" + id +
+      "&format=json&extended=1";
+
+    const url =
+      BOOK_PROXY +
+      encodeURIComponent(apiUrl);
+
+    console.log("Loading book:", id, url);
+
+    const res = await fetch(url + "&t=" + Date.now());
+
+    const data = await res.json();
+
+    console.log(data);
+
+    currentBook = data.books[0];
+
+    chapters = currentBook.sections || [];
+
+    chapter = 0;
+
+    playBookChapter();
+}
+  
 /* PLAY */
 async function play(i){
 
   index = i;
 
   const s = current[i];
-  const audio = document.getElementById("audio");
+  const url = s.url_resolved || s.url;
 
-  audio.src = s.url_resolved || s.url;
-  audio.play();
+  playMedia(url);
 
   document.getElementById("npName").innerText = s.name;
   document.getElementById("npMeta").innerText = "Loading track...";
 
-  // ✅ STOP previous listener cleanly
+  // stop previous metadata listener
   if (metadataAbort) {
     metadataAbort.abort();
   }
 
-  // Start new listener
   listenNowPlaying(s.url, (title) => {
     document.getElementById("npMeta").innerText =
       `${title} • ${s.country || ""}`;
@@ -1140,7 +2012,7 @@ async function loadPopupChat(){
   }
 }
   
-function window.parent.playFiltered(i);
+function playFiltered(i){
 
   const list = getActiveList();
   const s = list[i];
@@ -1149,41 +2021,59 @@ function window.parent.playFiltered(i);
   index = i;
   window.activeList = list;
 
-  const audio = document.getElementById("audio");
+  const url = s.url_resolved || s.url;
 
-  audio.src = s.url_resolved || s.url;
-  audio.play();
+  playMedia(url);
 
   document.getElementById("npName").innerText = s.name;
-
   document.getElementById("npMeta").innerText =
     `${getGenre(s)} • ${s.country || ""}`;
 
-  // fix button state
-  if (playingIndex !== null && document.getElementById(`playBtn-${playingIndex}`)) {
+  // reset old button
+  if (playingIndex !== null &&
+      document.getElementById(`playBtn-${playingIndex}`)) {
     document.getElementById(`playBtn-${playingIndex}`).innerText = "▶ Play";
   }
 
   playingIndex = i;
+
   const btn = document.getElementById(`playBtn-${i}`);
   if (btn) btn.innerText = "⏸ Pause";
-  // ✅ ADD THIS HERE (THIS IS THE IMPORTANT PART)
+
   stationStarted = true;
   loadPopupChat();
 }
   
 /* CONTROLS */
-function toggle(){
+function toggle() {
   const a = document.getElementById("audio");
+  const v = document.getElementById("video");
 
-  if(a.paused){
+  const isVideoVisible = v.style.display !== "none" && v.src;
+
+  // 🎬 VIDEO MODE
+  if (isVideoVisible) {
+    if (v.paused) {
+      v.play();
+    } else {
+      v.pause();
+    }
+
+    return;
+  }
+
+  // 🔊 AUDIO MODE
+  if (a.paused) {
     a.play();
+
     if (playingIndex !== null) {
       const btn = document.getElementById(`playBtn-${playingIndex}`);
       if (btn) btn.innerText = "⏸ Pause";
     }
+
   } else {
     a.pause();
+
     if (playingIndex !== null) {
       const btn = document.getElementById(`playBtn-${playingIndex}`);
       if (btn) btn.innerText = "▶ Play";
@@ -1192,15 +2082,45 @@ function toggle(){
 }
 
 function next(){
-  const list = getActiveList();
-  index = (index + 1) % list.length;
-  window.parent.playFiltered(index);
+
+    if(currentBook){
+
+        if(chapter < chapters.length-1){
+
+            chapter++;
+            playBookChapter();
+
+        }
+
+        return;
+    }
+
+    const list=getActiveList();
+
+    index=(index+1)%list.length;
+
+    playFiltered(index);
 }
 
 function prev(){
-  const list = getActiveList();
-  index = (index - 1 + list.length) % list.length;
-  window.parent.playFiltered(index);
+
+    if(currentBook){
+
+        if(chapter>0){
+
+            chapter--;
+            playBookChapter();
+
+        }
+
+        return;
+    }
+
+    const list=getActiveList();
+
+    index=(index-1+list.length)%list.length;
+
+    playFiltered(index);
 }
 
 function getActiveList(){
@@ -1243,6 +2163,25 @@ function favCurrent(){
   fav(s);
 }
 
+let toolsOpen = false;
+
+function toggleTools(){
+
+  const grid = document.getElementById("toolGrid");
+  const arrow = document.getElementById("toolArrow");
+
+  toolsOpen = !toolsOpen;
+
+  if(toolsOpen){
+    grid.classList.remove("collapsed");
+    arrow.innerText="▲";
+  }else{
+    grid.classList.add("collapsed");
+    arrow.innerText="▼";
+  }
+
+}
+  
 function scrollToTop(){
   document.querySelector(".main").scrollTo({
     top: 0,
@@ -1291,7 +2230,6 @@ function render(){
 
         <div class="row">
           <button id="playBtn-${i}" onclick="playFiltered(${i})">▶ Play</button>
-          <button onclick="showAll()">📻 Show All</button>
           <button class="fav-btn ${isFav ? "saved" : ""}"
             onclick="favFiltered(${i})">
             ${isFav ? "⭐ Saved" : "☆ Favorite"}
@@ -1305,6 +2243,10 @@ function render(){
 
 function getCurrentStationId(){
   return current[index]?.id || "global";
+}
+
+function goHome(){
+  window.location.href = "./index99.html";
 }
   
 function shareSite(){
@@ -1465,6 +2407,14 @@ function showAll() {
   document.querySelectorAll(".genre")
     .forEach(x => x.classList.remove("active"));
 
+  // Reset the genre dropdown title
+  document.querySelector(".genre-header").innerHTML =
+    `🎚 Genres <span id="genreArrow">▼</span>`;
+
+  // Close the dropdown
+  genresOpen = false;
+  document.getElementById("genreGrid").classList.add("collapsed");
+
   load();
 }
 
@@ -1495,19 +2445,38 @@ function changeCountry(){
 }
   
 function nextPage(){
+
+  // 📚 Audiobooks
+  if(document.getElementById("title").innerText.includes("Audiobook")){
+    bookPage++;
+    loadAudiobooks();
+    return;
+  }
+
+  // 📻 Radio
   if(filterMode){
-    // in genre mode, just reload same genre (no paging)
     load(currentGenre);
-  } else {
+  }else{
     page++;
     load();
   }
 }
 
 function prevPage(){
+
+  // 📚 Audiobooks
+  if(document.getElementById("title").innerText.includes("Audiobook")){
+    if(bookPage > 0){
+      bookPage--;
+      loadAudiobooks();
+    }
+    return;
+  }
+
+  // 📻 Radio
   if(filterMode){
     load(currentGenre);
-  } else if(page > 0){
+  }else if(page > 0){
     page--;
     load();
   }
@@ -1524,10 +2493,48 @@ function toggleTheme() {
     btn.textContent = "🌙";
   }
 }
+
+async function playObvyris(i){
+
+    const station = OBVYRIS_STATIONS[i];
+
+    const res = await fetch(
+        station.api + "?action=now"
+    );
+
+    const data = await res.json();
+
+    console.log("Obvyris data:", data);
+
+
+    document.getElementById("npName").innerText =
+        data.program || station.name;
+
+
+    document.getElementById("npMeta").innerText =
+        (data.artist || "") +
+        " • " +
+        (data.genre || "");
+
+
+    playYoutubeRadio({
+        videoId:data.videoId,
+        seek:data.seek || 0
+    });
+
+}
+  
 /* INIT */
+
 renderGenres();
-loadCountries();   // ✅ add this
+
+if(typeof OBVYRIS_STATIONS !== "undefined"){
+    renderObvyris();
+}
+
+loadCountries();
 load();
+
 
 document.querySelector(".main").addEventListener("scroll", () => {
   const btn = document.getElementById("backToTop");
@@ -1817,6 +2824,86 @@ function shareStation(station){
   document.body.appendChild(menu);
 }
 
+function toggleAppMenu(){
+
+    const menu=document.getElementById("appMenu");
+
+    menu.classList.toggle("open");
+
+}
+
+function renderBooks(){
+
+const el=document.getElementById("list");
+
+el.innerHTML="";
+
+
+books.forEach(b=>{
+
+el.innerHTML += `
+
+<div class="card">
+
+<div class="station">
+${b.title}
+</div>
+
+
+<div class="small">
+${
+b.authors ?
+b.authors.map(
+a=>a.first_name+" "+a.last_name
+).join(", ")
+:
+"Unknown"
+}
+</div>
+
+
+<div class="row">
+
+<button onclick="openBook('${b.id}')">
+▶ Play
+</button>
+
+
+<button onclick="favoriteBook(${b.id})">
+⭐
+</button>
+
+
+</div>
+
+</div>
+
+`;
+
+});
+
+}
+  
+function navigateApp(page){
+
+    window.location.href = page;
+
+}
+
+
+// close menu if clicking elsewhere
+
+document.addEventListener("click",function(e){
+
+    const menu=document.getElementById("appMenu");
+    const brand=document.querySelector(".brand");
+
+    if(!brand.contains(e.target)){
+        menu.classList.remove("open");
+    }
+
+});
+  
 function shareFiltered(i){
   shareStation(window.filtered[i]);
 }
@@ -1830,6 +2917,151 @@ if ("serviceWorker" in navigator) {
       .catch(err => console.error(err));
   });
 }
+
+let actionsOpen = false;
+
+function toggleActions(){
+
+  const grid = document.getElementById("actionGrid");
+  const arrow = document.getElementById("actionArrow");
+
+  actionsOpen = !actionsOpen;
+
+  if(actionsOpen){
+    grid.classList.add("open");
+    arrow.innerText = "▲";
+  }else{
+    grid.classList.remove("open");
+    arrow.innerText = "▼";
+  }
+}
+
+// Move Radio Tools below Genres on mobile
+window.addEventListener("load", () => {
+  if (window.innerWidth <= 900) {
+
+    const main = document.querySelector(".main");
+    const actionHeader = document.querySelector(".action-header");
+    const actionGrid = document.getElementById("actionGrid");
+    const genreGrid = document.getElementById("genreGrid");
+
+    if (main && actionHeader && actionGrid && genreGrid) {
+      genreGrid.after(actionHeader);
+      actionHeader.after(actionGrid);
+    }
+  }
+});
+
+function playYoutubeRadio(data){
+
+    console.log("Starting YouTube:", data);
+
+
+    if(!data.videoId){
+
+        console.log("No YouTube video");
+        return;
+
+    }
+
+
+    if(!ytLoaded){
+
+        ytPending = {
+            videoId:data.videoId,
+            seek:data.seek || 0
+        };
+
+        return;
+
+    }
+
+
+    createYoutubePlayer(
+        data.videoId,
+        data.seek
+    );
+
+}
+
+function createYoutubePlayer(id,seek){
+
+
+    if(ytPlayer){
+
+        ytPlayer.loadVideoById(id);
+
+        if(seek){
+
+            ytPlayer.seekTo(
+                Number(seek),
+                true
+            );
+
+        }
+
+        return;
+    }
+
+
+
+    ytPlayer = new YT.Player(
+        "ytPlayer",
+        {
+
+        height:"120",
+        width:"200",
+
+        videoId:id,
+
+
+        playerVars:{
+    autoplay:1,
+    controls:0,
+    disablekb:1,
+    playsinline:1,
+    rel:0,
+    modestbranding:1,
+    enablejsapi:1,
+    origin:"https://mikos5.github.io"
+}
+
+
+        events:{
+
+            onReady:function(e){
+
+                if(seek){
+
+                    e.target.seekTo(
+                        Number(seek),
+                        true
+                    );
+
+                }
+
+
+                e.target.playVideo();
+
+            },
+
+
+            onStateChange:function(e){
+
+                console.log(
+                    "YT state:",
+                    e.data
+                );
+
+            }
+
+        }
+
+        }
+    );
+
+}
+  
 </script>
 <button id="chatFloatBtn" onclick="toggleChatPopup()">
   💬
