@@ -150,6 +150,63 @@ gap:12px;
 }
 
 
+/* NEWS TYPE FILTERS */
+
+
+#typeFilters{
+
+display:flex;
+
+flex-direction:column;
+
+gap:10px;
+
+margin-top:10px;
+
+}
+
+
+
+.filter-title{
+
+font-size:14px;
+
+font-weight:900;
+
+color:var(--muted);
+
+margin-top:10px;
+
+}
+
+
+
+.filter-btn{
+
+background:var(--panel2);
+
+border:1px solid var(--line);
+
+color:var(--text);
+
+text-align:left;
+
+}
+
+
+
+.filter-btn.active{
+
+background:var(--blue);
+
+color:white;
+
+border-color:var(--blue);
+
+}
+
+
+
 
 button{
 
@@ -664,6 +721,7 @@ border-radius:0;
 
 </head>
 
+
 <body>
 
 
@@ -715,23 +773,20 @@ Live News • Community • Discussions
 
 
 
-<button onclick="window.location='Chat_Obvyris.html'">
+<div class="filter-title">
 
-💬 Chat Obvyris
+📰 News Categories
 
-</button>
+</div>
 
 
+<div id="typeFilters">
 
-<button onclick="window.location='index99.html'">
-
-🏠 Obvyris Hub
-
-</button>
-
+</div>
 
 
 </div>
+
 
 
 
@@ -913,14 +968,6 @@ Send
 
 </div>
 
-
-
-
-
-
-
-
-
 <script>
 
 
@@ -930,20 +977,15 @@ const API_URL =
 
 
 
-
-
 let news=[];
-
 
 let activeRoom="";
 
-
 let activeName="";
-
 
 let chatTimer=null;
 
-
+let activeType="all";
 
 
 
@@ -967,24 +1009,17 @@ document.getElementById("apiStatus").innerHTML =
 
 const response = await fetch(API_URL,{
 
-
 method:"POST",
-
 
 body:JSON.stringify({
 
-
 action:"get",
-
 
 source:"news"
 
-
 })
 
-
 });
-
 
 
 
@@ -992,9 +1027,7 @@ const data = await response.json();
 
 
 
-
 console.log("NEWS API:",data);
-
 
 
 
@@ -1003,38 +1036,29 @@ news = data.map(n=>({
 
 time:n.time || "",
 
-
 station:n.station || "",
-
 
 stationName:n.stationName || "",
 
-
 name:n.name || "",
-
 
 message:n.message || "",
 
-
 link:n.link || "",
-
 
 image:n.image || "",
 
-
 sourceLink:n.sourceLink || "",
-
 
 type:n.type || "",
 
-
 details:n.details || "",
-
 
 source:n.source || ""
 
 
 }));
+
 
 
 
@@ -1049,11 +1073,15 @@ document.getElementById("apiStatus").innerHTML =
 
 
 
+buildTypeFilters();
+
+
 renderNews();
 
 
 
 }
+
 
 catch(error){
 
@@ -1082,6 +1110,143 @@ document.getElementById("apiStatus").innerHTML =
 
 
 /* =========================
+BUILD TYPE FILTERS
+========================= */
+
+
+function buildTypeFilters(){
+
+
+let types = new Set();
+
+
+
+news.forEach(n=>{
+
+
+if(n.type){
+
+
+n.type
+
+.split(",")
+
+.forEach(t=>{
+
+
+types.add(t.trim());
+
+
+});
+
+
+}
+
+
+});
+
+
+
+let html = `
+
+
+<button class="filter-btn active"
+
+onclick="filterType('all',this)">
+
+📰 All News
+
+</button>
+
+
+`;
+
+
+
+
+[...types]
+
+.sort()
+
+.forEach(type=>{
+
+
+html += `
+
+
+<button class="filter-btn"
+
+onclick="filterType('${escapeJS(type)}',this)">
+
+${type}
+
+</button>
+
+
+`;
+
+
+});
+
+
+
+document
+
+.getElementById("typeFilters")
+
+.innerHTML = html;
+
+
+
+}
+
+
+
+
+
+
+
+
+function filterType(type,btn){
+
+
+activeType=type;
+
+
+
+document
+
+.querySelectorAll(".filter-btn")
+
+.forEach(b=>{
+
+
+b.classList.remove("active");
+
+
+});
+
+
+
+btn.classList.add("active");
+
+
+
+renderNews();
+
+
+}
+
+
+
+
+
+
+
+
+
+
+/* =========================
 RENDER NEWS
 ========================= */
 
@@ -1089,12 +1254,14 @@ RENDER NEWS
 function renderNews(){
 
 
-
 let search =
 
 document
+
 .getElementById("search")
+
 .value
+
 .toLowerCase();
 
 
@@ -1105,9 +1272,10 @@ let html="";
 
 
 
-
 news
+
 .slice()
+
 .filter(n=>{
 
 
@@ -1129,16 +1297,41 @@ ${n.source}
 
 
 
-return !search || text.includes(search);
+
+let searchMatch =
+
+!search || text.includes(search);
+
+
+
+
+
+let typeMatch=true;
+
+
+
+if(activeType!=="all"){
+
+
+typeMatch = n.type
+
+.toLowerCase()
+
+.includes(activeType.toLowerCase());
+
+
+}
+
+
+
+
+return searchMatch && typeMatch;
 
 
 
 })
 
 .forEach(n=>{
-
-
-console.log("IMAGE TEST:", n.image);
 
 
 html += `
@@ -1150,7 +1343,6 @@ html += `
 
 ${n.image ? `
 
-
 <img
 
 class="news-image"
@@ -1159,11 +1351,9 @@ src="${n.image}"
 
 loading="lazy"
 
-onerror="this.parentElement.querySelector('.news-image').style.display='none'"
-
+onerror="this.style.display='none'"
 
 >
-
 
 `:""}
 
@@ -1172,8 +1362,6 @@ onerror="this.parentElement.querySelector('.news-image').style.display='none'"
 
 
 <div class="news-content">
-
-
 
 
 
@@ -1197,21 +1385,16 @@ ${n.stationName}
 
 
 
-
 <div class="news-meta">
 
 
 🕒 ${new Date(n.time).toLocaleString()}
 
-
 <br>
-
 
 🤖 ${n.name}
 
-
 <br>
-
 
 🌐 ${n.source}
 
@@ -1222,14 +1405,11 @@ ${n.stationName}
 
 
 
-
 <div class="news-details">
 
 ${n.details || ""}
 
 </div>
-
-
 
 
 
@@ -1246,10 +1426,7 @@ ${cleanMessage(n.message,n.link)}
 
 
 
-
 <div class="actions">
-
-
 
 
 
@@ -1271,9 +1448,7 @@ ${cleanMessage(n.message,n.link)}
 
 ${n.link ? `
 
-
 <a href="${n.link}" target="_blank">
-
 
 <button>
 
@@ -1281,12 +1456,9 @@ ${n.link ? `
 
 </button>
 
-
 </a>
 
-
 `:""}
-
 
 
 
@@ -1294,9 +1466,7 @@ ${n.link ? `
 
 ${n.sourceLink ? `
 
-
 <a href="${fixURL(n.sourceLink)}" target="_blank">
-
 
 <button class="secondary">
 
@@ -1304,19 +1474,13 @@ ${n.sourceLink ? `
 
 </button>
 
-
 </a>
-
 
 `:""}
 
 
 
-
-
 </div>
-
-
 
 
 
@@ -1332,8 +1496,6 @@ ${n.sourceLink ? `
 
 
 
-
-
 });
 
 
@@ -1341,9 +1503,10 @@ ${n.sourceLink ? `
 
 
 document
-.getElementById("news")
-.innerHTML=html;
 
+.getElementById("news")
+
+.innerHTML=html;
 
 
 }
@@ -1377,6 +1540,8 @@ return msg
 
 
 
+
+
 function fixURL(url){
 
 
@@ -1403,6 +1568,8 @@ url
 
 
 
+
+
 function escapeJS(text){
 
 
@@ -1415,8 +1582,14 @@ return (text||"")
 }
 
 
+
+
+
+
+
+
 /* =========================
-CHAT OPEN
+CHAT
 ========================= */
 
 
@@ -1429,9 +1602,9 @@ activeName=name;
 
 
 
-document.getElementById("chatTitle").innerHTML =
+document.getElementById("chatTitle").innerHTML=
 
-"💬 " + name;
+"💬 "+name;
 
 
 
@@ -1455,12 +1628,9 @@ clearInterval(chatTimer);
 
 chatTimer=setInterval(()=>{
 
-
 loadChat();
 
-
 },3000);
-
 
 
 }
@@ -1468,12 +1638,6 @@ loadChat();
 
 
 
-
-
-
-/* =========================
-LOAD CHAT
-========================= */
 
 
 async function loadChat(){
@@ -1507,7 +1671,6 @@ station:activeRoom
 
 
 });
-
 
 
 
@@ -1548,47 +1711,30 @@ ${m.message}
 `;
 
 
-
 });
 
 
 
-document
-
-.getElementById("chatLog")
-
-.innerHTML=html;
+document.getElementById("chatLog").innerHTML=html;
 
 
 
-const box =
+document.getElementById("chatLog").scrollTop=
 
-document.getElementById("chatLog");
-
-
-
-box.scrollTop=
-
-box.scrollHeight;
+document.getElementById("chatLog").scrollHeight;
 
 
 
 }
+
 
 catch(e){
 
 
-console.error(
-
-"Chat error",
-
-e
-
-);
+console.error("Chat error",e);
 
 
 }
-
 
 
 }
@@ -1596,25 +1742,12 @@ e
 
 
 
-
-
-
-
-/* =========================
-SEND CHAT
-========================= */
 
 
 async function sendChat(){
 
 
-let msg =
-
-document
-
-.getElementById("chatMsg")
-
-.value;
+let msg=document.getElementById("chatMsg").value;
 
 
 
@@ -1635,24 +1768,15 @@ body:JSON.stringify({
 
 action:"send",
 
-
 station:activeRoom,
-
 
 stationName:activeName,
 
-
 name:
 
-document
-
-.getElementById("chatName")
-
-.value || "Anon",
-
+document.getElementById("chatName").value || "Anon",
 
 message:msg
-
 
 
 })
@@ -1662,11 +1786,7 @@ message:msg
 
 
 
-document
-
-.getElementById("chatMsg")
-
-.value="";
+document.getElementById("chatMsg").value="";
 
 
 
@@ -1678,12 +1798,6 @@ loadChat();
 
 
 
-
-
-
-/* =========================
-CLOSE CHAT
-========================= */
 
 
 function toggleChat(){
@@ -1702,7 +1816,6 @@ document
 clearInterval(chatTimer);
 
 
-
 }
 
 
@@ -1712,20 +1825,11 @@ clearInterval(chatTimer);
 
 
 
-/* =========================
-ENTER SEND
-========================= */
-
-
 document
 
 .getElementById("chatMsg")
 
-.addEventListener(
-
-"keydown",
-
-function(e){
+.addEventListener("keydown",function(e){
 
 
 if(e.key==="Enter"){
@@ -1733,16 +1837,14 @@ if(e.key==="Enter"){
 
 e.preventDefault();
 
-
 sendChat();
 
 
 }
 
 
-}
+});
 
-);
 
 
 
@@ -1791,16 +1893,11 @@ document.body.classList.contains("light")
 
 
 
+
 function loadTheme(){
 
 
-if(
-
-localStorage.getItem("obvyrisTheme")
-
-==="light"
-
-){
+if(localStorage.getItem("obvyrisTheme")==="light"){
 
 
 document
@@ -1822,15 +1919,12 @@ document
 
 
 
-
-
 /* =========================
 INIT
 ========================= */
 
 
 loadTheme();
-
 
 loadNews();
 
