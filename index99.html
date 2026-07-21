@@ -551,21 +551,19 @@ Open Games
 </div> <!-- CLOSE CONTAINER -->
 
 
-<!-- VIDEO GUIDE -->
+<!-- NOW PLAYING GUIDE -->
 
 <div class="guideStatus">
-
 
     <!-- STATION 1 -->
 
     <div class="stationGuide">
 
-        <b>Video Obvyris TV - Now Playing:</b>
+        <b>📺 Video Obvyris TV - Now Playing:</b>
 
         <span class="programTitle" id="currentProgram">
             Loading...
         </span>
-
 
         <div class="stationBottom">
 
@@ -576,37 +574,28 @@ Open Games
                 </span>
             </div>
 
-
             <button
             class="stationButton"
             onclick="event.stopPropagation();openVideoTV();">
                 ▶ Open Station 1
             </button>
 
-
         </div>
 
-
     </div>
-
-
 
 
     <!-- STATION 2 -->
 
     <div class="stationGuide">
 
-        <b>Video Obvyris TV Station 2 - Now Playing:</b>
-
+        <b>📺 Video Obvyris TV Station 2 - Now Playing:</b>
 
         <span class="programTitle" id="currentProgram2">
             Loading...
         </span>
 
-
-
         <div class="stationBottom">
-
 
             <div class="status">
                 Status:
@@ -615,21 +604,54 @@ Open Games
                 </span>
             </div>
 
-
-
             <button
             class="stationButton"
             onclick="event.stopPropagation();switchStation('2');">
                 ▶ Open Station 2
             </button>
 
-
-
         </div>
-
 
     </div>
 
+
+    <!-- RADIO -->
+
+    <div class="stationGuide">
+
+        <b>📻 Radio Obvyris - Now Playing:</b>
+
+        <span class="programTitle" id="radioProgram">
+            Loading...
+        </span>
+
+        <div class="stationBottom">
+
+            <div class="status">
+
+                Artist:
+                <span id="radioArtist">
+                    Loading...
+                </span>
+
+                <br>
+
+                Genre:
+                <span id="radioGenre">
+                    Loading...
+                </span>
+
+            </div>
+
+            <button
+            class="stationButton"
+            onclick="event.stopPropagation();location.href='Radio_Obvyris.html';">
+                ▶ Open Radio
+            </button>
+
+        </div>
+
+    </div>
 
 </div>
 
@@ -776,7 +798,8 @@ const STATIONS = {
 let CURRENT_STATION = "1";
 
 
-
+const RADIO_API =
+"https://script.google.com/macros/s/AKfycbwA1FraODA7b2LLXhJfDzvdbK9TfNtSFVqcKQl67P0WjFg4ysOIGHGyq9JyeSN9axy2/exec";
 
 
 /*
@@ -837,7 +860,40 @@ async function loadGuide() {
         console.error("Station 2:", e);
 
     }
+    // ---------- Radio ----------
 
+try{
+
+    const res = await fetch(
+        RADIO_API +
+        "?t=" + Date.now()
+    );
+
+    const data = await res.json();
+
+    document.getElementById("radioProgram").innerText =
+        data.program || "Unknown";
+
+    document.getElementById("radioArtist").innerText =
+        data.artist || "-";
+
+    document.getElementById("radioGenre").innerText =
+        data.genre || "-";
+
+}catch(e){
+
+    document.getElementById("radioProgram").innerText =
+        "Unavailable";
+
+    document.getElementById("radioArtist").innerText =
+        "-";
+
+    document.getElementById("radioGenre").innerText =
+        "-";
+
+    console.error("Radio:",e);
+
+}
 }
 
 
