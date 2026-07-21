@@ -914,14 +914,21 @@ body{
 }
 
 #ytWrapper{
+
     position:fixed;
-    width:200px;
-    height:120px;
-    left:-9999px;
-    top:-9999px;
+
+    bottom:0;
+    right:0;
+
+    width:1px;
+    height:1px;
+
+    opacity:.01;
+
     overflow:hidden;
-    opacity:0;
+
     pointer-events:none;
+
 }
 
 /* Combined Radio Tools Layout */
@@ -1964,6 +1971,8 @@ async function openBook(id){
 /* PLAY */
 async function play(i){
 
+  stopYoutubePlayer();
+  
   index = i;
 
   const s = current[i];
@@ -2014,6 +2023,8 @@ async function loadPopupChat(){
   
 function playFiltered(i){
 
+  stopYoutubePlayer();
+  
   const list = getActiveList();
   const s = list[i];
   if(!s) return;
@@ -2496,31 +2507,103 @@ function toggleTheme() {
 
 async function playObvyris(i){
 
+    stopRadioPlayer();
+
+
     const station = OBVYRIS_STATIONS[i];
 
-    const res = await fetch(
-        station.api + "?action=now"
-    );
 
-    const data = await res.json();
+    try{
 
-    console.log("Obvyris data:", data);
-
-
-    document.getElementById("npName").innerText =
-        data.program || station.name;
+        const res = await fetch(
+            station.api + "?action=now&t=" + Date.now()
+        );
 
 
-    document.getElementById("npMeta").innerText =
-        (data.artist || "") +
-        " • " +
-        (data.genre || "");
+        const data = await res.json();
 
 
-    playYoutubeRadio({
-        videoId:data.videoId,
-        seek:data.seek || 0
-    });
+        console.log("Obvyris Now:", data);
+
+
+
+        document.getElementById("npName").innerText =
+            data.program || station.name;
+
+
+        document.getElementById("npMeta").innerText =
+            (data.artist || "") +
+            " • " +
+            (data.genre || "");
+
+
+
+        playYoutubeRadio({
+
+            videoId:data.videoId,
+
+            seek:data.seek || 0
+
+        });
+
+
+
+        // 🔊 Try browser gesture unmute
+        setTimeout(()=>{
+
+            if(ytPlayer){
+
+                ytPlayer.unMute();
+
+                ytPlayer.setVolume(100);
+
+
+                console.log(
+                    "Manual unmute:",
+                    ytPlayer.isMuted()
+                );
+
+            }
+
+        },1000);
+
+
+
+        // 🔥 START AUTO NEXT TRACK WATCHER
+
+        clearInterval(window.obvyrisSync);
+
+
+        window.obvyrisSync = setInterval(()=>{
+
+
+            if(
+                ytPlayer &&
+                ytPlayer.getPlayerState() === YT.PlayerState.ENDED
+            ){
+
+                console.log(
+                    "Obvyris track ended - loading next"
+                );
+
+
+                playNextObvyris();
+
+            }
+
+
+        },5000);
+
+
+
+    }catch(err){
+
+        console.error(
+            "Obvyris Radio failed:",
+            err
+        );
+
+    }
 
 }
   
@@ -2952,6 +3035,79 @@ window.addEventListener("load", () => {
   }
 });
 
+function stopRadioPlayer(){
+
+    const audio = document.getElementById("audio");
+    const video = document.getElementById("video");
+
+    audio.pause();
+    audio.removeAttribute("src");
+    audio.load();
+
+    video.pause();
+    video.removeAttribute("src");
+    video.load();
+
+}
+
+function stopYoutubePlayer(){
+
+    if(ytPlayer){
+
+        try{
+            ytPlayer.stopVideo();
+        }catch(e){}
+
+    }
+
+}
+
+async function playNextObvyris(){
+
+    try{
+
+        const station = OBVYRIS_STATIONS[0];
+
+        const res = await fetch(
+            station.api + "?action=now&t=" + Date.now()
+        );
+
+        const data = await res.json();
+
+
+        console.log("Next track:", data);
+
+
+        document.getElementById("npName").innerText =
+            data.program || station.name;
+
+
+        document.getElementById("npMeta").innerText =
+            (data.artist || "") +
+            " • " +
+            (data.genre || "");
+
+
+        playYoutubeRadio({
+
+            videoId:data.videoId,
+
+            seek:data.seek || 0
+
+        });
+
+
+    }catch(err){
+
+        console.error(
+            "Failed loading next Obvyris song",
+            err
+        );
+
+    }
+
+}
+  
 function playYoutubeRadio(data){
 
     console.log("Starting YouTube:", data);
@@ -2984,78 +3140,153 @@ function playYoutubeRadio(data){
 
 }
 
-function createYoutubePlayer(id,seek){
-
+function createYoutubePlayer(id, seek){
 
     if(ytPlayer){
 
-        ytPlayer.loadVideoById(id);
+        ytPlayer.loadVideoById({
+            videoId:id,
+            startSeconds:Number(seek || 0)
+        });
 
-        if(seek){
+        ytPlayer.setVolume(100);
 
-            ytPlayer.seekTo(
-                Number(seek),
-                true
-            );
+        setTimeout(()=>{
 
-        }
+            ytPlayer.unMute();
+            ytPlayer.playVideo();
+
+            console.log("Existing Player");
+            console.log("Muted:", ytPlayer.isMuted());
+            console.log("Volume:", ytPlayer.getVolume());
+            console.log("State:", ytPlayer.getPlayerState());
+
+        },1000);
 
         return;
     }
 
 
-
     ytPlayer = new YT.Player(
         "ytPlayer",
         {
+            height:"120",
+            width:"200",
 
-        height:"120",
-        width:"200",
+            videoId:id,
 
-        videoId:id,
+            playerVars:{
+                autoplay:1,
+                controls:0,
+                disablekb:1,
+                playsinline:1,
+                rel:0,
+                modestbranding:1,
+                enablejsapi:1,
+
+                // start muted so autoplay works
+                mute:1,
+
+                origin:"https://mikos5.github.io"
+            },
 
 
-        playerVars:{
-    autoplay:1,
-    controls:0,
-    disablekb:1,
-    playsinline:1,
-    rel:0,
-    modestbranding:1,
-    enablejsapi:1,
-    origin:"https://mikos5.github.io"
-}
+            events:{
 
 
-        events:{
+                onReady:function(e){
 
-            onReady:function(e){
+                    console.log("YouTube Ready");
 
-                if(seek){
 
-                    e.target.seekTo(
-                        Number(seek),
-                        true
+                    if(seek){
+                        e.target.seekTo(
+                            Number(seek),
+                            true
+                        );
+                    }
+
+
+                    // volume
+                    e.target.setVolume(100);
+
+
+                    // attempt unmute
+                    e.target.unMute();
+
+
+                    e.target.playVideo();
+
+
+
+                    // DEBUG AFTER PLAYER STARTS
+                    setTimeout(()=>{
+
+                        console.log("Muted:",
+                            e.target.isMuted()
+                        );
+
+                        console.log("Volume:",
+                            e.target.getVolume()
+                        );
+
+                        console.log("State:",
+                            e.target.getPlayerState()
+                        );
+
+                    },1000);
+
+
+                },
+
+
+                onStateChange:function(e){
+
+    console.log(
+        "YT State:",
+        e.data
+    );
+
+
+    // Playing
+    if(e.data === YT.PlayerState.PLAYING){
+
+        e.target.unMute();
+        e.target.setVolume(100);
+
+        console.log(
+            "After PLAYING muted:",
+            e.target.isMuted()
+        );
+
+    }
+
+
+    // 🔥 SONG FINISHED - LOAD NEXT SONG
+    if(e.data === YT.PlayerState.ENDED){
+
+        console.log("Song finished - loading next Obvyris track");
+
+        setTimeout(()=>{
+            playNextObvyris();
+        },1000);
+
+    }
+
+},
+
+
+                onError:function(e){
+
+                    console.log(
+                        "YouTube Error:",
+                        e.data
                     );
 
                 }
 
 
-                e.target.playVideo();
-
-            },
-
-
-            onStateChange:function(e){
-
-                console.log(
-                    "YT state:",
-                    e.data
-                );
-
             }
-
-        }
 
         }
     );
