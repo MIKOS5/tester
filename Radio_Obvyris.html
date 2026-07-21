@@ -899,7 +899,7 @@ body{
 
   padding:8px 10px;
 
-  font-size:14px;         /* fixes 📻 Obvyris Radio1 size */
+  font-size:14px;         /* fixes 📻 Obvyris Radio size */
   line-height:1.2;
 
   border-radius:10px;
@@ -1591,7 +1591,7 @@ async function loadMood() {
 const OBVYRIS_STATIONS = [
 
 {
-    name:"Obvyris Radio1",
+    name:"Obvyris Radio",
     api:"https://script.google.com/macros/s/AKfycbwA1FraODA7b2LLXhJfDzvdbK9TfNtSFVqcKQl67P0WjFg4ysOIGHGyq9JyeSN9axy2/exec"
 }
 
@@ -1611,7 +1611,7 @@ async function loadObvyrisStations(){
     <div class="card">
 
         <div class="station">
-            📻 Obvyris Radio1
+            📻 Obvyris Radio
         </div>
 
         <div class="small">
@@ -1637,6 +1637,28 @@ async function loadObvyrisStations(){
     </div>
 
     `;
+
+}
+
+function openRequestedStation(){
+
+    const params = new URLSearchParams(window.location.search);
+
+    const stationName = params.get("station");
+
+    if(!stationName) return;
+
+    const i = OBVYRIS_STATIONS.findIndex(s =>
+        s.name.toLowerCase() === stationName.toLowerCase()
+    );
+
+    if(i >= 0){
+
+        playObvyris(i);
+
+        setTitle("📡 " + OBVYRIS_STATIONS[i].name);
+
+    }
 
 }
   
@@ -2617,6 +2639,9 @@ if(typeof OBVYRIS_STATIONS !== "undefined"){
 
 loadCountries();
 load();
+
+// Automatically open requested Obvyris station
+setTimeout(openRequestedStation,500);
 
 
 document.querySelector(".main").addEventListener("scroll", () => {
