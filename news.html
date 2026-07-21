@@ -1417,78 +1417,38 @@ CHAT POPUP
 
 <div id="chatPopup" class="chat-popup hidden">
 
-
 <div class="chat-header">
 
-
-<span id="chatTitle">
-
-💬 News Discussion
-
+<span id="popupTitle">
+💬 Discussion
 </span>
 
-
-
-<button onclick="toggleChat()">
-
-✖
-
-</button>
-
-
+<div>
+<button onclick="toggleChatFullscreen()">⛶</button>
+<button onclick="toggleChatPopup()">✖</button>
+</div>
 
 </div>
 
 
-
-
-
-<div id="chatLog" class="chat-log">
-
-
-</div>
-
-
-
+<div id="popupMessages" class="chat-log"></div>
 
 
 <div class="chat-input">
 
-
-<input
-
-id="chatName"
-
+<input id="popupName"
 placeholder="Name"
-
-maxlength="15"
-
-
->
+maxlength="15">
 
 
-
-
-<input
-
-id="chatMsg"
-
+<input id="popupMsg"
 placeholder="Message"
-
-maxlength="200"
-
-
->
+maxlength="200">
 
 
-
-
-<button onclick="sendChat()">
-
+<button onclick="sendPopupMsg()">
 Send
-
 </button>
-
 
 
 </div>
@@ -1508,11 +1468,12 @@ const API_URL =
 
 let news=[];
 
-let activeRoom="";
-
-let activeName="";
-
-let chatTimer=null;
+let activeRoom = "global";
+let activeRoomName = "";
+let popupRefreshTimer = null;
+let lastPopupHash = "";
+let messages = [];
+let autoScroll = true;
 
 let activeType="all";
 
@@ -2120,47 +2081,82 @@ CHAT
 
 function openChat(id,name){
 
-
 activeRoom=id;
 
-activeName=name;
+activeRoomName=name;
+
+lastPopupHash="";
 
 
-
-document.getElementById("chatTitle").innerHTML=
-
-"💬 "+name;
+document.getElementById("popupTitle").innerHTML =
+"💬 " + name;
 
 
+toggleChatPopup();
 
-document
-
-.getElementById("chatPopup")
-
-.classList
-
-.remove("hidden");
-
-
-
-loadChat();
-
-
-
-clearInterval(chatTimer);
-
-
-
-chatTimer=setInterval(()=>{
-
-loadChat();
-
-},3000);
+loadPopup();
 
 
 }
 
+async function loadPopup(){
 
+if(!activeRoom)
+return;
+
+
+const res = await fetch(API_URL,{
+method:"POST",
+body:JSON.stringify({
+
+action:"get",
+
+station:activeRoom
+
+})
+
+});
+
+
+const data = await res.json();
+
+
+let html="";
+
+
+data.forEach(m=>{
+
+html += `
+
+<div class="chat-msg">
+
+<div class="chat-name">
+${m.name}
+</div>
+
+<div>
+${m.message}
+</div>
+
+</div>
+
+`;
+
+});
+
+
+document.getElementById("popupMessages").innerHTML=html;
+
+
+const chat =
+document.getElementById("popupMessages");
+
+
+chat.scrollTop =
+chat.scrollHeight;
+
+
+}
 
 
 
@@ -2264,120 +2260,85 @@ console.error("Chat error",e);
 
 }
 
+async function sendPopupMsg(){
 
-
-
-
-
-async function sendChat(){
-
-
-let msg=document.getElementById("chatMsg").value;
-
+const msg =
+document.getElementById("popupMsg").value;
 
 
 if(!msg)
-
 return;
-
 
 
 await fetch(API_URL,{
 
-
 method:"POST",
 
-
 body:JSON.stringify({
-
 
 action:"send",
 
 station:activeRoom,
 
-stationName:activeName,
+stationName:activeRoomName,
 
 name:
-
-document.getElementById("chatName").value || "Anon",
+document.getElementById("popupName").value || "Anon",
 
 message:msg
 
-
 })
 
-
 });
 
 
-
-document.getElementById("chatMsg").value="";
-
+document.getElementById("popupMsg").value="";
 
 
-loadChat();
+loadPopup();
 
+}
+
+function toggleChatPopup(){
+
+const popup =
+document.getElementById("chatPopup");
+
+
+popup.classList.toggle("hidden");
+
+
+if(!popup.classList.contains("hidden")){
+
+
+clearInterval(popupRefreshTimer);
+
+
+popupRefreshTimer=setInterval(()=>{
+
+loadPopup();
+
+},2000);
+
+
+}
+else{
+
+clearInterval(popupRefreshTimer);
 
 }
 
 
+}
 
-
-
-
-function toggleChat(){
-
+function toggleChatFullscreen(){
 
 document
-
 .getElementById("chatPopup")
-
-.classList
-
-.add("hidden");
-
-
-
-clearInterval(chatTimer);
-
+.classList.toggle("fullscreen");
 
 }
-
-
-
-
-
-
-
-
-document
-
-.getElementById("chatMsg")
-
-.addEventListener("keydown",function(e){
-
-
-if(e.key==="Enter"){
-
-
-e.preventDefault();
-
-sendChat();
-
-
-}
-
-
-});
-
-
-
-
-
-
-
-
-
+    
 /* =========================
 THEME
 ========================= */
@@ -2453,7 +2414,19 @@ loadTheme();
 
 loadNews();
 
+document
+.getElementById("popupMsg")
+.addEventListener("keydown",e=>{
 
+if(e.key==="Enter"){
+
+e.preventDefault();
+
+sendPopupMsg();
+
+}
+
+});
 
 </script>
 
