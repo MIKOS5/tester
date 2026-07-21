@@ -2057,63 +2057,39 @@ function playFiltered(i){
   
 /* CONTROLS */
 function toggle() {
+  const a = document.getElementById("audio");
+  const v = document.getElementById("video");
 
-    /*
-    ==========================
-    YOUTUBE PLAYER
-    ==========================
-    */
+  const isVideoVisible = v.style.display !== "none" && v.src;
 
-    if(ytPlayer){
-
-        const state = ytPlayer.getPlayerState();
-
-
-        if(state === YT.PlayerState.PLAYING){
-
-            ytPlayer.pauseVideo();
-            return;
-
-        }
-
-
-        if(
-            state === YT.PlayerState.PAUSED ||
-            state === YT.PlayerState.CUED
-        ){
-
-            ytPlayer.playVideo();
-            return;
-
-        }
-
+  // 🎬 VIDEO MODE
+  if (isVideoVisible) {
+    if (v.paused) {
+      v.play();
+    } else {
+      v.pause();
     }
 
+    return;
+  }
 
-    /*
-    ==========================
-    MP3 / RADIO AUDIO
-    ==========================
-    */
+  // 🔊 AUDIO MODE
+  if (a.paused) {
+    a.play();
 
-    const audio =
-        document.getElementById("audio");
-
-
-    if(audio.src){
-
-        if(audio.paused){
-
-            audio.play();
-
-        }else{
-
-            audio.pause();
-
-        }
-
+    if (playingIndex !== null) {
+      const btn = document.getElementById(`playBtn-${playingIndex}`);
+      if (btn) btn.innerText = "⏸ Pause";
     }
 
+  } else {
+    a.pause();
+
+    if (playingIndex !== null) {
+      const btn = document.getElementById(`playBtn-${playingIndex}`);
+      if (btn) btn.innerText = "▶ Play";
+    }
+  }
 }
 
 function next(){
@@ -2532,9 +2508,10 @@ function toggleTheme() {
 async function playObvyris(i){
 
     stopRadioPlayer();
-    stopYoutubePlayer();
+
 
     const station = OBVYRIS_STATIONS[i];
+
 
     try{
 
@@ -2542,9 +2519,12 @@ async function playObvyris(i){
             station.api + "?action=now&t=" + Date.now()
         );
 
+
         const data = await res.json();
 
+
         console.log("Obvyris Now:", data);
+
 
 
         document.getElementById("npName").innerText =
@@ -2558,103 +2538,61 @@ async function playObvyris(i){
 
 
 
-        /*
-        ===================================
-        DETECT SOURCE
-        MP3 HAS PRIORITY WHEN NO VIDEO ID
-        ===================================
-        */
+        playYoutubeRadio({
 
+            videoId:data.videoId,
 
-        // ================================
-        // YOUTUBE MODE
-        // ================================
-        if(data.videoId && data.videoId.trim() !== ""){
+            seek:data.seek || 0
 
-            console.log(
-                "Playing YouTube:",
-                data.videoId
-            );
-
-
-            const audio =
-                document.getElementById("audio");
-
-            audio.pause();
-            audio.src = "";
-
-
-            playYoutubeRadio({
-
-                videoId:data.videoId,
-
-                seek:Number(data.seek || 0)
-
-            });
-
-
-        }
-
-
-        // ================================
-        // MP3 / AUDIO MODE
-        // ================================
-        else if(data.url && data.url.trim() !== ""){
-
-            console.log(
-                "Playing MP3:",
-                data.url
-            );
-
-
-            stopYoutubePlayer();
-
-
-            const audio =
-                document.getElementById("audio");
-
-
-            const video =
-                document.getElementById("video");
-
-
-            video.pause();
-            video.src="";
-            video.style.display="none";
-
-
-            audio.src = data.url;
-
-            audio.volume = 1;
-
-
-            await audio.play();
-
-
-            console.log(
-                "MP3 playing"
-            );
-
-        }
-
-
-        // ================================
-        // NOTHING FOUND
-        // ================================
-        else{
-
-            console.log(
-                "No playable source returned",
-                data
-            );
-
-        }
+        });
 
 
 
-        stationStarted = true;
+        // 🔊 Try browser gesture unmute
+        setTimeout(()=>{
 
-        loadPopupChat();
+            if(ytPlayer){
+
+                ytPlayer.unMute();
+
+                ytPlayer.setVolume(100);
+
+
+                console.log(
+                    "Manual unmute:",
+                    ytPlayer.isMuted()
+                );
+
+            }
+
+        },1000);
+
+
+
+        // 🔥 START AUTO NEXT TRACK WATCHER
+
+        clearInterval(window.obvyrisSync);
+
+
+        window.obvyrisSync = setInterval(()=>{
+
+
+            if(
+                ytPlayer &&
+                ytPlayer.getPlayerState() === YT.PlayerState.ENDED
+            ){
+
+                console.log(
+                    "Obvyris track ended - loading next"
+                );
+
+
+                playNextObvyris();
+
+            }
+
+
+        },5000);
 
 
 
@@ -2671,19 +2609,6 @@ async function playObvyris(i){
   
 /* INIT */
 
-document.getElementById("audio").addEventListener("ended", ()=>{
-
-    console.log("MP3 finished - loading next Obvyris track");
-
-    setTimeout(()=>{
-
-        playNextObvyris();
-
-    },1000);
-
-});
-
-  
 renderGenres();
 
 if(typeof OBVYRIS_STATIONS !== "undefined"){
@@ -3143,20 +3068,14 @@ async function playNextObvyris(){
 
         const station = OBVYRIS_STATIONS[0];
 
-
         const res = await fetch(
             station.api + "?action=now&t=" + Date.now()
         );
 
-
         const data = await res.json();
 
 
-        console.log(
-            "Next Obvyris track:",
-            data
-        );
-
+        console.log("Next track:", data);
 
 
         document.getElementById("npName").innerText =
@@ -3169,126 +3088,21 @@ async function playNextObvyris(){
             (data.genre || "");
 
 
+        playYoutubeRadio({
 
+            videoId:data.videoId,
 
-        /*
-        ===================================
-        YOUTUBE MODE
-        ===================================
-        */
+            seek:data.seek || 0
 
-        if(data.videoId && data.videoId.trim() !== ""){
-
-
-            console.log(
-                "Next is YouTube:",
-                data.videoId
-            );
-
-
-            const audio =
-                document.getElementById("audio");
-
-
-            audio.pause();
-            audio.src="";
-
-
-            playYoutubeRadio({
-
-                videoId:data.videoId,
-
-                seek:Number(data.seek || 0)
-
-            });
-
-
-        }
-
-
-
-
-        /*
-        ===================================
-        MP3 / AUDIO MODE
-        ===================================
-        */
-
-        else if(data.url && data.url.trim() !== ""){
-
-
-            console.log(
-                "Next is MP3:",
-                data.url
-            );
-
-
-            stopYoutubePlayer();
-
-
-            const audio =
-                document.getElementById("audio");
-
-
-            const video =
-                document.getElementById("video");
-
-
-            video.pause();
-            video.src="";
-            video.style.display="none";
-
-
-            audio.src=data.url;
-
-            audio.volume=1;
-
-
-            await audio.play();
-
-
-            console.log(
-                "Next MP3 playing"
-            );
-
-
-        }
-
-
-
-
-        /*
-        ===================================
-        NO SOURCE
-        ===================================
-        */
-
-        else{
-
-
-            console.log(
-                "No playable next track",
-                data
-            );
-
-
-        }
-
-
-        stationStarted = true;
-
-        loadPopupChat();
-
+        });
 
 
     }catch(err){
 
-
         console.error(
-            "Failed loading next Obvyris track:",
+            "Failed loading next Obvyris song",
             err
         );
-
 
     }
 
