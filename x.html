@@ -469,10 +469,13 @@ standings.standings || []
 
 }catch(e){
 
-console.log(e);
+console.error(e);
 
 document.getElementById("games").innerHTML =
-"API ERROR";
+"API ERROR: " + e.message;
+
+document.getElementById("standings").innerHTML =
+"STANDINGS ERROR";
 
 }
 
@@ -489,7 +492,231 @@ loadSports,
 60000
 );
 
+function renderGames(games){
 
+const box=document.getElementById("games");
+
+box.innerHTML="";
+
+
+if(!games.length){
+
+box.innerHTML="No games found";
+return;
+
+}
+
+
+games.forEach(g=>{
+
+
+box.innerHTML += `
+
+<div class="game-card">
+
+
+<div class="final">
+${g.Status}
+</div>
+
+
+<div class="team">
+
+<span>
+${g.AwayTeam}
+</span>
+
+<span class="score">
+${g.AwayScore ?? "-"}
+</span>
+
+</div>
+
+
+
+<div class="team">
+
+<span>
+${g.HomeTeam}
+</span>
+
+<span class="score">
+${g.HomeScore ?? "-"}
+</span>
+
+</div>
+
+
+
+<div class="meta">
+
+${g.Venue || ""}<br>
+
+${g.City || ""}, ${g.State || ""}<br>
+
+Winner:
+${g.Winner || "TBD"}
+
+</div>
+
+
+
+<div class="buttons">
+
+<a href="${g.GameLink}" target="_blank">
+Game
+</a>
+
+
+<a href="${g.BoxscoreLink}" target="_blank">
+Boxscore
+</a>
+
+
+</div>
+
+
+
+</div>
+
+`;
+
+});
+
+
+}
+
+
+
+
+function renderStandings(teams){
+
+
+const box=document.getElementById("standings");
+
+
+box.innerHTML="";
+
+
+if(!teams.length){
+
+box.innerHTML="No standings found";
+return;
+
+}
+
+
+
+let divisions={};
+
+
+
+teams.forEach(t=>{
+
+
+if(!divisions[t.Division]){
+
+divisions[t.Division]=[];
+
+}
+
+
+divisions[t.Division].push(t);
+
+
+});
+
+
+
+
+Object.keys(divisions).forEach(div=>{
+
+
+box.innerHTML += `
+
+<div class="standings">
+
+
+<div class="division-title">
+
+${div}
+
+</div>
+
+
+<table>
+
+
+<tr>
+
+<th>#</th>
+<th>Team</th>
+<th>Record</th>
+<th>PCT</th>
+<th>GB</th>
+<th>STRK</th>
+
+</tr>
+
+
+${
+
+divisions[div].map(t=>`
+
+
+<tr>
+
+
+<td class="rank">
+${t.Rank}
+</td>
+
+
+<td class="team-name">
+${t.Team}
+</td>
+
+
+<td class="record">
+${t.W}-${t.L}
+</td>
+
+
+<td>
+${t.PCT}
+</td>
+
+
+<td>
+${t.GB}
+</td>
+
+
+<td>
+${t.STRK}
+</td>
+
+
+</tr>
+
+
+`).join("")
+
+}
+
+
+</table>
+
+
+</div>
+
+
+`;
+
+});
+
+
+}
 
 </script>
 
