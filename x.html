@@ -13,63 +13,174 @@
 
 <style>
 
+*{
+box-sizing:border-box;
+}
+
+
 body{
+
 margin:0;
 background:#050505;
 color:white;
-font-family:Arial;
+font-family:Arial,Helvetica,sans-serif;
+
 }
+
 
 
 header{
 
-background:#111;
-padding:25px;
+background:
+linear-gradient(135deg,#111,#050505);
+
+padding:30px;
+
 text-align:center;
+
 font-family:Orbitron;
-font-size:32px;
+
+font-size:36px;
+
 font-weight:900;
-letter-spacing:4px;
+
+letter-spacing:5px;
+
+border-bottom:1px solid #333;
 
 }
 
 
-#top{
+
+.dashboard{
+
+max-width:1300px;
+
+margin:auto;
+
+padding:20px;
+
+}
+
+
+
+.topbar{
+
+display:grid;
+
+grid-template-columns:
+repeat(auto-fit,minmax(200px,1fr));
+
+gap:15px;
+
+margin-bottom:20px;
+
+}
+
+
+
+.summary{
+
+background:#151515;
+
+border:1px solid #333;
+
+border-radius:16px;
+
+padding:20px;
 
 text-align:center;
-padding:15px;
+
+}
+
+
+
+.summary h3{
+
+margin:0;
+
+font-family:Orbitron;
+
 color:#aaa;
 
+font-size:13px;
+
 }
+
+
+
+.summary span{
+
+display:block;
+
+font-size:28px;
+
+font-weight:bold;
+
+margin-top:10px;
+
+}
+
 
 
 
 .controls{
 
-text-align:center;
-padding:10px;
+display:flex;
+
+flex-wrap:wrap;
+
+gap:10px;
+
+justify-content:center;
+
+margin-bottom:25px;
 
 }
+
 
 
 button{
 
-background:#222;
-color:white;
+background:#151515;
+
 border:1px solid #444;
-padding:10px 18px;
-border-radius:20px;
+
+color:white;
+
+padding:12px 20px;
+
+border-radius:25px;
+
 cursor:pointer;
+
+font-weight:bold;
 
 }
 
 
 
-.container{
+button:hover{
 
-max-width:1200px;
-margin:auto;
-padding:15px;
+background:#333;
+
+}
+
+
+
+input{
+
+background:#111;
+
+border:1px solid #444;
+
+color:white;
+
+padding:12px;
+
+border-radius:20px;
+
+width:250px;
 
 }
 
@@ -79,36 +190,54 @@ padding:15px;
 .game{
 
 background:#101010;
-border-radius:20px;
-padding:22px;
-margin-bottom:25px;
+
 border:1px solid #333;
 
-}
+border-radius:22px;
 
+padding:25px;
+
+margin-bottom:25px;
+
+box-shadow:
+0 0 20px rgba(0,0,0,.5);
+
+}
 
 
 
 .status{
 
 display:inline-block;
-padding:7px 15px;
-border-radius:20px;
+
+padding:8px 18px;
+
+border-radius:30px;
+
 font-weight:bold;
 
+margin-bottom:15px;
+
 }
+
 
 
 .final{
+
 background:#087f23;
+
 }
+
 
 
 .live{
 
 background:#c62828;
 
+animation:pulse 1s infinite;
+
 }
+
 
 
 .post{
@@ -119,20 +248,45 @@ background:#555;
 
 
 
-.date{
+.scheduled{
 
-color:#888;
-margin-bottom:15px;
+background:#1565c0;
 
 }
+
+
+
+@keyframes pulse{
+
+50%{
+
+opacity:.5;
+
+}
+
+}
+
+
+
+.gameinfo{
+
+color:#888;
+
+margin-bottom:20px;
+
+}
+
 
 
 
 .matchup{
 
 display:grid;
-grid-template-columns:1fr 120px 1fr;
+
+grid-template-columns:1fr 150px 1fr;
+
 align-items:center;
+
 text-align:center;
 
 }
@@ -141,8 +295,9 @@ text-align:center;
 
 .team{
 
-font-size:22px;
-font-weight:bold;
+font-size:24px;
+
+font-weight:900;
 
 }
 
@@ -150,7 +305,23 @@ font-weight:bold;
 
 .code{
 
-color:#888;
+font-size:13px;
+
+color:#999;
+
+margin-top:5px;
+
+}
+
+
+
+.record{
+
+font-size:13px;
+
+color:#aaa;
+
+margin-top:8px;
 
 }
 
@@ -159,15 +330,39 @@ color:#888;
 .score{
 
 font-family:Orbitron;
-font-size:38px;
+
+font-size:45px;
+
+line-height:1.2;
 
 }
 
 
 
-.winner{
 
-color:#00ff66;
+.divider{
+
+height:1px;
+
+background:#333;
+
+margin:25px 0;
+
+}
+
+
+
+
+
+.section{
+
+font-family:Orbitron;
+
+font-size:16px;
+
+color:#aaa;
+
+margin-bottom:15px;
 
 }
 
@@ -177,9 +372,11 @@ color:#00ff66;
 .grid{
 
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-gap:12px;
-margin-top:15px;
+
+grid-template-columns:
+repeat(auto-fit,minmax(180px,1fr));
+
+gap:15px;
 
 }
 
@@ -187,9 +384,12 @@ margin-top:15px;
 
 .card{
 
-background:#1b1b1b;
-padding:15px;
-border-radius:12px;
+background:#1a1a1a;
+
+border-radius:14px;
+
+padding:18px;
+
 text-align:center;
 
 }
@@ -199,47 +399,98 @@ text-align:center;
 .label{
 
 font-size:12px;
-color:#999;
+
+color:#888;
 
 }
 
 
+
 .value{
 
-font-size:18px;
+font-size:20px;
+
 font-weight:bold;
+
 margin-top:8px;
 
 }
 
 
 
+.win{
+
+color:#00ff66;
+
+}
+
+
+
+.loss{
+
+color:#ff5555;
+
+}
+
+
+
+
+.table{
+
+width:100%;
+
+border-collapse:collapse;
+
+}
+
+
+
+.table td,
+.table th{
+
+padding:12px;
+
+border-bottom:1px solid #333;
+
+text-align:center;
+
+}
+
+
+
+
 .links a{
 
 color:#00aaff;
+
+font-weight:bold;
+
 margin-right:15px;
 
-}
-
-
-
-.divider{
-
-height:1px;
-background:#333;
-margin:20px 0;
+text-decoration:none;
 
 }
 
 
 
-@media(max-width:600px){
+@media(max-width:700px){
+
+
+header{
+
+font-size:24px;
+
+}
+
 
 .matchup{
 
-grid-template-columns:1fr 70px 1fr;
+grid-template-columns:
+1fr 80px 1fr;
 
 }
+
+
 
 .team{
 
@@ -248,13 +499,16 @@ font-size:16px;
 }
 
 
+
 .score{
 
-font-size:28px;
+font-size:30px;
 
 }
 
+
 }
+
 
 
 </style>
@@ -266,32 +520,94 @@ font-size:28px;
 
 
 <header>
+
 ⚾ SPORTS OBVYRIS
+
 </header>
 
 
 
-<div id="top">
+<div class="dashboard">
 
-Loading...
+
+
+<div class="topbar">
+
+
+<div class="summary">
+
+<h3>SPORT</h3>
+
+<span id="sport">
+--
+</span>
+
+</div>
+
+
+<div class="summary">
+
+<h3>GAMES</h3>
+
+<span id="count">
+--
+</span>
+
+</div>
+
+
+<div class="summary">
+
+<h3>UPDATED</h3>
+
+<span id="updated">
+--
+</span>
 
 </div>
 
 
 
+<div class="summary">
+
+<h3>STATUS</h3>
+
+<span id="statusCount">
+--
+</span>
+
+</div>
+
+
+</div>
+
+
+
+
+
 <div class="controls">
+
+
+<input id="search"
+placeholder="Search team..."
+onkeyup="searchGames()">
+
+
 
 <button onclick="filterGames('ALL')">
 ALL
 </button>
 
+
 <button onclick="filterGames('Final')">
 FINAL
 </button>
 
+
 <button onclick="filterGames('In Progress')">
 LIVE
 </button>
+
 
 <button onclick="filterGames('Postponed')">
 POSTPONED
@@ -302,13 +618,16 @@ POSTPONED
 
 
 
-<div class="container" id="games"></div>
 
+<div id="games"></div>
+
+
+
+</div>
 
 
 
 <script>
-
 
 
 const SPORTS_API =
@@ -316,67 +635,153 @@ const SPORTS_API =
 
 
 
-let allGames=[];
+let games=[];
+
+let current="ALL";
 
 
 
 async function loadSports(){
 
 
-const res =
+let res =
 await fetch(SPORTS_API);
 
 
-const data =
+let data =
 await res.json();
 
 
 
-allGames=data.games;
+games=data.games;
 
 
 
-document.getElementById("top").innerHTML=
+document.getElementById("sport").innerHTML=data.sport;
+
+document.getElementById("count").innerHTML=data.count;
+
+document.getElementById("updated").innerHTML=data.updated;
+
+
+
+let live =
+games.filter(x=>x.Status==="In Progress").length;
+
+
+let final =
+games.filter(x=>x.Status==="Final").length;
+
+
+let post =
+games.filter(x=>x.Status==="Postponed").length;
+
+
+document.getElementById("statusCount").innerHTML=
 
 `
-${data.sport}
- |
- Updated ${data.updated}
- |
- ${data.count} Games
+🔴 ${live}
+<br>
+✅ ${final}
+<br>
+⏸ ${post}
 `;
 
 
 
-renderGames(allGames);
+render();
 
+
+}
+
+function render(){
+
+
+let list=[...games];
+
+
+
+if(current!=="ALL"){
+
+list=list.filter(
+g=>g.Status===current
+);
 
 }
 
 
 
+let search =
+document.getElementById("search").value.toLowerCase();
 
-function renderGames(games){
+
+
+if(search){
+
+list=list.filter(g=>
+
+g.AwayTeam.toLowerCase().includes(search) ||
+
+g.HomeTeam.toLowerCase().includes(search) ||
+
+g.AwayCode.toLowerCase().includes(search) ||
+
+g.HomeCode.toLowerCase().includes(search)
+
+);
+
+}
+
 
 
 let html="";
 
 
-games.forEach(g=>{
+
+list.forEach(g=>{
 
 
 
 let cls="";
 
 
+
 if(g.Status==="Final")
 cls="final";
 
-if(g.Status==="In Progress")
+
+else if(g.Status==="In Progress")
 cls="live";
 
-if(g.Status==="Postponed")
+
+else if(g.Status==="Postponed")
 cls="post";
+
+
+else
+cls="scheduled";
+
+
+
+
+let awayRecord =
+(g.AwayWins!=="" && g.AwayWins!=null)
+?
+`${g.AwayWins}-${g.AwayLosses}`
+:
+"-";
+
+
+
+let homeRecord =
+(g.HomeWins!=="" && g.HomeWins!=null)
+?
+`${g.HomeWins}-${g.HomeLosses}`
+:
+"-";
+
+
+
 
 
 
@@ -388,16 +793,21 @@ html+=`
 
 
 <div class="status ${cls}">
+
 ${g.Status}
+
 </div>
 
 
-<div class="date">
 
-${new Date(g.Date).toLocaleDateString()}
 
- |
- ${g.Venue}
+<div class="gameinfo">
+
+📅 ${new Date(g.Date).toLocaleDateString()}
+
+&nbsp; | &nbsp;
+
+🏟 ${g.Venue || "-"}
 
 </div>
 
@@ -408,21 +818,30 @@ ${new Date(g.Date).toLocaleDateString()}
 <div class="matchup">
 
 
+
 <div class="team">
+
 
 ${g.AwayTeam}
 
+
 <div class="code">
+
 ${g.AwayCode}
+
 </div>
 
 
-<div>
-${g.AwayWins || "-"} -
-${g.AwayLosses || "-"}
-</div>
+<div class="record">
+
+Record:
+${awayRecord}
 
 </div>
+
+
+</div>
+
 
 
 
@@ -446,31 +865,57 @@ ${g.HomeScore}
 
 
 
+
+
 <div class="team">
+
 
 ${g.HomeTeam}
 
+
 <div class="code">
+
 ${g.HomeCode}
-</div>
-
-
-<div>
-
-${g.HomeWins || "-"} -
-${g.HomeLosses || "-"}
-
-</div>
 
 </div>
 
 
+<div class="record">
+
+Record:
+${homeRecord}
+
 </div>
+
+
+
+</div>
+
+
+
+</div>
+
+
+
 
 
 
 
 <div class="divider"></div>
+
+
+
+
+
+
+
+<div class="section">
+
+🏆 RESULT
+
+</div>
+
+
 
 
 
@@ -484,11 +929,16 @@ ${g.HomeLosses || "-"}
 WINNER
 </div>
 
-<div class="value winner">
+
+<div class="value win">
+
 ${g.Winner || "-"}
+
 </div>
 
 </div>
+
+
 
 
 
@@ -498,37 +948,30 @@ ${g.Winner || "-"}
 LOSER
 </div>
 
-<div class="value">
+
+<div class="value loss">
+
 ${g.Loser || "-"}
-</div>
 
 </div>
+
+
+</div>
+
+
 
 
 
 <div class="card">
 
 <div class="label">
-ATTENDANCE
+EVENT ID
 </div>
+
 
 <div class="value">
-${g.Attendance || "-"}
-</div>
 
-</div>
-
-
-
-<div class="card">
-
-<div class="label">
-BROADCAST
-</div>
-
-<div class="value">
-${g.Broadcast || "-"}
-</div>
+${g.EventID}
 
 </div>
 
@@ -537,63 +980,11 @@ ${g.Broadcast || "-"}
 
 
 
-
-<div class="divider"></div>
-
-
-
-
-<h3>
-⚾ Pitching
-</h3>
-
-
-
-<div class="grid">
-
-
-<div class="card">
-
-<div class="label">
-WIN
-</div>
-
-<div class="value">
-${g.WinPitcher || "-"}
-</div>
-
 </div>
 
 
 
-<div class="card">
 
-<div class="label">
-LOSS
-</div>
-
-<div class="value">
-${g.LossPitcher || "-"}
-</div>
-
-</div>
-
-
-
-<div class="card">
-
-<div class="label">
-SAVE
-</div>
-
-<div class="value">
-${g.Save || "-"}
-</div>
-
-</div>
-
-
-</div>
 
 
 
@@ -604,50 +995,104 @@ ${g.Save || "-"}
 
 
 
-<h3>
-📊 Team Stats
-</h3>
+
+<div class="section">
+
+📊 BOX SCORE
+
+</div>
 
 
-<div class="grid">
 
 
-<div class="card">
 
-<div class="label">
+
+<table class="table">
+
+
+<tr>
+
+<th></th>
+
+<th>${g.AwayCode}</th>
+
+<th>${g.HomeCode}</th>
+
+</tr>
+
+
+
+<tr>
+
+<td>
+RUNS
+</td>
+
+
+<td>
+${g.AwayScore ?? "-"}
+</td>
+
+
+<td>
+${g.HomeScore ?? "-"}
+</td>
+
+
+</tr>
+
+
+
+
+<tr>
+
+<td>
 HITS
-</div>
+</td>
 
-<div class="value">
 
+<td>
 ${g.AwayHits || "-"}
- -
+</td>
+
+
+<td>
 ${g.HomeHits || "-"}
-
-</div>
-
-</div>
+</td>
 
 
+</tr>
 
-<div class="card">
 
-<div class="label">
+
+
+
+<tr>
+
+<td>
 ERRORS
-</div>
+</td>
 
-<div class="value">
 
+<td>
 ${g.AwayErrors || "-"}
- -
+</td>
+
+
+<td>
 ${g.HomeErrors || "-"}
-
-</div>
-
-</div>
+</td>
 
 
-</div>
+</tr>
+
+
+</table>
+
+
+
+
+
 
 
 
@@ -658,39 +1103,267 @@ ${g.HomeErrors || "-"}
 
 
 
-<div>
 
-📍
-${g.City},
-${g.State}
+
+
+<div class="section">
+
+⚾ PITCHING DECISIONS
 
 </div>
 
 
 
-<br>
+
+
+
+<div class="grid">
+
+
+
+<div class="card">
+
+<div class="label">
+
+WIN PITCHER
+
+</div>
+
+
+<div class="value">
+
+${g.WinPitcher || "-"}
+
+</div>
+
+</div>
+
+
+
+
+
+<div class="card">
+
+<div class="label">
+
+LOSS PITCHER
+
+</div>
+
+
+<div class="value">
+
+${g.LossPitcher || "-"}
+
+</div>
+
+</div>
+
+
+
+
+
+<div class="card">
+
+<div class="label">
+
+SAVE
+
+</div>
+
+
+<div class="value">
+
+${g.Save || "-"}
+
+</div>
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<div class="divider"></div>
+
+
+
+
+
+
+
+<div class="section">
+
+🏟 GAME INFORMATION
+
+</div>
+
+
+
+
+
+
+
+<div class="grid">
+
+
+
+<div class="card">
+
+<div class="label">
+
+LOCATION
+
+</div>
+
+
+<div class="value">
+
+${g.City || "-"}, 
+
+${g.State || "-"}
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="card">
+
+<div class="label">
+
+ATTENDANCE
+
+</div>
+
+
+<div class="value">
+
+${g.Attendance || "-"}
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="card">
+
+<div class="label">
+
+BROADCAST
+
+</div>
+
+
+<div class="value">
+
+${g.Broadcast || "-"}
+
+</div>
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+
+<div class="divider"></div>
+
+
+
+
 
 
 <div class="links">
 
 
+${g.GameLink ?
+
+`
+
 <a href="${g.GameLink}" target="_blank">
-🏟 Game
+
+🏟 GAME CENTER
+
 </a>
 
+`
+
+:""}
+
+
+
+
+
+${g.BoxscoreLink ?
+
+`
 
 <a href="${g.BoxscoreLink}" target="_blank">
-📊 Box
+
+📊 BOX SCORE
+
 </a>
 
+`
+
+:""}
+
+
+
+
+
+${g.PlayByPlay ?
+
+`
 
 <a href="${g.PlayByPlay}" target="_blank">
-📖 Play
+
+📖 PLAY BY PLAY
+
 </a>
+
+`
+
+:""}
 
 
 
 </div>
+
+
+
+
 
 
 
@@ -706,7 +1379,27 @@ ${g.State}
 
 
 
-document.getElementById("games").innerHTML=html;
+
+
+document.getElementById("games").innerHTML =
+html || 
+"<h2>No games found</h2>";
+
+
+
+}
+
+
+
+
+
+
+function filterGames(type){
+
+
+current=type;
+
+render();
 
 
 }
@@ -714,25 +1407,17 @@ document.getElementById("games").innerHTML=html;
 
 
 
-function filterGames(status){
 
 
-if(status==="ALL"){
 
-renderGames(allGames);
-return;
+function searchGames(){
 
-}
-
-
-renderGames(
-allGames.filter(
-g=>g.Status===status
-)
-);
-
+render();
 
 }
+
+
+
 
 
 
@@ -750,3 +1435,7 @@ setInterval(loadSports,60000);
 </body>
 
 </html>
+
+
+ 
+
