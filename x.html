@@ -4,131 +4,238 @@
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>Sports Obvyris</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
 
+
 <style>
 
+
 body{
-    margin:0;
-    background:#050505;
-    color:white;
-    font-family:Arial, sans-serif;
+
+margin:0;
+background:#050505;
+color:white;
+font-family:Arial, sans-serif;
+
 }
+
 
 header{
-    background:#111;
-    padding:20px;
-    text-align:center;
-    font-family:Orbitron;
-    font-size:28px;
-    font-weight:900;
-    letter-spacing:2px;
+
+background:#111;
+padding:22px;
+text-align:center;
+font-family:Orbitron;
+font-size:30px;
+font-weight:900;
+letter-spacing:3px;
+
 }
 
+
+
 #updated{
-    text-align:center;
-    color:#aaa;
-    margin:10px;
+
+text-align:center;
+color:#aaa;
+padding:10px;
+
 }
+
 
 
 .container{
-    padding:15px;
+
+max-width:1100px;
+margin:auto;
+padding:15px;
+
 }
+
 
 
 .game{
 
-    background:#151515;
-    border-radius:15px;
-    padding:18px;
-    margin-bottom:15px;
-    border:1px solid #333;
+background:#121212;
+border:1px solid #333;
+border-radius:18px;
+padding:22px;
+margin-bottom:25px;
+
+box-shadow:
+0 0 15px rgba(0,0,0,.6);
 
 }
 
-
-.teams{
-
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    font-size:20px;
-    font-weight:bold;
-
-}
-
-
-.score{
-
-    font-size:32px;
-    font-family:Orbitron;
-
-}
 
 
 .status{
 
-    display:inline-block;
-    padding:5px 12px;
-    border-radius:20px;
-    background:#333;
-    margin:10px 0;
+display:inline-block;
+padding:6px 15px;
+border-radius:20px;
+background:#555;
+font-weight:bold;
+margin-bottom:20px;
 
 }
 
 
 .final{
-    background:#008000;
+
+background:#087f23;
+
 }
+
 
 .live{
-    background:red;
+
+background:#c62828;
+
 }
 
+
 .post{
-    background:#666;
+
+background:#555;
+
+}
+
+
+
+.matchup{
+
+display:grid;
+grid-template-columns:1fr 120px 1fr;
+align-items:center;
+text-align:center;
+
+}
+
+
+
+.team{
+
+font-size:22px;
+font-weight:bold;
+
+}
+
+
+
+.code{
+
+font-size:14px;
+color:#888;
+margin-top:5px;
+
+}
+
+
+
+.score{
+
+font-family:Orbitron;
+font-size:38px;
+line-height:1.1;
+
+}
+
+
+
+
+.divider{
+
+height:1px;
+background:#333;
+margin:25px 0;
+
+}
+
+
+
+
+.section-title{
+
+font-family:Orbitron;
+font-size:16px;
+color:#aaa;
+margin-bottom:12px;
+
+}
+
+
+
+
+.result{
+
+font-size:17px;
+line-height:30px;
+
+}
+
+
+
+.stats{
+
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+gap:12px;
+
+}
+
+
+
+
+.stat{
+
+background:#1d1d1d;
+padding:15px;
+border-radius:12px;
+text-align:center;
+
+}
+
+
+
+.stat-title{
+
+color:#aaa;
+font-size:12px;
+
+}
+
+
+
+.value{
+
+font-size:18px;
+font-weight:bold;
+margin-top:8px;
+
 }
 
 
 
 .info{
 
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-    gap:10px;
-    margin-top:15px;
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:12px;
 
 }
+
 
 
 .box{
 
-    background:#222;
-    padding:10px;
-    border-radius:8px;
-
-}
-
-
-.label{
-
-    color:#aaa;
-    font-size:12px;
-
-}
-
-
-.pitchers{
-
-    margin-top:15px;
-    background:#111;
-    padding:12px;
-    border-radius:10px;
+background:#1b1b1b;
+padding:15px;
+border-radius:12px;
 
 }
 
@@ -138,11 +245,50 @@ a{
 
 color:#00aaff;
 text-decoration:none;
+font-weight:bold;
 
 }
 
 
+
+small{
+
+color:#999;
+
+}
+
+
+
+@media(max-width:600px){
+
+
+.matchup{
+
+grid-template-columns:1fr 80px 1fr;
+
+}
+
+
+.team{
+
+font-size:16px;
+
+}
+
+
+.score{
+
+font-size:28px;
+
+}
+
+
+}
+
+
+
 </style>
+
 
 </head>
 
@@ -150,19 +296,26 @@ text-decoration:none;
 <body>
 
 
+
 <header>
+
 ⚾ SPORTS OBVYRIS
+
 </header>
 
 
-<div id="updated"></div>
 
+<div id="updated">
 
-<div class="container" id="games">
-
-Loading Sports...
+Loading...
 
 </div>
+
+
+
+<div class="container" id="games"></div>
+
+
 
 
 
@@ -174,26 +327,35 @@ const SPORTS_API =
 
 
 
+
+
 async function loadSports(){
 
 
 try{
 
 
-const res = await fetch(SPORTS_API);
+const response =
+await fetch(SPORTS_API);
 
 
-const data = await res.json();
+
+const data =
+await response.json();
 
 
 
 document.getElementById("updated").innerHTML =
+
 `
-${data.sport} |
-Updated ${data.updated}
-|
-Games ${data.count}
+${data.sport}
+ |
+ Updated ${data.updated}
+ |
+ ${data.count} Games
 `;
+
+
 
 
 
@@ -201,7 +363,10 @@ let html="";
 
 
 
+
+
 data.games.forEach(g=>{
+
 
 
 let statusClass="";
@@ -210,18 +375,24 @@ let statusClass="";
 if(g.Status==="Final")
 statusClass="final";
 
-else if(g.Status==="In Progress")
+
+if(g.Status==="In Progress")
 statusClass="live";
 
-else if(g.Status==="Postponed")
+
+if(g.Status==="Postponed")
 statusClass="post";
+
+
 
 
 
 html += `
 
 
+
 <div class="game">
+
 
 
 <div class="status ${statusClass}">
@@ -230,67 +401,337 @@ ${g.Status}
 
 
 
-<div class="teams">
 
 
-<div>
+<div class="matchup">
+
+
+
+<div class="team">
+
 ${g.AwayTeam}
-<br>
-<small>${g.AwayCode}</small>
+
+<div class="code">
+
+${g.AwayCode}
+
 </div>
+
+</div>
+
+
+
 
 
 <div class="score">
+
 ${g.AwayScore}
--
-${g.HomeScore}
-</div>
 
-
-<div>
-${g.HomeTeam}
 <br>
-<small>${g.HomeCode}</small>
+
+-
+
+<br>
+
+${g.HomeScore}
+
+</div>
+
+
+
+
+
+<div class="team">
+
+${g.HomeTeam}
+
+<div class="code">
+
+${g.HomeCode}
+
+</div>
+
+</div>
+
+
+
+
+
+</div>
+
+
+
+
+
+
+<div class="divider"></div>
+
+
+
+
+
+<div class="section-title">
+
+CURRENT / FINAL RESULT
+
+</div>
+
+
+
+
+
+<div class="result">
+
+
+🏆 Winner:
+<b>${g.Winner || "-"}</b>
+
+
+<br>
+
+
+❌ Loser:
+<b>${g.Loser || "-"}</b>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="divider"></div>
+
+
+
+
+
+
+<div class="section-title">
+
+PITCHING DECISIONS
+
+</div>
+
+
+
+
+
+
+<div class="stats">
+
+
+
+
+
+<div class="stat">
+
+<div class="stat-title">
+WIN PITCHER
+</div>
+
+<div class="value">
+${g.WinPitcher || "-"}
+</div>
+
+</div>
+
+
+
+
+
+<div class="stat">
+
+<div class="stat-title">
+LOSS PITCHER
+</div>
+
+<div class="value">
+${g.LossPitcher || "-"}
+</div>
+
+</div>
+
+
+
+
+
+<div class="stat">
+
+<div class="stat-title">
+SAVE
+</div>
+
+<div class="value">
+${g.Save || "-"}
+</div>
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<div class="divider"></div>
+
+
+
+
+
+<div class="section-title">
+
+TEAM STATS
+
+</div>
+
+
+
+
+
+
+<div class="stats">
+
+
+
+
+
+<div class="stat">
+
+<div class="stat-title">
+HITS
+</div>
+
+
+<div class="value">
+
+${g.AwayHits || 0}
+-
+${g.HomeHits || 0}
+
 </div>
 
 
 </div>
+
+
+
+
+
+
+
+<div class="stat">
+
+<div class="stat-title">
+ERRORS
+</div>
+
+
+<div class="value">
+
+${g.AwayErrors || 0}
+-
+${g.HomeErrors || 0}
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+<div class="stat">
+
+<div class="stat-title">
+TEAM RECORD
+</div>
+
+
+<div class="value">
+
+
+${g.AwayWins || 0}-${g.AwayLosses || 0}
+
+
+<br>
+
+
+${g.HomeWins || 0}-${g.HomeLosses || 0}
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+</div>
+
+
+
+
+
+
+
+<div class="divider"></div>
+
+
+
+
+
+
+
+
+<div class="section-title">
+
+GAME INFORMATION
+
+</div>
+
+
+
 
 
 
 <div class="info">
 
 
-<div class="box">
-
-<div class="label">
-WINNER
-</div>
-
-${g.Winner || "-"}
-
-</div>
-
-
-<div class="box">
-
-<div class="label">
-LOSER
-</div>
-
-${g.Loser || "-"}
-
-</div>
 
 
 
 <div class="box">
 
-<div class="label">
-VENUE
-</div>
+<b>Venue</b>
+
+<br>
 
 ${g.Venue || "-"}
+
+</div>
+
+
+
+
+
+<div class="box">
+
+<b>Location</b>
 
 <br>
 
@@ -300,11 +741,13 @@ ${g.City || ""}, ${g.State || ""}
 
 
 
+
+
 <div class="box">
 
-<div class="label">
-ATTENDANCE
-</div>
+<b>Attendance</b>
+
+<br>
 
 ${g.Attendance || "-"}
 
@@ -312,11 +755,13 @@ ${g.Attendance || "-"}
 
 
 
+
+
 <div class="box">
 
-<div class="label">
-BROADCAST
-</div>
+<b>Broadcast</b>
+
+<br>
 
 ${g.Broadcast || "-"}
 
@@ -324,45 +769,6 @@ ${g.Broadcast || "-"}
 
 
 
-<div class="box">
-
-<div class="label">
-TEAM HITS
-</div>
-
-${g.AwayHits || 0}
--
-${g.HomeHits || 0}
-
-</div>
-
-
-
-<div class="box">
-
-<div class="label">
-ERRORS
-</div>
-
-${g.AwayErrors || 0}
--
-${g.HomeErrors || 0}
-
-</div>
-
-
-<div class="box">
-
-<div class="label">
-RECORD
-</div>
-
-${g.AwayWins || 0}-${g.AwayLosses || 0}
-<br>
-${g.HomeWins || 0}-${g.HomeLosses || 0}
-
-</div>
-
 
 
 </div>
@@ -371,72 +777,61 @@ ${g.HomeWins || 0}-${g.HomeLosses || 0}
 
 
 
-<div class="pitchers">
 
 
-<b>⚾ Pitching Decisions</b>
 
 
-<br><br>
-
-
-🏆 Win:
-${g.WinPitcher || "-"}
-
-
-<br>
-
-
-❌ Loss:
-${g.LossPitcher || "-"}
-
-
-<br>
-
-
-💾 Save:
-${g.Save || "-"}
-
-
-</div>
+<div class="divider"></div>
 
 
 
 
 
-<br>
+
+
+<div>
 
 
 ${g.GameLink ?
+
 `
 <a href="${g.GameLink}" target="_blank">
-Game Center
+🏟 Game Center
 </a>
 `
+
 :""}
 
 
-&nbsp;
+
+&nbsp;&nbsp;
+
 
 
 ${g.BoxscoreLink ?
+
 `
 <a href="${g.BoxscoreLink}" target="_blank">
-Box Score
+📊 Box Score
 </a>
 `
+
 :""}
 
 
-&nbsp;
+
+&nbsp;&nbsp;
+
 
 
 ${g.PlayByPlay ?
+
 `
 <a href="${g.PlayByPlay}" target="_blank">
-Play By Play
+📖 Play By Play
 </a>
 `
+
 :""}
 
 
@@ -444,7 +839,16 @@ Play By Play
 </div>
 
 
+
+
+
+
+</div>
+
+
+
 `;
+
 
 
 
@@ -452,27 +856,39 @@ Play By Play
 
 
 
+
+
+
 document.getElementById("games").innerHTML=html;
 
 
 
+
 }
 
-catch(err){
+catch(error){
 
-console.log(err);
 
-document.getElementById("games").innerHTML =
+console.log(error);
+
+
+document.getElementById("games").innerHTML=
+
 "Unable to load sports data";
 
+
 }
 
 
+
 }
+
+
 
 
 
 loadSports();
+
 
 
 setInterval(loadSports,60000);
@@ -482,5 +898,7 @@ setInterval(loadSports,60000);
 </script>
 
 
+
 </body>
+
 </html>
