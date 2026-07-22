@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Obvyris Sports Center</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+
+
+<style>
+
+*{
+box-sizing:border-box;
+}
+
+
+body{
+
+margin:0;
+background:#05070d;
+color:white;
+font-family:Inter,Arial;
+
+}
+
+
+.header{
+
+background:
+linear-gradient(135deg,#111827,#020617);
+
+padding:25px;
+
+border-bottom:1px solid #263244;
+
+display:flex;
+justify-content:space-between;
+align-items:center;
+
+}
+
+
+.logo{
+
+font-family:Orbitron;
+font-size:32px;
+font-weight:900;
+
+}
+
+
+.logo span{
+
+color:#38bdf8;
+
+}
+
+
+.updated{
+
+color:#94a3b8;
+font-size:14px;
+
+}
+
+
+
+.container{
+
+padding:25px;
+
+max-width:1500px;
+
+margin:auto;
+
+}
+
+
+
+.section-title{
+
+font-size:24px;
+font-weight:900;
+
+margin:25px 0 15px;
+
+border-left:5px solid #38bdf8;
+
+padding-left:12px;
+
+}
+
+
+
+.grid{
+
+display:grid;
+
+grid-template-columns:
+repeat(auto-fit,minmax(320px,1fr));
+
+gap:18px;
+
+}
+
+
+
+/* GAME CARDS */
+
+
+.game-card{
+
+background:#111827;
+
+border:1px solid #263244;
+
+border-radius:15px;
+
+padding:20px;
+
+box-shadow:
+0 10px 30px rgba(0,0,0,.3);
+
+}
+
+
+
+.team{
+
+display:flex;
+
+justify-content:space-between;
+
+font-size:18px;
+
+font-weight:700;
+
+margin:10px 0;
+
+}
+
+
+
+.score{
+
+font-size:28px;
+
+font-weight:900;
+
+}
+
+
+
+.final{
+
+color:#22c55e;
+
+font-weight:800;
+
+}
+
+
+
+.pending{
+
+color:#facc15;
+
+}
+
+
+
+.meta{
+
+color:#94a3b8;
+
+font-size:13px;
+
+margin-top:12px;
+
+line-height:1.6;
+
+}
+
+
+
+.buttons a{
+
+display:inline-block;
+
+margin-top:12px;
+
+margin-right:8px;
+
+padding:7px 12px;
+
+background:#1e293b;
+
+border-radius:8px;
+
+color:white;
+
+text-decoration:none;
+
+font-size:13px;
+
+}
+
+
+
+/* STANDINGS */
+
+
+.standings{
+
+background:#111827;
+
+border-radius:15px;
+
+overflow:hidden;
+
+border:1px solid #263244;
+
+margin-bottom:25px;
+
+}
+
+
+.division-title{
+
+background:#1e293b;
+
+padding:14px;
+
+font-size:18px;
+
+font-weight:900;
+
+}
+
+
+
+table{
+
+width:100%;
+
+border-collapse:collapse;
+
+}
+
+
+th{
+
+text-align:left;
+
+padding:12px;
+
+color:#94a3b8;
+
+font-size:13px;
+
+}
+
+
+
+td{
+
+padding:12px;
+
+border-top:1px solid #263244;
+
+}
+
+
+
+tr:hover{
+
+background:#172033;
+
+}
+
+
+.rank{
+
+font-weight:900;
+
+color:#38bdf8;
+
+}
+
+
+
+.team-name{
+
+font-weight:700;
+
+}
+
+
+
+.record{
+
+font-weight:800;
+
+}
+
+
+
+@media(max-width:600px){
+
+.header{
+
+flex-direction:column;
+align-items:flex-start;
+
+}
+
+.logo{
+
+font-size:24px;
+
+}
+
+.container{
+
+padding:12px;
+
+}
+
+}
+
+
+</style>
+
+
+</head>
+
+
+
+<body>
+
+
+<header class="header">
+
+
+<div class="logo">
+
+OBVYRIS <span>SPORTS</span>
+
+</div>
+
+
+<div class="updated" id="updated">
+
+Loading...
+
+</div>
+
+
+</header>
+
+
+
+<div class="container">
+
+
+<div class="section-title">
+
+⚾ MLB Games
+
+</div>
+
+
+<div id="games" class="grid">
+
+Loading games...
+
+</div>
+
+
+
+
+<div class="section-title">
+
+🏆 MLB Standings
+
+</div>
+
+
+<div id="standings">
+
+Loading standings...
+
+</div>
+
+
+</div>
+
+
+
+<script>
+
+
+const API_BASE =
+"https://script.google.com/macros/s/AKfycbx8S_l2TEHWwWAvpZSAR9CywTYVzp21kEZL8btVHKKKm8ucTVBRyZQb8IvpKfCDLLIG/exec";
+
+
+
+async function loadSports(){
+
+
+try{
+
+
+const gamesAPI =
+API_BASE + "?action=sports";
+
+
+const standingsAPI =
+API_BASE + "?action=standing";
+
+
+
+const [
+gamesResponse,
+standingsResponse
+]=await Promise.all([
+
+fetch(gamesAPI),
+fetch(standingsAPI)
+
+]);
+
+
+
+const games =
+await gamesResponse.json();
+
+
+const standings =
+await standingsResponse.json();
+
+
+
+document.getElementById("updated").innerHTML =
+"Updated: " +
+(
+games.updated ||
+standings.updated ||
+""
+);
+
+
+
+renderGames(
+games.games || []
+);
+
+
+
+renderStandings(
+standings.standings || []
+);
+
+
+
+}catch(e){
+
+console.error(e);
+
+document.getElementById("games").innerHTML =
+"API ERROR: " + e.message;
+
+document.getElementById("standings").innerHTML =
+"STANDINGS ERROR";
+
+}
+
+
+}
+
+
+
+loadSports();
+
+
+setInterval(
+loadSports,
+60000
+);
+
+function renderGames(games){
+
+const box=document.getElementById("games");
+
+box.innerHTML="";
+
+
+if(!games.length){
+
+box.innerHTML="No games found";
+return;
+
+}
+
+
+games.forEach(g=>{
+
+
+box.innerHTML += `
+
+<div class="game-card">
+
+
+<div class="final">
+${g.Status}
+</div>
+
+
+<div class="team">
+
+<span>
+${g.AwayTeam}
+</span>
+
+<span class="score">
+${g.AwayScore ?? "-"}
+</span>
+
+</div>
+
+
+
+<div class="team">
+
+<span>
+${g.HomeTeam}
+</span>
+
+<span class="score">
+${g.HomeScore ?? "-"}
+</span>
+
+</div>
+
+
+
+<div class="meta">
+
+${g.Venue || ""}<br>
+
+${g.City || ""}, ${g.State || ""}<br>
+
+Winner:
+${g.Winner || "TBD"}
+
+</div>
+
+
+
+<div class="buttons">
+
+<a href="${g.GameLink}" target="_blank">
+Game
+</a>
+
+
+<a href="${g.BoxscoreLink}" target="_blank">
+Boxscore
+</a>
+
+
+</div>
+
+
+
+</div>
+
+`;
+
+});
+
+
+}
+
+
+
+
+function renderStandings(teams){
+
+
+const box=document.getElementById("standings");
+
+
+box.innerHTML="";
+
+
+if(!teams.length){
+
+box.innerHTML="No standings found";
+return;
+
+}
+
+
+
+let divisions={};
+
+
+
+teams.forEach(t=>{
+
+
+if(!divisions[t.Division]){
+
+divisions[t.Division]=[];
+
+}
+
+
+divisions[t.Division].push(t);
+
+
+});
+
+
+
+
+Object.keys(divisions).forEach(div=>{
+
+
+box.innerHTML += `
+
+<div class="standings">
+
+
+<div class="division-title">
+
+${div}
+
+</div>
+
+
+<table>
+
+
+<tr>
+
+<th>#</th>
+<th>Team</th>
+<th>Record</th>
+<th>PCT</th>
+<th>GB</th>
+<th>STRK</th>
+
+</tr>
+
+
+${
+
+divisions[div].map(t=>`
+
+
+<tr>
+
+
+<td class="rank">
+${t.Rank}
+</td>
+
+
+<td class="team-name">
+${t.Team}
+</td>
+
+
+<td class="record">
+${t.W}-${t.L}
+</td>
+
+
+<td>
+${t.PCT}
+</td>
+
+
+<td>
+${t.GB}
+</td>
+
+
+<td>
+${t.STRK}
+</td>
+
+
+</tr>
+
+
+`).join("")
+
+}
+
+
+</table>
+
+
+</div>
+
+
+`;
+
+});
+
+
+}
+
+</script>
+
+
+</body>
+
+</html>
