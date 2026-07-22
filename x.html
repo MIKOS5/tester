@@ -13,36 +13,53 @@
 
 <style>
 
-
 body{
-
 margin:0;
 background:#050505;
 color:white;
-font-family:Arial, sans-serif;
-
+font-family:Arial;
 }
 
 
 header{
 
 background:#111;
-padding:22px;
+padding:25px;
 text-align:center;
 font-family:Orbitron;
-font-size:30px;
+font-size:32px;
 font-weight:900;
-letter-spacing:3px;
+letter-spacing:4px;
+
+}
+
+
+#top{
+
+text-align:center;
+padding:15px;
+color:#aaa;
 
 }
 
 
 
-#updated{
+.controls{
 
 text-align:center;
-color:#aaa;
 padding:10px;
+
+}
+
+
+button{
+
+background:#222;
+color:white;
+border:1px solid #444;
+padding:10px 18px;
+border-radius:20px;
+cursor:pointer;
 
 }
 
@@ -50,7 +67,7 @@ padding:10px;
 
 .container{
 
-max-width:1100px;
+max-width:1200px;
 margin:auto;
 padding:15px;
 
@@ -58,37 +75,32 @@ padding:15px;
 
 
 
+
 .game{
 
-background:#121212;
-border:1px solid #333;
-border-radius:18px;
+background:#101010;
+border-radius:20px;
 padding:22px;
 margin-bottom:25px;
-
-box-shadow:
-0 0 15px rgba(0,0,0,.6);
+border:1px solid #333;
 
 }
+
 
 
 
 .status{
 
 display:inline-block;
-padding:6px 15px;
+padding:7px 15px;
 border-radius:20px;
-background:#555;
 font-weight:bold;
-margin-bottom:20px;
 
 }
 
 
 .final{
-
 background:#087f23;
-
 }
 
 
@@ -102,6 +114,15 @@ background:#c62828;
 .post{
 
 background:#555;
+
+}
+
+
+
+.date{
+
+color:#888;
+margin-bottom:15px;
 
 }
 
@@ -129,9 +150,7 @@ font-weight:bold;
 
 .code{
 
-font-size:14px;
 color:#888;
-margin-top:5px;
 
 }
 
@@ -141,59 +160,34 @@ margin-top:5px;
 
 font-family:Orbitron;
 font-size:38px;
-line-height:1.1;
+
+}
+
+
+
+.winner{
+
+color:#00ff66;
 
 }
 
 
 
 
-.divider{
-
-height:1px;
-background:#333;
-margin:25px 0;
-
-}
-
-
-
-
-.section-title{
-
-font-family:Orbitron;
-font-size:16px;
-color:#aaa;
-margin-bottom:12px;
-
-}
-
-
-
-
-.result{
-
-font-size:17px;
-line-height:30px;
-
-}
-
-
-
-.stats{
+.grid{
 
 display:grid;
 grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
 gap:12px;
+margin-top:15px;
 
 }
 
 
 
+.card{
 
-.stat{
-
-background:#1d1d1d;
+background:#1b1b1b;
 padding:15px;
 border-radius:12px;
 text-align:center;
@@ -202,13 +196,12 @@ text-align:center;
 
 
 
-.stat-title{
+.label{
 
-color:#aaa;
 font-size:12px;
+color:#999;
 
 }
-
 
 
 .value{
@@ -221,39 +214,20 @@ margin-top:8px;
 
 
 
-.info{
-
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-gap:12px;
-
-}
-
-
-
-.box{
-
-background:#1b1b1b;
-padding:15px;
-border-radius:12px;
-
-}
-
-
-
-a{
+.links a{
 
 color:#00aaff;
-text-decoration:none;
-font-weight:bold;
+margin-right:15px;
 
 }
 
 
 
-small{
+.divider{
 
-color:#999;
+height:1px;
+background:#333;
+margin:20px 0;
 
 }
 
@@ -261,13 +235,11 @@ color:#999;
 
 @media(max-width:600px){
 
-
 .matchup{
 
-grid-template-columns:1fr 80px 1fr;
+grid-template-columns:1fr 70px 1fr;
 
 }
-
 
 .team{
 
@@ -282,13 +254,10 @@ font-size:28px;
 
 }
 
-
 }
 
 
-
 </style>
-
 
 </head>
 
@@ -296,18 +265,38 @@ font-size:28px;
 <body>
 
 
-
 <header>
-
 ⚾ SPORTS OBVYRIS
-
 </header>
 
 
 
-<div id="updated">
+<div id="top">
 
 Loading...
+
+</div>
+
+
+
+<div class="controls">
+
+<button onclick="filterGames('ALL')">
+ALL
+</button>
+
+<button onclick="filterGames('Final')">
+FINAL
+</button>
+
+<button onclick="filterGames('In Progress')">
+LIVE
+</button>
+
+<button onclick="filterGames('Postponed')">
+POSTPONED
+</button>
+
 
 </div>
 
@@ -318,8 +307,8 @@ Loading...
 
 
 
-
 <script>
+
 
 
 const SPORTS_API =
@@ -327,25 +316,27 @@ const SPORTS_API =
 
 
 
+let allGames=[];
+
 
 
 async function loadSports(){
 
 
-try{
-
-
-const response =
+const res =
 await fetch(SPORTS_API);
 
 
-
 const data =
-await response.json();
+await res.json();
 
 
 
-document.getElementById("updated").innerHTML =
+allGames=data.games;
+
+
+
+document.getElementById("top").innerHTML=
 
 `
 ${data.sport}
@@ -357,46 +348,57 @@ ${data.sport}
 
 
 
+renderGames(allGames);
+
+
+}
+
+
+
+
+function renderGames(games){
 
 
 let html="";
 
 
+games.forEach(g=>{
 
 
 
-data.games.forEach(g=>{
-
-
-
-let statusClass="";
+let cls="";
 
 
 if(g.Status==="Final")
-statusClass="final";
-
+cls="final";
 
 if(g.Status==="In Progress")
-statusClass="live";
-
+cls="live";
 
 if(g.Status==="Postponed")
-statusClass="post";
+cls="post";
 
 
 
-
-
-html += `
-
+html+=`
 
 
 <div class="game">
 
 
 
-<div class="status ${statusClass}">
+<div class="status ${cls}">
 ${g.Status}
+</div>
+
+
+<div class="date">
+
+${new Date(g.Date).toLocaleDateString()}
+
+ |
+ ${g.Venue}
+
 </div>
 
 
@@ -406,15 +408,18 @@ ${g.Status}
 <div class="matchup">
 
 
-
 <div class="team">
 
 ${g.AwayTeam}
 
 <div class="code">
-
 ${g.AwayCode}
+</div>
 
+
+<div>
+${g.AwayWins || "-"} -
+${g.AwayLosses || "-"}
 </div>
 
 </div>
@@ -446,20 +451,89 @@ ${g.HomeScore}
 ${g.HomeTeam}
 
 <div class="code">
-
 ${g.HomeCode}
+</div>
+
+
+<div>
+
+${g.HomeWins || "-"} -
+${g.HomeLosses || "-"}
 
 </div>
 
 </div>
 
 
+</div>
 
 
+
+
+<div class="divider"></div>
+
+
+
+<div class="grid">
+
+
+
+<div class="card">
+
+<div class="label">
+WINNER
+</div>
+
+<div class="value winner">
+${g.Winner || "-"}
+</div>
 
 </div>
 
 
+
+<div class="card">
+
+<div class="label">
+LOSER
+</div>
+
+<div class="value">
+${g.Loser || "-"}
+</div>
+
+</div>
+
+
+
+<div class="card">
+
+<div class="label">
+ATTENDANCE
+</div>
+
+<div class="value">
+${g.Attendance || "-"}
+</div>
+
+</div>
+
+
+
+<div class="card">
+
+<div class="label">
+BROADCAST
+</div>
+
+<div class="value">
+${g.Broadcast || "-"}
+</div>
+
+</div>
+
+
+</div>
 
 
 
@@ -469,67 +543,19 @@ ${g.HomeCode}
 
 
 
-
-<div class="section-title">
-
-CURRENT / FINAL RESULT
-
-</div>
+<h3>
+⚾ Pitching
+</h3>
 
 
 
+<div class="grid">
 
 
-<div class="result">
+<div class="card">
 
-
-🏆 Winner:
-<b>${g.Winner || "-"}</b>
-
-
-<br>
-
-
-❌ Loser:
-<b>${g.Loser || "-"}</b>
-
-
-</div>
-
-
-
-
-
-
-
-<div class="divider"></div>
-
-
-
-
-
-
-<div class="section-title">
-
-PITCHING DECISIONS
-
-</div>
-
-
-
-
-
-
-<div class="stats">
-
-
-
-
-
-<div class="stat">
-
-<div class="stat-title">
-WIN PITCHER
+<div class="label">
+WIN
 </div>
 
 <div class="value">
@@ -540,12 +566,10 @@ ${g.WinPitcher || "-"}
 
 
 
+<div class="card">
 
-
-<div class="stat">
-
-<div class="stat-title">
-LOSS PITCHER
+<div class="label">
+LOSS
 </div>
 
 <div class="value">
@@ -556,11 +580,9 @@ ${g.LossPitcher || "-"}
 
 
 
+<div class="card">
 
-
-<div class="stat">
-
-<div class="stat-title">
+<div class="label">
 SAVE
 </div>
 
@@ -571,12 +593,7 @@ ${g.Save || "-"}
 </div>
 
 
-
 </div>
-
-
-
-
 
 
 
@@ -587,259 +604,93 @@ ${g.Save || "-"}
 
 
 
-
-<div class="section-title">
-
-TEAM STATS
-
-</div>
+<h3>
+📊 Team Stats
+</h3>
 
 
+<div class="grid">
 
 
+<div class="card">
 
-
-<div class="stats">
-
-
-
-
-
-<div class="stat">
-
-<div class="stat-title">
+<div class="label">
 HITS
 </div>
 
-
 <div class="value">
 
-${g.AwayHits || 0}
--
-${g.HomeHits || 0}
+${g.AwayHits || "-"}
+ -
+${g.HomeHits || "-"}
+
+</div>
 
 </div>
 
 
-</div>
 
+<div class="card">
 
-
-
-
-
-
-<div class="stat">
-
-<div class="stat-title">
+<div class="label">
 ERRORS
 </div>
 
-
 <div class="value">
 
-${g.AwayErrors || 0}
--
-${g.HomeErrors || 0}
+${g.AwayErrors || "-"}
+ -
+${g.HomeErrors || "-"}
+
+</div>
 
 </div>
 
 
 </div>
-
-
-
-
-
-
-<div class="stat">
-
-<div class="stat-title">
-TEAM RECORD
-</div>
-
-
-<div class="value">
-
-
-${g.AwayWins || 0}-${g.AwayLosses || 0}
-
-
-<br>
-
-
-${g.HomeWins || 0}-${g.HomeLosses || 0}
-
-
-
-</div>
-
-
-</div>
-
-
-
-
-
-</div>
-
-
 
 
 
 
 
 <div class="divider"></div>
-
-
-
-
-
-
-
-
-<div class="section-title">
-
-GAME INFORMATION
-
-</div>
-
-
-
-
-
-
-<div class="info">
-
-
-
-
-
-<div class="box">
-
-<b>Venue</b>
-
-<br>
-
-${g.Venue || "-"}
-
-</div>
-
-
-
-
-
-<div class="box">
-
-<b>Location</b>
-
-<br>
-
-${g.City || ""}, ${g.State || ""}
-
-</div>
-
-
-
-
-
-<div class="box">
-
-<b>Attendance</b>
-
-<br>
-
-${g.Attendance || "-"}
-
-</div>
-
-
-
-
-
-<div class="box">
-
-<b>Broadcast</b>
-
-<br>
-
-${g.Broadcast || "-"}
-
-</div>
-
-
-
-
-
-</div>
-
-
-
-
-
-
-
-
-
-<div class="divider"></div>
-
-
-
 
 
 
 
 <div>
 
-
-${g.GameLink ?
-
-`
-<a href="${g.GameLink}" target="_blank">
-🏟 Game Center
-</a>
-`
-
-:""}
-
-
-
-&nbsp;&nbsp;
-
-
-
-${g.BoxscoreLink ?
-
-`
-<a href="${g.BoxscoreLink}" target="_blank">
-📊 Box Score
-</a>
-`
-
-:""}
-
-
-
-&nbsp;&nbsp;
-
-
-
-${g.PlayByPlay ?
-
-`
-<a href="${g.PlayByPlay}" target="_blank">
-📖 Play By Play
-</a>
-`
-
-:""}
-
-
+📍
+${g.City},
+${g.State}
 
 </div>
 
 
 
+<br>
+
+
+<div class="links">
+
+
+<a href="${g.GameLink}" target="_blank">
+🏟 Game
+</a>
+
+
+<a href="${g.BoxscoreLink}" target="_blank">
+📊 Box
+</a>
+
+
+<a href="${g.PlayByPlay}" target="_blank">
+📖 Play
+</a>
+
+
+
+</div>
 
 
 
@@ -851,38 +702,37 @@ ${g.PlayByPlay ?
 
 
 
-
 });
-
-
-
 
 
 
 document.getElementById("games").innerHTML=html;
 
 
-
-
-}
-
-catch(error){
-
-
-console.log(error);
-
-
-document.getElementById("games").innerHTML=
-
-"Unable to load sports data";
-
-
 }
 
 
 
+
+function filterGames(status){
+
+
+if(status==="ALL"){
+
+renderGames(allGames);
+return;
+
 }
 
+
+renderGames(
+allGames.filter(
+g=>g.Status===status
+)
+);
+
+
+}
 
 
 
@@ -890,13 +740,11 @@ document.getElementById("games").innerHTML=
 loadSports();
 
 
-
 setInterval(loadSports,60000);
 
 
 
 </script>
-
 
 
 </body>
