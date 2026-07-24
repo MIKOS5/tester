@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>ESPN API Structure Tester</title>
+<title>Universal API Structure Tester</title>
 
 <style>
 
@@ -16,6 +16,14 @@ button{
     padding:10px;
     margin:5px;
     cursor:pointer;
+}
+
+input{
+    width:80%;
+    padding:10px;
+    background:#222;
+    color:white;
+    border:1px solid #555;
 }
 
 .card{
@@ -44,20 +52,29 @@ pre{
 
 </head>
 
+
 <body>
 
 
-<h1>ESPN API Structure Tester</h1>
+<h1>Universal API Structure Tester</h1>
 
 
-<button onclick="runAll()">
-Run All Tests
+<h3>API URL</h3>
+
+
+<input id="apiURL"
+placeholder="Enter JSON API URL">
+
+
+<button onclick="runAPI()">
+Run API Test
 </button>
 
 
 <button onclick="copyResults()">
 Copy Results
 </button>
+
 
 
 <div id="output"></div>
@@ -67,178 +84,51 @@ Copy Results
 <script>
 
 
-const SPORTS={
-
-
-MLB:{
-name:"MLB",
-path:"baseball/mlb"
-},
-
-
-NBA:{
-name:"NBA",
-path:"basketball/nba"
-},
-
-
-NFL:{
-name:"NFL",
-path:"football/nfl"
-},
-
-
-NHL:{
-name:"NHL",
-path:"hockey/nhl"
-},
-
-
-SOCCER:{
-name:"Soccer",
-path:"soccer/eng.1"
-}
-
-
-};
-
-
-
-const ENDPOINTS=[
-
-"scoreboard",
-"teams",
-"news",
-"standings",
-"schedule",
-"statistics",
-"athletes",
-"transactions",
-"injuries"
-
-];
-
-
-
-
-
-const SPECIAL={
-
-
-"MLB-standings":
-"https://site.api.espn.com/apis/v2/sports/baseball/mlb/standings",
-
-
-"NBA-standings":
-"https://site.api.espn.com/apis/v2/sports/basketball/nba/standings",
-
-
-"NFL-standings":
-"https://site.api.espn.com/apis/v2/sports/football/nfl/standings",
-
-
-"NHL-standings":
-"https://site.api.espn.com/apis/v2/sports/hockey/nhl/standings"
-
-
-};
-
-
-
-
 let results=[];
 
 
 
-async function runAll(){
+
+async function runAPI(){
+
+
+let apiURL=
+document.getElementById("apiURL").value.trim();
+
+
+if(!apiURL){
+
+alert("Enter API URL");
+
+return;
+
+}
 
 
 document.getElementById("output").innerHTML="";
 
-
 results=[];
 
 
-
-for(let s in SPORTS){
-
-
-let sport=SPORTS[s];
-
-
-add(`
-
-<div class="card">
-
-<h2>${sport.name}</h2>
-
-</div>
-
-`);
-
-
-
-for(let endpoint of ENDPOINTS){
-
-
-await testAPI(
-sport.name,
-sport.path,
-endpoint
-);
-
-
-}
-
-
-
-}
+await testAPI(apiURL);
 
 
 alert("Finished");
 
-}
-
-
-
-
-async function testAPI(
-sport,
-path,
-endpoint
-){
-
-
-
-let key=sport+"-"+endpoint;
-
-
-let apiURL;
-
-
-
-if(SPECIAL[key]){
-
-
-apiURL=SPECIAL[key];
-
-
-}
-
-else{
-
-
-apiURL=
-`https://site.api.espn.com/apis/site/v2/sports/${path}/${endpoint}`;
-
 
 }
 
 
 
-let url=
-`https://api.allorigins.win/raw?url=${encodeURIComponent(apiURL)}`;
 
+
+async function testAPI(apiURL){
+
+
+let proxy=
+"https://api.allorigins.win/raw?url="
++
+encodeURIComponent(apiURL);
 
 
 
@@ -256,15 +146,14 @@ document
 box.innerHTML=`
 
 <h3>
-${sport} - ${endpoint}
+${apiURL}
 </h3>
 
-<p>${apiURL}</p>
-
-<p>Loading...</p>
+<p>
+Loading...
+</p>
 
 `;
-
 
 
 
@@ -272,14 +161,18 @@ try{
 
 
 let response=
-await fetch(url);
+await fetch(proxy);
 
 
 
 if(!response.ok){
 
 
-box.innerHTML+=`
+box.innerHTML=`
+
+<h3>
+${apiURL}
+</h3>
 
 <p class="bad">
 
@@ -288,7 +181,6 @@ FAILED HTTP ${response.status}
 </p>
 
 `;
-
 
 return;
 
@@ -324,12 +216,13 @@ let id=results.length;
 
 results.push({
 
-sport,
-endpoint,
 url:apiURL,
+
 keys:unique.length,
+
 paths:unique,
-json
+
+json:json
 
 });
 
@@ -337,12 +230,10 @@ json
 
 
 
-box.innerHTML=
-
-`
+box.innerHTML=`
 
 <h3>
-${sport} - ${endpoint}
+API Result
 </h3>
 
 
@@ -354,7 +245,9 @@ SUCCESS
 
 
 <p>
+
 Keys Found:
+
 <b>${unique.length}</b>
 
 </p>
@@ -379,7 +272,7 @@ Show Paths
 catch(e){
 
 
-box.innerHTML+=`
+box.innerHTML=`
 
 <p class="bad">
 
@@ -435,23 +328,23 @@ return;
 
 
 
-if(typeof obj==="object"){
 
+if(typeof obj==="object"){
 
 
 for(let key in obj){
 
 
-let p=
+let newPath=
 path+"."+key;
 
 
-list.push(p);
+list.push(newPath);
 
 
 scan(
 obj[key],
-p,
+newPath,
 list
 );
 
@@ -469,20 +362,25 @@ list
 
 
 
+
+
 function showJSON(id){
 
 
-let r=results[id];
+let data=
+results[id];
 
 
-let w=window.open();
+let w=
+window.open();
+
 
 
 w.document.write(
 
 "<pre>"+
 JSON.stringify(
-r.json,
+data.json,
 null,
 2
 )+
@@ -500,16 +398,19 @@ null,
 function showPaths(id){
 
 
-let r=results[id];
+let data=
+results[id];
 
 
-let w=window.open();
+let w=
+window.open();
+
 
 
 w.document.write(
 
 "<pre>"+
-r.paths.join("\n")
+data.paths.join("\n")
 +
 "</pre>"
 
@@ -517,7 +418,6 @@ r.paths.join("\n")
 
 
 }
-
 
 
 
@@ -540,20 +440,6 @@ null,
 alert(
 "Copied JSON"
 );
-
-
-}
-
-
-
-
-
-function add(html){
-
-
-document
-.getElementById("output")
-.innerHTML+=html;
 
 
 }
