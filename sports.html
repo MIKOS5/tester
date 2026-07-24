@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>Obvyris Sports Center</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+box-sizing:border-box;
+}
+
+body{
+margin:0;
+background:#05070d;
+color:#fff;
+font-family:Inter,Arial,sans-serif;
+}
+
+.header{
+
+background:linear-gradient(135deg,#111827,#020617);
+
+padding:25px;
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+border-bottom:1px solid #263244;
+
+flex-wrap:wrap;
+
+gap:15px;
+
+}
+
+.logo{
+
+font-family:Orbitron;
+
+font-size:32px;
+
+font-weight:900;
+
+}
+
+.logo span{
+
+color:#38bdf8;
+
+}
+
+.right{
+
+display:flex;
+
+align-items:center;
+
+gap:15px;
+
+flex-wrap:wrap;
+
+}
+
+.updated{
+
+font-size:14px;
+
+color:#94a3b8;
+
+}
+
+#leagueSelect{
+
+background:#111827;
+
+color:white;
+
+border:1px solid #334155;
+
+padding:10px 14px;
+
+border-radius:10px;
+
+font-size:15px;
+
+cursor:pointer;
+
+}
+
+#leagueSelect:hover{
+
+border-color:#38bdf8;
+
+}
+
+.container{
+
+max-width:1500px;
+
+margin:auto;
+
+padding:25px;
+
+}
+
+.section-title{
+
+font-size:24px;
+
+font-weight:900;
+
+margin:30px 0 15px;
+
+border-left:5px solid #38bdf8;
+
+padding-left:12px;
+
+}
+
+.grid{
+
+display:grid;
+
+grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+
+gap:18px;
+
+}
+
+/* GAME CARD */
+
+.game-card{
+
+background:#111827;
+
+border:1px solid #263244;
+
+border-radius:15px;
+
+padding:20px;
+
+box-shadow:0 8px 25px rgba(0,0,0,.35);
+
+}
+
+.final{
+
+color:#22c55e;
+
+font-weight:900;
+
+margin-bottom:10px;
+
+}
+
+.pending{
+
+color:#facc15;
+
+font-weight:900;
+
+margin-bottom:10px;
+
+}
+
+.team{
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+margin:10px 0;
+
+font-size:18px;
+
+font-weight:700;
+
+}
+
+.score{
+
+font-size:28px;
+
+font-weight:900;
+
+}
+
+.meta{
+
+margin-top:15px;
+
+font-size:13px;
+
+line-height:1.6;
+
+color:#94a3b8;
+
+}
+
+.buttons{
+
+margin-top:15px;
+
+}
+
+.buttons a{
+
+display:inline-block;
+
+margin-right:8px;
+
+margin-bottom:6px;
+
+padding:8px 12px;
+
+background:#1e293b;
+
+border-radius:8px;
+
+text-decoration:none;
+
+color:white;
+
+font-size:13px;
+
+transition:.2s;
+
+}
+
+.buttons a:hover{
+
+background:#2563eb;
+
+}
+
+/* STANDINGS */
+
+.standings{
+
+background:#111827;
+
+border:1px solid #263244;
+
+border-radius:15px;
+
+overflow:hidden;
+
+margin-bottom:25px;
+
+}
+
+.division-title{
+
+background:#1e293b;
+
+padding:14px;
+
+font-size:18px;
+
+font-weight:900;
+
+}
+
+table{
+
+width:100%;
+
+border-collapse:collapse;
+
+}
+
+th{
+
+padding:12px;
+
+text-align:left;
+
+font-size:13px;
+
+color:#94a3b8;
+
+}
+
+td{
+
+padding:12px;
+
+border-top:1px solid #263244;
+
+}
+
+tr:hover{
+
+background:#172033;
+
+}
+
+.rank{
+
+font-weight:900;
+
+color:#38bdf8;
+
+}
+
+.team-name{
+
+font-weight:700;
+
+}
+
+.record{
+
+font-weight:800;
+
+}
+
+@media(max-width:700px){
+
+.header{
+
+flex-direction:column;
+
+align-items:flex-start;
+
+}
+
+.logo{
+
+font-size:24px;
+
+}
+
+.container{
+
+padding:12px;
+
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header class="header">
+
+<div class="logo">
+
+OBVYRIS <span>SPORTS</span>
+
+</div>
+
+<div class="right">
+
+<select id="leagueSelect">
+
+<option value="mlb">⚾ MLB</option>
+
+<option value="nfl">🏈 NFL</option>
+
+<option value="nba">🏀 NBA</option>
+
+<option value="wnba">🏀 WNBA</option>
+
+<option value="nhl">🏒 NHL</option>
+
+<option value="mls">⚽ MLS</option>
+
+<option value="epl">⚽ Premier League</option>
+
+<option value="laliga">⚽ La Liga</option>
+
+<option value="bundesliga">⚽ Bundesliga</option>
+
+<option value="seriea">⚽ Serie A</option>
+
+<option value="ligue1">⚽ Ligue 1</option>
+
+<option value="ucl">🏆 Champions League</option>
+
+</select>
+
+<div class="updated" id="updated">
+
+Loading...
+
+</div>
+
+</div>
+
+</header>
+
+<div class="container">
+
+<div class="section-title" id="gamesTitle">
+
+⚾ MLB Games
+
+</div>
+
+<div id="games" class="grid">
+
+Loading games...
+
+</div>
+
+<div class="section-title" id="standingsTitle">
+
+🏆 MLB Standings
+
+</div>
+
+<div id="standings">
+
+Loading standings...
+
+</div>
+
+</div>
+
+<script>
+
+const API_BASE="YOUR_APPS_SCRIPT_URL";
+
+const LEAGUES={
+
+mlb:{
+title:"⚾ MLB"
+},
+
+nfl:{
+title:"🏈 NFL"
+},
+
+nba:{
+title:"🏀 NBA"
+},
+
+wnba:{
+title:"🏀 WNBA"
+},
+
+nhl:{
+title:"🏒 NHL"
+},
+
+mls:{
+title:"⚽ MLS"
+},
+
+epl:{
+title:"⚽ Premier League"
+},
+
+laliga:{
+title:"⚽ La Liga"
+},
+
+bundesliga:{
+title:"⚽ Bundesliga"
+},
+
+seriea:{
+title:"⚽ Serie A"
+},
+
+ligue1:{
+title:"⚽ Ligue 1"
+},
+
+ucl:{
+title:"🏆 Champions League"
+}
+
+};
+
+
+  async function loadSports(){
+
+const league =
+document.getElementById("leagueSelect").value;
+
+const info =
+LEAGUES[league];
+
+document.getElementById("gamesTitle").innerHTML =
+info.title + " Games";
+
+document.getElementById("standingsTitle").innerHTML =
+info.title + " Standings";
+
+try{
+
+const gamesAPI =
+API_BASE +
+"?action=sports&league=" +
+league;
+
+const standingsAPI =
+API_BASE +
+"?action=standing&league=" +
+league;
+
+const [
+gamesResponse,
+standingsResponse
+] = await Promise.all([
+
+fetch(gamesAPI),
+fetch(standingsAPI)
+
+]);
+
+const games =
+await gamesResponse.json();
+
+const standings =
+await standingsResponse.json();
+
+document.getElementById("updated").innerHTML =
+"Updated: " +
+(
+games.updated ||
+standings.updated ||
+""
+);
+
+renderGames(
+games.games || []
+);
+
+renderStandings(
+standings.standings || []
+);
+
+}catch(e){
+
+console.error(e);
+
+document.getElementById("games").innerHTML =
+"<h3>Unable to load games.</h3>";
+
+document.getElementById("standings").innerHTML =
+"<h3>Unable to load standings.</h3>";
+
+}
+
+}
+
+document
+.getElementById("leagueSelect")
+.addEventListener(
+"change",
+loadSports
+);
+
+loadSports();
+
+setInterval(
+loadSports,
+60000
+);
+
+function renderGames(games){
+
+const box =
+document.getElementById("games");
+
+box.innerHTML = "";
+
+if(!games.length){
+
+box.innerHTML =
+"<h3>No games found.</h3>";
+
+return;
+
+}
+
+games.forEach(g=>{
+
+const statusClass =
+(g.Status || "")
+.toLowerCase()
+.includes("final")
+?
+"final"
+:
+"pending";
+
+box.innerHTML += `
+
+<div class="game-card">
+
+<div class="${statusClass}">
+${g.Status || ""}
+</div>
+
+<div class="team">
+
+<span>
+${g.AwayTeam || ""}
+</span>
+
+<span class="score">
+${g.AwayScore ?? "-"}
+</span>
+
+</div>
+
+<div class="team">
+
+<span>
+${g.HomeTeam || ""}
+</span>
+
+<span class="score">
+${g.HomeScore ?? "-"}
+</span>
+
+</div>
+
+<div class="meta">
+
+<strong>Venue</strong><br>
+${g.Venue || "Unknown"}<br><br>
+
+<strong>Location</strong><br>
+${g.City || ""}
+${g.City && g.State ? ", " : ""}
+${g.State || ""}<br><br>
+
+<strong>Winner</strong><br>
+${g.Winner || "TBD"}
+
+</div>
+
+<div class="buttons">
+
+${
+g.GameLink
+?
+`<a href="${g.GameLink}" target="_blank">
+Game
+</a>`
+:
+""
+}
+
+${
+g.BoxscoreLink
+?
+`<a href="${g.BoxscoreLink}" target="_blank">
+Boxscore
+</a>`
+:
+""
+}
+
+${
+g.RecapLink
+?
+`<a href="${g.RecapLink}" target="_blank">
+Recap
+</a>`
+:
+""
+}
+
+</div>
+
+</div>
+
+`;
+
+});
+
+}
+
+
+function renderStandings(teams){
+
+const box =
+document.getElementById("standings");
+
+box.innerHTML = "";
+
+if(!teams.length){
+
+box.innerHTML =
+"<h3>No standings available.</h3>";
+
+return;
+
+}
+
+const divisions = {};
+
+teams.forEach(team=>{
+
+const division =
+team.Division || "League";
+
+if(!divisions[division]){
+
+divisions[division]=[];
+
+}
+
+divisions[division].push(team);
+
+});
+
+Object.keys(divisions).forEach(division=>{
+
+box.innerHTML += `
+
+<div class="standings">
+
+<div class="division-title">
+
+${division}
+
+</div>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>#</th>
+<th>Team</th>
+<th>Record</th>
+<th>PCT</th>
+<th>GB</th>
+<th>STRK</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+${
+
+divisions[division].map(team=>`
+
+<tr>
+
+<td class="rank">
+
+${team.Rank || ""}
+
+</td>
+
+<td class="team-name">
+
+${team.Team || ""}
+
+</td>
+
+<td class="record">
+
+${team.W || 0}-${team.L || 0}
+
+</td>
+
+<td>
+
+${team.PCT || "-"}
+
+</td>
+
+<td>
+
+${team.GB || "-"}
+
+</td>
+
+<td>
+
+${team.STRK || "-"}
+
+</td>
+
+</tr>
+
+`).join("")
+
+}
+
+</tbody>
+
+</table>
+
+</div>
+
+`;
+
+});
+
+}
+
+</script>
+
+</body>
+
+</html>
