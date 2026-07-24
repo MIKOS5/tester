@@ -1,393 +1,49 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-
-<title>Obvyris Sports Center</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
-
+<title>ESPN API Tester</title>
 
 <style>
 
-*{
-box-sizing:border-box;
-}
-
-
 body{
 
-margin:0;
-
 background:#05070d;
-
 color:white;
-
-font-family:Inter,Arial,sans-serif;
-
-}
-
-
-.header{
-
-background:
-linear-gradient(135deg,#111827,#020617);
-
-padding:25px;
-
-display:flex;
-
-justify-content:space-between;
-
-align-items:center;
-
-border-bottom:1px solid #263244;
-
-flex-wrap:wrap;
-
-gap:15px;
-
-}
-
-
-.logo{
-
-font-family:Orbitron;
-
-font-size:32px;
-
-font-weight:900;
-
-}
-
-
-.logo span{
-
-color:#38bdf8;
-
-}
-
-
-.right{
-
-display:flex;
-
-align-items:center;
-
-gap:15px;
-
-flex-wrap:wrap;
-
-}
-
-
-.updated{
-
-color:#94a3b8;
-
-font-size:14px;
-
-}
-
-
-#leagueSelect{
-
-background:#111827;
-
-color:white;
-
-border:1px solid #334155;
-
-padding:10px 15px;
-
-border-radius:10px;
-
-font-size:15px;
-
-cursor:pointer;
-
-}
-
-
-#leagueSelect:hover{
-
-border-color:#38bdf8;
-
-}
-
-
-.container{
-
-max-width:1500px;
-
-margin:auto;
-
-padding:25px;
-
-}
-
-
-.section-title{
-
-font-size:24px;
-
-font-weight:900;
-
-margin:30px 0 15px;
-
-border-left:5px solid #38bdf8;
-
-padding-left:12px;
-
-}
-
-
-.grid{
-
-display:grid;
-
-grid-template-columns:
-repeat(auto-fit,minmax(320px,1fr));
-
-gap:18px;
-
-}
-
-
-/* GAME CARDS */
-
-
-.game-card{
-
-background:#111827;
-
-border:1px solid #263244;
-
-border-radius:15px;
-
+font-family:Arial;
 padding:20px;
 
-box-shadow:
-0 10px 30px rgba(0,0,0,.35);
-
 }
 
+select,button{
 
-.status{
-
-font-weight:900;
-
-margin-bottom:12px;
-
-}
-
-
-.live{
-
-color:#ef4444;
-
-}
-
-
-.final{
-
-color:#22c55e;
-
-}
-
-
-.upcoming{
-
-color:#facc15;
-
-}
-
-
-.team{
-
-display:flex;
-
-justify-content:space-between;
-
-align-items:center;
-
-font-size:18px;
-
-font-weight:700;
-
-margin:10px 0;
-
-}
-
-
-.score{
-
-font-size:28px;
-
-font-weight:900;
-
-}
-
-
-.meta{
-
-color:#94a3b8;
-
-font-size:13px;
-
-line-height:1.7;
-
-margin-top:15px;
-
-}
-
-
-.buttons{
-
-margin-top:15px;
-
-}
-
-
-.buttons a{
-
-display:inline-block;
-
-padding:8px 12px;
-
-margin-right:8px;
-
-background:#1e293b;
-
-border-radius:8px;
-
-color:white;
-
-text-decoration:none;
-
-font-size:13px;
-
-}
-
-
-.buttons a:hover{
-
-background:#2563eb;
-
-}
-
-
-/* STANDINGS */
-
-
-.standings{
+padding:10px;
+margin:5px;
 
 background:#111827;
-
-border:1px solid #263244;
-
-border-radius:15px;
-
-overflow:hidden;
-
-margin-bottom:25px;
+color:white;
+border:1px solid #334155;
+border-radius:8px;
 
 }
 
 
-.division-title{
+pre{
 
-background:#1e293b;
+background:#111827;
+padding:20px;
+border-radius:10px;
+overflow:auto;
+max-height:700px;
 
-padding:14px;
-
-font-weight:900;
-
-font-size:18px;
-
-}
-
-
-table{
-
-width:100%;
-
-border-collapse:collapse;
+white-space:pre-wrap;
 
 }
 
-
-th{
-
-padding:12px;
-
-text-align:left;
-
-font-size:13px;
-
-color:#94a3b8;
-
-}
-
-
-td{
-
-padding:12px;
-
-border-top:1px solid #263244;
-
-}
-
-
-tr:hover{
-
-background:#172033;
-
-}
-
-
-.rank{
+h1{
 
 color:#38bdf8;
-
-font-weight:900;
-
-}
-
-
-.record{
-
-font-weight:800;
-
-}
-
-
-@media(max-width:700px){
-
-.header{
-
-flex-direction:column;
-
-align-items:flex-start;
-
-}
-
-
-.logo{
-
-font-size:24px;
-
-}
-
-
-.container{
-
-padding:12px;
-
-}
 
 }
 
@@ -399,290 +55,187 @@ padding:12px;
 <body>
 
 
-<header class="header">
+<h1>ESPN API Structure Tester</h1>
 
 
-<div class="logo">
+<select id="sport">
 
-OBVYRIS <span>SPORTS</span>
-
-</div>
-
-
-<div class="right">
-
-
-<select id="leagueSelect">
-
-<option value="mlb">
+<option value="baseball/mlb">
 ⚾ MLB
 </option>
 
-<option value="nfl">
+<option value="football/nfl">
 🏈 NFL
 </option>
 
-<option value="nba">
+<option value="basketball/nba">
 🏀 NBA
 </option>
 
-<option value="wnba">
+<option value="basketball/wnba">
 🏀 WNBA
 </option>
 
-<option value="nhl">
+<option value="hockey/nhl">
 🏒 NHL
 </option>
 
-<option value="mls">
+<option value="soccer/usa.1">
 ⚽ MLS
 </option>
 
-<option value="epl">
+<option value="soccer/eng.1">
 ⚽ Premier League
 </option>
 
-<option value="laliga">
+<option value="soccer/esp.1">
 ⚽ La Liga
-</option>
-
-<option value="bundesliga">
-⚽ Bundesliga
-</option>
-
-<option value="seriea">
-⚽ Serie A
 </option>
 
 </select>
 
 
-<div id="updated" class="updated">
 
-Loading...
-
-</div>
+<select id="endpoint">
 
 
-</div>
-
-</header>
-
-
-<div class="container">
+<option value="scoreboard">
+Scoreboard
+</option>
 
 
-<div id="gamesTitle" class="section-title">
-
-⚾ MLB Games
-
-</div>
+<option value="standings">
+Standings
+</option>
 
 
-<div id="games" class="grid">
-
-Loading games...
-
-</div>
+<option value="teams">
+Teams
+</option>
 
 
-<div id="standingsTitle" class="section-title">
-
-🏆 MLB Standings
-
-</div>
+<option value="news">
+News
+</option>
 
 
-<div id="standings">
-
-Loading standings...
-
-</div>
+</select>
 
 
-</div>
+
+<button onclick="loadAPI()">
+
+Load ESPN JSON
+
+</button>
+
+
+<button onclick="copyJSON()">
+
+Copy
+
+</button>
+
+
+<h3 id="url"></h3>
+
+
+<pre id="output">
+
+Waiting...
+
+</pre>
+
 
 
 <script>
 
 
-const ESPN_BASE =
+const SITE =
 "https://site.api.espn.com/apis/site/v2/sports";
 
 
-const ESPN_STANDINGS =
+const V2 =
 "https://site.api.espn.com/apis/v2/sports";
 
 
 
-const LEAGUES={
+let lastJSON="";
 
 
-mlb:{
-title:"⚾ MLB",
-sport:"baseball",
-league:"mlb"
-},
+
+async function loadAPI(){
 
 
-nfl:{
-title:"🏈 NFL",
-sport:"football",
-league:"nfl"
-},
+const sport =
+document.getElementById("sport").value;
 
 
-nba:{
-title:"🏀 NBA",
-sport:"basketball",
-league:"nba"
-},
+const endpoint =
+document.getElementById("endpoint").value;
 
 
-wnba:{
-title:"🏀 WNBA",
-sport:"basketball",
-league:"wnba"
-},
+
+let url;
 
 
-nhl:{
-title:"🏒 NHL",
-sport:"hockey",
-league:"nhl"
-},
+
+if(endpoint==="standings"){
 
 
-mls:{
-title:"⚽ MLS",
-sport:"soccer",
-league:"usa.1"
-},
+url =
+`${V2}/${sport}/standings`;
 
 
-epl:{
-title:"⚽ Premier League",
-sport:"soccer",
-league:"eng.1"
-},
+}
+
+else{
 
 
-laliga:{
-title:"⚽ La Liga",
-sport:"soccer",
-league:"esp.1"
-},
+url =
+`${SITE}/${sport}/${endpoint}`;
 
 
-bundesliga:{
-title:"⚽ Bundesliga",
-sport:"soccer",
-league:"ger.1"
-},
-
-
-seriea:{
-title:"⚽ Serie A",
-sport:"soccer",
-league:"ita.1"
 }
 
 
-};
 
-
-async function loadSports(){
-
-
-const selected =
-document.getElementById("leagueSelect").value;
-
-
-const info =
-LEAGUES[selected];
-
-
-document.getElementById("gamesTitle").innerHTML =
-info.title + " Games";
-
-
-document.getElementById("standingsTitle").innerHTML =
-info.title + " Standings";
+document.getElementById("url").innerHTML =
+url;
 
 
 
 try{
 
 
-const scoreboardURL =
-
-`${ESPN_BASE}/${info.sport}/${info.league}/scoreboard`;
-
-
-
-const standingsURL =
-
-`${ESPN_STANDINGS}/${info.sport}/${info.league}/standings`;
+const response =
+await fetch(url);
 
 
 
-const [
-
-gamesResponse,
-
-standingsResponse
-
-] = await Promise.all([
-
-
-fetch(scoreboardURL),
-
-fetch(standingsURL)
-
-
-]);
+const json =
+await response.json();
 
 
 
-const gamesJSON =
-await gamesResponse.json();
-
-
-
-const standingsJSON =
-await standingsResponse.json();
-
-
-
-document.getElementById("updated").innerHTML =
-
-"Updated: " +
-
-new Date().toLocaleTimeString();
-
-
-
-const games =
-
-convertESPNGames(
-gamesJSON.events || []
+lastJSON =
+JSON.stringify(
+json,
+null,
+2
 );
 
 
 
-renderGames(games);
+/*
+ Limit display
 
+ Shows first 8000 characters
+*/
 
+document.getElementById("output").textContent =
 
-const standings =
-
-convertESPNStandings(
-standingsJSON
-);
-
-
-
-renderStandings(standings);
+lastJSON.substring(0,8000);
 
 
 
@@ -691,19 +244,10 @@ renderStandings(standings);
 catch(error){
 
 
-console.error(error);
+document.getElementById("output").textContent =
 
+"ERROR\n\n"+error;
 
-
-document.getElementById("games").innerHTML =
-
-"<h3>Unable to load games.</h3>";
-
-
-
-document.getElementById("standings").innerHTML =
-
-"<h3>Unable to load standings.</h3>";
 
 }
 
@@ -713,650 +257,20 @@ document.getElementById("standings").innerHTML =
 
 
 
-
-/*
- ESPN SCOREBOARD CONVERTER
-
- Converts ESPN JSON into:
-
- AwayTeam
- AwayScore
- HomeTeam
- HomeScore
- Status
- Venue
- */
-
-function convertESPNGames(events){
+function copyJSON(){
 
 
-return events.map(event=>{
-
-
-const competition =
-event.competitions[0];
-
-
-const teams =
-competition.competitors;
-
-
-
-const away =
-teams.find(
-t=>t.homeAway==="away"
+navigator.clipboard.writeText(
+lastJSON
 );
 
 
-
-const home =
-teams.find(
-t=>t.homeAway==="home"
+alert(
+"Copied full JSON"
 );
 
 
-
-const status =
-event.status?.type?.description || "";
-
-
-
-let statusClass =
-"upcoming";
-
-
-
-if(status.toLowerCase().includes("final")){
-
-statusClass="final";
-
 }
-
-
-if(status.toLowerCase().includes("in progress")){
-
-statusClass="live";
-
-}
-
-
-
-return {
-
-
-AwayTeam:
-
-away?.team?.displayName || "",
-
-
-
-AwayScore:
-
-away?.score || "-",
-
-
-
-HomeTeam:
-
-home?.team?.displayName || "",
-
-
-
-HomeScore:
-
-home?.score || "-",
-
-
-
-Status:
-
-status,
-
-
-
-StatusClass:
-
-statusClass,
-
-
-
-Venue:
-
-competition.venue?.fullName || "",
-
-
-
-City:
-
-competition.venue?.address?.city || "",
-
-
-
-State:
-
-competition.venue?.address?.state || "",
-
-
-
-GameLink:
-
-"https://www.espn.com"
-
-
-
-};
-
-
-});
-
-
-}
-
-
-
-
-
-
-
-function renderGames(games){
-
-
-const box =
-document.getElementById("games");
-
-
-box.innerHTML="";
-
-
-
-if(!games.length){
-
-
-box.innerHTML =
-"<h3>No games found.</h3>";
-
-
-return;
-
-}
-
-
-
-games.forEach(g=>{
-
-
-box.innerHTML += `
-
-
-<div class="game-card">
-
-
-<div class="status ${g.StatusClass}">
-
-${g.Status}
-
-</div>
-
-
-
-<div class="team">
-
-
-<span>
-
-${g.AwayTeam}
-
-</span>
-
-
-<span class="score">
-
-${g.AwayScore}
-
-</span>
-
-
-</div>
-
-
-
-<div class="team">
-
-
-<span>
-
-${g.HomeTeam}
-
-</span>
-
-
-<span class="score">
-
-${g.HomeScore}
-
-</span>
-
-
-</div>
-
-
-
-
-<div class="meta">
-
-
-<strong>Venue</strong><br>
-
-${g.Venue || "TBD"}
-
-
-<br><br>
-
-
-<strong>Location</strong><br>
-
-${g.City || ""}
-
-${g.State ? ", "+g.State : ""}
-
-
-
-</div>
-
-
-
-<div class="buttons">
-
-
-<a href="${g.GameLink}" target="_blank">
-
-ESPN
-
-</a>
-
-
-</div>
-
-
-</div>
-
-
-`;
-
-
-});
-
-
-}
-
-function convertESPNStandings(data){
-
-
-const teams=[];
-
-
-/*
- ESPN standings structure:
-
- children[]
-    standings
-        entries[]
-
-*/
-
-
-try{
-
-
-const groups =
-data.children || [];
-
-
-
-groups.forEach(group=>{
-
-
-const division =
-group.name || "League";
-
-
-
-const entries =
-group.standings?.entries || [];
-
-
-
-entries.forEach((entry,index)=>{
-
-
-const stats = {};
-
-
-
-entry.stats.forEach(stat=>{
-
-
-stats[stat.name]=stat.displayValue;
-
-
-});
-
-
-
-teams.push({
-
-
-Division:division,
-
-
-Rank:
-index + 1,
-
-
-Team:
-entry.team?.displayName || "",
-
-
-Abbreviation:
-entry.team?.abbreviation || "",
-
-
-W:
-stats.wins || "0",
-
-
-L:
-stats.losses || "0",
-
-
-T:
-stats.ties || "0",
-
-
-PCT:
-stats.winPercent || 
-stats.pct || 
-"-",
-
-
-GB:
-stats.gamesBehind || "-",
-
-
-STRK:
-stats.streak || "-"
-
-
-
-});
-
-
-});
-
-});
-
-
-}
-
-
-catch(e){
-
-console.error(
-"Standings conversion error",
-e
-);
-
-}
-
-
-return teams;
-
-
-}
-
-
-
-
-
-
-
-function renderStandings(teams){
-
-
-const box =
-document.getElementById("standings");
-
-
-box.innerHTML="";
-
-
-
-if(!teams.length){
-
-
-box.innerHTML =
-"<h3>No standings available.</h3>";
-
-
-return;
-
-
-}
-
-
-
-const divisions={};
-
-
-
-teams.forEach(team=>{
-
-
-if(!divisions[team.Division]){
-
-
-divisions[team.Division]=[];
-
-
-}
-
-
-
-divisions[team.Division].push(team);
-
-
-
-});
-
-
-
-
-Object.keys(divisions).forEach(div=>{
-
-
-box.innerHTML += `
-
-
-<div class="standings">
-
-
-<div class="division-title">
-
-${div}
-
-</div>
-
-
-
-<table>
-
-
-<thead>
-
-
-<tr>
-
-<th>#</th>
-
-<th>Team</th>
-
-<th>Record</th>
-
-<th>PCT</th>
-
-<th>GB</th>
-
-<th>STRK</th>
-
-
-</tr>
-
-
-</thead>
-
-
-
-<tbody>
-
-
-${
-
-divisions[div]
-
-.map(team=>`
-
-
-<tr>
-
-
-<td class="rank">
-
-${team.Rank}
-
-</td>
-
-
-
-<td>
-
-<span class="team-name">
-
-${team.Team}
-
-</span>
-
-<br>
-
-<small>
-
-${team.Abbreviation}
-
-</small>
-
-
-</td>
-
-
-
-<td class="record">
-
-${team.W}-${team.L}
-
-${
-
-team.T && team.T!=="0"
-
-?
-
-"-"+team.T
-
-:
-
-""
-
-}
-
-</td>
-
-
-
-<td>
-
-${team.PCT}
-
-</td>
-
-
-
-<td>
-
-${team.GB}
-
-</td>
-
-
-
-<td>
-
-${team.STRK}
-
-</td>
-
-
-</tr>
-
-
-
-`).join("")
-
-}
-
-
-</tbody>
-
-
-</table>
-
-
-</div>
-
-
-
-`;
-
-
-});
-
-
-}
-
-
-
-document
-.getElementById("leagueSelect")
-.addEventListener(
-"change",
-loadSports
-);
-
-
-
-/*
- Initial Load
-*/
-
-loadSports();
-
-
-
-/*
- Refresh every 60 seconds
-*/
-
-setInterval(
-loadSports,
-60000
-);
 
 
 
