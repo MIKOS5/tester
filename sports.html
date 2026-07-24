@@ -4,10 +4,11 @@
 <title>ESPN API Structure Tester</title>
 
 <style>
+
 body{
-    font-family:Arial;
     background:#111;
-    color:#eee;
+    color:white;
+    font-family:Arial;
     padding:20px;
 }
 
@@ -20,69 +21,82 @@ button{
 .card{
     background:#222;
     padding:15px;
-    margin:15px 0;
+    margin:10px 0;
     border-radius:8px;
+}
+
+.good{
+    color:#00ff88;
+}
+
+.bad{
+    color:#ff5555;
 }
 
 pre{
     background:#000;
     padding:10px;
     overflow:auto;
-    max-height:400px;
-    white-space:pre-wrap;
+    max-height:500px;
 }
 
-.good{
-    color:#00ff99;
-}
-
-.bad{
-    color:#ff5555;
-}
 </style>
 
 </head>
 
 <body>
 
+
 <h1>ESPN API Structure Tester</h1>
 
-<button onclick="runAll()">Run All Tests</button>
 
-<button onclick="copyResults()">Copy Results</button>
+<button onclick="runAll()">
+Run All Tests
+</button>
+
+
+<button onclick="copyResults()">
+Copy Results
+</button>
+
 
 <div id="output"></div>
+
 
 
 <script>
 
 
-const SPORTS = {
+const SPORTS={
 
 
 MLB:{
-    name:"MLB",
-    path:"baseball/mlb"
+name:"MLB",
+path:"baseball/mlb"
 },
+
 
 NBA:{
-    name:"NBA",
-    path:"basketball/nba"
+name:"NBA",
+path:"basketball/nba"
 },
+
 
 NFL:{
-    name:"NFL",
-    path:"football/nfl"
+name:"NFL",
+path:"football/nfl"
 },
+
 
 NHL:{
-    name:"NHL",
-    path:"hockey/nhl"
+name:"NHL",
+path:"hockey/nhl"
 },
 
+
 SOCCER:{
-    name:"Soccer",
-    path:"soccer/eng.1"
+name:"Soccer",
+path:"soccer/eng.1"
 }
 
 
@@ -96,10 +110,39 @@ const ENDPOINTS=[
 "teams",
 "news",
 "standings",
-"leaders",
-"rankings"
+"schedule",
+"statistics",
+"athletes",
+"transactions",
+"injuries"
 
 ];
+
+
+
+
+
+const SPECIAL={
+
+
+"MLB-standings":
+"https://site.api.espn.com/apis/v2/sports/baseball/mlb/standings",
+
+
+"NBA-standings":
+"https://site.api.espn.com/apis/v2/sports/basketball/nba/standings",
+
+
+"NFL-standings":
+"https://site.api.espn.com/apis/v2/sports/football/nfl/standings",
+
+
+"NHL-standings":
+"https://site.api.espn.com/apis/v2/sports/hockey/nhl/standings"
+
+
+};
+
 
 
 
@@ -109,53 +152,98 @@ let results=[];
 
 async function runAll(){
 
-document.getElementById("output").innerHTML="Running...";
+
+document.getElementById("output").innerHTML="";
+
 
 results=[];
 
 
-for(const sport in SPORTS){
 
-let s=SPORTS[sport];
+for(let s in SPORTS){
 
 
-add(
-`
+let sport=SPORTS[s];
+
+
+add(`
+
 <div class="card">
-<h2>${s.name}</h2>
+
+<h2>${sport.name}</h2>
+
 </div>
-`
-);
+
+`);
 
 
-for(const endpoint of ENDPOINTS){
+
+for(let endpoint of ENDPOINTS){
+
 
 await testAPI(
-s.name,
-s.path,
+sport.name,
+sport.path,
 endpoint
 );
 
 
 }
 
+
+
 }
 
 
-console.log(results);
+alert("Finished");
 
 }
 
 
 
-async function testAPI(name,path,endpoint){
+
+async function testAPI(
+sport,
+path,
+endpoint
+){
 
 
-let url=
+
+let key=sport+"-"+endpoint;
+
+
+let apiURL;
+
+
+
+if(SPECIAL[key]){
+
+
+apiURL=SPECIAL[key];
+
+
+}
+
+else{
+
+
+apiURL=
 `https://site.api.espn.com/apis/site/v2/sports/${path}/${endpoint}`;
 
 
+}
+
+
+
+let url=
+`https://api.allorigins.win/raw?url=${encodeURIComponent(apiURL)}`;
+
+
+
+
 let box=document.createElement("div");
+
 box.className="card";
 
 
@@ -165,33 +253,42 @@ document
 
 
 
-box.innerHTML=
-`
+box.innerHTML=`
+
 <h3>
-${name} - ${endpoint}
+${sport} - ${endpoint}
 </h3>
 
-<p>${url}</p>
+<p>${apiURL}</p>
 
 <p>Loading...</p>
+
 `;
+
 
 
 
 try{
 
 
-let res=await fetch(url);
+let response=
+await fetch(url);
 
 
-if(!res.ok){
 
-box.innerHTML+=
-`
+if(!response.ok){
+
+
+box.innerHTML+=`
+
 <p class="bad">
-FAILED ${res.status}
+
+FAILED HTTP ${response.status}
+
 </p>
+
 `;
+
 
 return;
 
@@ -199,7 +296,9 @@ return;
 
 
 
-let json=await res.json();
+let json=
+await response.json();
+
 
 
 let paths=[];
@@ -213,53 +312,60 @@ paths
 
 
 
-let unique=[...new Set(paths)];
+let unique=[
+...new Set(paths)
+];
 
 
 
-let sample=
-JSON.stringify(
-json,
-null,
-2
-)
-.substring(0,5000);
+let id=results.length;
 
 
 
 results.push({
 
-sport:name,
-endpoint:endpoint,
+sport,
+endpoint,
+url:apiURL,
 keys:unique.length,
 paths:unique,
-sample:json
+json
 
 });
 
 
 
+
+
 box.innerHTML=
+
 `
 
-<h3>${name} - ${endpoint}</h3>
+<h3>
+${sport} - ${endpoint}
+</h3>
+
 
 <p class="good">
+
 SUCCESS
+
 </p>
+
 
 <p>
 Keys Found:
-${unique.length}
+<b>${unique.length}</b>
+
 </p>
 
 
-<button onclick="showJSON(${results.length-1})">
+<button onclick="showJSON(${id})">
 Show JSON
 </button>
 
 
-<button onclick="showPaths(${results.length-1})">
+<button onclick="showPaths(${id})">
 Show Paths
 </button>
 
@@ -267,25 +373,37 @@ Show Paths
 `;
 
 
+
 }
+
 catch(e){
 
-box.innerHTML+=
-`
+
+box.innerHTML+=`
+
 <p class="bad">
-ERROR ${e}
+
+ERROR:
+
+${e.message}
+
 </p>
+
 `;
 
 }
 
 
+
 }
 
 
 
 
-function scan(obj,path,output){
+
+
+
+function scan(obj,path,list){
 
 
 if(obj===null)
@@ -296,18 +414,19 @@ return;
 if(Array.isArray(obj)){
 
 
-output.push(path+"[]");
+list.push(path+"[]");
 
 
-if(obj.length>0){
+if(obj.length){
 
 scan(
 obj[0],
 path+"[]",
-output
+list
 );
 
 }
+
 
 return;
 
@@ -315,50 +434,55 @@ return;
 
 
 
+
 if(typeof obj==="object"){
+
 
 
 for(let key in obj){
 
 
-let newPath=
+let p=
 path+"."+key;
 
 
-output.push(newPath);
+list.push(p);
 
 
 scan(
 obj[key],
-newPath,
-output
+p,
+list
 );
 
 
 }
 
+
 }
 
 
+
 }
+
 
 
 
 
 function showJSON(id){
 
+
 let r=results[id];
 
 
-let win=
-window.open();
+let w=window.open();
 
 
-win.document.write(
+w.document.write(
 
 "<pre>"+
 JSON.stringify(
-r.sample,
+r.json,
 null,
 2
 )+
@@ -371,19 +495,22 @@ null,
 
 
 
+
+
 function showPaths(id){
+
 
 let r=results[id];
 
 
-let win=
-window.open();
+let w=window.open();
 
 
-win.document.write(
+w.document.write(
 
 "<pre>"+
-r.paths.join("\n")+
+r.paths.join("\n")
++
 "</pre>"
 
 );
@@ -394,22 +521,24 @@ r.paths.join("\n")+
 
 
 
+
+
 function copyResults(){
 
 
-let text=
+navigator.clipboard.writeText(
+
 JSON.stringify(
 results,
 null,
 2
+)
+
 );
 
 
-navigator.clipboard.writeText(text);
-
-
 alert(
-"Copied JSON Results"
+"Copied JSON"
 );
 
 
@@ -418,11 +547,14 @@ alert(
 
 
 
+
 function add(html){
+
 
 document
 .getElementById("output")
 .innerHTML+=html;
+
 
 }
 
