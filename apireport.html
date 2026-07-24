@@ -1,54 +1,100 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Universal API Structure Tester</title>
+
+<title>Universal API Explorer</title>
 
 <style>
 
 body{
     background:#111;
-    color:white;
-    font-family:Arial;
+    color:#eee;
+    font-family:Arial, sans-serif;
     padding:20px;
 }
 
-button{
-    padding:10px;
-    margin:5px;
-    cursor:pointer;
-}
 
 input{
     width:80%;
-    padding:10px;
+    padding:12px;
     background:#222;
     color:white;
     border:1px solid #555;
+    border-radius:5px;
 }
 
+
+button{
+    padding:10px 15px;
+    margin:5px;
+    cursor:pointer;
+    background:#333;
+    color:white;
+    border:1px solid #666;
+    border-radius:5px;
+}
+
+
+button:hover{
+    background:#555;
+}
+
+
 .card{
+
     background:#222;
     padding:15px;
-    margin:10px 0;
-    border-radius:8px;
+    margin:15px 0;
+    border-radius:10px;
+
 }
+
 
 .good{
     color:#00ff88;
 }
 
+
 .bad{
     color:#ff5555;
 }
 
+
 pre{
-    background:#000;
-    padding:10px;
-    overflow:auto;
-    max-height:500px;
+
+background:#000;
+padding:15px;
+overflow:auto;
+max-height:500px;
+
 }
 
+
+table{
+
+border-collapse:collapse;
+width:100%;
+
+}
+
+
+td,th{
+
+border:1px solid #555;
+padding:8px;
+
+}
+
+
+#search{
+
+width:300px;
+
+}
+
+
 </style>
+
 
 </head>
 
@@ -56,24 +102,41 @@ pre{
 <body>
 
 
-<h1>Universal API Structure Tester</h1>
+<h1>🌐 Universal API Explorer</h1>
 
 
-<h3>API URL</h3>
+<p>
+Paste any JSON API:
+</p>
 
 
-<input id="apiURL"
-placeholder="Enter JSON API URL">
+<input id="url"
+placeholder="https://api.example.com/data"
+value="https://jsonplaceholder.typicode.com/posts">
 
 
 <button onclick="runAPI()">
-Run API Test
+Run API
 </button>
 
 
-<button onclick="copyResults()">
-Copy Results
+
+<button onclick="copyJSON()">
+Copy JSON
 </button>
+
+
+<button onclick="downloadJSON()">
+Download
+</button>
+
+
+<br><br>
+
+
+<input id="search"
+placeholder="Search JSON..."
+onkeyup="searchJSON()">
 
 
 
@@ -84,75 +147,27 @@ Copy Results
 <script>
 
 
-let results=[];
-
+let apiData=null;
 
 
 
 async function runAPI(){
 
 
-let apiURL=
-document.getElementById("apiURL").value.trim();
-
-
-if(!apiURL){
-
-alert("Enter API URL");
-
-return;
-
-}
-
-
-document.getElementById("output").innerHTML="";
-
-results=[];
-
-
-await testAPI(apiURL);
-
-
-alert("Finished");
-
-
-}
+let url=
+document.getElementById("url").value;
 
 
 
+let output=
+document.getElementById("output");
 
 
-async function testAPI(apiURL){
-
-
-let proxy=
-"https://api.allorigins.win/raw?url="
-+
-encodeURIComponent(apiURL);
-
-
-
-let box=document.createElement("div");
-
-box.className="card";
-
-
-document
-.getElementById("output")
-.appendChild(box);
-
-
-
-box.innerHTML=`
-
-<h3>
-${apiURL}
-</h3>
-
-<p>
+output.innerHTML=
+`
+<div class="card">
 Loading...
-</p>
-
+</div>
 `;
 
 
@@ -160,110 +175,50 @@ Loading...
 try{
 
 
-let response=
+let response;
+
+
+try{
+
+response=
+await fetch(url);
+
+}
+catch{
+
+let proxy=
+"https://api.allorigins.win/raw?url="
++
+encodeURIComponent(url);
+
+
+response=
 await fetch(proxy);
-
-
-
-if(!response.ok){
-
-
-box.innerHTML=`
-
-<h3>
-${apiURL}
-</h3>
-
-<p class="bad">
-
-FAILED HTTP ${response.status}
-
-</p>
-
-`;
-
-return;
 
 }
 
 
 
-let json=
-await response.json();
+if(!response.ok){
 
-
-
-let paths=[];
-
-
-scan(
-json,
-"",
-paths
+throw new Error(
+"HTTP "+response.status
 );
 
-
-
-let unique=[
-...new Set(paths)
-];
+}
 
 
 
-let id=results.length;
+let text=
+await response.text();
+
+
+apiData=
+JSON.parse(text);
 
 
 
-results.push({
-
-url:apiURL,
-
-keys:unique.length,
-
-paths:unique,
-
-json:json
-
-});
-
-
-
-
-
-box.innerHTML=`
-
-<h3>
-API Result
-</h3>
-
-
-<p class="good">
-
-SUCCESS
-
-</p>
-
-
-<p>
-
-Keys Found:
-
-<b>${unique.length}</b>
-
-</p>
-
-
-<button onclick="showJSON(${id})">
-Show JSON
-</button>
-
-
-<button onclick="showPaths(${id})">
-Show Paths
-</button>
-
-
-`;
+displayResults();
 
 
 
@@ -272,25 +227,158 @@ Show Paths
 catch(e){
 
 
-box.innerHTML=`
+output.innerHTML=
+`
+<div class="card bad">
 
-<p class="bad">
+<h2>Failed</h2>
 
-ERROR:
+<pre>${e.message}</pre>
 
-${e.message}
-
-</p>
-
+</div>
 `;
 
 }
 
 
-
 }
 
 
+
+
+
+function displayResults(){
+
+
+let output=
+document.getElementById("output");
+
+
+
+let paths=[];
+
+
+scan(
+apiData,
+"",
+paths
+);
+
+
+
+let rows=
+Array.isArray(apiData)
+?
+apiData
+:
+[];
+
+
+
+output.innerHTML=
+`
+
+<div class="card">
+
+<h2 class="good">
+SUCCESS
+</h2>
+
+
+<p>
+Type:
+<b>
+${Array.isArray(apiData)?"Array":"Object"}
+</b>
+</p>
+
+
+<p>
+Keys Found:
+<b>${paths.length}</b>
+</p>
+
+
+<p>
+Records:
+<b>${rows.length}</b>
+</p>
+
+
+</div>
+
+
+
+<div class="card">
+
+<h2>
+Structure
+</h2>
+
+
+<pre>
+${paths.join("\n")}
+</pre>
+
+
+</div>
+
+
+
+<div class="card">
+
+<h2>
+Table Preview
+</h2>
+
+${makeTable(rows)}
+
+</div>
+
+
+
+<div class="card">
+
+<h2>
+Raw JSON
+</h2>
+
+
+<pre id="json">
+${JSON.stringify(apiData,null,2)}
+</pre>
+
+
+</div>
+
+
+
+<div class="card">
+
+<h2>
+JavaScript Fetch Example
+</h2>
+
+
+<pre>
+
+fetch("${document.getElementById("url").value}")
+.then(r=>r.json())
+.then(data=>{
+    console.log(data);
+});
+
+</pre>
+
+
+</div>
+
+
+`;
+
+
+
+}
 
 
 
@@ -307,7 +395,9 @@ return;
 if(Array.isArray(obj)){
 
 
-list.push(path+"[]");
+list.push(
+path+"[]"
+);
 
 
 if(obj.length){
@@ -327,24 +417,22 @@ return;
 
 
 
-
-
 if(typeof obj==="object"){
 
 
-for(let key in obj){
+for(let k in obj){
 
 
-let newPath=
-path+"."+key;
+let p=
+path+"."+k;
 
 
-list.push(newPath);
+list.push(p);
 
 
 scan(
-obj[key],
-newPath,
+obj[k],
+p,
 list
 );
 
@@ -362,31 +450,75 @@ list
 
 
 
+function makeTable(data){
 
 
-function showJSON(id){
+if(!Array.isArray(data)
+|| data.length===0)
 
-
-let data=
-results[id];
-
-
-let w=
-window.open();
+return "No array data";
 
 
 
-w.document.write(
+let keys=
+Object.keys(data[0]);
 
-"<pre>"+
-JSON.stringify(
-data.json,
-null,
-2
-)+
-"</pre>"
 
-);
+
+let html="<table><tr>";
+
+
+
+keys.forEach(k=>{
+
+html+=
+"<th>"+k+"</th>";
+
+});
+
+
+html+="</tr>";
+
+
+
+data.slice(0,20).forEach(row=>{
+
+
+html+="<tr>";
+
+
+keys.forEach(k=>{
+
+
+let value=
+row[k];
+
+
+if(typeof value==="object")
+
+value=
+JSON.stringify(value);
+
+
+
+html+=
+"<td>"+value+"</td>";
+
+
+});
+
+
+html+="</tr>";
+
+
+});
+
+
+html+="</table>";
+
+
+
+return html;
 
 
 }
@@ -395,41 +527,17 @@ null,
 
 
 
-function showPaths(id){
+
+function copyJSON(){
 
 
-let data=
-results[id];
-
-
-let w=
-window.open();
-
-
-
-w.document.write(
-
-"<pre>"+
-data.paths.join("\n")
-+
-"</pre>"
-
-);
-
-
-}
-
-
-
-
-
-function copyResults(){
+if(!apiData)return;
 
 
 navigator.clipboard.writeText(
 
 JSON.stringify(
-results,
+apiData,
 null,
 2
 )
@@ -438,12 +546,118 @@ null,
 
 
 alert(
-"Copied JSON"
+"Copied"
 );
 
 
 }
 
+
+
+
+
+
+function downloadJSON(){
+
+
+if(!apiData)return;
+
+
+let blob=
+new Blob(
+
+[
+JSON.stringify(
+apiData,
+null,
+2
+)
+],
+
+{
+type:"application/json"
+}
+
+);
+
+
+
+let a=
+document.createElement("a");
+
+
+a.href=
+URL.createObjectURL(blob);
+
+
+a.download=
+"api-data.json";
+
+
+a.click();
+
+
+}
+
+
+
+
+
+
+function searchJSON(){
+
+
+let term=
+document.getElementById("search").value
+.toLowerCase();
+
+
+let box=
+document.getElementById("json");
+
+
+if(!apiData || !box)
+return;
+
+
+
+let text=
+JSON.stringify(
+apiData,
+null,
+2
+);
+
+
+
+if(term){
+
+let lines=
+text.split("\n")
+.filter(x=>
+x.toLowerCase()
+.includes(term)
+);
+
+
+box.innerHTML=
+lines.join("\n");
+
+
+}
+
+else{
+
+
+box.innerHTML=
+text;
+
+
+}
+
+
+
+}
 
 
 </script>
