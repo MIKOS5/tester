@@ -1195,6 +1195,7 @@ let ytPlayer = null;
 let ytLoaded = false;
 let ytPending = null;
 let obvyrisOpen = false;
+let currentObvyrisStation = null;
   
 const BOOK_API =
 "https://librivox.org/api/feed/audiobooks/";
@@ -1589,54 +1590,60 @@ async function loadMood() {
 
 
 const OBVYRIS_STATIONS = [
-
-{
-    name:"Obvyris Radio 1",
-    api:"https://script.google.com/macros/s/AKfycbwA1FraODA7b2LLXhJfDzvdbK9TfNtSFVqcKQl67P0WjFg4ysOIGHGyq9JyeSN9axy2/exec"
-}
-
+  {
+    name: "Obvyris Radio 1",
+    api: "https://script.google.com/macros/s/AKfycbwA1FraODA7b2LLXhJfDzvdbK9TfNtSFVqcKQl67P0WjFg4ysOIGHGyq9JyeSN9axy2/exec"
+  },
+  {
+    name: "Obvyris Radio 2",
+    api: "https://script.google.com/macros/s/AKfycbzyWPlGW2wP3YLOq4VjqU8tHi16oTYsjKGdsIUD2Pg-7Tgdu7dMOe1Qk0auZ4of5dih/exec"
+  },
+  {
+    name: "Obvyris Radio 3",
+    api: "https://script.google.com/macros/s/AKfycbx_4xXgNMlrU2gliFlA8l4s2BYgXTpVBYgZ1WG38U_4kkQ5QKUc3v8apiEo727bnt1Z/exec"
+  }
 ];
 
 
 async function loadObvyrisStations(){
 
     current = [];
-
     setTitle("📡 Obvyris Stations");
 
     const el = document.getElementById("list");
 
-    el.innerHTML = `
+    el.innerHTML = "";
 
-    <div class="card">
+    OBVYRIS_STATIONS.forEach((station, i) => {
 
-        <div class="station">
-            📻 Obvyris Radio
+        el.innerHTML += `
+        <div class="card">
+
+            <div class="station">
+                📻 ${station.name}
+            </div>
+
+            <div class="small">
+                Video Obvyris • YouTube Radio
+            </div>
+
+            <div class="small">
+                24/7 Music Video Stream
+            </div>
+
+            <div class="row">
+                <button onclick="playObvyris(${i})">
+                    ▶ Play
+                </button>
+
+                <button onclick="shareSite(${i})">
+                    🔗 Share
+                </button>
+            </div>
+
         </div>
-
-        <div class="small">
-            Video Obvyris • YouTube Radio
-        </div>
-
-        <div class="small">
-            24/7 Music Video Stream
-        </div>
-
-        <div class="row">
-
-            <button onclick="playObvyris(0)">
-                ▶ Play
-            </button>
-
-            <button onclick="shareSite()">
-                🔗 Share
-            </button>
-
-        </div>
-
-    </div>
-
-    `;
+        `;
+    });
 
 }
 
@@ -2003,6 +2010,8 @@ async function openBook(id){
 /* PLAY */
 async function play(i){
 
+  currentObvyrisStation = null;
+  
   stopYoutubePlayer();
   
   index = i;
@@ -2055,6 +2064,8 @@ async function loadPopupChat(){
   
 function playFiltered(i){
 
+  currentObvyrisStation = null;
+  
   stopYoutubePlayer();
   
   const list = getActiveList();
@@ -2285,25 +2296,41 @@ function render(){
 }
 
 function getCurrentStationId(){
-  return current[index]?.id || "global";
+
+    if(currentObvyrisStation !== null){
+        return "obvyris" + (currentObvyrisStation + 1);
+    }
+
+    return current[index]?.id || "global";
+
 }
 
 function goHome(){
   window.location.href = "./index99.html";
 }
   
-function shareSite(){
+function shareSite(stationIndex = null){
 
-  const url = window.location.href;
-  const title = "Radio Obvyris - Live Radio Stations";
-  const text = "Listen to live radio stations on Radio Obvyris";
+  let url = window.location.origin + window.location.pathname;
+  let title = "Radio Obvyris";
+  let text = "Listen to Radio Obvyris";
+
+  if(stationIndex !== null){
+
+    const station = OBVYRIS_STATIONS[stationIndex];
+
+    url += "?station=" + encodeURIComponent(station.name);
+
+    title = station.name;
+    text = "Listen to " + station.name + " on Radio Obvyris";
+
+  }
 
   const cleanUrl = encodeURIComponent(url);
   const cleanText = encodeURIComponent(text);
   const cleanTitle = encodeURIComponent(title);
 
-  // Native share (mobile)
-  if (navigator.share) {
+  if(navigator.share){
     navigator.share({
       title,
       text,
@@ -2312,7 +2339,6 @@ function shareSite(){
     return;
   }
 
-  // fallback share menu
   const menu = document.createElement("div");
 
   menu.innerHTML = `
@@ -2365,6 +2391,7 @@ function shareSite(){
   `;
 
   document.body.appendChild(menu);
+
 }
   
 function favFiltered(i){
@@ -2543,7 +2570,7 @@ async function playObvyris(i){
 
 
     const station = OBVYRIS_STATIONS[i];
-
+    currentObvyrisStation = i;
 
     try{
 
@@ -2747,7 +2774,13 @@ if (chatOpen) renderPopupChat();
 }
 
 function getStationName(){
-  return current?.[index]?.name || "this station";
+
+    if(currentObvyrisStation !== null){
+        return OBVYRIS_STATIONS[currentObvyrisStation].name;
+    }
+
+    return current?.[index]?.name || "this station";
+
 }
   
 function renderChat(){
@@ -3106,7 +3139,7 @@ async function playNextObvyris(){
 
     try{
 
-        const station = OBVYRIS_STATIONS[0];
+        const station = OBVYRIS_STATIONS[currentObvyrisStation];
 
         const res = await fetch(
             station.api + "?action=now&t=" + Date.now()
