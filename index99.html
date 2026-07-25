@@ -745,43 +745,91 @@ Open Games
     </div>
 
 
-    <!-- RADIO -->
+<!-- RADIO 1 -->
 
-    <div class="stationGuide">
+<div class="stationGuide">
 
-        <b>📻 Radio Obvyris - Now Playing:</b>
+<b>📻 Obvyris Radio Bangers</b>
 
-        <span class="programTitle" id="radioProgram">
-            Loading...
-        </span>
+<span class="programTitle" id="radioProgram0">Loading...</span>
 
-        <div class="stationBottom">
+<div class="stationBottom">
 
-            <div class="status">
+<div class="status">
+Artist:
+<span id="radioArtist0">Loading...</span>
+<br>
+Genre:
+<span id="radioGenre0">Loading...</span>
+</div>
 
-                Artist:
-                <span id="radioArtist">
-                    Loading...
-                </span>
-
-                <br>
-
-                Genre:
-                <span id="radioGenre">
-                    Loading...
-                </span>
-
-            </div>
-
-            <button
+<button
 class="stationButton"
-onclick="event.stopPropagation();location.href='Radio_Obvyris.html?station=Obvyris%20Radio%201';">
-    ▶ Open Radio
+onclick="event.stopPropagation();location.href='Radio_Obvyris.html?station='+encodeURIComponent('Obvyris Radio Bangers');">
+▶ Open Radio
 </button>
 
-        </div>
+</div>
 
-    </div>
+</div>
+
+
+<!-- RADIO 2 -->
+
+<div class="stationGuide">
+
+<b>📻 Obvyris Radio Popular Music</b>
+
+<span class="programTitle" id="radioProgram1">Loading...</span>
+
+<div class="stationBottom">
+
+<div class="status">
+Artist:
+<span id="radioArtist1">Loading...</span>
+<br>
+Genre:
+<span id="radioGenre1">Loading...</span>
+</div>
+
+<button
+class="stationButton"
+onclick="event.stopPropagation();location.href='Radio_Obvyris.html?station='+encodeURIComponent('Obvyris Radio Popular Music');">
+▶ Open Radio
+</button>
+
+</div>
+
+</div>
+
+
+<!-- RADIO 3 -->
+
+<div class="stationGuide">
+
+<b>📻 Obvyris Radio Mix</b>
+
+<span class="programTitle" id="radioProgram2">Loading...</span>
+
+<div class="stationBottom">
+
+<div class="status">
+Artist:
+<span id="radioArtist2">Loading...</span>
+<br>
+Genre:
+<span id="radioGenre2">Loading...</span>
+</div>
+
+<button
+class="stationButton"
+onclick="event.stopPropagation();location.href='Radio_Obvyris.html?station='+encodeURIComponent('Obvyris Radio Mix');">
+▶ Open Radio
+</button>
+
+</div>
+
+</div>
 <!-- SPORTS -->
 
 <div class="stationGuide">
@@ -962,8 +1010,20 @@ const STATIONS = {
 let CURRENT_STATION = "1";
 
 
-const RADIO_API =
-"https://script.google.com/macros/s/AKfycbwA1FraODA7b2LLXhJfDzvdbK9TfNtSFVqcKQl67P0WjFg4ysOIGHGyq9JyeSN9axy2/exec";
+const OBVYRIS_STATIONS = [
+{
+    name: "Obvyris Radio Bangers",
+    api: "https://script.google.com/macros/s/AKfycbwA1FraODA7b2LLXhJfDzvdbK9TfNtSFVqcKQl67P0WjFg4ysOIGHGyq9JyeSN9axy2/exec"
+},
+{
+    name: "Obvyris Radio Popular Music",
+    api: "https://script.google.com/macros/s/AKfycbzyWPlGW2wP3YLOq4VjqU8tHi16oTYsjKGdsIUD2Pg-7Tgdu7dMOe1Qk0auZ4of5dih/exec"
+},
+{
+    name: "Obvyris Radio Mix",
+    api: "https://script.google.com/macros/s/AKfycbx_4xXgNMlrU2gliFlA8l4s2BYgXTpVBYgZ1WG38U_4kkQ5QKUc3v8apiEo727bnt1Z/exec"
+}
+];
 
 
 /*
@@ -1025,38 +1085,41 @@ async function loadGuide() {
         console.error("Station 2:", e);
 
     }
-    // ---------- Radio ----------
+// ---------- Radio Stations ----------
 
-try{
+for(let i=0;i<OBVYRIS_STATIONS.length;i++){
 
-    const res = await fetch(
-        RADIO_API +
-        "?t=" + Date.now()
-    );
+    const station = OBVYRIS_STATIONS[i];
 
-    const data = await res.json();
+    try{
 
-    document.getElementById("radioProgram").innerText =
-        data.program || "Unknown";
+        const res = await fetch(
+            station.api + "?t=" + Date.now()
+        );
 
-    document.getElementById("radioArtist").innerText =
-        data.artist || "-";
+        const data = await res.json();
 
-    document.getElementById("radioGenre").innerText =
-        data.genre || "-";
+        document.getElementById("radioProgram"+i).innerText =
+            data.program || "Unknown";
 
-}catch(e){
+        document.getElementById("radioArtist"+i).innerText =
+            data.artist || "-";
 
-    document.getElementById("radioProgram").innerText =
-        "Unavailable";
+        document.getElementById("radioGenre"+i).innerText =
+            data.genre || "-";
 
-    document.getElementById("radioArtist").innerText =
-        "-";
+    }catch(e){
 
-    document.getElementById("radioGenre").innerText =
-        "-";
+        document.getElementById("radioProgram"+i).innerText =
+            "Unavailable";
 
-    console.error("Radio:",e);
+        document.getElementById("radioArtist"+i).innerText = "-";
+
+        document.getElementById("radioGenre"+i).innerText = "-";
+
+        console.error(station.name,e);
+
+    }
 
 }
 }
