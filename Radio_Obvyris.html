@@ -1614,13 +1614,33 @@ async function loadObvyrisStations(){
 
     el.innerHTML = "";
 
+    const stationInfo = [
+        {
+            genre: "Rock • Metal • Punk • Alternative",
+            description: "24/7 Music Video Stream • Rock • Metal • Punk • Alternative"
+        },
+        {
+            genre: "Popular Music",
+            description: "24/7 Music Video Stream • Pop • Dance • Top 40 • Hits"
+        },
+        {
+            genre: "Rap • Hip Hop • R&B",
+            description: "24/7 Music Video Stream • Rap • Hip Hop • R&B"
+        }
+    ];
+
     OBVYRIS_STATIONS.forEach((station, i) => {
+
+        const info = stationInfo[i] || {
+            genre: "Music",
+            description: "24/7 Music Video Stream"
+        };
 
         el.innerHTML += `
         <div class="card">
 
             <div class="station">
-                📻 ${station.name}
+                📻 ${station.name} - ${info.genre}
             </div>
 
             <div class="small">
@@ -1628,7 +1648,7 @@ async function loadObvyrisStations(){
             </div>
 
             <div class="small">
-                24/7 Music Video Stream
+                ${info.description}
             </div>
 
             <div class="row">
