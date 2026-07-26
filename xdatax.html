@@ -1,46 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>Obvyris Archive Radio Search</title>
+
+
+<style>
+
+body{
+
+background:#09111d;
+color:white;
+font-family:Arial,Helvetica,sans-serif;
+padding:20px;
+
+}
+
+
+h1{
+
+color:#2793ff;
+
+}
+
+
+.searchbox{
+
+background:#142235;
+padding:20px;
+border-radius:15px;
+
+}
+
+
+input{
+
+width:70%;
+padding:14px;
+font-size:16px;
+border-radius:8px;
+border:0;
+
+}
+
+
+button{
+
+padding:14px 20px;
+border:0;
+border-radius:8px;
+background:#2793ff;
+color:white;
+font-weight:bold;
+cursor:pointer;
+
+}
+
+
+
+#count{
+
+color:#70c5ff;
+
+}
+
+
+
+.card{
+
+background:#111c2d;
+margin-top:15px;
+padding:18px;
+border-radius:15px;
+
+}
+
+
+.title{
+
+font-size:20px;
+font-weight:bold;
+color:#4db1ff;
+
+}
+
+
+.info{
+
+margin-top:8px;
+color:#ddd;
+
+}
+
+
+.small{
+
+font-size:13px;
+color:#aaa;
+
+}
+
+
+a{
+
+color:#6ecbff;
+
+}
+
+
+.loading{
+
+font-size:20px;
+color:#aaa;
+
+}
+
+
+</style>
+
+
+</head>
+
+
+<body>
+
+
+<h1>
+📻 Obvyris Archive Radio Search
+</h1>
+
+
+
+<div class="searchbox">
+
+
+<input 
+id="search"
+placeholder="Search music, artist, genre, year..."
+onkeypress="if(event.key==='Enter')searchArchive()">
+
+
+<button onclick="searchArchive()">
+SEARCH
+</button>
+
+
+</div>
+
+
+
+<h2 id="count">
+Loading Archive.org...
+</h2>
+
+
+
+<div id="results"></div>
+
+
+
 <script>
 
+
 let items=[];
+
+
+
+function cleanText(value){
+
+
+if(Array.isArray(value)){
+
+return value.join(" ");
+
+}
+
+
+return value || "";
+
+
+}
+
+
 
 
 async function loadArchive(){
 
 
+
 let url =
-"https://archive.org/advancedsearch.php?q=mediatype:audio&fl[]=identifier,title,description,collection,creator,date&rows=50&output=json";
+
+"https://archive.org/advancedsearch.php?q=mediatype:audio&fl[]=identifier,title,description,collection,creator,date&rows=100&output=json";
+
 
 
 try{
 
 
-let res = await fetch(url);
+let response =
+await fetch(url);
 
 
-let data = await res.json();
+
+let data =
+await response.json();
 
 
-items = data.response.docs.map(x=>{
+
+items =
+data.response.docs.map(x=>{
 
 
 return {
 
-title:x.title || "",
 
-description:x.description || "",
+identifier:
+x.identifier || "",
 
-collection:Array.isArray(x.collection)
-? x.collection.join(", ")
-: x.collection || "",
 
-creator:x.creator || "",
+title:
+cleanText(x.title),
 
-date:x.date || "",
+
+description:
+cleanText(x.description),
+
+
+collection:
+cleanText(x.collection),
+
+
+creator:
+cleanText(x.creator),
+
+
+date:
+cleanText(x.date),
+
 
 link:
-"https://archive.org/details/"+x.identifier,
+"https://archive.org/details/"+x.identifier
 
-audio:
-"https://archive.org/download/"+x.identifier+"/"
 
 };
 
@@ -48,23 +253,30 @@ audio:
 });
 
 
+
 display(items);
 
 
 
 }
-catch(e){
 
-console.log(e);
+catch(error){
+
 
 document.getElementById("count").innerHTML =
-"LOAD ERROR";
+"ERROR LOADING DATA";
+
+
+console.log(error);
+
 
 }
 
 
 
 }
+
+
 
 
 
@@ -72,29 +284,42 @@ function searchArchive(){
 
 
 let q =
+
 document
 .getElementById("search")
 .value
-.toLowerCase();
-
-
-let collection =
-document
-.getElementById("collection")
-.value;
+.toLowerCase()
+.trim();
 
 
 
-let result =
+if(q===""){
+
+display(items);
+
+return;
+
+}
+
+
+
+let results =
+
+
 items.filter(x=>{
 
 
 let text =
+
+
 (
 x.title+
 x.description+
+x.collection+
 x.creator+
-x.collection
+x.date+
+x.identifier
+
 )
 .toLowerCase();
 
@@ -107,7 +332,8 @@ return text.includes(q);
 });
 
 
-display(result);
+
+display(results);
 
 
 
@@ -116,15 +342,24 @@ display(result);
 
 
 
+
+
+
 function display(data){
 
 
-document.getElementById("count").innerHTML =
+
+document
+.getElementById("count")
+.innerHTML =
+
 data.length+" Results";
+
 
 
 let box =
 document.getElementById("results");
+
 
 
 box.innerHTML="";
@@ -140,41 +375,51 @@ box.innerHTML += `
 <div class="card">
 
 
+<div class="title">
+
+${x.title}
+
+</div>
+
+
+
 <div class="info">
 
+🎤 ${x.creator}
 
-<div class="title">
-${x.title}
 </div>
 
 
-<div>
-Artist:
-${x.creator}
+
+<div class="info">
+
+📂 ${x.collection}
+
 </div>
 
 
-<div>
-Collection:
-${x.collection}
+
+<div class="info">
+
+📅 ${x.date}
+
 </div>
 
 
-<div>
-Date:
-${x.date}
-</div>
 
+<p class="small">
 
-<br>
+${x.description.substring(0,300)}
+
+</p>
+
 
 
 <a href="${x.link}" target="_blank">
-Open Archive
+
+Open Archive.org
+
 </a>
-
-
-</div>
 
 
 </div>
@@ -183,14 +428,25 @@ Open Archive
 `;
 
 
+
 });
+
 
 
 }
 
 
 
+
+
 loadArchive();
 
 
+
 </script>
+
+
+
+</body>
+
+</html>
