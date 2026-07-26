@@ -261,6 +261,55 @@ border-left:2px solid #2793ff;
 margin-top:5px;
 
 }
+
+#playerBar{
+
+position:fixed;
+
+bottom:0;
+
+left:0;
+
+right:0;
+
+background:#101923;
+
+border-top:1px solid #25384d;
+
+padding:8px;
+
+font-size:12px;
+
+z-index:9999;
+
+}
+
+
+#playerBar button{
+
+padding:5px 12px;
+
+margin:3px;
+
+}
+
+
+#npName{
+
+color:#55b8ff;
+
+font-weight:bold;
+
+}
+
+
+#npMeta{
+
+color:#aaa;
+
+font-size:11px;
+
+}
   
 </style>
 
@@ -388,7 +437,42 @@ Next ▶
 <div id="results"></div>
 
 
+<!-- GLOBAL ARCHIVE PLAYER -->
 
+<div id="playerBar">
+
+<div id="npName">
+No Track Playing
+</div>
+
+<div id="npMeta">
+Archive Audio
+</div>
+
+
+<audio id="audio"></audio>
+
+
+<div>
+
+<button onclick="archivePrev()">
+◀
+</button>
+
+
+<button onclick="archiveToggle()">
+▶ / ⏸
+</button>
+
+
+<button onclick="archiveNext()">
+▶
+</button>
+
+</div>
+
+
+</div>
 
 <script>
 
@@ -956,7 +1040,7 @@ html += `
 
 <div class="file"
 
-onclick="playTrack(${index})">
+onclick="playArchiveFile('${id}',${index})">
 
 
 🎵
@@ -977,10 +1061,9 @@ ${escapeHTML(track.name)}
 
 
 
-playlist = tracks;
+archivePlaylist = tracks;
 
-
-playlistIndex = 0;
+archiveIndex = 0;
 
 
 
@@ -993,7 +1076,68 @@ box.innerHTML = html;
 
 
 
+function playArchiveFile(id,index){
 
+    if(id){
+
+        loadFiles(id);
+
+    }
+
+    playTrack(index);
+
+}
+
+function archiveToggle(){
+
+const audio=document.getElementById("audio");
+
+
+if(audio.paused){
+
+audio.play();
+
+}else{
+
+audio.pause();
+
+}
+
+}
+
+
+
+function archiveNext(){
+
+if(
+archiveIndex <
+archivePlaylist.length-1
+){
+
+archiveIndex++;
+
+playTrack(archiveIndex);
+
+}
+
+}
+
+
+
+function archivePrev(){
+
+if(
+archiveIndex>0
+){
+
+archiveIndex--;
+
+playTrack(archiveIndex);
+
+}
+
+}
+  
 async function showMeta(id){
 
 
@@ -1082,95 +1226,51 @@ return String(text)
 // =============================
 
 
+let archivePlaylist=[];
+let archiveIndex=0;
+
+
 function playTrack(index){
 
 
-if(!playlist[index])
+if(!archivePlaylist[index])
 return;
 
 
-
-playlistIndex=index;
-
+archiveIndex=index;
 
 
-let track =
-playlist[index];
+const track=archivePlaylist[index];
 
 
-
-let player =
-document.getElementById("player");
+const audio=document.getElementById("audio");
 
 
+audio.src=track.url;
 
-if(!player)
-return;
+
+audio.play();
 
 
 
-player.innerHTML = `
+document.getElementById("npName").innerHTML =
+"🎵 " + track.name;
 
 
-<div class="small">
-
-▶ Playing Track
-
-${index+1}
-
-/
-
-${playlist.length}
+document.getElementById("npMeta").innerHTML =
+"Track " + (index+1) +
+" / " +
+archivePlaylist.length;
 
 
-<br>
+audio.onended=function(){
 
-${escapeHTML(track.name)}
+    archiveNext();
 
-</div>
-
-
-
-<audio id="audioPlayer"
-
-controls
-
-autoplay>
-
-
-<source src="${track.url}">
-
-
-</audio>
-
-
-
-<br>
-
-
-
-<button onclick="previousTrack()">
-
-◀ Previous
-
-</button>
-
-
-
-<button onclick="nextTrack()">
-
-Next ▶
-
-</button>
-
-
-
-`;
-
+};
 
 
 }
-
 
 
 
