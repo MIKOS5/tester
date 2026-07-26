@@ -252,82 +252,71 @@ color:#65c9ff;
 
 <div class="controls">
 
-
-
 <input id="search"
-
 placeholder="Search Internet Archive...">
 
 
-
 <select id="type">
-
 
 <option value="">
 All Media
 </option>
 
-
 <option value="audio">
 🎵 Audio
 </option>
-
 
 <option value="movies">
 🎬 Movies
 </option>
 
-
 <option value="texts">
 📚 Texts
 </option>
-
 
 <option value="software">
 💾 Software
 </option>
 
-
 <option value="etree">
 🎸 Live Concerts
 </option>
 
-
-
 </select>
 
 
+<input id="creator"
+placeholder="Creator">
+
+
+<input id="uploader"
+placeholder="Uploader">
+
+
+<input id="genre"
+placeholder="Genre">
+
 
 <select id="sort">
-
 
 <option value="downloads desc">
 Most Popular
 </option>
 
-
 <option value="date desc">
 Newest
 </option>
-
 
 <option value="titleSorter asc">
 Title A-Z
 </option>
 
-
-
 </select>
 
 
-
-
 <button onclick="searchArchive(0)">
-
 SEARCH
-
 </button>
-
 
 
 </div>
@@ -420,13 +409,60 @@ currentQuery =
 text || "*";
 
 
+// Media type filter
 
 if(type){
-
 
 currentQuery += 
 " AND mediatype:" + type;
 
+}
+
+
+// Creator filter
+
+let creator =
+document.getElementById("creator")
+.value
+.trim();
+
+
+if(creator){
+
+currentQuery +=
+' AND creator:"' + creator + '"';
+
+}
+
+
+// Uploader filter
+
+let uploader =
+document.getElementById("uploader")
+.value
+.trim();
+
+
+if(uploader){
+
+currentQuery +=
+' AND uploader:"' + uploader + '"';
+
+}
+
+
+// Genre filter
+
+let genre =
+document.getElementById("genre")
+.value
+.trim();
+
+
+if(genre){
+
+currentQuery +=
+' AND subject:"' + genre + '"';
 
 }
 
