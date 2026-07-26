@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
-<title>Obvyris Archive Search</title>
+<title>Obvyris Archive Engine</title>
 
 <style>
 
@@ -21,64 +21,117 @@ h1{
 color:#2793ff;
 }
 
+
 .controls{
+
 background:#111c2e;
 padding:20px;
 border-radius:15px;
+
 }
 
+
 input,select,button{
+
 padding:12px;
 font-size:16px;
 margin:5px;
 border-radius:8px;
 border:none;
+
 }
+
 
 input{
 width:60%;
 }
 
+
 button{
+
 background:#2793ff;
 color:white;
 cursor:pointer;
+
 }
+
 
 button:hover{
+
 background:#57b0ff;
+
 }
+
+
 
 .card{
+
 background:#162235;
-padding:18px;
-margin-top:15px;
+padding:20px;
+margin-top:20px;
 border-radius:15px;
+
 }
+
 
 .card h2{
+
 color:#4db3ff;
+
 }
 
-a{
-color:#7bd0ff;
-}
+
 
 .tag{
+
 background:#2793ff;
-padding:5px 10px;
+padding:6px 12px;
 border-radius:20px;
-display:inline-block;
+
 }
 
-audio,video{
+
+
+a{
+
+color:#7bd0ff;
+
+}
+
+
+
+audio{
+
 width:100%;
 margin-top:10px;
+
 }
+
+
+
+.track{
+
+background:#0d1726;
+padding:10px;
+margin-top:10px;
+border-radius:10px;
+
+}
+
+
+
+.small{
+
+color:#aaa;
+font-size:14px;
+
+}
+
 
 </style>
 
 </head>
+
 
 
 <body>
@@ -91,49 +144,38 @@ margin-top:10px;
 
 
 <input id="search"
-placeholder="Search Internet Archive...">
+placeholder="Search music, concerts, audio...">
 
 
 <select id="type">
 
-<option value="">Everything</option>
-
-<option value="audio">🎵 Music / Audio</option>
-
-<option value="movies">🎬 Movies</option>
-
-<option value="texts">📚 Books</option>
-
-<option value="software">💾 Software</option>
-
-<option value="etree">🎸 Live Concerts</option>
-
-</select>
-
-
-
-<select id="sort">
-
-<option value="downloads desc">
-Most Popular
+<option value="audio">
+🎵 Audio
 </option>
 
-<option value="date desc">
-Newest
+<option value="movies">
+🎬 Movies
 </option>
 
-<option value="titleSorter asc">
-Title A-Z
+<option value="texts">
+📚 Books
 </option>
+
+<option value="">
+🌐 Everything
+</option>
+
 
 </select>
 
 
 <select id="rows">
 
-<option>10</option>
-<option>25</option>
-<option>50</option>
+<option value="10">10 Results</option>
+
+<option value="25">25 Results</option>
+
+<option value="50">50 Results</option>
 
 </select>
 
@@ -146,6 +188,7 @@ SEARCH
 </div>
 
 
+
 <h3 id="status"></h3>
 
 
@@ -156,54 +199,78 @@ SEARCH
 <script>
 
 
+
 async function searchArchive(){
 
 
-let text=document.getElementById("search").value;
+let text =
+document.getElementById("search").value;
 
-let type=document.getElementById("type").value;
 
-let sort=document.getElementById("sort").value;
+let type =
+document.getElementById("type").value;
 
-let rows=document.getElementById("rows").value;
+
+let rows =
+document.getElementById("rows").value;
+
 
 
 let query=text || "*";
 
 
+
 if(type){
+
 query += " AND mediatype:" + type;
+
 }
 
 
-let url =
+
+let url=
+
 "https://archive.org/advancedsearch.php?q="
-+encodeURIComponent(query)
-+"&fl[]=identifier,title,creator,mediatype,description"
-+"&sort[]="
-+encodeURIComponent(sort)
-+"&rows="
-+rows
-+"&output=json";
++
+encodeURIComponent(query)
++
+"&fl[]=identifier,title,creator,mediatype"
++
+"&rows="
++
+rows
++
+"&output=json";
+
 
 
 document.getElementById("status").innerHTML=
 "Searching...";
 
 
-let response=await fetch(url);
 
-let data=await response.json();
+let response=
+await fetch(url);
 
 
-let box=document.getElementById("results");
+let data=
+await response.json();
+
+
+
+let box=
+document.getElementById("results");
+
 
 box.innerHTML="";
 
 
+
 document.getElementById("status").innerHTML=
 "Found "
-+data.response.numFound+
++
+data.response.numFound
++
 " results";
 
 
@@ -211,7 +278,24 @@ document.getElementById("status").innerHTML=
 for(let item of data.response.docs){
 
 
+await loadItem(item,box);
+
+
+}
+
+
+
+}
+
+
+
+
+async function loadItem(item,box){
+
+
+
 let id=item.identifier;
+
 
 
 let icon="📁";
@@ -226,156 +310,86 @@ icon="🎬";
 if(item.mediatype=="texts")
 icon="📚";
 
-if(item.mediatype=="software")
-icon="💾";
 
 
+let meta={};
 
-let player="";
+let tracks=[];
 
-
-/* Get metadata for playable files */
-
-if(item.mediatype=="audio" || item.mediatype=="movies"){
 
 
 try{
 
 
-let meta =
+let response=
 await fetch(
 "https://archive.org/metadata/"+id
 );
 
 
-let json =
-await meta.json();
+
+meta=
+await response.json();
 
 
 
-let file =
-json.files.find(f=>
-f.name.match(/\.(mp3|mp4|ogg|webm)$/i)
+tracks=
+meta.files.filter(file=>
+
+
+file.format &&
+
+(
+file.format.includes("MP3") ||
+file.format.includes("Ogg") ||
+file.format.includes("FLAC")
+)
+
+
 );
 
 
 
-if(file){
+}
+
+catch(e){}
 
 
-let mediaURL =
+
+let trackHTML="";
+
+
+
+tracks.slice(0,8).forEach(track=>{
+
+
+let fileURL=
+
 "https://archive.org/download/"
-+id+"/"
-+encodeURIComponent(file.name);
++
+id
++
+"/"
++
+encodeURIComponent(track.name);
 
 
 
-if(file.name.match(/mp3|ogg/i)){
+trackHTML +=
 
+`
 
-player=`
+<div class="track">
 
-<audio controls>
-
-<source src="${mediaURL}">
-
-</audio>
-
-`;
-
-}
-
-
-
-if(file.name.match(/mp4|webm/i)){
-
-
-player=`
-
-<video controls>
-
-<source src="${mediaURL}">
-
-</video>
-
-`;
-
-}
-
-
-}
-
-
-}catch(e){}
-
-
-
-}
-
-
-
-
-box.innerHTML += `
-
-
-<div class="card">
-
-
-<h2>
-${icon} ${item.title || "Unknown"}
-</h2>
-
-
-<span class="tag">
-${item.mediatype}
-</span>
-
-
-
-<p>
-${item.creator || "Creator Unknown"}
-</p>
-
-
-
-<p>
-${item.description ?
-item.description.substring(0,250):
-"No description"}
-</p>
-
-
-
-${player}
-
-
+🎵 ${track.name}
 
 <br>
 
+<audio controls preload="none">
 
-<a target="_blank"
-href="https://archive.org/details/${id}">
-🌐 Open Archive
-</a>
+<source src="${fileURL}">
 
-
-<br><br>
-
-
-<a target="_blank"
-href="https://archive.org/download/${id}">
-📂 Download Files
-</a>
-
-
-<br><br>
-
-
-<a target="_blank"
-href="https://archive.org/metadata/${id}">
-⚙ Metadata API
-</a>
-
+</audio>
 
 
 </div>
@@ -385,7 +399,146 @@ href="https://archive.org/metadata/${id}">
 
 
 
-}
+});
+
+
+
+
+box.innerHTML +=
+
+
+`
+
+<div class="card">
+
+
+<h2>
+
+${icon}
+
+${meta.metadata?.title || item.title || "Unknown"}
+
+</h2>
+
+
+
+<span class="tag">
+
+${item.mediatype}
+
+</span>
+
+
+
+<p>
+
+<b>Description:</b><br>
+
+${meta.metadata?.description || "No description"}
+
+</p>
+
+
+
+<p>
+
+<b>Genre:</b>
+
+${meta.metadata?.subject || "Unknown"}
+
+</p>
+
+
+
+<p>
+
+<b>Uploader:</b>
+
+${meta.metadata?.uploader || "Unknown"}
+
+</p>
+
+
+
+<p>
+
+<b>Date:</b>
+
+${meta.metadata?.publicdate || "Unknown"}
+
+</p>
+
+
+
+<p>
+
+<b>Files:</b>
+
+${meta.files_count || tracks.length}
+
+</p>
+
+
+
+<p>
+
+<b>Playable Tracks:</b>
+
+${tracks.length}
+
+</p>
+
+
+
+${trackHTML}
+
+
+
+<br>
+
+
+<a target="_blank"
+
+href="https://archive.org/details/${id}">
+
+🌐 Archive Page
+
+</a>
+
+
+
+<br><br>
+
+
+
+<a target="_blank"
+
+href="https://archive.org/download/${id}">
+
+📂 All Files
+
+</a>
+
+
+
+<br><br>
+
+
+
+<a target="_blank"
+
+href="https://archive.org/metadata/${id}">
+
+⚙ Metadata
+
+</a>
+
+
+
+</div>
+
+
+`;
 
 
 
