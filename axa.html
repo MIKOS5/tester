@@ -24,167 +24,124 @@ box-sizing:border-box;
 }
 
 body{
-
 margin:0;
 background:var(--bg);
 color:var(--text);
 font-family:Inter;
 height:100vh;
-
 display:flex;
-
 }
 
-
 .sidebar{
-
 width:300px;
 padding:20px;
 background:var(--panel);
 border-right:1px solid var(--line);
-
 }
 
-
 .logo{
-
 font-family:Orbitron;
 font-size:35px;
-
 }
 
 .logo span{
-
 color:var(--blue);
-
 }
 
-
 .card{
-
 background:var(--panel);
 border:1px solid var(--line);
 border-radius:16px;
 padding:15px;
 margin-bottom:12px;
-
 }
 
-
 input{
-
 width:100%;
 padding:12px;
 margin-top:8px;
-
 background:#09111d;
 color:white;
-
 border:1px solid var(--line);
 border-radius:10px;
-
 }
-
 
 button{
-
 width:100%;
 margin-top:10px;
-
 padding:12px;
-
 border:0;
 border-radius:12px;
-
 background:linear-gradient(#2793ff,#1869d9);
-
 color:white;
 font-weight:bold;
-
 cursor:pointer;
-
 }
 
-
 .main{
-
 flex:1;
 padding:20px;
 overflow:auto;
-
 }
 
-
 .player{
-
 background:black;
 border-radius:15px;
 overflow:hidden;
-
+min-height:450px;
+display:flex;
+align-items:center;
+justify-content:center;
 }
 
-
-iframe{
-
+.player iframe,
+.player video{
 width:100%;
 height:450px;
 border:0;
-
+background:black;
 }
-
 
 .movie{
-
 background:var(--panel);
 border:1px solid var(--line);
-
 border-radius:15px;
-
 padding:15px;
 margin-top:10px;
-
 cursor:pointer;
-
+transition:.2s;
 }
-
 
 .movie:hover{
-
 border-color:var(--blue);
-
 }
-
 
 @media(max-width:700px){
 
 body{
-
 display:block;
-
 }
 
 .sidebar{
-
 width:100%;
-
 }
 
-iframe{
+.player{
+min-height:250px;
+}
 
+.player iframe,
+.player video{
 height:250px;
-
 }
 
 }
-
 
 </style>
 
 </head>
 
-
 <body>
-
 
 <div class="sidebar">
 
@@ -192,280 +149,237 @@ height:250px;
 Movie <span>Obvyris</span>
 </div>
 
-
 <div class="card">
 
-<h3>
-🎬 Add Movie
-</h3>
+<h3>🎬 Add Movie</h3>
 
-
-<input id="movieName"
+<input
+id="movieName"
 placeholder="Movie Name">
 
-
-<input id="movieURL"
-placeholder="Paste YouTube URL">
-
+<input
+id="movieURL"
+placeholder="Paste YouTube, MP4, WebM, OGG URL">
 
 <button onclick="addMovie()">
 Add To Queue
 </button>
 
-
 </div>
-
 
 <div class="card">
 
-<h3>
-🍿 Theater
-</h3>
+<h3>🍿 Theater</h3>
 
 <div id="queue">
-
 Loading...
+</div>
 
 </div>
 
-
 </div>
-
-
-</div>
-
-
 
 <div class="main">
 
+<h1>🎥 Now Playing</h1>
 
-<h1>
-🎥 Now Playing
-</h1>
+<div
+class="player"
+id="playerContainer">
 
-
-<div class="player">
-
-<iframe
-
-id="player"
-
-allow="autoplay; fullscreen"
-
-allowfullscreen>
-
-</iframe>
-
-
+<div style="opacity:.5">
+Waiting for movie...
 </div>
 
+</div>
 
 <h2 id="now">
-
 Waiting for movie...
-
 </h2>
-
-
-</div>
-
-
 
 <script>
 
-
-const API = 
+const API =
 "https://script.google.com/macros/s/AKfycbxahk4JfuYYg6-yDF0POZpr-4truaVUB9_OmxAZGEJcja765omyB31WC0X7G2Xe0ETLxQ/exec";
 
-
-
-let movies=[];
-
-
+let movies = [];
 
 async function loadMovies(){
 
+    try{
 
-try{
+        const res = await fetch(API,{
+            method:"POST",
+            body:JSON.stringify({
+                action:"getMovies"
+            })
+        });
 
+        movies = await res.json();
 
-let res =
-await fetch(API,{
+        renderQueue();
 
-method:"POST",
+        if(movies.length){
 
-body:JSON.stringify({
+            const current =
+                document.getElementById("now").dataset.playing;
 
-action:"getMovies"
+            if(!current){
+                playMovie(movies[0]);
+            }
 
-})
+        }
 
-});
+    }catch(e){
 
+        console.log(e);
 
-movies =
-await res.json();
-
-
-
-renderQueue();
-
-
-if(movies.length){
-
-playMovie(movies[0]);
-
-}
-
-
-
-}catch(e){
-
-console.log(e);
+    }
 
 }
-
-
-}
-
-
-
 
 function renderQueue(){
 
+    document.getElementById("queue").innerHTML =
+    movies.map((m,i)=>`
 
-document.getElementById("queue").innerHTML =
+        <div class="movie"
+        onclick="playMovie(movies[${i}])">
 
-movies.map((m,i)=>`
+            🎬 ${m.name || "Unknown"}
 
-<div class="movie"
-onclick="playMovie(movies[${i}])">
+            <br>
 
-🎬 ${m.name || "Unknown"}
+            <small>
+            ${m.status || "Queued"}
+            </small>
 
-<br>
+        </div>
 
-<small>
-${m.status || "Queued"}
-</small>
-
-</div>
-
-`).join("");
+    `).join("");
 
 }
-
-
-
 
 function getID(url){
 
+    if(!url) return "";
 
-if(url.includes("youtu.be")){
+    if(url.includes("youtu.be")){
+        return url.split("youtu.be/")[1].split("?")[0];
+    }
 
-return url.split("youtu.be/")[1].split("?")[0];
+    if(url.includes("watch?v=")){
+        return url.split("watch?v=")[1].split("&")[0];
+    }
+
+    if(url.includes("/shorts/")){
+        return url.split("/shorts/")[1].split("?")[0];
+    }
+
+    if(url.includes("/embed/")){
+        return url.split("/embed/")[1].split("?")[0];
+    }
+
+    return url;
 
 }
-
-
-if(url.includes("v=")){
-
-return url.split("v=")[1].split("&")[0];
-
-}
-
-
-return url;
-
-
-}
-
-
-
 
 async function addMovie(){
 
+    const name =
+        document.getElementById("movieName").value.trim();
 
-let name =
-document.getElementById("movieName").value;
+    const url =
+        document.getElementById("movieURL").value.trim();
 
+    if(!url) return;
 
-let url =
-document.getElementById("movieURL").value;
+    await fetch(API,{
+        method:"POST",
+        body:JSON.stringify({
 
+            action:"addMovie",
 
-if(!url)return;
+            name:name,
 
+            url:url,
 
+            videoId:getID(url),
 
-await fetch(API,{
+            user:"Guest"
 
-method:"POST",
+        })
+    });
 
-body:JSON.stringify({
+    document.getElementById("movieName").value="";
+    document.getElementById("movieURL").value="";
 
-action:"addMovie",
-
-name:name,
-
-url:url,
-
-videoId:getID(url),
-
-user:"Guest"
-
-})
-
-});
-
-
-
-document.getElementById("movieName").value="";
-
-document.getElementById("movieURL").value="";
-
-
-loadMovies();
-
+    loadMovies();
 
 }
-
-
-
 
 function playMovie(movie){
 
+    const container =
+        document.getElementById("playerContainer");
 
-let id =
-movie.videoId ||
-getID(movie.url);
+    const url = movie.url || "";
+    const id =
+        movie.videoId || getID(url);
 
+    document.getElementById("now").innerHTML =
+        "🎬 " + (movie.name || "Unknown");
 
+    document.getElementById("now").dataset.playing = url;
 
-document.getElementById("player").src =
+    const lower = url.toLowerCase();
 
-"https://www.youtube.com/embed/"+id+
-"?autoplay=1";
+    // ---------- YouTube ----------
+    if(
+        lower.includes("youtube.com") ||
+        lower.includes("youtu.be")
+    ){
 
+        container.innerHTML = `
+        <iframe
+            src="https://www.youtube.com/embed/${id}?autoplay=1&rel=0"
+            allow="autoplay; fullscreen"
+            allowfullscreen>
+        </iframe>
+        `;
 
+        return;
 
-document.getElementById("now").innerHTML=
+    }
 
-"🎬 "+movie.name;
+    // ---------- HTML5 Video ----------
+    container.innerHTML = `
+        <video
+            id="videoPlayer"
+            controls
+            autoplay
+            playsinline
+            preload="auto">
 
+            <source src="${url}">
+
+            Your browser does not support HTML5 video.
+
+        </video>
+    `;
+
+    const video =
+        document.getElementById("videoPlayer");
+
+    video.load();
 
 }
-
-
-
 
 loadMovies();
 
 setInterval(loadMovies,10000);
 
-
 </script>
-
 
 </body>
 </html>
