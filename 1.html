@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Obvyris Creator Index</title>
+
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<style>
+
+body{
+background:#070d16;
+color:#d8e1ec;
+font-family:Arial;
+margin:15px;
+font-size:14px;
+}
+
+h1{
+color:#2793ff;
+}
+
+input,button,select{
+
+background:#17263a;
+color:white;
+border:1px solid #31465f;
+padding:8px;
+
+}
+
+
+button{
+background:#2793ff;
+cursor:pointer;
+}
+
+
+.card{
+
+background:#101923;
+border:1px solid #25384d;
+padding:10px;
+margin-top:8px;
+
+}
+
+
+.creator{
+
+color:#55b8ff;
+font-size:16px;
+font-weight:bold;
+
+}
+
+
+.count{
+
+color:#aaa;
+
+}
+
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<h1>
+🔎 Obvyris Creator Index
+</h1>
+
+
+<input id="search"
+placeholder="Search archive (example: jazz)">
+
+
+<select id="type">
+
+<option value="">
+All Media
+</option>
+
+<option value="audio">
+Audio
+</option>
+
+<option value="movies">
+Movies
+</option>
+
+<option value="texts">
+Texts
+</option>
+
+</select>
+
+
+<button onclick="buildCreators()">
+BUILD CREATOR ARRAY
+</button>
+
+
+<h3 id="status"></h3>
+
+
+<div id="results"></div>
+
+
+
+<script>
+
+
+let creators={};
+
+
+
+async function buildCreators(){
+
+
+creators={};
+
+
+let term=
+document.getElementById("search").value.trim();
+
+
+let type=
+document.getElementById("type").value;
+
+
+
+let query=term || "*";
+
+
+
+if(type){
+
+query += " AND mediatype:"+type;
+
+}
+
+
+
+let url=
+
+"https://archive.org/advancedsearch.php?q="
+
++encodeURIComponent(query)
+
++"&fl[]=creator"
+
++"&rows=1000"
+
++"&output=json";
+
+
+
+document.getElementById("status").innerHTML=
+"Loading creators...";
+
+
+
+let response=
+await fetch(url);
+
+
+
+let data=
+await response.json();
+
+
+
+let docs=
+data.response.docs;
+
+
+
+docs.forEach(item=>{
+
+
+let c=item.creator;
+
+
+
+if(!c)
+return;
+
+
+
+if(Array.isArray(c)){
+
+
+c.forEach(name=>{
+
+addCreator(name);
+
+});
+
+
+}
+
+else{
+
+addCreator(c);
+
+}
+
+
+
+});
+
+
+
+displayCreators();
+
+
+
+}
+
+
+
+function addCreator(name){
+
+
+name=name.trim();
+
+
+if(name.length<2)
+return;
+
+
+
+if(!creators[name]){
+
+creators[name]=0;
+
+}
+
+
+creators[name]++;
+
+
+}
+
+
+
+
+
+function displayCreators(){
+
+
+let box=
+document.getElementById("results");
+
+
+box.innerHTML="";
+
+
+
+let list=
+Object.keys(creators);
+
+
+
+list.sort((a,b)=>
+a.localeCompare(b)
+);
+
+
+
+document.getElementById("status").innerHTML=
+
+"Unique Creators Found: "
+
++list.length;
+
+
+
+list.forEach(name=>{
+
+
+box.innerHTML += `
+
+
+<div class="card">
+
+
+<div class="creator">
+
+${escapeHTML(name)}
+
+</div>
+
+
+<div class="count">
+
+Archive Records:
+${creators[name]}
+
+</div>
+
+
+</div>
+
+
+`;
+
+
+});
+
+
+
+}
+
+
+
+
+function escapeHTML(t){
+
+return String(t)
+
+.replaceAll("&","&amp;")
+
+.replaceAll("<","&lt;")
+
+.replaceAll(">","&gt;")
+
+.replaceAll('"',"&quot;");
+
+}
+
+
+
+</script>
+
+
+</body>
+</html>
