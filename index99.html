@@ -469,7 +469,9 @@ Obvyris <span>Hub</span>
 Entertainment • Media • Community • News • Gaming • Digital Experiences
 
 </div>
-
+<button id="installBtn" style="display:none;">
+📲 Install Obvyris Hub
+</button
 
 </header>
 
@@ -1564,7 +1566,63 @@ navigator.serviceWorker.register(
 
 }
 
+let deferredPrompt;
 
+const installBtn = document.getElementById("installBtn");
+
+
+window.addEventListener(
+"beforeinstallprompt",
+(e)=>{
+
+
+// Stop automatic mini-infobar
+e.preventDefault();
+
+
+// Save event
+deferredPrompt=e;
+
+
+// Show install button
+installBtn.style.display="block";
+
+
+});
+
+
+
+installBtn.addEventListener(
+"click",
+async()=>{
+
+
+if(!deferredPrompt){
+return;
+}
+
+
+deferredPrompt.prompt();
+
+
+const result =
+await deferredPrompt.userChoice;
+
+
+console.log(
+"Install result:",
+result.outcome
+);
+
+
+deferredPrompt=null;
+
+
+installBtn.style.display="none";
+
+
+});
+    
 loadGuide();
 loadSports();
 
