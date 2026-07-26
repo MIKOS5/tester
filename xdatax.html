@@ -1,1946 +1,493 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>Archive X Obvyris</title>
-
-<link rel="manifest" href="manifest.json">
-
-<meta name="theme-color" content="#2793ff">
-
-<link rel="icon" href="https://mikos5.github.io/tester/navicon.png">
-<link rel="apple-touch-icon" href="https://mikos5.github.io/tester/navicon.png">
-
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<title>Archive Audio Search Engine</title>
 
 <style>
 
-:root{
-
---bg:#09111d;
---panel:#111827;
---panel2:#0b1220;
---line:#253347;
-
---text:#ffffff;
---muted:#8fa3ba;
-
---blue:#2793ff;
---blue2:#166ad8;
-
---green:#3ed27a;
---red:#ff5757;
-
-}
-
-body.light{
-
---bg:#f5f7fb;
---panel:#ffffff;
---panel2:#eef3f8;
---line:#d6dde8;
-
---text:#13243c;
---muted:#5f738c;
-
---blue:#4f8ef7;
---blue2:#2f6fd8;
-
-}
-
-*{
-
-box-sizing:border-box;
-
-}
-
 body{
-
-margin:0;
-background:var(--bg);
-color:var(--text);
-font-family:Inter,sans-serif;
-
-display:flex;
-
-height:100vh;
-
-overflow:hidden;
-
+    background:#09111d;
+    color:white;
+    font-family:Arial, sans-serif;
+    padding:20px;
 }
 
-/********************
- SIDEBAR
-********************/
-
-.sidebar{
-
-width:340px;
-
-background:var(--panel);
-
-border-right:1px solid var(--line);
-
-padding:20px;
-
-overflow:auto;
-
+h1{
+    color:#2793ff;
 }
 
-.logo{
-
-font-family:Orbitron;
-
-font-size:42px;
-
-font-weight:900;
-
-line-height:1;
-
+.searchbox{
+    background:#111c2d;
+    padding:20px;
+    border-radius:12px;
 }
 
-.logo span{
-
-color:var(--blue);
-
+input,select,button{
+    padding:12px;
+    margin:5px;
+    border-radius:8px;
+    border:none;
 }
 
-.subtitle{
-
-margin-top:10px;
-
-font-size:13px;
-
-color:var(--muted);
-
-margin-bottom:22px;
-
-}
-
-.player{
-
-padding:16px;
-
-border-radius:16px;
-
-background:var(--panel2);
-
-border:1px solid var(--line);
-
-}
-
-.controls{
-
-display:grid;
-
-grid-template-columns:repeat(2,1fr);
-
-gap:10px;
-
-margin-top:10px;
-
+input{
+    width:60%;
 }
 
 button{
-
-border:none;
-
-border-radius:12px;
-
-padding:11px;
-
-cursor:pointer;
-
-font-weight:700;
-
-background:linear-gradient(var(--blue),var(--blue2));
-
-color:white;
-
-transition:.25s;
-
+    background:#2793ff;
+    color:white;
+    cursor:pointer;
 }
 
-button:hover{
-
-transform:translateY(-2px);
-
-}
-
-.info{
-
-margin-top:20px;
-
-padding:15px;
-
-border-radius:16px;
-
-background:var(--panel2);
-
-border:1px solid var(--line);
-
-}
-
-.infoTitle{
-
-font-size:12px;
-
-color:var(--muted);
-
-margin-bottom:8px;
-
-}
-
-.infoValue{
-
-font-size:20px;
-
-font-weight:800;
-
-}
-
-.stat{
-
-margin-top:15px;
-
-padding-top:15px;
-
-border-top:1px solid var(--line);
-
-}
-
-/********************
- MAIN
-********************/
-
-.main{
-
-flex:1;
-
-display:flex;
-
-flex-direction:column;
-
-padding:22px;
-
-overflow:hidden;
-
-}
-
-.title{
-
-font-size:42px;
-
-font-weight:800;
-
-margin-bottom:18px;
-
-}
-
-/********************
- TOOLBAR
-********************/
-
-.toolbar{
-
-display:flex;
-
-flex-wrap:wrap;
-
-gap:10px;
-
-margin-bottom:16px;
-
-}
-
-.toolbar input{
-
-flex:1;
-
-min-width:220px;
-
-padding:12px;
-
-border-radius:12px;
-
-border:1px solid var(--line);
-
-background:var(--panel);
-
-color:var(--text);
-
-font-size:15px;
-
-}
-
-.toolbar select{
-
-padding:12px;
-
-border-radius:12px;
-
-border:1px solid var(--line);
-
-background:var(--panel);
-
-color:var(--text);
-
-}
-
-/********************
- CATEGORY BAR
-********************/
-
-.categories{
-
-display:flex;
-
-gap:10px;
-
-overflow-x:auto;
-
-padding-bottom:10px;
-
-margin-bottom:16px;
-
-}
-
-.categories::-webkit-scrollbar{
-
-height:6px;
-
-}
-
-.categories::-webkit-scrollbar-thumb{
-
-background:var(--line);
-
-border-radius:20px;
-
-}
-
-.cat{
-
-padding:10px 18px;
-
-border-radius:999px;
-
-background:var(--panel);
-
-border:1px solid var(--line);
-
-cursor:pointer;
-
-white-space:nowrap;
-
-font-weight:700;
-
-transition:.25s;
-
-}
-
-.cat:hover{
-
-border-color:var(--blue);
-
-}
-
-.cat.active{
-
-background:var(--blue);
-
-border-color:var(--blue);
-
-color:white;
-
-}
-
-/********************
- TICKER
-********************/
-
-.tickerWrap{
-
-overflow:hidden;
-
-border:1px solid var(--line);
-
-border-radius:12px;
-
-background:var(--panel2);
-
-padding:8px 0;
-
-margin-bottom:20px;
-
-}
-
-.ticker{
-
-white-space:nowrap;
-
-display:inline-block;
-
-animation:tickerMove 40s linear infinite;
-
-}
-
-@keyframes tickerMove{
-
-0%{
-
-transform:translateX(100%);
-
-}
-
-100%{
-
-transform:translateX(-100%);
-
-}
-
-}
-
-.tick{
-
-display:inline-flex;
-
-align-items:center;
-
-gap:8px;
-
-padding:0 18px;
-
-font-size:13px;
-
-font-weight:700;
-
-}
-
-/********************
- RESULTS
-********************/
-
-.results{
-
-flex:1;
-
-overflow:auto;
-
-display:grid;
-
-grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
-
-gap:16px;
-
-padding-right:5px;
-
-}
-
-.results::-webkit-scrollbar{
-
-width:8px;
-
-}
-
-.results::-webkit-scrollbar-thumb{
-
-background:var(--line);
-
-border-radius:20px;
-
-}
 
 .card{
 
-background:var(--panel);
+    background:#142235;
+    margin:15px 0;
+    padding:15px;
+    border-radius:12px;
 
-border:1px solid var(--line);
-
-border-radius:18px;
-
-padding:18px;
-
-cursor:pointer;
-
-transition:.25s;
-
-display:flex;
-
-flex-direction:column;
+    display:flex;
+    gap:15px;
 
 }
 
-.card:hover{
 
-transform:translateY(-4px);
+.card img{
 
-border-color:var(--blue);
-
-}
-
-.cardTitle{
-
-font-size:18px;
-
-font-weight:800;
-
-margin-bottom:10px;
-
-line-height:1.3;
+width:120px;
+height:120px;
+object-fit:cover;
+border-radius:10px;
 
 }
 
-.cardMeta{
 
-font-size:13px;
-
-color:var(--muted);
-
-margin-bottom:10px;
-
-}
-
-.cardDesc{
-
-font-size:14px;
-
-line-height:1.5;
-
-color:var(--muted);
-
-flex:1;
-
-margin-bottom:15px;
-
-}
-
-.tags{
-
-display:flex;
-
-gap:8px;
-
-flex-wrap:wrap;
-
-margin-bottom:14px;
-
-}
-
-.tag{
-
-background:var(--panel2);
-
-border:1px solid var(--line);
-
-border-radius:999px;
-
-padding:6px 12px;
-
-font-size:12px;
-
-font-weight:700;
-
-}
-
-.openBtn{
-
-width:100%;
-
-}
-
-/********************
- POPUP
-********************/
-
-.popup{
-
-position:fixed;
-
-top:50%;
-
-left:50%;
-
-transform:translate(-50%,-50%);
-
-width:min(92vw,760px);
-
-height:min(88vh,760px);
-
-background:var(--panel);
-
-border:1px solid var(--line);
-
-border-radius:18px;
-
-display:flex;
-
-flex-direction:column;
-
-overflow:hidden;
-
-z-index:99999;
-
-}
-
-.hidden{
-
-display:none;
-
-}
-
-.popupHeader{
-
-padding:16px;
-
-font-size:20px;
-
-font-weight:800;
-
-display:flex;
-
-justify-content:space-between;
-
-align-items:center;
-
-background:var(--panel2);
-
-border-bottom:1px solid var(--line);
-
-}
-
-.popupBody{
-
-flex:1;
-
-overflow:auto;
-
-padding:22px;
-
-}
-
-.popupRow{
-
-margin-bottom:18px;
-
-}
-
-.popupLabel{
-
-font-size:12px;
-
-font-weight:700;
-
-text-transform:uppercase;
-
-letter-spacing:1px;
-
-color:var(--muted);
-
-margin-bottom:5px;
-
-}
-
-.popupValue{
-
-font-size:15px;
-
-line-height:1.6;
-
-word-break:break-word;
-
-}
-
-.popupFooter{
-
-padding:16px;
-
-display:flex;
-
-gap:10px;
-
-border-top:1px solid var(--line);
-
-background:var(--panel2);
-
-}
-
-.popupFooter button{
+.info{
 
 flex:1;
 
 }
 
-/********************
- MOBILE
-********************/
-
-@media(max-width:900px){
-
-body{
-
-flex-direction:column;
-
-}
-
-.sidebar{
-
-width:100%;
-
-height:auto;
-
-border-right:none;
-
-border-bottom:1px solid var(--line);
-
-}
-
-.main{
-
-padding:15px;
-
-}
 
 .title{
 
-font-size:32px;
+font-size:20px;
+font-weight:bold;
+color:#4db1ff;
 
 }
 
-.results{
 
-grid-template-columns:1fr;
+.small{
+
+font-size:13px;
+color:#aaa;
 
 }
 
+
+audio{
+
+width:100%;
+
 }
+
+
+a{
+
+color:#70c5ff;
+
+}
+
+
 
 </style>
 
 </head>
 
+
 <body>
 
-<!-- SIDEBAR -->
 
-<div class="sidebar">
+<h1>📻 Archive.org Media Search Engine</h1>
 
-<div class="logo">
 
-Archive X
+<div class="searchbox">
 
-<span>Obvyris</span>
 
-</div>
+<input id="search"
+placeholder="Search title, artist, keyword, collection...">
 
-<div class="subtitle">
 
-Internet Archive Database Explorer
+<select id="type">
 
-</div>
-
-<div class="player">
-
-<div class="controls">
-
-<button onclick="refreshArchive()">
-
-🔄 Refresh
-
-</button>
-
-<button onclick="toggleTheme()">
-
-🌙 Theme
-
-</button>
-
-<button onclick="randomItem()">
-
-🎲 Random
-
-</button>
-
-<button onclick="clearSearch()">
-
-🧹 Clear
-
-</button>
-
-</div>
-
-</div>
-
-<div class="info">
-
-<div class="infoTitle">
-
-Loaded Records
-
-</div>
-
-<div class="infoValue" id="recordCount">
-
-0
-
-</div>
-
-<div class="stat">
-
-<div class="infoTitle">
-
-Current Media Type
-
-</div>
-
-<div class="infoValue" id="mediaTypeLabel">
-
-Audio
-
-</div>
-
-</div>
-
-<div class="stat">
-
-<div class="infoTitle">
-
-Filtered Results
-
-</div>
-
-<div class="infoValue" id="filteredCount">
-
-0
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-<!-- MAIN -->
-
-<div class="main">
-
-<div class="title">
-
-Archive Database
-
-</div>
-
-<div class="toolbar">
-
-<input
-id="searchBox"
-type="text"
-placeholder="Search Archive Database...">
-
-<select id="sortBox">
-
-<option value="title">
-
-Sort: Title
-
-</option>
-
-<option value="newest">
-
-Sort: Newest
-
-</option>
-
-<option value="oldest">
-
-Sort: Oldest
-
-</option>
+<option value="">All Media</option>
+<option value="audio">Audio</option>
+<option value="video">Video</option>
 
 </select>
 
-</div>
 
-<div class="categories">
+<select id="collection">
 
-<div class="cat active" data-type="audio">
+<option value="">All Collections</option>
 
-🎵 Audio
+</select>
 
-</div>
 
-<div class="cat" data-type="movies">
-
-🎬 Movies
-
-</div>
-
-<div class="cat" data-type="texts">
-
-📚 Books
-
-</div>
-
-<div class="cat" data-type="image">
-
-🖼 Images
-
-</div>
-
-<div class="cat" data-type="software">
-
-💻 Software
-
-</div>
-
-<div class="cat" data-type="etree">
-
-🎸 Live Music
-
-</div>
-
-<div class="cat" data-type="television">
-
-📺 Television
-
-</div>
-
-<div class="cat" data-type="collection">
-
-📁 Collections
-
-</div>
-
-</div>
-
-<div class="tickerWrap">
-
-<div id="ticker" class="ticker">
-
-Loading Archive...
-
-</div>
-
-</div>
-
-<div id="results" class="results">
-
-</div>
-
-</div>
-
-<!-- DETAILS POPUP -->
-
-<div id="popup" class="popup hidden">
-
-<div class="popupHeader">
-
-<span id="popupTitle">
-
-Archive Item
-
-</span>
-
-<button onclick="closePopup()">
-
-✖
-
+<button onclick="searchArchive()">
+Search
 </button>
 
-</div>
-
-<div class="popupBody">
-
-<div class="popupRow">
-
-<div class="popupLabel">
-
-Description
 
 </div>
 
-<div id="popupDescription" class="popupValue">
 
-</div>
+<h2 id="count">
+Loading...
+</h2>
 
-</div>
 
-<div class="popupRow">
+<div id="results"></div>
 
-<div class="popupLabel">
 
-Creator
 
-</div>
-
-<div id="popupCreator" class="popupValue">
-
-</div>
-
-</div>
-
-<div class="popupRow">
-
-<div class="popupLabel">
-
-Published
-
-</div>
-
-<div id="popupDate" class="popupValue">
-
-</div>
-
-</div>
-
-<div class="popupRow">
-
-<div class="popupLabel">
-
-Media Type
-
-</div>
-
-<div id="popupMedia" class="popupValue">
-
-</div>
-
-</div>
-
-<div class="popupRow">
-
-<div class="popupLabel">
-
-Link
-
-</div>
-
-<div id="popupLink" class="popupValue">
-
-</div>
-
-</div>
-
-</div>
-
-<div class="popupFooter">
-
-<button id="openArchiveBtn">
-
-🌐 Open Archive
-
-</button>
-
-<button id="downloadBtn">
-
-⬇ Downloads
-
-</button>
-
-</div>
-
-</div>
-
-<!-- Part 2 will begin here -->
 <script>
-const RSS_BASE =
-    "https://archive.org/services/collection-rss.php?mediatype=";
 
-let currentMedia = "audio";
-let archiveData = [];
-let filteredData = [];
-let currentItem = null;
 
-/* ===========================
-   INIT
-=========================== */
+const RSS =
+"https://archive.org/services/collection-rss.php?mediatype=audio";
 
-window.addEventListener("DOMContentLoaded",()=>{
 
-    initCategories();
+let items=[];
 
-    document.getElementById("searchBox")
-        .addEventListener("input",filterResults);
 
-    document.getElementById("sortBox")
-        .addEventListener("change",filterResults);
 
-    loadRSS(currentMedia);
+async function loadRSS(){
+
+
+try{
+
+
+let response =
+await fetch(
+"https://api.allorigins.win/raw?url="+
+encodeURIComponent(RSS)
+);
+
+
+let text =
+await response.text();
+
+
+let xml =
+new DOMParser()
+.parseFromString(text,"text/xml");
+
+
+let entries =
+xml.querySelectorAll("item");
+
+
+entries.forEach(item=>{
+
+
+let description =
+item.querySelector("description")?.textContent || "";
+
+
+let media =
+item.querySelector("media\\:content,enclosure");
+
+
+let img =
+description.match(/src="([^"]+)/);
+
+
+let category =
+item.querySelector("category")?.textContent || "";
+
+
+let keywords =
+item.querySelector("media\\:keywords")?.textContent || "";
+
+
+let link =
+item.querySelector("link")?.textContent || "";
+
+
+let title =
+item.querySelector("title")?.textContent || "";
+
+
+let pub =
+item.querySelector("pubDate")?.textContent || "";
+
+
+
+items.push({
+
+title:title,
+
+description:description,
+
+category:category,
+
+keywords:keywords,
+
+link:link,
+
+date:pub,
+
+url:media?.getAttribute("url") || "",
+
+img:img ? img[1] : 
+"https://archive.org/images/glogo.png"
+
 
 });
 
-/* ===========================
-   CATEGORY BUTTONS
-=========================== */
-
-function initCategories(){
-
-    document.querySelectorAll(".cat").forEach(btn=>{
-
-        btn.onclick=()=>{
-
-            document.querySelectorAll(".cat")
-                .forEach(c=>c.classList.remove("active"));
-
-            btn.classList.add("active");
-
-            currentMedia = btn.dataset.type;
-
-            document.getElementById("mediaTypeLabel")
-                .textContent = btn.textContent.trim();
-
-            loadRSS(currentMedia);
-
-        };
-
-    });
-
-}
-
-/* ===========================
-   LOAD RSS
-=========================== */
-
-async function loadRSS(media){
-
-    document.getElementById("results").innerHTML =
-        "<div style='padding:20px;'>Loading Archive...</div>";
-
-    try{
-
-        const response = await fetch(
-            RSS_BASE + encodeURIComponent(media)
-        );
-
-        const xml = await response.text();
-
-        parseRSS(xml);
-
-    }
-
-    catch(err){
-
-        console.error(err);
-
-        document.getElementById("results").innerHTML=
-        "<div style='padding:20px;'>Unable to load Archive RSS.</div>";
-
-    }
-
-}
-
-/* ===========================
-   PARSE RSS
-=========================== */
-
-function parseRSS(xml){
-
-    const parser = new DOMParser();
-
-    const doc = parser.parseFromString(xml,"text/xml");
-
-    const items = [...doc.querySelectorAll("item")];
-
-    archiveData=[];
-
-    items.forEach(item=>{
-
-        archiveData.push({
-
-            title:
-                getNode(item,"title"),
-
-            description:
-                stripHTML(getNode(item,"description")),
-
-            creator:
-                getNode(item,"creator") ||
-                getNode(item,"author") ||
-                "Unknown",
-
-            pubDate:
-                getNode(item,"pubDate"),
-
-            link:
-                getNode(item,"link"),
-
-            category:
-                getNode(item,"category"),
-
-            guid:
-                getNode(item,"guid"),
-
-            enclosure:
-                item.querySelector("enclosure")?.getAttribute("url") || ""
-
-        });
-
-    });
-
-    document.getElementById("recordCount").textContent =
-        archiveData.length;
-
-    buildTicker();
-
-    filterResults();
-
-}
-
-/* ===========================
-   FILTER
-=========================== */
-
-function filterResults(){
-
-    const q =
-        document.getElementById("searchBox")
-        .value
-        .toLowerCase();
-
-    filteredData = archiveData.filter(item=>{
-
-        return (
-
-            item.title.toLowerCase().includes(q)
-
-            ||
-
-            item.description.toLowerCase().includes(q)
-
-            ||
-
-            item.creator.toLowerCase().includes(q)
-
-            ||
-
-            item.category.toLowerCase().includes(q)
-
-        );
-
-    });
-
-    sortResults();
-
-}
-
-/* ===========================
-   SORT
-=========================== */
-
-function sortResults(){
-
-    const mode =
-        document.getElementById("sortBox").value;
-
-    if(mode==="title"){
-
-        filteredData.sort((a,b)=>
-            a.title.localeCompare(b.title));
-
-    }
-
-    if(mode==="newest"){
-
-        filteredData.sort((a,b)=>
-            new Date(b.pubDate)-new Date(a.pubDate));
-
-    }
-
-    if(mode==="oldest"){
-
-        filteredData.sort((a,b)=>
-            new Date(a.pubDate)-new Date(b.pubDate));
-
-    }
-
-    renderCards();
-
-}
-
-/* ===========================
-   CARDS
-=========================== */
-
-function renderCards(){
-
-    document.getElementById("filteredCount").textContent =
-        filteredData.length;
-
-    const html = filteredData.map(item=>`
-
-<div class="card" onclick="openItem('${escapeQuotes(item.guid)}')">
-
-<div class="cardTitle">
-
-${item.title}
-
-</div>
-
-<div class="cardMeta">
-
-👤 ${item.creator}
-
-</div>
-
-<div class="cardDesc">
-
-${truncate(item.description,220)}
-
-</div>
-
-<div class="tags">
-
-<div class="tag">
-
-${currentMedia}
-
-</div>
-
-<div class="tag">
-
-${formatDate(item.pubDate)}
-
-</div>
-
-</div>
-
-<button class="openBtn">
-
-Open Details
-
-</button>
-
-</div>
-
-`).join("");
-
-    document.getElementById("results").innerHTML =
-
-        html ||
-
-        "<div style='padding:25px;'>No results found.</div>";
-
-}
-
-/* ===========================
-   POPUP
-=========================== */
-
-function openItem(guid){
-
-    currentItem =
-        archiveData.find(a=>a.guid===guid);
-
-    if(!currentItem) return;
-
-    popupTitle.textContent =
-        currentItem.title;
-
-    popupDescription.textContent =
-        currentItem.description || "-";
-
-    popupCreator.textContent =
-        currentItem.creator;
-
-    popupDate.textContent =
-        formatDate(currentItem.pubDate);
-
-    popupMedia.textContent =
-        currentMedia;
-
-    popupLink.innerHTML =
-        `<a href="${currentItem.link}"
-            target="_blank">
-            ${currentItem.link}
-        </a>`;
-
-    openArchiveBtn.onclick=()=>{
-
-        window.open(currentItem.link,"_blank");
-
-    };
-
-    downloadBtn.onclick=()=>{
-
-        if(currentItem.enclosure){
-
-            window.open(
-                currentItem.enclosure,
-                "_blank"
-            );
-
-        }
-        else{
-
-            window.open(
-                currentItem.link,
-                "_blank"
-            );
-
-        }
-
-    };
-
-    popup.classList.remove("hidden");
-
-}
-
-function closePopup(){
-
-    popup.classList.add("hidden");
-
-}
-
-/* ===========================
-   TICKER
-=========================== */
-
-function buildTicker(){
-
-    let html="";
-
-    archiveData.slice(0,25).forEach(item=>{
-
-        html+=`
-
-<span class="tick">
-
-📦 ${item.title}
-
-</span>
-
-`;
-
-    });
-
-    ticker.innerHTML = html + html;
-
-}
-
-/* ===========================
-   RANDOM
-=========================== */
-
-function randomItem(){
-
-    if(!archiveData.length) return;
-
-    const item =
-        archiveData[
-            Math.floor(
-                Math.random()*archiveData.length
-            )
-        ];
-
-    openItem(item.guid);
-
-}
-
-/* ===========================
-   REFRESH
-=========================== */
-
-function refreshArchive(){
-
-    loadRSS(currentMedia);
-
-}
-
-/* ===========================
-   CLEAR
-=========================== */
-
-function clearSearch(){
-
-    searchBox.value="";
-
-    filterResults();
-
-}
-
-/* ===========================
-   THEME
-=========================== */
-
-function toggleTheme(){
-
-    document.body.classList.toggle("light");
-
-}
-
-/* ===========================
-   HELPERS
-=========================== */
-
-function getNode(parent,name){
-
-    return parent.querySelector(name)?.textContent.trim() || "";
-
-}
-
-function truncate(text,len){
-
-    if(text.length<=len) return text;
-
-    return text.substring(0,len)+"...";
-
-}
-
-function stripHTML(html){
-
-    const div=document.createElement("div");
-
-    div.innerHTML=html;
-
-    return div.textContent || div.innerText || "";
-
-}
-
-function formatDate(date){
-
-    if(!date) return "";
-
-    return new Date(date)
-        .toLocaleDateString();
-
-}
-
-function escapeQuotes(str){
-
-    return String(str)
-        .replace(/'/g,"\\'");
-
-}
-
-
-
-<!-- ==========================================
-PART 3
-Replace the placeholder <script> with this
-========================================== -->
-
-/************************************************
- INTERNET ARCHIVE DATABASE ENGINE
-************************************************/
-
-// Uses the Archive Advanced Search API instead
-// of RSS. Much faster and searches the database.
-
-const SEARCH_API =
-"https://archive.org/advancedsearch.php";
-
-/************************************************
- SETTINGS
-************************************************/
-
-const ROWS = 100;
-
-let page = 1;
-
-/************************************************
- SEARCH
-************************************************/
-
-async function loadRSS(media){
-
-    currentMedia = media;
-
-    document.getElementById("results").innerHTML =
-        "<div style='padding:30px;font-size:18px;'>Loading Archive Database...</div>";
-
-    try{
-
-        const query =
-            `(mediatype:${media})`;
-
-        const url =
-            SEARCH_API +
-            "?q=" + encodeURIComponent(query) +
-
-            "&fl[]=identifier" +
-            "&fl[]=title" +
-            "&fl[]=creator" +
-            "&fl[]=description" +
-            "&fl[]=mediatype" +
-            "&fl[]=publicdate" +
-            "&fl[]=downloads" +
-            "&fl[]=subject" +
-
-            "&rows=" + ROWS +
-
-            "&page=" + page +
-
-            "&sort[]=downloads desc" +
-
-            "&output=json";
-
-        const res = await fetch(url);
-
-        const json = await res.json();
-
-        archiveData = [];
-
-        json.response.docs.forEach(doc=>{
-
-            archiveData.push({
-
-                guid:
-                    doc.identifier,
-
-                identifier:
-                    doc.identifier,
-
-                title:
-                    doc.title || "Untitled",
-
-                creator:
-                    Array.isArray(doc.creator)
-                        ? doc.creator.join(", ")
-                        : (doc.creator || "Unknown"),
-
-                description:
-                    Array.isArray(doc.description)
-                        ? doc.description[0]
-                        : (doc.description || ""),
-
-                category:
-                    Array.isArray(doc.subject)
-                        ? doc.subject.join(", ")
-                        : (doc.subject || ""),
-
-                pubDate:
-                    doc.publicdate || "",
-
-                downloads:
-                    doc.downloads || 0,
-
-                media:
-                    doc.mediatype,
-
-                enclosure:
-                    "",
-
-                link:
-                    "https://archive.org/details/" +
-                    doc.identifier
-
-            });
-
-        });
-
-        recordCount.textContent =
-            archiveData.length;
-
-        buildTicker();
-
-        filterResults();
-
-    }
-
-    catch(err){
-
-        console.error(err);
-
-        results.innerHTML =
-        "<div style='padding:25px;'>Unable to connect to Archive.org.</div>";
-
-    }
-
-}
-
-/************************************************
- SEARCH WHILE TYPING
-************************************************/
-
-searchBox.addEventListener("keyup",()=>{
-
-    filterResults();
 
 });
 
-/************************************************
- BETTER SORTING
-************************************************/
 
-function sortResults(){
 
-    const mode =
-        sortBox.value;
+buildCollections();
 
-    switch(mode){
+display(items);
 
-        case "title":
 
-            filteredData.sort((a,b)=>
+}
+catch(e){
 
-                a.title.localeCompare(b.title)
+document.getElementById("count").innerHTML=
+"RSS Load Error";
 
-            );
-
-            break;
-
-        case "newest":
-
-            filteredData.sort((a,b)=>
-
-                new Date(b.pubDate)-
-                new Date(a.pubDate)
-
-            );
-
-            break;
-
-        case "oldest":
-
-            filteredData.sort((a,b)=>
-
-                new Date(a.pubDate)-
-                new Date(b.pubDate)
-
-            );
-
-            break;
-
-    }
-
-    renderCards();
+console.log(e);
 
 }
 
-/************************************************
- CARD RENDERER
-************************************************/
-
-function renderCards(){
-
-    filteredCount.textContent =
-        filteredData.length;
-
-    results.innerHTML = filteredData.map(item=>`
-
-<div class="card" onclick="openItem('${item.guid}')">
-
-<div class="cardTitle">
-
-${item.title}
-
-</div>
-
-<div class="cardMeta">
-
-👤 ${item.creator}
-
-</div>
-
-<div class="cardMeta">
-
-⬇ ${Number(item.downloads).toLocaleString()} Downloads
-
-</div>
-
-<div class="cardDesc">
-
-${truncate(item.description,180)}
-
-</div>
-
-<div class="tags">
-
-<div class="tag">
-
-${item.media}
-
-</div>
-
-<div class="tag">
-
-${formatDate(item.pubDate)}
-
-</div>
-
-</div>
-
-<button class="openBtn">
-
-Open Archive
-
-</button>
-
-</div>
-
-`).join("");
 
 }
 
-/************************************************
- POPUP
-************************************************/
 
-function openItem(id){
 
-    currentItem =
-        archiveData.find(x=>x.guid===id);
+function buildCollections(){
 
-    if(!currentItem) return;
 
-    popupTitle.textContent =
-        currentItem.title;
+let select =
+document.getElementById("collection");
 
-    popupDescription.textContent =
-        currentItem.description;
 
-    popupCreator.textContent =
-        currentItem.creator;
+let cats =
+[...new Set(
+items.map(x=>x.category)
+)];
 
-    popupDate.textContent =
-        formatDate(currentItem.pubDate);
 
-    popupMedia.textContent =
-        currentItem.media;
+cats.forEach(c=>{
 
-    popupLink.innerHTML =
 
-        `<a href="${currentItem.link}"
-            target="_blank">
-            ${currentItem.link}
-        </a>`;
+let option =
+document.createElement("option");
 
-    openArchiveBtn.onclick=()=>{
+option.value=c;
 
-        window.open(
-            currentItem.link,
-            "_blank"
-        );
+option.textContent=c;
 
-    };
 
-    downloadBtn.onclick=()=>{
+select.appendChild(option);
 
-        window.open(
-            currentItem.link,
-            "_blank"
-        );
 
-    };
+});
 
-    popup.classList.remove("hidden");
 
 }
 
-/************************************************
- TICKER
-************************************************/
 
-function buildTicker(){
 
-    let html="";
 
-    archiveData.slice(0,40).forEach(item=>{
 
-        html+=`
+function searchArchive(){
 
-<span class="tick">
 
-📦 ${item.title}
+let q =
+document
+.getElementById("search")
+.value
+.toLowerCase();
 
-</span>
+
+let type =
+document
+.getElementById("type")
+.value;
+
+
+let collection =
+document
+.getElementById("collection")
+.value;
+
+
+
+let filtered =
+items.filter(x=>{
+
+
+let text =
+(
+x.title+
+x.description+
+x.keywords+
+x.category+
+x.link
+)
+.toLowerCase();
+
+
+
+let match =
+text.includes(q);
+
+
+
+let mediaMatch=true;
+
+
+if(type=="audio")
+mediaMatch =
+x.url.includes(".mp3");
+
+
+if(type=="video")
+mediaMatch =
+x.url.includes("MPEG4") ||
+x.url.includes(".mp4");
+
+
+
+let collectionMatch=true;
+
+
+if(collection)
+collectionMatch =
+x.category==collection;
+
+
+
+return match &&
+mediaMatch &&
+collectionMatch;
+
+
+});
+
+
+
+display(filtered);
+
+
+}
+
+
+
+
+
+
+
+function display(data){
+
+
+document.getElementById("count").innerHTML=
+data.length+" Results";
+
+
+let box =
+document.getElementById("results");
+
+
+box.innerHTML="";
+
+
+
+data.forEach(x=>{
+
+
+box.innerHTML += `
+
+
+<div class="card">
+
+
+<img src="${x.img}">
+
+
+<div class="info">
+
+
+<div class="title">
+${x.title}
+</div>
+
+
+<div class="small">
+${x.category}
+</div>
+
+
+<div class="small">
+${x.date}
+</div>
+
+
+<p>
+${x.keywords}
+</p>
+
+
+<a href="${x.link}" target="_blank">
+Open Archive Page
+</a>
+
+
+<br><br>
+
+
+<audio controls preload="none">
+
+<source src="${x.url}" type="audio/mpeg">
+
+</audio>
+
+
+</div>
+
+
+</div>
+
 
 `;
 
-    });
 
-    ticker.innerHTML =
-        html + html;
 
-}
+});
 
-/************************************************
- RANDOM
-************************************************/
-
-function randomItem(){
-
-    if(!archiveData.length) return;
-
-    const item =
-        archiveData[
-            Math.floor(
-                Math.random()*
-                archiveData.length
-            )
-        ];
-
-    openItem(item.guid);
 
 }
 
-/************************************************
- LOAD MORE
-************************************************/
 
-async function nextPage(){
 
-    page++;
+loadRSS();
 
-    await loadRSS(currentMedia);
-
-}
-
-async function previousPage(){
-
-    if(page>1){
-
-        page--;
-
-        await loadRSS(currentMedia);
-
-    }
-
-}
-
-/************************************************
- FUTURE FEATURES
-************************************************/
-
-/*
-
-Easy additions:
-
-⭐ Favorites (localStorage)
-
-📥 Download file browser
-
-🎵 Audio player
-
-🎬 Video player
-
-📖 Book reader
-
-🖼 Image viewer
-
-📂 Browse collections
-
-👤 Browse creators
-
-🏷 Browse subjects
-
-🔥 Trending downloads
-
-📅 Year filter
-
-🌎 Language filter
-
-🎲 Random by category
-
-*/
-
-console.log("Archive X Obvyris Database Ready");
 
 </script>
+
 
 </body>
 </html>
