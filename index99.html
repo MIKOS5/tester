@@ -1004,7 +1004,9 @@ const STATIONS = {
 
 
 let CURRENT_STATION = "1";
-
+let sportsGames = [];
+let sportsIndex = 0;
+let sportsTimer = null;
 
 const OBVYRIS_STATIONS = [
 {
@@ -1164,59 +1166,30 @@ async function loadSports(){
         const data = await res.json();
 
         if(!data.games || !data.games.length){
+
             sportsDiv.innerHTML = "No games available.";
             return;
+
         }
 
-        let html = "";
 
-        data.games.forEach(game=>{
+        // Save games for rotation
+        sportsGames = data.games;
 
-            html += `
-            <div class="sportsGame">
 
-                <div class="sportsHeader">
-                    ${game.Status}
-                </div>
+        // Start rotation only once
+        if(!sportsTimer){
 
-                <div class="teamRow">
-                    <span>${game.AwayCode}</span>
-                    <strong>${game.AwayScore}</strong>
-                </div>
+            showNextSportsGame();
 
-                <div class="teamRow">
-                    <span>${game.HomeCode}</span>
-                    <strong>${game.HomeScore}</strong>
-                </div>
+            sportsTimer = setInterval(()=>{
 
-                <div class="gameStatus">
-                    ${game.AwayTeam}
-                    @
-                    ${game.HomeTeam}
-                </div>
+                showNextSportsGame();
 
-                <div style="margin-top:8px;font-size:13px;color:#cbd5e1">
-                    ${game.Venue}<br>
-                    ${game.City}, ${game.State}
-                </div>
+            },5000);
 
-                ${
-                    game.WinPitcher ?
-                    `<div style="margin-top:8px;font-size:13px">
-                        W: ${game.WinPitcher}<br>
-                        L: ${game.LossPitcher}<br>
-                        ${game.Save ? "SV: "+game.Save : ""}
-                    </div>`
-                    :
-                    ""
-                }
+        }
 
-            </div>
-            `;
-
-        });
-
-        sportsDiv.innerHTML = html;
 
     }catch(e){
 
@@ -1224,6 +1197,108 @@ async function loadSports(){
 
         sportsDiv.innerHTML =
         "Unable to load sports.";
+
+    }
+
+}
+
+
+
+function showNextSportsGame(){
+
+    const sportsDiv = document.getElementById("sportsCenter");
+
+    if(!sportsGames.length){
+        return;
+    }
+
+
+    const game = sportsGames[sportsIndex];
+
+
+    sportsDiv.innerHTML = `
+
+        <div class="sportsGame">
+
+            <div class="sportsHeader">
+                ${game.Status}
+            </div>
+
+
+            <div class="teamRow">
+                <span>${game.AwayCode}</span>
+                <strong>${game.AwayScore}</strong>
+            </div>
+
+
+            <div class="teamRow">
+                <span>${game.HomeCode}</span>
+                <strong>${game.HomeScore}</strong>
+            </div>
+
+
+            <div class="gameStatus">
+
+                ${game.AwayTeam}
+                @
+                ${game.HomeTeam}
+
+            </div>
+
+
+            <div style="margin-top:8px;font-size:13px;color:#cbd5e1">
+
+                ${game.Venue || ""}
+                <br>
+
+                ${game.City || ""}
+                ${game.State || ""}
+
+            </div>
+
+
+            ${
+                game.WinPitcher ?
+
+                `<div style="margin-top:8px;font-size:13px">
+
+                    W: ${game.WinPitcher}<br>
+
+                    L: ${game.LossPitcher}<br>
+
+                    ${game.Save ? "SV: "+game.Save : ""}
+
+                </div>`
+
+                :
+
+                ""
+
+            }
+
+
+            <div style="
+                margin-top:10px;
+                text-align:center;
+                color:#93a4bb;
+                font-size:12px;
+            ">
+
+                Game ${sportsIndex + 1} of ${sportsGames.length}
+
+            </div>
+
+
+        </div>
+
+    `;
+
+
+    sportsIndex++;
+
+    if(sportsIndex >= sportsGames.length){
+
+        sportsIndex = 0;
 
     }
 
