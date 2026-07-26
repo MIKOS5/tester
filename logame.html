@@ -6,51 +6,50 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
-<title>Obvyris Archive Engine</title>
-
+<title>Obvyris Archive Database</title>
 
 <style>
 
 body{
-
-background:#09111d;
-color:white;
+background:#090f18;
+color:#d8e2ef;
 font-family:Arial,Helvetica,sans-serif;
-padding:20px;
-
+font-size:13px;
+padding:10px;
 }
 
 
 h1{
-
+font-size:20px;
 color:#2793ff;
-
+margin:5px 0 10px;
 }
 
 
 .controls{
 
-background:#111c2e;
-padding:20px;
-border-radius:15px;
+background:#111827;
+border:1px solid #26364d;
+padding:10px;
+border-radius:6px;
 
 }
 
 
 input,select,button{
 
-padding:12px;
-font-size:16px;
-margin:5px;
-border-radius:8px;
-border:none;
+font-size:13px;
+padding:6px 8px;
+margin:2px;
+border-radius:4px;
+border:0;
 
 }
 
 
 input{
 
-width:55%;
+width:45%;
 
 }
 
@@ -64,6 +63,14 @@ cursor:pointer;
 }
 
 
+button:disabled{
+
+background:#444;
+cursor:not-allowed;
+
+}
+
+
 button:hover{
 
 background:#57b0ff;
@@ -71,59 +78,87 @@ background:#57b0ff;
 }
 
 
+#pagebar{
+
+margin:10px 0;
+
+}
+
+
 .card{
 
-background:#162235;
-padding:20px;
-margin-top:20px;
-border-radius:15px;
+background:#111827;
+border:1px solid #26364d;
+padding:10px;
+margin-top:8px;
+border-radius:6px;
 
 }
 
 
 .card h2{
 
-color:#4db3ff;
+font-size:15px;
+color:#57b0ff;
+margin:0 0 5px;
 
 }
 
 
 .tag{
 
+font-size:11px;
 background:#2793ff;
-padding:5px 12px;
-border-radius:20px;
+padding:3px 6px;
+border-radius:3px;
 
 }
 
 
 .info{
 
-line-height:1.6;
+line-height:1.35;
 
 }
 
 
-.file{
+.player{
 
-background:#0b1525;
-padding:12px;
-margin-top:10px;
-border-radius:10px;
+width:300px;
+height:32px;
 
 }
 
 
-.file audio{
+.files{
 
-width:100%;
+margin-top:8px;
+background:#0b1220;
+border-top:1px solid #26364d;
 
 }
 
 
-.file a{
+.track{
 
-color:#7bd0ff;
+padding:5px;
+border-bottom:1px solid #26364d;
+cursor:pointer;
+
+}
+
+
+.track:hover{
+
+background:#1b3048;
+
+}
+
+
+audio{
+
+width:300px;
+height:30px;
 
 }
 
@@ -131,12 +166,20 @@ color:#7bd0ff;
 a{
 
 color:#7bd0ff;
+font-size:12px;
+
+}
+
+
+.small{
+
+font-size:12px;
+color:#9aa9bb;
 
 }
 
 
 </style>
-
 
 </head>
 
@@ -145,37 +188,38 @@ color:#7bd0ff;
 
 
 <h1>
-🔎 Obvyris Archive Engine
+Obvyris Archive Database
 </h1>
+
 
 
 <div class="controls">
 
 
 <input id="search"
-placeholder="Search Internet Archive...">
+placeholder="Search Archive...">
 
 
 <select id="type">
 
 <option value="">
-Everything
+All
 </option>
 
 <option value="audio">
-🎵 Audio
+Audio
 </option>
 
 <option value="movies">
-🎬 Movies
+Movies
 </option>
 
 <option value="texts">
-📚 Books
+Texts
 </option>
 
 <option value="software">
-💾 Software
+Software
 </option>
 
 </select>
@@ -184,19 +228,51 @@ Everything
 
 <select id="rows">
 
-<option>5</option>
+<option value="10">
+10
+</option>
 
-<option>10</option>
+<option value="25">
+25
+</option>
 
-<option>25</option>
+<option value="50">
+50
+</option>
 
 </select>
 
 
 
-<button onclick="searchArchive()">
+<button onclick="searchArchive(1)">
+Search
+</button>
 
-SEARCH
+
+</div>
+
+
+
+<div id="pagebar">
+
+
+<button id="prevBtn"
+onclick="previousPage()">
+
+Previous
+
+</button>
+
+
+<span id="pageInfo">
+Page 1
+</span>
+
+
+<button id="nextBtn"
+onclick="nextPage()">
+
+Next
 
 </button>
 
@@ -205,7 +281,7 @@ SEARCH
 
 
 
-<h3 id="status"></h3>
+<div id="status"></div>
 
 
 <div id="results"></div>
@@ -215,7 +291,17 @@ SEARCH
 <script>
 
 
-async function searchArchive(){
+let currentPage=1;
+
+let totalPages=1;
+
+
+
+async function searchArchive(page=1){
+
+
+currentPage=page;
+
 
 
 let text =
@@ -237,9 +323,14 @@ let query=text;
 
 if(type){
 
-query += " AND mediatype:" + type;
+query += " AND mediatype:"+type;
 
 }
+
+
+
+let start =
+(page-1)*rows;
 
 
 
@@ -255,12 +346,16 @@ encodeURIComponent(query)
 +
 rows
 +
+"&start="
++
+start
++
 "&output=json";
 
 
 
-document.getElementById("status").innerHTML =
-"Searching...";
+document.getElementById("status").innerHTML=
+"Loading...";
 
 
 
@@ -277,31 +372,53 @@ document.getElementById("results").innerHTML="";
 
 
 
+totalPages =
+Math.ceil(
+data.response.numFound / rows
+);
+
+
+
 document.getElementById("status").innerHTML=
 
-"Found "
+"Results: "
 +
-data.response.numFound
+data.response.numFound;
+
+
+
+document.getElementById("pageInfo").innerHTML=
+
+"Page "
 +
-" results";
+currentPage
++
+" / "
++
+totalPages;
+
+
+
+document.getElementById("prevBtn").disabled =
+currentPage<=1;
+
+
+document.getElementById("nextBtn").disabled =
+currentPage>=totalPages;
 
 
 
 for(let item of data.response.docs){
 
+await loadItem(item.identifier);
 
-await loadArchiveItem(item.identifier);
+}
 
 
 }
 
 
-
-}
-
-
-
-async function loadArchiveItem(id){
+async function loadItem(id){
 
 
 let response =
@@ -316,7 +433,7 @@ await response.json();
 
 
 let meta =
-data.metadata;
+data.metadata || {};
 
 
 
@@ -325,7 +442,7 @@ data.files || [];
 
 
 
-let audioFiles = [];
+let audioFiles=[];
 
 
 
@@ -338,10 +455,12 @@ file.name.toLowerCase();
 
 
 if(
+
 name.endsWith(".mp3") ||
 name.endsWith(".ogg") ||
 name.endsWith(".flac") ||
 name.endsWith(".wav")
+
 ){
 
 audioFiles.push(file);
@@ -353,12 +472,16 @@ audioFiles.push(file);
 
 
 
+let playerID =
+"audio_"+id;
 
-let fileHTML = "";
+
+
+let tracks="";
 
 
 
-audioFiles.forEach(file=>{
+audioFiles.forEach((file,index)=>{
 
 
 let filename =
@@ -366,7 +489,7 @@ file.name.split("/").pop();
 
 
 
-let fileURL =
+let url =
 
 "https://archive.org/download/"
 +
@@ -378,43 +501,17 @@ encodeURIComponent(file.name);
 
 
 
-fileHTML += `
+tracks += `
 
 
-<div class="file">
+<div class="track"
+onclick="playFile('${playerID}','${url}')">
 
 
-<h3>
 🎵 ${filename}
-</h3>
-
-
-<audio controls preload="none">
-
-
-<source src="${fileURL}">
-
-
-Your browser does not support audio.
-
-
-</audio>
-
-
-
-<br>
-
-
-<a target="_blank"
-href="${fileURL}">
-
-▶ Open File
-
-</a>
 
 
 </div>
-
 
 
 `;
@@ -427,48 +524,32 @@ href="${fileURL}">
 
 
 
-let icon="📁";
-
-
-
-if(meta.mediatype=="audio")
-icon="🎵";
-
-
-if(meta.mediatype=="movies")
-icon="🎬";
-
-
-if(meta.mediatype=="texts")
-icon="📚";
-
-
-if(meta.mediatype=="software")
-icon="💾";
+let subjects =
+Array.isArray(meta.subject)
+?
+meta.subject.join(", ")
+:
+(meta.subject || "Unknown");
 
 
 
 
 
-
-let card = document.createElement("div");
+let card=document.createElement("div");
 
 card.className="card";
 
 
 
-card.innerHTML = `
+card.innerHTML=
 
 
+
+`
 
 <h2>
-
-${icon}
-
-${meta.title || id}
-
+🎵 ${meta.title || id}
 </h2>
-
 
 
 <span class="tag">
@@ -479,157 +560,120 @@ ${meta.mediatype || "unknown"}
 
 
 
-
-
 <div class="info">
 
 
 <p>
-
 <b>Description:</b><br>
 
 ${
+
 meta.description
-||
+?
+String(meta.description).substring(0,300)
+:
 "No description"
+
 }
 
 </p>
-
-
 
 
 
 <p>
 
 <b>Genre:</b>
-
-${
-Array.isArray(meta.subject)
-?
-meta.subject.join(", ")
-:
-(meta.subject || "Unknown")
-}
+${subjects}
 
 </p>
-
-
 
 
 
 <p>
 
 <b>Uploader:</b>
-
-${
-meta.uploader || "Unknown"
-}
+${meta.uploader || "Unknown"}
 
 </p>
-
-
 
 
 
 <p>
 
 <b>Date:</b>
-
-${
-meta.publicdate || "Unknown"
-}
+${meta.publicdate || "Unknown"}
 
 </p>
 
 
 
+<p class="small">
 
-
-<p>
-
-<b>Files:</b>
-
+Files:
 ${files.length}
 
-</p>
+|
 
-
-
-
-
-<p>
-
-<b>Playable Tracks:</b>
-
+Playable:
 ${audioFiles.length}
 
 </p>
 
 
+</div>
 
 
 
-<h2>
-🎧 Audio Files
-</h2>
+<audio id="${playerID}"
+controls
+class="player">
+
+</audio>
 
 
+
+<div class="files">
 
 ${
 
-fileHTML ||
+tracks ||
 
-"No playable audio files found"
+"No playable audio files"
 
 }
 
+</div>
 
 
 
 <br>
 
 
-
 <a target="_blank"
-
 href="https://archive.org/details/${id}">
 
-🌐 Archive Page
+Archive
 
 </a>
 
-
-
-<br><br>
-
-
+|
 
 <a target="_blank"
-
 href="https://archive.org/download/${id}">
 
-📂 All Files
+Files
 
 </a>
 
-
-
-<br><br>
-
-
+|
 
 <a target="_blank"
-
 href="https://archive.org/metadata/${id}">
 
-⚙ Metadata
+Metadata
 
 </a>
 
-
-
-</div>
 
 
 `;
@@ -641,6 +685,54 @@ document
 .getElementById("results")
 .appendChild(card);
 
+
+
+}
+
+
+
+
+function playFile(player,url){
+
+
+let audio =
+document.getElementById(player);
+
+
+
+audio.src=url;
+
+
+audio.play();
+
+
+
+}
+
+
+
+function nextPage(){
+
+
+if(currentPage < totalPages){
+
+searchArchive(currentPage+1);
+
+}
+
+
+}
+
+
+
+function previousPage(){
+
+
+if(currentPage > 1){
+
+searchArchive(currentPage-1);
+
+}
 
 
 }
