@@ -2,23 +2,28 @@
 <html>
 <head>
 
-<title>Obvyris Creator Index</title>
+<title>Obvyris Email Creator Index</title>
 
 <meta name="viewport" content="width=device-width,initial-scale=1">
+
 
 <style>
 
 body{
+
 background:#070d16;
 color:#d8e1ec;
 font-family:Arial,Helvetica,sans-serif;
 margin:15px;
 font-size:14px;
+
 }
 
 
 h1{
+
 color:#2793ff;
+
 }
 
 
@@ -35,9 +40,13 @@ font-size:14px;
 }
 
 
+
 input{
+
 width:300px;
+
 }
+
 
 
 button{
@@ -47,6 +56,7 @@ border:none;
 cursor:pointer;
 
 }
+
 
 
 button:hover{
@@ -68,7 +78,7 @@ margin-top:8px;
 
 
 
-.creator{
+.email{
 
 font-size:16px;
 font-weight:bold;
@@ -77,12 +87,14 @@ color:#55b8ff;
 }
 
 
+
 .count{
 
 color:#aaa;
 margin-top:5px;
 
 }
+
 
 
 </style>
@@ -94,12 +106,14 @@ margin-top:5px;
 
 
 <h1>
-🔎 Obvyris Creator Index
+📧 Obvyris Email Creator Index
 </h1>
+
 
 
 <input id="search"
 placeholder="Search Archive (example: music)">
+
 
 
 <select id="type">
@@ -127,9 +141,13 @@ All Media
 </select>
 
 
-<button onclick="buildCreators()">
-BUILD CREATOR ARRAY
+
+<button onclick="buildEmails()">
+
+BUILD EMAIL ARRAY
+
 </button>
+
 
 
 <h3 id="status"></h3>
@@ -139,17 +157,18 @@ BUILD CREATOR ARRAY
 
 
 
+
 <script>
 
 
-let creators={};
+let emails={};
 
 
 
-async function buildCreators(){
+async function buildEmails(){
 
 
-creators={};
+emails={};
 
 
 
@@ -167,7 +186,7 @@ document.getElementById("type")
 
 
 let query =
-term || "*";
+term || "mediatype:*";
 
 
 
@@ -179,6 +198,7 @@ query += " AND mediatype:" + type;
 
 
 
+
 let url =
 
 "https://archive.org/advancedsearch.php?q="
@@ -187,16 +207,15 @@ let url =
 
 + "&fl[]=identifier,title,creator,uploader,contributor,artist,publisher"
 
-+ "&rows=1000"
++ "&rows=5000"
 
 + "&output=json";
 
 
 
 
-
 document.getElementById("status").innerHTML =
-"Loading Archive creators...";
+"Loading Archive metadata...";
 
 
 
@@ -220,38 +239,39 @@ data.response.docs;
 docs.forEach(item=>{
 
 
-
-let names=[];
-
-
-
-addField(item.creator,names);
-
-addField(item.uploader,names);
-
-addField(item.contributor,names);
-
-addField(item.artist,names);
-
-addField(item.publisher,names);
+let fields=[];
 
 
 
+collect(item.creator,fields);
 
-names.forEach(name=>{
+collect(item.uploader,fields);
 
-addCreator(name);
+collect(item.contributor,fields);
 
-});
+collect(item.artist,fields);
 
+collect(item.publisher,fields);
+
+
+
+
+
+fields.forEach(value=>{
+
+
+extractEmail(value);
 
 
 });
 
 
+});
 
 
-displayCreators();
+
+
+displayEmails();
 
 
 }
@@ -259,7 +279,8 @@ displayCreators();
 
 
 
-function addField(value,array){
+
+function collect(value,array){
 
 
 if(!value)
@@ -294,53 +315,48 @@ array.push(value);
 
 
 
+function extractEmail(text){
 
-function addCreator(name){
 
-
-if(!name)
+if(!text)
 return;
 
 
 
-name=String(name).trim();
+let matches =
+
+String(text).match(
+
+/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi
+
+);
 
 
 
-if(name.length<2)
+if(!matches)
 return;
 
 
 
-// remove quotes
-
-name=name.replace(/^["']|["']$/g,"");
+matches.forEach(email=>{
 
 
-
-// create unique key
-
-let key=name.toLowerCase();
+email=email.toLowerCase();
 
 
 
-if(!creators[key]){
+if(!emails[email]){
 
-
-creators[key]={
-
-name:name,
-
-count:0
-
-};
-
+emails[email]=0;
 
 }
 
 
+emails[email]++;
 
-creators[key].count++;
+
+
+});
 
 
 }
@@ -349,7 +365,7 @@ creators[key].count++;
 
 
 
-function displayCreators(){
+function displayEmails(){
 
 
 
@@ -363,30 +379,24 @@ box.innerHTML="";
 
 
 let list =
-Object.values(creators);
+Object.keys(emails);
 
 
 
-list.sort((a,b)=>{
-
-return a.name.localeCompare(b.name);
-
-});
-
+list.sort();
 
 
 
 document.getElementById("status").innerHTML =
 
-"Unique Creators Found: "
+"Unique Email Addresses Found: "
 
-+ list.length;
-
-
++list.length;
 
 
 
-list.forEach(item=>{
+
+list.forEach(email=>{
 
 
 box.innerHTML += `
@@ -395,9 +405,9 @@ box.innerHTML += `
 <div class="card">
 
 
-<div class="creator">
+<div class="email">
 
-${escapeHTML(item.name)}
+📧 ${escapeHTML(email)}
 
 </div>
 
@@ -405,7 +415,7 @@ ${escapeHTML(item.name)}
 <div class="count">
 
 Archive Records:
-${item.count}
+${emails[email]}
 
 </div>
 
@@ -419,7 +429,9 @@ ${item.count}
 });
 
 
+
 }
+
 
 
 
