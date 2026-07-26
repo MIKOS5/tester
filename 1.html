@@ -11,29 +11,50 @@
 body{
 background:#070d16;
 color:#d8e1ec;
-font-family:Arial;
+font-family:Arial,Helvetica,sans-serif;
 margin:15px;
 font-size:14px;
 }
+
 
 h1{
 color:#2793ff;
 }
 
-input,button,select{
+
+input,
+select,
+button{
 
 background:#17263a;
 color:white;
 border:1px solid #31465f;
 padding:8px;
+font-size:14px;
 
+}
+
+
+input{
+width:300px;
 }
 
 
 button{
+
 background:#2793ff;
+border:none;
 cursor:pointer;
+
 }
+
+
+button:hover{
+
+background:#55b8ff;
+
+}
+
 
 
 .card{
@@ -46,11 +67,12 @@ margin-top:8px;
 }
 
 
+
 .creator{
 
-color:#55b8ff;
 font-size:16px;
 font-weight:bold;
+color:#55b8ff;
 
 }
 
@@ -58,6 +80,7 @@ font-weight:bold;
 .count{
 
 color:#aaa;
+margin-top:5px;
 
 }
 
@@ -76,7 +99,7 @@ color:#aaa;
 
 
 <input id="search"
-placeholder="Search archive (example: jazz)">
+placeholder="Search Archive (example: music)">
 
 
 <select id="type">
@@ -86,15 +109,19 @@ All Media
 </option>
 
 <option value="audio">
-Audio
+🎵 Audio
 </option>
 
 <option value="movies">
-Movies
+🎬 Movies
 </option>
 
 <option value="texts">
-Texts
+📚 Texts
+</option>
+
+<option value="software">
+💾 Software
 </option>
 
 </select>
@@ -125,79 +152,127 @@ async function buildCreators(){
 creators={};
 
 
-let term=
-document.getElementById("search").value.trim();
+
+let term =
+document.getElementById("search")
+.value
+.trim();
 
 
-let type=
-document.getElementById("type").value;
+
+let type =
+document.getElementById("type")
+.value;
 
 
 
-let query=term || "*";
+let query =
+term || "*";
 
 
 
 if(type){
 
-query += " AND mediatype:"+type;
+query += " AND mediatype:" + type;
 
 }
 
 
 
-let url=
+let url =
 
 "https://archive.org/advancedsearch.php?q="
 
-+encodeURIComponent(query)
++ encodeURIComponent(query)
 
-+"&fl[]=creator"
++ "&fl[]=identifier,title,creator,uploader,contributor,artist,publisher"
 
-+"&rows=1000"
++ "&rows=1000"
 
-+"&output=json";
-
-
-
-document.getElementById("status").innerHTML=
-"Loading creators...";
++ "&output=json";
 
 
 
-let response=
+
+
+document.getElementById("status").innerHTML =
+"Loading Archive creators...";
+
+
+
+
+let response =
 await fetch(url);
 
 
 
-let data=
+let data =
 await response.json();
 
 
 
-let docs=
+let docs =
 data.response.docs;
+
 
 
 
 docs.forEach(item=>{
 
 
-let c=item.creator;
+
+let names=[];
 
 
 
-if(!c)
+addField(item.creator,names);
+
+addField(item.uploader,names);
+
+addField(item.contributor,names);
+
+addField(item.artist,names);
+
+addField(item.publisher,names);
+
+
+
+
+names.forEach(name=>{
+
+addCreator(name);
+
+});
+
+
+
+});
+
+
+
+
+displayCreators();
+
+
+}
+
+
+
+
+function addField(value,array){
+
+
+if(!value)
 return;
 
 
 
-if(Array.isArray(c)){
+if(Array.isArray(value)){
 
 
-c.forEach(name=>{
+value.forEach(v=>{
 
-addCreator(name);
+array.push(v);
 
 });
 
@@ -206,28 +281,30 @@ addCreator(name);
 
 else{
 
-addCreator(c);
+
+array.push(value);
+
+
+}
+
 
 }
 
 
 
-});
-
-
-
-displayCreators();
-
-
-
-}
 
 
 
 function addCreator(name){
 
 
-name=name.trim();
+if(!name)
+return;
+
+
+
+name=String(name).trim();
+
 
 
 if(name.length<2)
@@ -235,14 +312,35 @@ return;
 
 
 
-if(!creators[name]){
+// remove quotes
 
-creators[name]=0;
+name=name.replace(/^["']|["']$/g,"");
+
+
+
+// create unique key
+
+let key=name.toLowerCase();
+
+
+
+if(!creators[key]){
+
+
+creators[key]={
+
+name:name,
+
+count:0
+
+};
+
 
 }
 
 
-creators[name]++;
+
+creators[key].count++;
 
 
 }
@@ -254,34 +352,41 @@ creators[name]++;
 function displayCreators(){
 
 
-let box=
+
+let box =
 document.getElementById("results");
+
 
 
 box.innerHTML="";
 
 
 
-let list=
-Object.keys(creators);
+let list =
+Object.values(creators);
 
 
 
-list.sort((a,b)=>
-a.localeCompare(b)
-);
+list.sort((a,b)=>{
+
+return a.name.localeCompare(b.name);
+
+});
 
 
 
-document.getElementById("status").innerHTML=
+
+document.getElementById("status").innerHTML =
 
 "Unique Creators Found: "
 
-+list.length;
++ list.length;
 
 
 
-list.forEach(name=>{
+
+
+list.forEach(item=>{
 
 
 box.innerHTML += `
@@ -292,7 +397,7 @@ box.innerHTML += `
 
 <div class="creator">
 
-${escapeHTML(name)}
+${escapeHTML(item.name)}
 
 </div>
 
@@ -300,7 +405,7 @@ ${escapeHTML(name)}
 <div class="count">
 
 Archive Records:
-${creators[name]}
+${item.count}
 
 </div>
 
@@ -314,15 +419,15 @@ ${creators[name]}
 });
 
 
-
 }
 
 
 
 
-function escapeHTML(t){
+function escapeHTML(text){
 
-return String(t)
+
+return String(text)
 
 .replaceAll("&","&amp;")
 
@@ -332,6 +437,7 @@ return String(t)
 
 .replaceAll('"',"&quot;");
 
+
 }
 
 
@@ -340,4 +446,5 @@ return String(t)
 
 
 </body>
+
 </html>
