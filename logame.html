@@ -6,189 +6,246 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
-<title>Obvyris Archive Database</title>
+<title>Obvyris Archive Data Engine</title>
+
 
 <style>
 
 body{
-background:#090f18;
-color:#d8e2ef;
+
+background:#070d16;
+
+color:#d8e1ec;
+
 font-family:Arial,Helvetica,sans-serif;
+
 font-size:13px;
-padding:10px;
+
+margin:12px;
+
 }
+
 
 
 h1{
+
 font-size:20px;
+
 color:#2793ff;
-margin:5px 0 10px;
+
+margin:5px 0 12px;
+
 }
+
 
 
 .controls{
 
-background:#111827;
-border:1px solid #26364d;
+background:#101a29;
+
+border:1px solid #25384d;
+
 padding:10px;
-border-radius:6px;
 
 }
 
 
-input,select,button{
+
+input,
+select,
+button{
+
+background:#17263a;
+
+color:white;
+
+border:1px solid #31465f;
+
+padding:6px;
 
 font-size:13px;
-padding:6px 8px;
-margin:2px;
-border-radius:4px;
-border:0;
 
 }
+
 
 
 input{
 
-width:45%;
+width:300px;
 
 }
+
 
 
 button{
 
 background:#2793ff;
-color:white;
+
+border:none;
+
 cursor:pointer;
 
 }
 
-
-button:disabled{
-
-background:#444;
-cursor:not-allowed;
-
-}
 
 
 button:hover{
 
-background:#57b0ff;
+background:#55b5ff;
 
 }
 
 
-#pagebar{
 
-margin:10px 0;
+.nav{
+
+margin-top:10px;
 
 }
+
+
+
+#pageInfo{
+
+margin-left:10px;
+
+color:#aaa;
+
+}
+
+
+
+#status{
+
+font-size:12px;
+
+color:#aaa;
+
+}
+
 
 
 .card{
 
-background:#111827;
-border:1px solid #26364d;
+background:#101923;
+
+border:1px solid #25384d;
+
 padding:10px;
+
 margin-top:8px;
-border-radius:6px;
 
 }
 
 
-.card h2{
+
+.title{
 
 font-size:15px;
-color:#57b0ff;
-margin:0 0 5px;
+
+color:#55b8ff;
+
+font-weight:bold;
 
 }
+
+
+
+.meta{
+
+line-height:18px;
+
+color:#b9c6d6;
+
+}
+
 
 
 .tag{
 
-font-size:11px;
 background:#2793ff;
-padding:3px 6px;
-border-radius:3px;
+
+padding:2px 7px;
+
+border-radius:10px;
+
+font-size:11px;
 
 }
 
 
-.info{
 
-line-height:1.35;
-
-}
-
-
-.player{
-
-width:300px;
-height:32px;
-
-}
-
-
-.files{
-
-margin-top:8px;
-background:#0b1220;
-border-top:1px solid #26364d;
-
-}
-
-
-.track{
+.file{
 
 padding:5px;
-border-bottom:1px solid #26364d;
+
+border-bottom:1px solid #26384f;
+
 cursor:pointer;
 
 }
 
 
-.track:hover{
+
+.file:hover{
 
 background:#1b3048;
 
 }
 
 
-audio{
 
-width:300px;
-height:30px;
+.files{
 
-}
+display:none;
 
-
-a{
-
-color:#7bd0ff;
-font-size:12px;
+margin-top:10px;
 
 }
+
 
 
 .small{
 
-font-size:12px;
-color:#9aa9bb;
+font-size:11px;
+
+color:#8995a5;
 
 }
 
 
+
+audio{
+
+width:100%;
+
+height:35px;
+
+}
+
+
+
+a{
+
+color:#65c9ff;
+
+}
+
+
+
 </style>
 
+
 </head>
+
 
 
 <body>
 
 
+
 <h1>
-Obvyris Archive Database
+🔎 Obvyris Archive Data Engine
 </h1>
 
 
@@ -196,166 +253,213 @@ Obvyris Archive Database
 <div class="controls">
 
 
+
 <input id="search"
-placeholder="Search Archive...">
+
+placeholder="Search Internet Archive...">
+
 
 
 <select id="type">
 
+
 <option value="">
-All
+All Media
 </option>
+
 
 <option value="audio">
-Audio
+🎵 Audio
 </option>
+
 
 <option value="movies">
-Movies
+🎬 Movies
 </option>
+
 
 <option value="texts">
-Texts
+📚 Texts
 </option>
+
 
 <option value="software">
-Software
+💾 Software
 </option>
+
+
+<option value="etree">
+🎸 Live Concerts
+</option>
+
+
 
 </select>
 
 
 
-<select id="rows">
+<select id="sort">
 
-<option value="10">
-10
+
+<option value="downloads desc">
+Most Popular
 </option>
 
-<option value="25">
-25
+
+<option value="date desc">
+Newest
 </option>
 
-<option value="50">
-50
+
+<option value="titleSorter asc">
+Title A-Z
 </option>
+
+
 
 </select>
 
 
 
-<button onclick="searchArchive(1)">
-Search
+
+<button onclick="searchArchive(0)">
+
+SEARCH
+
 </button>
+
 
 
 </div>
 
 
 
-<div id="pagebar">
+
+<div class="nav">
 
 
-<button id="prevBtn"
-onclick="previousPage()">
+<button onclick="previousPage()">
 
-Previous
+◀ Previous
+
+</button>
+
+
+
+<button onclick="nextPage()">
+
+Next ▶
 
 </button>
 
 
-<span id="pageInfo">
-Page 1
-</span>
 
+<span id="pageInfo"></span>
 
-<button id="nextBtn"
-onclick="nextPage()">
-
-Next
-
-</button>
 
 
 </div>
 
 
 
-<div id="status"></div>
+
+<h3 id="status"></h3>
+
 
 
 <div id="results"></div>
 
 
 
+
 <script>
 
 
-let currentPage=1;
-
-let totalPages=1;
+let currentPage = 0;
 
 
+let pageSize = 500;
 
-async function searchArchive(page=1){
+
+let currentQuery = "*";
 
 
-currentPage=page;
+let currentSort = "downloads desc";
+
+
+
+let playlist = [];
+
+let playlistIndex = 0;
+
+
+
+async function searchArchive(page){
+
+
+currentPage = page;
 
 
 
 let text =
-document.getElementById("search").value || "*";
+document.getElementById("search").value.trim();
+
 
 
 let type =
 document.getElementById("type").value;
 
 
-let rows =
-document.getElementById("rows").value;
+
+currentSort =
+document.getElementById("sort").value;
 
 
 
-let query=text;
+currentQuery =
+text || "*";
 
 
 
 if(type){
 
-query += " AND mediatype:"+type;
+
+currentQuery += 
+" AND mediatype:" + type;
+
 
 }
 
 
 
 let start =
-(page-1)*rows;
+page * pageSize;
 
 
 
-let url=
+
+let url =
 
 "https://archive.org/advancedsearch.php?q="
-+
-encodeURIComponent(query)
-+
-"&fl[]=identifier,title,mediatype"
-+
-"&rows="
-+
-rows
-+
-"&start="
-+
-start
-+
-"&output=json";
+
++ encodeURIComponent(currentQuery)
+
++ "&fl[]=identifier,title,creator,uploader,description,mediatype,subject,date"
+
++ "&rows=" + pageSize
+
++ "&start=" + start
+
++ "&sort[]=" + encodeURIComponent(currentSort)
+
++ "&output=json";
 
 
 
-document.getElementById("status").innerHTML=
-"Loading...";
+
+document.getElementById("status").innerHTML =
+"Loading 500 results...";
+
 
 
 
@@ -363,363 +467,39 @@ let response =
 await fetch(url);
 
 
-let data =
-await response.json();
-
-
-
-document.getElementById("results").innerHTML="";
-
-
-
-totalPages =
-Math.ceil(
-data.response.numFound / rows
-);
-
-
-
-document.getElementById("status").innerHTML=
-
-"Results: "
-+
-data.response.numFound;
-
-
-
-document.getElementById("pageInfo").innerHTML=
-
-"Page "
-+
-currentPage
-+
-" / "
-+
-totalPages;
-
-
-
-document.getElementById("prevBtn").disabled =
-currentPage<=1;
-
-
-document.getElementById("nextBtn").disabled =
-currentPage>=totalPages;
-
-
-
-for(let item of data.response.docs){
-
-await loadItem(item.identifier);
-
-}
-
-
-}
-
-
-async function loadItem(id){
-
-
-let response =
-await fetch(
-"https://archive.org/metadata/"+id
-);
-
 
 let data =
 await response.json();
 
 
 
-let meta =
-data.metadata || {};
 
+document.getElementById("pageInfo").innerHTML =
 
+"Page " + (page + 1);
 
-let files =
-data.files || [];
 
 
+document.getElementById("status").innerHTML =
 
-let audioFiles=[];
+"Found "
 
++ data.response.numFound
 
++ " records";
 
-files.forEach(file=>{
 
 
-let name =
-file.name.toLowerCase();
-
-
-
-if(
-
-name.endsWith(".mp3") ||
-name.endsWith(".ogg") ||
-name.endsWith(".flac") ||
-name.endsWith(".wav")
-
-){
-
-audioFiles.push(file);
-
-}
-
-
-});
-
-
-
-let playerID =
-"audio_"+id;
-
-
-
-let tracks="";
-
-
-
-audioFiles.forEach((file,index)=>{
-
-
-let filename =
-file.name.split("/").pop();
-
-
-
-let url =
-
-"https://archive.org/download/"
-+
-id
-+
-"/"
-+
-encodeURIComponent(file.name);
-
-
-
-tracks += `
-
-
-<div class="track"
-onclick="playFile('${playerID}','${url}')">
-
-
-🎵 ${filename}
-
-
-</div>
-
-
-`;
-
-
-
-});
-
-
-
-
-
-let subjects =
-Array.isArray(meta.subject)
-?
-meta.subject.join(", ")
-:
-(meta.subject || "Unknown");
-
-
-
-
-
-let card=document.createElement("div");
-
-card.className="card";
-
-
-
-card.innerHTML=
-
-
-
-`
-
-<h2>
-🎵 ${meta.title || id}
-</h2>
-
-
-<span class="tag">
-
-${meta.mediatype || "unknown"}
-
-</span>
-
-
-
-<div class="info">
-
-
-<p>
-<b>Description:</b><br>
-
-${
-
-meta.description
-?
-String(meta.description).substring(0,300)
-:
-"No description"
-
-}
-
-</p>
-
-
-
-<p>
-
-<b>Genre:</b>
-${subjects}
-
-</p>
-
-
-
-<p>
-
-<b>Uploader:</b>
-${meta.uploader || "Unknown"}
-
-</p>
-
-
-
-<p>
-
-<b>Date:</b>
-${meta.publicdate || "Unknown"}
-
-</p>
-
-
-
-<p class="small">
-
-Files:
-${files.length}
-
-|
-
-Playable:
-${audioFiles.length}
-
-</p>
-
-
-</div>
-
-
-
-<audio id="${playerID}"
-controls
-class="player">
-
-</audio>
-
-
-
-<div class="files">
-
-${
-
-tracks ||
-
-"No playable audio files"
-
-}
-
-</div>
-
-
-
-<br>
-
-
-<a target="_blank"
-href="https://archive.org/details/${id}">
-
-Archive
-
-</a>
-
-|
-
-<a target="_blank"
-href="https://archive.org/download/${id}">
-
-Files
-
-</a>
-
-|
-
-<a target="_blank"
-href="https://archive.org/metadata/${id}">
-
-Metadata
-
-</a>
-
-
-
-`;
-
-
-
-
-document
-.getElementById("results")
-.appendChild(card);
+displayResults(data.response.docs);
 
 
 
 }
-
-
-
-
-function playFile(player,url){
-
-
-let audio =
-document.getElementById(player);
-
-
-
-audio.src=url;
-
-
-audio.play();
-
-
-
-}
-
 
 
 function nextPage(){
 
-
-if(currentPage < totalPages){
-
-searchArchive(currentPage+1);
-
-}
-
+searchArchive(currentPage + 1);
 
 }
 
@@ -727,21 +507,647 @@ searchArchive(currentPage+1);
 
 function previousPage(){
 
+if(currentPage > 0){
 
-if(currentPage > 1){
+searchArchive(currentPage - 1);
 
-searchArchive(currentPage-1);
+}
+
+}
+
+
+
+
+
+function displayResults(items){
+
+
+let box =
+document.getElementById("results");
+
+
+box.innerHTML="";
+
+
+
+items.forEach(item=>{
+
+
+let icon="📁";
+
+
+if(item.mediatype=="audio")
+icon="🎵";
+
+if(item.mediatype=="movies")
+icon="🎬";
+
+if(item.mediatype=="texts")
+icon="📚";
+
+if(item.mediatype=="software")
+icon="💾";
+
+
+
+
+let subject = "";
+
+
+if(Array.isArray(item.subject)){
+
+subject=item.subject.join(", ");
+
+}
+
+else{
+
+subject=item.subject || "";
+
+}
+
+
+
+
+
+box.innerHTML += `
+
+
+<div class="card">
+
+
+
+<div class="title">
+
+${icon}
+
+${escapeHTML(item.title || "Unknown")}
+
+</div>
+
+
+
+<div class="meta">
+
+
+<span class="tag">
+
+${item.mediatype}
+
+</span>
+
+
+
+<br>
+
+
+Creator:
+
+${escapeHTML(item.creator || "Unknown")}
+
+
+
+<br>
+
+
+Uploader:
+
+${escapeHTML(item.uploader || "Unknown")}
+
+
+
+<br>
+
+
+Date:
+
+${escapeHTML(item.date || "Unknown")}
+
+
+
+<br>
+
+
+Genre:
+
+${escapeHTML(subject)}
+
+
+
+<br><br>
+
+
+
+Description:
+
+<br>
+
+${escapeHTML(
+
+(item.description || "No description")
+
+.substring(0,250)
+
+)}
+
+
+
+</div>
+
+
+
+
+<br>
+
+
+
+<button onclick="loadFiles('${item.identifier}',this)">
+
+🎵 Load Tracks
+
+</button>
+
+
+
+<a target="_blank"
+
+href="https://archive.org/details/${item.identifier}">
+
+🌐 Archive Page
+
+</a>
+
+
+
+&nbsp;
+
+
+
+<a target="_blank"
+
+href="https://archive.org/download/${item.identifier}">
+
+📂 All Files
+
+</a>
+
+
+
+&nbsp;
+
+
+
+<button onclick="showMeta('${item.identifier}')">
+
+⚙ Metadata
+
+</button>
+
+
+
+
+<div class="files"
+
+id="files-${item.identifier}">
+
+
+</div>
+
+
+
+</div>
+
+
+`;
+
+
+
+});
+
+
+
+}
+
+
+
+
+
+async function loadFiles(id,btn){
+
+
+
+let box =
+
+document.getElementById("files-"+id);
+
+
+
+if(box.style.display=="block"){
+
+
+box.style.display="none";
+
+
+return;
+
+
+}
+
+
+
+box.style.display="block";
+
+
+box.innerHTML="Loading files...";
+
+
+
+
+let response = await fetch(
+
+"https://archive.org/metadata/"+id
+
+);
+
+
+
+let data = await response.json();
+
+
+
+let tracks=[];
+
+
+
+let totalFiles =
+data.files.length;
+
+
+
+
+data.files.forEach(file=>{
+
+
+let name=file.name || "";
+
+
+
+if(
+
+name.toLowerCase().endsWith(".mp3")
+
+||
+
+name.toLowerCase().endsWith(".ogg")
+
+||
+
+name.toLowerCase().endsWith(".wav")
+
+){
+
+
+
+tracks.push({
+
+
+name:name,
+
+
+url:
+
+"https://archive.org/download/"
+
++id+"/"
+
++encodeURIComponent(name)
+
+
+
+});
+
+
+
+}
+
+
+
+});
+
+
+
+
+
+
+let html = `
+
+
+<div class="small">
+
+Files:
+
+${totalFiles}
+
+
+<br>
+
+
+Playable Tracks:
+
+${tracks.length}
+
+
+</div>
+
+
+
+<div id="player">
+
+</div>
+
+
+
+`;
+
+
+
+
+
+tracks.forEach((track,index)=>{
+
+
+html += `
+
+
+<div class="file"
+
+onclick="playTrack(${index})">
+
+
+🎵
+
+${escapeHTML(track.name)}
+
+
+
+</div>
+
+
+`;
+
+
+
+});
+
+
+
+
+playlist = tracks;
+
+
+playlistIndex = 0;
+
+
+
+
+box.innerHTML = html;
+
+
+
+}
+
+
+
+
+async function showMeta(id){
+
+
+
+let response = await fetch(
+
+"https://archive.org/metadata/"+id
+
+);
+
+
+
+let data = await response.json();
+
+
+
+let m=data.metadata;
+
+
+
+alert(
+
+"Identifier:\n"
+
++id+
+
+
+
+"\n\nTitle:\n"
+
++(m.title || "")
+
+
+
++"\n\nCreator:\n"
+
++(m.creator || "")
+
+
+
++"\n\nUploader:\n"
+
++(m.uploader || "")
+
+
+
++"\n\nCollection:\n"
+
++(m.collection || "")
+
+
+
++"\n\nDescription:\n"
+
++(m.description || "")
+
+
+
+);
+
+
+
+
+}
+
+
+
+
+function escapeHTML(text){
+
+
+return String(text)
+
+.replaceAll("&","&amp;")
+
+.replaceAll("<","&lt;")
+
+.replaceAll(">","&gt;")
+
+.replaceAll('"',"&quot;");
+
+}
+
+// =============================
+// GLOBAL AUDIO PLAYER
+// =============================
+
+
+function playTrack(index){
+
+
+if(!playlist[index])
+return;
+
+
+
+playlistIndex=index;
+
+
+
+let track =
+playlist[index];
+
+
+
+let player =
+document.getElementById("player");
+
+
+
+if(!player)
+return;
+
+
+
+player.innerHTML = `
+
+
+<div class="small">
+
+▶ Playing Track
+
+${index+1}
+
+/
+
+${playlist.length}
+
+
+<br>
+
+${escapeHTML(track.name)}
+
+</div>
+
+
+
+<audio id="audioPlayer"
+
+controls
+
+autoplay>
+
+
+<source src="${track.url}">
+
+
+</audio>
+
+
+
+<br>
+
+
+
+<button onclick="previousTrack()">
+
+◀ Previous
+
+</button>
+
+
+
+<button onclick="nextTrack()">
+
+Next ▶
+
+</button>
+
+
+
+`;
+
+
+
+}
+
+
+
+
+function nextTrack(){
+
+
+if(playlistIndex < playlist.length-1){
+
+
+playlistIndex++;
+
+
+playTrack(playlistIndex);
+
+
 
 }
 
 
 }
+
+
+
+
+
+function previousTrack(){
+
+
+if(playlistIndex > 0){
+
+
+playlistIndex--;
+
+
+playTrack(playlistIndex);
+
+
+
+}
+
+
+}
+
+
 
 
 
 </script>
 
 
+
 </body>
+
 
 </html>
