@@ -1,76 +1,246 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
 <title>Obvyris Archive Search</title>
 
 <style>
+
 body{
-    background:#09111d;
-    color:white;
-    font-family:Arial;
-    padding:20px;
+background:#09111d;
+color:white;
+font-family:Arial,Helvetica,sans-serif;
+padding:20px;
+}
+
+h1{
+color:#2793ff;
+}
+
+.controls{
+background:#111c2e;
+padding:20px;
+border-radius:15px;
+}
+
+input,select,button{
+
+padding:12px;
+font-size:16px;
+margin:5px;
+
+border-radius:8px;
+border:none;
+
 }
 
 input{
-    width:70%;
-    padding:12px;
-    font-size:18px;
+width:60%;
 }
+
 
 button{
-    padding:12px;
-    background:#2793ff;
-    color:white;
-    border:0;
+
+background:#2793ff;
+color:white;
+cursor:pointer;
+
 }
+
+
+button:hover{
+background:#57b0ff;
+}
+
 
 .card{
-    background:#162235;
-    margin:15px 0;
-    padding:15px;
-    border-radius:10px;
+
+background:#162235;
+padding:18px;
+margin-top:15px;
+border-radius:15px;
+
 }
 
-a{
-    color:#4db3ff;
+
+.card h2{
+
+color:#4db3ff;
+
 }
+
+
+a{
+
+color:#7bd0ff;
+
+}
+
+
+.tag{
+
+background:#2793ff;
+padding:5px 10px;
+border-radius:20px;
+display:inline-block;
+
+}
+
+
 </style>
+
 
 </head>
 
+
 <body>
 
-<h1>🎧 Obvyris Archive Search</h1>
 
-<input id="search" placeholder="Search music, movies, books...">
+<h1>🔎 Obvyris Archive Engine</h1>
 
-<button onclick="searchArchive()">Search</button>
+
+<div class="controls">
+
+
+<input id="search"
+placeholder="Search Internet Archive...">
+
+
+<select id="type">
+
+<option value="">Everything</option>
+
+<option value="audio">
+🎵 Music / Audio
+</option>
+
+<option value="movies">
+🎬 Movies
+</option>
+
+<option value="texts">
+📚 Books
+</option>
+
+<option value="software">
+💾 Software
+</option>
+
+<option value="etree">
+🎸 Live Concerts
+</option>
+
+</select>
+
+
+
+<select id="sort">
+
+<option value="downloads desc">
+Most Popular
+</option>
+
+<option value="date desc">
+Newest
+</option>
+
+<option value="titleSorter asc">
+Title A-Z
+</option>
+
+</select>
+
+
+
+<select id="rows">
+
+<option>10</option>
+<option>25</option>
+<option>50</option>
+
+</select>
+
+
+<button onclick="searchArchive()">
+SEARCH
+</button>
+
+
+</div>
+
+
+<h3 id="status"></h3>
+
 
 <div id="results"></div>
 
 
+
 <script>
+
 
 async function searchArchive(){
 
-let query=document.getElementById("search").value;
+
+let text=document.getElementById("search").value;
+
+let type=document.getElementById("type").value;
+
+let sort=document.getElementById("sort").value;
+
+let rows=document.getElementById("rows").value;
+
+
+
+let query=text || "*";
+
+
+
+if(type){
+
+query += " AND mediatype:" + type;
+
+}
+
+
 
 let url =
 "https://archive.org/advancedsearch.php?q="
 +encodeURIComponent(query)
-+"&fl[]=identifier,title,creator,mediatype"
-+"&rows=20"
++"&fl[]=identifier,title,creator,mediatype,description"
++"&sort[]="
++encodeURIComponent(sort)
++"&rows="
++rows
 +"&output=json";
 
 
-let response = await fetch(url);
 
-let data = await response.json();
+document.getElementById("status").innerHTML=
+"Searching...";
 
 
-let results=document.getElementById("results");
 
-results.innerHTML="";
+let response=await fetch(url);
+
+let data=await response.json();
+
+
+
+let box=document.getElementById("results");
+
+box.innerHTML="";
+
+
+document.getElementById("status").innerHTML=
+"Found "
++data.response.numFound+
+" results";
+
 
 
 data.response.docs.forEach(item=>{
@@ -79,48 +249,93 @@ data.response.docs.forEach(item=>{
 let id=item.identifier;
 
 
-results.innerHTML += `
+
+let mediaLink=
+"https://archive.org/download/"
++id;
+
+
+
+let icon="📁";
+
+
+if(item.mediatype=="audio")
+icon="🎵";
+
+if(item.mediatype=="movies")
+icon="🎬";
+
+if(item.mediatype=="texts")
+icon="📚";
+
+if(item.mediatype=="software")
+icon="💾";
+
+
+
+box.innerHTML += `
+
 
 <div class="card">
 
-<h2>${item.title || "Untitled"}</h2>
 
-<p>
-Creator:
-${item.creator || "Unknown"}
-</p>
+<h2>
+${icon} ${item.title || "Unknown"}
+</h2>
 
-<p>
-Type:
+
+<span class="tag">
 ${item.mediatype}
+</span>
+
+
+<p>
+${item.creator || "Creator Unknown"}
 </p>
+
+
+<p>
+${item.description ? 
+item.description.substring(0,250):
+"No description"}
+</p>
+
 
 
 <a target="_blank"
 href="https://archive.org/details/${id}">
-View Archive Page
+Open Archive
 </a>
+
 
 <br><br>
 
 
 <a target="_blank"
-href="https://archive.org/metadata/${id}">
-Metadata API
+href="${mediaLink}">
+Download Files
 </a>
+
 
 
 </div>
 
+
 `;
+
+
 
 });
 
 
+
 }
+
+
 
 </script>
 
 
 </body>
+
 </html>
