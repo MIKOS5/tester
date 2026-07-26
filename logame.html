@@ -28,71 +28,55 @@ border-radius:15px;
 }
 
 input,select,button{
-
 padding:12px;
 font-size:16px;
 margin:5px;
-
 border-radius:8px;
 border:none;
-
 }
 
 input{
 width:60%;
 }
 
-
 button{
-
 background:#2793ff;
 color:white;
 cursor:pointer;
-
 }
-
 
 button:hover{
 background:#57b0ff;
 }
 
-
 .card{
-
 background:#162235;
 padding:18px;
 margin-top:15px;
 border-radius:15px;
-
 }
-
 
 .card h2{
-
 color:#4db3ff;
-
 }
-
 
 a{
-
 color:#7bd0ff;
-
 }
 
-
 .tag{
-
 background:#2793ff;
 padding:5px 10px;
 border-radius:20px;
 display:inline-block;
-
 }
 
+audio,video{
+width:100%;
+margin-top:10px;
+}
 
 </style>
-
 
 </head>
 
@@ -114,25 +98,15 @@ placeholder="Search Internet Archive...">
 
 <option value="">Everything</option>
 
-<option value="audio">
-🎵 Music / Audio
-</option>
+<option value="audio">🎵 Music / Audio</option>
 
-<option value="movies">
-🎬 Movies
-</option>
+<option value="movies">🎬 Movies</option>
 
-<option value="texts">
-📚 Books
-</option>
+<option value="texts">📚 Books</option>
 
-<option value="software">
-💾 Software
-</option>
+<option value="software">💾 Software</option>
 
-<option value="etree">
-🎸 Live Concerts
-</option>
+<option value="etree">🎸 Live Concerts</option>
 
 </select>
 
@@ -153,7 +127,6 @@ Title A-Z
 </option>
 
 </select>
-
 
 
 <select id="rows">
@@ -195,17 +168,12 @@ let sort=document.getElementById("sort").value;
 let rows=document.getElementById("rows").value;
 
 
-
 let query=text || "*";
 
 
-
 if(type){
-
 query += " AND mediatype:" + type;
-
 }
-
 
 
 let url =
@@ -219,16 +187,13 @@ let url =
 +"&output=json";
 
 
-
 document.getElementById("status").innerHTML=
 "Searching...";
-
 
 
 let response=await fetch(url);
 
 let data=await response.json();
-
 
 
 let box=document.getElementById("results");
@@ -243,17 +208,10 @@ document.getElementById("status").innerHTML=
 
 
 
-data.response.docs.forEach(item=>{
+for(let item of data.response.docs){
 
 
 let id=item.identifier;
-
-
-
-let mediaLink=
-"https://archive.org/download/"
-+id;
-
 
 
 let icon="📁";
@@ -273,6 +231,90 @@ icon="💾";
 
 
 
+let player="";
+
+
+/* Get metadata for playable files */
+
+if(item.mediatype=="audio" || item.mediatype=="movies"){
+
+
+try{
+
+
+let meta =
+await fetch(
+"https://archive.org/metadata/"+id
+);
+
+
+let json =
+await meta.json();
+
+
+
+let file =
+json.files.find(f=>
+f.name.match(/\.(mp3|mp4|ogg|webm)$/i)
+);
+
+
+
+if(file){
+
+
+let mediaURL =
+"https://archive.org/download/"
++id+"/"
++encodeURIComponent(file.name);
+
+
+
+if(file.name.match(/mp3|ogg/i)){
+
+
+player=`
+
+<audio controls>
+
+<source src="${mediaURL}">
+
+</audio>
+
+`;
+
+}
+
+
+
+if(file.name.match(/mp4|webm/i)){
+
+
+player=`
+
+<video controls>
+
+<source src="${mediaURL}">
+
+</video>
+
+`;
+
+}
+
+
+}
+
+
+}catch(e){}
+
+
+
+}
+
+
+
+
 box.innerHTML += `
 
 
@@ -289,22 +331,31 @@ ${item.mediatype}
 </span>
 
 
+
 <p>
 ${item.creator || "Creator Unknown"}
 </p>
 
 
+
 <p>
-${item.description ? 
+${item.description ?
 item.description.substring(0,250):
 "No description"}
 </p>
 
 
 
+${player}
+
+
+
+<br>
+
+
 <a target="_blank"
 href="https://archive.org/details/${id}">
-Open Archive
+🌐 Open Archive
 </a>
 
 
@@ -312,8 +363,17 @@ Open Archive
 
 
 <a target="_blank"
-href="${mediaLink}">
-Download Files
+href="https://archive.org/download/${id}">
+📂 Download Files
+</a>
+
+
+<br><br>
+
+
+<a target="_blank"
+href="https://archive.org/metadata/${id}">
+⚙ Metadata API
 </a>
 
 
@@ -325,7 +385,7 @@ Download Files
 
 
 
-});
+}
 
 
 
