@@ -1,54 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
-<title>Internet Archive Browser</title>
+<title>Internet Archive File Browser</title>
 
 <style>
 
 body{
-background:#070d16;
-color:#d8e1ec;
-font-family:Arial;
-padding:20px;
+    background:#070d16;
+    color:#d8e1ec;
+    font-family:Arial,Helvetica,sans-serif;
+    padding:20px;
 }
 
-.card{
-background:#111827;
-padding:15px;
-margin:15px 0;
-border-radius:10px;
-border:1px solid #263244;
-}
-
-a{
-color:#4da3ff;
+h1{
+    color:#2793ff;
 }
 
 input{
-width:100%;
-padding:12px;
-background:#111;
-color:white;
-border:1px solid #444;
+    width:100%;
+    padding:12px;
+    margin-bottom:20px;
+    background:#111827;
+    color:white;
+    border:1px solid #333;
+    border-radius:6px;
+    font-size:16px;
+}
+
+.card{
+    background:#111827;
+    border:1px solid #243044;
+    border-radius:10px;
+    padding:15px;
+    margin-bottom:15px;
+    overflow-wrap:anywhere;
+}
+
+.title{
+    color:#4da3ff;
+    font-size:18px;
+    font-weight:bold;
+    margin-bottom:10px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+td{
+    padding:6px;
+    border-bottom:1px solid #263244;
+    vertical-align:top;
+}
+
+.label{
+    color:#8fa8c7;
+    width:120px;
+    font-weight:bold;
+}
+
+.url{
+    color:#66c7ff;
+    word-break:break-all;
 }
 
 </style>
 
 </head>
 
+
 <body>
 
-<h1>Archive Files</h1>
 
-<input id="search" placeholder="Search">
+<h1>
+Internet Archive File Browser
+</h1>
+
+
+<input 
+id="search"
+placeholder="Search files...">
+
 
 <div id="output">
 Loading...
 </div>
+
 
 
 <script>
@@ -62,49 +105,45 @@ const API =
 "https://archive.org/metadata/" + IDENTIFIER;
 
 
+const BASE =
+"https://archive.org/download/" + IDENTIFIER + "/";
+
+
 let files=[];
+
 
 
 fetch(API)
 
-.then(r=>r.json())
+.then(response=>response.json())
 
 .then(data=>{
 
 
-files=data.files.map(f=>{
+files = data.files.map(file=>{
+
+
+let url =
+BASE +
+file.name
+.split("/")
+.map(encodeURIComponent)
+.join("/");
 
 
 return {
 
-name:f.name,
-
-format:f.format,
-
-size:f.size,
-
-length:f.length,
-
-width:f.width,
-
-height:f.height,
-
-md5:f.md5,
-
-sha1:f.sha1,
-
-url:
-"https://archive.org/download/"
-+
-IDENTIFIER
-+
-"/"
-+
-f.name
-.split("/")
-.map(encodeURIComponent)
-.join("/")
-
+name:file.name || "",
+format:file.format || "",
+size:file.size || "",
+length:file.length || "",
+width:file.width || "",
+height:file.height || "",
+md5:file.md5 || "",
+sha1:file.sha1 || "",
+crc32:file.crc32 || "",
+source:file.source || "",
+url:url
 
 };
 
@@ -117,12 +156,16 @@ display(files);
 
 })
 
-.catch(err=>{
+.catch(error=>{
 
-document.getElementById("output").innerHTML=
-"ERROR: "+err;
+
+document.getElementById("output").innerHTML =
+"Error loading archive data: " + error;
+
 
 });
+
+
 
 
 
@@ -132,28 +175,81 @@ function display(list){
 let html="";
 
 
-list.forEach(f=>{
+list.forEach(file=>{
 
 
-html+=`
+html += `
 
 <div class="card">
 
-<h3>${f.name}</h3>
 
-<p>
-<b>Format:</b> ${f.format||""}<br>
-<b>Size:</b> ${formatBytes(f.size)}<br>
-<b>Duration:</b> ${f.length||""}<br>
-<b>Resolution:</b>
-${f.width||""} x ${f.height||""}<br>
-</p>
+<div class="title">
+${file.name}
+</div>
 
-<p>
-<a href="${f.url}" target="_blank">
-Open File
+
+<table>
+
+
+<tr>
+<td class="label">Source</td>
+<td>${file.source}</td>
+</tr>
+
+
+<tr>
+<td class="label">Format</td>
+<td>${file.format}</td>
+</tr>
+
+
+<tr>
+<td class="label">Size</td>
+<td>${formatBytes(file.size)}</td>
+</tr>
+
+
+<tr>
+<td class="label">Duration</td>
+<td>${file.length} seconds</td>
+</tr>
+
+
+<tr>
+<td class="label">Resolution</td>
+<td>${file.width} x ${file.height}</td>
+</tr>
+
+
+<tr>
+<td class="label">MD5</td>
+<td>${file.md5}</td>
+</tr>
+
+
+<tr>
+<td class="label">SHA1</td>
+<td>${file.sha1}</td>
+</tr>
+
+
+<tr>
+<td class="label">CRC32</td>
+<td>${file.crc32}</td>
+</tr>
+
+
+<tr>
+<td class="label">URL</td>
+<td class="url">
+<a href="${file.url}" target="_blank">
+${file.url}
 </a>
-</p>
+</td>
+</tr>
+
+
+</table>
 
 
 </div>
@@ -170,27 +266,40 @@ document.getElementById("output").innerHTML=html;
 
 
 
-document.getElementById("search")
-.oninput=function(){
 
 
-let q=this.value.toLowerCase();
+document
+.getElementById("search")
+.addEventListener("input",function(){
+
+
+let query=this.value.toLowerCase();
 
 
 display(
-files.filter(x=>
-x.name.toLowerCase().includes(q)
+
+files.filter(file=>
+file.name.toLowerCase()
+.includes(query)
+
 )
+
 );
 
 
-}
+});
+
+
+
 
 
 
 function formatBytes(bytes){
 
-if(!bytes)return "";
+
+if(!bytes)
+return "";
+
 
 let sizes=[
 "Bytes",
@@ -199,21 +308,28 @@ let sizes=[
 "GB"
 ];
 
+
 let i=Math.floor(
 Math.log(bytes)/Math.log(1024)
 );
 
 
-return(
-(bytes/Math.pow(1024,i))
+return (
+(bytes / Math.pow(1024,i))
 .toFixed(2)
-+" "+sizes[i]
++
+" "
++
+sizes[i]
 );
+
 
 }
 
 
 </script>
 
+
 </body>
+
 </html>
