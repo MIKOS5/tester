@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>Obvyris Signal</title>
+
+<style>
+
+body{
+    margin:0;
+    background:#050b14;
+    color:white;
+    font-family:Arial,Helvetica,sans-serif;
+    overflow:hidden;
+}
+
+#game{
+    display:block;
+    margin:auto;
+    background:
+    radial-gradient(circle,#12243b,#050b14);
+}
+
+#hud{
+    position:absolute;
+    top:10px;
+    left:10px;
+    font-size:18px;
+    z-index:2;
+}
+
+#title{
+    position:absolute;
+    top:10px;
+    width:100%;
+    text-align:center;
+    font-size:28px;
+    letter-spacing:5px;
+    color:#27a8ff;
+}
+
+.controls{
+    position:absolute;
+    bottom:20px;
+    width:100%;
+    text-align:center;
+}
+
+button{
+    width:60px;
+    height:60px;
+    margin:5px;
+    border-radius:50%;
+    border:1px solid #27a8ff;
+    background:#08192b;
+    color:white;
+    font-size:25px;
+}
+
+</style>
+</head>
+
+<body>
+
+
+<div id="title">
+OBVYRIS SIGNAL
+</div>
+
+<div id="hud">
+Signal: <span id="score">0</span>
+</div>
+
+
+<canvas id="game"></canvas>
+
+
+<div class="controls">
+
+<button onclick="move(0,-1)">▲</button><br>
+
+<button onclick="move(-1,0)">◀</button>
+<button onclick="move(0,1)">▼</button>
+<button onclick="move(1,0)">▶</button>
+
+</div>
+
+
+<script>
+
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+
+
+let score=0;
+
+
+let player={
+ x:canvas.width/2,
+ y:canvas.height/2,
+ size:18,
+ speed:5
+};
+
+
+
+let keys={};
+
+
+document.addEventListener("keydown",e=>{
+    keys[e.key]=true;
+});
+
+
+document.addEventListener("keyup",e=>{
+    keys[e.key]=false;
+});
+
+
+
+let packets=[];
+
+
+function spawnPacket(){
+
+ packets.push({
+
+ x:Math.random()*canvas.width,
+ y:Math.random()*canvas.height,
+ size:8
+
+ });
+
+}
+
+
+for(let i=0;i<20;i++)
+spawnPacket();
+
+
+
+// Obvyris nodes
+
+let nodes=[
+
+{
+name:"Radio",
+img:"radio_icon_cutout.png",
+x:150,
+y:200
+},
+
+{
+name:"Video",
+img:"video_icon_cutout.png",
+x:canvas.width-180,
+y:200
+},
+
+{
+name:"Chat",
+img:"chat_icon_cutout.png",
+x:canvas.width/2,
+y:canvas.height-200
+},
+
+{
+name:"News",
+img:"news_icon.png",
+x:200,
+y:canvas.height-200
+},
+
+{
+name:"Archive",
+img:"archive_icon.png",
+x:canvas.width-200,
+y:canvas.height-200
+}
+
+];
+
+
+
+let images={};
+
+
+nodes.forEach(n=>{
+
+let img=new Image();
+
+img.src=n.img;
+
+images[n.img]=img;
+
+});
+
+
+
+function move(dx,dy){
+
+player.x+=dx*player.speed*5;
+player.y+=dy*player.speed*5;
+
+}
+
+
+
+
+function update(){
+
+
+if(keys["ArrowUp"]||keys["w"])
+player.y-=player.speed;
+
+if(keys["ArrowDown"]||keys["s"])
+player.y+=player.speed;
+
+if(keys["ArrowLeft"]||keys["a"])
+player.x-=player.speed;
+
+if(keys["ArrowRight"]||keys["d"])
+player.x+=player.speed;
+
+
+
+packets.forEach((p,i)=>{
+
+let d=Math.hypot(
+player.x-p.x,
+player.y-p.y
+);
+
+
+if(d<25){
+
+packets.splice(i,1);
+
+score++;
+
+document.getElementById("score").innerHTML=score;
+
+spawnPacket();
+
+}
+
+});
+
+
+
+draw();
+
+requestAnimationFrame(update);
+
+}
+
+
+
+
+function draw(){
+
+ctx.clearRect(
+0,
+0,
+canvas.width,
+canvas.height
+);
+
+
+// network lines
+
+nodes.forEach(n=>{
+
+ctx.strokeStyle="#16395b";
+
+ctx.beginPath();
+
+ctx.moveTo(
+canvas.width/2,
+canvas.height/2
+);
+
+ctx.lineTo(
+n.x,
+n.y
+);
+
+ctx.stroke();
+
+});
+
+
+
+// nodes
+
+nodes.forEach(n=>{
+
+let img=images[n.img];
+
+if(img.complete)
+
+ctx.drawImage(
+img,
+n.x-30,
+n.y-30,
+60,
+60
+);
+
+
+});
+
+
+
+// packets
+
+packets.forEach(p=>{
+
+ctx.fillStyle="#27a8ff";
+
+ctx.beginPath();
+
+ctx.arc(
+p.x,
+p.y,
+p.size,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+});
+
+
+
+// player drone
+
+ctx.fillStyle="#ffffff";
+
+ctx.beginPath();
+
+ctx.arc(
+player.x,
+player.y,
+player.size,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+
+ctx.strokeStyle="#27a8ff";
+
+ctx.stroke();
+
+
+
+}
+
+
+update();
+
+
+</script>
+
+
+</body>
+</html>
