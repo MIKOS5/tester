@@ -1,435 +1,275 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>📻 RadioWave Pro</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<title>Internet Archive XML File Browser</title>
 
 <style>
 
-:root{
-  --bg:#09111d;
-  --panel:#111827;
-  --line:#253347;
-  --muted:#93a4bb;
-  --blue:#2793ff;
-  --blue2:#1869d9;
-}
-
-*{box-sizing:border-box}
-
 body{
-  margin:0;
-  font-family:Inter,sans-serif;
-  background:radial-gradient(circle at top,#17263f,#09111d 45%);
-  color:#fff;
-  display:flex;
-  height:100vh;
-  overflow:hidden;
+    background:#070d16;
+    color:#d8e1ec;
+    font-family:Arial,Helvetica,sans-serif;
+    padding:20px;
 }
 
-/* SIDEBAR */
-.sidebar{
-  width:340px;
-  background:rgba(17,24,39,.92);
-  backdrop-filter:blur(16px);
-  border-right:1px solid var(--line);
-  padding:20px;
-  overflow:auto;
+h1{
+    color:#2793ff;
 }
 
-.logo{font-size:30px;font-weight:800}
-.logo span{color:var(--blue)}
-
-.search{
-  width:100%;
-  margin-top:12px;
-  padding:12px;
-  border-radius:14px;
-  border:1px solid #1e293b;
-  background:#0e1725;
-  color:#fff;
+input{
+    width:100%;
+    padding:12px;
+    margin-bottom:20px;
+    background:#111827;
+    color:white;
+    border:1px solid #333;
+    border-radius:6px;
 }
 
-button{
-  border:none;
-  border-radius:12px;
-  padding:10px 12px;
-  cursor:pointer;
-  font-weight:700;
-  color:#fff;
-  background:linear-gradient(180deg,var(--blue),var(--blue2));
+.card{
+    background:#111827;
+    border:1px solid #243044;
+    border-radius:10px;
+    padding:15px;
+    margin-bottom:15px;
 }
 
-.grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
-  margin-top:10px;
+.title{
+    color:#4da3ff;
+    font-size:18px;
+    font-weight:bold;
 }
 
-/* PLAYER */
-.player{
-  margin-top:18px;
-  padding:16px;
-  border-radius:20px;
-  background:linear-gradient(180deg,#182233,#121926);
-  border:1px solid #263246;
-}
-
-#npName{font-weight:700}
-#npMeta{font-size:12px;color:var(--muted)}
-
-.controls{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:8px;
-  margin-top:12px;
-}
-
-/* MAIN */
-.main{
-  flex:1;
-  padding:20px;
-  overflow:auto;
-}
-
-.topbar{
-  display:flex;
-  justify-content:space-between;
-}
-
-.title{font-size:28px;font-weight:800}
-
-.pagebox{
-  padding:10px 14px;
-  border:1px solid var(--line);
-  border-radius:14px;
-  color:var(--muted);
-}
-
-/* TABLE */
-.table{
-  margin-top:20px;
-  border-radius:20px;
-  overflow:visible;
-  border:1px solid var(--line);
+a{
+    color:#5bc0ff;
 }
 
 table{
-  width:100%;
-  border-collapse:collapse;
-  background:rgba(17,24,39,.92);
-}
-
-th{
-  text-align:left;
-  padding:14px;
-  background:#0f1725;
-  color:#8eb5ff;
-  font-size:12px;
+    width:100%;
+    border-collapse:collapse;
+    margin-top:10px;
 }
 
 td{
-  padding:14px;
-  border-top:1px solid #1d2938;
+    padding:5px;
+    border-bottom:1px solid #263244;
 }
 
-tr:hover{background:#182233}
-
-/* GENRE */
-.genre-wrap{position:relative;display:inline-block}
-
-.genre-btn{
-  padding:7px 10px;
-  font-size:12px;
-  border-radius:10px;
-  background:#182233;
-  border:1px solid #263246;
-}
-
-.genre-popup{
-  display:none;
-  position:absolute;
-  top:35px;
-  left:0;
-  width:240px;
-  background:#0f1725;
-  border:1px solid #263246;
-  padding:10px;
-  border-radius:12px;
-  font-size:12px;
-  color:#93a4bb;
-  z-index:9999;
-  box-shadow:0 10px 30px rgba(0,0,0,.5);
-}
-
-.genre-wrap.active .genre-popup{
-  display:block;
+.label{
+    color:#8fa8c7;
+    width:120px;
 }
 
 </style>
+
 </head>
 
 <body>
 
-<div class="sidebar">
+<h1>Internet Archive File Browser</h1>
 
-  <div class="logo">📻 Radio<span>Wave</span></div>
+<input id="search" placeholder="Search files...">
 
-  <input id="genre" class="search" placeholder="Search genre..."/>
-
-  <button onclick="applyFilter()">Search</button>
-
-  <div class="grid">
-    <button onclick="prevPage()">Prev</button>
-    <button onclick="nextPage()">Next</button>
-    <button onclick="loadStations()">Refresh</button>
-    <button onclick="loadFavorites()">Favs</button>
-  </div>
-
-  <div class="player">
-
-    <div id="npName">Not Playing</div>
-    <div id="npMeta">Select station</div>
-
-    <audio id="player"></audio>
-
-    <div class="controls">
-      <button onclick="prevStation()">⏮</button>
-      <button onclick="togglePlay()" id="playBtn">▶</button>
-      <button onclick="nextStation()">⏭</button>
-
-      <!-- FIXED ⭐ BUTTON -->
-      <button onclick="toggleFavCurrent()">⭐</button>
-    </div>
-
-  </div>
-
-  <div id="status" style="margin-top:10px;color:#93a4bb">Loading...</div>
-
+<div id="output">
+Loading XML...
 </div>
 
-<div class="main">
-
-  <div class="topbar">
-    <div>
-      <div class="title">US Radio</div>
-      <div id="count"></div>
-    </div>
-    <div class="pagebox" id="pageInfo"></div>
-  </div>
-
-  <div class="table">
-    <table>
-      <thead>
-        <tr>
-          <th>Station</th>
-          <th>Genre</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
-
-</div>
 
 <script>
 
-const API="https://all.api.radio-browser.info/json/stations/search";
+const XML_URL =
+"https://dn720409.ca.archive.org/0/items/s-7-ep-41-beavis-butthead-are-dead/s-7-ep-41-beavis-butthead-are-dead_files.xml";
 
-let stations=[],allStations=[],currentList=[];
-let favorites=[],favoriteIds=new Set();
-let page=0,currentIndex=-1;
-const limit=50;
-let isPlaying=false;
 
-/* FAVORITES */
-function saveFav(){
-  localStorage.setItem("radioFav",JSON.stringify(favorites));
-}
-function loadFav(){
-  const d=localStorage.getItem("radioFav");
-  favorites=d?JSON.parse(d):[];
-  favoriteIds=new Set(favorites.map(f=>f.stationuuid));
-}
+const BASE_URL =
+"https://dn720409.ca.archive.org/0/items/s-7-ep-41-beavis-butthead-are-dead/";
 
-/* LOAD */
-async function loadStations(){
-  setStatus("Loading...");
-  const res=await fetch(`${API}?countrycode=US&limit=${limit}&offset=${page*limit}&hidebroken=true`);
-  const data=await res.json();
-  stations=data;
-  allStations=[...data];
-  currentList=stations;
-  render();
-  setStatus("Loaded "+stations.length);
-}
 
-/* FAVORITE TOGGLE */
-function toggleFavorite(s){
+let files=[];
 
-  const id=s.stationuuid;
-  const exists=favoriteIds.has(id);
 
-  if(exists){
-    favorites=favorites.filter(f=>f.stationuuid!==id);
-    favoriteIds.delete(id);
-    setStatus("Removed ⭐");
-  }else{
-    favorites.push(s);
-    favoriteIds.add(id);
-    setStatus("Saved ⭐");
-  }
+fetch(XML_URL)
+.then(r=>r.text())
+.then(xml=>{
 
-  saveFav();
-  render();
+
+let parser=new DOMParser();
+
+let doc=parser.parseFromString(xml,"text/xml");
+
+
+let nodes=doc.querySelectorAll("file");
+
+
+files=[...nodes].map(file=>{
+
+let data={};
+
+for(let attr of file.attributes){
+    data[attr.name]=attr.value;
 }
 
-/* FIXED PLAYER FAVORITE BUTTON */
-function toggleFavCurrent(){
 
-  const p=document.getElementById("player");
-  if(!p.src) return;
+for(let child of file.children){
 
-  const item=currentList.find(s =>
-    (s.url_resolved||s.url) === p.src
-  );
+    data[child.tagName]=child.textContent;
 
-  if(!item) return;
-
-  toggleFavorite(item);
 }
 
-/* LOAD FAVORITES */
-function loadFavorites(){
-  currentList=[...favorites];
-  page=0;
-  render();
-}
 
-/* PLAY */
-function playStation(id){
+data.url =
+BASE_URL +
+data.name.split("/")
+.map(encodeURIComponent)
+.join("/");
 
-  const item=currentList.find(s=>s.stationuuid===id);
-  if(!item)return;
 
-  currentIndex=currentList.findIndex(s=>s.stationuuid===id);
+return data;
 
-  const p=document.getElementById("player");
-  p.src=item.url_resolved||item.url;
-  p.play();
-
-  isPlaying=true;
-  document.getElementById("playBtn").textContent="⏸";
-
-  document.getElementById("npName").textContent=item.name;
-  document.getElementById("npMeta").textContent=item.tags||"Radio";
-}
-
-/* NEXT / PREV FIXED */
-function nextStation(){
-  if(!currentList.length)return;
-  if(currentIndex<0)currentIndex=0;
-  currentIndex=(currentIndex+1)%currentList.length;
-  playStation(currentList[currentIndex].stationuuid);
-}
-
-function prevStation(){
-  if(!currentList.length)return;
-  if(currentIndex<0)currentIndex=0;
-  currentIndex=(currentIndex-1+currentList.length)%currentList.length;
-  playStation(currentList[currentIndex].stationuuid);
-}
-
-/* PLAY */
-function togglePlay(){
-  const p=document.getElementById("player");
-  if(!p.src)return;
-
-  if(isPlaying){
-    p.pause();
-    isPlaying=false;
-    document.getElementById("playBtn").textContent="▶";
-  }else{
-    p.play();
-    isPlaying=true;
-    document.getElementById("playBtn").textContent="⏸";
-  }
-}
-
-/* FILTER */
-function applyFilter(){
-  const v=document.getElementById("genre").value.toLowerCase();
-  currentList=allStations.filter(s=>(s.tags||"").toLowerCase().includes(v));
-  page=0;
-  render();
-}
-
-/* PAGINATION */
-function nextPage(){page++;loadStations();}
-function prevPage(){if(page>0)page--;loadStations();}
-
-/* GENRE POPUP */
-function toggleGenre(el){
-  document.querySelectorAll(".genre-wrap").forEach(g=>{
-    if(g!==el.parentElement)g.classList.remove("active");
-  });
-  el.parentElement.classList.toggle("active");
-}
-
-document.addEventListener("click",e=>{
-  if(!e.target.closest(".genre-wrap")){
-    document.querySelectorAll(".genre-wrap").forEach(g=>g.classList.remove("active"));
-  }
 });
 
-/* RENDER */
-function render(){
 
-  const tbody=document.querySelector("tbody");
-  tbody.innerHTML="";
+display(files);
 
-  currentList.forEach(s=>{
 
-    const fav=favoriteIds.has(s.stationuuid);
+});
 
-    tbody.innerHTML+=`
-      <tr>
-        <td>${s.name}</td>
 
-        <td>
-          <div class="genre-wrap">
-            <button class="genre-btn" onclick="toggleGenre(this)">Genre ▾</button>
-            <div class="genre-popup">${s.tags||"No data"}</div>
-          </div>
-        </td>
+function display(list){
 
-        <td>
-          <button onclick="playStation('${s.stationuuid}')">Play</button>
-          <button onclick='toggleFavorite(${JSON.stringify(s)})'>
-            ${fav?"⭐":"☆"}
-          </button>
-        </td>
-      </tr>
-    `;
-  });
+let html="";
 
-  document.getElementById("count").innerText=currentList.length+" stations";
-  document.getElementById("pageInfo").innerText="Page "+(page+1);
+
+list.forEach(f=>{
+
+
+html+=`
+
+<div class="card">
+
+
+<div class="title">
+${f.name}
+</div>
+
+
+<table>
+
+<tr>
+<td class="label">Source</td>
+<td>${f.source||""}</td>
+</tr>
+
+<tr>
+<td class="label">Format</td>
+<td>${f.format||""}</td>
+</tr>
+
+
+<tr>
+<td class="label">Size</td>
+<td>${formatBytes(f.size)}</td>
+</tr>
+
+
+<tr>
+<td class="label">Duration</td>
+<td>${f.length||""} seconds</td>
+</tr>
+
+
+<tr>
+<td class="label">Resolution</td>
+<td>${f.width||""} x ${f.height||""}</td>
+</tr>
+
+
+<tr>
+<td class="label">MD5</td>
+<td>${f.md5||""}</td>
+</tr>
+
+
+<tr>
+<td class="label">SHA1</td>
+<td>${f.sha1||""}</td>
+</tr>
+
+
+<tr>
+<td class="label">CRC32</td>
+<td>${f.crc32||""}</td>
+</tr>
+
+
+<tr>
+<td class="label">URL</td>
+<td>
+<a href="${f.url}" target="_blank">
+Open File
+</a>
+</td>
+</tr>
+
+
+</table>
+
+
+</div>
+
+
+`;
+
+});
+
+
+document.getElementById("output").innerHTML=html;
+
+
 }
 
-/* STATUS */
-function setStatus(t){
-  document.getElementById("status").innerText=t;
+
+document.getElementById("search")
+.addEventListener("input",e=>{
+
+let q=e.target.value.toLowerCase();
+
+display(
+files.filter(x=>
+x.name.toLowerCase().includes(q)
+)
+);
+
+});
+
+
+function formatBytes(bytes){
+
+if(!bytes)return "";
+
+let sizes=[
+"Bytes",
+"KB",
+"MB",
+"GB"
+];
+
+let i=Math.floor(
+Math.log(bytes)/Math.log(1024)
+);
+
+
+return(
+(bytes/Math.pow(1024,i))
+.toFixed(2)
++" "+sizes[i]
+);
+
 }
 
-/* INIT */
-loadFav();
-loadStations();
 
 </script>
 
