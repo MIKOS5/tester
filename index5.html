@@ -1,66 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>Internet Archive XML File Browser</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>Internet Archive Browser</title>
 
 <style>
 
 body{
-    background:#070d16;
-    color:#d8e1ec;
-    font-family:Arial,Helvetica,sans-serif;
-    padding:20px;
-}
-
-h1{
-    color:#2793ff;
-}
-
-input{
-    width:100%;
-    padding:12px;
-    margin-bottom:20px;
-    background:#111827;
-    color:white;
-    border:1px solid #333;
-    border-radius:6px;
+background:#070d16;
+color:#d8e1ec;
+font-family:Arial;
+padding:20px;
 }
 
 .card{
-    background:#111827;
-    border:1px solid #243044;
-    border-radius:10px;
-    padding:15px;
-    margin-bottom:15px;
-}
-
-.title{
-    color:#4da3ff;
-    font-size:18px;
-    font-weight:bold;
+background:#111827;
+padding:15px;
+margin:15px 0;
+border-radius:10px;
+border:1px solid #263244;
 }
 
 a{
-    color:#5bc0ff;
+color:#4da3ff;
 }
 
-table{
-    width:100%;
-    border-collapse:collapse;
-    margin-top:10px;
-}
-
-td{
-    padding:5px;
-    border-bottom:1px solid #263244;
-}
-
-.label{
-    color:#8fa8c7;
-    width:120px;
+input{
+width:100%;
+padding:12px;
+background:#111;
+color:white;
+border:1px solid #444;
 }
 
 </style>
@@ -69,65 +42,72 @@ td{
 
 <body>
 
-<h1>Internet Archive File Browser</h1>
+<h1>Archive Files</h1>
 
-<input id="search" placeholder="Search files...">
+<input id="search" placeholder="Search">
 
 <div id="output">
-Loading XML...
+Loading...
 </div>
 
 
 <script>
 
-const XML_URL =
-"https://dn720409.ca.archive.org/0/items/s-7-ep-41-beavis-butthead-are-dead/s-7-ep-41-beavis-butthead-are-dead_files.xml";
+
+const IDENTIFIER =
+"s-7-ep-41-beavis-butthead-are-dead";
 
 
-const BASE_URL =
-"https://dn720409.ca.archive.org/0/items/s-7-ep-41-beavis-butthead-are-dead/";
+const API =
+"https://archive.org/metadata/" + IDENTIFIER;
 
 
 let files=[];
 
 
-fetch(XML_URL)
-.then(r=>r.text())
-.then(xml=>{
+fetch(API)
+
+.then(r=>r.json())
+
+.then(data=>{
 
 
-let parser=new DOMParser();
-
-let doc=parser.parseFromString(xml,"text/xml");
+files=data.files.map(f=>{
 
 
-let nodes=doc.querySelectorAll("file");
+return {
 
+name:f.name,
 
-files=[...nodes].map(file=>{
+format:f.format,
 
-let data={};
+size:f.size,
 
-for(let attr of file.attributes){
-    data[attr.name]=attr.value;
-}
+length:f.length,
 
+width:f.width,
 
-for(let child of file.children){
+height:f.height,
 
-    data[child.tagName]=child.textContent;
+md5:f.md5,
 
-}
+sha1:f.sha1,
 
-
-data.url =
-BASE_URL +
-data.name.split("/")
+url:
+"https://archive.org/download/"
++
+IDENTIFIER
++
+"/"
++
+f.name
+.split("/")
 .map(encodeURIComponent)
-.join("/");
+.join("/")
 
 
-return data;
+};
+
 
 });
 
@@ -135,10 +115,19 @@ return data;
 display(files);
 
 
+})
+
+.catch(err=>{
+
+document.getElementById("output").innerHTML=
+"ERROR: "+err;
+
 });
 
 
+
 function display(list){
+
 
 let html="";
 
@@ -150,76 +139,24 @@ html+=`
 
 <div class="card">
 
+<h3>${f.name}</h3>
 
-<div class="title">
-${f.name}
-</div>
+<p>
+<b>Format:</b> ${f.format||""}<br>
+<b>Size:</b> ${formatBytes(f.size)}<br>
+<b>Duration:</b> ${f.length||""}<br>
+<b>Resolution:</b>
+${f.width||""} x ${f.height||""}<br>
+</p>
 
-
-<table>
-
-<tr>
-<td class="label">Source</td>
-<td>${f.source||""}</td>
-</tr>
-
-<tr>
-<td class="label">Format</td>
-<td>${f.format||""}</td>
-</tr>
-
-
-<tr>
-<td class="label">Size</td>
-<td>${formatBytes(f.size)}</td>
-</tr>
-
-
-<tr>
-<td class="label">Duration</td>
-<td>${f.length||""} seconds</td>
-</tr>
-
-
-<tr>
-<td class="label">Resolution</td>
-<td>${f.width||""} x ${f.height||""}</td>
-</tr>
-
-
-<tr>
-<td class="label">MD5</td>
-<td>${f.md5||""}</td>
-</tr>
-
-
-<tr>
-<td class="label">SHA1</td>
-<td>${f.sha1||""}</td>
-</tr>
-
-
-<tr>
-<td class="label">CRC32</td>
-<td>${f.crc32||""}</td>
-</tr>
-
-
-<tr>
-<td class="label">URL</td>
-<td>
+<p>
 <a href="${f.url}" target="_blank">
 Open File
 </a>
-</td>
-</tr>
-
-
-</table>
+</p>
 
 
 </div>
-
 
 `;
 
@@ -232,10 +169,13 @@ document.getElementById("output").innerHTML=html;
 }
 
 
-document.getElementById("search")
-.addEventListener("input",e=>{
 
-let q=e.target.value.toLowerCase();
+document.getElementById("search")
+.oninput=function(){
+
+
+let q=this.value.toLowerCase();
+
 
 display(
 files.filter(x=>
@@ -243,7 +183,9 @@ x.name.toLowerCase().includes(q)
 )
 );
 
-});
+
+}
+
 
 
 function formatBytes(bytes){
