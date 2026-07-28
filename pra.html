@@ -461,16 +461,51 @@ return line
 function selectVoice(character){
 
 
-
-if(!browserVoices.length)
-return null;
-
+let data =
+voiceSettings[character];
 
 
-if(character==="Obvyris"){
+if(!data)
+return browserVoices[0];
 
 
-return browserVoices.find(v=>
+let type =
+data.type;
+
+
+
+// Female narrator
+
+if(type==="Female Narrator"){
+
+
+return browserVoices.find(v =>
+
+v.name.includes("Samantha") ||
+
+v.name.includes("Zira") ||
+
+v.name.includes("Hazel") ||
+
+v.name.includes("Google UK English Female") ||
+
+v.name.includes("Female")
+
+)
+||
+browserVoices[0];
+
+
+}
+
+
+
+// Robot
+
+if(type==="Robot"){
+
+
+return browserVoices.find(v =>
 
 v.name.includes("David") ||
 
@@ -487,19 +522,18 @@ browserVoices[0];
 
 
 
+// Pip-Squeak
 
-if(character==="Pip-Squeak"){
+if(type==="High"){
 
 
-return browserVoices.find(v=>
+return browserVoices.find(v =>
 
 v.name.includes("Samantha") ||
 
 v.name.includes("Female")
 
 )
-||
-browserVoices[1]
 ||
 browserVoices[0];
 
@@ -508,14 +542,10 @@ browserVoices[0];
 
 
 
-
-
 return browserVoices[0];
 
 
 }
-
-
 
 
 
