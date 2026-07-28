@@ -719,6 +719,60 @@ height:50px;
 
 
 }
+
+.votes{
+
+margin-top:12px;
+
+}
+
+.score{
+
+text-align:center;
+
+font-size:13px;
+
+font-weight:bold;
+
+margin-bottom:8px;
+
+color:#ffd34d;
+
+}
+
+.voteButtons{
+
+display:flex;
+
+gap:8px;
+
+margin-bottom:10px;
+
+}
+
+.voteButtons button{
+
+flex:1;
+
+padding:8px;
+
+font-size:13px;
+
+}
+
+.voteUp{
+
+background:#1f9d55;
+
+}
+
+.voteDown{
+
+background:#c0392b;
+
+}
+
+    
 </style>
 
 </head>
@@ -865,7 +919,6 @@ const API =
 "https://script.google.com/macros/s/AKfycbz_NGVTztTuc81a5_1K839CTu1V4bcc9IWXkqlNBYSJN8WSqSUbH2YP8xjqZPE3c7fzNg/exec";
 
 
-
 let allGames=[];
 
 
@@ -934,11 +987,31 @@ ${game.Description}
 </p>
 
 
-<button onclick="playGame('${game.URL}','${game.Name}')">
+<div class="votes">
 
-PLAY
+<div class="score">
+⭐ ${game.Score}
+</div>
 
+<div class="voteButtons">
+
+<button class="voteUp"
+onclick="vote('${game.ID}','up')">
+👍 ${game.VotesUp}
 </button>
+
+<button class="voteDown"
+onclick="vote('${game.ID}','down')">
+👎 ${game.VotesDown}
+</button>
+
+</div>
+
+<button onclick="playGame('${game.URL}','${game.Name}')">
+PLAY
+</button>
+
+</div>
 
 
 </div>
@@ -1085,6 +1158,79 @@ closeGame();
 
 });
 
+async function vote(id,type){
+
+// Prevent multiple votes from this browser
+const key="vote_"+id;
+
+if(localStorage.getItem(key)){
+    alert("You already voted for this game.");
+    return;
+}
+
+// Disable vote buttons while sending
+const btns=document.querySelectorAll(".voteButtons button");
+btns.forEach(b=>b.disabled=true);
+
+try{
+
+    const url =
+        API +
+        "?action=vote" +
+        "&id=" + encodeURIComponent(id) +
+        "&type=" + encodeURIComponent(type);
+
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if(data.status === "success"){
+
+        // Save local vote
+        localStorage.setItem(key,type);
+
+        // Update local game data
+        const game = allGames.find(g => String(g.ID) === String(id));
+
+        if(game){
+
+            game.VotesUp = Number(game.VotesUp || 0);
+            game.VotesDown = Number(game.VotesDown || 0);
+
+            if(type === "up"){
+                game.VotesUp++;
+            }else{
+                game.VotesDown++;
+            }
+
+            game.Score = game.VotesUp - game.VotesDown;
+
+        }
+
+        // Refresh cards
+        renderGames(allGames);
+
+    }else{
+
+        alert(data.message || "Vote failed.");
+
+    }
+
+}catch(err){
+
+    console.error(err);
+    alert("Unable to submit vote.");
+
+}finally{
+
+    // Re-enable vote buttons
+    document
+        .querySelectorAll(".voteButtons button")
+        .forEach(b=>b.disabled=false);
+
+}
+
+}
+    
 function navigateApp(page){
 
 window.location.href = page;
