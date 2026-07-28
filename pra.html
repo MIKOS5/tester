@@ -8,23 +8,25 @@
 
 <title>Obvyris Storyteller</title>
 
+
 <style>
 
 body{
-    background:#09111d;
-    color:white;
-    font-family:Arial, sans-serif;
-    padding:20px;
+background:#09111d;
+color:white;
+font-family:Arial,sans-serif;
+padding:20px;
 }
+
 
 .storybook{
 
-    max-width:900px;
-    margin:auto;
-    background:#101c2c;
-    border-radius:20px;
-    padding:30px;
-    box-shadow:0 0 30px #000;
+max-width:900px;
+margin:auto;
+background:#101c2c;
+border-radius:20px;
+padding:30px;
+box-shadow:0 0 30px #000;
 
 }
 
@@ -41,7 +43,6 @@ color:#2793ff;
 
 font-size:20px;
 line-height:1.8;
-white-space:normal;
 
 }
 
@@ -65,7 +66,6 @@ border:none;
 padding:12px 20px;
 border-radius:10px;
 cursor:pointer;
-font-size:16px;
 
 }
 
@@ -82,7 +82,6 @@ input{
 width:200px;
 
 }
-
 
 </style>
 
@@ -107,13 +106,13 @@ Loading chapter...
 
 
 <div id="story">
-
 Loading story...
-
 </div>
 
 
+
 <div class="controls">
+
 
 <button onclick="speakStory()">
 🔊 Read Story
@@ -134,15 +133,16 @@ Loading story...
 
 
 <label>
+
 Speed
 
 <input 
+id="speed"
 type="range"
 min="0.5"
 max="2"
 step="0.1"
-value="1"
-id="speed">
+value="1">
 
 </label>
 
@@ -154,16 +154,57 @@ id="speed">
 
 
 
+
 <script>
 
 
+const API_BASE =
+"https://script.google.com/macros/s/AKfycbxsknhRwXoQwP7KDGG6pOIIoSSPS9zwYtmMwwIJ14X2IuTSBki313hOpw-eCL7tmQPU/exec";
+
+
 const STORY_API =
-"https://script.google.com/macros/s/AKfycbxsknhRwXoQwP7KDGG6pOIIoSSPS9zwYtmMwwIJ14X2IuTSBki313hOpw-eCL7tmQPU/exec?action=latest";
+API_BASE+"?action=latest";
+
+
+const VOICE_API =
+API_BASE+"?action=voices";
 
 
 
 let currentStory="";
 
+let voiceSettings={};
+
+let browserVoices=[];
+
+
+
+// ==========================
+// LOAD BROWSER VOICES
+// ==========================
+
+
+function loadBrowserVoices(){
+
+browserVoices =
+speechSynthesis.getVoices();
+
+}
+
+
+speechSynthesis.onvoiceschanged =
+loadBrowserVoices;
+
+
+
+loadBrowserVoices();
+
+
+
+
+// ==========================
+// LOAD STORY
+// ==========================
 
 
 async function loadStory(){
@@ -191,7 +232,8 @@ data.story;
 
 document.getElementById("date")
 .innerHTML =
-"📅 "+new Date(data.timestamp)
+"📅 "+
+new Date(data.timestamp)
 .toLocaleDateString();
 
 
@@ -201,18 +243,15 @@ document.getElementById("story")
 formatStory(data.story);
 
 
-
 }
 
 
 
-}catch(e){
-
+}
+catch(e){
 
 document.getElementById("story")
-.innerHTML =
-"Story unavailable";
-
+.innerHTML="Story unavailable";
 
 }
 
@@ -220,19 +259,219 @@ document.getElementById("story")
 }
 
 
+
+// ==========================
+// LOAD VOICE SHEET
+// ==========================
+
+
+async function loadVoiceSettings(){
+
+
+try{
+
+
+let response =
+await fetch(VOICE_API);
+
+
+let data =
+await response.json();
+
+
+
+if(data.status==="success"){
+
+
+voiceSettings =
+data.voices;
+
+
+console.log(
+"Loaded voices:",
+voiceSettings
+);
+
+
+}
+
+
+}
+catch(e){
+
+console.log(
+"Voice loading failed",
+e
+);
+
+}
+
+
+}
+
+
+
+
+
+// ==========================
+// FORMAT STORY
+// ==========================
 
 
 function formatStory(text){
 
 
 return text
-.replace(/^# (.*)$/gm,"<h2>$1</h2>")
-.replace(/\n\n/g,"<br><br>");
+
+.replace(/^# (.*)$/gm,
+"<h2>$1</h2>")
+
+.replace(/\[(.*?)\]/g,
+"<b>[$1]</b>")
+
+.replace(/\n\n/g,
+"<br><br>");
+
 
 }
 
 
 
+
+
+// ==========================
+// FIND CHARACTER
+// ==========================
+
+
+function getCharacter(line){
+
+
+let match =
+line.match(/\[(.*?)\]/);
+
+
+
+if(match){
+
+return match[1];
+
+}
+
+
+return "Narrator";
+
+
+}
+
+
+
+
+
+// ==========================
+// CLEAN TEXT
+// ==========================
+
+
+function cleanDialogue(text){
+
+
+return text
+.replace(/\[.*?\]/,"")
+.trim();
+
+
+}
+
+
+
+
+
+// ==========================
+// PICK BROWSER VOICE
+// ==========================
+
+
+function selectBrowserVoice(character){
+
+
+if(!browserVoices.length)
+return null;
+
+
+
+// Robot voice
+
+if(character==="Obvyris"){
+
+
+return browserVoices.find(v=>
+
+v.name.includes("David") ||
+
+v.name.includes("Daniel") ||
+
+v.name.includes("Google UK English Male")
+
+)
+||
+browserVoices[0];
+
+
+}
+
+
+
+// High voice
+
+if(character==="Pip-Squeak"){
+
+
+return browserVoices.find(v=>
+
+v.name.includes("Samantha") ||
+
+v.name.includes("Google US English")
+
+)
+||
+browserVoices[1]
+||
+browserVoices[0];
+
+
+}
+
+
+// Random future characters
+
+
+if(character!=="Narrator"){
+
+
+return browserVoices[
+Math.floor(
+Math.random()*browserVoices.length
+)
+];
+
+
+}
+
+
+
+return browserVoices[0];
+
+
+}
+
+
+
+
+
+// ==========================
+// READ STORY
+// ==========================
 
 
 function speakStory(){
@@ -241,19 +480,126 @@ function speakStory(){
 speechSynthesis.cancel();
 
 
+let lines =
+currentStory.split("\n");
+
+
+speakLine(lines,0);
+
+
+}
+
+
+
+
+
+function speakLine(lines,index){
+
+
+if(index>=lines.length)
+return;
+
+
+
+let line =
+lines[index].trim();
+
+
+
+if(line===""){
+
+speakLine(lines,index+1);
+
+return;
+
+}
+
+
+
+let character =
+getCharacter(line);
+
+
+
+let text =
+cleanDialogue(line);
+
+
+
+if(text===""){
+
+speakLine(lines,index+1);
+
+return;
+
+}
+
+
+
+
+let settings =
+voiceSettings[character];
+
+
+
+// fallback
+
+if(!settings){
+
+
+settings={
+
+pitch:
+Math.random()*1.5+0.5,
+
+rate:
+Math.random()*0.4+0.8,
+
+volume:1
+
+};
+
+
+}
+
+
+
 let speech =
-new SpeechSynthesisUtterance(currentStory);
+new SpeechSynthesisUtterance(text);
+
+
+
+speech.pitch =
+settings.pitch;
 
 
 
 speech.rate =
-document.getElementById("speed").value;
+settings.rate *
+Number(
+document.getElementById("speed").value
+);
 
 
-speech.pitch=1;
+
+speech.volume =
+settings.volume;
 
 
-speech.volume=1;
+
+speech.voice =
+selectBrowserVoice(character);
+
+
+
+
+
+speech.onend=function(){
+
+speakLine(lines,index+1);
+
+};
+
 
 
 speechSynthesis.speak(speech);
@@ -262,6 +608,12 @@ speechSynthesis.speak(speech);
 }
 
 
+
+
+
+// ==========================
+// CONTROLS
+// ==========================
 
 
 function pauseStory(){
@@ -279,6 +631,9 @@ speechSynthesis.cancel();
 }
 
 
+
+
+loadVoiceSettings();
 
 loadStory();
 
