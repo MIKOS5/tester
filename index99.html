@@ -1492,136 +1492,175 @@ async function loadSports(){
 
 async function loadGames(){
 
-    const title = document.getElementById("featuredGame");
+    const title =
+    document.getElementById("featuredGame");
+
+    const category =
+    document.getElementById("gameCategory");
+
+    const votes =
+    document.getElementById("gameVotes");
+
+    const img =
+    document.getElementById("gameImage");
+
 
     try{
 
+
         const url =
-        GAMES_API + "?action=games&t=" + Date.now();
-
-        console.log("REQUEST:",url);
+        GAMES_API + "?t=" + Date.now();
 
 
-        const res = await fetch(url);
-
-        console.log("STATUS:",res.status);
-        console.log("TYPE:",res.headers.get("content-type"));
+        console.log("Games API:",url);
 
 
-        const text = await res.text();
-
-        console.log("RAW RESPONSE:",text.substring(0,1000));
-
-
-        const data = JSON.parse(text);
+        const res =
+        await fetch(url);
 
 
-        console.log("PARSED:",data);
+        const data =
+        await res.json();
+
+
+        console.log("Games Data:",data);
 
 
 
-        if(!data.games || !data.games.length){
+        if(
+            !data ||
+            !data.games ||
+            data.games.length === 0
+        ){
 
-            title.innerText="No games found";
+            title.innerText =
+            "Games unavailable";
+
+            category.innerText =
+            "No data";
+
+            votes.innerText =
+            "0";
+
             return;
 
         }
 
 
-        featuredGames = data.games;
+
+        featuredGames =
+        data.games;
+
 
 
         showNextGame();
 
 
+
         if(!gameTimer){
 
-            gameTimer=setInterval(()=>{
-
-                showNextGame();
-
-            },5000);
+            gameTimer =
+            setInterval(
+                showNextGame,
+                5000
+            );
 
         }
 
 
-    }catch(e){
 
-        console.error("GAME ERROR:",e);
+    }
+    catch(err){
+
+
+        console.error(
+            "Games Load Error:",
+            err
+        );
+
 
         title.innerText =
-        "Games error - check console";
+        "Games unavailable";
+
+
+        category.innerText =
+        "Error";
+
 
     }
 
 }
 
+
+
+
+
 function showNextGame(){
 
 
-const title =
-document.getElementById("featuredGame");
-
-
-const category =
-document.getElementById("gameCategory");
-
-
-const votes =
-document.getElementById("gameVotes");
-
-
-const img =
-document.getElementById("gameImage");
+    if(!featuredGames.length){
+        return;
+    }
 
 
 
-if(!featuredGames.length){
-return;
+    const game =
+    featuredGames[gameIndex];
+
+
+
+    document.getElementById(
+        "featuredGame"
+    ).innerText =
+    game.Name || "Unknown";
+
+
+
+    document.getElementById(
+        "gameCategory"
+    ).innerText =
+    game.Category || "-";
+
+
+
+    document.getElementById(
+        "gameVotes"
+    ).innerText =
+    game.TotalVotes || 0;
+
+
+
+    const img =
+    document.getElementById(
+        "gameImage"
+    );
+
+
+
+    if(game.Image){
+
+        img.src =
+        game.Image;
+
+
+        img.style.display =
+        "block";
+
+    }
+
+
+
+    gameIndex++;
+
+
+    if(gameIndex >= featuredGames.length){
+
+        gameIndex=0;
+
+    }
+
 }
 
-
-
-const game =
-featuredGames[gameIndex];
-
-
-
-title.innerText =
-game.Name;
-
-
-category.innerText =
-game.Category;
-
-
-votes.innerText =
-game.TotalVotes || 0;
-
-
-
-if(game.Image){
-
-img.src =
-game.Image;
-
-img.style.display="block";
-
-}
-
-
-gameIndex++;
-
-
-if(gameIndex >= featuredGames.length){
-
-gameIndex=0;
-
-}
-
-
-
-}
 
     
 function showNextSportsGame(){
