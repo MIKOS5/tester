@@ -22,14 +22,6 @@ margin:auto;
 background:radial-gradient(circle,#12243b,#050b14);
 }
 
-#hud{
-position:absolute;
-top:10px;
-left:10px;
-font-size:18px;
-z-index:2;
-}
-
 #title{
 position:absolute;
 top:10px;
@@ -39,6 +31,15 @@ font-size:28px;
 letter-spacing:5px;
 color:#27a8ff;
 text-shadow:0 0 15px #27a8ff;
+}
+
+#hud{
+position:absolute;
+top:50px;
+left:15px;
+font-size:18px;
+z-index:2;
+line-height:25px;
 }
 
 .controls{
@@ -72,7 +73,10 @@ OBVYRIS SIGNAL
 
 
 <div id="hud">
-Signal Recovered: <span id="score">0</span>
+<div>Rank: <span id="rank">1</span></div>
+<div>Energy: <span id="energy">0</span></div>
+<div>XP: <span id="xp">0</span>/100</div>
+<div>Recovered: <span id="score">0</span></div>
 </div>
 
 
@@ -100,6 +104,7 @@ canvas.width=innerWidth;
 canvas.height=innerHeight;
 
 
+
 // SOUND
 
 const sounds={
@@ -120,16 +125,26 @@ error:new Audio(
 
 
 sounds.ship.loop=true;
-sounds.ship.volume=.25;
+sounds.ship.volume=.2;
 
 
+
+document.body.onclick=()=>{
+
+sounds.ship.play();
+
+};
+
+
+
+
+// PLAYER
 
 let player={
 
 x:canvas.width/2,
 y:canvas.height/2,
-speed:5,
-size:32
+speed:5
 
 };
 
@@ -138,7 +153,10 @@ size:32
 let score=0;
 let energy=0;
 let xp=0;
-let rank=1;
+
+let rank=
+Number(localStorage.getItem("obvyrisRank")) || 1;
+
 
 
 let keys={};
@@ -155,10 +173,14 @@ keys[e.key]=false;
 
 
 
-// SHIP
+
+// SHIP IMAGE
+
 
 let shipImg=new Image();
+
 shipImg.src="Oship.png";
+
 
 
 
@@ -210,6 +232,7 @@ power:100
 ];
 
 
+
 let images={};
 
 
@@ -225,7 +248,9 @@ images[s.img]=img;
 
 
 
-// SIGNAL PACKETS
+
+// PACKETS
+
 
 let packets=[];
 
@@ -243,13 +268,89 @@ size:8
 }
 
 
-for(let i=0;i<30;i++)
+for(let i=0;i<35;i++)
 spawnPacket();
 
 
 
 
-// TOUCH
+
+// DOCKING SYSTEM
+
+
+let dockedStation=null;
+
+const DOCK_RANGE=90;
+
+
+function checkDocking(){
+
+
+dockedStation=null;
+
+
+stations.forEach(s=>{
+
+
+let distance=Math.hypot(
+player.x-s.x,
+player.y-s.y
+);
+
+
+if(distance<DOCK_RANGE){
+
+dockedStation=s;
+
+}
+
+});
+
+
+
+if(dockedStation && energy>0){
+
+
+if(dockedStation.power<100){
+
+
+dockedStation.power+=0.15;
+
+
+if(dockedStation.power>100)
+dockedStation.power=100;
+
+
+
+energy-=0.2;
+
+
+xp+=1;
+
+
+
+if(Math.random()<0.05){
+
+sounds.good.currentTime=0;
+sounds.good.play();
+
+}
+
+
+}
+
+
+
+}
+
+
+
+}
+
+
+
+
+
 
 function move(x,y){
 
@@ -261,33 +362,30 @@ player.y+=y*30;
 
 
 
-// REPAIR
-
-function repairStation(station){
+function stationColor(power){
 
 
-station.power+=10;
-
-if(station.power>100)
-station.power=100;
+if(power>=70)
+return "#27a8ff";
 
 
-energy-=10;
+if(power>=30)
+return "orange";
 
 
-sounds.good.currentTime=0;
-sounds.good.play();
+return "red";
 
 
 }
 
 
 
-// UPDATE
-
 
 function update(){
 
+
+
+// movement
 
 
 if(keys["ArrowUp"]||keys["w"])
@@ -308,24 +406,39 @@ player.x+=player.speed;
 
 
 
-// signal decay
+
+// boundaries
+
+player.x=Math.max(
+0,
+Math.min(canvas.width,player.x)
+);
+
+player.y=Math.max(
+0,
+Math.min(canvas.height,player.y)
+);
 
 
-if(Math.random()<0.01){
 
 
-let target=
+
+// decay
+
+if(Math.random()<0.015){
+
+
+let s=
 stations[
-Math.floor(
-Math.random()*stations.length
-)
+Math.floor(Math.random()*stations.length)
 ];
 
 
-target.power-=1;
+s.power-=1;
 
 
 }
+
 
 
 
@@ -340,7 +453,6 @@ let d=Math.hypot(
 player.x-p.x,
 player.y-p.y
 );
-
 
 
 if(d<35){
@@ -361,7 +473,6 @@ sounds.good.currentTime=0;
 sounds.good.play();
 
 
-
 }
 
 
@@ -370,7 +481,16 @@ sounds.good.play();
 
 
 
-// upgrade
+
+// docking repair
+
+checkDocking();
+
+
+
+
+
+// level up
 
 
 if(xp>=100){
@@ -381,11 +501,20 @@ rank++;
 xp=0;
 
 
+localStorage.setItem(
+"obvyrisRank",
+rank
+);
+
+
 }
 
 
 
-// check game over
+
+
+
+// game over
 
 
 stations.forEach(s=>{
@@ -398,8 +527,8 @@ sounds.error.play();
 
 
 alert(
-"OBVYRIS NETWORK FAILURE\n"+
-s.name+" Signal Lost"
+"OBVYRIS SIGNAL LOST\n\n"+
+s.name+" has failed."
 );
 
 
@@ -409,38 +538,37 @@ location.reload();
 }
 
 
-
 });
 
 
+
+updateHUD();
 
 draw();
 
 
 requestAnimationFrame(update);
 
-
 }
 
 
 
 
 
-function stationColor(power){
+function updateHUD(){
 
 
-if(power>70)
-return "#27a8ff";
+document.getElementById("rank").innerHTML=rank;
 
+document.getElementById("energy").innerHTML=Math.floor(energy);
 
-if(power>30)
-return "orange";
+document.getElementById("xp").innerHTML=Math.floor(xp);
 
-
-return "red";
+document.getElementById("score").innerHTML=score;
 
 
 }
+
 
 
 
@@ -458,29 +586,15 @@ canvas.height
 
 
 
-// HUD
 
-ctx.fillStyle="white";
-ctx.font="18px Arial";
-
-
-ctx.fillText(
-"Rank: "+rank+
-"  Energy: "+energy+
-"  XP: "+xp+"/100",
-20,
-40
-);
-
-
-
-// network
+// connections
 
 
 stations.forEach(s=>{
 
 
 ctx.strokeStyle="#16395b";
+
 
 ctx.beginPath();
 
@@ -498,8 +612,22 @@ ctx.stroke();
 
 
 
-ctx.shadowBlur=20;
-ctx.shadowColor=stationColor(s.power);
+});
+
+
+
+
+
+// stations
+
+
+stations.forEach(s=>{
+
+
+ctx.shadowBlur=25;
+
+ctx.shadowColor=
+stationColor(s.power);
 
 
 
@@ -519,27 +647,95 @@ s.y-35,
 }
 
 
-
 ctx.shadowBlur=0;
 
 
 
-ctx.fillStyle=stationColor(s.power);
-
-ctx.font="16px Arial";
+ctx.fillStyle=
+stationColor(s.power);
 
 
 ctx.fillText(
-s.name+
-" "+
-Math.floor(s.power)+"%",
+s.name+" "+Math.floor(s.power)+"%",
 s.x-40,
 s.y+55
 );
 
 
 
+
+// power bar
+
+
+ctx.fillStyle="#111";
+
+ctx.fillRect(
+s.x-40,
+s.y+65,
+80,
+8
+);
+
+
+ctx.fillStyle=
+stationColor(s.power);
+
+
+ctx.fillRect(
+s.x-40,
+s.y+65,
+80*(s.power/100),
+8
+);
+
+
+
 });
+
+
+
+
+// repair beam
+
+
+if(dockedStation){
+
+
+ctx.strokeStyle="#27a8ff";
+
+ctx.lineWidth=3;
+
+
+ctx.beginPath();
+
+ctx.moveTo(
+player.x,
+player.y
+);
+
+
+ctx.lineTo(
+dockedStation.x,
+dockedStation.y
+);
+
+
+ctx.stroke();
+
+
+
+ctx.fillStyle="#27a8ff";
+
+ctx.fillText(
+"REPAIRING "+dockedStation.name,
+player.x-50,
+player.y-45
+);
+
+
+}
+
+
 
 
 
@@ -566,7 +762,6 @@ Math.PI*2
 ctx.fill();
 
 
-
 });
 
 
@@ -585,7 +780,6 @@ player.y-32,
 64
 );
 
-
 }
 
 
@@ -594,8 +788,9 @@ player.y-32,
 
 
 update();
-</script>
 
+
+</script>
 
 </body>
 </html>
