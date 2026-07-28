@@ -228,13 +228,6 @@ sounds.ship.volume=.2;
 
 
 
-document.body.onclick=()=>{
-
-sounds.ship.play();
-
-};
-
-
 
 
 // PLAYER
@@ -471,7 +464,16 @@ pulse:0
 
 }
 
+let dockedStation=null;
 
+const DOCK_RANGE=90;
+
+let packetTimer=0;
+  
+for(let i=0;i<10;i++){
+spawnPacket();
+}
+  
 function checkDocking(){
 
 
@@ -513,38 +515,16 @@ dockedStation.power=100;
 
 energy-=0.2;
 
-
 xp+=1;
 
 
 
-// Dynamic signal decay
-// Faster every rank
+// repair sound
 
-let decayChance = 0.01 + (rank * 0.002);
+if(Math.random()<0.05){
 
-
-if(Math.random() < decayChance){
-
-
-let s =
-stations[
-Math.floor(Math.random()*stations.length)
-];
-
-
-// amount lost increases with rank
-
-let decayAmount = 
-1 + Math.floor(rank / 5);
-
-
-s.power -= decayAmount;
-
-
-if(s.power < 0)
-s.power = 0;
-
+sounds.good.currentTime=0;
+sounds.good.play();
 
 }
 
@@ -552,14 +532,9 @@ s.power = 0;
 }
 
 
-
 }
 
-
-
 }
-
-
 
 
 
@@ -596,7 +571,8 @@ return "red";
 function update(){
 
 
-
+if(!gameStarted)
+return;
 // movement
 
 
