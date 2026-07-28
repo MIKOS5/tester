@@ -32,10 +32,8 @@ box-shadow:0 0 30px #000;
 
 
 h1{
-
 text-align:center;
 color:#2793ff;
-
 }
 
 
@@ -43,6 +41,18 @@ color:#2793ff;
 
 font-size:20px;
 line-height:1.8;
+
+}
+
+
+#debug{
+
+margin-top:20px;
+padding:10px;
+background:#050b12;
+border-radius:10px;
+font-size:14px;
+color:#7cff7c;
 
 }
 
@@ -85,7 +95,9 @@ width:200px;
 
 </style>
 
+
 </head>
+
 
 
 <body>
@@ -110,6 +122,11 @@ Loading story...
 </div>
 
 
+<div id="debug">
+Voice debug waiting...
+</div>
+
+
 
 <div class="controls">
 
@@ -128,8 +145,6 @@ Loading story...
 ⏹ Stop
 </button>
 
-
-<br>
 
 
 <label>
@@ -155,11 +170,12 @@ value="1">
 
 
 
+
 <script>
 
 
 const API_BASE =
-"https://script.google.com/macros/s/AKfycbxsknhRwXoQwP7KDGG6pOIIoSSPS9zwYtmMwwIJ14X2IuTSBki313hOpw-eCL7tmQPU/exec";
+"https://script.google.com/macros/s/AKfycbwdWK9oxbkXE9Df8zv8nVLg1Jn-qQmZCEBGYd7hMV--jF2rk12KV0vM7lwBzo12DMZJ/exec";
 
 
 const STORY_API =
@@ -179,15 +195,22 @@ let browserVoices=[];
 
 
 
-// ==========================
+
+// =================================
 // LOAD BROWSER VOICES
-// ==========================
+// =================================
 
 
 function loadBrowserVoices(){
 
 browserVoices =
 speechSynthesis.getVoices();
+
+
+console.log(
+"Browser voices:",
+browserVoices
+);
 
 }
 
@@ -202,9 +225,87 @@ loadBrowserVoices();
 
 
 
-// ==========================
+
+// =================================
+// LOAD VOICE SHEET DATA
+// =================================
+
+
+async function loadVoiceSettings(){
+
+
+console.log(
+"Loading voice settings..."
+);
+
+
+
+try{
+
+
+let response =
+await fetch(VOICE_API);
+
+
+
+console.log(
+"Voice API status:",
+response.status
+);
+
+
+
+let data =
+await response.json();
+
+
+
+console.log(
+"Voice API:",
+data
+);
+
+
+
+if(data.status==="success"){
+
+
+voiceSettings =
+data.voices;
+
+
+console.log(
+"Loaded settings:",
+voiceSettings
+);
+
+
+}
+
+
+
+}
+catch(e){
+
+
+console.error(
+"Voice load error:",
+e
+);
+
+
+}
+
+
+}
+
+
+
+
+
+// =================================
 // LOAD STORY
-// ==========================
+// =================================
 
 
 async function loadStory(){
@@ -217,8 +318,16 @@ let response =
 await fetch(STORY_API);
 
 
+
 let data =
 await response.json();
+
+
+
+console.log(
+"Story:",
+data
+);
 
 
 
@@ -243,79 +352,35 @@ document.getElementById("story")
 formatStory(data.story);
 
 
+
 }
 
 
 
 }
 catch(e){
+
+
+console.error(e);
+
 
 document.getElementById("story")
-.innerHTML="Story unavailable";
-
-}
-
-
-}
-
-
-
-// ==========================
-// LOAD VOICE SHEET
-// ==========================
-
-
-async function loadVoiceSettings(){
-
-
-try{
-
-
-let response =
-await fetch(VOICE_API);
-
-
-let data =
-await response.json();
-
-
-
-if(data.status==="success"){
-
-
-voiceSettings =
-data.voices;
-
-
-console.log(
-"Loaded voices:",
-voiceSettings
-);
+.innerHTML =
+"Story unavailable";
 
 
 }
 
 
 }
-catch(e){
-
-console.log(
-"Voice loading failed",
-e
-);
-
-}
-
-
-}
 
 
 
 
 
-// ==========================
-// FORMAT STORY
-// ==========================
+// =================================
+// FORMAT DISPLAY
+// =================================
 
 
 function formatStory(text){
@@ -339,9 +404,9 @@ return text
 
 
 
-// ==========================
-// FIND CHARACTER
-// ==========================
+// =================================
+// GET CHARACTER
+// =================================
 
 
 function getCharacter(line){
@@ -359,6 +424,7 @@ return match[1];
 }
 
 
+
 return "Narrator";
 
 
@@ -368,15 +434,15 @@ return "Narrator";
 
 
 
-// ==========================
+// =================================
 // CLEAN TEXT
-// ==========================
+// =================================
 
 
-function cleanDialogue(text){
+function cleanText(line){
 
 
-return text
+return line
 .replace(/\[.*?\]/,"")
 .trim();
 
@@ -387,20 +453,19 @@ return text
 
 
 
-// ==========================
-// PICK BROWSER VOICE
-// ==========================
+// =================================
+// SELECT BROWSER VOICE
+// =================================
 
 
-function selectBrowserVoice(character){
+function selectVoice(character){
+
 
 
 if(!browserVoices.length)
 return null;
 
 
-
-// Robot voice
 
 if(character==="Obvyris"){
 
@@ -411,7 +476,7 @@ v.name.includes("David") ||
 
 v.name.includes("Daniel") ||
 
-v.name.includes("Google UK English Male")
+v.name.includes("Male")
 
 )
 ||
@@ -422,7 +487,6 @@ browserVoices[0];
 
 
 
-// High voice
 
 if(character==="Pip-Squeak"){
 
@@ -431,7 +495,7 @@ return browserVoices.find(v=>
 
 v.name.includes("Samantha") ||
 
-v.name.includes("Google US English")
+v.name.includes("Female")
 
 )
 ||
@@ -443,20 +507,6 @@ browserVoices[0];
 }
 
 
-// Random future characters
-
-
-if(character!=="Narrator"){
-
-
-return browserVoices[
-Math.floor(
-Math.random()*browserVoices.length
-)
-];
-
-
-}
 
 
 
@@ -469,9 +519,9 @@ return browserVoices[0];
 
 
 
-// ==========================
+// =================================
 // READ STORY
-// ==========================
+// =================================
 
 
 function speakStory(){
@@ -496,8 +546,10 @@ speakLine(lines,0);
 function speakLine(lines,index){
 
 
+
 if(index>=lines.length)
 return;
+
 
 
 
@@ -508,9 +560,11 @@ lines[index].trim();
 
 if(line===""){
 
+
 speakLine(lines,index+1);
 
 return;
+
 
 }
 
@@ -522,17 +576,20 @@ getCharacter(line);
 
 
 let text =
-cleanDialogue(line);
+cleanText(line);
 
 
 
 if(text===""){
 
+
 speakLine(lines,index+1);
 
 return;
 
+
 }
+
 
 
 
@@ -542,18 +599,21 @@ voiceSettings[character];
 
 
 
-// fallback
-
 if(!settings){
+
+
+console.log(
+"No voice found for:",
+character
+);
+
 
 
 settings={
 
-pitch:
-Math.random()*1.5+0.5,
+pitch:1,
 
-rate:
-Math.random()*0.4+0.8,
+rate:1,
 
 volume:1
 
@@ -564,13 +624,35 @@ volume:1
 
 
 
+
+document.getElementById("debug")
+.innerHTML =
+
+"Speaking: "+
+character+
+"<br>Pitch: "+
+settings.pitch+
+"<br>Rate: "+
+settings.rate;
+
+
+
+
+
 let speech =
 new SpeechSynthesisUtterance(text);
 
 
 
+
 speech.pitch =
-settings.pitch;
+Math.max(
+0,
+Math.min(
+2,
+settings.pitch
+)
+);
 
 
 
@@ -587,22 +669,35 @@ settings.volume;
 
 
 
-speech.voice =
-selectBrowserVoice(character);
 
+speech.voice =
+selectVoice(character);
+
+
+
+
+console.log(
+"Speaking",
+character,
+settings
+);
 
 
 
 
 speech.onend=function(){
 
+
 speakLine(lines,index+1);
+
 
 };
 
 
 
+
 speechSynthesis.speak(speech);
+
 
 
 }
@@ -611,9 +706,9 @@ speechSynthesis.speak(speech);
 
 
 
-// ==========================
+// =================================
 // CONTROLS
-// ==========================
+// =================================
 
 
 function pauseStory(){
@@ -629,6 +724,7 @@ function stopStory(){
 speechSynthesis.cancel();
 
 }
+
 
 
 
