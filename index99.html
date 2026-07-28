@@ -1492,39 +1492,17 @@ async function loadSports(){
 
 async function loadGames(){
 
-    const title =
-    document.getElementById("featuredGame");
-
-    const category =
-    document.getElementById("gameCategory");
-
-    const votes =
-    document.getElementById("gameVotes");
-
-    const img =
-    document.getElementById("gameImage");
+    const callback =
+    "featuredGamesCallback_" + Date.now();
 
 
-    try{
-
-        const url =
-GAMES_API +
-"?action=featured&t=" +
-Date.now();
+    window[callback] = function(data){
 
 
-        console.log("Games API:",url);
+        delete window[callback];
 
 
-        const res =
-        await fetch(url);
-
-
-        const data =
-        await res.json();
-
-
-        console.log("Games Data:",data);
+        console.log("Featured Games:",data);
 
 
 
@@ -1534,14 +1512,8 @@ Date.now();
             data.games.length === 0
         ){
 
-            title.innerText =
+            document.getElementById("featuredGame").innerText =
             "Games unavailable";
-
-            category.innerText =
-            "No data";
-
-            votes.innerText =
-            "0";
 
             return;
 
@@ -1549,15 +1521,19 @@ Date.now();
 
 
 
-        // LOAD ENTIRE GAMES SHEET
-        featuredGames = data.games;
+        featuredGames =
+        data.games;
 
 
-        // RANDOM START POSITION
+
+        // random start
+
         gameIndex =
         Math.floor(
-            Math.random() * featuredGames.length
+            Math.random() *
+            featuredGames.length
         );
+
 
 
         showNextGame();
@@ -1575,28 +1551,47 @@ Date.now();
         }
 
 
+    };
 
-    }
-    catch(err){
+
+
+    const script =
+    document.createElement("script");
+
+
+    script.src =
+    GAMES_API +
+    "?callback=" +
+    callback +
+    "&action=featured&t=" +
+    Date.now();
+
+
+
+    script.onload=function(){
+
+        script.remove();
+
+    };
+
+
+
+    script.onerror=function(){
 
         console.error(
-            "Games Load Error:",
-            err
+            "Featured games API failed"
         );
 
+        script.remove();
 
-        title.innerText =
-        "Games unavailable";
-
-
-        category.innerText =
-        "Error";
+    };
 
 
-    }
+
+    document.body.appendChild(script);
+
 
 }
-
 
 
 function showNextGame(){
