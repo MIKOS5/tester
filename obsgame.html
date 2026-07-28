@@ -9,58 +9,59 @@
 <style>
 
 body{
-    margin:0;
-    background:#050b14;
-    color:white;
-    font-family:Arial,Helvetica,sans-serif;
-    overflow:hidden;
+margin:0;
+background:#050b14;
+color:white;
+font-family:Arial,Helvetica,sans-serif;
+overflow:hidden;
 }
 
 #game{
-    display:block;
-    margin:auto;
-    background:
-    radial-gradient(circle,#12243b,#050b14);
+display:block;
+margin:auto;
+background:radial-gradient(circle,#12243b,#050b14);
 }
 
 #hud{
-    position:absolute;
-    top:10px;
-    left:10px;
-    font-size:18px;
-    z-index:2;
+position:absolute;
+top:10px;
+left:10px;
+font-size:18px;
+z-index:2;
 }
 
 #title{
-    position:absolute;
-    top:10px;
-    width:100%;
-    text-align:center;
-    font-size:28px;
-    letter-spacing:5px;
-    color:#27a8ff;
+position:absolute;
+top:10px;
+width:100%;
+text-align:center;
+font-size:28px;
+letter-spacing:5px;
+color:#27a8ff;
+text-shadow:0 0 15px #27a8ff;
 }
 
 .controls{
-    position:absolute;
-    bottom:20px;
-    width:100%;
-    text-align:center;
+position:absolute;
+bottom:20px;
+width:100%;
+text-align:center;
 }
 
 button{
-    width:60px;
-    height:60px;
-    margin:5px;
-    border-radius:50%;
-    border:1px solid #27a8ff;
-    background:#08192b;
-    color:white;
-    font-size:25px;
+width:60px;
+height:60px;
+margin:5px;
+border-radius:50%;
+border:1px solid #27a8ff;
+background:#08192b;
+color:white;
+font-size:25px;
 }
 
 </style>
 </head>
+
 
 <body>
 
@@ -69,8 +70,9 @@ button{
 OBVYRIS SIGNAL
 </div>
 
+
 <div id="hud">
-Signal: <span id="score">0</span>
+Signal Recovered: <span id="score">0</span>
 </div>
 
 
@@ -90,53 +92,106 @@ Signal: <span id="score">0</span>
 
 <script>
 
+
 const canvas=document.getElementById("game");
 const ctx=canvas.getContext("2d");
 
-canvas.width=window.innerWidth;
-canvas.height=window.innerHeight;
+
+canvas.width=innerWidth;
+canvas.height=innerHeight;
 
 
-let score=0;
 
+// SOUND SYSTEM
 
-let player={
- x:canvas.width/2,
- y:canvas.height/2,
- size:32,
- speed:5
+const sounds={
+
+ship:new Audio(
+"https://dn711305.ca.archive.org/0/items/galaxy-sound-effects/ship.mp3"
+),
+
+good:new Audio(
+"https://dn711305.ca.archive.org/0/items/galaxy-sound-effects/good.mp3"
+),
+
+error:new Audio(
+"https://dn711305.ca.archive.org/0/items/galaxy-sound-effects/error.mp3"
+),
+
+explosion:new Audio(
+"https://dn711305.ca.archive.org/0/items/galaxy-sound-effects/explosion.mp3"
+),
+
+select:new Audio(
+"https://dn711305.ca.archive.org/0/items/galaxy-sound-effects/select.mp3"
+)
+
 };
 
+
+sounds.ship.loop=true;
+sounds.ship.volume=.25;
+
+
+
+document.body.onclick=()=>{
+
+sounds.select.play();
+
+sounds.ship.play();
+
+};
+
+
+
+// PLAYER
+
+let player={
+
+x:canvas.width/2,
+y:canvas.height/2,
+size:32,
+speed:5
+
+};
 
 
 let keys={};
 
 
 document.addEventListener("keydown",e=>{
-    keys[e.key]=true;
+
+keys[e.key]=true;
+
 });
 
 
 document.addEventListener("keyup",e=>{
-    keys[e.key]=false;
+
+keys[e.key]=false;
+
 });
 
 
+
+// PACKETS
 
 let packets=[];
 
 
 function spawnPacket(){
 
- packets.push({
+packets.push({
 
- x:Math.random()*canvas.width,
- y:Math.random()*canvas.height,
- size:8
+x:Math.random()*canvas.width,
+y:Math.random()*canvas.height,
+size:8,
+pulse:0
 
- });
+});
 
 }
+
 
 
 for(let i=0;i<20;i++)
@@ -144,7 +199,8 @@ spawnPacket();
 
 
 
-// Obvyris nodes
+
+// NODES
 
 let nodes=[
 
@@ -190,14 +246,11 @@ y:canvas.height-200
 let images={};
 
 
-// Load Obvyris spaceship
 
 let shipImg=new Image();
 shipImg.src="Oship.png";
 
 
-
-// Load network icons
 
 nodes.forEach(n=>{
 
@@ -211,6 +264,9 @@ images[n.img]=img;
 
 
 
+
+// MOBILE BUTTON
+
 function move(dx,dy){
 
 player.x+=dx*player.speed*5;
@@ -220,25 +276,56 @@ player.y+=dy*player.speed*5;
 
 
 
+// KEEP SHIP ON MAP
+
+function bounds(){
+
+player.x=Math.max(
+0,
+Math.min(canvas.width,player.x)
+);
+
+player.y=Math.max(
+0,
+Math.min(canvas.height,player.y)
+);
+
+}
+
+
+
+// GAME LOOP
+
 
 function update(){
+
 
 
 if(keys["ArrowUp"]||keys["w"])
 player.y-=player.speed;
 
+
 if(keys["ArrowDown"]||keys["s"])
 player.y+=player.speed;
 
+
 if(keys["ArrowLeft"]||keys["a"])
 player.x-=player.speed;
+
 
 if(keys["ArrowRight"]||keys["d"])
 player.x+=player.speed;
 
 
 
+bounds();
+
+
+
+// collect signals
+
 packets.forEach((p,i)=>{
+
 
 let d=Math.hypot(
 player.x-p.x,
@@ -246,23 +333,29 @@ player.y-p.y
 );
 
 
-if(d<25){
+if(d<35){
+
 
 packets.splice(i,1);
 
-score++;
 
-document.getElementById("score").innerHTML=score;
+document.getElementById("score").innerHTML++;
+
+sounds.good.currentTime=0;
+sounds.good.play();
+
 
 spawnPacket();
 
+
 }
+
 
 });
 
 
-
 draw();
+
 
 requestAnimationFrame(update);
 
@@ -273,6 +366,7 @@ requestAnimationFrame(update);
 
 function draw(){
 
+
 ctx.clearRect(
 0,
 0,
@@ -281,9 +375,11 @@ canvas.height
 );
 
 
-// network lines
+
+// CONNECTIONS
 
 nodes.forEach(n=>{
+
 
 ctx.strokeStyle="#16395b";
 
@@ -301,65 +397,107 @@ n.y
 
 ctx.stroke();
 
+
 });
 
 
 
-// nodes
+
+// NODES
 
 nodes.forEach(n=>{
 
+
+ctx.shadowBlur=20;
+ctx.shadowColor="#27a8ff";
+
+
 let img=images[n.img];
 
-if(img.complete)
+
+if(img.complete){
 
 ctx.drawImage(
 img,
-n.x-30,
-n.y-30,
-60,
-60
+n.x-35,
+n.y-35,
+70,
+70
 );
+
+}
+
+
+ctx.shadowBlur=0;
 
 
 });
 
 
 
-// packets
+// SIGNAL PACKETS
+
 
 packets.forEach(p=>{
 
+
+p.pulse+=.1;
+
+
 ctx.fillStyle="#27a8ff";
+
 
 ctx.beginPath();
 
 ctx.arc(
 p.x,
 p.y,
-p.size,
+p.size+Math.sin(p.pulse)*3,
 0,
 Math.PI*2
 );
 
+
 ctx.fill();
+
+
 
 });
 
 
 
-// player drone
+// ENGINE TRAIL
 
-// Obvyris Signal Ship
+
+ctx.strokeStyle="#27a8ff";
+
+ctx.beginPath();
+
+ctx.moveTo(
+player.x,
+player.y+35
+);
+
+ctx.lineTo(
+player.x,
+player.y+55
+);
+
+ctx.stroke();
+
+
+
+// SHIP
+
 
 if(shipImg.complete){
 
 ctx.drawImage(
-    shipImg,
-    player.x-32,
-    player.y-32,
-    64,
-    64
+shipImg,
+player.x-32,
+player.y-32,
+64,
+64
 );
 
 }
@@ -367,6 +505,7 @@ ctx.drawImage(
 
 
 }
+
 
 
 update();
