@@ -1075,13 +1075,18 @@ function loadMoreGames(){
 
 
     script.src =
-    API +
-    "?callback=" +
-    callback +
-    "&offset=" +
-    start +
-    "&limit=" +
-    PAGE_SIZE;
+API +
+"?callback=" +
+callback +
+"&offset=" +
+start +
+"&limit=" +
+PAGE_SIZE +
+(activeCategory
+?
+"&category="+encodeURIComponent(activeCategory)
+:
+"");
 
 
 
@@ -1392,7 +1397,6 @@ onclick="filterCategory('${escapeHTML(category)}')">
 
 `;
 
-
 });
 
 
@@ -1427,20 +1431,77 @@ function filterCategory(category){
 activeCategory = category;
 
 
-let filtered =
-allGames.filter(game=>
+loading = true;
+finished = false;
+start = 0;
 
-String(game.Category)
-.toLowerCase()
-.includes(category.toLowerCase())
+allGames = [];
 
-);
+
+document.getElementById("games").innerHTML =
+"Loading...";
+
+
+
+const callback =
+"categoryCallback_" + Date.now();
+
+
+
+window[callback] = function(data){
+
+
+delete window[callback];
+
+
+loading=false;
+
+
+
+allGames.push(...data.games);
+
 
 
 document.getElementById("games").innerHTML="";
 
 
-renderGames(filtered,false);
+renderGames(data.games,false);
+
+
+
+start = data.games.length;
+
+
+
+finished =
+!data.hasMore;
+
+
+};
+
+
+
+const script =
+document.createElement("script");
+
+
+script.src =
+API+
+"?callback="+callback+
+"&category="+encodeURIComponent(category)+
+"&offset=0"+
+"&limit="+PAGE_SIZE;
+
+
+
+script.onload=function(){
+
+script.remove();
+
+};
+
+
+document.body.appendChild(script);
 
 
 }
