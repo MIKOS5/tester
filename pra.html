@@ -526,7 +526,6 @@ return browserVoices[0];
 
 function speakStory(){
 
-
 speechSynthesis.cancel();
 
 
@@ -534,8 +533,7 @@ let lines =
 currentStory.split("\n");
 
 
-speakLine(lines,0);
-
+speakLine(lines,0,"Narrator");
 
 }
 
@@ -543,13 +541,11 @@ speakLine(lines,0);
 
 
 
-function speakLine(lines,index){
+function speakLine(lines,index,currentCharacter){
 
 
-
-if(index>=lines.length)
+if(index >= lines.length)
 return;
-
 
 
 
@@ -560,79 +556,95 @@ lines[index].trim();
 
 if(line===""){
 
-
-speakLine(lines,index+1);
+speakLine(lines,index+1,currentCharacter);
 
 return;
-
 
 }
 
 
 
-let character =
-getCharacter(line);
+// Check if this line changes speaker
+
+let match =
+line.match(/\[(.*?)\]/);
+
+
+
+if(match){
+
+currentCharacter =
+match[1];
+
+
+// move to next line after tag
+
+speakLine(
+lines,
+index+1,
+currentCharacter
+);
+
+return;
+
+}
+
 
 
 
 let text =
-cleanText(line);
+line
+.replace(/\[.*?\]/,"")
+.trim();
 
 
 
 if(text===""){
 
-
-speakLine(lines,index+1);
+speakLine(
+lines,
+index+1,
+currentCharacter
+);
 
 return;
 
-
 }
-
 
 
 
 
 let settings =
-voiceSettings[character];
+voiceSettings[currentCharacter];
 
 
 
 if(!settings){
 
-
-console.log(
-"No voice found for:",
-character
-);
-
-
-
 settings={
 
 pitch:1,
-
 rate:1,
-
 volume:1
 
 };
-
 
 }
 
 
 
+document.getElementById("debug").innerHTML =
 
-document.getElementById("debug")
-.innerHTML =
-
-"Speaking: "+
-character+
-"<br>Pitch: "+
-settings.pitch+
-"<br>Rate: "+
+"Speaking: "
++
+currentCharacter
++
+"<br>Pitch: "
++
+settings.pitch
++
+"<br>Rate: "
++
 settings.rate;
 
 
@@ -644,15 +656,8 @@ new SpeechSynthesisUtterance(text);
 
 
 
-
 speech.pitch =
-Math.max(
-0,
-Math.min(
-2,
-settings.pitch
-)
-);
+settings.pitch;
 
 
 
@@ -669,40 +674,36 @@ settings.volume;
 
 
 
-
 speech.voice =
-selectVoice(character);
-
+selectVoice(currentCharacter);
 
 
 
 console.log(
-"Speaking",
-character,
+"Speaking:",
+currentCharacter,
+text,
 settings
 );
 
 
 
-
 speech.onend=function(){
 
-
-speakLine(lines,index+1);
-
+speakLine(
+lines,
+index+1,
+currentCharacter
+);
 
 };
-
 
 
 
 speechSynthesis.speak(speech);
 
 
-
 }
-
-
 
 
 
