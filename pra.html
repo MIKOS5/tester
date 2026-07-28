@@ -188,9 +188,10 @@ let browserVoices=[];
 
 
 
-// ===============================
-// LOAD VOICES
-// ===============================
+
+// =================================
+// LOAD BROWSER VOICES
+// =================================
 
 function loadBrowserVoices(){
 
@@ -199,9 +200,10 @@ speechSynthesis.getVoices();
 
 
 console.log(
-"VOICE LIST",
+"VOICES LOADED",
 browserVoices.map(v=>v.name)
 );
+
 
 }
 
@@ -218,21 +220,37 @@ loadBrowserVoices();
 
 
 
-// wait until voices exist
+
+
+// =================================
+// WAIT FOR VOICES
+// =================================
 
 function waitForVoices(){
+
 
 return new Promise(resolve=>{
 
 
-let check=setInterval(()=>{
+let attempts=0;
 
 
-if(browserVoices.length){
+let timer=setInterval(()=>{
 
-clearInterval(check);
+
+loadBrowserVoices();
+
+
+attempts++;
+
+
+if(browserVoices.length>0 || attempts>30){
+
+
+clearInterval(timer);
 
 resolve();
+
 
 }
 
@@ -251,12 +269,14 @@ resolve();
 
 
 
-// ===============================
+
+// =================================
 // LOAD VOICE SETTINGS
-// ===============================
+// =================================
 
 
 async function loadVoiceSettings(){
+
 
 try{
 
@@ -269,6 +289,7 @@ let data =
 await r.json();
 
 
+
 console.log(
 "VOICE API",
 data
@@ -278,12 +299,17 @@ data
 
 if(data.status==="success"){
 
-voiceSettings=data.voices;
+
+voiceSettings =
+data.voices;
+
+
 
 console.log(
-"SETTINGS",
+"VOICE SETTINGS",
 voiceSettings
 );
+
 
 }
 
@@ -292,27 +318,29 @@ voiceSettings
 catch(e){
 
 console.error(
-"VOICE ERROR",
+"VOICE API ERROR",
 e
 );
 
-}
-
 
 }
 
 
+}
 
 
 
 
 
-// ===============================
+
+
+// =================================
 // LOAD STORY
-// ===============================
+// =================================
 
 
 async function loadStory(){
+
 
 try{
 
@@ -325,10 +353,13 @@ let data =
 await r.json();
 
 
+
 if(data.status==="success"){
 
 
-currentStory=data.story;
+currentStory =
+data.story;
+
 
 
 document.getElementById("date").innerHTML =
@@ -337,12 +368,12 @@ new Date(data.timestamp)
 .toLocaleDateString();
 
 
+
 document.getElementById("story").innerHTML =
 formatStory(data.story);
 
 
 }
-
 
 
 }
@@ -360,7 +391,13 @@ console.error(e);
 
 
 
+// =================================
+// FORMAT
+// =================================
+
+
 function formatStory(text){
+
 
 return text
 
@@ -376,11 +413,9 @@ return text
 
 
 
-
-
-// ===============================
+// =================================
 // SELECT VOICE
-// ===============================
+// =================================
 
 
 function selectVoice(character){
@@ -388,6 +423,13 @@ function selectVoice(character){
 
 let data =
 voiceSettings[character];
+
+
+console.log(
+"SELECTING",
+character,
+data
+);
 
 
 
@@ -400,48 +442,66 @@ return browserVoices[0];
 
 
 
-// EXACT SHEET VOICE
+
+// ===============================
+// EXACT VOICE MATCH
+// ===============================
+
 
 if(data.voice){
 
 
-let exact =
+let wanted =
+data.voice.toLowerCase();
+
+
+
+let found =
 browserVoices.find(v=>
 
-v.name.trim() === data.voice.trim()
+v.name.toLowerCase()
+.includes(wanted)
 
 );
 
 
 
-if(exact){
+if(found){
+
 
 console.log(
-"USING EXACT:",
-exact.name
+"FOUND VOICE",
+found.name
 );
 
 
-return exact;
+return found;
+
+
+}
+
+
+console.log(
+"VOICE NOT FOUND",
+wanted
+);
+
 
 }
 
 
 
-console.log(
-"VOICE NOT FOUND:",
-data.voice
-);
-
-}
 
 
 
 
-// TYPE FALLBACK
+// ===============================
+// TYPE MATCHING
+// ===============================
 
 
-let type=data.type;
+let type =
+data.type;
 
 
 
@@ -453,7 +513,9 @@ return browserVoices.find(v=>
 
 v.name.includes("Zira") ||
 
-v.name.includes("Google UK English Female")
+v.name.includes("Google UK English Female") ||
+
+v.name.includes("Samantha")
 
 )
 ||
@@ -461,6 +523,7 @@ browserVoices[0];
 
 
 }
+
 
 
 
@@ -478,6 +541,7 @@ browserVoices[0];
 
 
 }
+
 
 
 
@@ -522,6 +586,25 @@ browserVoices[0];
 
 
 
+
+if(type==="Computer"){
+
+
+return browserVoices.find(v=>
+
+v.name.includes("Google") ||
+
+v.name.includes("Microsoft")
+
+)
+||
+browserVoices[0];
+
+
+}
+
+
+
 return browserVoices[0];
 
 
@@ -533,11 +616,9 @@ return browserVoices[0];
 
 
 
-
-
-// ===============================
+// =================================
 // START STORY
-// ===============================
+// =================================
 
 
 async function speakStory(){
@@ -562,6 +643,7 @@ lines,
 );
 
 
+
 }
 
 
@@ -569,20 +651,26 @@ lines,
 
 
 
+
+// =================================
+// SPEAK LINE
+// =================================
 
 
 function speakLine(lines,index,currentCharacter){
 
 
-
 if(index>=lines.length){
+
 
 document.getElementById("debug").innerHTML =
 "Finished";
 
+
 return;
 
 }
+
 
 
 
@@ -592,7 +680,8 @@ lines[index].trim();
 
 
 
-if(!line){
+if(line===""){
+
 
 speakLine(
 lines,
@@ -600,9 +689,12 @@ index+1,
 currentCharacter
 );
 
+
 return;
 
 }
+
+
 
 
 
@@ -619,6 +711,7 @@ currentCharacter =
 tag[1];
 
 
+
 speakLine(
 lines,
 index+1,
@@ -626,8 +719,8 @@ currentCharacter
 );
 
 
-return;
 
+return;
 
 }
 
@@ -635,13 +728,13 @@ return;
 
 
 
-let voiceData =
+let data =
 voiceSettings[currentCharacter];
 
 
 
 let settings =
-voiceData?.settings ||
+data?.settings ||
 {
 pitch:1,
 rate:1,
@@ -656,23 +749,29 @@ selectVoice(currentCharacter);
 
 
 
-let speech =
+
+let utterance =
 new SpeechSynthesisUtterance(line);
 
 
 
-speech.voice=voice;
+utterance.voice =
+voice;
 
-speech.pitch=settings.pitch;
 
-speech.rate =
+utterance.pitch =
+settings.pitch;
+
+
+utterance.rate =
 settings.rate *
 Number(
 document.getElementById("speed").value
 );
 
 
-speech.volume=settings.volume;
+utterance.volume =
+settings.volume;
 
 
 
@@ -681,35 +780,43 @@ document.getElementById("debug").innerHTML =
 
 `
 Speaking: ${currentCharacter}<br>
-Type: ${voiceData?.type}<br>
-Voice: ${voice?.name}<br>
-Pitch: ${speech.pitch}<br>
-Rate: ${speech.rate}
+Type: ${data?.type || "default"}<br>
+Voice: ${voice?.name || "none"}<br>
+Pitch: ${utterance.pitch}<br>
+Rate: ${utterance.rate}
 `;
 
 
 
 console.log(
-"SPEAKING",
-currentCharacter,
-voice?.name,
-line
+"PLAYING",
+{
+character:currentCharacter,
+voice:voice?.name,
+text:line
+}
 );
 
 
 
-speech.onerror=function(e){
+
+
+utterance.onerror=function(e){
 
 console.error(
 "TTS ERROR",
 e
 );
 
+
 };
 
 
 
-speech.onend=function(){
+
+
+utterance.onend=function(){
+
 
 speakLine(
 lines,
@@ -717,15 +824,18 @@ index+1,
 currentCharacter
 );
 
+
 };
 
 
 
-speechSynthesis.speak(speech);
 
+
+speechSynthesis.speak(utterance);
 
 
 }
+
 
 
 
