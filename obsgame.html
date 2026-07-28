@@ -268,8 +268,14 @@ size:8
 }
 
 
-for(let i=0;i<35;i++)
+// Starting signal packets
+for(let i=0;i<10;i++)
 spawnPacket();
+
+
+// Dynamic packet timer
+
+let packetTimer=0;
 
 
 
@@ -425,7 +431,11 @@ Math.min(canvas.height,player.y)
 
 // decay
 
-if(Math.random()<0.015){
+let decayChance =
+0.005 + (rank * 0.001);
+
+
+if(Math.random()<decayChance){
 
 
 let s=
@@ -486,7 +496,33 @@ sounds.good.play();
 
 checkDocking();
 
+// signal packet generation
+// harder as rank increases
 
+packetTimer++;
+
+
+let spawnDelay =
+300 + (rank * 50);
+
+
+if(packetTimer > spawnDelay){
+
+
+packetTimer=0;
+
+
+// fewer packets at higher levels
+
+if(packets.length < Math.max(3,15-rank)){
+
+
+spawnPacket();
+
+
+}
+
+}
 
 
 
