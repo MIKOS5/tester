@@ -921,6 +921,16 @@ const API =
 
 let allGames=[];
 
+let filteredGames=[];
+
+let start=0;
+
+const PAGE_SIZE=20;
+
+let loading=false;
+
+let finished=false;
+
 
 
 function showGames(data){
@@ -932,60 +942,42 @@ console.log(data);
 allGames=data.games || [];
 
 
-renderGames(allGames);
+loadMoreGames();
 
 
 }
 
 
 
-function renderGames(games){
+function renderGames(games,append=true){
 
+const container=document.getElementById("games");
 
-const container=
-document.getElementById("games");
-
-
-container.innerHTML="";
-
+if(!append){
+    container.innerHTML="";
+}
 
 games.forEach(game=>{
 
+if(game.Status!=="Active") return;
 
-if(game.Status!=="Active")
-return;
-
-
-
-container.innerHTML += `
-
+container.insertAdjacentHTML("beforeend",`
 
 <div class="game">
-
 
 <img src="${game.Image}"
 onerror="this.src='https://mikos5.github.io/tester/navicon.png'">
 
-
 <div class="info">
 
-
-<h2>
-${game.Name}
-</h2>
-
+<h2>${game.Name}</h2>
 
 <p>
-🎮 ${game.Category}
-<br>
+🎮 ${game.Category}<br>
 🕹 ${game.Type}
 </p>
 
-
-<p>
-${game.Description}
-</p>
-
+<p>${game.Description}</p>
 
 <div class="votes">
 
@@ -1013,23 +1005,15 @@ PLAY
 
 </div>
 
+</div>
 
 </div>
 
-
-</div>
-
-
-`;
-
-
+`);
 
 });
 
-
 }
-
-
 
 function filterGames(){
 
@@ -1055,7 +1039,44 @@ g.Category.toLowerCase().includes(q)
 
 }
 
+function appendGames(data){
 
+loading=false;
+
+if(!data.games || data.games.length===0){
+
+finished=true;
+
+return;
+
+}
+
+allGames.push(...data.games);
+
+renderGames(data.games,true);
+
+start+=PAGE_SIZE;
+
+}
+    
+function loadMoreGames(){
+
+if(loading || finished) return;
+
+loading=true;
+
+const script=document.createElement("script");
+
+script.src=
+API+
+"?callback=appendGames"+
+"&start="+start+
+"&limit="+PAGE_SIZE;
+
+document.body.appendChild(script);
+
+}
+    
 function playGame(url,name){
 
 
@@ -1092,21 +1113,7 @@ location.href="./"+page;
 
 
 
-const script=document.createElement("script");
-
-script.src=
-API+"?callback=showGames";
-
-
-script.onerror=function(){
-
-document.getElementById("error").innerHTML=
-"API ERROR";
-
-};
-
-
-document.body.appendChild(script);
+loadMoreGames();
 
 function closeGame(){
 
@@ -1207,7 +1214,7 @@ try{
         }
 
         // Refresh cards
-        renderGames(allGames);
+        loadMoreGames();
 
     }else{
 
@@ -1236,6 +1243,21 @@ function navigateApp(page){
 window.location.href = page;
 
 }
+
+document.getElementById("main").addEventListener("scroll", function(){
+
+    if(
+        this.scrollTop + this.clientHeight >=
+        this.scrollHeight - 300
+    ){
+
+        loadMoreGames();
+
+    }
+
+});
+
+    
 </script>
 
 
