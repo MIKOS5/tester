@@ -1,101 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
 <title>Obvyris Signal</title>
 
+
 <style>
 
 body{
+
 margin:0;
 background:#050b14;
 color:white;
 font-family:Arial,Helvetica,sans-serif;
 overflow:hidden;
+
 }
+
 
 #game{
+
 display:block;
-margin:auto;
-background:radial-gradient(circle,#12243b,#050b14);
+background:
+radial-gradient(circle,#12243b,#050b14);
+
 }
 
+
+
+/* TITLE */
+
 #title{
+
 position:absolute;
 top:10px;
 width:100%;
 text-align:center;
+
 font-size:28px;
 letter-spacing:5px;
+
 color:#27a8ff;
-text-shadow:0 0 15px #27a8ff;
+
+text-shadow:
+0 0 15px #27a8ff;
+
 }
+
+
+
+/* HUD */
 
 #hud{
+
 position:absolute;
+
 top:50px;
 left:15px;
+
 font-size:18px;
-z-index:2;
+
 line-height:25px;
+
+z-index:2;
+
 }
 
-.controls{
-position:absolute;
-bottom:20px;
-width:100%;
-text-align:center;
-}
 
-button{
-width:60px;
-height:60px;
-margin:5px;
-border-radius:50%;
-border:1px solid #27a8ff;
-background:#08192b;
-color:white;
-font-size:25px;
-}
 
-#joystick{
-position:absolute;
-left:40px;
-bottom:40px;
-width:120px;
-height:120px;
-border-radius:50%;
-border:2px solid rgba(39,168,255,.4);
-background:rgba(8,25,43,.4);
-display:none;
-}
-
-#stick{
-position:absolute;
-left:35px;
-top:35px;
-width:50px;
-height:50px;
-border-radius:50%;
-background:#27a8ff;
-box-shadow:0 0 20px #27a8ff;
-}
+/* START SCREEN */
 
 #startScreen{
 
 position:absolute;
+
 top:0;
 left:0;
+
 width:100%;
 height:100%;
 
 background:#050b14;
 
 display:flex;
+
 flex-direction:column;
+
 align-items:center;
+
 justify-content:center;
 
 z-index:10;
@@ -118,7 +113,9 @@ drop-shadow(0 0 20px #27a8ff);
 #startScreen h1{
 
 font-size:40px;
+
 letter-spacing:8px;
+
 color:#27a8ff;
 
 }
@@ -127,6 +124,7 @@ color:#27a8ff;
 #startScreen p{
 
 font-size:18px;
+
 color:#ddd;
 
 }
@@ -135,6 +133,7 @@ color:#ddd;
 #startButton{
 
 width:220px;
+
 height:70px;
 
 font-size:24px;
@@ -150,11 +149,59 @@ border:2px solid #27a8ff;
 box-shadow:
 0 0 20px #27a8ff;
 
-cursor:pointer;
+}
+
+
+
+/* JOYSTICK */
+
+#joystick{
+
+position:absolute;
+
+left:40px;
+
+bottom:40px;
+
+width:120px;
+
+height:120px;
+
+border-radius:50%;
+
+border:2px solid rgba(39,168,255,.4);
+
+background:rgba(8,25,43,.4);
+
+display:none;
 
 }
-  
+
+
+#stick{
+
+position:absolute;
+
+left:35px;
+
+top:35px;
+
+width:50px;
+
+height:50px;
+
+border-radius:50%;
+
+background:#27a8ff;
+
+box-shadow:
+0 0 20px #27a8ff;
+
+}
+
+
 </style>
+
 </head>
 
 
@@ -165,108 +212,203 @@ cursor:pointer;
 OBVYRIS SIGNAL
 </div>
 
+
+
 <div id="startScreen">
 
 <img src="R512.png">
 
-<h1>OBVYRIS SIGNAL</h1>
+<h1>
+OBVYRIS SIGNAL
+</h1>
 
-<p>Maintain the network. Restore failing signals.</p>
+<p>
+Maintain the network. Restore failing signals.
+</p>
+
 
 <button id="startButton">
 START SIGNAL
 </button>
 
+
 </div>
-  
+
+
+
+
+
 <div id="hud">
-<div>Rank: <span id="rank">1</span></div>
-<div>Energy: <span id="energy">0</span></div>
-<div>XP: <span id="xp">0</span>/100</div>
-<div>Recovered: <span id="score">0</span></div>
+
+<div>
+Rank:
+<span id="rank">1</span>
 </div>
+
+
+<div>
+Energy:
+<span id="energy">0</span>
+</div>
+
+
+<div>
+XP:
+<span id="xp">0</span>
+</div>
+
+
+<div>
+Recovered:
+<span id="score">0</span>
+</div>
+
+
+</div>
+
+
+
 
 
 <canvas id="game"></canvas>
 
+
+
 <div id="joystick">
+
 <div id="stick"></div>
+
 </div>
-  
+
+
+
+
+
 <script>
 
 
-const canvas=document.getElementById("game");
-const ctx=canvas.getContext("2d");
+const canvas=
+document.getElementById("game");
 
-canvas.width=innerWidth;
-canvas.height=innerHeight;
+
+const ctx=
+canvas.getContext("2d");
+
+
+
+canvas.width=
+innerWidth;
+
+
+canvas.height=
+innerHeight;
+
+
 
 let gameStarted=false;
 
-// SOUND
+
+
+
+
+/* SOUND */
+
 
 const sounds={
+
 
 ship:new Audio(
 "https://dn711305.ca.archive.org/0/items/galaxy-sound-effects/ship.mp3"
 ),
 
+
 good:new Audio(
 "https://dn711305.ca.archive.org/0/items/galaxy-sound-effects/good.mp3"
 ),
+
+
+process:new Audio(
+"https://dn721507.ca.archive.org/0/items/glitch-mmo-tiny-speck-unused-sfx/process.mp3"
+),
+
 
 error:new Audio(
 "https://dn711305.ca.archive.org/0/items/galaxy-sound-effects/error.mp3"
 )
 
+
 };
 
 
+
 sounds.ship.loop=true;
+
 sounds.ship.volume=.2;
 
 
 
 
 
-// PLAYER
+/* PLAYER */
+
 
 let player={
 
+
 x:canvas.width/2,
+
 y:canvas.height/2,
-speed:5
+
+speed:5,
+
+size:32
+
 
 };
 
 
 
+
 let score=0;
+
 let energy=0;
+
 let xp=0;
+
 
 let rank=
 Number(localStorage.getItem("obvyrisRank")) || 1;
 
 
 
+
+
 let keys={};
 
 
-document.addEventListener("keydown",e=>{
+
+document.addEventListener(
+"keydown",
+e=>{
+
 keys[e.key]=true;
+
 });
 
 
-document.addEventListener("keyup",e=>{
+document.addEventListener(
+"keyup",
+e=>{
+
 keys[e.key]=false;
+
 });
 
 
 
 
-// SHIP IMAGE
+
+/* SHIP IMAGE */
 
 
 let shipImg=new Image();
@@ -275,40 +417,65 @@ shipImg.src="Oship.png";
 
 
 
-// TOUCH JOYSTICK
 
-let joystick=document.getElementById("joystick");
-let stick=document.getElementById("stick");
+
+/* TOUCH JOYSTICK */
+
+
+let joystick=
+document.getElementById("joystick");
+
+
+let stick=
+document.getElementById("stick");
+
+
 
 let touchActive=false;
 
+
 let joyX=0;
+
 let joyY=0;
+
+
 
 
 canvas.addEventListener(
 "touchstart",
-function(e){
+e=>{
+
 
 joystick.style.display="block";
 
+
 touchActive=true;
 
-moveJoystick(e.touches[0]);
+
+moveJoystick(
+e.touches[0]
+);
+
 
 },
 {passive:false}
 );
+
 
 
 
 canvas.addEventListener(
 "touchmove",
-function(e){
+e=>{
+
 
 e.preventDefault();
 
-moveJoystick(e.touches[0]);
+
+moveJoystick(
+e.touches[0]
+);
+
 
 },
 {passive:false}
@@ -316,46 +483,74 @@ moveJoystick(e.touches[0]);
 
 
 
+
 canvas.addEventListener(
 "touchend",
-function(){
+()=>{
+
 
 touchActive=false;
 
+
 joyX=0;
+
 joyY=0;
 
+
 stick.style.left="35px";
+
 stick.style.top="35px";
 
+
 }
+
 );
+
+
 
 
 
 function moveJoystick(t){
 
 
-let rect=canvas.getBoundingClientRect();
-
-
-let x=t.clientX;
-let y=t.clientY;
+let rect=
+canvas.getBoundingClientRect();
 
 
 
-let cx=rect.width/2;
-let cy=rect.height/2;
+let x=
+t.clientX;
+
+
+let y=
+t.clientY;
 
 
 
-joyX=(x-cx)/200;
-joyY=(y-cy)/200;
+let cx=
+rect.width/2;
+
+
+let cy=
+rect.height/2;
 
 
 
-joyX=Math.max(-1,Math.min(1,joyX));
-joyY=Math.max(-1,Math.min(1,joyY));
+joyX=
+(x-cx)/200;
+
+
+joyY=
+(y-cy)/200;
+
+
+
+joyX=
+Math.max(-1,Math.min(1,joyX));
+
+
+joyY=
+Math.max(-1,Math.min(1,joyY));
 
 
 
@@ -368,116 +563,198 @@ stick.style.top=
 
 
 }
-  
-// STATIONS
+
+
+
+
+
+/* STATIONS */
 
 
 let stations=[
 
+
 {
+
 name:"Radio",
+
 img:"radio_icon_cutout.png",
+
 x:150,
+
 y:200,
+
 power:100
+
 },
 
+
 {
+
 name:"Video",
+
 img:"video_icon_cutout.png",
+
 x:canvas.width-180,
+
 y:200,
+
 power:100
+
 },
 
+
 {
+
 name:"Chat",
+
 img:"chat_icon_cutout.png",
+
 x:canvas.width/2,
+
 y:canvas.height-180,
+
 power:100
+
 },
 
+
 {
+
 name:"News",
+
 img:"news_icon.png",
+
 x:200,
+
 y:canvas.height-180,
+
 power:100
+
 },
 
+
 {
+
 name:"Archive",
+
 img:"archive_icon.png",
+
 x:canvas.width-200,
+
 y:canvas.height-180,
+
 power:100
+
 }
 
+
 ];
+
+
 
 
 
 let images={};
 
 
+
 stations.forEach(s=>{
+
 
 let img=new Image();
 
+
 img.src=s.img;
 
+
 images[s.img]=img;
+
 
 });
 
 
 
 
-// PACKETS
+
+/* SIGNAL PACKETS */
 
 
 let packets=[];
 
 
+
 function spawnPacket(){
 
-let angle=Math.random()*Math.PI*2;
 
-let distance=250+Math.random()*400;
+let angle=
+Math.random()*Math.PI*2;
+
+
+
+let distance=
+250+Math.random()*400;
+
 
 
 packets.push({
 
-x:player.x + Math.cos(angle)*distance,
-y:player.y + Math.sin(angle)*distance,
+x:
+player.x+
+Math.cos(angle)*distance,
+
+
+y:
+player.y+
+Math.sin(angle)*distance,
+
 
 size:8,
 
-dx:(Math.random()-0.5)*1.5,
-dy:(Math.random()-0.5)*1.5,
+
+dx:
+(Math.random()-.5)*1.5,
+
+
+dy:
+(Math.random()-.5)*1.5,
+
 
 pulse:0
+
 
 });
 
 
 }
+
+
+
+for(let i=0;i<10;i++){
+
+spawnPacket();
+
+}
+
+
+
+
+
+/* DOCKING */
 
 let dockedStation=null;
 
 const DOCK_RANGE=90;
 
 let packetTimer=0;
-  
-for(let i=0;i<10;i++){
-spawnPacket();
-}
-  
+
+
+
 function checkDocking(){
 
 
 dockedStation=null;
+
 
 
 stations.forEach(s=>{
@@ -489,17 +766,22 @@ player.y-s.y
 );
 
 
+
 if(distance<DOCK_RANGE){
 
 dockedStation=s;
 
 }
 
+
 });
 
 
 
+
+
 if(dockedStation && energy>0){
+
 
 
 if(dockedStation.power<100){
@@ -515,16 +797,20 @@ dockedStation.power=100;
 
 energy-=0.2;
 
-xp+=1;
+
+xp+=0.5;
 
 
 
-// repair sound
+if(Math.random()<0.03){
 
-if(Math.random()<0.05){
+sounds.process.currentTime=0;
 
-sounds.good.currentTime=0;
-sounds.good.play();
+sounds.process.play();
+
+}
+
+
 
 }
 
@@ -534,17 +820,8 @@ sounds.good.play();
 
 }
 
-}
 
 
-
-
-function move(x,y){
-
-player.x+=x*30;
-player.y+=y*30;
-
-}
 
 
 
@@ -568,12 +845,19 @@ return "red";
 
 
 
+
+
 function update(){
 
 
 if(!gameStarted)
 return;
-// movement
+
+
+
+
+
+/* MOVEMENT */
 
 
 if(keys["ArrowUp"]||keys["w"])
@@ -593,14 +877,26 @@ player.x+=player.speed;
 
 
 
+if(touchActive){
+
+player.x+=joyX*player.speed;
+
+player.y+=joyY*player.speed;
+
+}
 
 
-// boundaries
+
+
+
+/* BOUNDARIES */
+
 
 player.x=Math.max(
 0,
 Math.min(canvas.width,player.x)
 );
+
 
 player.y=Math.max(
 0,
@@ -611,41 +907,57 @@ Math.min(canvas.height,player.y)
 
 
 
-// decay
 
-let decayChance =
-0.005 + (rank * 0.001);
+/* SIGNAL POWER LOSS */
+
+let decayChance=
+0.005+(rank*0.001);
+
 
 
 if(Math.random()<decayChance){
 
 
-let s=
+let station=
 stations[
-Math.floor(Math.random()*stations.length)
+Math.floor(
+Math.random()*stations.length
+)
 ];
 
 
-s.power-=1;
+station.power-=1+(rank/10);
+
+
+
+if(station.power<0)
+station.power=0;
 
 
 }
 
 
 
-// floating signal movement
+
+
+
+
+/* FLOATING SIGNALS */
+
 
 packets.forEach(p=>{
 
 
-p.x += p.dx;
-p.y += p.dy;
+p.x+=p.dx;
+
+p.y+=p.dy;
 
 
-// bounce at edges
+
 
 if(p.x<0 || p.x>canvas.width)
 p.dx*=-1;
+
 
 
 if(p.y<0 || p.y>canvas.height)
@@ -653,25 +965,34 @@ p.dy*=-1;
 
 
 
-// signals avoid nearby ship
 
-let distance=Math.hypot(
+
+
+// escape player
+
+
+let distance=
+Math.hypot(
 player.x-p.x,
 player.y-p.y
 );
 
 
+
 if(distance<150){
 
 
-let angle=Math.atan2(
+let angle=
+Math.atan2(
 p.y-player.y,
 p.x-player.x
 );
 
 
-p.x += Math.cos(angle)*2;
-p.y += Math.sin(angle)*2;
+
+p.x+=Math.cos(angle)*2;
+
+p.y+=Math.sin(angle)*2;
 
 
 }
@@ -683,38 +1004,49 @@ p.pulse+=0.1;
 
 });
 
-// collect packets
+
+
+
+
+
+
+/* COLLECT SIGNAL */
 
 
 packets.forEach((p,i)=>{
 
 
-let d=Math.hypot(
+let distance=
+Math.hypot(
 player.x-p.x,
 player.y-p.y
 );
 
 
-if(d<35){
+
+if(distance<35){
 
 
 packets.splice(i,1);
 
 
-energy+=5;
-xp+=10;
+energy+=5+rank;
+
+xp+=10+(rank*2);
+
 score++;
 
 
 spawnPacket();
 
 
+
 sounds.good.currentTime=0;
+
 sounds.good.play();
 
 
 }
-
 
 
 });
@@ -722,29 +1054,40 @@ sounds.good.play();
 
 
 
-// docking repair
+
+
+
+
+/* REPAIR STATION */
+
 
 checkDocking();
 
-// signal packet generation
-// harder as rank increases
+
+
+
+
+
+
+/* CREATE NEW SIGNALS */
+
 
 packetTimer++;
 
 
-let spawnDelay =
-300 + (rank * 50);
+
+let spawnDelay=
+300+(rank*50);
 
 
-if(packetTimer > spawnDelay){
+
+if(packetTimer>spawnDelay){
 
 
 packetTimer=0;
 
 
-// fewer packets at higher levels
-
-if(packets.length < Math.max(3,15-rank)){
+if(packets.length<Math.max(3,15-rank)){
 
 
 spawnPacket();
@@ -752,11 +1095,16 @@ spawnPacket();
 
 }
 
+
 }
 
 
 
-// level up
+
+
+
+
+/* LEVEL UP */
 
 
 if(xp>=100){
@@ -765,6 +1113,7 @@ if(xp>=100){
 rank++;
 
 xp=0;
+
 
 
 localStorage.setItem(
@@ -780,7 +1129,9 @@ rank
 
 
 
-// game over
+
+
+/* GAME OVER */
 
 
 stations.forEach(s=>{
@@ -794,8 +1145,10 @@ sounds.error.play();
 
 alert(
 "OBVYRIS SIGNAL LOST\n\n"+
-s.name+" has failed."
+s.name+
+" OFFLINE"
 );
+
 
 
 location.reload();
@@ -808,14 +1161,22 @@ location.reload();
 
 
 
+
+
 updateHUD();
+
 
 draw();
 
 
+
 requestAnimationFrame(update);
 
+
 }
+
+
+
 
 
 
@@ -824,13 +1185,20 @@ requestAnimationFrame(update);
 function updateHUD(){
 
 
-document.getElementById("rank").innerHTML=rank;
+document.getElementById("rank").innerHTML=
+rank;
 
-document.getElementById("energy").innerHTML=Math.floor(energy);
 
-document.getElementById("xp").innerHTML=Math.floor(xp);
+document.getElementById("energy").innerHTML=
+Math.floor(energy);
 
-document.getElementById("score").innerHTML=score;
+
+document.getElementById("xp").innerHTML=
+Math.floor(xp)+"/100";
+
+
+document.getElementById("score").innerHTML=
+score;
 
 
 }
@@ -840,7 +1208,11 @@ document.getElementById("score").innerHTML=score;
 
 
 
+
+
+
 function draw(){
+
 
 
 ctx.clearRect(
@@ -853,7 +1225,9 @@ canvas.height
 
 
 
-// connections
+
+
+/* CONNECTIONS */
 
 
 stations.forEach(s=>{
@@ -864,18 +1238,20 @@ ctx.strokeStyle="#16395b";
 
 ctx.beginPath();
 
+
 ctx.moveTo(
 canvas.width/2,
 canvas.height/2
 );
+
 
 ctx.lineTo(
 s.x,
 s.y
 );
 
-ctx.stroke();
 
+ctx.stroke();
 
 
 });
@@ -884,7 +1260,10 @@ ctx.stroke();
 
 
 
-// stations
+
+
+
+/* STATIONS */
 
 
 stations.forEach(s=>{
@@ -897,10 +1276,13 @@ stationColor(s.power);
 
 
 
-let img=images[s.img];
+let img=
+images[s.img];
+
 
 
 if(img.complete){
+
 
 ctx.drawImage(
 img,
@@ -910,10 +1292,13 @@ s.y-35,
 70
 );
 
+
 }
 
 
+
 ctx.shadowBlur=0;
+
 
 
 
@@ -921,11 +1306,18 @@ ctx.fillStyle=
 stationColor(s.power);
 
 
+ctx.font="16px Arial";
+
+
 ctx.fillText(
-s.name+" "+Math.floor(s.power)+"%",
-s.x-40,
+s.name+
+" "+
+Math.floor(s.power)+
+"%",
+s.x-45,
 s.y+55
 );
+
 
 
 
@@ -935,12 +1327,14 @@ s.y+55
 
 ctx.fillStyle="#111";
 
+
 ctx.fillRect(
 s.x-40,
 s.y+65,
 80,
 8
 );
+
 
 
 ctx.fillStyle=
@@ -961,7 +1355,11 @@ s.y+65,
 
 
 
-// repair beam
+
+
+
+
+/* REPAIR BEAM */
 
 
 if(dockedStation){
@@ -973,6 +1371,7 @@ ctx.lineWidth=3;
 
 
 ctx.beginPath();
+
 
 ctx.moveTo(
 player.x,
@@ -992,8 +1391,10 @@ ctx.stroke();
 
 ctx.fillStyle="#27a8ff";
 
+
 ctx.fillText(
-"REPAIRING "+dockedStation.name,
+"REPAIRING "+
+dockedStation.name,
 player.x-50,
 player.y-45
 );
@@ -1005,7 +1406,9 @@ player.y-45
 
 
 
-// packets
+
+
+/* SIGNALS */
 
 
 packets.forEach(p=>{
@@ -1013,19 +1416,25 @@ packets.forEach(p=>{
 
 ctx.fillStyle="#27a8ff";
 
+
 ctx.shadowBlur=20;
+
 ctx.shadowColor="#27a8ff";
+
 
 
 ctx.beginPath();
 
+
 ctx.arc(
 p.x,
 p.y,
-p.size + Math.sin(p.pulse)*3,
+p.size+
+Math.sin(p.pulse)*3,
 0,
 Math.PI*2
 );
+
 
 ctx.fill();
 
@@ -1038,10 +1447,16 @@ ctx.shadowBlur=0;
 
 
 
-// ship
+
+
+
+
+
+/* SHIP */
 
 
 if(shipImg.complete){
+
 
 ctx.drawImage(
 shipImg,
@@ -1051,40 +1466,55 @@ player.y-32,
 64
 );
 
-}
-
 
 }
 
+
+
+}
+
+
+
+
+
+
+
+
+/* START */
 
 
 document.getElementById("startButton").onclick=function(){
 
 
+
 gameStarted=true;
+
 
 
 document.getElementById("startScreen").style.display="none";
 
 
-// start engine
 
 sounds.ship.play();
 
 
-// startup sound
 
 sounds.good.currentTime=0;
+
 sounds.good.play();
+
 
 
 update();
 
 
+
 };
+
 
 
 </script>
 
 </body>
+
 </html>
