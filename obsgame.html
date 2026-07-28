@@ -449,36 +449,27 @@ let packets=[];
 
 function spawnPacket(){
 
+let angle=Math.random()*Math.PI*2;
+
+let distance=250+Math.random()*400;
+
+
 packets.push({
 
-x:Math.random()*canvas.width,
-y:Math.random()*canvas.height,
-size:8
+x:player.x + Math.cos(angle)*distance,
+y:player.y + Math.sin(angle)*distance,
+
+size:8,
+
+dx:(Math.random()-0.5)*1.5,
+dy:(Math.random()-0.5)*1.5,
+
+pulse:0
 
 });
 
+
 }
-
-
-// Starting signal packets
-for(let i=0;i<10;i++)
-spawnPacket();
-
-
-// Dynamic packet timer
-
-let packetTimer=0;
-
-
-
-
-
-// DOCKING SYSTEM
-
-
-let dockedStation=null;
-
-const DOCK_RANGE=90;
 
 
 function checkDocking(){
@@ -666,7 +657,55 @@ s.power-=1;
 
 
 
+// floating signal movement
 
+packets.forEach(p=>{
+
+
+p.x += p.dx;
+p.y += p.dy;
+
+
+// bounce at edges
+
+if(p.x<0 || p.x>canvas.width)
+p.dx*=-1;
+
+
+if(p.y<0 || p.y>canvas.height)
+p.dy*=-1;
+
+
+
+// signals avoid nearby ship
+
+let distance=Math.hypot(
+player.x-p.x,
+player.y-p.y
+);
+
+
+if(distance<150){
+
+
+let angle=Math.atan2(
+p.y-player.y,
+p.x-player.x
+);
+
+
+p.x += Math.cos(angle)*2;
+p.y += Math.sin(angle)*2;
+
+
+}
+
+
+
+p.pulse+=0.1;
+
+
+});
 
 // collect packets
 
@@ -998,19 +1037,24 @@ packets.forEach(p=>{
 
 ctx.fillStyle="#27a8ff";
 
+ctx.shadowBlur=20;
+ctx.shadowColor="#27a8ff";
+
 
 ctx.beginPath();
 
 ctx.arc(
 p.x,
 p.y,
-p.size,
+p.size + Math.sin(p.pulse)*3,
 0,
 Math.PI*2
 );
 
-
 ctx.fill();
+
+
+ctx.shadowBlur=0;
 
 
 });
