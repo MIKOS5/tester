@@ -784,6 +784,18 @@ align-items:start;
 min-width:0;
 width:100%;
 }
+
+
+#games{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+gap:18px;
+align-items:start;
+}
+
+#games:empty{
+display:none;
+}
     
 </style>
 
@@ -883,11 +895,7 @@ oninput="filterGames()">
 
 
 
-<div id="games">
-
-Loading...
-
-</div>
+<div id="games"></div>
 
 
 
@@ -1038,11 +1046,15 @@ function renderGames(games,append=true){
 const container=document.getElementById("games");
 
 
-if(!append || container.innerHTML==="Loading..."){
+if(
+!append ||
+container.textContent.trim()==="Loading..."
+){
 
 container.innerHTML="";
 
 }
+
 
 
 
