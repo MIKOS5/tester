@@ -173,7 +173,6 @@ value="1">
 
 <script>
 
-
 const API_BASE =
 "https://script.google.com/macros/s/AKfycbwdWK9oxbkXE9Df8zv8nVLg1Jn-qQmZCEBGYd7hMV--jF2rk12KV0vM7lwBzo12DMZJ/exec";
 
@@ -186,30 +185,24 @@ const VOICE_API =
 API_BASE+"?action=voices";
 
 
-
 let currentStory="";
-
 let voiceSettings={};
-
 let browserVoices=[];
 
 
 
-
-// =================================
+// ===============================
 // LOAD BROWSER VOICES
-// =================================
-
+// ===============================
 
 function loadBrowserVoices(){
 
 browserVoices =
 speechSynthesis.getVoices();
 
-
 console.log(
-"Browser voices:",
-browserVoices
+"Available voices:",
+browserVoices.map(v=>v.name)
 );
 
 }
@@ -219,25 +212,17 @@ speechSynthesis.onvoiceschanged =
 loadBrowserVoices;
 
 
-
 loadBrowserVoices();
 
 
 
 
-
-// =================================
-// LOAD VOICE SHEET DATA
-// =================================
+// ===============================
+// LOAD VOICE SETTINGS
+// ===============================
 
 
 async function loadVoiceSettings(){
-
-
-console.log(
-"Loading voice settings..."
-);
-
 
 
 try{
@@ -247,21 +232,13 @@ let response =
 await fetch(VOICE_API);
 
 
-
-console.log(
-"Voice API status:",
-response.status
-);
-
-
-
 let data =
 await response.json();
 
 
 
 console.log(
-"Voice API:",
+"VOICE API",
 data
 );
 
@@ -275,7 +252,7 @@ data.voices;
 
 
 console.log(
-"Loaded settings:",
+"VOICE SETTINGS LOADED",
 voiceSettings
 );
 
@@ -283,17 +260,14 @@ voiceSettings
 }
 
 
-
 }
 catch(e){
 
-
 console.error(
-"Voice load error:",
+"Voice API error",
 e
 );
 
-
 }
 
 
@@ -303,9 +277,10 @@ e
 
 
 
-// =================================
+
+// ===============================
 // LOAD STORY
-// =================================
+// ===============================
 
 
 async function loadStory(){
@@ -318,16 +293,8 @@ let response =
 await fetch(STORY_API);
 
 
-
 let data =
 await response.json();
-
-
-
-console.log(
-"Story:",
-data
-);
 
 
 
@@ -352,7 +319,6 @@ document.getElementById("story")
 formatStory(data.story);
 
 
-
 }
 
 
@@ -360,15 +326,8 @@ formatStory(data.story);
 }
 catch(e){
 
-
 console.error(e);
 
-
-document.getElementById("story")
-.innerHTML =
-"Story unavailable";
-
-
 }
 
 
@@ -378,9 +337,10 @@ document.getElementById("story")
 
 
 
-// =================================
-// FORMAT DISPLAY
-// =================================
+
+// ===============================
+// FORMAT
+// ===============================
 
 
 function formatStory(text){
@@ -404,58 +364,11 @@ return text
 
 
 
-// =================================
-// GET CHARACTER
-// =================================
 
 
-function getCharacter(line){
-
-
-let match =
-line.match(/\[(.*?)\]/);
-
-
-
-if(match){
-
-return match[1];
-
-}
-
-
-
-return "Narrator";
-
-
-}
-
-
-
-
-
-// =================================
-// CLEAN TEXT
-// =================================
-
-
-function cleanText(line){
-
-
-return line
-.replace(/\[.*?\]/,"")
-.trim();
-
-
-}
-
-
-
-
-
-// =================================
-// SELECT BROWSER VOICE
-// =================================
+// ===============================
+// SELECT VOICE
+// ===============================
 
 
 function selectVoice(character){
@@ -469,25 +382,32 @@ if(!data)
 return browserVoices[0];
 
 
+
 let type =
 data.type;
 
 
 
-// Female narrator
+console.log(
+"Selecting:",
+character,
+type
+);
+
+
+
+// Narrator
 
 if(type==="Female Narrator"){
 
 
-return browserVoices.find(v =>
+return browserVoices.find(v=>
 
 v.name.includes("Samantha") ||
 
 v.name.includes("Zira") ||
 
 v.name.includes("Hazel") ||
-
-v.name.includes("Google UK English Female") ||
 
 v.name.includes("Female")
 
@@ -500,12 +420,13 @@ browserVoices[0];
 
 
 
+
 // Robot
 
 if(type==="Robot"){
 
 
-return browserVoices.find(v =>
+return browserVoices.find(v=>
 
 v.name.includes("David") ||
 
@@ -522,16 +443,39 @@ browserVoices[0];
 
 
 
-// Pip-Squeak
+
+// High
 
 if(type==="High"){
 
 
-return browserVoices.find(v =>
+return browserVoices.find(v=>
 
 v.name.includes("Samantha") ||
 
 v.name.includes("Female")
+
+)
+||
+browserVoices[0];
+
+
+}
+
+
+
+
+
+// Computer
+
+if(type==="Computer"){
+
+
+return browserVoices.find(v=>
+
+v.name.includes("Google") ||
+
+v.name.includes("Microsoft")
 
 )
 ||
@@ -549,12 +493,18 @@ return browserVoices[0];
 
 
 
-// =================================
-// READ STORY
-// =================================
+
+
+
+
+
+// ===============================
+// SPEAK STORY
+// ===============================
 
 
 function speakStory(){
+
 
 speechSynthesis.cancel();
 
@@ -563,9 +513,16 @@ let lines =
 currentStory.split("\n");
 
 
-speakLine(lines,0,"Narrator");
+speakLine(
+lines,
+0,
+"Narrator"
+);
+
 
 }
+
+
 
 
 
@@ -574,7 +531,8 @@ speakLine(lines,0,"Narrator");
 function speakLine(lines,index,currentCharacter){
 
 
-if(index >= lines.length)
+
+if(index>=lines.length)
 return;
 
 
@@ -586,29 +544,6 @@ lines[index].trim();
 
 if(line===""){
 
-speakLine(lines,index+1,currentCharacter);
-
-return;
-
-}
-
-
-
-// Check if this line changes speaker
-
-let match =
-line.match(/\[(.*?)\]/);
-
-
-
-if(match){
-
-currentCharacter =
-match[1];
-
-
-// move to next line after tag
-
 speakLine(
 lines,
 index+1,
@@ -616,6 +551,34 @@ currentCharacter
 );
 
 return;
+
+}
+
+
+
+// speaker change
+
+let tag =
+line.match(/\[(.*?)\]/);
+
+
+
+if(tag){
+
+
+currentCharacter =
+tag[1];
+
+
+speakLine(
+lines,
+index+1,
+currentCharacter
+);
+
+
+return;
+
 
 }
 
@@ -623,13 +586,11 @@ return;
 
 
 let text =
-line
-.replace(/\[.*?\]/,"")
-.trim();
+line.trim();
 
 
 
-if(text===""){
+if(!text){
 
 speakLine(
 lines,
@@ -644,38 +605,22 @@ return;
 
 
 
-let settings =
+
+let voiceData =
 voiceSettings[currentCharacter];
 
 
 
-if(!settings){
-
-settings={
-
+let settings =
+voiceData
+?
+voiceData.settings
+:
+{
 pitch:1,
 rate:1,
 volume:1
-
 };
-
-}
-
-
-
-document.getElementById("debug").innerHTML =
-
-"Speaking: "
-+
-currentCharacter
-+
-"<br>Pitch: "
-+
-settings.pitch
-+
-"<br>Rate: "
-+
-settings.rate;
 
 
 
@@ -709,16 +654,55 @@ selectVoice(currentCharacter);
 
 
 
-console.log(
-"Speaking:",
-currentCharacter,
-text,
-settings
+
+
+document.getElementById("debug").innerHTML =
+
+"Speaking: "
++
+currentCharacter
++
+"<br>Type: "
++
+(
+voiceData?.type || "Default"
+)
++
+"<br>Pitch: "
++
+settings.pitch
++
+"<br>Rate: "
++
+settings.rate
++
+"<br>Voice: "
++
+(
+speech.voice
+?
+speech.voice.name
+:
+"Default"
 );
 
 
 
+
+
+console.log(
+"PLAY",
+currentCharacter,
+voiceData,
+speech.voice?.name
+);
+
+
+
+
+
 speech.onend=function(){
+
 
 speakLine(
 lines,
@@ -726,20 +710,28 @@ index+1,
 currentCharacter
 );
 
+
 };
+
+
 
 
 
 speechSynthesis.speak(speech);
 
 
+
 }
 
 
 
-// =================================
+
+
+
+
+// ===============================
 // CONTROLS
-// =================================
+// ===============================
 
 
 function pauseStory(){
@@ -747,7 +739,6 @@ function pauseStory(){
 speechSynthesis.pause();
 
 }
-
 
 
 function stopStory(){
@@ -763,8 +754,6 @@ speechSynthesis.cancel();
 loadVoiceSettings();
 
 loadStory();
-
-
 </script>
 
 
