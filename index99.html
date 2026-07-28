@@ -1508,7 +1508,9 @@ async function loadGames(){
     try{
 
         const url =
-        GAMES_API + "?action=games&limit=2000&t=" + Date.now();
+GAMES_API +
+"?action=featured&t=" +
+Date.now();
 
 
         console.log("Games API:",url);
@@ -1599,6 +1601,7 @@ async function loadGames(){
 
 function showNextGame(){
 
+
     if(!featuredGames.length){
         return;
     }
@@ -1614,12 +1617,10 @@ function showNextGame(){
     game.Name || "Unknown";
 
 
-
     document.getElementById(
         "gameCategory"
     ).innerText =
     game.Category || "-";
-
 
 
     document.getElementById(
@@ -1644,12 +1645,6 @@ function showNextGame(){
         "block";
 
     }
-    else{
-
-        img.style.display =
-        "none";
-
-    }
 
 
 
@@ -1657,10 +1652,17 @@ function showNextGame(){
 
 
     if(
-        gameIndex >= featuredGames.length
+      gameIndex >= featuredGames.length
     ){
 
-        gameIndex = 0;
+        // reshuffle after full cycle
+
+        featuredGames.sort(
+          ()=>Math.random()-0.5
+        );
+
+
+        gameIndex=0;
 
     }
 
