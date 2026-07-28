@@ -96,13 +96,11 @@ Signal Recovered: <span id="score">0</span>
 const canvas=document.getElementById("game");
 const ctx=canvas.getContext("2d");
 
-
 canvas.width=innerWidth;
 canvas.height=innerHeight;
 
 
-
-// SOUND SYSTEM
+// SOUND
 
 const sounds={
 
@@ -116,14 +114,6 @@ good:new Audio(
 
 error:new Audio(
 "https://dn711305.ca.archive.org/0/items/galaxy-sound-effects/error.mp3"
-),
-
-explosion:new Audio(
-"https://dn711305.ca.archive.org/0/items/galaxy-sound-effects/explosion.mp3"
-),
-
-select:new Audio(
-"https://dn711305.ca.archive.org/0/items/galaxy-sound-effects/select.mp3"
 )
 
 };
@@ -134,47 +124,108 @@ sounds.ship.volume=.25;
 
 
 
-document.body.onclick=()=>{
-
-sounds.select.play();
-
-sounds.ship.play();
-
-};
-
-
-
-// PLAYER
-
 let player={
 
 x:canvas.width/2,
 y:canvas.height/2,
-size:32,
-speed:5
+speed:5,
+size:32
 
 };
+
+
+
+let score=0;
+let energy=0;
+let xp=0;
+let rank=1;
 
 
 let keys={};
 
 
 document.addEventListener("keydown",e=>{
-
 keys[e.key]=true;
-
 });
 
 
 document.addEventListener("keyup",e=>{
-
 keys[e.key]=false;
+});
+
+
+
+// SHIP
+
+let shipImg=new Image();
+shipImg.src="Oship.png";
+
+
+
+// STATIONS
+
+
+let stations=[
+
+{
+name:"Radio",
+img:"radio_icon_cutout.png",
+x:150,
+y:200,
+power:100
+},
+
+{
+name:"Video",
+img:"video_icon_cutout.png",
+x:canvas.width-180,
+y:200,
+power:100
+},
+
+{
+name:"Chat",
+img:"chat_icon_cutout.png",
+x:canvas.width/2,
+y:canvas.height-180,
+power:100
+},
+
+{
+name:"News",
+img:"news_icon.png",
+x:200,
+y:canvas.height-180,
+power:100
+},
+
+{
+name:"Archive",
+img:"archive_icon.png",
+x:canvas.width-200,
+y:canvas.height-180,
+power:100
+}
+
+];
+
+
+let images={};
+
+
+stations.forEach(s=>{
+
+let img=new Image();
+
+img.src=s.img;
+
+images[s.img]=img;
 
 });
 
 
 
-// PACKETS
+// SIGNAL PACKETS
 
 let packets=[];
 
@@ -185,116 +236,54 @@ packets.push({
 
 x:Math.random()*canvas.width,
 y:Math.random()*canvas.height,
-size:8,
-pulse:0
+size:8
 
 });
 
 }
 
 
-
-for(let i=0;i<20;i++)
+for(let i=0;i<30;i++)
 spawnPacket();
 
 
 
 
-// NODES
+// TOUCH
 
-let nodes=[
+function move(x,y){
 
-{
-name:"Radio",
-img:"radio_icon_cutout.png",
-x:150,
-y:200
-},
-
-{
-name:"Video",
-img:"video_icon_cutout.png",
-x:canvas.width-180,
-y:200
-},
-
-{
-name:"Chat",
-img:"chat_icon_cutout.png",
-x:canvas.width/2,
-y:canvas.height-200
-},
-
-{
-name:"News",
-img:"news_icon.png",
-x:200,
-y:canvas.height-200
-},
-
-{
-name:"Archive",
-img:"archive_icon.png",
-x:canvas.width-200,
-y:canvas.height-200
-}
-
-];
-
-
-
-let images={};
-
-
-
-let shipImg=new Image();
-shipImg.src="Oship.png";
-
-
-
-nodes.forEach(n=>{
-
-let img=new Image();
-
-img.src=n.img;
-
-images[n.img]=img;
-
-});
-
-
-
-
-// MOBILE BUTTON
-
-function move(dx,dy){
-
-player.x+=dx*player.speed*5;
-player.y+=dy*player.speed*5;
+player.x+=x*30;
+player.y+=y*30;
 
 }
 
 
 
-// KEEP SHIP ON MAP
 
-function bounds(){
+// REPAIR
 
-player.x=Math.max(
-0,
-Math.min(canvas.width,player.x)
-);
+function repairStation(station){
 
-player.y=Math.max(
-0,
-Math.min(canvas.height,player.y)
-);
+
+station.power+=10;
+
+if(station.power>100)
+station.power=100;
+
+
+energy-=10;
+
+
+sounds.good.currentTime=0;
+sounds.good.play();
+
 
 }
 
 
 
-// GAME LOOP
+// UPDATE
 
 
 function update(){
@@ -318,11 +307,31 @@ player.x+=player.speed;
 
 
 
-bounds();
+
+// signal decay
+
+
+if(Math.random()<0.01){
+
+
+let target=
+stations[
+Math.floor(
+Math.random()*stations.length
+)
+];
+
+
+target.power-=1;
+
+
+}
 
 
 
-// collect signals
+
+// collect packets
+
 
 packets.forEach((p,i)=>{
 
@@ -333,25 +342,76 @@ player.y-p.y
 );
 
 
+
 if(d<35){
 
 
 packets.splice(i,1);
 
 
-document.getElementById("score").innerHTML++;
-
-sounds.good.currentTime=0;
-sounds.good.play();
+energy+=5;
+xp+=10;
+score++;
 
 
 spawnPacket();
 
 
+sounds.good.currentTime=0;
+sounds.good.play();
+
+
+
 }
 
 
+
 });
+
+
+
+// upgrade
+
+
+if(xp>=100){
+
+
+rank++;
+
+xp=0;
+
+
+}
+
+
+
+// check game over
+
+
+stations.forEach(s=>{
+
+
+if(s.power<=0){
+
+
+sounds.error.play();
+
+
+alert(
+"OBVYRIS NETWORK FAILURE\n"+
+s.name+" Signal Lost"
+);
+
+
+location.reload();
+
+
+}
+
+
+
+});
+
 
 
 draw();
@@ -359,7 +419,29 @@ draw();
 
 requestAnimationFrame(update);
 
+
 }
+
+
+
+
+
+function stationColor(power){
+
+
+if(power>70)
+return "#27a8ff";
+
+
+if(power>30)
+return "orange";
+
+
+return "red";
+
+
+}
+
 
 
 
@@ -376,9 +458,26 @@ canvas.height
 
 
 
-// CONNECTIONS
+// HUD
 
-nodes.forEach(n=>{
+ctx.fillStyle="white";
+ctx.font="18px Arial";
+
+
+ctx.fillText(
+"Rank: "+rank+
+"  Energy: "+energy+
+"  XP: "+xp+"/100",
+20,
+40
+);
+
+
+
+// network
+
+
+stations.forEach(s=>{
 
 
 ctx.strokeStyle="#16395b";
@@ -391,36 +490,28 @@ canvas.height/2
 );
 
 ctx.lineTo(
-n.x,
-n.y
+s.x,
+s.y
 );
 
 ctx.stroke();
 
 
-});
-
-
-
-
-// NODES
-
-nodes.forEach(n=>{
-
 
 ctx.shadowBlur=20;
-ctx.shadowColor="#27a8ff";
+ctx.shadowColor=stationColor(s.power);
 
 
-let img=images[n.img];
+
+let img=images[s.img];
 
 
 if(img.complete){
 
 ctx.drawImage(
 img,
-n.x-35,
-n.y-35,
+s.x-35,
+s.y-35,
 70,
 70
 );
@@ -428,20 +519,34 @@ n.y-35,
 }
 
 
+
 ctx.shadowBlur=0;
+
+
+
+ctx.fillStyle=stationColor(s.power);
+
+ctx.font="16px Arial";
+
+
+ctx.fillText(
+s.name+
+" "+
+Math.floor(s.power)+"%",
+s.x-40,
+s.y+55
+);
+
 
 
 });
 
 
 
-// SIGNAL PACKETS
+// packets
 
 
 packets.forEach(p=>{
-
-
-p.pulse+=.1;
 
 
 ctx.fillStyle="#27a8ff";
@@ -452,7 +557,7 @@ ctx.beginPath();
 ctx.arc(
 p.x,
 p.y,
-p.size+Math.sin(p.pulse)*3,
+p.size,
 0,
 Math.PI*2
 );
@@ -466,28 +571,8 @@ ctx.fill();
 
 
 
-// ENGINE TRAIL
 
-
-ctx.strokeStyle="#27a8ff";
-
-ctx.beginPath();
-
-ctx.moveTo(
-player.x,
-player.y+35
-);
-
-ctx.lineTo(
-player.x,
-player.y+55
-);
-
-ctx.stroke();
-
-
-
-// SHIP
+// ship
 
 
 if(shipImg.complete){
@@ -500,8 +585,8 @@ player.y-32,
 64
 );
 
-}
 
+}
 
 
 }
@@ -509,8 +594,6 @@ player.y-32,
 
 
 update();
-
-
 </script>
 
 
