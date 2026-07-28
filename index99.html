@@ -1499,38 +1499,30 @@ async function loadGames(){
         const url =
         GAMES_API + "?action=games&t=" + Date.now();
 
-        console.log("Games URL:", url);
+        console.log("REQUEST:",url);
 
 
-        const res = await fetch(url, {
-            cache:"no-store"
-        });
+        const res = await fetch(url);
 
-
-        if(!res.ok){
-            throw new Error(
-                "HTTP ERROR " + res.status
-            );
-        }
+        console.log("STATUS:",res.status);
+        console.log("TYPE:",res.headers.get("content-type"));
 
 
         const text = await res.text();
 
-        console.log(
-            "Games Response:",
-            text.substring(0,300)
-        );
+        console.log("RAW RESPONSE:",text.substring(0,1000));
 
 
         const data = JSON.parse(text);
 
 
+        console.log("PARSED:",data);
 
-        if(!data.games || data.games.length === 0){
 
-            title.innerText =
-            "No games available";
 
+        if(!data.games || !data.games.length){
+
+            title.innerText="No games found";
             return;
 
         }
@@ -1539,18 +1531,12 @@ async function loadGames(){
         featuredGames = data.games;
 
 
-        console.log(
-            "Loaded games:",
-            featuredGames.length
-        );
-
-
         showNextGame();
 
 
         if(!gameTimer){
 
-            gameTimer = setInterval(()=>{
+            gameTimer=setInterval(()=>{
 
                 showNextGame();
 
@@ -1561,14 +1547,10 @@ async function loadGames(){
 
     }catch(e){
 
-        console.error(
-            "GAMES LOAD ERROR:",
-            e
-        );
-
+        console.error("GAME ERROR:",e);
 
         title.innerText =
-        "Games unavailable";
+        "Games error - check console";
 
     }
 
