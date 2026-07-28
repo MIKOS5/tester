@@ -1494,13 +1494,27 @@ async function loadGames(){
 
     try{
 
-        const res = await fetch(
-            GAMES_API +
-            "?t=" + Date.now()
-        );
+        const url =
+        GAMES_API + "?t=" + Date.now();
 
 
-        const data = await res.json();
+        console.log("Loading Games API:",url);
+
+
+        const res = await fetch(url);
+
+
+        console.log("Games status:",res.status);
+
+
+        const text = await res.text();
+
+
+        console.log("Games raw:",text.substring(0,500));
+
+
+        const data = JSON.parse(text);
+
 
 
         if(!data.games || !data.games.length){
@@ -1514,6 +1528,12 @@ async function loadGames(){
 
 
         featuredGames = data.games;
+
+
+        console.log(
+            "Games loaded:",
+            featuredGames.length
+        );
 
 
         if(!gameTimer){
@@ -1530,10 +1550,12 @@ async function loadGames(){
         }
 
 
-
     }catch(e){
 
-        console.error("Games:",e);
+        console.error(
+            "GAME API ERROR:",
+            e
+        );
 
 
         document.getElementById("featuredGame").innerText =
