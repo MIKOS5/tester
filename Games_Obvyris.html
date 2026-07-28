@@ -935,15 +935,11 @@ let finished=false;
 
 function showGames(data){
 
-
 console.log(data);
 
+allGames = data.games || [];
 
-allGames=data.games || [];
-
-
-loadMoreGames();
-
+renderGames(allGames,true);
 
 }
 
@@ -1055,7 +1051,7 @@ allGames.push(...data.games);
 
 renderGames(data.games,true);
 
-start+=PAGE_SIZE;
+start += data.games.length;
 
 }
     
@@ -1065,13 +1061,16 @@ if(loading || finished) return;
 
 loading=true;
 
+
 const script=document.createElement("script");
 
-script.src=
-API+
-"?callback=appendGames"+
-"&start="+start+
-"&limit="+PAGE_SIZE;
+
+script.src =
+API +
+"?callback=appendGames" +
+"&offset=" + start +
+"&limit=" + PAGE_SIZE;
+
 
 document.body.appendChild(script);
 
