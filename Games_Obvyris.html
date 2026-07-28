@@ -796,6 +796,13 @@ align-items:start;
 #games:empty{
 display:none;
 }
+
+.category{
+font-size:12px !important;
+width:160px !important;
+height:auto !important;
+padding:10px !important;
+}
     
 </style>
 
@@ -950,39 +957,6 @@ let finished = false;
 let categories = [];
 let activeCategory = "";
 
-const categoryJSON = [
-
-{
-"name":"Puzzle",
-"icon":"🧩"
-},
-
-{
-"name":"Arcade",
-"icon":"🕹"
-},
-
-{
-"name":"Card Games",
-"icon":"🃏"
-},
-
-{
-"name":"Mahjong",
-"icon":"🀄"
-},
-
-{
-"name":"Sports",
-"icon":"⚽"
-},
-
-{
-"name":"Strategy",
-"icon":"♟"
-}
-
-];
 // =============================
 // LOAD INITIAL DATA
 // =============================
@@ -1021,6 +995,9 @@ function loadMoreGames(){
 
 
         renderGames(data.games,true);
+
+
+        loadCategories();
 
 
         start += data.games.length;
@@ -1344,19 +1321,27 @@ function loadCategories(){
 let box =
 document.getElementById("categoryMenu");
 
-
 box.innerHTML="";
 
 
-categoryJSON.forEach(cat=>{
+let uniqueCategories = [
+...new Set(
+allGames
+.map(game => game.Category)
+.filter(Boolean)
+)
+];
+
+
+uniqueCategories.forEach(category=>{
 
 
 box.innerHTML += `
 
 <div class="group category"
-onclick="filterCategory('${cat.name}')">
+onclick="filterCategory('${escapeHTML(category)}')">
 
-${cat.icon} ${cat.name}
+📂 ${escapeHTML(category)}
 
 </div>
 
@@ -1620,7 +1605,6 @@ return String(text || "")
 // START APP
 // =============================
 
-loadCategories();
 loadMoreGames();
 </script>
 
