@@ -60,6 +60,29 @@ color:white;
 font-size:25px;
 }
 
+#joystick{
+position:absolute;
+left:40px;
+bottom:40px;
+width:120px;
+height:120px;
+border-radius:50%;
+border:2px solid rgba(39,168,255,.4);
+background:rgba(8,25,43,.4);
+display:none;
+}
+
+#stick{
+position:absolute;
+left:35px;
+top:35px;
+width:50px;
+height:50px;
+border-radius:50%;
+background:#27a8ff;
+box-shadow:0 0 20px #27a8ff;
+}
+  
 </style>
 </head>
 
@@ -82,18 +105,10 @@ OBVYRIS SIGNAL
 
 <canvas id="game"></canvas>
 
-
-<div class="controls">
-
-<button onclick="move(0,-1)">▲</button><br>
-
-<button onclick="move(-1,0)">◀</button>
-<button onclick="move(0,1)">▼</button>
-<button onclick="move(1,0)">▶</button>
-
+<div id="joystick">
+<div id="stick"></div>
 </div>
-
-
+  
 <script>
 
 
@@ -183,7 +198,100 @@ shipImg.src="Oship.png";
 
 
 
+// TOUCH JOYSTICK
 
+let joystick=document.getElementById("joystick");
+let stick=document.getElementById("stick");
+
+let touchActive=false;
+
+let joyX=0;
+let joyY=0;
+
+
+canvas.addEventListener(
+"touchstart",
+function(e){
+
+joystick.style.display="block";
+
+touchActive=true;
+
+moveJoystick(e.touches[0]);
+
+},
+{passive:false}
+);
+
+
+
+canvas.addEventListener(
+"touchmove",
+function(e){
+
+e.preventDefault();
+
+moveJoystick(e.touches[0]);
+
+},
+{passive:false}
+);
+
+
+
+canvas.addEventListener(
+"touchend",
+function(){
+
+touchActive=false;
+
+joyX=0;
+joyY=0;
+
+stick.style.left="35px";
+stick.style.top="35px";
+
+}
+);
+
+
+
+function moveJoystick(t){
+
+
+let rect=canvas.getBoundingClientRect();
+
+
+let x=t.clientX;
+let y=t.clientY;
+
+
+
+let cx=rect.width/2;
+let cy=rect.height/2;
+
+
+
+joyX=(x-cx)/200;
+joyY=(y-cy)/200;
+
+
+
+joyX=Math.max(-1,Math.min(1,joyX));
+joyY=Math.max(-1,Math.min(1,joyY));
+
+
+
+stick.style.left=
+35+(joyX*30)+"px";
+
+
+stick.style.top=
+35+(joyY*30)+"px";
+
+
+}
+  
 // STATIONS
 
 
