@@ -919,224 +919,445 @@ const API =
 "https://script.google.com/macros/s/AKfycbz_NGVTztTuc81a5_1K839CTu1V4bcc9IWXkqlNBYSJN8WSqSUbH2YP8xjqZPE3c7fzNg/exec";
 
 
-let allGames=[];
+let allGames = [];
 
-let filteredGames=[];
+let start = 0;
 
-let start=0;
+const PAGE_SIZE = 20;
 
-const PAGE_SIZE=20;
+let loading = false;
 
-let loading=false;
-
-let finished=false;
+let finished = false;
 
 
 
-function showGames(data){
+// =============================
+// LOAD INITIAL DATA
+// =============================
 
-console.log(data);
+function loadMoreGames(){
 
-allGames = data.games || [];
+    if(loading || finished) return;
 
-renderGames(allGames,true);
+
+    loading = true;
+
+
+    const callback =
+    "gamesCallback_" + Date.now();
+
+
+
+    window[callback] = function(data){
+
+        delete window[callback];
+
+
+        loading=false;
+
+
+        if(!data.games || data.games.length===0){
+
+            finished=true;
+
+            return;
+
+        }
+
+
+        allGames.push(...data.games);
+
+
+        renderGames(data.games,true);
+
+
+        start += data.games.length;
+
+
+
+        if(
+            data.hasMore === false
+        ){
+
+            finished=true;
+
+        }
+
+
+    };
+
+
+
+    const script =
+    document.createElement("script");
+
+
+    script.src =
+    API +
+    "?callback=" +
+    callback +
+    "&offset=" +
+    start +
+    "&limit=" +
+    PAGE_SIZE;
+
+
+
+    script.onload=function(){
+
+        script.remove();
+
+    };
+
+
+    document.body.appendChild(script);
 
 }
 
 
+
+
+// =============================
+// RENDER
+// =============================
 
 function renderGames(games,append=true){
 
-const container=document.getElementById("games");
+
+const container =
+document.getElementById("games");
+
+
 
 if(!append){
-    container.innerHTML="";
+
+container.innerHTML="";
+
 }
+
+
 
 games.forEach(game=>{
 
-if(game.Status!=="Active") return;
 
-container.insertAdjacentHTML("beforeend",`
+container.insertAdjacentHTML(
+"beforeend",
+`
 
 <div class="game">
 
-<img src="${game.Image}"
+
+<img src="${game.Image || ''}"
 onerror="this.src='https://mikos5.github.io/tester/navicon.png'">
+
 
 <div class="info">
 
-<h2>${game.Name}</h2>
+
+<h2>${escapeHTML(game.Name)}</h2>
+
 
 <p>
-🎮 ${game.Category}<br>
-🕹 ${game.Type}
+🎮 ${escapeHTML(game.Category)}<br>
+🕹 ${escapeHTML(game.Type)}
 </p>
 
-<p>${game.Description}</p>
+
+<p>
+${escapeHTML(game.Description)}
+</p>
+
+
 
 <div class="votes">
+
 
 <div class="score">
 ⭐ ${game.Score}
 </div>
 
+
+
 <div class="voteButtons">
+
 
 <button class="voteUp"
 onclick="vote('${game.ID}','up')">
+
 👍 ${game.VotesUp}
+
 </button>
+
+
 
 <button class="voteDown"
 onclick="vote('${game.ID}','down')">
+
 👎 ${game.VotesDown}
+
 </button>
+
 
 </div>
 
-<button onclick="playGame('${game.URL}','${game.Name}')">
+
+
+<button onclick="playGame('${game.URL}','${escapeHTML(game.Name)}')">
+
 PLAY
+
 </button>
 
-</div>
 
 </div>
 
+
 </div>
 
-`);
+
+</div>
+
+`
+);
+
 
 });
 
+
 }
+
+
+
+// =============================
+// SEARCH
+// =============================
 
 function filterGames(){
 
 
-let q=document
+let q =
+document
 .getElementById("search")
 .value
 .toLowerCase();
 
 
 
+document.getElementById("games").innerHTML="";
+
+
+
 renderGames(
+
 allGames.filter(g=>
 
-g.Name.toLowerCase().includes(q)
-||
-g.Category.toLowerCase().includes(q)
+String(g.Name)
+.toLowerCase()
+.includes(q)
 
-)
+||
+
+String(g.Category)
+.toLowerCase()
+.includes(q)
+
+),
+
+true
 
 );
 
 
 }
 
-function appendGames(data){
 
-loading=false;
 
-if(!data.games || data.games.length===0){
+// =============================
+// VOTING
+// =============================
 
-finished=true;
+function vote(id,type){
+
+
+const key =
+"vote_" + id;
+
+
+
+if(localStorage.getItem(key)){
+
+alert("You already voted for this game.");
 
 return;
 
 }
 
-allGames.push(...data.games);
 
-renderGames(data.games,true);
 
-start += data.games.length;
+const callback =
+"voteCallback_" + Date.now();
+
+
+
+window[callback]=function(data){
+
+
+delete window[callback];
+
+
+if(data.status==="success"){
+
+
+localStorage.setItem(key,type);
+
+
+
+const game =
+allGames.find(
+g=>String(g.ID)===String(id)
+);
+
+
+
+if(game){
+
+
+game.VotesUp =
+Number(data.VotesUp);
+
+
+game.VotesDown =
+Number(data.VotesDown);
+
+
+game.Score =
+Number(data.Score);
+
 
 }
-    
-function loadMoreGames(){
-
-if(loading || finished) return;
-
-loading=true;
 
 
-const script=document.createElement("script");
+
+// redraw
+
+document.getElementById("games").innerHTML="";
+
+renderGames(allGames,false);
+
+
+
+}
+else{
+
+
+alert(data.message);
+
+}
+
+
+};
+
+
+
+const script =
+document.createElement("script");
+
 
 
 script.src =
-API +
-"?callback=appendGames" +
-"&offset=" + start +
-"&limit=" + PAGE_SIZE;
+API+
+"?callback="+callback+
+"&action=vote"+
+"&id="+encodeURIComponent(id)+
+"&vote="+encodeURIComponent(type);
+
+
+
+script.onload=function(){
+
+script.remove();
+
+};
+
 
 
 document.body.appendChild(script);
 
+
 }
-    
+
+
+// =============================
+// GAME PLAYER
+// =============================
+
 function playGame(url,name){
 
 
-document.getElementById("gamePlayer").style.display="block";
+document
+.getElementById("gamePlayer")
+.style.display="block";
 
 
-document.getElementById("gameFrame").src=url;
-
-
-document.getElementById("playerTitle").innerHTML=
-name || "Game Player";
-
-
-}
-
-
-
-function toggleMenu(){
 
 document
-.getElementById("appMenu")
-.classList.toggle("open");
+.getElementById("gameFrame")
+.src=url;
+
+
+
+document
+.getElementById("playerTitle")
+.innerHTML=name || "Game Player";
+
 
 }
 
 
 
-function go(page){
-
-location.href="./"+page;
-
-}
-
-
-
-
-loadMoreGames();
 
 function closeGame(){
 
-document.getElementById("gamePlayer").style.display="none";
 
-document.getElementById("gameFrame").src="";
+document
+.getElementById("gamePlayer")
+.style.display="none";
+
+
+
+document
+.getElementById("gameFrame")
+.src="";
+
 
 }
+
 
 
 
 function reloadGame(){
 
-let frame=document.getElementById("gameFrame");
 
-frame.src=frame.src;
+const frame =
+document.getElementById("gameFrame");
+
+
+
+frame.src =
+frame.src;
+
 
 }
 
 
 
+
 function fullscreenGame(){
 
-let player=document.getElementById("gamePlayer");
+
+const player =
+document.getElementById("gamePlayer");
+
 
 
 if(player.requestFullscreen){
@@ -1144,119 +1365,134 @@ if(player.requestFullscreen){
 player.requestFullscreen();
 
 }
+
 else if(player.webkitRequestFullscreen){
 
 player.webkitRequestFullscreen();
 
 }
 
+
 }
 
-window.addEventListener("popstate",()=>{
 
-let player=document.getElementById("gamePlayer");
 
-if(player.style.display==="block"){
+
+// =============================
+// MENU
+// =============================
+
+function toggleMenu(){
+
+
+document
+.getElementById("appMenu")
+.classList
+.toggle("open");
+
+
+}
+
+
+
+
+function navigateApp(page){
+
+
+window.location.href=page;
+
+
+}
+
+
+
+
+// =============================
+// MOBILE BACK BUTTON
+// =============================
+
+window.addEventListener(
+"popstate",
+()=>{
+
+
+const player =
+document.getElementById("gamePlayer");
+
+
+
+if(
+player.style.display==="block"
+){
 
 closeGame();
 
 }
 
-});
-
-async function vote(id,type){
-
-// Prevent multiple votes from this browser
-const key="vote_"+id;
-
-if(localStorage.getItem(key)){
-    alert("You already voted for this game.");
-    return;
-}
-
-// Disable vote buttons while sending
-const btns=document.querySelectorAll(".voteButtons button");
-btns.forEach(b=>b.disabled=true);
-
-try{
-
-    const url =
-        API +
-        "?action=vote" +
-        "&id=" + encodeURIComponent(id) +
-        "&vote=" + encodeURIComponent(type);
-
-    const response = await fetch(url+"&callback=");
-    const data = await response.json();
-
-    if(data.status === "success"){
-
-        // Save local vote
-        localStorage.setItem(key,type);
-
-        // Update local game data
-        const game = allGames.find(g => String(g.ID) === String(id));
-
-        if(game){
-
-            game.VotesUp = Number(game.VotesUp || 0);
-            game.VotesDown = Number(game.VotesDown || 0);
-
-            if(type === "up"){
-                game.VotesUp++;
-            }else{
-                game.VotesDown++;
-            }
-
-            game.Score = game.VotesUp - game.VotesDown;
-
-        }
-
-        // Refresh cards
-        loadMoreGames();
-
-    }else{
-
-        alert(data.message || "Vote failed.");
-
-    }
-
-}catch(err){
-
-    console.error(err);
-    alert("Unable to submit vote.");
-
-}finally{
-
-    // Re-enable vote buttons
-    document
-        .querySelectorAll(".voteButtons button")
-        .forEach(b=>b.disabled=false);
-
-}
-
-}
-    
-function navigateApp(page){
-
-window.location.href = page;
-
-}
-
-document.getElementById("main").addEventListener("scroll", function(){
-
-    if(
-        this.scrollTop + this.clientHeight >=
-        this.scrollHeight - 300
-    ){
-
-        loadMoreGames();
-
-    }
 
 });
 
-    
+
+
+
+// =============================
+// INFINITE SCROLL
+// =============================
+
+document
+.getElementById("main")
+.addEventListener(
+"scroll",
+function(){
+
+
+if(
+this.scrollTop +
+this.clientHeight >=
+this.scrollHeight - 300
+){
+
+
+loadMoreGames();
+
+
+}
+
+
+});
+
+
+
+
+// =============================
+// HTML SECURITY
+// =============================
+
+function escapeHTML(text){
+
+
+return String(text || "")
+
+.replace(/&/g,"&amp;")
+
+.replace(/</g,"&lt;")
+
+.replace(/>/g,"&gt;")
+
+.replace(/"/g,"&quot;")
+
+.replace(/'/g,"&#039;");
+
+
+}
+
+
+
+// =============================
+// START APP
+// =============================
+
+loadMoreGames();
 </script>
 
 
