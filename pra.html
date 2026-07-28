@@ -1,176 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Obvyris Storyteller</title>
-
-
-<style>
-
-body{
-background:#09111d;
-color:white;
-font-family:Arial,sans-serif;
-padding:20px;
-}
-
-
-.storybook{
-
-max-width:900px;
-margin:auto;
-background:#101c2c;
-border-radius:20px;
-padding:30px;
-box-shadow:0 0 30px #000;
-
-}
-
-
-h1{
-text-align:center;
-color:#2793ff;
-}
-
-
-#story{
-
-font-size:20px;
-line-height:1.8;
-
-}
-
-
-#debug{
-
-margin-top:20px;
-padding:10px;
-background:#050b12;
-border-radius:10px;
-font-size:14px;
-color:#7cff7c;
-
-}
-
-
-.controls{
-
-display:flex;
-gap:10px;
-justify-content:center;
-margin-top:25px;
-flex-wrap:wrap;
-
-}
-
-
-button{
-
-background:#2793ff;
-color:white;
-border:none;
-padding:12px 20px;
-border-radius:10px;
-cursor:pointer;
-
-}
-
-
-button:hover{
-
-opacity:.8;
-
-}
-
-
-input{
-
-width:200px;
-
-}
-
-</style>
-
-
-</head>
-
-
-
-<body>
-
-
-<div class="storybook">
-
-
-<h1>📖 Obvyris Storyteller</h1>
-
-
-<div id="date">
-Loading chapter...
-</div>
-
-
-<hr>
-
-
-<div id="story">
-Loading story...
-</div>
-
-
-<div id="debug">
-Voice debug waiting...
-</div>
-
-
-
-<div class="controls">
-
-
-<button onclick="speakStory()">
-🔊 Read Story
-</button>
-
-
-<button onclick="pauseStory()">
-⏸ Pause
-</button>
-
-
-<button onclick="stopStory()">
-⏹ Stop
-</button>
-
-
-
-<label>
-
-Speed
-
-<input 
-id="speed"
-type="range"
-min="0.5"
-max="2"
-step="0.1"
-value="1">
-
-</label>
-
-
-</div>
-
-
-</div>
-
-
-
-
-
 <script>
 
 const API_BASE =
@@ -192,7 +19,7 @@ let browserVoices=[];
 
 
 // ===============================
-// LOAD BROWSER VOICES
+// LOAD VOICES
 // ===============================
 
 function loadBrowserVoices(){
@@ -200,19 +27,56 @@ function loadBrowserVoices(){
 browserVoices =
 speechSynthesis.getVoices();
 
+
 console.log(
-"Available voices:",
+"VOICE LIST",
 browserVoices.map(v=>v.name)
 );
 
 }
 
 
-speechSynthesis.onvoiceschanged =
-loadBrowserVoices;
-
 
 loadBrowserVoices();
+
+
+speechSynthesis.onvoiceschanged=function(){
+
+loadBrowserVoices();
+
+};
+
+
+
+// wait until voices exist
+
+function waitForVoices(){
+
+return new Promise(resolve=>{
+
+
+let check=setInterval(()=>{
+
+
+if(browserVoices.length){
+
+clearInterval(check);
+
+resolve();
+
+}
+
+
+},100);
+
+
+
+});
+
+
+}
+
+
 
 
 
@@ -224,17 +88,15 @@ loadBrowserVoices();
 
 async function loadVoiceSettings(){
 
-
 try{
 
 
-let response =
+let r =
 await fetch(VOICE_API);
 
 
 let data =
-await response.json();
-
+await r.json();
 
 
 console.log(
@@ -246,16 +108,12 @@ data
 
 if(data.status==="success"){
 
-
-voiceSettings =
-data.voices;
-
+voiceSettings=data.voices;
 
 console.log(
-"VOICE SETTINGS LOADED",
+"SETTINGS",
 voiceSettings
 );
-
 
 }
 
@@ -264,7 +122,7 @@ voiceSettings
 catch(e){
 
 console.error(
-"Voice API error",
+"VOICE ERROR",
 e
 );
 
@@ -278,6 +136,7 @@ e
 
 
 
+
 // ===============================
 // LOAD STORY
 // ===============================
@@ -285,37 +144,30 @@ e
 
 async function loadStory(){
 
-
 try{
 
 
-let response =
+let r =
 await fetch(STORY_API);
 
 
 let data =
-await response.json();
-
+await r.json();
 
 
 if(data.status==="success"){
 
 
-currentStory =
-data.story;
+currentStory=data.story;
 
 
-
-document.getElementById("date")
-.innerHTML =
+document.getElementById("date").innerHTML =
 "📅 "+
 new Date(data.timestamp)
 .toLocaleDateString();
 
 
-
-document.getElementById("story")
-.innerHTML =
+document.getElementById("story").innerHTML =
 formatStory(data.story);
 
 
@@ -338,25 +190,15 @@ console.error(e);
 
 
 
-// ===============================
-// FORMAT
-// ===============================
-
-
 function formatStory(text){
-
 
 return text
 
-.replace(/^# (.*)$/gm,
-"<h2>$1</h2>")
+.replace(/^# (.*)$/gm,"<h2>$1</h2>")
 
-.replace(/\[(.*?)\]/g,
-"<b>[$1]</b>")
+.replace(/\[(.*?)\]/g,"<b>[$1]</b>")
 
-.replace(/\n\n/g,
-"<br><br>");
-
+.replace(/\n\n/g,"<br><br>");
 
 }
 
@@ -373,26 +215,39 @@ return text
 
 function selectVoice(character){
 
-let data = voiceSettings[character];
+
+let data =
+voiceSettings[character];
 
 
-// =================================
-// EXACT VOICE FROM SHEET
-// =================================
 
-if(data && data.voice){
+if(!data){
+
+return browserVoices[0];
+
+}
+
+
+
+
+// EXACT SHEET VOICE
+
+if(data.voice){
+
 
 let exact =
-browserVoices.find(v =>
-v.name === data.voice
+browserVoices.find(v=>
+
+v.name.trim() === data.voice.trim()
+
 );
+
 
 
 if(exact){
 
 console.log(
-"Exact voice selected:",
-character,
+"USING EXACT:",
 exact.name
 );
 
@@ -401,65 +256,47 @@ return exact;
 
 }
 
-}
 
-
-
-// fallback
-
-if(!data){
 
 console.log(
-"No voice data for:",
-character
+"VOICE NOT FOUND:",
+data.voice
 );
-
-return browserVoices[0];
 
 }
 
 
 
-let type = data.type;
+
+// TYPE FALLBACK
+
+
+let type=data.type;
 
 
 
-console.log(
-"Fallback voice type:",
-character,
-type
-);
+if(type==="Female Narrator" ||
+type==="Female"){
 
-
-
-
-// =================================
-// FEMALE
-// =================================
-
-if(type==="Female Narrator" || type==="Female"){
 
 return browserVoices.find(v=>
 
 v.name.includes("Zira") ||
-v.name.includes("Samantha") ||
+
 v.name.includes("Google UK English Female")
 
 )
 ||
 browserVoices[0];
 
+
 }
 
 
 
 
-
-// =================================
-// ROBOT
-// =================================
-
 if(type==="Robot"){
+
 
 return browserVoices.find(v=>
 
@@ -469,91 +306,83 @@ v.name.includes("David")
 ||
 browserVoices[0];
 
+
 }
 
 
 
 
 
-// =================================
-// HIGH
-// =================================
-
 if(type==="High"){
+
 
 return browserVoices.find(v=>
 
 v.name.includes("Zira") ||
+
 v.name.includes("Samantha")
 
 )
 ||
 browserVoices[0];
 
+
 }
 
 
 
 
 
-// =================================
-// DEEP MALE
-// =================================
-
 if(type==="Deep male"){
+
 
 return browserVoices.find(v=>
 
 v.name.includes("Mark") ||
+
 v.name.includes("David")
 
 )
 ||
 browserVoices[0];
 
-}
-
-
-
-
-
-// =================================
-// COMPUTER
-// =================================
-
-if(type==="Computer"){
-
-return browserVoices.find(v=>
-
-v.name.includes("Google US English") ||
-v.name.includes("David")
-
-)
-||
-browserVoices[0];
 
 }
+
 
 
 
 return browserVoices[0];
 
+
 }
 
 
+
+
+
+
+
+
+
 // ===============================
-// SPEAK STORY
+// START STORY
 // ===============================
 
 
-function speakStory(){
+async function speakStory(){
 
 
 speechSynthesis.cancel();
 
 
+await waitForVoices();
+
+
+
 let lines =
 currentStory.split("\n");
+
 
 
 speakLine(
@@ -571,12 +400,20 @@ lines,
 
 
 
+
 function speakLine(lines,index,currentCharacter){
 
 
 
-if(index>=lines.length)
+if(index>=lines.length){
+
+document.getElementById("debug").innerHTML =
+"Finished";
+
 return;
+
+}
+
 
 
 
@@ -585,7 +422,7 @@ lines[index].trim();
 
 
 
-if(line===""){
+if(!line){
 
 speakLine(
 lines,
@@ -599,7 +436,6 @@ return;
 
 
 
-// speaker change
 
 let tag =
 line.match(/\[(.*?)\]/);
@@ -628,26 +464,6 @@ return;
 
 
 
-let text =
-line.trim();
-
-
-
-if(!text){
-
-speakLine(
-lines,
-index+1,
-currentCharacter
-);
-
-return;
-
-}
-
-
-
-
 
 let voiceData =
 voiceSettings[currentCharacter];
@@ -655,10 +471,7 @@ voiceSettings[currentCharacter];
 
 
 let settings =
-voiceData
-?
-voiceData.settings
-:
+voiceData?.settings ||
 {
 pitch:1,
 rate:1,
@@ -668,16 +481,19 @@ volume:1
 
 
 
+let voice =
+selectVoice(currentCharacter);
+
+
 
 let speech =
-new SpeechSynthesisUtterance(text);
+new SpeechSynthesisUtterance(line);
 
 
 
-speech.pitch =
-settings.pitch;
+speech.voice=voice;
 
-
+speech.pitch=settings.pitch;
 
 speech.rate =
 settings.rate *
@@ -686,66 +502,44 @@ document.getElementById("speed").value
 );
 
 
-
-speech.volume =
-settings.volume;
-
-
-
-speech.voice =
-selectVoice(currentCharacter);
-
+speech.volume=settings.volume;
 
 
 
 
 document.getElementById("debug").innerHTML =
 
-"Speaking: "
-+
-currentCharacter
-+
-"<br>Type: "
-+
-(
-voiceData?.type || "Default"
-)
-+
-"<br>Pitch: "
-+
-settings.pitch
-+
-"<br>Rate: "
-+
-settings.rate
-+
-"<br>Voice: "
-+
-(
-speech.voice
-?
-speech.voice.name
-:
-"Default"
-);
-
-
+`
+Speaking: ${currentCharacter}<br>
+Type: ${voiceData?.type}<br>
+Voice: ${voice?.name}<br>
+Pitch: ${speech.pitch}<br>
+Rate: ${speech.rate}
+`;
 
 
 
 console.log(
-"PLAY",
+"SPEAKING",
 currentCharacter,
-voiceData,
-speech.voice?.name
+voice?.name,
+line
 );
 
 
 
+speech.onerror=function(e){
+
+console.error(
+"TTS ERROR",
+e
+);
+
+};
+
 
 
 speech.onend=function(){
-
 
 speakLine(
 lines,
@@ -753,10 +547,7 @@ index+1,
 currentCharacter
 );
 
-
 };
-
-
 
 
 
@@ -772,16 +563,12 @@ speechSynthesis.speak(speech);
 
 
 
-// ===============================
-// CONTROLS
-// ===============================
-
-
 function pauseStory(){
 
 speechSynthesis.pause();
 
 }
+
 
 
 function stopStory(){
@@ -797,9 +584,6 @@ speechSynthesis.cancel();
 loadVoiceSettings();
 
 loadStory();
+
+
 </script>
-
-
-</body>
-
-</html>
