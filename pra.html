@@ -373,12 +373,50 @@ return text
 
 function selectVoice(character){
 
-
 let data = voiceSettings[character];
 
 
-if(!data)
+// =================================
+// EXACT VOICE FROM SHEET
+// =================================
+
+if(data && data.voice){
+
+let exact =
+browserVoices.find(v =>
+v.name === data.voice
+);
+
+
+if(exact){
+
+console.log(
+"Exact voice selected:",
+character,
+exact.name
+);
+
+
+return exact;
+
+}
+
+}
+
+
+
+// fallback
+
+if(!data){
+
+console.log(
+"No voice data for:",
+character
+);
+
 return browserVoices[0];
+
+}
 
 
 
@@ -387,77 +425,49 @@ let type = data.type;
 
 
 console.log(
-"Selecting:",
+"Fallback voice type:",
 character,
-"Type:",
 type
 );
 
 
 
-// =====================
-// FEMALE NARRATOR
-// =====================
 
-if(type==="Female" || type==="Female Narrator"){
+// =================================
+// FEMALE
+// =================================
 
+if(type==="Female Narrator" || type==="Female"){
 
-return browserVoices.find(v =>
+return browserVoices.find(v=>
 
 v.name.includes("Zira") ||
-
-v.name.includes("Hazel") ||
-
 v.name.includes("Samantha") ||
-
-v.name.includes("Aria") ||
-
-v.name.includes("Jenny") ||
-
-v.name.includes("Female")
+v.name.includes("Google UK English Female")
 
 )
-
 ||
-
-browserVoices.find(v =>
-v.lang &&
-v.lang.startsWith("en")
-)
-
-||
-
 browserVoices[0];
-
 
 }
 
 
 
 
-// =====================
+
+// =================================
 // ROBOT
-// =====================
+// =================================
 
 if(type==="Robot"){
 
+return browserVoices.find(v=>
 
-return browserVoices.find(v =>
-
-v.name.includes("David") ||
-
-v.name.includes("Daniel") ||
-
-v.name.includes("Mark") ||
-
-v.name.includes("Male")
+v.name.includes("David")
 
 )
-
 ||
-
 browserVoices[0];
-
 
 }
 
@@ -465,29 +475,20 @@ browserVoices[0];
 
 
 
-// =====================
-// HIGH / CHILD / PIP-SQUEAK
-// =====================
+// =================================
+// HIGH
+// =================================
 
 if(type==="High"){
 
-
-return browserVoices.find(v =>
+return browserVoices.find(v=>
 
 v.name.includes("Zira") ||
-
-v.name.includes("Samantha") ||
-
-v.name.includes("Jenny") ||
-
-v.name.includes("Female")
+v.name.includes("Samantha")
 
 )
-
 ||
-
 browserVoices[0];
-
 
 }
 
@@ -495,29 +496,20 @@ browserVoices[0];
 
 
 
-// =====================
+// =================================
 // DEEP MALE
-// =====================
+// =================================
 
 if(type==="Deep male"){
 
-
-return browserVoices.find(v =>
+return browserVoices.find(v=>
 
 v.name.includes("Mark") ||
-
-v.name.includes("George") ||
-
-v.name.includes("David") ||
-
-v.name.includes("Male")
+v.name.includes("David")
 
 )
-
 ||
-
 browserVoices[0];
-
 
 }
 
@@ -525,57 +517,20 @@ browserVoices[0];
 
 
 
-// =====================
-// COMPUTER / AI
-// =====================
+// =================================
+// COMPUTER
+// =================================
 
 if(type==="Computer"){
 
+return browserVoices.find(v=>
 
-return browserVoices.find(v =>
-
-v.name.includes("David") ||
-
-v.name.includes("Daniel") ||
-
-v.name.includes("Microsoft") ||
-
-v.name.includes("Google")
+v.name.includes("Google US English") ||
+v.name.includes("David")
 
 )
-
-||
-
-browserVoices[0];
-
-
-}
-
-
-
-
-
-// =====================
-// RANDOM FUTURE CHARACTERS
-// =====================
-
-if(type==="Random"){
-
-
-let englishVoices =
-browserVoices.filter(v =>
-v.lang &&
-v.lang.startsWith("en")
-);
-
-
-return englishVoices[
-Math.floor(Math.random()*englishVoices.length)
-]
-
 ||
 browserVoices[0];
-
 
 }
 
@@ -583,10 +538,7 @@ browserVoices[0];
 
 return browserVoices[0];
 
-
 }
-
-
 
 
 // ===============================
