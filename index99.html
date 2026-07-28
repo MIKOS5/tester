@@ -978,7 +978,62 @@ experiences.
 
 </div>
 
+<div class="stationGuide">
 
+<b>🎮 Featured Game</b>
+
+<span class="programTitle" id="featuredGame">
+
+Loading...
+
+</span>
+
+
+<div class="status">
+
+Category:
+
+<span id="gameCategory">
+
+Loading...
+
+</span>
+
+
+<br>
+
+Votes:
+
+<span id="gameVotes">
+
+0
+
+</span>
+
+
+</div>
+
+
+<div style="
+margin-top:15px;
+text-align:center;
+">
+
+<img id="gameImage"
+src=""
+style="
+width:100%;
+max-height:150px;
+object-fit:cover;
+border-radius:12px;
+display:none;
+">
+
+</div>
+
+
+</div>
+    
 <div class="tags">
 
 <span>Games</span>
@@ -1246,6 +1301,14 @@ Gets current Video Obvyris TV program
 const SPORTS_API =
 "https://script.google.com/macros/s/AKfycbx8S_l2TEHWwWAvpZSAR9CywTYVzp21kEZL8btVHKKKm8ucTVBRyZQb8IvpKfCDLLIG/exec";
 
+const GAMES_API =
+"https://script.google.com/macros/s/AKfycbz_NGVTztTuc81a5_1K839CTu1V4bcc9IWXkqlNBYSJN8WSqSUbH2YP8xjqZPE3c7fzNg/exec";
+
+
+let featuredGames = [];
+let gameIndex = 0;
+let gameTimer = null;
+    
 async function loadGuide() {
 
     // ---------- Station 1 ----------
@@ -1427,7 +1490,127 @@ async function loadSports(){
 }
 
 
+async function loadGames(){
 
+    try{
+
+        const res = await fetch(
+            GAMES_API +
+            "?t=" + Date.now()
+        );
+
+
+        const data = await res.json();
+
+
+        if(!data.games || !data.games.length){
+
+            document.getElementById("featuredGame").innerText =
+            "No games available";
+
+            return;
+
+        }
+
+
+        featuredGames = data.games;
+
+
+        if(!gameTimer){
+
+            showNextGame();
+
+
+            gameTimer=setInterval(()=>{
+
+                showNextGame();
+
+            },5000);
+
+        }
+
+
+
+    }catch(e){
+
+        console.error("Games:",e);
+
+
+        document.getElementById("featuredGame").innerText =
+        "Unable to load games";
+
+    }
+
+}
+
+function showNextGame(){
+
+
+const title =
+document.getElementById("featuredGame");
+
+
+const category =
+document.getElementById("gameCategory");
+
+
+const votes =
+document.getElementById("gameVotes");
+
+
+const img =
+document.getElementById("gameImage");
+
+
+
+if(!featuredGames.length){
+return;
+}
+
+
+
+const game =
+featuredGames[gameIndex];
+
+
+
+title.innerText =
+game.Name;
+
+
+category.innerText =
+game.Category;
+
+
+votes.innerText =
+game.TotalVotes || 0;
+
+
+
+if(game.Image){
+
+img.src =
+game.Image;
+
+img.style.display="block";
+
+}
+
+
+gameIndex++;
+
+
+if(gameIndex >= featuredGames.length){
+
+gameIndex=0;
+
+}
+
+
+
+}
+
+    
 function showNextSportsGame(){
 
     const sportsDiv = document.getElementById("sportsCenter");
@@ -1716,6 +1899,7 @@ installBtn.style.display="none";
     
 loadGuide();
 loadSports();
+loadGames();
 
 setInterval(() => {
 
