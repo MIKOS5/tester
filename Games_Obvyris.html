@@ -857,19 +857,17 @@ Game Library
 
 
 
-<div class="group">
+<div class="group" onclick="showAllGames()">
 🎮 Games
 </div>
 
 
-<div class="group">
-⭐ Favorites
+<div class="group" onclick="toggleCategories()">
+📂 Categories
 </div>
 
 
-<div class="group">
-🕹 Categories
-</div>
+<div id="categoryMenu"></div>
 
 
 
@@ -949,7 +947,8 @@ let loading = false;
 
 let finished = false;
 
-
+let categories = [];
+let activeCategory = "";
 
 // =============================
 // LOAD INITIAL DATA
@@ -1307,6 +1306,81 @@ document.body.appendChild(script);
 
 }
 
+function loadCategories(){
+
+let box =
+document.getElementById("categoryMenu");
+
+
+box.innerHTML="";
+
+
+categoryJSON.forEach(cat=>{
+
+
+box.innerHTML += `
+
+<div class="group category"
+onclick="filterCategory('${cat.name}')">
+
+${cat.icon} ${cat.name}
+
+</div>
+
+`;
+
+
+});
+
+
+}
+
+function showAllGames(){
+
+activeCategory="";
+
+document.getElementById("games").innerHTML="";
+
+renderGames(allGames,false);
+
+}
+
+function toggleCategories(){
+
+let menu =
+document.getElementById("categoryMenu");
+
+
+menu.style.display =
+menu.style.display==="none"
+?"block"
+:"none";
+
+}
+
+    
+function filterCategory(category){
+
+activeCategory = category;
+
+
+let filtered =
+allGames.filter(game=>
+
+String(game.Category)
+.toLowerCase()
+.includes(category.toLowerCase())
+
+);
+
+
+document.getElementById("games").innerHTML="";
+
+
+renderGames(filtered,false);
+
+
+}
 
 // =============================
 // GAME PLAYER
@@ -1513,6 +1587,7 @@ return String(text || "")
 // START APP
 // =============================
 
+loadCategories();
 loadMoreGames();
 </script>
 
