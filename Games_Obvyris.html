@@ -662,7 +662,7 @@ width:230px;
 
 #games{
 
-grid-template-columns:repeat(2,minmax(140px,1fr));
+grid-template-columns:repeat(2,minmax(0,1fr));
 
 gap:10px;
 
@@ -772,6 +772,18 @@ background:#c0392b;
 
 }
 
+
+#games{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+gap:18px;
+align-items:start;
+}
+
+.game{
+min-width:0;
+width:100%;
+}
     
 </style>
 
@@ -1023,13 +1035,10 @@ function loadMoreGames(){
 
 function renderGames(games,append=true){
 
-
-const container =
-document.getElementById("games");
+const container=document.getElementById("games");
 
 
-
-if(!append){
+if(!append || container.innerHTML==="Loading..."){
 
 container.innerHTML="";
 
