@@ -1507,9 +1507,8 @@ async function loadGames(){
 
     try{
 
-
         const url =
-        GAMES_API + "?t=" + Date.now();
+        GAMES_API + "?action=games&limit=2000&t=" + Date.now();
 
 
         console.log("Games API:",url);
@@ -1548,9 +1547,15 @@ async function loadGames(){
 
 
 
-        featuredGames =
-        data.games;
+        // LOAD ENTIRE GAMES SHEET
+        featuredGames = data.games;
 
+
+        // RANDOM START POSITION
+        gameIndex =
+        Math.floor(
+            Math.random() * featuredGames.length
+        );
 
 
         showNextGame();
@@ -1572,7 +1577,6 @@ async function loadGames(){
     }
     catch(err){
 
-
         console.error(
             "Games Load Error:",
             err
@@ -1593,20 +1597,15 @@ async function loadGames(){
 
 
 
-
-
 function showNextGame(){
-
 
     if(!featuredGames.length){
         return;
     }
 
 
-
     const game =
     featuredGames[gameIndex];
-
 
 
     document.getElementById(
@@ -1636,15 +1635,19 @@ function showNextGame(){
     );
 
 
-
     if(game.Image){
 
         img.src =
         game.Image;
 
-
         img.style.display =
         "block";
+
+    }
+    else{
+
+        img.style.display =
+        "none";
 
     }
 
@@ -1653,14 +1656,15 @@ function showNextGame(){
     gameIndex++;
 
 
-    if(gameIndex >= featuredGames.length){
+    if(
+        gameIndex >= featuredGames.length
+    ){
 
-        gameIndex=0;
+        gameIndex = 0;
 
     }
 
 }
-
 
     
 function showNextSportsGame(){
