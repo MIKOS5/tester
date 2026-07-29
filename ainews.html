@@ -315,8 +315,7 @@ let currentStory="";
 let voiceSettings={};
 
 let browserVoices=[];
-let currentChapterNumber = 1;
-let wordPosition = 0;
+
 
 
 
@@ -586,10 +585,7 @@ new Date(chapter.timestamp)
 
 <div class="chapter-text">
 
-${formatStory(
-chapter.story,
-chapter.chapter
-)}
+${formatStory(chapter.story)}
 
 </div>
 
@@ -649,82 +645,57 @@ loadNextChapter();
 // =================================
 
 
-function formatStory(text,chapterNumber){
+function formatStory(text){
 
 
-let wordCount=0;
-
-
-let html=text;
+let html = text;
 
 
 // Escape HTML
 
-html=html
+html = html
 .replace(/&/g,"&amp;")
 .replace(/</g,"&lt;")
 .replace(/>/g,"&gt;");
 
 
 
-// Create unique word IDs
+// Wrap words first
 
-html=html.replace(
+html = html.replace(
 /([A-Za-z0-9',!?]+)/g,
-
-function(word){
-
-
-let id =
-"chapter"+
-chapterNumber+
-"-word-"+
-wordCount;
-
-
-
-wordCount++;
-
-
-
-return `
-
-<span class="word" id="${id}">
-
-${word}
-
-</span>
-
-`;
-
-}
-
+'<span class="word">$1</span>'
 );
 
 
 
-// Character tags
+// Add chapter title
 
-html=html.replace(
+html = html.replace(
+/^# (.*)$/gm,
+"<h2>$1</h2>"
+);
 
+
+
+// Add character tags LAST
+
+html = html.replace(
 /\[(.*?)\]/g,
-
 "<b>[$1]</b>"
-
 );
 
 
 
 // Line breaks
 
-html=html.replace(
+html = html.replace(
 /\n/g,
 "<br>"
 );
 
 
 return html;
-
 
 }
 
@@ -762,34 +733,59 @@ currentWordIndex=0;
 
 
 
-function highlightWord(chapter,wordIndex){
+function highlightCurrentWord(){
 
 
 clearWordHighlight();
 
 
-let word =
-document.getElementById(
 
-"chapter"+
-chapter+
-"-word-"+
-wordIndex
-
-);
+if(currentWordIndex >= currentWords.length)
+return;
 
 
 
-if(word){
+let target =
+currentWords[currentWordIndex]
+.toLowerCase();
 
 
-word.classList.add(
+
+let words =
+document.querySelectorAll(".word");
+
+
+
+let found = false;
+
+
+
+for(let w of words){
+
+
+if(
+!w.classList.contains("used")
+&&
+w.innerText
+.toLowerCase()
+.replace(/[.,!?]/g,"")
+===
+target
+){
+
+
+w.classList.add(
 "speaking-word"
 );
 
 
+w.classList.add(
+"used"
+);
 
-word.scrollIntoView({
+
+
+w.scrollIntoView({
 
 behavior:"smooth",
 
@@ -798,8 +794,20 @@ block:"center"
 });
 
 
+
+found=true;
+
+break;
+
+
 }
 
+
+}
+
+
+
+currentWordIndex++;
 
 
 }
@@ -1064,9 +1072,7 @@ lines,
 
 0,
 
-"Narrator",
-
-1
+"Narrator"
 
 );
 
@@ -1089,23 +1095,25 @@ lines,
 function speakLine(
 lines,
 index,
-currentCharacter,
-chapterNumber
+currentCharacter
 ){
 
-currentChapterNumber =
-chapterNumber || 1;
 
 
+if(index>=lines.length){
 
-if(index >= lines.length){
 
-document.getElementById("debug").innerHTML =
+document.getElementById("debug").innerHTML=
+
 "Finished reading book 📖";
+
 
 return;
 
+
 }
+
+
 
 
 
@@ -1118,10 +1126,13 @@ if(line===""){
 
 
 speakLine(
+
 lines,
+
 index+1,
-currentCharacter,
-chapterNumber
+
+currentCharacter
+
 );
 
 
@@ -1134,7 +1145,6 @@ return;
 
 
 
-// Detect character tag
 
 let tag =
 line.match(/\[(.*?)\]/);
@@ -1148,18 +1158,24 @@ currentCharacter =
 tag[1];
 
 
+
 speakLine(
+
 lines,
+
 index+1,
-currentCharacter,
-chapterNumber
+
+currentCharacter
+
 );
+
 
 
 return;
 
 
 }
+
 
 
 
@@ -1173,11 +1189,18 @@ voiceSettings[currentCharacter];
 
 let settings =
 data?.settings ||
+
 {
+
 pitch:1,
+
 rate:1,
+
 volume:1
+
 };
+
+
 
 
 
@@ -1189,33 +1212,17 @@ selectVoice(currentCharacter);
 
 
 
+
 let utterance =
 new SpeechSynthesisUtterance(line);
-
-
-
-wordPosition = 0;
-
-
-
+prepareWords(line);
+  
 utterance.onboundary=function(event){
 
 
 if(event.name==="word"){
 
-
-highlightWord(
-
-currentChapterNumber,
-
-wordPosition
-
-);
-
-
-
-wordPosition++;
-
+highlightCurrentWord();
 
 }
 
@@ -1223,6 +1230,22 @@ wordPosition++;
 };
 
 
+let spoken =
+line
+.substring(
+event.charIndex
+)
+.split(" ")[0];
+
+
+
+highlightWord(spoken);
+
+
+}
+
+
+};
 
 
 
@@ -1237,9 +1260,15 @@ settings.pitch;
 
 
 utterance.rate =
+
 settings.rate *
+
 Number(
-document.getElementById("speed").value
+
+document
+.getElementById("speed")
+.value
+
 );
 
 
@@ -1252,29 +1281,47 @@ settings.volume;
 
 
 
-document.getElementById("debug").innerHTML =
+document
+.getElementById("debug")
+.innerHTML=
 
 `
+
 Speaking: ${currentCharacter}<br>
+
 Type: ${data?.type || "Default"}<br>
+
 Voice: ${voice?.name || "None"}<br>
+
 Pitch: ${utterance.pitch}<br>
+
 Rate: ${utterance.rate}
+
 `;
 
 
 
 
 
+
+
 console.log(
+
 "PLAY",
+
 {
+
 character:currentCharacter,
+
 voice:voice?.name,
-text:line,
-chapter:currentChapterNumber
+
+text:line
+
 }
+
 );
+
+
 
 
 
@@ -1282,12 +1329,15 @@ chapter:currentChapterNumber
 
 utterance.onerror=function(e){
 
+
 console.error(
 "TTS ERROR",
 e
 );
 
+
 };
+
 
 
 
@@ -1303,14 +1353,15 @@ lines,
 
 index+1,
 
-currentCharacter,
-
-chapterNumber
+currentCharacter
 
 );
 
 
+
 };
+
+
 
 
 
@@ -1323,6 +1374,8 @@ utterance
 
 
 }
+
+
 
 
 
