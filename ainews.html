@@ -189,7 +189,19 @@ width:200px;
 
 }
 
+.speaking-word{
 
+background:#2793ff;
+color:white;
+
+padding:2px 5px;
+
+border-radius:5px;
+
+box-shadow:0 0 10px #2793ff;
+
+}
+  
 </style>
 
 </head>
@@ -651,12 +663,86 @@ return text
 .replace(
 /\n\n/g,
 "<br><br>"
+)
+
+.replace(
+/([A-Za-z0-9',]+)/g,
+'<span class="word">$1</span>'
 );
 
 
 }
 
+function clearWordHighlight(){
 
+document
+.querySelectorAll(".speaking-word")
+.forEach(el=>{
+
+el.classList.remove(
+"speaking-word"
+);
+
+});
+
+
+}
+
+
+
+
+function highlightWord(word){
+
+
+clearWordHighlight();
+
+
+let words =
+document.querySelectorAll(".word");
+
+
+
+for(let w of words){
+
+
+if(
+w.innerText.toLowerCase()
+.replace(/[.,!?]/g,"")
+
+===
+
+word.toLowerCase()
+.replace(/[.,!?]/g,"")
+
+){
+
+
+w.classList.add(
+"speaking-word"
+);
+
+
+w.scrollIntoView({
+
+behavior:"smooth",
+
+block:"center"
+
+});
+
+
+break;
+
+
+}
+
+
+}
+
+
+
+}
+  
 // =================================
 // SELECT VOICE
 // =================================
@@ -1060,7 +1146,28 @@ selectVoice(currentCharacter);
 
 let utterance =
 new SpeechSynthesisUtterance(line);
+utterance.onboundary=function(event){
 
+
+if(event.name==="word"){
+
+
+let spoken =
+line
+.substring(
+event.charIndex
+)
+.split(" ")[0];
+
+
+
+highlightWord(spoken);
+
+
+}
+
+
+};
 
 
 
