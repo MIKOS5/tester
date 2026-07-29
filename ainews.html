@@ -714,13 +714,40 @@ el.classList.remove(
 
 }
 
+let currentWordIndex = 0;
+let currentWords = [];
+
+
+function prepareWords(line){
+
+currentWords =
+line
+.split(/\s+/)
+.map(w=>w.replace(/[.,!?]/g,""));
+
+currentWordIndex=0;
+
+}
 
 
 
-function highlightWord(word){
+
+function highlightCurrentWord(){
 
 
 clearWordHighlight();
+
+
+
+if(currentWordIndex >= currentWords.length)
+return;
+
+
+
+let target =
+currentWords[currentWordIndex]
+.toLowerCase();
+
 
 
 let words =
@@ -728,24 +755,33 @@ document.querySelectorAll(".word");
 
 
 
+let found = false;
+
+
+
 for(let w of words){
 
 
 if(
-w.innerText.toLowerCase()
+!w.classList.contains("used")
+&&
+w.innerText
+.toLowerCase()
 .replace(/[.,!?]/g,"")
-
 ===
-
-word.toLowerCase()
-.replace(/[.,!?]/g,"")
-
+target
 ){
 
 
 w.classList.add(
 "speaking-word"
 );
+
+
+w.classList.add(
+"used"
+);
+
 
 
 w.scrollIntoView({
@@ -757,6 +793,9 @@ block:"center"
 });
 
 
+
+found=true;
+
 break;
 
 
@@ -765,6 +804,9 @@ break;
 
 }
 
+
+
+currentWordIndex++;
 
 
 }
