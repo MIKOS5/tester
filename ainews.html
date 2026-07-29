@@ -651,7 +651,7 @@ function formatStory(text){
 let html = text;
 
 
-// Escape HTML first
+// Escape HTML
 
 html = html
 .replace(/&/g,"&amp;")
@@ -660,7 +660,16 @@ html = html
 
 
 
-// Chapter title
+// Wrap words first
+
+html = html.replace(
+/([A-Za-z0-9',!?]+)/g,
+'<span class="word">$1</span>'
+);
+
+
+
+// Add chapter title
 
 html = html.replace(
 /^# (.*)$/gm,
@@ -669,20 +678,11 @@ html = html.replace(
 
 
 
-// Character tags
+// Add character tags LAST
 
 html = html.replace(
 /\[(.*?)\]/g,
 "<b>[$1]</b>"
-);
-
-
-
-// Add word spans
-
-html = html.replace(
-/([A-Za-z0-9',!?]+)/g,
-'<span class="word">$1</span>'
 );
 
 
@@ -696,7 +696,6 @@ html = html.replace(
 
 
 return html;
-
 
 }
 
