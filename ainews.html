@@ -315,7 +315,8 @@ let currentStory="";
 let voiceSettings={};
 
 let browserVoices=[];
-
+let currentChapterNumber = 1;
+let wordPosition = 0;
 
 
 
@@ -585,7 +586,10 @@ new Date(chapter.timestamp)
 
 <div class="chapter-text">
 
-${formatStory(chapter.story)}
+${formatStory(
+chapter.story,
+chapter.chapter
+)}
 
 </div>
 
@@ -645,57 +649,82 @@ loadNextChapter();
 // =================================
 
 
-function formatStory(text){
+function formatStory(text,chapterNumber){
 
 
-let html = text;
+let wordCount=0;
+
+
+let html=text;
 
 
 // Escape HTML
 
-html = html
+html=html
 .replace(/&/g,"&amp;")
 .replace(/</g,"&lt;")
 .replace(/>/g,"&gt;");
 
 
 
-// Wrap words first
+// Create unique word IDs
 
-html = html.replace(
+html=html.replace(
 /([A-Za-z0-9',!?]+)/g,
-'<span class="word">$1</span>'
+
+function(word){
+
+
+let id =
+"chapter"+
+chapterNumber+
+"-word-"+
+wordCount;
+
+
+
+wordCount++;
+
+
+
+return `
+
+<span class="word" id="${id}">
+
+${word}
+
+</span>
+
+`;
+
+}
+
 );
 
 
 
-// Add chapter title
+// Character tags
 
-html = html.replace(
-/^# (.*)$/gm,
-"<h2>$1</h2>"
-);
+html=html.replace(
 
-
-
-// Add character tags LAST
-
-html = html.replace(
 /\[(.*?)\]/g,
+
 "<b>[$1]</b>"
+
 );
 
 
 
 // Line breaks
 
-html = html.replace(
+html=html.replace(
 /\n/g,
 "<br>"
 );
 
 
 return html;
+
 
 }
 
@@ -733,59 +762,34 @@ currentWordIndex=0;
 
 
 
-function highlightCurrentWord(){
+function highlightWord(chapter,wordIndex){
 
 
 clearWordHighlight();
 
 
+let word =
+document.getElementById(
 
-if(currentWordIndex >= currentWords.length)
-return;
+"chapter"+
+chapter+
+"-word-"+
+wordIndex
 
-
-
-let target =
-currentWords[currentWordIndex]
-.toLowerCase();
-
-
-
-let words =
-document.querySelectorAll(".word");
+);
 
 
 
-let found = false;
+if(word){
 
 
-
-for(let w of words){
-
-
-if(
-!w.classList.contains("used")
-&&
-w.innerText
-.toLowerCase()
-.replace(/[.,!?]/g,"")
-===
-target
-){
-
-
-w.classList.add(
+word.classList.add(
 "speaking-word"
 );
 
 
-w.classList.add(
-"used"
-);
 
-
-
-w.scrollIntoView({
+word.scrollIntoView({
 
 behavior:"smooth",
 
@@ -794,20 +798,8 @@ block:"center"
 });
 
 
-
-found=true;
-
-break;
-
-
 }
 
-
-}
-
-
-
-currentWordIndex++;
 
 
 }
@@ -1072,7 +1064,9 @@ lines,
 
 0,
 
-"Narrator"
+"Narrator",
+
+1
 
 );
 
@@ -1215,14 +1209,27 @@ selectVoice(currentCharacter);
 
 let utterance =
 new SpeechSynthesisUtterance(line);
-prepareWords(line);
-  
+wordPosition=0;
+
+
 utterance.onboundary=function(event){
 
 
 if(event.name==="word"){
 
-highlightCurrentWord();
+
+highlightWord(
+
+currentChapterNumber,
+
+wordPosition
+
+);
+
+
+
+wordPosition++;
+
 
 }
 
