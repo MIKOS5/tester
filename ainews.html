@@ -189,7 +189,31 @@ width:200px;
 
 }
 
+.speech-line{
 
+padding:8px;
+
+transition:.4s;
+
+}
+
+
+
+.speech-active{
+
+background:#2793ff33;
+
+border-left:4px solid #2793ff;
+
+padding-left:15px;
+
+transform:scale(1.02);
+
+}
+
+
+
+  
 </style>
 
 </head>
@@ -485,7 +509,7 @@ chapters =
 data.chapters;
 
 
-
+speechLineID=0;
 document.getElementById("story").innerHTML="";
 
 
@@ -633,25 +657,86 @@ loadNextChapter();
 // =================================
 
 
+let speechLineID = 0;
+
+
 function formatStory(text){
 
+let lines=text.split("\n");
 
-return text
+let html="";
 
-.replace(
-/^# (.*)$/gm,
-"<h2>$1</h2>"
-)
 
-.replace(
-/\[(.*?)\]/g,
-"<b>[$1]</b>"
-)
+lines.forEach(line=>{
 
-.replace(
-/\n\n/g,
-"<br><br>"
-);
+
+if(line.trim()==="")
+{
+
+html+="<br>";
+
+return;
+
+}
+
+
+
+if(line.startsWith("# "))
+
+{
+
+html+=`
+
+<h2>
+${line.replace("# ","")}
+</h2>
+
+`;
+
+return;
+
+}
+
+
+
+if(line.match(/\[(.*?)\]/))
+
+{
+
+html+=`
+
+<b>${line}</b><br>
+
+`;
+
+return;
+
+}
+
+
+
+speechLineID++;
+
+
+html+=`
+
+<div 
+class="speech-line"
+id="line-${speechLineID}"
+>
+
+${line}
+
+</div>
+
+`;
+
+
+
+});
+
+
+return html;
 
 
 }
@@ -964,7 +1049,33 @@ return;
 
 let line =
 lines[index].trim();
+let lineNumber=index+1;
 
+let element =
+document.querySelector(
+`.speech-line:nth-of-type(${lineNumber})`
+);
+
+
+if(element){
+
+document.querySelectorAll(".speech-active")
+.forEach(e=>e.classList.remove("speech-active"));
+
+
+element.classList.add("speech-active");
+
+
+element.scrollIntoView({
+
+behavior:"smooth",
+
+block:"center"
+
+});
+
+
+}
 
 
 if(line===""){
@@ -1060,6 +1171,47 @@ selectVoice(currentCharacter);
 
 let utterance =
 new SpeechSynthesisUtterance(line);
+
+
+utterance.onstart=function(){
+
+let matches =
+document.querySelectorAll(".speech-line");
+
+
+matches.forEach(el=>{
+
+
+if(el.innerText.trim()===line)
+
+{
+
+document
+.querySelectorAll(".speech-active")
+.forEach(x=>
+x.classList.remove("speech-active")
+);
+
+
+el.classList.add("speech-active");
+
+
+el.scrollIntoView({
+
+behavior:"smooth",
+
+block:"center"
+
+});
+
+
+}
+
+
+});
+
+
+};
 
 
 
