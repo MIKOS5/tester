@@ -189,19 +189,7 @@ width:200px;
 
 }
 
-.speaking-word{
 
-background:#2793ff;
-color:white;
-
-padding:2px 5px;
-
-border-radius:5px;
-
-box-shadow:0 0 10px #2793ff;
-
-}
-  
 </style>
 
 </head>
@@ -209,29 +197,8 @@ box-shadow:0 0 10px #2793ff;
 
 
 <body>
-<div class="controls">
 
 
-<button onclick="speakStory()">
-
-🔊 Read Story
-
-</button>
-
-
-<button onclick="pauseStory()">
-
-⏸ Pause
-
-</button>
-
-
-<button onclick="stopStory()">
-
-⏹ Stop
-
-</button>
-</div>
 <div class="storybook">
 
 
@@ -256,6 +223,30 @@ Voice debug waiting...
 
 </div>
 
+
+
+<div class="controls">
+
+
+<button onclick="speakStory()">
+
+🔊 Read Story
+
+</button>
+
+
+<button onclick="pauseStory()">
+
+⏸ Pause
+
+</button>
+
+
+<button onclick="stopStory()">
+
+⏹ Stop
+
+</button>
 
 
 
@@ -648,170 +639,27 @@ loadNextChapter();
 function formatStory(text){
 
 
-let html = text;
+return text
 
-
-// Escape HTML
-
-html = html
-.replace(/&/g,"&amp;")
-.replace(/</g,"&lt;")
-.replace(/>/g,"&gt;");
-
-
-
-// Wrap words first
-
-html = html.replace(
-/([A-Za-z0-9',!?]+)/g,
-'<span class="word">$1</span>'
-);
-
-
-
-// Add chapter title
-
-html = html.replace(
+.replace(
 /^# (.*)$/gm,
 "<h2>$1</h2>"
-);
+)
 
-
-
-// Add character tags LAST
-
-html = html.replace(
+.replace(
 /\[(.*?)\]/g,
 "<b>[$1]</b>"
+)
+
+.replace(
+/\n\n/g,
+"<br><br>"
 );
 
 
-
-// Line breaks
-
-html = html.replace(
-/\n/g,
-"<br>"
-);
-
-
-return html;
-
-}
-
-function clearWordHighlight(){
-
-
-document
-.querySelectorAll(".speaking-word")
-.forEach(el=>{
-
-el.classList.remove(
-"speaking-word"
-);
-
-});
-
-
-}
-
-let currentWordIndex = 0;
-let currentWords = [];
-
-
-function prepareWords(line){
-
-currentWords =
-line
-.split(/\s+/)
-.map(w=>w.replace(/[.,!?]/g,""));
-
-currentWordIndex=0;
-
 }
 
 
-
-
-function highlightCurrentWord(){
-
-
-clearWordHighlight();
-
-
-
-if(currentWordIndex >= currentWords.length)
-return;
-
-
-
-let target =
-currentWords[currentWordIndex]
-.toLowerCase();
-
-
-
-let words =
-document.querySelectorAll(".word");
-
-
-
-let found = false;
-
-
-
-for(let w of words){
-
-
-if(
-!w.classList.contains("used")
-&&
-w.innerText
-.toLowerCase()
-.replace(/[.,!?]/g,"")
-===
-target
-){
-
-
-w.classList.add(
-"speaking-word"
-);
-
-
-w.classList.add(
-"used"
-);
-
-
-
-w.scrollIntoView({
-
-behavior:"smooth",
-
-block:"center"
-
-});
-
-
-
-found=true;
-
-break;
-
-
-}
-
-
-}
-
-
-
-currentWordIndex++;
-
-
-}
-  
 // =================================
 // SELECT VOICE
 // =================================
@@ -1215,37 +1063,7 @@ selectVoice(currentCharacter);
 
 let utterance =
 new SpeechSynthesisUtterance(line);
-prepareWords(line);
-  
-utterance.onboundary=function(event){
 
-
-if(event.name==="word"){
-
-highlightCurrentWord();
-
-}
-
-
-};
-
-
-let spoken =
-line
-.substring(
-event.charIndex
-)
-.split(" ")[0];
-
-
-
-highlightWord(spoken);
-
-
-}
-
-
-};
 
 
 
