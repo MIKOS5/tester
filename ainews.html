@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Obvyris Storyteller</title>
+
+
+<style>
+
+body{
+background:#09111d;
+color:white;
+font-family:Arial,sans-serif;
+padding:20px;
+}
+
+
+.storybook{
+
+max-width:900px;
+margin:auto;
+background:#101c2c;
+border-radius:20px;
+padding:30px;
+box-shadow:0 0 30px #000;
+
+}
+
+
+h1{
+text-align:center;
+color:#2793ff;
+}
+
+
+#story{
+
+font-size:20px;
+line-height:1.8;
+
+}
+
+
+#debug{
+
+margin-top:20px;
+padding:10px;
+background:#050b12;
+border-radius:10px;
+font-size:14px;
+color:#7cff7c;
+
+}
+
+
+.controls{
+
+display:flex;
+gap:10px;
+justify-content:center;
+margin-top:25px;
+flex-wrap:wrap;
+
+}
+
+
+button{
+
+background:#2793ff;
+color:white;
+border:none;
+padding:12px 20px;
+border-radius:10px;
+cursor:pointer;
+
+}
+
+
+button:hover{
+
+opacity:.8;
+
+}
+
+
+input{
+
+width:200px;
+
+}
+
+</style>
+
+
+</head>
+
+
+
+<body>
+
+
+<div class="storybook">
+
+
+<h1>📖 Obvyris Storyteller</h1>
+
+
+<div id="date">
+Loading chapter...
+</div>
+
+
+<hr>
+
+
+<div id="story">
+Loading story...
+</div>
+
+
+<div id="debug">
+Voice debug waiting...
+</div>
+
+
+
+<div class="controls">
+
+
+<button onclick="speakStory()">
+🔊 Read Story
+</button>
+
+
+<button onclick="pauseStory()">
+⏸ Pause
+</button>
+
+
+<button onclick="stopStory()">
+⏹ Stop
+</button>
+
+
+
+<label>
+
+Speed
+
+<input 
+id="speed"
+type="range"
+min="0.5"
+max="2"
+step="0.1"
+value="1">
+
+</label>
+
+
+</div>
+
+
+</div>
+
+
+<script>
+
+const API_BASE =
+"https://script.google.com/macros/s/AKfycbwdWK9oxbkXE9Df8zv8nVLg1Jn-qQmZCEBGYd7hMV--jF2rk12KV0vM7lwBzo12DMZJ/exec";
+
+
+const STORY_API =
+API_BASE+"?action=latest";
+
+
+const VOICE_API =
+API_BASE+"?action=voices";
+
+
+let currentStory="";
+let voiceSettings={};
+let browserVoices=[];
+
+
+
+
+// =================================
+// LOAD BROWSER VOICES
+// =================================
+
+function loadBrowserVoices(){
+
+browserVoices =
+speechSynthesis.getVoices();
+
+
+console.log(
+"VOICES LOADED",
+browserVoices.map(v=>v.name)
+);
+
+
+}
+
+
+
+loadBrowserVoices();
+
+
+speechSynthesis.onvoiceschanged=function(){
+
+loadBrowserVoices();
+
+};
+
+
+
+
+
+// =================================
+// WAIT FOR VOICES
+// =================================
+
+function waitForVoices(){
+
+
+return new Promise(resolve=>{
+
+
+let attempts=0;
+
+
+let timer=setInterval(()=>{
+
+
+loadBrowserVoices();
+
+
+attempts++;
+
+
+if(browserVoices.length>0 || attempts>30){
+
+
+clearInterval(timer);
+
+resolve();
+
+
+}
+
+
+},100);
+
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+// =================================
+// LOAD VOICE SETTINGS
+// =================================
+
+
+async function loadVoiceSettings(){
+
+
+try{
+
+
+let r =
+await fetch(VOICE_API);
+
+
+let data =
+await r.json();
+
+
+
+console.log(
+"VOICE API",
+data
+);
+
+
+
+if(data.status==="success"){
+
+
+voiceSettings =
+data.voices;
+
+
+
+console.log(
+"VOICE SETTINGS",
+voiceSettings
+);
+
+
+}
+
+
+}
+catch(e){
+
+console.error(
+"VOICE API ERROR",
+e
+);
+
+
+}
+
+
+}
+
+
+
+
+
+
+
+// =================================
+// LOAD STORY
+// =================================
+
+
+async function loadStory(){
+
+
+try{
+
+
+let r =
+await fetch(STORY_API);
+
+
+let data =
+await r.json();
+
+
+
+if(data.status==="success"){
+
+
+currentStory =
+data.story;
+
+
+
+document.getElementById("date").innerHTML =
+"📅 "+
+new Date(data.timestamp)
+.toLocaleDateString();
+
+
+
+document.getElementById("story").innerHTML =
+formatStory(data.story);
+
+
+}
+
+
+}
+catch(e){
+
+console.error(e);
+
+}
+
+
+}
+
+
+
+
+
+
+// =================================
+// FORMAT
+// =================================
+
+
+function formatStory(text){
+
+
+return text
+
+.replace(/^# (.*)$/gm,"<h2>$1</h2>")
+
+.replace(/\[(.*?)\]/g,"<b>[$1]</b>")
+
+.replace(/\n\n/g,"<br><br>");
+
+}
+
+
+
+
+
+// =================================
+// SELECT VOICE
+// =================================
+
+
+function selectVoice(character){
+
+
+let data =
+voiceSettings[character];
+
+
+console.log(
+"SELECTING",
+character,
+data
+);
+
+
+
+if(!data){
+
+return browserVoices[0];
+
+}
+
+
+
+
+
+// ===============================
+// EXACT VOICE MATCH
+// ===============================
+
+
+if(data.voice){
+
+
+let wanted =
+data.voice.toLowerCase();
+
+
+
+let found =
+browserVoices.find(v=>
+
+v.name.toLowerCase()
+.includes(wanted)
+
+);
+
+
+
+if(found){
+
+
+console.log(
+"FOUND VOICE",
+found.name
+);
+
+
+return found;
+
+
+}
+
+
+console.log(
+"VOICE NOT FOUND",
+wanted
+);
+
+
+}
+
+
+
+
+
+
+
+// ===============================
+// TYPE MATCHING
+// ===============================
+
+
+let type =
+data.type;
+
+
+
+if(type==="Female Narrator" ||
+type==="Female"){
+
+
+return browserVoices.find(v=>
+
+v.name.includes("Zira") ||
+
+v.name.includes("Google UK English Female") ||
+
+v.name.includes("Samantha")
+
+)
+||
+browserVoices[0];
+
+
+}
+
+
+
+
+
+if(type==="Robot"){
+
+
+return browserVoices.find(v=>
+
+v.name.includes("David")
+
+)
+||
+browserVoices[0];
+
+
+}
+
+
+
+
+
+
+if(type==="High"){
+
+
+return browserVoices.find(v=>
+
+v.name.includes("Zira") ||
+
+v.name.includes("Samantha")
+
+)
+||
+browserVoices[0];
+
+
+}
+
+
+
+
+
+if(type==="Deep male"){
+
+
+return browserVoices.find(v=>
+
+v.name.includes("Mark") ||
+
+v.name.includes("David")
+
+)
+||
+browserVoices[0];
+
+
+}
+
+
+
+
+
+if(type==="Computer"){
+
+
+return browserVoices.find(v=>
+
+v.name.includes("Google") ||
+
+v.name.includes("Microsoft")
+
+)
+||
+browserVoices[0];
+
+
+}
+
+
+
+return browserVoices[0];
+
+
+}
+
+
+
+
+
+
+
+// =================================
+// START STORY
+// =================================
+
+
+async function speakStory(){
+
+
+speechSynthesis.cancel();
+
+
+await waitForVoices();
+
+
+
+let lines =
+currentStory.split("\n");
+
+
+
+speakLine(
+lines,
+0,
+"Narrator"
+);
+
+
+
+}
+
+
+
+
+
+
+
+// =================================
+// SPEAK LINE
+// =================================
+
+
+function speakLine(lines,index,currentCharacter){
+
+
+if(index>=lines.length){
+
+
+document.getElementById("debug").innerHTML =
+"Finished";
+
+
+return;
+
+}
+
+
+
+
+
+let line =
+lines[index].trim();
+
+
+
+if(line===""){
+
+
+speakLine(
+lines,
+index+1,
+currentCharacter
+);
+
+
+return;
+
+}
+
+
+
+
+
+
+let tag =
+line.match(/\[(.*?)\]/);
+
+
+
+if(tag){
+
+
+currentCharacter =
+tag[1];
+
+
+
+speakLine(
+lines,
+index+1,
+currentCharacter
+);
+
+
+
+return;
+
+}
+
+
+
+
+
+let data =
+voiceSettings[currentCharacter];
+
+
+
+let settings =
+data?.settings ||
+{
+pitch:1,
+rate:1,
+volume:1
+};
+
+
+
+
+let voice =
+selectVoice(currentCharacter);
+
+
+
+
+let utterance =
+new SpeechSynthesisUtterance(line);
+
+
+
+utterance.voice =
+voice;
+
+
+utterance.pitch =
+settings.pitch;
+
+
+utterance.rate =
+settings.rate *
+Number(
+document.getElementById("speed").value
+);
+
+
+utterance.volume =
+settings.volume;
+
+
+
+
+document.getElementById("debug").innerHTML =
+
+`
+Speaking: ${currentCharacter}<br>
+Type: ${data?.type || "default"}<br>
+Voice: ${voice?.name || "none"}<br>
+Pitch: ${utterance.pitch}<br>
+Rate: ${utterance.rate}
+`;
+
+
+
+console.log(
+"PLAYING",
+{
+character:currentCharacter,
+voice:voice?.name,
+text:line
+}
+);
+
+
+
+
+
+utterance.onerror=function(e){
+
+console.error(
+"TTS ERROR",
+e
+);
+
+
+};
+
+
+
+
+
+utterance.onend=function(){
+
+
+speakLine(
+lines,
+index+1,
+currentCharacter
+);
+
+
+};
+
+
+
+
+
+speechSynthesis.speak(utterance);
+
+
+}
+
+
+
+
+
+
+
+
+function pauseStory(){
+
+speechSynthesis.pause();
+
+}
+
+
+
+function stopStory(){
+
+speechSynthesis.cancel();
+
+}
+
+
+
+
+
+loadVoiceSettings();
+
+loadStory();
+
+
+</script>
+
+
+</body>
+
+</html>
