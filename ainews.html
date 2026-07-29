@@ -648,27 +648,54 @@ loadNextChapter();
 function formatStory(text){
 
 
-return text
+let html = text;
 
-.replace(
+
+// Escape HTML first
+
+html = html
+.replace(/&/g,"&amp;")
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;");
+
+
+
+// Chapter title
+
+html = html.replace(
 /^# (.*)$/gm,
 "<h2>$1</h2>"
-)
+);
 
-.replace(
+
+
+// Character tags
+
+html = html.replace(
 /\[(.*?)\]/g,
 "<b>[$1]</b>"
-)
+);
 
-.replace(
-/\n\n/g,
-"<br><br>"
-)
 
-.replace(
-/([A-Za-z0-9',]+)/g,
+
+// Add word spans
+
+html = html.replace(
+/([A-Za-z0-9',!?]+)/g,
 '<span class="word">$1</span>'
 );
+
+
+
+// Line breaks
+
+html = html.replace(
+/\n/g,
+"<br>"
+);
+
+
+return html;
 
 
 }
