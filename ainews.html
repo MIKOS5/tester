@@ -1096,20 +1096,16 @@ chapterNumber
 currentChapterNumber =
 chapterNumber || 1;
 
-if(index>=lines.length){
 
 
-document.getElementById("debug").innerHTML=
+if(index >= lines.length){
 
+document.getElementById("debug").innerHTML =
 "Finished reading book 📖";
-
 
 return;
 
-
 }
-
-
 
 
 
@@ -1138,6 +1134,7 @@ return;
 
 
 
+// Detect character tag
 
 let tag =
 line.match(/\[(.*?)\]/);
@@ -1151,7 +1148,6 @@ currentCharacter =
 tag[1];
 
 
-
 speakLine(
 lines,
 index+1,
@@ -1160,12 +1156,10 @@ chapterNumber
 );
 
 
-
 return;
 
 
 }
-
 
 
 
@@ -1179,18 +1173,11 @@ voiceSettings[currentCharacter];
 
 let settings =
 data?.settings ||
-
 {
-
 pitch:1,
-
 rate:1,
-
 volume:1
-
 };
-
-
 
 
 
@@ -1202,10 +1189,13 @@ selectVoice(currentCharacter);
 
 
 
-
 let utterance =
 new SpeechSynthesisUtterance(line);
-wordPosition=0;
+
+
+
+wordPosition = 0;
+
 
 
 utterance.onboundary=function(event){
@@ -1233,22 +1223,6 @@ wordPosition++;
 };
 
 
-let spoken =
-line
-.substring(
-event.charIndex
-)
-.split(" ")[0];
-
-
-
-highlightWord(spoken);
-
-
-}
-
-
-};
 
 
 
@@ -1263,15 +1237,9 @@ settings.pitch;
 
 
 utterance.rate =
-
 settings.rate *
-
 Number(
-
-document
-.getElementById("speed")
-.value
-
+document.getElementById("speed").value
 );
 
 
@@ -1284,47 +1252,29 @@ settings.volume;
 
 
 
-document
-.getElementById("debug")
-.innerHTML=
+document.getElementById("debug").innerHTML =
 
 `
-
 Speaking: ${currentCharacter}<br>
-
 Type: ${data?.type || "Default"}<br>
-
 Voice: ${voice?.name || "None"}<br>
-
 Pitch: ${utterance.pitch}<br>
-
 Rate: ${utterance.rate}
-
 `;
 
 
 
 
 
-
-
 console.log(
-
 "PLAY",
-
 {
-
 character:currentCharacter,
-
 voice:voice?.name,
-
-text:line
-
+text:line,
+chapter:currentChapterNumber
 }
-
 );
-
-
 
 
 
@@ -1332,15 +1282,12 @@ text:line
 
 utterance.onerror=function(e){
 
-
 console.error(
 "TTS ERROR",
 e
 );
 
-
 };
-
 
 
 
@@ -1351,17 +1298,19 @@ utterance.onend=function(){
 
 
 speakLine(
+
 lines,
+
 index+1,
+
 currentCharacter,
+
 chapterNumber
+
 );
 
 
-
 };
-
-
 
 
 
@@ -1374,8 +1323,6 @@ utterance
 
 
 }
-
-
 
 
 
