@@ -12,72 +12,149 @@
 <style>
 
 body{
+
 background:#09111d;
 color:white;
 font-family:Arial,sans-serif;
 padding:20px;
+
 }
+
 
 
 .storybook{
 
 max-width:900px;
 margin:auto;
+
 background:#101c2c;
+
 border-radius:20px;
+
 padding:30px;
+
 box-shadow:0 0 30px #000;
 
 }
 
 
+
 h1{
+
 text-align:center;
+
 color:#2793ff;
+
 }
+
 
 
 #story{
 
 font-size:20px;
+
 line-height:1.8;
 
 }
 
 
-#debug{
 
-margin-top:20px;
-padding:10px;
-background:#050b12;
-border-radius:10px;
-font-size:14px;
-color:#7cff7c;
+.chapter{
+
+margin-bottom:70px;
+
+padding-bottom:40px;
+
+border-bottom:1px solid #27384d;
+
+animation:fadeIn .5s;
 
 }
+
+
+
+.chapter h2{
+
+color:#2793ff;
+
+}
+
+
+
+.chapter-date{
+
+color:#8aa5c4;
+
+margin-bottom:20px;
+
+}
+
+
+
+.chapter-text{
+
+font-size:20px;
+
+line-height:1.8;
+
+}
+
+
+
+@keyframes fadeIn{
+
+from{
+
+opacity:0;
+
+transform:translateY(20px);
+
+}
+
+to{
+
+opacity:1;
+
+transform:translateY(0);
+
+}
+
+}
+
 
 
 .controls{
 
 display:flex;
+
 gap:10px;
+
 justify-content:center;
+
 margin-top:25px;
+
 flex-wrap:wrap;
 
 }
 
 
+
 button{
 
 background:#2793ff;
+
 color:white;
+
 border:none;
+
 padding:12px 20px;
+
 border-radius:10px;
+
 cursor:pointer;
 
 }
+
 
 
 button:hover{
@@ -87,14 +164,33 @@ opacity:.8;
 }
 
 
+
+#debug{
+
+margin-top:20px;
+
+padding:10px;
+
+background:#050b12;
+
+border-radius:10px;
+
+font-size:14px;
+
+color:#7cff7c;
+
+}
+
+
+
 input{
 
 width:200px;
 
 }
 
-</style>
 
+</style>
 
 </head>
 
@@ -106,24 +202,25 @@ width:200px;
 <div class="storybook">
 
 
-<h1>📖 Obvyris Storyteller</h1>
-
-
-<div id="date">
-Loading chapter...
-</div>
+<h1>
+📖 Obvyris Storyteller
+</h1>
 
 
 <hr>
 
 
 <div id="story">
-Loading story...
+
+Loading chapters...
+
 </div>
 
 
 <div id="debug">
+
 Voice debug waiting...
+
 </div>
 
 
@@ -132,17 +229,23 @@ Voice debug waiting...
 
 
 <button onclick="speakStory()">
+
 🔊 Read Story
+
 </button>
 
 
 <button onclick="pauseStory()">
+
 ⏸ Pause
+
 </button>
 
 
 <button onclick="stopStory()">
+
 ⏹ Stop
+
 </button>
 
 
@@ -168,23 +271,42 @@ value="1">
 </div>
 
 
+
 <script>
 
+
 const API_BASE =
+
 "https://script.google.com/macros/s/AKfycbzVxbM_g8K6mzstGdFt2F0u7NctZ1Qpg8APXGdSSS-l50SqVO4u5QXwzFzKWxQbGMoaBg/exec";
 
 
+
 const STORY_API =
-API_BASE+"?action=latest";
+
+API_BASE+"?action=story";
+
 
 
 const VOICE_API =
+
 API_BASE+"?action=voices";
 
 
+
+
+
+let chapters=[];
+
+let loadedChapters=0;
+
+let loading=false;
+
 let currentStory="";
+
 let voiceSettings={};
+
 let browserVoices=[];
+
 
 
 
@@ -193,15 +315,20 @@ let browserVoices=[];
 // LOAD BROWSER VOICES
 // =================================
 
+
 function loadBrowserVoices(){
+
 
 browserVoices =
 speechSynthesis.getVoices();
 
 
 console.log(
-"VOICES LOADED",
+
+"VOICES",
+
 browserVoices.map(v=>v.name)
+
 );
 
 
@@ -210,6 +337,7 @@ browserVoices.map(v=>v.name)
 
 
 loadBrowserVoices();
+
 
 
 speechSynthesis.onvoiceschanged=function(){
@@ -221,10 +349,6 @@ loadBrowserVoices();
 
 
 
-
-// =================================
-// WAIT FOR VOICES
-// =================================
 
 function waitForVoices(){
 
@@ -244,7 +368,10 @@ loadBrowserVoices();
 attempts++;
 
 
-if(browserVoices.length>0 || attempts>30){
+if(
+browserVoices.length ||
+attempts>30
+){
 
 
 clearInterval(timer);
@@ -285,6 +412,7 @@ let r =
 await fetch(VOICE_API);
 
 
+
 let data =
 await r.json();
 
@@ -300,83 +428,15 @@ data
 if(data.status==="success"){
 
 
-voiceSettings =
-data.voices;
-
-
-
-console.log(
-"VOICE SETTINGS",
-voiceSettings
-);
-
-
-}
-
-
-}
-catch(e){
-
-console.error(
-"VOICE API ERROR",
-e
-);
-
-
-}
+voiceSettings=data.voices;
 
 
 }
 
 
 
-
-
-
-
-// =================================
-// LOAD STORY
-// =================================
-
-
-async function loadStory(){
-
-
-try{
-
-
-let r =
-await fetch(STORY_API);
-
-
-let data =
-await r.json();
-
-
-
-if(data.status==="success"){
-
-
-currentStory =
-data.story;
-
-
-
-document.getElementById("date").innerHTML =
-"📅 "+
-new Date(data.timestamp)
-.toLocaleDateString();
-
-
-
-document.getElementById("story").innerHTML =
-formatStory(data.story);
-
-
 }
 
-
-}
 catch(e){
 
 console.error(e);
@@ -391,8 +451,188 @@ console.error(e);
 
 
 
+
+
 // =================================
-// FORMAT
+// LOAD ALL STORIES
+// =================================
+
+
+async function loadStory(){
+
+
+try{
+
+
+let r =
+await fetch(STORY_API);
+
+
+
+let data =
+await r.json();
+
+
+
+console.log(
+"STORY API",
+data
+);
+
+
+
+if(data.status==="success"){
+
+
+chapters =
+data.chapters;
+
+
+
+document.getElementById("story").innerHTML="";
+
+
+
+loadNextChapter();
+
+
+}
+
+
+
+}
+
+catch(e){
+
+console.error(
+"STORY ERROR",
+e
+);
+
+}
+
+
+}
+
+
+
+
+
+
+
+// =================================
+// INFINITE SCROLL
+// =================================
+
+
+function loadNextChapter(){
+
+
+if(
+loading ||
+loadedChapters >= chapters.length
+)
+
+return;
+
+
+
+loading=true;
+
+
+
+let chapter =
+chapters[loadedChapters];
+
+
+
+let div =
+document.createElement("div");
+
+
+div.className="chapter";
+
+
+
+div.innerHTML=`
+
+<h2>
+
+📖 Chapter ${chapter.chapter}
+
+</h2>
+
+
+<div class="chapter-date">
+
+📅 ${
+new Date(chapter.timestamp)
+.toLocaleDateString()
+
+}
+
+</div>
+
+
+<div class="chapter-text">
+
+${formatStory(chapter.story)}
+
+</div>
+
+`;
+
+
+
+document
+.getElementById("story")
+.appendChild(div);
+
+
+
+loadedChapters++;
+
+
+
+loading=false;
+
+
+}
+
+
+
+
+
+
+window.addEventListener(
+"scroll",
+()=>{
+
+
+if(
+
+window.innerHeight +
+window.scrollY >=
+document.body.offsetHeight-500
+
+){
+
+
+loadNextChapter();
+
+
+}
+
+
+});
+
+
+
+
+
+
+// =================================
+// FORMAT STORY
 // =================================
 
 
@@ -401,16 +641,23 @@ function formatStory(text){
 
 return text
 
-.replace(/^# (.*)$/gm,"<h2>$1</h2>")
+.replace(
+/^# (.*)$/gm,
+"<h2>$1</h2>"
+)
 
-.replace(/\[(.*?)\]/g,"<b>[$1]</b>")
+.replace(
+/\[(.*?)\]/g,
+"<b>[$1]</b>"
+)
 
-.replace(/\n\n/g,"<br><br>");
+.replace(
+/\n\n/g,
+"<br><br>"
+);
+
 
 }
-
-
-
 
 
 // =================================
@@ -443,9 +690,7 @@ return browserVoices[0];
 
 
 
-// ===============================
 // EXACT VOICE MATCH
-// ===============================
 
 
 if(data.voice){
@@ -459,7 +704,8 @@ data.voice.toLowerCase();
 let found =
 browserVoices.find(v=>
 
-v.name.toLowerCase()
+v.name
+.toLowerCase()
 .includes(wanted)
 
 );
@@ -468,23 +714,9 @@ v.name.toLowerCase()
 
 if(found){
 
-
-console.log(
-"FOUND VOICE",
-found.name
-);
-
-
 return found;
 
-
 }
-
-
-console.log(
-"VOICE NOT FOUND",
-wanted
-);
 
 
 }
@@ -494,10 +726,7 @@ wanted
 
 
 
-
-// ===============================
 // TYPE MATCHING
-// ===============================
 
 
 let type =
@@ -505,8 +734,10 @@ data.type;
 
 
 
-if(type==="Female Narrator" ||
-type==="Female"){
+if(
+type==="Female Narrator" ||
+type==="Female"
+){
 
 
 return browserVoices.find(v=>
@@ -518,11 +749,15 @@ v.name.includes("Google UK English Female") ||
 v.name.includes("Samantha")
 
 )
+
 ||
+
 browserVoices[0];
 
 
 }
+
+
 
 
 
@@ -536,11 +771,14 @@ return browserVoices.find(v=>
 v.name.includes("David")
 
 )
+
 ||
+
 browserVoices[0];
 
 
 }
+
 
 
 
@@ -557,11 +795,15 @@ v.name.includes("Zira") ||
 v.name.includes("Samantha")
 
 )
+
 ||
+
 browserVoices[0];
 
 
 }
+
+
 
 
 
@@ -577,11 +819,16 @@ v.name.includes("Mark") ||
 v.name.includes("David")
 
 )
+
 ||
+
 browserVoices[0];
 
 
 }
+
+
+
 
 
 
@@ -597,11 +844,15 @@ v.name.includes("Google") ||
 v.name.includes("Microsoft")
 
 )
+
 ||
+
 browserVoices[0];
 
 
 }
+
+
 
 
 
@@ -616,8 +867,10 @@ return browserVoices[0];
 
 
 
+
+
 // =================================
-// START STORY
+// READ ENTIRE BOOK
 // =================================
 
 
@@ -627,7 +880,32 @@ async function speakStory(){
 speechSynthesis.cancel();
 
 
+
 await waitForVoices();
+
+
+
+let fullStory="";
+
+
+
+chapters.forEach(chapter=>{
+
+
+fullStory +=
+
+chapter.story +
+
+"\n\n";
+
+
+
+});
+
+
+
+currentStory =
+fullStory;
 
 
 
@@ -637,9 +915,13 @@ currentStory.split("\n");
 
 
 speakLine(
+
 lines,
+
 0,
+
 "Narrator"
+
 );
 
 
@@ -652,22 +934,30 @@ lines,
 
 
 
+
 // =================================
 // SPEAK LINE
 // =================================
 
 
-function speakLine(lines,index,currentCharacter){
+function speakLine(
+lines,
+index,
+currentCharacter
+){
+
 
 
 if(index>=lines.length){
 
 
-document.getElementById("debug").innerHTML =
-"Finished";
+document.getElementById("debug").innerHTML=
+
+"Finished reading book 📖";
 
 
 return;
+
 
 }
 
@@ -684,13 +974,18 @@ if(line===""){
 
 
 speakLine(
+
 lines,
+
 index+1,
+
 currentCharacter
+
 );
 
 
 return;
+
 
 }
 
@@ -713,16 +1008,23 @@ tag[1];
 
 
 speakLine(
+
 lines,
+
 index+1,
+
 currentCharacter
+
 );
 
 
 
 return;
 
+
 }
+
+
 
 
 
@@ -735,11 +1037,18 @@ voiceSettings[currentCharacter];
 
 let settings =
 data?.settings ||
+
 {
+
 pitch:1,
+
 rate:1,
+
 volume:1
+
 };
+
+
 
 
 
@@ -750,8 +1059,11 @@ selectVoice(currentCharacter);
 
 
 
+
+
 let utterance =
 new SpeechSynthesisUtterance(line);
+
 
 
 
@@ -759,15 +1071,24 @@ utterance.voice =
 voice;
 
 
+
 utterance.pitch =
 settings.pitch;
 
 
+
 utterance.rate =
+
 settings.rate *
+
 Number(
-document.getElementById("speed").value
+
+document
+.getElementById("speed")
+.value
+
 );
+
 
 
 utterance.volume =
@@ -776,32 +1097,56 @@ settings.volume;
 
 
 
-document.getElementById("debug").innerHTML =
+
+
+document
+.getElementById("debug")
+.innerHTML=
 
 `
+
 Speaking: ${currentCharacter}<br>
-Type: ${data?.type || "default"}<br>
-Voice: ${voice?.name || "none"}<br>
+
+Type: ${data?.type || "Default"}<br>
+
+Voice: ${voice?.name || "None"}<br>
+
 Pitch: ${utterance.pitch}<br>
+
 Rate: ${utterance.rate}
+
 `;
 
 
 
+
+
+
+
 console.log(
-"PLAYING",
+
+"PLAY",
+
 {
+
 character:currentCharacter,
+
 voice:voice?.name,
+
 text:line
+
 }
+
 );
 
 
 
 
 
+
+
 utterance.onerror=function(e){
+
 
 console.error(
 "TTS ERROR",
@@ -815,14 +1160,21 @@ e
 
 
 
+
+
 utterance.onend=function(){
 
 
 speakLine(
+
 lines,
+
 index+1,
+
 currentCharacter
+
 );
+
 
 
 };
@@ -831,7 +1183,12 @@ currentCharacter
 
 
 
-speechSynthesis.speak(utterance);
+
+
+speechSynthesis.speak(
+utterance
+);
+
 
 
 }
@@ -841,24 +1198,45 @@ speechSynthesis.speak(utterance);
 
 
 
+
+
+
+// =================================
+// CONTROLS
+// =================================
 
 
 function pauseStory(){
 
+
 speechSynthesis.pause();
 
+
 }
+
+
 
 
 
 function stopStory(){
 
+
 speechSynthesis.cancel();
+
 
 }
 
 
 
+
+
+
+
+
+
+// =================================
+// START APP
+// =================================
 
 
 loadVoiceSettings();
