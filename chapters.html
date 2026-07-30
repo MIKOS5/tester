@@ -727,30 +727,26 @@ UNIT 00-NULL // MEMORY ARCHIVE ACCESS
 
 <script>
 
-
 // =====================================
 // OBVYRIS API
 // =====================================
 
-
 const API_BASE =
-
-"https://script.google.com/macros/s/AKfycbzVxbM_g8K6mzstGdFt2F0u7NctZ1Qpg8APXGdSSS-l50SqVO4u5QXwzFzKWxQbGMoaBg/exec";
-
+"https://script.google.com/macros/s/AKfycbwR9_-IIcd6yiJuQsrF9uDexBLTbYLw6sw2NlnFEGIlj83a6mY-K3x_F1czdIw3SEjX/exec";
 
 
 const STORY_LIST_API =
-"https://script.googleusercontent.com/macros/echo?user_content_key=AUkAhnSSIVQ33tJR2EDJRpxvjBkWtRZ3rpU0omxAcflQeD9ITvmqUP95j70SRWhGqG2z2s3j7BAAzCw3toyRar00XBGPW5CwtlWUsjkzoquRUAJ8gIWZ6AITCkEsnXGVjd0jiKXdD8mcU_NZJzjXq-rbBTUTw--AXU5NHsyRS5XY_BagkLRlW2fPS9V1TgrDlyVhAKOk8PF9eL1umr9zdkjbpuFXgV_jiLktZEynJiEuUMwFwqp-RX0i3J7ckVR2qL3npp3RE0q1OQruKeedYFyNIv42RBh7uo4keB54UOlw&lib=Mh1jM7ndN44pXCyM5qcIChXC8FN8Ay13H";
-
+API_BASE+"?action=stories";
 
 
 const VOICE_API =
-
 API_BASE+"?action=voices";
 
 
 
-
+// =====================================
+// VARIABLES
+// =====================================
 
 let chapters=[];
 
@@ -760,12 +756,12 @@ let voiceSettings={};
 
 let browserVoices=[];
 
-
+let speechCounter=0;
 
 
 
 // =====================================
-// LOAD CHAPTER DATABASE
+// LOAD CHAPTERS
 // =====================================
 
 
@@ -773,9 +769,14 @@ async function loadChapters(){
 
 try{
 
-let r = await fetch(STORY_LIST_API);
+
+let r = await fetch(
+STORY_LIST_API
+);
+
 
 let data = await r.json();
+
 
 console.log(
 "ARCHIVE DATABASE",
@@ -783,47 +784,59 @@ data
 );
 
 
+
 if(data.status==="success"){
+
 
 chapters=data.stories;
 
+
 renderChapters();
+
+
 
 document.getElementById("debug").innerHTML =
 "ARCHIVE ONLINE // "
-+ chapters.length
-+ " CHAPTERS LOADED";
++
+chapters.length
++
+" CHAPTERS LOADED";
 
 
 }
+
 
 
 }
 
 catch(e){
 
+
 console.error(
 "ARCHIVE ERROR",
 e
 );
 
+
 document.getElementById("debug").innerHTML =
 "ARCHIVE CONNECTION FAILED";
 
-}
-
 
 }
 
 
+}
+
+
+
 
 // =====================================
-// RENDER CHAPTER SELECT
+// RENDER CHAPTER CARDS
 // =====================================
-
 
 
 function renderChapters(){
+
 
 let html="";
 
@@ -838,16 +851,18 @@ html+=`
 
 <div class="chapter">
 
-CHAPTER ${ch.chapter || ""}
+CHAPTER ${ch.chapter}
 
 </div>
+
 
 
 <div class="title">
 
-${ch.title || "Unknown Memory"}
+${ch.title}
 
 </div>
+
 
 
 <div class="description">
@@ -860,11 +875,6 @@ ${ch.status}
 
 
 <div class="tags">
-
-<span class="tag">
-${ch.genre || "SCI-FI"}
-</span>
-
 
 <span class="tag">
 
@@ -901,87 +911,36 @@ document
 
 }
 
-function displayStory(text){
-
-
-let lines=text.split("\n");
-
-
-let html="";
-
-
-speechLineID=0;
-
-
-lines.forEach(line=>{
-
-
-if(line.trim()==""){
-html+="<br>";
-return;
-}
 
 
 
-if(line.startsWith("[")){
-
-
-html+=`
-
-<h3>
-${line}
-</h3>
-
-`;
-
-return;
-
-}
-
-
-
-speechLineID++;
-
-
-html+=`
-
-<div class="speech-line"
-id="line-${speechLineID}">
-
-${line}
-
-</div>
-
-`;
-
-
-});
-
-
-
-document
-.getElementById("story")
-.innerHTML=html;
-
-
-}
 // =====================================
-// OPEN EPISODE
+// OPEN CHAPTER
 // =====================================
+
 
 async function openChapter(id){
+
+
+try{
+
 
 document.getElementById("debug").innerHTML =
 "ACCESSING MEMORY "+id;
 
 
+
 let r = await fetch(
+
 API_BASE+
 "?action=story&id="+id
+
 );
 
 
+
 let data = await r.json();
+
 
 
 console.log(
@@ -997,18 +956,34 @@ if(data.status==="success"){
 selectedChapter=data.story;
 
 
-document.getElementById("viewer").style.display="block";
+
+document
+.getElementById("viewer")
+.style.display="block";
 
 
-document.getElementById("episodeTitle").innerHTML =
+
+document
+.getElementById("episodeTitle")
+.innerHTML =
 "📖 "+
 data.story.title;
 
 
-document.getElementById("episodeStory").innerHTML =
+
+document
+.getElementById("episodeStory")
+.innerHTML =
 formatStory(
 data.story.story
 );
+
+
+
+document.getElementById("debug").innerHTML =
+"MEMORY LOADED // "+
+data.story.storyId;
+
 
 
 window.scrollTo({
@@ -1021,51 +996,65 @@ behavior:"smooth"
 });
 
 
-}
 
 }
 
+else{
+
+
+document.getElementById("debug").innerHTML =
+"MEMORY NOT FOUND";
+
+
+}
+
+
+
+}
+
+catch(e){
+
+
+console.error(
+"OPEN ERROR",
+e
+);
+
+
+document.getElementById("debug").innerHTML =
+"MEMORY ACCESS ERROR";
+
+
+}
+
+
+}
+
+
+
+
+
+
 // =====================================
-// FORMAT STORY FOR TTS
+// FORMAT STORY
 // =====================================
-
-
-
-let speechCounter=0;
-
 
 
 function formatStory(text){
 
 
-if(!text)
-
-return "No recovered memory data.";
-
-
-
 let html="";
-
-
-
-let lines =
-text.split("\n");
-
-
 
 
 speechCounter=0;
 
 
 
-lines.forEach(line=>{
+text.split("\n")
+.forEach(line=>{
 
 
-if(
-line.trim()===""
-)
-
-{
+if(line.trim()===""){
 
 
 html+="<br>";
@@ -1077,38 +1066,7 @@ return;
 
 
 
-
-
-
-if(
-line.startsWith("#")
-){
-
-
-html+=`
-
-<h2>
-
-${line.replace("#","")}
-
-</h2>
-
-
-`;
-
-return;
-
-
-}
-
-
-
-
-
-
-if(
-line.match(/\[(.*?)\]/)
-){
+if(line.match(/\[(.*?)\]/)){
 
 
 html+=`
@@ -1119,8 +1077,8 @@ ${line}
 
 </h3>
 
-
 `;
+
 
 return;
 
@@ -1129,32 +1087,19 @@ return;
 
 
 
-
-
-
 speechCounter++;
-
 
 
 html+=`
 
-<div 
-
-class="speech-line"
-
-id="speech-${speechCounter}"
-
->
-
+<div class="speech-line"
+id="speech-${speechCounter}">
 
 ${line}
 
-
 </div>
 
-
 `;
-
 
 
 });
@@ -1171,12 +1116,9 @@ return html;
 
 
 
-
-
 // =====================================
-// LOAD VOICES DATABASE
+// LOAD VOICES
 // =====================================
-
 
 
 async function loadVoiceSettings(){
@@ -1185,15 +1127,12 @@ async function loadVoiceSettings(){
 try{
 
 
-let response=
-
+let r =
 await fetch(VOICE_API);
 
 
-
-let data=
-
-await response.json();
+let data =
+await r.json();
 
 
 
@@ -1213,9 +1152,7 @@ voiceSettings=data.voices;
 }
 
 
-
 }
-
 
 catch(e){
 
@@ -1229,9 +1166,7 @@ e
 }
 
 
-
 }
-
 
 
 
@@ -1243,7 +1178,6 @@ e
 // =====================================
 
 
-
 function loadBrowserVoices(){
 
 
@@ -1251,9 +1185,7 @@ browserVoices =
 speechSynthesis.getVoices();
 
 
-
 }
-
 
 
 loadBrowserVoices();
@@ -1272,23 +1204,9 @@ loadBrowserVoices();
 
 
 
-// =====================================
-// INITIALIZE ARCHIVE
-// =====================================
-
-
-
-loadVoiceSettings();
-
-loadChapters();
-
-
-
-
-
 
 // =====================================
-// SELECT CHARACTER VOICE
+// VOICE SELECT
 // =====================================
 
 
@@ -1301,28 +1219,19 @@ voiceSettings[character];
 
 
 console.log(
-"VOICE REQUEST:",
+"VOICE REQUEST",
 character,
 settings
 );
 
 
 
-
 if(!settings)
-
 return browserVoices[0];
 
 
 
-
-
-let wanted =
-settings.voice;
-
-
-
-if(wanted){
+if(settings.voice){
 
 
 let found =
@@ -1331,7 +1240,7 @@ browserVoices.find(v=>
 v.name
 .toLowerCase()
 .includes(
-wanted.toLowerCase()
+settings.voice.toLowerCase()
 )
 
 );
@@ -1339,7 +1248,6 @@ wanted.toLowerCase()
 
 
 if(found)
-
 return found;
 
 
@@ -1347,133 +1255,10 @@ return found;
 
 
 
-
-
-
-// ROBOT
-
-
-if(
-settings.type==="Robot"
-){
-
-
-return browserVoices.find(v=>
-
-v.name.includes("David") ||
-
-v.name.includes("Microsoft")
-
-)
-
-||
-
-browserVoices[0];
-
-
-}
-
-
-
-
-
-
-// FEMALE
-
-
-if(
-settings.type==="Female" ||
-settings.type==="Female Narrator"
-){
-
-
-return browserVoices.find(v=>
-
-v.name.includes("Zira") ||
-
-v.name.includes("Samantha") ||
-
-v.name.includes("Google UK English Female")
-
-)
-
-||
-
-browserVoices[0];
-
-
-}
-
-
-
-
-
-
-
-// COMPUTER
-
-
-if(
-settings.type==="Computer"
-){
-
-
-return browserVoices.find(v=>
-
-v.name.includes("Google") ||
-
-v.name.includes("Microsoft")
-
-)
-
-||
-
-browserVoices[0];
-
-
-}
-
-
-
-
-
-
-// DEEP VOICE
-
-
-if(
-settings.type==="Deep male"
-){
-
-
-return browserVoices.find(v=>
-
-v.name.includes("Mark") ||
-
-v.name.includes("David")
-
-)
-
-||
-
-browserVoices[0];
-
-
-}
-
-
-
-
-
-
-
 return browserVoices[0];
 
 
 }
-
-
-
 
 
 
@@ -1485,8 +1270,14 @@ return browserVoices[0];
 // =====================================
 
 
-
 function speakChapter(){
+
+
+console.log(
+"CURRENT CHAPTER",
+selectedChapter
+);
+
 
 
 if(!selectedChapter){
@@ -1509,21 +1300,16 @@ speechSynthesis.cancel();
 
 
 let lines =
-
-selectedChapter.story
-.split("\n");
+selectedChapter.story.split("\n");
 
 
 
 readLine(
-
 lines,
-
 0,
-
 "Narrator"
-
 );
+
 
 
 }
@@ -1535,32 +1321,21 @@ lines,
 
 
 // =====================================
-// READ LINE ENGINE
+// TTS ENGINE
 // =====================================
 
 
 function readLine(
-
 lines,
-
 index,
-
-currentCharacter
-
+character
 ){
 
 
-
-if(
-index>=lines.length
-){
+if(index>=lines.length){
 
 
-
-document
-.getElementById("debug")
-.innerHTML=
-
+document.getElementById("debug").innerHTML =
 "READING COMPLETE // MEMORY ARCHIVED";
 
 
@@ -1571,11 +1346,8 @@ return;
 
 
 
-
 let line =
 lines[index].trim();
-
-
 
 
 
@@ -1583,13 +1355,9 @@ if(line===""){
 
 
 readLine(
-
 lines,
-
 index+1,
-
-currentCharacter
-
+character
 );
 
 
@@ -1600,38 +1368,22 @@ return;
 
 
 
+let tag =
+line.match(/\[(.*?)\]/);
 
 
 
-// CHARACTER DETECTION
+if(tag){
 
 
-let character =
-
-line.match(
-/\[(.*?)\]/
-);
-
-
-
-
-
-if(character){
-
-
-currentCharacter =
-character[1];
-
+character =
+tag[1];
 
 
 readLine(
-
 lines,
-
 index+1,
-
-currentCharacter
-
+character
 );
 
 
@@ -1643,41 +1395,25 @@ return;
 
 
 
-
-
-
-let elements =
-
-document.querySelectorAll(
-".speech-line"
-);
-
-
-
-
-elements.forEach(e=>{
-
+document
+.querySelectorAll(".speech-active")
+.forEach(e=>{
 
 e.classList.remove(
 "speech-active"
 );
 
-
 });
 
 
 
-
-
 let active =
-
-[...elements].find(e=>
+[...document.querySelectorAll(".speech-line")]
+.find(e=>
 
 e.innerText.trim()==line
 
 );
-
-
 
 
 
@@ -1687,7 +1423,6 @@ if(active){
 active.classList.add(
 "speech-active"
 );
-
 
 
 active.scrollIntoView({
@@ -1704,135 +1439,54 @@ block:"center"
 
 
 
-
-
-let voice =
-
-selectVoice(
-currentCharacter
-);
-
-
-
-
-
-let data =
-
-voiceSettings[currentCharacter];
-
-
-
-
-
-
-let options = {
-
-
-pitch:
-data?.settings?.pitch || 1,
-
-
-rate:
-data?.settings?.rate || 1,
-
-
-volume:
-data?.settings?.volume || 1
-
-
-};
-
-
-
+let settings =
+voiceSettings[character];
 
 
 
 let utterance =
-
-new SpeechSynthesisUtterance(
-line
-);
-
-
+new SpeechSynthesisUtterance(line);
 
 
 
 utterance.voice =
-voice;
+selectVoice(character);
 
 
 
 utterance.pitch =
-options.pitch;
+settings?.settings?.pitch || 1;
 
 
 
 utterance.rate =
-
-options.rate *
-
+(settings?.settings?.rate || 1)
+*
 Number(
-
-document
-.getElementById("speed")
-.value
-
+document.getElementById("speed").value
 );
 
 
 
 utterance.volume =
-options.volume;
+settings?.settings?.volume || 1;
 
 
 
 
-
-
-
-document
-.getElementById("debug")
-.innerHTML=
+document.getElementById("debug").innerHTML=
 
 `
 
 SPEAKING:
-
-${currentCharacter}
+${character}
 
 <br>
 
 VOICE:
-
-${voice?.name || "Default"}
+${utterance.voice?.name || "Default"}
 
 `;
-
-
-
-
-
-
-console.log(
-
-"TTS",
-
-{
-
-character:
-currentCharacter,
-
-voice:
-voice?.name,
-
-line
-
-}
-
-);
-
-
-
 
 
 
@@ -1841,13 +1495,9 @@ utterance.onend=function(){
 
 
 readLine(
-
 lines,
-
 index+1,
-
-currentCharacter
-
+character
 );
 
 
@@ -1855,34 +1505,17 @@ currentCharacter
 
 
 
-
-
-
-utterance.onerror=function(e){
-
-
-console.error(
-"TTS ERROR",
-e
-);
-
+utterance.onerror=function(){
 
 
 readLine(
-
 lines,
-
 index+1,
-
-currentCharacter
-
+character
 );
 
 
 };
-
-
-
 
 
 
@@ -1899,32 +1532,21 @@ utterance
 
 
 
-
-
-
-
 // =====================================
-// PLAYER CONTROLS
+// CONTROLS
 // =====================================
-
 
 
 function pauseStory(){
 
 
-if(
-speechSynthesis.paused
-){
+if(speechSynthesis.paused){
 
 
 speechSynthesis.resume();
 
 
-
-document
-.getElementById("debug")
-.innerHTML=
-
+document.getElementById("debug").innerHTML =
 "RESUMED";
 
 
@@ -1936,11 +1558,7 @@ else{
 speechSynthesis.pause();
 
 
-
-document
-.getElementById("debug")
-.innerHTML=
-
+document.getElementById("debug").innerHTML =
 "PAUSED";
 
 
@@ -1952,35 +1570,25 @@ document
 
 
 
-
-
-
 function stopStory(){
 
 
 speechSynthesis.cancel();
 
 
-
 document
-.querySelectorAll(
-".speech-active"
-)
-
-.forEach(e=>
+.querySelectorAll(".speech-active")
+.forEach(e=>{
 
 e.classList.remove(
 "speech-active"
-)
-
 );
 
+});
 
 
-document
-.getElementById("debug")
-.innerHTML=
 
+document.getElementById("debug").innerHTML =
 "STOPPED";
 
 
@@ -1989,6 +1597,16 @@ document
 
 
 
+
+
+// =====================================
+// START
+// =====================================
+
+
+loadVoiceSettings();
+
+loadChapters();
 
 
 </script>
