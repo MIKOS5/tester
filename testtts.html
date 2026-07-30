@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Obvyris TTS Voice Tester</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background:#111;
+    color:#eee;
+    padding:20px;
+}
+
+button {
+    padding:10px 20px;
+    margin:5px;
+    font-size:16px;
+}
+
+#results {
+    white-space:pre-wrap;
+    background:#222;
+    padding:15px;
+    border-radius:8px;
+    margin-top:20px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Obvyris Browser TTS Test</h1>
+
+<button onclick="loadVoices()">Refresh Voices</button>
+<button onclick="testVoice()">Test Default Voice</button>
+<button onclick="copyResults()">Copy Results</button>
+
+<div id="results">
+Waiting for voices...
+</div>
+
+
+<script>
+
+let output = document.getElementById("results");
+
+
+function loadVoices(){
+
+    let voices = speechSynthesis.getVoices();
+
+    let text = "";
+
+    text += "Browser: " + navigator.userAgent + "\n\n";
+
+    text += "Voice Count: " + voices.length + "\n\n";
+
+
+    voices.forEach((v,i)=>{
+
+        text += 
+        i +
+        " | Name: " + v.name +
+        "\n   Lang: " + v.lang +
+        "\n   Local: " + v.localService +
+        "\n   Default: " + v.default +
+        "\n\n";
+
+    });
+
+
+    if(voices.length === 0){
+        text += 
+        "\nNO VOICES FOUND\n" +
+        "Waiting for voices to load...";
+    }
+
+
+    output.textContent = text;
+
+}
+
+
+
+function testVoice(){
+
+    let msg = new SpeechSynthesisUtterance(
+        "Hello. Obvyris voice system online. Testing browser text to speech."
+    );
+
+    msg.rate = 0.9;
+    msg.pitch = 1;
+
+    speechSynthesis.speak(msg);
+
+}
+
+
+
+function copyResults(){
+
+    navigator.clipboard.writeText(
+        output.textContent
+    );
+
+    alert("Copied. Paste results into ChatGPT.");
+
+}
+
+
+
+speechSynthesis.onvoiceschanged = loadVoices;
+
+setTimeout(loadVoices,2000);
+
+</script>
+
+</body>
+</html>
