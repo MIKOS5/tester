@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Obvyris Archive - Chapter Select</title>
+
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    background:
+    radial-gradient(circle at top,#29204d,#05060b 60%);
+    color:#d9eaff;
+    font-family:'Orbitron',sans-serif;
+}
+
+
+/* HEADER */
+
+.header{
+    padding:30px;
+    text-align:center;
+    border-bottom:1px solid #555;
+    background:rgba(0,0,0,.5);
+}
+
+.logo{
+    font-size:42px;
+    color:#fff;
+    text-shadow:
+    0 0 10px #8a2be2,
+    0 0 30px #8a2be2;
+}
+
+.subtitle{
+    color:#9aa;
+    margin-top:10px;
+}
+
+
+
+/* ARCHIVE */
+
+.archive{
+    padding:30px;
+    max-width:1400px;
+    margin:auto;
+}
+
+
+.grid{
+
+    display:grid;
+    grid-template-columns:
+    repeat(auto-fit,minmax(300px,1fr));
+
+    gap:20px;
+
+}
+
+
+
+/* CHAPTER CARD */
+
+
+.card{
+
+    background:
+    linear-gradient(
+    145deg,
+    rgba(255,255,255,.12),
+    rgba(0,0,0,.8)
+    );
+
+    border:1px solid #667;
+    border-radius:15px;
+
+    padding:20px;
+
+    position:relative;
+
+    overflow:hidden;
+
+    transition:.3s;
+
+}
+
+
+.card:hover{
+
+    transform:translateY(-8px);
+
+    border-color:#b26cff;
+
+    box-shadow:
+    0 0 20px #7b2cff;
+
+}
+
+
+
+.card:before{
+
+content:"";
+
+position:absolute;
+
+width:120px;
+height:120px;
+
+right:-40px;
+top:-40px;
+
+background:#8a2be2;
+
+filter:blur(60px);
+
+opacity:.4;
+
+}
+
+
+
+.chapter{
+
+font-size:12px;
+
+color:#8f8;
+
+}
+
+
+.title{
+
+font-size:22px;
+
+margin:10px 0;
+
+color:white;
+
+}
+
+
+
+.description{
+
+font-size:13px;
+
+line-height:1.6;
+
+color:#bbc;
+
+}
+
+
+
+.tags{
+
+margin-top:15px;
+
+}
+
+
+.tag{
+
+display:inline-block;
+
+padding:5px 10px;
+
+margin:3px;
+
+border-radius:20px;
+
+font-size:11px;
+
+background:#24153f;
+
+border:1px solid #814cff;
+
+}
+
+
+
+.button{
+
+margin-top:20px;
+
+display:block;
+
+text-align:center;
+
+padding:12px;
+
+background:#651fff;
+
+border-radius:8px;
+
+color:white;
+
+cursor:pointer;
+
+}
+
+
+.button:hover{
+
+background:#9b59ff;
+
+}
+
+
+
+/* STATUS */
+
+
+.locked{
+
+opacity:.5;
+
+}
+
+
+.active{
+
+border-color:#00ffff;
+
+}
+
+
+
+.footer{
+
+text-align:center;
+
+padding:30px;
+
+color:#777;
+
+}
+
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="header">
+
+<div class="logo">
+OBVYRIS ARCHIVE
+</div>
+
+<div class="subtitle">
+MINISTRY OF ARCHIVISTS // EPISODE DATABASE
+</div>
+
+</div>
+
+
+
+<div class="archive">
+
+
+<div class="grid" id="chapters">
+
+
+</div>
+
+
+</div>
+
+
+
+<div class="footer">
+
+UNIT 00-NULL // MEMORY ARCHIVE ACCESS
+
+</div>
+
+
+
+<script>
+
+
+const chapters=[
+
+
+{
+id:"OBV-000001",
+chapter:"Chapter 1",
+title:"The Robot Who Was Not Supposed To Wake Up",
+desc:"Obvyris awakens after 427 years inside the abandoned Orion Deep Space Station with missing memories and a mysterious purple arm.",
+tags:["Obvyris","Pip-Squeak","Origin Project"],
+status:"AVAILABLE"
+},
+
+
+{
+id:"OBV-000002",
+chapter:"Chapter 2",
+title:"Pip-Squeak's Totally Scientific Song",
+desc:"A forbidden song activates forgotten systems and wakes something ancient that remembers Obvyris.",
+tags:["Song","Ancient Civilization","Origin Gate"],
+status:"AVAILABLE"
+},
+
+
+{
+id:"OBV-000003",
+chapter:"Chapter 3",
+title:"The Creature Behind The Door",
+desc:"The last guardian of the station reveals the truth behind Obvyris's erased memories.",
+tags:["Creature","Memory Loss","Portal"],
+status:"AVAILABLE"
+},
+
+
+{
+id:"OBV-000004",
+chapter:"Chapter 4",
+title:"The Space Taco Incident",
+desc:"Pip-Squeak activates a cosmic artifact that should never have been eaten.",
+tags:["Cosmic Taco","Guardian"],
+status:"AVAILABLE"
+},
+
+
+{
+id:"OBV-000005",
+chapter:"Chapter 5",
+title:"Pip-Squeak's First Galactic Stand-Up Show",
+desc:"The first cybernetic squirrel comedian changes an entire planet.",
+tags:["Comedy","Alien Planet"],
+status:"AVAILABLE"
+},
+
+
+{
+id:"OBV-000006",
+chapter:"Chapter 6",
+title:"Comedy Tour Goes Wrong",
+desc:"A mysterious transmission reveals Obvyris's memories were stolen.",
+tags:["Transmission","Enemy"],
+status:"AVAILABLE"
+},
+
+
+{
+id:"OBV-000007",
+chapter:"Chapter 7",
+title:"The Planet That Was Not On The Map",
+desc:"An impossible planet reveals Obvyris was created to find what the universe hides.",
+tags:["Purple Ocean","Commander","Origin Gate"],
+status:"AVAILABLE"
+},
+
+
+{
+id:"OBV-000008",
+chapter:"Chapter 8",
+title:"The Archive Beneath The Forgotten Planet",
+desc:"Obvyris discovers the Silver Key and the Ministry of Archivists.",
+tags:["Silver Key","Archive","Ministry"],
+status:"AVAILABLE"
+},
+
+
+{
+id:"OBV-000009",
+chapter:"Chapter 9",
+title:"Sequence Zero-Null",
+desc:"The Origin Gate begins activation while Sector-Zero attacks.",
+tags:["Origin Gate","Ministry","Unit 00-Null"],
+status:"AVAILABLE"
+},
+
+
+{
+id:"OBV-000010",
+chapter:"Chapter 10",
+title:"Archives of the First Administrator",
+desc:"Obvyris enters a forbidden archive and meets Claxton the Archivist.",
+tags:["Claxton","Archive"],
+status:"AVAILABLE"
+},
+
+
+{
+id:"OBV-000011",
+chapter:"Chapter 11",
+title:"Unknown",
+desc:"Archive data missing.",
+tags:["LOCKED"],
+status:"CLASSIFIED"
+}
+
+
+];
+
+
+
+let html="";
+
+
+chapters.forEach(c=>{
+
+
+html+=`
+
+<div class="card ${c.status=="CLASSIFIED"?"locked":"active"}">
+
+
+<div class="chapter">
+${c.chapter}
+</div>
+
+
+<div class="title">
+${c.title}
+</div>
+
+
+<div class="description">
+${c.desc}
+</div>
+
+
+<div class="tags">
+
+${c.tags.map(t=>`
+
+<span class="tag">${t}</span>
+
+`).join("")}
+
+</div>
+
+
+<div class="button"
+onclick="openChapter('${c.id}')">
+
+${c.status=="AVAILABLE"?"ACCESS MEMORY":"LOCKED"}
+
+</div>
+
+
+</div>
+
+
+`;
+
+
+});
+
+
+document.getElementById("chapters").innerHTML=html;
+
+
+
+function openChapter(id){
+
+alert(
+"ACCESSING ARCHIVE: "+id+
+"\n\nMemory reconstruction beginning..."
+);
+
+}
+
+
+</script>
+
+
+</body>
+</html>
