@@ -739,9 +739,8 @@ const API_BASE =
 
 
 
-const STORY_API =
-
-API_BASE+"?action=story";
+const STORY_LIST_API =
+"https://script.googleusercontent.com/macros/echo?user_content_key=AUkAhnSSIVQ33tJR2EDJRpxvjBkWtRZ3rpU0omxAcflQeD9ITvmqUP95j70SRWhGqG2z2s3j7BAAzCw3toyRar00XBGPW5CwtlWUsjkzoquRUAJ8gIWZ6AITCkEsnXGVjd0jiKXdD8mcU_NZJzjXq-rbBTUTw--AXU5NHsyRS5XY_BagkLRlW2fPS9V1TgrDlyVhAKOk8PF9eL1umr9zdkjbpuFXgV_jiLktZEynJiEuUMwFwqp-RX0i3J7ckVR2qL3npp3RE0q1OQruKeedYFyNIv42RBh7uo4keB54UOlw&lib=Mh1jM7ndN44pXCyM5qcIChXC8FN8Ay13H";
 
 
 
@@ -774,26 +773,26 @@ async function loadChapters(){
 
 try{
 
-
-let r = await fetch(
-API_BASE+"?action=stories"
-);
-
+let r = await fetch(STORY_LIST_API);
 
 let data = await r.json();
 
-
-console.log("STORY DATABASE",data);
-
+console.log(
+"ARCHIVE DATABASE",
+data
+);
 
 
 if(data.status==="success"){
 
-
-chapters=data.stories || data.chapters;
-
+chapters=data.stories;
 
 renderChapters();
+
+document.getElementById("debug").innerHTML =
+"ARCHIVE ONLINE // "
++ chapters.length
++ " CHAPTERS LOADED";
 
 
 }
@@ -803,15 +802,18 @@ renderChapters();
 
 catch(e){
 
-console.error(e);
+console.error(
+"ARCHIVE ERROR",
+e
+);
+
+document.getElementById("debug").innerHTML =
+"ARCHIVE CONNECTION FAILED";
 
 }
 
 
 }
-
-
-
 
 
 
@@ -850,8 +852,8 @@ ${ch.title || "Unknown Memory"}
 
 <div class="description">
 
-${ch.description || 
-"Memory reconstruction unavailable."}
+ARCHIVE STATUS:
+${ch.status}
 
 </div>
 
@@ -967,30 +969,25 @@ document
 // OPEN EPISODE
 // =====================================
 
-
-
 async function openChapter(id){
 
-
-document.getElementById("story").innerHTML=
+document.getElementById("debug").innerHTML =
 "ACCESSING MEMORY "+id;
 
 
-
-let r =
-await fetch(
+let r = await fetch(
 API_BASE+
 "?action=story&id="+id
 );
 
 
-
-let data =
-await r.json();
+let data = await r.json();
 
 
-
-console.log(data);
+console.log(
+"MEMORY DATA",
+data
+);
 
 
 
@@ -1000,14 +997,31 @@ if(data.status==="success"){
 selectedChapter=data.story;
 
 
+document.getElementById("viewer").style.display="block";
 
-displayStory(
+
+document.getElementById("episodeTitle").innerHTML =
+"📖 "+
+data.story.title;
+
+
+document.getElementById("episodeStory").innerHTML =
+formatStory(
 data.story.story
 );
 
 
-}
+window.scrollTo({
 
+top:
+document.getElementById("viewer").offsetTop,
+
+behavior:"smooth"
+
+});
+
+
+}
 
 }
 
