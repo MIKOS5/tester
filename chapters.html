@@ -652,6 +652,100 @@ gap:25px;
 
 }
 
+.book-folder{
+
+grid-column:1/-1;
+
+background:
+rgba(0,0,0,.45);
+
+border:
+1px solid #814cff;
+
+border-radius:20px;
+
+padding:20px;
+
+margin-bottom:30px;
+
+}
+
+
+
+.book-header{
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+cursor:pointer;
+
+padding:15px;
+
+background:#160d2b;
+
+border-radius:15px;
+
+}
+
+
+
+.book-title{
+
+font-size:28px;
+
+color:white;
+
+text-shadow:
+0 0 15px #8a2be2;
+
+}
+
+
+
+.book-actions button{
+
+margin-left:10px;
+
+}
+
+
+
+.book-grid{
+
+display:none;
+
+margin-top:25px;
+
+}
+
+
+
+.book-grid.open{
+
+display:grid;
+
+}
+
+
+
+.chapter-button{
+
+margin-top:20px;
+
+padding:12px;
+
+background:#651fff;
+
+border-radius:10px;
+
+cursor:pointer;
+
+text-align:center;
+
+}
 </style>
 
 </head>
@@ -895,8 +989,6 @@ function renderChapters(){
 let books={};
 
 
-// GROUP BY STORY PREFIX
-
 chapters.forEach(ch=>{
 
 let book =
@@ -910,15 +1002,13 @@ books[book]=[];
 
 books[book].push(ch);
 
+
 });
 
 
 
 let html="";
 
-
-
-// CREATE BOOK FOLDERS
 
 Object.keys(books).forEach(book=>{
 
@@ -928,14 +1018,37 @@ html+=`
 <div class="book-folder">
 
 
-<div class="book-title">
+<div class="book-header">
+
+
+<div class="book-title"
+onclick="toggleBook('${book}')">
 
 📚 ${book} BOOK
 
 </div>
 
 
-<div class="book-grid">
+<div class="book-actions">
+
+
+<button onclick="playBook('${book}')">
+
+▶ PLAY BOOK
+
+</button>
+
+
+</div>
+
+
+</div>
+
+
+
+<div 
+id="book-${book}"
+class="book-grid">
 
 `;
 
@@ -963,12 +1076,14 @@ ${ch.title}
 </div>
 
 
+
 <div class="description">
 
-ARCHIVE STATUS:
+STATUS:
 ${ch.status}
 
 </div>
+
 
 
 <div class="tags">
@@ -982,11 +1097,12 @@ ${ch.storyId}
 </div>
 
 
-<div class="button"
+
+<div class="chapter-button"
 
 onclick="openChapter('${ch.storyId}')">
 
-ACCESS MEMORY
+📖 OPEN CHAPTER
 
 </div>
 
@@ -995,7 +1111,6 @@ ACCESS MEMORY
 
 
 `;
-
 
 
 });
@@ -1011,7 +1126,6 @@ html+=`
 `;
 
 
-
 });
 
 
@@ -1022,6 +1136,92 @@ document
 
 
 }
+
+
+function toggleBook(book){
+
+let element =
+document.getElementById(
+"book-"+book
+);
+
+
+element.classList.toggle(
+"open"
+);
+
+
+}
+
+
+
+
+let bookQueue=[];
+let currentBookIndex=0;
+
+
+
+function playBook(book){
+
+bookQueue =
+chapters.filter(ch=>
+
+ch.storyId.startsWith(book+"-")
+
+);
+
+
+
+currentBookIndex=0;
+
+
+playNextBookChapter();
+
+
+}
+
+
+
+
+function playNextBookChapter(){
+
+
+if(currentBookIndex >= bookQueue.length){
+
+document.getElementById("debug").innerHTML =
+"BOOK COMPLETE";
+
+return;
+
+}
+
+
+
+let chapter =
+bookQueue[currentBookIndex];
+
+
+openChapter(chapter.storyId);
+
+
+
+setTimeout(()=>{
+
+
+speakChapter();
+
+
+},1000);
+
+
+
+currentBookIndex++;
+
+
+}
+
+
+  
 // =====================================
 // OPEN CHAPTER
 // =====================================
@@ -1034,7 +1234,18 @@ try{
 
 
 document.getElementById("debug").innerHTML =
-"ACCESSING MEMORY "+id;
+"READING COMPLETE // MEMORY ARCHIVED";
+
+
+if(bookQueue.length){
+
+setTimeout(()=>{
+
+playNextBookChapter();
+
+},1500);
+
+}
 
 
 
