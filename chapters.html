@@ -837,11 +837,54 @@ document.getElementById("debug").innerHTML =
 
 function renderChapters(){
 
+let books={};
+
+
+// CREATE BOOK GROUPS
+chapters.forEach(ch=>{
+
+let book =
+ch.storyId.split("-")[0];
+
+
+if(!books[book]){
+books[book]=[];
+}
+
+
+books[book].push(ch);
+
+
+});
+
+
 
 let html="";
 
 
-chapters.forEach(ch=>{
+// CREATE BOOK DIRECTORIES
+
+Object.keys(books).forEach(book=>{
+
+
+html+=`
+
+<div style="
+grid-column:1/-1;
+font-size:30px;
+color:#8a2be2;
+margin-top:40px;
+">
+
+📚 ${book} BOOK ARCHIVE
+
+</div>
+
+`;
+
+
+
+books[book].forEach(ch=>{
 
 
 html+=`
@@ -851,7 +894,7 @@ html+=`
 
 <div class="chapter">
 
-CHAPTER ${ch.chapter}
+${book} // CHAPTER ${ch.chapter}
 
 </div>
 
@@ -882,12 +925,12 @@ ${ch.storyId}
 
 </span>
 
-
 </div>
 
 
 
 <div class="button"
+
 onclick="openChapter('${ch.storyId}')">
 
 ACCESS MEMORY
@@ -904,15 +947,15 @@ ACCESS MEMORY
 });
 
 
+});
+
+
 document
 .getElementById("chapters")
 .innerHTML=html;
 
 
 }
-
-
-
 
 // =====================================
 // OPEN CHAPTER
