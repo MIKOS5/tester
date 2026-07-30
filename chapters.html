@@ -772,65 +772,43 @@ let browserVoices=[];
 
 async function loadChapters(){
 
-
 try{
 
 
-let response =
-await fetch(STORY_API);
-
-
-
-let data =
-await response.json();
-
-
-
-console.log(
-"STORY DATABASE",
-data
+let r = await fetch(
+API_BASE+"?action=stories"
 );
+
+
+let data = await r.json();
+
+
+console.log("STORY DATABASE",data);
 
 
 
 if(data.status==="success"){
 
 
-chapters=data.chapters;
+chapters=data.stories || data.chapters;
 
 
 renderChapters();
 
 
-
-document.getElementById("debug").innerHTML=
-
-"ARCHIVE ONLINE // "+chapters.length+" CHAPTERS LOADED";
-
-
 }
 
 
-
 }
-
 
 catch(e){
 
-
 console.error(e);
 
-
-document.getElementById("debug").innerHTML=
-
-"ARCHIVE CONNECTION FAILED";
-
-
 }
 
 
 }
-
 
 
 
@@ -845,34 +823,22 @@ document.getElementById("debug").innerHTML=
 
 function renderChapters(){
 
-
-
 let html="";
-
 
 
 chapters.forEach(ch=>{
 
 
-
-let locked =
-ch.status==="CLASSIFIED";
-
-
-
-
 html+=`
 
-
-<div class="card ${locked?"locked":"active"}">
+<div class="card active">
 
 
 <div class="chapter">
 
-CHAPTER ${ch.chapter}
+CHAPTER ${ch.chapter || ""}
 
 </div>
-
 
 
 <div class="title">
@@ -882,34 +848,20 @@ ${ch.title || "Unknown Memory"}
 </div>
 
 
-
 <div class="description">
 
-${
-
-ch.summary ||
-
-ch.description ||
-
-"Memory reconstruction unavailable."
-
-}
+${ch.description || 
+"Memory reconstruction unavailable."}
 
 </div>
 
 
 
-
-
 <div class="tags">
 
-
 <span class="tag">
-
 ${ch.genre || "SCI-FI"}
-
 </span>
-
 
 
 <span class="tag">
@@ -919,34 +871,16 @@ ${ch.storyId}
 </span>
 
 
-
 </div>
-
-
-
 
 
 
 <div class="button"
-
 onclick="openChapter('${ch.storyId}')">
 
-
-${locked ? 
-
-"MEMORY LOCKED"
-
-:
-
-"ACCESS MEMORY"
-
-
-}
-
-
+ACCESS MEMORY
 
 </div>
-
 
 
 </div>
@@ -955,10 +889,7 @@ ${locked ?
 `;
 
 
-
 });
-
-
 
 
 document
@@ -966,117 +897,119 @@ document
 .innerHTML=html;
 
 
+}
+
+function displayStory(text){
+
+
+let lines=text.split("\n");
+
+
+let html="";
+
+
+speechLineID=0;
+
+
+lines.forEach(line=>{
+
+
+if(line.trim()==""){
+html+="<br>";
+return;
+}
+
+
+
+if(line.startsWith("[")){
+
+
+html+=`
+
+<h3>
+${line}
+</h3>
+
+`;
+
+return;
 
 }
 
 
 
+speechLineID++;
 
 
+html+=`
 
+<div class="speech-line"
+id="line-${speechLineID}">
 
-// =====================================
-// OPEN EPISODE
-// =====================================
+${line}
 
+</div>
 
+`;
 
-function openChapter(id){
-
-
-
-let found =
-
-chapters.find(
-
-c=>c.storyId===id
-
-);
-
-
-
-if(!found)
-
-return;
-
-
-
-if(found.status==="CLASSIFIED"){
-
-
-alert(
-
-"ACCESS DENIED\n\nMINISTRY OF ARCHIVISTS SECURITY LEVEL REQUIRED"
-
-);
-
-
-return;
-
-
-}
-
-
-
-
-selectedChapter=found;
-
-
-
-document
-.getElementById("viewer")
-.style.display="block";
-
-
-
-
-document
-.getElementById("episodeTitle")
-.innerHTML=
-
-
-"📖 "+found.title;
-
-
-
-document
-.getElementById("episodeStory")
-.innerHTML=
-
-
-formatStory(
-found.story
-);
-
-
-
-
-
-document
-.getElementById("viewer")
-.scrollIntoView({
-
-behavior:"smooth"
 
 });
 
 
 
 document
-.getElementById("debug")
-.innerHTML=
+.getElementById("story")
+.innerHTML=html;
 
-"MEMORY LOADED // "+found.storyId;
 
+}
+// =====================================
+// OPEN EPISODE
+// =====================================
+
+
+
+async function openChapter(id){
+
+
+document.getElementById("story").innerHTML=
+"ACCESSING MEMORY "+id;
+
+
+
+let r =
+await fetch(
+API_BASE+
+"?action=story&id="+id
+);
+
+
+
+let data =
+await r.json();
+
+
+
+console.log(data);
+
+
+
+if(data.status==="success"){
+
+
+selectedChapter=data.story;
+
+
+
+displayStory(
+data.story.story
+);
 
 
 }
 
 
-
-
-
-
+}
 
 // =====================================
 // FORMAT STORY FOR TTS
