@@ -1160,20 +1160,21 @@ element.classList.toggle(
 
 
 
-let bookQueue=[];
-let currentBookIndex=0;
+let playingBook=false;
 
+let bookIndex=0;
 
 
 function playBook(book){
 
 
 bookQueue =
-chapters.filter(ch=>
+chapters.filter(ch =>
 
 ch.storyId.startsWith(book+"-")
 
 );
+
 
 
 bookIndex=0;
@@ -1181,10 +1182,17 @@ bookIndex=0;
 playingBook=true;
 
 
+
+document.getElementById("debug").innerHTML =
+"STARTING "+book+" BOOK";
+
+
+
 playNextBookChapter();
 
 
 }
+
 
 
 
@@ -1212,12 +1220,21 @@ let chapter =
 bookQueue[bookIndex];
 
 
+
 document.getElementById("debug").innerHTML =
 "LOADING "+chapter.storyId;
 
 
 
+let loaded =
 await openChapter(chapter.storyId);
+
+
+
+if(loaded){
+
+
+bookIndex++;
 
 
 
@@ -1227,15 +1244,14 @@ setTimeout(()=>{
 speakChapter();
 
 
-},500);
+},1000);
 
-
-
-bookIndex++;
 
 
 }
 
+
+}
   
 // =====================================
 // OPEN CHAPTER
@@ -1249,18 +1265,7 @@ try{
 
 
 document.getElementById("debug").innerHTML =
-"READING COMPLETE // MEMORY ARCHIVED";
-
-
-if(bookQueue.length){
-
-setTimeout(()=>{
-
-playNextBookChapter();
-
-},1500);
-
-}
+"ACCESSING MEMORY "+id;
 
 
 
@@ -1333,7 +1338,9 @@ behavior:"smooth"
 
 return true;
 
+
 }
+
 
 else{
 
@@ -1342,11 +1349,15 @@ document.getElementById("debug").innerHTML =
 "MEMORY NOT FOUND";
 
 
+return false;
+
+
 }
 
 
 
 }
+
 
 catch(e){
 
@@ -1357,16 +1368,19 @@ e
 );
 
 
+
 document.getElementById("debug").innerHTML =
 "MEMORY ACCESS ERROR";
 
+
+
 return false;
-}
 
 
 }
 
 
+}
 
 
 
@@ -1673,6 +1687,24 @@ if(index>=lines.length){
 
 document.getElementById("debug").innerHTML =
 "READING COMPLETE // MEMORY ARCHIVED";
+
+
+
+if(playingBook){
+
+
+setTimeout(()=>{
+
+
+playNextBookChapter();
+
+
+},1500);
+
+
+
+}
+
 
 
 return;
