@@ -906,7 +906,11 @@ let voiceSettings={};
 let browserVoices=[];
 
 let speechCounter=0;
+let playingBook=false;
 
+let bookQueue=[];
+
+let bookIndex=0;
 
 
 // =====================================
@@ -1163,6 +1167,7 @@ let currentBookIndex=0;
 
 function playBook(book){
 
+
 bookQueue =
 chapters.filter(ch=>
 
@@ -1171,8 +1176,9 @@ ch.storyId.startsWith(book+"-")
 );
 
 
+bookIndex=0;
 
-currentBookIndex=0;
+playingBook=true;
 
 
 playNextBookChapter();
@@ -1182,26 +1188,36 @@ playNextBookChapter();
 
 
 
+async function playNextBookChapter(){
 
-function playNextBookChapter(){
+
+if(bookIndex >= bookQueue.length){
 
 
-if(currentBookIndex >= bookQueue.length){
+playingBook=false;
+
 
 document.getElementById("debug").innerHTML =
 "BOOK COMPLETE";
 
+
 return;
+
 
 }
 
 
 
 let chapter =
-bookQueue[currentBookIndex];
+bookQueue[bookIndex];
 
 
-openChapter(chapter.storyId);
+document.getElementById("debug").innerHTML =
+"LOADING "+chapter.storyId;
+
+
+
+await openChapter(chapter.storyId);
 
 
 
@@ -1211,15 +1227,14 @@ setTimeout(()=>{
 speakChapter();
 
 
-},1000);
+},500);
 
 
 
-currentBookIndex++;
+bookIndex++;
 
 
 }
-
 
   
 // =====================================
@@ -1316,6 +1331,8 @@ behavior:"smooth"
 
 
 
+return true;
+
 }
 
 else{
@@ -1343,7 +1360,7 @@ e
 document.getElementById("debug").innerHTML =
 "MEMORY ACCESS ERROR";
 
-
+return false;
 }
 
 
@@ -1811,6 +1828,29 @@ ${utterance.voice?.name || "Default"}
 
 
 utterance.onend=function(){
+
+
+if(index + 1 >= lines.length){
+
+
+if(playingBook){
+
+
+setTimeout(()=>{
+
+playNextBookChapter();
+
+},1500);
+
+
+return;
+
+
+}
+
+
+}
+
 
 
 readLine(
