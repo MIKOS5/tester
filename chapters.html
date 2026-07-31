@@ -1395,35 +1395,31 @@ speakChapter();
 
 async function playChapter(id){
 
+    // STOP any book playlist
+    playingBook = false;
+    bookQueue = [];
+    bookIndex = 0;
 
-playingBook=false;
+    // Stop current speech
+    speechSynthesis.cancel();
 
-
-document.getElementById("debug").innerHTML =
-"LOADING CHAPTER "+id;
-
-
-
-let loaded =
-await openChapter(id);
-
+    document.getElementById("debug").innerHTML =
+    "LOADING CHAPTER " + id;
 
 
-if(loaded){
+    let loaded =
+    await openChapter(id);
 
 
-setTimeout(()=>{
+    if(loaded){
 
+        setTimeout(()=>{
 
-speakChapter();
+            speakChapter();
 
+        },1000);
 
-},1000);
-
-
-
-}
-
+    }
 
 }
   
@@ -2165,28 +2161,28 @@ behavior:"smooth"
 
 function stopStory(){
 
+    speechSynthesis.cancel();
 
-speechSynthesis.cancel();
-
-
-document
-.querySelectorAll(".speech-active")
-.forEach(e=>{
-
-e.classList.remove(
-"speech-active"
-);
-
-});
+    playingBook = false;
+    bookQueue = [];
+    bookIndex = 0;
 
 
+    document
+    .querySelectorAll(".speech-active")
+    .forEach(e=>{
 
-document.getElementById("debug").innerHTML =
-"STOPPED";
+        e.classList.remove(
+            "speech-active"
+        );
 
+    });
+
+
+    document.getElementById("debug").innerHTML =
+    "STOPPED";
 
 }
-
 
 // =====================================
 // SPACE BAR TTS PAUSE / RESUME
