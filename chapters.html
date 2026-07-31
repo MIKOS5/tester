@@ -887,6 +887,62 @@ transition:.3s;
 
 }
     
+#speakerBox{
+
+position:fixed;
+
+right:25px;
+
+bottom:95px;
+
+width:340px;
+
+padding:18px;
+
+background:rgba(10,20,35,.95);
+
+border:1px solid #2793ff;
+
+border-radius:18px;
+
+box-shadow:
+0 0 25px rgba(39,147,255,.35);
+
+z-index:99999;
+
+backdrop-filter:blur(10px);
+
+}
+
+#speakerName{
+
+font-size:18px;
+
+font-weight:bold;
+
+color:#27b7ff;
+
+margin-bottom:10px;
+
+text-transform:uppercase;
+
+}
+
+#speakerLine{
+
+font-family:Arial,sans-serif;
+
+font-size:17px;
+
+line-height:1.6;
+
+color:white;
+
+max-height:120px;
+
+overflow:hidden;
+
+}
     
 </style>
 
@@ -1882,7 +1938,12 @@ playNextBookChapter();
 }
 
 
+document.getElementById("speakerName").textContent =
+"Finished";
 
+document.getElementById("speakerLine").textContent =
+"Chapter complete.";
+    
 return;
 
 
@@ -1997,7 +2058,11 @@ voiceSettings[character];
 let utterance =
 new SpeechSynthesisUtterance(line);
 
+document.getElementById("speakerName").textContent =
+character;
 
+document.getElementById("speakerLine").textContent =
+line;
 
 utterance.voice =
 selectVoice(character);
@@ -2190,6 +2255,11 @@ e.classList.remove(
 document.getElementById("debug").innerHTML =
 "STOPPED";
 
+document.getElementById("speakerName").textContent =
+"Stopped";
+
+document.getElementById("speakerLine").textContent =
+"";
 
 }
 
