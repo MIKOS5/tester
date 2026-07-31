@@ -183,7 +183,7 @@ right:0;
 
 z-index:100000;
 
-min-height:55px;
+height:34px;
 
 display:flex;
 
@@ -191,7 +191,7 @@ align-items:center;
 
 justify-content:center;
 
-padding:8px 20px;
+padding:0 15px;
 
 background:rgba(0,0,0,.92);
 
@@ -199,15 +199,17 @@ border-bottom:1px solid #651fff;
 
 color:#7cff7c;
 
-font-size:14px;
+font-size:13px;
 
 font-family:Orbitron,sans-serif;
 
 box-shadow:0 2px 12px black;
 
-white-space:normal;
+white-space:nowrap;
 
-text-align:center;
+overflow:hidden;
+
+text-overflow:ellipsis;
 
 }
 
@@ -215,7 +217,7 @@ body{
 
 margin:0;
 
-padding-top:60px;
+padding-top:34px;
 
 background:
 radial-gradient(circle at top,#38215f,#05060b 65%);
@@ -885,73 +887,6 @@ transition:.3s;
 
 }
     
-#speakerBox{
-
-position:fixed;
-
-right:25px;
-
-bottom:95px;
-
-width:340px;
-
-padding:18px;
-
-background:rgba(10,20,35,.95);
-
-border:1px solid #2793ff;
-
-border-radius:18px;
-
-box-shadow:
-0 0 25px rgba(39,147,255,.35);
-
-z-index:99999;
-
-backdrop-filter:blur(10px);
-
-}
-
-#speakerName{
-
-font-size:18px;
-
-font-weight:bold;
-
-color:#27b7ff;
-
-margin-bottom:10px;
-
-text-transform:uppercase;
-
-}
-
-#speakerLine{
-
-font-family:Arial,sans-serif;
-
-font-size:17px;
-
-line-height:1.6;
-
-color:white;
-
-max-height:120px;
-
-overflow:hidden;
-
-}
-
-@media(max-width:600px){
-
-#debug{
-
-font-size:11px;
-
-}
-
-}
-
     
 </style>
 
@@ -1044,9 +979,6 @@ Loading Archive...
 
 </div>
 
-<div id="debug">
-VOICE SYSTEM INITIALIZING...
-</div>
 
 
 
@@ -1084,6 +1016,10 @@ UNIT 00-NULL // MEMORY ARCHIVE ACCESS
 ⬆
 </button>
 
+
+<div id="debug">
+VOICE SYSTEM INITIALIZING...
+</div>
     
 <script>
 
@@ -1940,12 +1876,7 @@ playNextBookChapter();
 }
 
 
-document.getElementById("speakerName").textContent =
-"Finished";
 
-document.getElementById("speakerLine").textContent =
-"Chapter complete.";
-    
 return;
 
 
@@ -2060,11 +1991,7 @@ voiceSettings[character];
 let utterance =
 new SpeechSynthesisUtterance(line);
 
-document.getElementById("speakerName").textContent =
-character;
 
-document.getElementById("speakerLine").textContent =
-line;
 
 utterance.voice =
 selectVoice(character);
@@ -2093,13 +2020,7 @@ settings?.settings?.volume || 1;
 
 document.getElementById("debug").innerHTML =
 
-`
-📖 ${selectedChapter.title}
-<br>
-🎙 ${character}
-<br>
-${line}
-`;
+`📖 ${selectedChapter.title} &nbsp;&nbsp;|&nbsp;&nbsp; 🎙 ${character}`;
 
 
 
@@ -2263,11 +2184,6 @@ e.classList.remove(
 document.getElementById("debug").innerHTML =
 "STOPPED";
 
-document.getElementById("speakerName").textContent =
-"Stopped";
-
-document.getElementById("speakerLine").textContent =
-"";
 
 }
 
