@@ -1056,7 +1056,10 @@ UNIT 00-NULL // MEMORY ARCHIVE ACCESS
 ⬆
 </button>
 
-
+<button onclick="toggleReadingMode()">
+🔄 Toggle View
+</button>
+    
 <div id="debug">
 VOICE SYSTEM INITIALIZING...
 </div>
@@ -1098,7 +1101,7 @@ let playingBook=false;
 let bookQueue=[];
 
 let bookIndex=0;
-
+let readingMode = "debug";
 
 // =====================================
 // LOAD CHAPTERS
@@ -1466,7 +1469,8 @@ speakChapter();
 
 
 }
-  
+
+    
 // =====================================
 // OPEN CHAPTER
 // =====================================
@@ -1610,7 +1614,54 @@ return false;
 
 
 
+function toggleReadingMode(){
 
+if(readingMode==="debug"){
+
+readingMode="story";
+
+document.getElementById("debug").innerHTML =
+`
+<div class="episode">
+📖 STORYBOARD MODE
+</div>
+
+<div class="speaker">
+🎙 Speech appears in archive
+</div>
+
+<div class="line">
+Top display disabled
+</div>
+`;
+
+}
+
+else{
+
+readingMode="debug";
+
+
+document.getElementById("debug").innerHTML =
+`
+<div class="episode">
+📖 DEBUG MODE
+</div>
+
+<div class="speaker">
+🎙 Voice tracking enabled
+</div>
+
+<div class="line">
+Top display active
+</div>
+`;
+
+}
+
+
+}
+    
 // =====================================
 // FORMAT STORY
 // =====================================
@@ -2020,7 +2071,7 @@ e.innerText.trim()==line
 
 
 
-if(active){
+if(active && readingMode==="story"){
 
 active.classList.add(
 "speech-active"
@@ -2083,6 +2134,9 @@ settings?.settings?.volume || 1;
 
 
 
+if(readingMode==="debug"){
+
+
 document.getElementById("debug").innerHTML =
 
 `
@@ -2098,6 +2152,9 @@ document.getElementById("debug").innerHTML =
 ${line}
 </div>
 `;
+
+
+}
 
 
 
