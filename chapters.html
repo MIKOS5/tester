@@ -2117,7 +2117,52 @@ document.getElementById("debug").innerHTML =
 }
 
 
+// =====================================
+// SPACE BAR TTS PAUSE / RESUME
+// =====================================
 
+document.addEventListener("keydown", function(e){
+
+
+    // Ignore if typing in an input
+    if(
+        e.target.tagName === "INPUT" ||
+        e.target.tagName === "TEXTAREA"
+    ){
+        return;
+    }
+
+
+    if(e.code === "Space"){
+
+        e.preventDefault();
+
+
+        if(speechSynthesis.speaking){
+
+            if(speechSynthesis.paused){
+
+                speechSynthesis.resume();
+
+                document.getElementById("debug").innerHTML =
+                "RESUMED";
+
+
+            }else{
+
+                speechSynthesis.pause();
+
+                document.getElementById("debug").innerHTML =
+                "PAUSED";
+
+            }
+
+        }
+
+    }
+
+
+});
 
 
 
