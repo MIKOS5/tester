@@ -103,7 +103,7 @@ color:#9aa;
 
 position:fixed;
 
-top:90px;   /* move below debug bar */
+top:0;
 
 left:0;
 
@@ -112,6 +112,7 @@ right:0;
 z-index:9999;
 
 background:
+
 rgba(5,6,11,.95);
 
 padding:15px;
@@ -125,6 +126,7 @@ gap:10px;
 flex-wrap:wrap;
 
 box-shadow:
+
 0 5px 20px black;
 
 }
@@ -181,81 +183,41 @@ right:0;
 
 z-index:100000;
 
-min-height:75px;
+height:34px;
 
-padding:10px 25px;
+display:flex;
 
-background:
-linear-gradient(
-90deg,
-rgba(10,10,20,.98),
-rgba(30,10,60,.95)
-);
+align-items:center;
 
-border-bottom:
+justify-content:center;
 
-2px solid #651fff;
+padding:0 15px;
 
-color:white;
+background:rgba(0,0,0,.92);
 
-font-family:
+border-bottom:1px solid #651fff;
 
-'Orbitron',
-sans-serif;
+color:#7cff7c;
 
-font-size:14px;
+font-size:13px;
 
-line-height:1.5;
+font-family:Orbitron,sans-serif;
 
-box-shadow:
+box-shadow:0 2px 12px black;
 
-0 5px 25px black;
-
-white-space:normal;
+white-space:nowrap;
 
 overflow:hidden;
 
-}
-
-
-
-#debug .episode{
-
-color:#27b7ff;
-
-font-size:16px;
-
-font-weight:bold;
+text-overflow:ellipsis;
 
 }
 
-
-
-#debug .speaker{
-
-color:#b26cff;
-
-font-size:15px;
-
-}
-
-
-
-#debug .line{
-
-color:#ddd;
-
-font-family:Arial,sans-serif;
-
-font-size:16px;
-
-}
-    
 body{
 
 margin:0;
 
-padding-top:150px;
+padding-top:34px;
 
 background:
 radial-gradient(circle at top,#38215f,#05060b 65%);
@@ -266,38 +228,7 @@ font-family:'Orbitron',sans-serif;
 
 }
 
-/* READING MODES */
 
-body.story-mode #debug{
-    display:none;
-}
-
-
-body.story-mode .storybook{
-    display:block !important;
-}
-
-
-body.debug-mode .storybook{
-    display:none !important;
-}
-
-
-/* EXPANDED TOP READER */
-
-body.debug-mode #debug{
-
-min-height:120px;
-
-display:flex;
-
-flex-direction:column;
-
-justify-content:center;
-
-}
-
-    
 /* ARCHIVE */
 
 
@@ -844,13 +775,8 @@ text-align:center;
 
 
 /* HIDE TOP PLAYER BAR */
-body.story-mode .controls{
+.controls{
     display:none;
-}
-
-
-body.debug-mode .controls{
-    display:flex;
 }
 
 /* BACK TO TOP FLOAT BUTTON */
@@ -910,62 +836,7 @@ box-shadow:
 
 }
 
-#toggleButton{
 
-position:fixed;
-
-right:25px;
-
-bottom:95px;   /* sits above back-to-top */
-
-z-index:9999;
-
-width:55px;
-
-height:55px;
-
-border-radius:50%;
-
-background:#651fff;
-
-color:white;
-
-font-size:24px;
-
-font-weight:bold;
-
-display:flex;
-
-align-items:center;
-
-justify-content:center;
-
-cursor:pointer;
-
-box-shadow:
-
-0 0 20px #8a2be2;
-
-border:1px solid #b26cff;
-
-transition:.3s;
-
-}
-
-
-#toggleButton:hover{
-
-background:#a855ff;
-
-transform:translateY(-5px);
-
-box-shadow:
-
-0 0 35px #b26cff;
-
-}
-
-    
 .character-name{
 
 margin-top:30px;
@@ -1016,17 +887,61 @@ transition:.3s;
 
 }
     
-#debug button{
-float:right;
-margin-left:20px;
-}
-
     
 </style>
 
 </head>
 
+
+
 <body>
+
+
+
+<div class="controls">
+
+
+<button onclick="speakChapter()">
+
+🔊 Read Episode
+
+</button>
+
+
+<button onclick="pauseStory()">
+
+⏸ Pause
+
+</button>
+
+
+<button onclick="stopStory()">
+
+⏹ Stop
+
+</button>
+
+
+
+<label>
+
+Speed
+
+<input 
+id="speed"
+type="range"
+min=".5"
+max="2"
+step=".1"
+value="1">
+
+</label>
+
+
+</div>
+
+
+
 
 <div class="header">
 
@@ -1097,21 +1012,14 @@ UNIT 00-NULL // MEMORY ARCHIVE ACCESS
 
 
 </div>
-<button id="toggleButton" onclick="toggleReadingMode()">
-🔄
-</button>
-    
 <button id="topButton" onclick="scrollTopArchive()">
 ⬆
 </button>
-    
+
+
 <div id="debug">
-
 VOICE SYSTEM INITIALIZING...
-
 </div>
-
-
     
 <script>
 
@@ -1150,9 +1058,7 @@ let playingBook=false;
 let bookQueue=[];
 
 let bookIndex=0;
-let readingMode = "debug";
 
-document.body.classList.add("debug-mode");
 
 // =====================================
 // LOAD CHAPTERS
@@ -1520,8 +1426,7 @@ speakChapter();
 
 
 }
-
-    
+  
 // =====================================
 // OPEN CHAPTER
 // =====================================
@@ -1565,20 +1470,9 @@ selectedChapter=data.story;
 
 
 
-if(readingMode==="story"){
-
 document
 .getElementById("viewer")
 .style.display="block";
-
-}
-else{
-
-document
-.getElementById("viewer")
-.style.display="none";
-
-}
 
 
 
@@ -1600,20 +1494,8 @@ data.story.story
 
 
 document.getElementById("debug").innerHTML =
-
-`
-<div class="episode">
-📖 ${data.story.title}
-</div>
-
-<div class="speaker">
-🎙 Ready
-</div>
-
-<div class="line">
-Memory loaded // ${data.story.storyId}
-</div>
-`;
+"MEMORY LOADED // "+
+data.story.storyId;
 
 
 
@@ -1676,82 +1558,7 @@ return false;
 
 
 
-function toggleReadingMode(){
 
-
-if(readingMode==="debug"){
-
-
-readingMode="story";
-
-
-document.body.classList.remove(
-"debug-mode"
-);
-
-
-document.body.classList.add(
-"story-mode"
-);
-
-
-
-document
-.querySelectorAll(".speech-active")
-.forEach(e=>{
-
-e.classList.remove(
-"speech-active"
-);
-
-});
-
-
-
-document.getElementById("debug").innerHTML="";
-
-
-}
-
-
-else{
-
-
-readingMode="debug";
-
-
-document.body.classList.remove(
-"story-mode"
-);
-
-
-document.body.classList.add(
-"debug-mode"
-);
-
-
-
-document.getElementById("debug").innerHTML =
-
-`
-<div class="episode">
-📖 TOPBAR MODE
-</div>
-
-<div class="speaker">
-🎙 Voice Tracking Active
-</div>
-
-<div class="line">
-Storyboard disabled
-</div>
-`;
-
-}
-
-
-}
-    
 // =====================================
 // FORMAT STORY
 // =====================================
@@ -1798,11 +1605,6 @@ return;
 
 }
 
-
-
-if(readingMode==="debug"){
-    return;
-}
 
 
 speechCounter++;
@@ -2054,20 +1856,7 @@ if(index>=lines.length){
 
 
 document.getElementById("debug").innerHTML =
-
-`
-<div class="episode">
-📖 ${selectedChapter.title}
-</div>
-
-<div class="speaker">
-🎙 Archive System
-</div>
-
-<div class="line">
-Reading complete // Memory archived
-</div>
-`;
+"READING COMPLETE // MEMORY ARCHIVED";
 
 
 
@@ -2166,7 +1955,7 @@ e.innerText.trim()==line
 
 
 
-if(active && readingMode==="story"){
+if(active){
 
 active.classList.add(
 "speech-active"
@@ -2229,27 +2018,9 @@ settings?.settings?.volume || 1;
 
 
 
-if(readingMode==="debug"){
-
-
 document.getElementById("debug").innerHTML =
 
-`
-<div class="episode">
-📖 ${selectedChapter.title}
-</div>
-
-<div class="speaker">
-🎙 ${character}
-</div>
-
-<div class="line">
-${line}
-</div>
-`;
-
-
-}
+`📖 ${selectedChapter.title} &nbsp;&nbsp;|&nbsp;&nbsp; 🎙 ${character}`;
 
 
 
