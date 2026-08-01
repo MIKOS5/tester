@@ -747,7 +747,60 @@ background:#182b43;
 
 }
 
-  
+
+/* MINIMIZED PLAYER */
+
+#winampPlayer.minimized{
+
+width:360px;
+height:45px;
+
+resize:none;
+
+overflow:hidden;
+
+}
+
+
+#winampPlayer.minimized #winampDisplay,
+#winampPlayer.minimized #progressBox,
+#winampPlayer.minimized #winampButtons,
+#winampPlayer.minimized #playlistWindow{
+
+display:none;
+
+}
+
+
+
+#winampPlayer.minimized #winampHeader{
+
+height:45px;
+
+}
+
+
+
+#miniStatus{
+
+display:none;
+
+color:#55b8ff;
+
+font-size:14px;
+
+font-weight:bold;
+
+margin-left:10px;
+
+}
+
+
+#winampPlayer.minimized #miniStatus{
+
+display:inline;
+
+}
 
 </style>
 
@@ -931,11 +984,27 @@ Download
 
 <div id="winampHeader">
 
+<span>
 🎵 Obvyris Player
+<span id="miniStatus">
+▶ Playing
+</span>
+</span>
+
+
+<div>
+
+<button onclick="minimizeWinamp()">
+━
+</button>
+
 
 <button onclick="hideWinamp()">
 ✕
 </button>
+
+
+</div>
 
 </div>
 
@@ -1495,7 +1564,21 @@ renderTracks();
 
 
 
+// ======================================
+// MINIMIZE WINAMP
+// ======================================
 
+function minimizeWinamp(){
+
+let player =
+document.getElementById("winampPlayer");
+
+
+player.classList.toggle("minimized");
+
+
+}
+  
 // ======================================
 // DISPLAY TRACK TABLE
 // ======================================
@@ -2042,7 +2125,10 @@ escapeHTML(track.album);
 
 showWinamp();
 
+document.getElementById("miniStatus").innerHTML =
+"▶ " + track.name;
 
+  
 }
 
 
