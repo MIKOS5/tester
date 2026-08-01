@@ -1,11 +1,10 @@
-const CACHE_NAME = "obvyris-v1";
+const CACHE_NAME = "obvyris-v2";
 
-// Cache only real files (NO folders)
 const FILES = [
   "./index99.html",
   "./manifest.json",
   "./R192.png",
-  "./R512.png",
+  "./R512.png"
 ];
 
 // INSTALL
@@ -13,36 +12,63 @@ self.addEventListener("install", event => {
   self.skipWaiting();
 
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(FILES);
-    })
+    caches.open(CACHE_NAME).then(cache => cache.addAll(FILES))
   );
 });
 
 // ACTIVATE
 self.addEventListener("activate", event => {
+
   event.waitUntil(
-    clients.claim()
+    caches.keys().then(keys =>
+      Promise.all(
+        keys
+          .filter(key => key !== CACHE_NAME)
+          .map(key => caches.delete(key))
+      )
+    ).then(() => clients.claim())
   );
+
 });
 
-// FETCH (cache-first fallback)
+// FETCH
 self.addEventListener("fetch", event => {
-  event.respondWith(
-    caches.match(event.request).then(cached => {
-      if (cached) return cached;
 
-      return fetch(event.request)
-        .then(network => {
-          return caches.open(CACHE_NAME).then(cache => {
-            cache.put(event.request, network.clone());
-            return network;
+  // Never cache Google Apps Script APIs
+  if (event.request.url.includes("script.google.com")) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
+  event.respondWith(
+
+    fetch(event.request)
+
+      .then(response => {
+
+        if (
+          event.request.method === "GET" &&
+          response.status === 200
+        ) {
+
+          const copy = response.clone();
+
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, copy);
           });
-        })
-        .catch(() => {
-          // offline fallback (optional)
-          return caches.match("./index99.html");
-        });
-    })
+
+        }
+
+        return response;
+
+      })
+
+      .catch(() => {
+
+        return caches.match(event.request);
+
+      })
+
   );
+
 });
