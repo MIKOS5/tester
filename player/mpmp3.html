@@ -1,0 +1,2302 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>
+Obvyris Archive MP3 Engine
+</title>
+
+
+<style>
+
+*{
+box-sizing:border-box;
+}
+
+
+body{
+
+margin:10px;
+
+background:#070d16;
+
+color:#d8e1ec;
+
+font-family:Arial,Helvetica,sans-serif;
+
+font-size:15px;
+
+padding-bottom:170px;
+
+}
+
+
+
+h1{
+
+color:#2793ff;
+
+font-size:26px;
+
+margin:5px 0 15px;
+
+}
+
+
+
+/* SEARCH */
+
+.controls{
+
+background:#101923;
+
+border:1px solid #26384f;
+
+border-radius:10px;
+
+padding:12px;
+
+display:flex;
+
+gap:10px;
+
+flex-wrap:wrap;
+
+}
+
+
+input,
+select,
+button{
+
+
+background:#17263a;
+
+color:white;
+
+border:1px solid #31465f;
+
+border-radius:6px;
+
+padding:10px 14px;
+
+font-size:15px;
+
+}
+
+
+input{
+
+width:280px;
+
+}
+
+
+button{
+
+background:#2793ff;
+
+border:none;
+
+cursor:pointer;
+
+font-weight:bold;
+
+}
+
+
+button:hover{
+
+background:#55b5ff;
+
+}
+
+
+
+
+#status{
+
+margin-top:12px;
+
+color:#9aaabd;
+
+}
+
+
+
+/* COLLECTION LIST */
+
+
+.collection{
+
+
+background:#101923;
+
+border:1px solid #26384f;
+
+border-radius:8px;
+
+padding:12px;
+
+margin-top:12px;
+
+}
+
+
+
+.collectionTitle{
+
+
+color:#55b8ff;
+
+font-size:18px;
+
+font-weight:bold;
+
+
+}
+
+
+
+.meta{
+
+color:#b5c3d5;
+
+line-height:24px;
+
+}
+
+
+
+.loadButton{
+
+
+margin-top:10px;
+
+}
+
+
+
+/* TRACK TABLE */
+
+
+.musicTable{
+
+
+margin-top:15px;
+
+border:1px solid #26384f;
+
+border-radius:10px;
+
+overflow:hidden;
+
+
+}
+
+
+
+.tableHeader{
+
+
+display:grid;
+
+
+grid-template-columns:
+
+40px
+minmax(260px,2fr)
+180px
+220px
+90px
+90px
+90px;
+
+
+background:#142338;
+
+padding:12px;
+
+color:#65c9ff;
+
+font-weight:bold;
+
+}
+
+
+
+.trackRow{
+
+
+display:grid;
+
+
+grid-template-columns:
+
+40px
+minmax(260px,2fr)
+180px
+220px
+90px
+90px
+90px;
+
+
+
+padding:10px 12px;
+
+background:#101923;
+
+border-top:1px solid #26384f;
+
+align-items:center;
+
+}
+
+
+
+.trackRow:hover{
+
+background:#182b43;
+
+}
+
+
+
+.song{
+
+
+color:#55b8ff;
+
+font-weight:bold;
+
+white-space:nowrap;
+
+overflow:hidden;
+
+text-overflow:ellipsis;
+
+}
+
+
+
+.info{
+
+
+color:#b5c3d5;
+
+white-space:nowrap;
+
+overflow:hidden;
+
+text-overflow:ellipsis;
+
+}
+
+
+
+.smallButton{
+
+padding:6px 10px;
+
+font-size:13px;
+
+}
+
+
+
+
+a{
+
+color:#65c9ff;
+
+text-decoration:none;
+
+}
+
+
+
+
+/* QUEUE */
+
+
+#queuePanel{
+
+
+position:fixed;
+
+
+right:15px;
+
+top:80px;
+
+
+width:330px;
+
+
+max-height:70vh;
+
+
+overflow:auto;
+
+
+background:#101923;
+
+
+border:1px solid #26384f;
+
+
+border-radius:10px;
+
+
+padding:12px;
+
+
+display:none;
+
+
+z-index:9000;
+
+
+}
+
+
+
+.queueTitle{
+
+
+color:#55b8ff;
+
+font-size:18px;
+
+font-weight:bold;
+
+margin-bottom:10px;
+
+
+}
+
+
+
+.queueItem{
+
+
+padding:10px;
+
+border-bottom:1px solid #26384f;
+
+}
+
+
+
+
+/* PLAYER */
+
+
+#playerBar{
+
+
+position:fixed;
+
+left:0;
+
+right:0;
+
+bottom:0;
+
+
+background:#101923;
+
+
+border-top:1px solid #26384f;
+
+
+padding:12px;
+
+
+z-index:9999;
+
+
+}
+
+
+
+
+#nowPlaying{
+
+
+color:#55b8ff;
+
+font-size:17px;
+
+font-weight:bold;
+
+
+}
+
+
+
+audio{
+
+
+width:100%;
+
+height:40px;
+
+}
+
+
+
+#controls{
+
+
+display:flex;
+
+gap:8px;
+
+flex-wrap:wrap;
+
+margin-top:8px;
+
+}
+
+
+
+
+
+/* MOBILE */
+
+
+@media(max-width:700px){
+
+
+body{
+
+margin:5px;
+
+}
+
+
+
+h1{
+
+text-align:center;
+
+font-size:22px;
+
+}
+
+
+
+.controls{
+
+display:block;
+
+}
+
+
+
+.controls input,
+.controls select,
+.controls button{
+
+width:100%;
+
+margin-bottom:10px;
+
+height:55px;
+
+font-size:18px;
+
+}
+
+
+
+.tableHeader{
+
+display:none;
+
+}
+
+
+
+.trackRow{
+
+
+grid-template-columns:
+
+35px
+1fr;
+
+
+gap:8px;
+
+
+}
+
+
+
+.trackRow div:nth-child(n+3){
+
+display:none;
+
+}
+
+
+
+#queuePanel{
+
+left:10px;
+
+right:10px;
+
+width:auto;
+
+}
+
+
+
+}
+
+#winampPlayer{
+
+
+position:fixed;
+
+right:25px;
+
+bottom:80px;
+
+width:360px;
+
+height:520px;
+
+background:#101923;
+
+border:2px solid #2793ff;
+
+border-radius:12px;
+
+box-shadow:
+0 0 30px #000;
+
+
+z-index:99999;
+
+
+resize:both;
+
+overflow:hidden;
+
+
+}
+
+
+
+#winampHeader{
+
+
+height:40px;
+
+background:#142338;
+
+color:#55b8ff;
+
+font-weight:bold;
+
+padding:10px;
+
+
+cursor:move;
+
+
+display:flex;
+
+justify-content:space-between;
+
+
+}
+
+
+
+#winampHeader button{
+
+
+padding:3px 10px;
+
+height:25px;
+
+}
+
+
+
+#winampDisplay{
+
+
+padding:15px;
+
+background:#050b12;
+
+text-align:center;
+
+
+}
+
+
+
+#winampSong{
+
+
+font-size:18px;
+
+color:#55b8ff;
+
+font-weight:bold;
+
+
+}
+
+
+
+#winampArtist{
+
+
+color:#aaa;
+
+margin-top:8px;
+
+
+}
+
+
+
+#seekBar{
+
+
+width:100%;
+
+}
+
+
+
+#winampButtons{
+
+
+display:flex;
+
+justify-content:center;
+
+gap:10px;
+
+padding:10px;
+
+
+}
+
+
+
+#winampButtons button{
+
+
+width:55px;
+
+height:40px;
+
+
+}
+
+
+
+#playlistWindow{
+
+
+height:330px;
+
+overflow:auto;
+
+border-top:1px solid #26384f;
+
+padding:10px;
+
+
+}
+
+
+
+.winampItem{
+
+
+padding:8px;
+
+border-bottom:1px solid #26384f;
+
+cursor:pointer;
+
+
+}
+
+
+
+.winampItem:hover{
+
+background:#182b43;
+
+}
+
+  
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<h1>
+🎵 Obvyris Archive MP3 Engine
+</h1>
+
+
+
+<div class="controls">
+
+
+<input id="search"
+placeholder="Search artist, album, concert...">
+
+
+
+<input id="creator"
+placeholder="Creator">
+
+
+<select id="sort">
+
+
+<option value="downloads desc">
+Most Popular
+</option>
+
+
+<option value="date desc">
+Newest
+</option>
+
+
+<option value="titleSorter asc">
+Title A-Z
+</option>
+
+
+</select>
+
+
+
+<button onclick="searchArchive(0)">
+
+🔎 SEARCH
+
+</button>
+
+
+
+<button onclick="togglePlaylist()">
+🎵 PLAYLIST
+</button>
+
+
+</div>
+
+
+
+<div id="status">
+
+Ready
+
+</div>
+
+
+
+
+
+
+<h2>
+🎵 MP3 Tracks
+</h2>
+
+
+
+<div class="musicTable">
+
+
+<div class="tableHeader">
+
+
+<div>
+▶
+</div>
+
+
+<div>
+Song
+</div>
+
+
+<div>
+Artist
+</div>
+
+
+<div>
+Album
+</div>
+
+
+<div>
+Size
+</div>
+
+
+<div>
+Queue
+</div>
+
+
+<div>
+Download
+</div>
+
+
+
+</div>
+
+
+
+<div id="tracks">
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+<!-- QUEUE -->
+
+
+<div id="queuePanel">
+
+
+<div class="queueTitle">
+
+🎵 Playback Queue
+
+</div>
+
+
+<div id="queueList">
+
+</div>
+
+
+<button onclick="clearQueue()">
+
+🗑 Clear Queue
+
+</button>
+
+
+</div>
+
+
+
+
+
+<!-- PLAYER -->
+
+<!-- ===========================
+     OBVYRIS WINAMP PLAYER
+=========================== -->
+
+<div id="winampPlayer">
+
+
+<div id="winampHeader">
+
+🎵 Obvyris Player
+
+<button onclick="hideWinamp()">
+✕
+</button>
+
+</div>
+
+
+
+<div id="winampDisplay">
+
+
+<div id="winampSong">
+
+No Track Playing
+
+</div>
+
+
+<div id="winampArtist">
+
+Archive Audio
+
+</div>
+
+
+</div>
+
+
+
+
+<audio id="audio"></audio>
+
+
+
+
+<div id="progressBox">
+
+<input 
+type="range"
+id="seekBar"
+value="0"
+min="0"
+max="100">
+
+</div>
+
+
+
+<div id="winampButtons">
+
+
+<button onclick="previousTrack()">
+◀
+</button>
+
+
+<button onclick="togglePlay()">
+▶
+</button>
+
+
+<button onclick="nextTrack()">
+▶▶
+</button>
+
+
+<button onclick="togglePlaylist()">
+☰
+</button>
+
+
+</div>
+
+
+
+<div id="playlistWindow">
+
+
+<h3>
+Playlist
+</h3>
+
+
+<div id="winampQueue">
+
+</div>
+
+
+</div>
+
+
+
+</div>
+
+<script>
+
+
+// ======================================
+// ARCHIVE SEARCH ENGINE
+// ======================================
+
+
+let currentPage = 0;
+
+let pageSize = 25;
+
+
+let tracks = [];
+
+let currentCollection = "";
+
+
+
+
+
+async function searchArchive(page){
+
+
+currentPage = page;
+
+
+
+let search =
+
+document.getElementById("search")
+.value
+.trim();
+
+
+
+let creator =
+
+document.getElementById("creator")
+.value
+.trim();
+
+
+
+let sort =
+
+document.getElementById("sort")
+.value;
+
+
+
+let query =
+
+"mediatype:audio";
+
+
+
+
+if(search){
+
+
+query +=
+
+' AND "'+
+
+search+
+
+'"';
+
+
+}
+
+
+
+if(creator){
+
+
+query +=
+
+' AND creator:"'
+
++
+
+creator
+
++
+
+'"';
+
+
+
+}
+
+
+
+
+
+let url =
+
+
+"https://archive.org/advancedsearch.php?q="
+
++
+
+encodeURIComponent(query)
+
++
+
+"&fl[]=identifier,title,creator,description,date"
+
++
+
+"&rows="
+
++
+
+pageSize
+
++
+
+"&start="
+
++
+
+(page * pageSize)
+
++
+
+"&sort[]="
+
++
+
+encodeURIComponent(sort)
+
++
+
+"&output=json";
+
+
+
+
+
+
+document.getElementById("status").innerHTML =
+
+"Searching Archive...";
+
+
+
+
+
+
+let response =
+
+await fetch(url);
+
+
+
+let data =
+
+await response.json();
+
+
+
+
+document.getElementById("status").innerHTML =
+
+"Found "
+
++
+
+data.response.numFound
+
++
+
+" audio collections";
+
+
+
+loadMP3FromCollections(data.response.docs);
+
+
+
+}
+
+
+
+
+
+// ======================================
+// DISPLAY COLLECTIONS
+// ======================================
+
+async function loadMP3FromCollections(items){
+
+let foundTracks = [];
+
+document.getElementById("status").innerHTML =
+"Scanning collections for MP3 files...";
+
+
+for(const item of items){
+
+
+try{
+
+
+let response = await fetch(
+"https://archive.org/metadata/" + item.identifier
+);
+
+
+let data = await response.json();
+
+
+
+data.files.forEach(file=>{
+
+
+let name = file.name || "";
+
+
+if(name.toLowerCase().endsWith(".mp3")){
+
+
+foundTracks.push({
+
+
+name:name,
+
+
+artist:
+data.metadata.creator || "Unknown",
+
+
+album:
+data.metadata.title || "Unknown",
+
+
+size:
+formatSize(file.size),
+
+
+url:
+"https://archive.org/download/"
++
+item.identifier
++
+"/"
++
+encodeURIComponent(name)
+
+
+
+});
+
+
+}
+
+
+
+});
+
+
+}catch(err){
+
+console.log(err);
+
+}
+
+
+}
+
+
+
+tracks = foundTracks;
+
+
+document.getElementById("status").innerHTML =
+
+"Found "
++
+tracks.length
++
+" MP3 files";
+
+
+renderTracks();
+
+
+}
+
+// ======================================
+// LOAD MP3 FILES
+// ======================================
+
+
+
+async function loadMP3Tracks(id){
+
+
+
+currentCollection=id;
+
+
+
+document.getElementById("status").innerHTML =
+
+"Loading MP3 files...";
+
+
+
+
+let response =
+
+await fetch(
+
+"https://archive.org/metadata/"
+
++
+
+id
+
+);
+
+
+
+let data =
+
+await response.json();
+
+
+
+
+
+let album =
+
+data.metadata.title || "Unknown";
+
+
+
+let artist =
+
+data.metadata.creator || "Unknown";
+
+
+
+
+
+let found=[];
+
+
+
+
+
+data.files.forEach(file=>{
+
+
+let name =
+
+file.name || "";
+
+
+
+if(
+
+name.toLowerCase().endsWith(".mp3")
+
+){
+
+
+found.push({
+
+
+
+name:name,
+
+
+
+artist:artist,
+
+
+
+album:album,
+
+
+
+size:formatSize(file.size),
+
+
+
+url:
+
+
+"https://archive.org/download/"
+
++
+
+id
+
++
+
+"/"
+
++
+
+encodeURIComponent(name),
+
+
+
+archive:
+
+
+"https://archive.org/details/"
+
++
+
+id
+
+
+
+});
+
+
+
+}
+
+
+
+});
+
+
+
+
+
+tracks = found;
+
+
+
+
+document.getElementById("status").innerHTML =
+
+"Found "
+
++
+
+tracks.length
+
++
+
+" MP3 tracks";
+
+
+
+
+
+renderTracks();
+
+
+
+
+}
+
+
+
+
+
+
+
+// ======================================
+// DISPLAY TRACK TABLE
+// ======================================
+
+
+
+function renderTracks(){
+
+
+
+let box =
+
+document.getElementById("tracks");
+
+
+
+box.innerHTML="";
+
+
+
+
+
+tracks.forEach((track,index)=>{
+
+
+
+box.innerHTML += `
+
+
+
+<div class="trackRow">
+
+
+<div>
+
+
+<button class="smallButton"
+
+onclick="playTrack(${index})">
+
+
+▶
+
+
+</button>
+
+
+</div>
+
+
+
+
+<div class="song">
+
+
+${escapeHTML(track.name)}
+
+
+</div>
+
+
+
+
+<div class="info">
+
+${escapeHTML(track.artist)}
+
+</div>
+
+
+
+<div class="info">
+
+${escapeHTML(track.album)}
+
+</div>
+
+
+
+<div class="info">
+
+${track.size}
+
+</div>
+
+
+
+
+<div>
+
+
+<button class="smallButton"
+
+onclick="addQueue(${index})">
+
+
+➕
+
+
+</button>
+
+
+</div>
+
+
+
+<div>
+
+
+<a class="smallButton"
+
+href="${track.url}"
+
+download>
+
+
+⬇
+
+
+</a>
+
+
+</div>
+
+
+
+</div>
+
+
+
+`;
+
+
+
+});
+
+
+
+}
+
+
+
+
+
+
+// ======================================
+// HELPERS
+// ======================================
+
+
+
+function formatSize(bytes){
+
+
+
+if(!bytes)
+
+return "--";
+
+
+
+bytes=parseInt(bytes);
+
+
+
+let sizes=[
+
+"B",
+
+"KB",
+
+"MB",
+
+"GB"
+
+];
+
+
+
+let i =
+
+Math.floor(
+
+Math.log(bytes)
+
+/
+
+Math.log(1024)
+
+);
+
+
+
+return (
+
+bytes /
+
+Math.pow(1024,i)
+
+)
+
+.toFixed(1)
+
++
+
+" "
+
++
+
+sizes[i];
+
+
+
+}
+
+
+
+
+function escapeHTML(text){
+
+
+return String(text)
+
+.replaceAll("&","&amp;")
+
+.replaceAll("<","&lt;")
+
+.replaceAll(">","&gt;")
+
+.replaceAll('"',"&quot;");
+
+
+}
+
+
+
+
+
+// ======================================
+// QUEUE SYSTEM
+// ======================================
+
+
+let queue=[];
+
+let queueIndex=0;
+
+
+
+let audio =
+document.getElementById("audio");
+
+
+
+
+
+
+// LOAD SAVED QUEUE
+
+
+window.addEventListener(
+"load",
+()=>{
+
+
+let saved =
+localStorage.getItem(
+"obvyrisMP3Queue"
+);
+
+
+
+if(saved){
+
+
+queue =
+JSON.parse(saved);
+
+
+renderQueue();
+
+
+}
+
+
+}
+
+);
+
+
+
+
+
+
+
+// ======================================
+// ADD TO QUEUE
+// ======================================
+
+
+function addQueue(index){
+
+
+let track =
+tracks[index];
+
+
+
+if(!track)
+return;
+
+
+
+queue.push(track);
+
+
+
+saveQueue();
+
+
+
+renderQueue();
+
+
+
+document.getElementById("status").innerHTML =
+
+"Added: "
+
++
+
+track.name;
+
+
+
+}
+
+
+
+
+
+function saveQueue(){
+
+
+localStorage.setItem(
+
+"obvyrisMP3Queue",
+
+JSON.stringify(queue)
+
+);
+
+
+}
+
+
+
+
+
+
+// ======================================
+// DISPLAY QUEUE
+// ======================================
+
+
+
+function renderQueue(){
+
+
+let box =
+document.getElementById(
+"winampQueue"
+);
+
+
+box.innerHTML="";
+
+
+
+queue.forEach((track,index)=>{
+
+
+box.innerHTML += `
+
+
+<div class="winampItem"
+
+onclick="playQueue(${index})">
+
+
+${index+1}.
+${escapeHTML(track.name)}
+
+
+<br>
+
+
+<span style="color:#aaa">
+
+${escapeHTML(track.artist)}
+
+</span>
+
+
+</div>
+
+
+`;
+
+
+});
+
+
+}
+
+
+function togglePlaylist(){
+
+let p=document.getElementById(
+"playlistWindow"
+);
+
+
+if(p.style.display=="none")
+
+p.style.display="block";
+
+else
+
+p.style.display="none";
+
+
+}
+
+
+
+function hideWinamp(){
+
+document.getElementById(
+"winampPlayer"
+).style.display="none";
+
+
+}
+
+
+
+function showWinamp(){
+
+document.getElementById(
+"winampPlayer"
+).style.display="block";
+
+
+}
+  
+
+// ======================================
+// PLAY QUEUE ITEM
+// ======================================
+
+
+
+function playQueue(index){
+
+
+if(!queue[index])
+
+return;
+
+
+
+queueIndex=index;
+
+
+
+playTrackURL(
+queue[index]
+);
+
+
+
+}
+
+
+
+
+
+
+
+// ======================================
+// PLAY TRACK
+// ======================================
+
+
+function playTrack(index){
+
+
+if(!tracks[index])
+
+return;
+
+
+
+playTrackURL(
+tracks[index]
+);
+
+
+
+}
+
+
+
+
+
+function playTrackURL(track){
+
+
+audio.src = track.url;
+
+
+audio.play();
+
+
+
+document.getElementById(
+"winampSong"
+).innerHTML =
+"🎵 "+escapeHTML(track.name);
+
+
+
+document.getElementById(
+"winampArtist"
+).innerHTML =
+escapeHTML(track.artist)
++
+"<br>"
++
+escapeHTML(track.album);
+
+
+
+showWinamp();
+
+
+}
+
+
+
+
+// ======================================
+// PLAYER CONTROLS
+// ======================================
+
+
+
+function togglePlay(){
+
+
+if(audio.paused){
+
+
+audio.play();
+
+
+}
+
+else{
+
+
+audio.pause();
+
+
+}
+
+
+}
+
+
+
+
+
+
+
+function nextTrack(){
+
+
+
+if(queue.length===0)
+
+return;
+
+
+
+queueIndex++;
+
+
+
+if(queueIndex >= queue.length)
+
+
+queueIndex=0;
+
+
+
+
+playQueue(queueIndex);
+
+
+
+}
+
+
+
+
+
+
+
+function previousTrack(){
+
+
+if(queue.length===0)
+
+return;
+
+
+
+queueIndex--;
+
+
+
+if(queueIndex<0)
+
+
+queueIndex =
+queue.length-1;
+
+
+
+
+playQueue(queueIndex);
+
+
+
+}
+
+
+
+
+
+
+
+
+audio.onended=function(){
+
+
+nextTrack();
+
+
+};
+
+
+
+
+
+
+
+
+// ======================================
+// REMOVE QUEUE
+// ======================================
+
+
+
+function removeQueue(index){
+
+
+
+queue.splice(index,1);
+
+
+
+saveQueue();
+
+
+
+renderQueue();
+
+
+}
+
+
+
+
+
+
+function clearQueue(){
+
+
+
+queue=[];
+
+
+saveQueue();
+
+
+renderQueue();
+
+
+
+}
+
+
+
+
+
+
+// ======================================
+// QUEUE PANEL
+// ======================================
+
+
+
+function toggleQueue(){
+
+
+
+let panel =
+
+document.getElementById(
+"queuePanel"
+);
+
+
+
+if(panel.style.display=="block"){
+
+
+panel.style.display="none";
+
+
+}
+
+else{
+
+
+panel.style.display="block";
+
+
+}
+
+
+
+}
+
+audio.addEventListener(
+"timeupdate",
+()=>{
+
+
+if(audio.duration){
+
+
+document.getElementById(
+"seekBar"
+).value =
+
+(audio.currentTime /
+audio.duration)
+*100;
+
+
+}
+
+
+});
+
+
+document.getElementById(
+"seekBar"
+).oninput=function(){
+
+
+audio.currentTime =
+(audio.duration *
+this.value)/100;
+
+
+};
+
+
+
+</script>
+
+
+</body>
+
+</html>
+
+
+  
