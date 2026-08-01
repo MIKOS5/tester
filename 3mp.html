@@ -911,22 +911,25 @@ let artist =
 document.getElementById("artist").value.trim();
 
 
+
 let query =
-"mediatype:audio";
+"format:MP3";
+
 
 
 if(search){
 
 query +=
-' AND "' + search + '"';
+' AND title:("' + search + '")';
 
 }
+
 
 
 if(artist){
 
 query +=
-' AND creator:"' + artist + '"';
+' AND creator:("' + artist + '")';
 
 }
 
@@ -941,7 +944,7 @@ encodeURIComponent(query)
 
 +
 
-"&fl[]=identifier,title,creator"
+"&fl[]=identifier,title,creator,format,collection"
 
 +
 
@@ -953,8 +956,9 @@ encodeURIComponent(query)
 
 
 
+
 document.getElementById("status").innerHTML =
-"Finding audio collections...";
+"Searching MP3 index...";
 
 
 
@@ -962,59 +966,9 @@ let response =
 await fetch(url);
 
 
+
 let data =
 await response.json();
-
-
-
-let items =
-data.response.docs;
-
-
-
-document.getElementById("status").innerHTML =
-"Scanning "
-+
-items.length
-+
-" collections...";
-
-
-
-let results =
-await Promise.all(
-
-items.map(async item=>{
-
-
-try{
-
-
-let r =
-await fetch(
-
-"https://archive.org/metadata/"
-+
-item.identifier
-
-);
-
-
-return await r.json();
-
-
-}
-
-catch(e){
-
-return null;
-
-}
-
-
-})
-
-);
 
 
 
@@ -1022,51 +976,22 @@ tracks=[];
 
 
 
-results.forEach(meta=>{
-
-
-if(!meta)
-return;
-
-
-
-meta.files.forEach(file=>{
-
-
-let name =
-file.name || "";
-
-
-
-if(
-name.toLowerCase().endsWith(".mp3")
-){
+data.response.docs.forEach(item=>{
 
 
 tracks.push({
 
 
-name:name,
+name:item.title || "Unknown",
 
 
-artist:
-
-meta.metadata.creator ||
-"Unknown",
+artist:item.creator || "Unknown",
 
 
-
-album:
-
-meta.metadata.title ||
-"Unknown",
+album:item.collection || "Archive",
 
 
-
-identifier:
-
-meta.metadata.identifier,
-
+identifier:item.identifier,
 
 
 url:
@@ -1074,39 +999,8 @@ url:
 "https://archive.org/download/"
 
 +
-meta.metadata.identifier
-+
-"/"
-+
-encodeURIComponent(name),
+item.identifier
 
-
-
-archive:
-
-"https://archive.org/details/"
-
-+
-meta.metadata.identifier,
-
-
-
-size:
-
-formatSize(file.size),
-
-
-
-duration:
-
-file.length || "--"
-
-
-
-});
-
-
-}
 
 
 });
@@ -1122,7 +1016,7 @@ document.getElementById("status").innerHTML =
 +
 tracks.length
 +
-" MP3 files";
+" MP3 records";
 
 
 
