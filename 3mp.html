@@ -885,23 +885,21 @@ Next ▶
 
 <script>
 
-
 // =====================================
-// INTERNET ARCHIVE MP3 SEARCH ENGINE
+// DIRECT MP3 FILE SEARCH
 // =====================================
 
 
 let tracks = [];
 
-let currentResults = [];
+let currentPage = 0;
 
-let page = 0;
-
-let rows = 50;
+let pageSize = 100;
 
 
-// SEARCH MP3
-
+// =====================================
+// DIRECT MP3 FILENAME SEARCH
+// =====================================
 
 async function searchMP3(){
 
@@ -912,6 +910,7 @@ document.getElementById("search")
 .trim();
 
 
+
 let artist =
 document.getElementById("artist")
 .value
@@ -920,7 +919,7 @@ document.getElementById("artist")
 
 
 let query =
-"mediatype:audio";
+"filename:*.mp3";
 
 
 
@@ -932,7 +931,6 @@ query +=
 }
 
 
-
 if(artist){
 
 query +=
@@ -942,23 +940,34 @@ query +=
 
 
 
+
 let url =
 
 "https://archive.org/advancedsearch.php?q="
 
-+ encodeURIComponent(query)
++
+encodeURIComponent(query)
 
-+ "&fl[]=identifier,title,creator,date"
++
 
-+ "&rows=" + rows
+"&fl[]=identifier,title,creator,collection"
 
-+ "&output=json";
++
+
+"&rows=100"
+
++
+
+"&output=json";
+
 
 
 
 document.getElementById("status").innerHTML =
 
-"Searching Internet Archive...";
+"Searching MP3 files...";
+
+
 
 
 
@@ -972,50 +981,29 @@ await response.json();
 
 
 
-let items =
-data.response.docs;
-
-
-
 tracks=[];
 
 
-document.getElementById("status").innerHTML =
 
-"Scanning MP3 files from "
-+
-items.length
-+
-" collections...";
+for(let item of data.response.docs){
 
 
-
-for(let item of items){
-
-
-try{
-
-
-let metaResponse =
-
+let metadata =
 await fetch(
 
 "https://archive.org/metadata/"
-
 +
 item.identifier
 
 );
 
 
-
-let meta =
-await metaResponse.json();
-
+let json =
+await metadata.json();
 
 
 
-meta.files.forEach(file=>{
+json.files.forEach(file=>{
 
 
 let name =
@@ -1023,30 +1011,22 @@ file.name || "";
 
 
 
-if(
-name.toLowerCase().endsWith(".mp3")
-){
-
+if(name.toLowerCase().endsWith(".mp3")){
 
 
 tracks.push({
 
+
 name:name,
 
-artist:
-item.creator || "Unknown",
+
+artist:item.creator || "Unknown",
 
 
-album:
-item.title || "Unknown",
+album:item.title || "Unknown",
 
 
-date:
-item.date || "",
-
-
-identifier:
-item.identifier,
+identifier:item.identifier,
 
 
 url:
@@ -1061,6 +1041,7 @@ item.identifier
 encodeURIComponent(name),
 
 
+
 archive:
 
 "https://archive.org/details/"
@@ -1069,14 +1050,15 @@ archive:
 item.identifier,
 
 
+
 size:
 
-formatSize(file.size || 0),
+formatSize(file.size),
 
 
 duration:
 
-file.length || ""
+file.length || "--"
 
 
 
@@ -1086,29 +1068,12 @@ file.length || ""
 }
 
 
-
 });
 
 
 
 }
 
-catch(e){
-
-
-console.log(e);
-
-
-}
-
-
-
-}
-
-
-
-currentResults =
-tracks;
 
 
 document.getElementById("status").innerHTML =
@@ -1124,43 +1089,31 @@ tracks.length
 renderTracks();
 
 
+
 }
 
-
-
-
-// FORMAT FILE SIZE
-
-
 function formatSize(bytes){
-
-
-bytes=parseInt(bytes);
 
 
 if(!bytes)
 return "";
 
 
+bytes=parseInt(bytes);
+
 
 let sizes=[
-
 "B",
 "KB",
 "MB",
 "GB"
-
 ];
 
 
-
-let i=
+let i =
 Math.floor(
-
-Math.log(bytes)
-/ 
+Math.log(bytes) /
 Math.log(1024)
-
 );
 
 
@@ -1170,9 +1123,7 @@ return (
 bytes /
 Math.pow(1024,i)
 
-)
-.toFixed(1)
-
+).toFixed(1)
 +
 " "
 +
@@ -1182,237 +1133,16 @@ sizes[i];
 }
 
 
-
-
-
-// RENDER TABLE
-
-
-function renderTracks(){
-
-
-
-let box =
-document.getElementById("results");
-
-
-
-box.innerHTML="";
-
-
-
-tracks.forEach((track,index)=>{
-
-
-
-box.innerHTML += `
-
-
-
-<div class="trackRow">
-
-
-
-<div>
-
-<input 
-type="checkbox"
-class="selectTrack"
-data-id="${index}">
-
-</div>
-
-
-
-<div>
-
-<button 
-class="smallButton"
-onclick="playTrack(${index})">
-
-▶
-
-</button>
-
-</div>
-
-
-
-<div class="songTitle">
-
-🎵 ${escapeHTML(track.name)}
-
-</div>
-
-
-
-<div class="artist">
-
-${escapeHTML(track.artist)}
-
-</div>
-
-
-
-<div class="album">
-
-${escapeHTML(track.album)}
-
-</div>
-
-
-
-<div class="duration">
-
-${track.duration || "--"}
-
-</div>
-
-
-
-<div class="size">
-
-${track.size}
-
-</div>
-
-
-
-<div>
-
-<button
-
-class="smallButton"
-
-onclick="addQueue(${index})">
-
-➕
-
-</button>
-
-
-</div>
-
-
-
-<div>
-
-
-<a
-
-href="${track.url}"
-
-download>
-
-⬇
-
-</a>
-
-
-<br>
-
-
-<a
-
-href="${track.archive}"
-
-target="_blank">
-
-🌐
-
-</a>
-
-
-</div>
-
-
-
-</div>
-
-
-
-`;
-
-
-
-});
-
-
-
-}
-
-
-
-
-
-// PLAY TRACK
-
-
 function playTrack(index){
 
-
-let track =
-tracks[index];
-
-
-
-if(!track)
+if(!tracks[index])
 return;
 
 
-
-let audio =
-document.getElementById("audio");
-
-
-
-audio.src =
-track.url;
-
-
-
-audio.play();
-
-
-
-document.getElementById("nowPlaying").innerHTML =
-
-
-"🎵 "
-+
-track.name
-+
-"<br>"
-+
-track.artist;
-
-
+playURL(tracks[index]);
 
 }
-
-
-
-
-// HTML CLEANER
-
-
-function escapeHTML(text){
-
-
-return String(text)
-
-.replaceAll("&","&amp;")
-
-.replaceAll("<","&lt;")
-
-.replaceAll(">","&gt;")
-
-.replaceAll('"',"&quot;");
-
-
-}
-
-
+  
 // =====================================
 // PLAYER + QUEUE ENGINE
 // =====================================
@@ -2004,7 +1734,7 @@ reader.readAsText(file);
 
 
 }
-
+  
 </script>
 
 
