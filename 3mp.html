@@ -6,7 +6,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
-<title>Obvyris Archive Data Engine</title>
+<title>
+Obvyris Archive MP3 Engine
+</title>
 
 
 <style>
@@ -19,80 +21,57 @@ box-sizing:border-box;
 body{
 
 background:#070d16;
-
 color:#d8e1ec;
-
 font-family:Arial,Helvetica,sans-serif;
-
-font-size:15px;
-
-margin:12px;
-
+margin:10px;
 padding-bottom:130px;
 
 }
 
 
-/* TITLE */
-
 h1{
 
-font-size:24px;
-
 color:#2793ff;
-
-margin:5px 0 12px;
+font-size:26px;
 
 }
 
 
-/* SEARCH AREA */
+/* SEARCH */
 
 .controls{
 
-display:flex;
-
-flex-wrap:wrap;
-
-gap:10px;
-
-align-items:center;
-
-background:#101a29;
-
-border:1px solid #25384d;
-
+background:#101923;
+border:1px solid #26384f;
 padding:12px;
-
 border-radius:8px;
+
+display:flex;
+gap:10px;
+flex-wrap:wrap;
 
 }
 
 
-input,
-select,
-button{
+input,button,select{
 
 background:#17263a;
-
-color:#fff;
+color:white;
 
 border:1px solid #31465f;
 
-padding:10px 12px;
-
-font-size:15px;
+padding:10px;
 
 border-radius:6px;
+
+font-size:15px;
 
 }
 
 
 input{
 
-width:260px;
-
-max-width:100%;
+width:320px;
 
 }
 
@@ -100,12 +79,7 @@ max-width:100%;
 button{
 
 background:#2793ff;
-
-border:none;
-
 cursor:pointer;
-
-min-height:44px;
 
 }
 
@@ -118,188 +92,163 @@ background:#55b5ff;
 
 
 
-/* NAVIGATION */
+/* TABLE */
 
-.nav{
+.table{
 
-display:flex;
+margin-top:15px;
+
+border:1px solid #26384f;
+
+border-radius:8px;
+
+overflow:hidden;
+
+}
+
+
+
+.header,
+.track{
+
+
+display:grid;
+
+grid-template-columns:
+
+40px
+40px
+minmax(260px,2fr)
+180px
+220px
+80px
+80px
+90px
+90px;
+
 
 align-items:center;
 
 gap:8px;
 
-flex-wrap:wrap;
-
-margin-top:12px;
+padding:10px;
 
 }
 
 
-#pageInfo{
+.header{
 
-color:#aaa;
+background:#152235;
 
-}
-
-
-#status{
-
-font-size:13px;
-
-color:#aaa;
-
-margin-top:10px;
-
-}
-
-
-
-/* RESULTS */
-
-.card{
-
-background:#101923;
-
-border:1px solid #25384d;
-
-padding:14px;
-
-margin-top:12px;
-
-border-radius:8px;
-
-}
-
-
-.title{
-
-font-size:18px;
-
-color:#55b8ff;
+color:#65c9ff;
 
 font-weight:bold;
 
-margin-bottom:6px;
-
 }
 
 
-.meta{
 
-line-height:22px;
+.track{
 
-color:#b9c6d6;
+background:#101923;
 
-}
+border-top:1px solid #26384f;
 
-
-.tag{
-
-display:inline-block;
-
-background:#2793ff;
-
-padding:3px 8px;
-
-border-radius:10px;
-
-font-size:12px;
+font-size:14px;
 
 }
 
 
 
-/* FILES */
-
-.file{
-
-padding:10px;
-
-border-bottom:1px solid #26384f;
-
-cursor:pointer;
-
-font-size:15px;
-
-}
-
-
-.file:hover{
+.track:hover{
 
 background:#1b3048;
 
 }
 
 
-.files{
 
-display:none;
+.song{
 
-margin-top:10px;
+white-space:nowrap;
 
-}
+overflow:hidden;
 
+text-overflow:ellipsis;
 
+color:#55b8ff;
 
-.small{
-
-font-size:12px;
-
-color:#8995a5;
-
-}
-
-
-audio{
-
-width:100%;
-
-height:38px;
-
-margin-top:8px;
-
-}
-
-
-a{
-
-color:#65c9ff;
-
-word-break:break-word;
+font-weight:bold;
 
 }
 
 
 
-/* DETAILS */
+.meta{
 
-details{
-
-margin-top:6px;
+color:#aab8c8;
 
 }
 
 
-summary{
 
-cursor:pointer;
+.smallbtn{
 
-color:#65c9ff;
+padding:6px 10px;
 
 font-size:13px;
 
 }
 
 
-details .small{
+
+/* QUEUE */
+
+#queue{
+
+position:fixed;
+
+right:10px;
+
+top:80px;
+
+width:280px;
+
+max-height:70vh;
+
+overflow:auto;
+
+background:#101923;
+
+border:1px solid #26384f;
+
+border-radius:8px;
+
+padding:10px;
+
+display:none;
+
+}
+
+
+
+.queueItem{
 
 padding:8px;
 
-background:#0c1522;
+border-bottom:1px solid #26384f;
 
-border-left:2px solid #2793ff;
+font-size:13px;
 
-margin-top:5px;
+cursor:pointer;
+
+}
+
+
+
+.queueItem:hover{
+
+background:#1b3048;
 
 }
 
@@ -311,451 +260,96 @@ margin-top:5px;
 
 position:fixed;
 
-left:0;
-
-right:0;
-
 bottom:0;
+left:0;
+right:0;
 
 background:#101923;
 
-border-top:1px solid #25384d;
+border-top:1px solid #26384f;
 
 padding:10px;
-
-font-size:13px;
 
 z-index:9999;
 
 }
 
 
-#playerBar button{
 
-padding:8px 14px;
-
-margin:4px;
-
-font-size:15px;
-
-min-width:60px;
-
-}
-
-
-#npName{
+#now{
 
 color:#55b8ff;
-
 font-weight:bold;
-
-font-size:16px;
-
-}
-
-
-#npMeta{
-
-color:#aaa;
-
-font-size:13px;
-
-margin-bottom:6px;
-
-}
-
-
-
-/* ===================================
-   ANDROID PHONE MODE
-   =================================== */
-
-@media screen and (max-width:600px){
-
-
-body{
-
-margin:0;
-
-padding:10px;
-
-padding-bottom:190px;
-
-font-size:18px;
-
-}
-
-
-/* HEADER */
-
-h1{
-
-font-size:28px;
-
-text-align:center;
-
-margin:10px 0 20px;
-
-}
-
-
-
-/* SEARCH PANEL */
-
-.controls{
-
-display:block;
-
-padding:15px;
-
-border-radius:14px;
-
-}
-
-
-
-.controls input,
-.controls select,
-.controls button{
-
-
-display:block;
-
-width:100% !important;
-
-height:60px;
-
-margin-bottom:14px;
-
-font-size:21px;
-
-border-radius:12px;
-
-padding:10px;
-
-}
-
-
-
-.controls button{
-
-height:68px;
-
-font-size:25px;
-
-font-weight:bold;
-
-}
-
-
-
-/* PREVIOUS NEXT */
-
-.nav{
-
-display:grid;
-
-grid-template-columns:1fr 1fr;
-
-gap:12px;
-
-margin-top:15px;
-
-}
-
-
-.nav button{
-
-height:70px;
-
-font-size:24px;
-
-font-weight:bold;
-
-}
-
-
-#pageInfo{
-
-grid-column:1 / 3;
-
-text-align:center;
-
-font-size:21px;
-
-}
-
-
-
-/* STATUS */
-
-#status{
-
-font-size:18px;
-
-text-align:center;
-
-}
-
-
-
-/* CARDS */
-
-.card{
-
-padding:18px;
-
-margin-top:15px;
-
-border-radius:14px;
-
-}
-
-
-
-.title{
-
-font-size:23px;
-
-line-height:1.4;
-
-}
-
-
-
-.meta{
-
-font-size:18px;
-
-line-height:30px;
-
-}
-
-
-
-/* TAG */
-
-.tag{
-
-font-size:16px;
-
-padding:5px 12px;
-
-}
-
-
-
-/* GENRE */
-
-summary{
-
-font-size:20px;
-
-padding:10px;
-
-}
-
-
-details .small{
-
-font-size:18px;
-
-padding:14px;
-
-}
-
-
-
-/* FILES */
-
-.file{
-
-font-size:18px;
-
-padding:16px;
-
-}
-
-
-
-/* LINKS + BUTTONS */
-
-.card button,
-.card a{
-
-
-display:block;
-
-width:100%;
-
-height:62px;
-
-margin-top:12px;
-
-font-size:20px;
-
-text-align:center;
-
-padding:15px;
-
-border-radius:12px;
-
-}
-
-/* FOOTER */
-
-footer{
-
-background:#101923;
-
-border-top:1px solid #25384d;
-
-color:#8995a5;
-
-text-align:center;
-
-padding:18px;
-
-margin-top:40px;
-
-font-size:13px;
-
-}
-
-
-footer a{
-
-color:#65c9ff;
-
-text-decoration:none;
-
-}
-
-
-footer a:hover{
-
-text-decoration:underline;
-
-}
-
-
-@media screen and (max-width:600px){
-
-footer{
-
-font-size:16px;
-
-padding:20px;
-
-margin-bottom:120px;
-
-}
-
-}
-
-
-/* AUDIO PLAYER */
-
-#playerBar{
-
-padding:14px;
-
-}
-
-
-#npName{
-
-font-size:21px;
-
-}
-
-
-#npMeta{
-
-font-size:17px;
-
-}
-
-
-
-#playerBar button{
-
-
-width:31%;
-
-height:62px;
-
-font-size:23px;
-
-margin:5px 1%;
 
 }
 
 
 audio{
 
-height:52px;
+width:100%;
 
 }
 
 
 
-}
+/* MOBILE */
+
+@media(max-width:700px){
 
 
-/* ===================================
-   SMALL ANDROID DEVICES
-   =================================== */
+.header{
 
-@media screen and (max-width:360px){
-
-
-h1{
-
-font-size:24px;
+display:none;
 
 }
 
 
-.controls input,
-.controls select,
+
+.track{
+
+
+display:grid;
+
+grid-template-columns:
+
+35px
+35px
+1fr;
+
+
+}
+
+
+.track div:nth-child(n+4){
+
+display:none;
+
+}
+
+
+input{
+
+width:100%;
+
+}
+
+
 .controls button{
 
-font-size:18px;
-
-height:55px;
+width:100%;
 
 }
 
 
-.nav button{
-
-font-size:20px;
-
-height:62px;
 
 }
 
 
-.title{
-
-font-size:20px;
-
-}
-
-
-.meta{
-
-font-size:16px;
-
-}
-
-
-}
 
 </style>
-</head>
 
+
+</head>
 
 
 <body>
@@ -763,77 +357,31 @@ font-size:16px;
 
 
 <h1>
-🔎 Obvyris Archive Data Engine
+
+🎵 Obvyris Archive MP3 Engine
+
 </h1>
 
 
 
 <div class="controls">
 
+
 <input id="search"
-placeholder="Search Internet Archive...">
+placeholder="Search MP3, artist, album...">
 
 
-<select id="type">
+<button onclick="searchMP3()">
 
-<option value="">
-All Media
-</option>
-
-<option value="audio">
-🎵 Audio
-</option>
-
-<option value="movies">
-🎬 Movies
-</option>
-
-<option value="texts">
-📚 Texts
-</option>
-
-<option value="software">
-💾 Software
-</option>
-
-<option value="etree">
-🎸 Live Concerts
-</option>
-
-</select>
-
-
-<input id="creator"
-placeholder="Creator">
-
-
-<input id="uploader"
-placeholder="Uploader">
-
-
-<input id="genre"
-placeholder="Genre">
-
-
-<select id="sort">
-
-<option value="downloads desc">
-Most Popular
-</option>
-
-<option value="date desc">
-Newest
-</option>
-
-<option value="titleSorter asc">
-Title A-Z
-</option>
-
-</select>
-
-
-<button onclick="searchArchive(0)">
 SEARCH
+
+</button>
+
+
+<button onclick="toggleQueue()">
+
+QUEUE
+
 </button>
 
 
@@ -841,861 +389,391 @@ SEARCH
 
 
 
+<div id="status">
 
-<div class="nav">
-
-
-<button onclick="previousPage()">
-
-◀ Previous
-
-</button>
-
-
-
-<button onclick="nextPage()">
-
-Next ▶
-
-</button>
-
-
-
-<span id="pageInfo"></span>
-
-
+Ready
 
 </div>
 
 
 
-
-<h3 id="status"></h3>
-
+<div class="table">
 
 
-<div id="results"></div>
-
-
-<!-- GLOBAL ARCHIVE PLAYER -->
-
-<div id="playerBar">
-
-<div id="npName">
-No Track Playing
-</div>
-
-<div id="npMeta">
-Archive Audio
-</div>
-
-
-<audio id="audio"></audio>
+<div class="header">
 
 
 <div>
+☐
+</div>
 
-<button onclick="archivePrev()">
+
+<div>
+▶
+</div>
+
+
+<div>
+Song
+</div>
+
+
+<div>
+Artist
+</div>
+
+
+<div>
+Album
+</div>
+
+
+<div>
+Time
+</div>
+
+
+<div>
+Size
+</div>
+
+
+<div>
+Queue
+</div>
+
+
+<div>
+Download
+</div>
+
+
+
+</div>
+
+
+
+<div id="results">
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+<div id="queue">
+
+
+<h3>
+Queue
+</h3>
+
+
+<div id="queueList">
+
+</div>
+
+
+<button onclick="clearQueue()">
+
+Clear
+
+</button>
+
+
+</div>
+
+
+
+
+
+<div id="playerBar">
+
+
+<div id="now">
+
+No Track Playing
+
+</div>
+
+
+<audio id="audio" controls></audio>
+
+
+<button onclick="previousTrack()">
 ◀
 </button>
 
 
-<button onclick="archiveToggle()">
-▶ / ⏸
-</button>
-
-
-<button onclick="archiveNext()">
+<button onclick="nextTrack()">
 ▶
 </button>
 
-</div>
-
 
 </div>
 
-<footer>
 
-<div>
-<strong>Obvyris Archive Data Engine</strong>
-</div>
 
-<div>
-Powered by Internet Archive Metadata API
-</div>
 
-<div>
 
-<a href="https://archive.org" target="_blank">
-Internet Archive
-</a>
 
-|
 
-<a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'})">
-Back to Top
-</a>
-
-</div>
-
-<div class="small">
-
-© 2026 Obvyris. Digital media discovery platform.
-
-</div>
-
-</footer>
-   
 <script>
-
-
-let currentPage = 0;
-
-
-let pageSize = 500;
-
-
-let currentQuery = "*";
-
-
-let currentSort = "downloads desc";
-
-
-
-let playlist = [];
-
-let playlistIndex = 0;
-
-
-
-async function searchArchive(page){
-
-    currentPage = page;
-
-    const text = document.getElementById("search").value.trim();
-    const creator = document.getElementById("creator").value.trim();
-    const uploader = document.getElementById("uploader").value.trim();
-    const genre = document.getElementById("genre").value.trim();
-
-    currentSort = document.getElementById("sort").value;
-
-    let query = "mediatype:audio";
-
-    if(text){
-        query += ' AND (' +
-            'title:("' + text + '") OR ' +
-            'creator:("' + text + '") OR ' +
-            'identifier:("' + text + '")' +
-            ')';
-    }
-
-    if(creator){
-        query += ' AND creator:("' + creator + '")';
-    }
-
-    if(uploader){
-        query += ' AND uploader:("' + uploader + '")';
-    }
-
-    if(genre){
-        query += ' AND subject:("' + genre + '")';
-    }
-
-    const start = page * pageSize;
-
-    const url =
-        "https://archive.org/advancedsearch.php?q=" +
-        encodeURIComponent(query) +
-        "&fl[]=identifier,title,creator,uploader,description,date,subject" +
-        "&rows=" + pageSize +
-        "&start=" + start +
-        "&sort[]=" + encodeURIComponent(currentSort) +
-        "&output=json";
-
-    document.getElementById("status").innerHTML =
-        "Searching Internet Archive...";
-
-    const response = await fetch(url);
-    const data = await response.json();
-
-    document.getElementById("pageInfo").innerHTML =
-        "Page " + (page + 1);
-
-    document.getElementById("status").innerHTML =
-        "Scanning " + data.response.docs.length + " collections...";
-
-    const filtered = [];
-
-    for(const item of data.response.docs){
-
-        try{
-
-            const metaResponse = await fetch(
-                "https://archive.org/metadata/" + item.identifier
-            );
-
-            const meta = await metaResponse.json();
-
-            const matches = meta.files.filter(file=>{
-
-                const name = (file.name || "").toLowerCase();
-
-                return (
-                    name.endsWith(".mp3") &&
-                    (
-                        !text ||
-                        name.includes(text.toLowerCase())
-                    )
-                );
-
-            });
-
-            if(matches.length){
-
-                item.mp3Matches = matches.length;
-                filtered.push(item);
-
-            }
-
-        }catch(e){
-
-            console.log(e);
-
-        }
-
-    }
-
-    document.getElementById("status").innerHTML =
-        "Found " + filtered.length + " collections containing matching MP3 files";
-
-    displayResults(filtered);
-
-}
-
-
-function nextPage(){
-
-searchArchive(currentPage + 1);
-
-}
-
-
-
-function previousPage(){
-
-if(currentPage > 0){
-
-searchArchive(currentPage - 1);
-
-}
-
-}
-
-
-
-
-
-function displayResults(items){
-
-
-let box =
-document.getElementById("results");
-
-
-box.innerHTML="";
-
-
-
-items.forEach(item=>{
-
-
-let icon="📁";
-
-
-if(item.mediatype=="audio")
-icon="🎵";
-
-if(item.mediatype=="movies")
-icon="🎬";
-
-if(item.mediatype=="texts")
-icon="📚";
-
-if(item.mediatype=="software")
-icon="💾";
-
-
-
-
-let subject = "";
-
-
-if(Array.isArray(item.subject)){
-
-subject=item.subject.join(", ");
-
-}
-
-else{
-
-subject=item.subject || "";
-
-}
-
-
-
-
-
-box.innerHTML += `
-
-
-<div class="card">
-
-
-
-<div class="title">
-
-${icon}
-
-${escapeHTML(item.title || "Unknown")}
-
-</div>
-
-
-
-<div class="meta">
-
-
-<span class="tag">
-
-${item.mediatype}
-
-</span>
-
-
-
-<br>
-
-
-Creator:
-
-${escapeHTML(item.creator || "Unknown")}
-
-
-
-<br>
-
-
-Uploader:
-
-${escapeHTML(item.uploader || "Unknown")}
-
-
-
-<br>
-
-
-Date:
-
-${escapeHTML(item.date || "Unknown")}
-
-
-
-<br>
-
-
-<details>
-
-<summary>
-Genre
-</summary>
-
-
-<div class="small">
-
-${escapeHTML(subject || "Unknown")}
-
-</div>
-
-
-</details>
-
-
-<br>
-
-
-Description:
-
-<br>
-
-${escapeHTML(
-
-(item.description || "No description")
-
-.substring(0,250)
-
-)}
-
-
-
-</div>
-
-
-
-
-<br>
-
-
-
-<button onclick="loadFiles('${item.identifier}',this)">
-
-🎵 Load Tracks
-
-</button>
-
-
-
-<a target="_blank"
-
-href="https://archive.org/details/${item.identifier}">
-
-🌐 Archive Page
-
-</a>
-
-
-
-&nbsp;
-
-
-
-<a target="_blank"
-
-href="https://archive.org/download/${item.identifier}">
-
-📂 All Files
-
-</a>
-
-
-
-&nbsp;
-
-
-
-<button onclick="showMeta('${item.identifier}')">
-
-⚙ Metadata
-
-</button>
-
-
-
-
-<div class="files"
-
-id="files-${item.identifier}">
-
-
-</div>
-
-
-
-</div>
-
-
-`;
-
-
-
-});
-
-
-
-}
-
-
-
-
-
-async function loadFiles(id,btn){
-
-
-
-let box =
-
-document.getElementById("files-"+id);
-
-
-
-if(box.style.display=="block"){
-
-
-box.style.display="none";
-
-
-return;
-
-
-}
-
-
-
-box.style.display="block";
-
-
-box.innerHTML="Loading files...";
-
-
-
-
-let response = await fetch(
-
-"https://archive.org/metadata/"+id
-
-);
-
-
-
-let data = await response.json();
-
 
 
 let tracks=[];
 
 
-
-let totalFiles =
-data.files.length;
+let queue=[];
 
 
-
-
-data.files.forEach(file=>{
-
-
-let name=file.name || "";
+let queueIndex=0;
 
 
 
-if(
+/*
+ SAMPLE DATA
 
-name.toLowerCase().endsWith(".mp3")
+ Replace this with Internet Archive API results
 
-||
-
-name.toLowerCase().endsWith(".ogg")
-
-||
-
-name.toLowerCase().endsWith(".wav")
-
-){
+*/
 
 
+tracks=[
 
-tracks.push({
+{
+
+name:"Train Kept A Rolling.mp3",
+
+artist:"Led Zeppelin",
+
+album:"Evolution Is Timing",
+
+time:"8:31",
+
+size:"19 MB",
+
+url:"song.mp3"
+
+},
 
 
-name:name,
+{
 
+name:"Dazed And Confused.mp3",
 
-url:
+artist:"Led Zeppelin",
 
-"https://archive.org/download/"
+album:"Evolution Is Timing",
 
-+id+"/"
+time:"14:08",
 
-+encodeURIComponent(name)
+size:"31 MB",
 
-
-
-});
-
-
+url:"song2.mp3"
 
 }
 
-
-
-});
-
+];
 
 
 
+renderTracks();
 
 
-let html = `
+
+function renderTracks(){
 
 
-<div class="small">
+let box=document.getElementById("results");
 
-Files:
-
-${totalFiles}
+box.innerHTML="";
 
 
-<br>
+tracks.forEach((t,i)=>{
 
 
-Playable Tracks:
+box.innerHTML += `
 
-${tracks.length}
 
+<div class="track">
+
+
+<div>
+
+<input type="checkbox">
+
+</div>
+
+
+<div>
+
+<button class="smallbtn"
+onclick="play(${i})">
+
+▶
+
+</button>
 
 </div>
 
 
 
-<div id="player">
+<div class="song">
+
+${t.name}
 
 </div>
 
+
+<div class="meta">
+
+${t.artist}
+
+</div>
+
+
+<div class="meta">
+
+${t.album}
+
+</div>
+
+
+<div>
+
+${t.time}
+
+</div>
+
+
+<div>
+
+${t.size}
+
+</div>
+
+
+<div>
+
+<button class="smallbtn"
+onclick="addQueue(${i})">
+
+➕
+
+</button>
+
+</div>
+
+
+<div>
+
+<a href="${t.url}" download>
+
+⬇
+
+</a>
+
+</div>
+
+
+</div>
 
 
 `;
 
-
-
-
-
-tracks.forEach((track,index)=>{
-
-
-html += `
-
-
-<div class="file"
-
-onclick="playArchiveFile('${id}',${index})">
-
-
-🎵
-
-${escapeHTML(track.name)}
-
-
-
-</div>
-
-
-`;
-
-
-
 });
 
 
-
-
-archivePlaylist = tracks;
-
-archiveIndex = 0;
-
-
-
-
-box.innerHTML = html;
-
-
-
-}
-
-
-
-function playArchiveFile(id,index){
-
-    if(id){
-
-        loadFiles(id);
-
-    }
-
-    playTrack(index);
-
-}
-
-function archiveToggle(){
-
-const audio=document.getElementById("audio");
-
-
-if(audio.paused){
-
-audio.play();
-
-}else{
-
-audio.pause();
-
-}
-
-}
-
-
-
-function archiveNext(){
-
-if(
-archiveIndex <
-archivePlaylist.length-1
-){
-
-archiveIndex++;
-
-playTrack(archiveIndex);
-
-}
-
-}
-
-
-
-function archivePrev(){
-
-if(
-archiveIndex>0
-){
-
-archiveIndex--;
-
-playTrack(archiveIndex);
-
-}
-
-}
-  
-async function showMeta(id){
-
-
-
-let response = await fetch(
-
-"https://archive.org/metadata/"+id
-
-);
-
-
-
-let data = await response.json();
-
-
-
-let m=data.metadata;
-
-
-
-alert(
-
-"Identifier:\n"
-
-+id+
-
-
-
-"\n\nTitle:\n"
-
-+(m.title || "")
-
-
-
-+"\n\nCreator:\n"
-
-+(m.creator || "")
-
-
-
-+"\n\nUploader:\n"
-
-+(m.uploader || "")
-
-
-
-+"\n\nCollection:\n"
-
-+(m.collection || "")
-
-
-
-+"\n\nDescription:\n"
-
-+(m.description || "")
-
-
-
-);
-
-
-
-
 }
 
 
 
 
-function escapeHTML(text){
+function play(i){
 
 
-return String(text)
-
-.replaceAll("&","&amp;")
-
-.replaceAll("<","&lt;")
-
-.replaceAll(">","&gt;")
-
-.replaceAll('"',"&quot;");
-
-}
-
-// =============================
-// GLOBAL AUDIO PLAYER
-// =============================
+let t=tracks[i];
 
 
-let archivePlaylist=[];
-let archiveIndex=0;
+let audio=document.getElementById("audio");
 
 
-function playTrack(index){
-
-
-if(!archivePlaylist[index])
-return;
-
-
-archiveIndex=index;
-
-
-const track=archivePlaylist[index];
-
-
-const audio=document.getElementById("audio");
-
-
-audio.src=track.url;
+audio.src=t.url;
 
 
 audio.play();
 
 
 
-document.getElementById("npName").innerHTML =
-"🎵 " + track.name;
+document.getElementById("now").innerHTML=
+
+"🎵 "+t.name;
 
 
-document.getElementById("npMeta").innerHTML =
-"Track " + (index+1) +
-" / " +
-archivePlaylist.length;
+}
 
 
-audio.onended=function(){
 
-    archiveNext();
 
-};
+function addQueue(i){
 
+
+queue.push(tracks[i]);
+
+
+renderQueue();
+
+}
+
+
+
+function renderQueue(){
+
+
+let box=document.getElementById("queueList");
+
+
+box.innerHTML="";
+
+
+queue.forEach((t,i)=>{
+
+
+box.innerHTML+=`
+
+<div class="queueItem"
+onclick="playQueue(${i})">
+
+${i+1}. ${t.name}
+
+</div>
+
+`;
+
+});
+
+
+}
+
+
+
+function playQueue(i){
+
+queueIndex=i;
+
+let t=queue[i];
+
+
+let index=
+tracks.indexOf(t);
+
+
+play(index);
 
 }
 
@@ -1703,53 +781,89 @@ audio.onended=function(){
 
 function nextTrack(){
 
+if(queue.length){
 
-if(playlistIndex < playlist.length-1){
+queueIndex++;
 
-
-playlistIndex++;
-
-
-playTrack(playlistIndex);
+if(queueIndex>=queue.length)
+queueIndex=0;
 
 
-
-}
-
+playQueue(queueIndex);
 
 }
 
-
+}
 
 
 
 function previousTrack(){
 
+if(queue.length){
 
-if(playlistIndex > 0){
+queueIndex--;
 
-
-playlistIndex--;
-
-
-playTrack(playlistIndex);
+if(queueIndex<0)
+queueIndex=queue.length-1;
 
 
+playQueue(queueIndex);
+
+}
 
 }
 
 
+
+function clearQueue(){
+
+queue=[];
+
+renderQueue();
+
 }
 
 
 
+function toggleQueue(){
+
+let q=document.getElementById("queue");
+
+
+q.style.display=
+
+q.style.display=="block"
+?"none"
+:"block";
+
+}
+
+
+
+function searchMP3(){
+
+let text=
+document.getElementById("search").value.toLowerCase();
+
+
+tracks =
+tracks.filter(t=>
+
+(t.name+t.artist+t.album)
+.toLowerCase()
+.includes(text)
+
+);
+
+
+renderTracks();
+
+}
 
 
 </script>
 
 
-
 </body>
-
 
 </html>
