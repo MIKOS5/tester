@@ -641,12 +641,6 @@ Ready
 
 
 
-<div id="collections">
-
-</div>
-
-
-
 
 
 <h2>
@@ -971,13 +965,7 @@ data.response.numFound
 
 
 
-
-
-displayCollections(
-
-data.response.docs
-
-);
+loadMP3FromCollections(data.response.docs);
 
 
 
@@ -991,113 +979,104 @@ data.response.docs
 // DISPLAY COLLECTIONS
 // ======================================
 
+async function loadMP3FromCollections(items){
 
-function displayCollections(items){
+let foundTracks = [];
 
+document.getElementById("status").innerHTML =
+"Scanning collections for MP3 files...";
 
-let box =
 
-document.getElementById("collections");
+for(const item of items){
 
 
+try{
 
-box.innerHTML="";
 
+let response = await fetch(
+"https://archive.org/metadata/" + item.identifier
+);
 
 
+let data = await response.json();
 
 
-items.forEach(item=>{
 
+data.files.forEach(file=>{
 
-box.innerHTML += `
 
+let name = file.name || "";
 
 
-<div class="collection">
+if(name.toLowerCase().endsWith(".mp3")){
 
 
-<div class="collectionTitle">
+foundTracks.push({
 
 
-🎵
+name:name,
 
-${escapeHTML(item.title || "Unknown")}
 
+artist:
+data.metadata.creator || "Unknown",
 
-</div>
 
+album:
+data.metadata.title || "Unknown",
 
 
-<div class="meta">
+size:
+formatSize(file.size),
 
 
-Creator:
-
-${escapeHTML(item.creator || "Unknown")}
-
-
-<br>
-
-
-Date:
-
-${escapeHTML(item.date || "Unknown")}
-
-
-<br>
-
-
-Identifier:
-
-${item.identifier}
-
-
-</div>
-
-
-
-
-<button class="loadButton"
-
-onclick="loadMP3Tracks('${item.identifier}')">
-
-
-🎵 Load MP3 Tracks
-
-
-</button>
-
-
-
-<a target="_blank"
-
-href="https://archive.org/details/${item.identifier}">
-
-
-🌐 Archive Page
-
-</a>
-
-
-
-</div>
-
-
-
-`;
+url:
+"https://archive.org/download/"
++
+item.identifier
++
+"/"
++
+encodeURIComponent(name)
 
 
 
 });
 
 
+}
+
+
+
+});
+
+
+}catch(err){
+
+console.log(err);
+
+}
+
 
 }
 
 
 
+tracks = foundTracks;
 
+
+document.getElementById("status").innerHTML =
+
+"Found "
++
+tracks.length
++
+" MP3 files";
+
+
+renderTracks();
+
+
+}
 
 // ======================================
 // LOAD MP3 FILES
