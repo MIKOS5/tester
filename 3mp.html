@@ -903,24 +903,16 @@ let pageSize = 100;
 
 async function searchMP3(){
 
-
 let search =
-document.getElementById("search")
-.value
-.trim();
-
+document.getElementById("search").value.trim();
 
 
 let artist =
-document.getElementById("artist")
-.value
-.trim();
-
+document.getElementById("artist").value.trim();
 
 
 let query =
-"filename:*.mp3";
-
+"mediatype:audio";
 
 
 if(search){
@@ -940,7 +932,6 @@ query +=
 
 
 
-
 let url =
 
 "https://archive.org/advancedsearch.php?q="
@@ -950,11 +941,11 @@ encodeURIComponent(query)
 
 +
 
-"&fl[]=identifier,title,creator,collection"
+"&fl[]=identifier,title,creator"
 
 +
 
-"&rows=100"
+"&rows=200"
 
 +
 
@@ -962,12 +953,8 @@ encodeURIComponent(query)
 
 
 
-
 document.getElementById("status").innerHTML =
-
-"Searching MP3 files...";
-
-
+"Finding audio collections...";
 
 
 
@@ -975,20 +962,35 @@ let response =
 await fetch(url);
 
 
-
 let data =
 await response.json();
 
 
 
-tracks=[];
+let items =
+data.response.docs;
 
 
 
-for(let item of data.response.docs){
+document.getElementById("status").innerHTML =
+"Scanning "
++
+items.length
++
+" collections...";
 
 
-let metadata =
+
+let results =
+await Promise.all(
+
+items.map(async item=>{
+
+
+try{
+
+
+let r =
 await fetch(
 
 "https://archive.org/metadata/"
@@ -998,12 +1000,37 @@ item.identifier
 );
 
 
-let json =
-await metadata.json();
+return await r.json();
+
+
+}
+
+catch(e){
+
+return null;
+
+}
+
+
+})
+
+);
 
 
 
-json.files.forEach(file=>{
+tracks=[];
+
+
+
+results.forEach(meta=>{
+
+
+if(!meta)
+return;
+
+
+
+meta.files.forEach(file=>{
 
 
 let name =
@@ -1011,7 +1038,9 @@ file.name || "";
 
 
 
-if(name.toLowerCase().endsWith(".mp3")){
+if(
+name.toLowerCase().endsWith(".mp3")
+){
 
 
 tracks.push({
@@ -1020,13 +1049,24 @@ tracks.push({
 name:name,
 
 
-artist:item.creator || "Unknown",
+artist:
+
+meta.metadata.creator ||
+"Unknown",
 
 
-album:item.title || "Unknown",
+
+album:
+
+meta.metadata.title ||
+"Unknown",
 
 
-identifier:item.identifier,
+
+identifier:
+
+meta.metadata.identifier,
+
 
 
 url:
@@ -1034,7 +1074,7 @@ url:
 "https://archive.org/download/"
 
 +
-item.identifier
+meta.metadata.identifier
 +
 "/"
 +
@@ -1047,13 +1087,14 @@ archive:
 "https://archive.org/details/"
 
 +
-item.identifier,
+meta.metadata.identifier,
 
 
 
 size:
 
 formatSize(file.size),
+
 
 
 duration:
@@ -1071,8 +1112,7 @@ file.length || "--"
 });
 
 
-
-}
+});
 
 
 
@@ -1087,7 +1127,6 @@ tracks.length
 
 
 renderTracks();
-
 
 
 }
