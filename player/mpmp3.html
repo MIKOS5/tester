@@ -564,13 +564,12 @@ width:auto;
 }
 
 #winampPlayer{
-
-
 position:fixed;
+left:50px;
+top:100px;
+width:360px;
+height:520px;
 
-right:25px;
-
-bottom:80px;
 
 width:360px;
 
@@ -2290,7 +2289,117 @@ this.value)/100;
 };
 
 
+// ======================================
+// MOVABLE WINAMP PLAYER
+// ======================================
 
+const winamp = document.getElementById("winampPlayer");
+const header = document.getElementById("winampHeader");
+
+let isDragging = false;
+let offsetX = 0;
+let offsetY = 0;
+
+
+header.addEventListener("mousedown", function(e){
+
+    isDragging = true;
+
+    offsetX = e.clientX - winamp.offsetLeft;
+    offsetY = e.clientY - winamp.offsetTop;
+
+    header.style.cursor="grabbing";
+
+});
+
+
+
+document.addEventListener("mousemove", function(e){
+
+    if(!isDragging)
+        return;
+
+
+    winamp.style.left =
+        (e.clientX - offsetX) + "px";
+
+
+    winamp.style.top =
+        (e.clientY - offsetY) + "px";
+
+
+    winamp.style.right="auto";
+    winamp.style.bottom="auto";
+
+
+});
+
+
+
+document.addEventListener("mouseup", function(){
+
+    isDragging=false;
+
+    header.style.cursor="move";
+
+});
+
+
+
+
+
+// MOBILE TOUCH DRAG
+
+header.addEventListener("touchstart", function(e){
+
+    let touch=e.touches[0];
+
+    isDragging=true;
+
+
+    offsetX =
+    touch.clientX - winamp.offsetLeft;
+
+
+    offsetY =
+    touch.clientY - winamp.offsetTop;
+
+
+});
+
+
+
+document.addEventListener("touchmove",function(e){
+
+    if(!isDragging)
+        return;
+
+
+    let touch=e.touches[0];
+
+
+    winamp.style.left =
+    (touch.clientX-offsetX)+"px";
+
+
+    winamp.style.top =
+    (touch.clientY-offsetY)+"px";
+
+
+    winamp.style.right="auto";
+    winamp.style.bottom="auto";
+
+
+});
+
+
+
+document.addEventListener("touchend",function(){
+
+    isDragging=false;
+
+});
+  
 </script>
 
 
