@@ -2256,7 +2256,22 @@ tracks[index]
 }
 
 
+function enableEQ(){
 
+    if(audioContext)
+        return;
+
+    audioContext = new AudioContext();
+
+    source = audioContext.createMediaElementSource(audio);
+
+    source
+    .connect(bassFilter)
+    .connect(midFilter)
+    .connect(trebleFilter)
+    .connect(audioContext.destination);
+
+}
 
 
 function playTrackURL(track){
@@ -2266,7 +2281,7 @@ function playTrackURL(track){
     audio.src = track.url;
     audio.load();
 
-    setupEQ();
+   
 
     audioContext.resume().then(()=>{
 
