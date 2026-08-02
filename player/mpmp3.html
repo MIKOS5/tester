@@ -510,7 +510,16 @@ border-bottom:1px solid rgba(255,255,255,.15);
 
 background:rgba(16,25,35,.35);
 
-cursor:pointer;
+cursor:grab;
+
+}
+
+
+.winampItem.dragging{
+
+opacity:.4;
+
+background:#2793ff;
 
 }
 
@@ -1894,10 +1903,26 @@ function renderQueue(){
 
     box.innerHTML = "";
 
+
     queue.forEach((track,index)=>{
 
-        box.innerHTML += `
-        <div class="winampItem ${index===currentPlayingIndex ? "playing" : ""}">
+
+        let item = document.createElement("div");
+
+        item.className =
+        "winampItem "
+        +
+        (index===currentPlayingIndex ? "playing":"");
+
+
+        item.draggable = true;
+
+
+        item.dataset.index = index;
+
+
+
+        item.innerHTML = `
 
             <div class="playlistTitle"
                  onclick="playQueue(${index})">
@@ -1908,27 +1933,136 @@ function renderQueue(){
 
                 <span style="color:#9aaabd">
 
-                    ${escapeHTML(track.artist)}
+                ${escapeHTML(track.artist)}
 
                 </span>
 
             </div>
 
-            <button class="removeSong"
-                    onclick="event.stopPropagation();removeQueue(${index})">
 
-                ✖
+            <button class="removeSong"
+            onclick="event.stopPropagation();removeQueue(${index})">
+
+            ✖
 
             </button>
 
-        </div>
         `;
 
+
+
+        item.addEventListener(
+        "dragstart",
+        dragStart
+        );
+
+
+        item.addEventListener(
+        "dragover",
+        dragOver
+        );
+
+
+        item.addEventListener(
+        "drop",
+        dropItem
+        );
+
+
+        item.addEventListener(
+        "dragend",
+        dragEnd
+        );
+
+
+
+        box.appendChild(item);
+
+
     });
+
+
+}
+
+let dragIndex = null;
+
+
+
+function dragStart(e){
+
+    dragIndex =
+    Number(this.dataset.index);
+
+
+    this.classList.add("dragging");
+
 
 }
 
 
+
+function dragOver(e){
+
+    e.preventDefault();
+
+}
+
+
+
+function dropItem(e){
+
+    e.preventDefault();
+
+
+    let dropIndex =
+    Number(this.dataset.index);
+
+
+
+    if(dragIndex === null ||
+       dragIndex === dropIndex)
+       return;
+
+
+
+    let moved =
+    queue.splice(
+        dragIndex,
+        1
+    )[0];
+
+
+
+    queue.splice(
+        dropIndex,
+        0,
+        moved
+    );
+
+
+
+    saveQueue();
+
+
+    renderQueue();
+
+
+
+}
+
+
+
+function dragEnd(){
+
+    this.classList.remove(
+        "dragging"
+    );
+
+
+    dragIndex=null;
+
+}
+ 
 function togglePlaylist(){
 
 let p=document.getElementById(
