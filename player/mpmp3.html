@@ -1931,37 +1931,62 @@ let queue=[];
 
 let queueIndex=0;
 
-
 let audio =
 document.getElementById("audio");
 
-let audioContext = new AudioContext();
+let audioContext = null;
+let source = null;
 
-let source = audioContext.createMediaElementSource(audio);
-
- 
-let bassFilter = audioContext.createBiquadFilter();
-bassFilter.type = "lowshelf";
-bassFilter.frequency.value = 200;
+let bassFilter = null;
+let midFilter = null;
+let trebleFilter = null;
 
 
-let midFilter = audioContext.createBiquadFilter();
-midFilter.type = "peaking";
-midFilter.frequency.value = 1000;
+function setupEQ(){
+
+    if(audioContext)
+        return;
 
 
-let trebleFilter = audioContext.createBiquadFilter();
-trebleFilter.type = "highshelf";
-trebleFilter.frequency.value = 3000;
+    audioContext = new AudioContext();
+
+
+    source =
+    audioContext.createMediaElementSource(audio);
 
 
 
-source
-.connect(bassFilter)
-.connect(midFilter)
-.connect(trebleFilter)
-.connect(audioContext.destination);
+    bassFilter =
+    audioContext.createBiquadFilter();
 
+    bassFilter.type="lowshelf";
+    bassFilter.frequency.value=200;
+
+
+
+    midFilter =
+    audioContext.createBiquadFilter();
+
+    midFilter.type="peaking";
+    midFilter.frequency.value=1000;
+
+
+
+    trebleFilter =
+    audioContext.createBiquadFilter();
+
+    trebleFilter.type="highshelf";
+    trebleFilter.frequency.value=3000;
+
+
+
+    source
+    .connect(bassFilter)
+    .connect(midFilter)
+    .connect(trebleFilter)
+    .connect(audioContext.destination);
+
+}
 // LOAD SAVED QUEUE
 
 
@@ -1996,7 +2021,28 @@ renderQueue();
 
 
 
+document.getElementById("bassEQ").oninput=function(){
 
+if(bassFilter)
+bassFilter.gain.value=this.value;
+
+};
+
+
+document.getElementById("midEQ").oninput=function(){
+
+if(midFilter)
+midFilter.gain.value=this.value;
+
+};
+
+
+document.getElementById("trebleEQ").oninput=function(){
+
+if(trebleFilter)
+trebleFilter.gain.value=this.value;
+
+};
 
 
 
@@ -2200,25 +2246,23 @@ tracks[index]
 
 function playTrackURL(track){
 
-
 audio.src = track.url;
 
 
+setupEQ();
 
 
+audioContext.resume().then(()=>{
 
-audioContext.resume();
+    audio.play();
 
-
-audio.play();
-
+});
 
 
 document.getElementById(
 "winampSong"
 ).innerHTML =
 "🎵 "+escapeHTML(track.name);
-
 
 
 document.getElementById(
@@ -2231,16 +2275,8 @@ escapeHTML(track.artist)
 escapeHTML(track.album);
 
 
-
 showWinamp();
 
-document.getElementById("miniStatus").innerHTML =
-"▶ " + track.name;
-
-currentPlayingIndex = queueIndex;
-
-renderQueue();
-     
 }
 
 
