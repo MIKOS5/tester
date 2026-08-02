@@ -1931,11 +1931,6 @@ let queue=[];
 
 let queueIndex=0;
 
-let bassFilter;
-
-let midFilter;
-
-let trebleFilter;
 
 let audio =
 document.getElementById("audio");
@@ -2209,7 +2204,7 @@ function playTrackURL(track){
 audio.src = track.url;
 
 
-setupEQ();
+
 
 
 audioContext.resume();
@@ -2431,54 +2426,6 @@ renderQueue();
 // QUEUE PANEL
 // ======================================
 
-function setupEQ(){
-
-
-if(audioContext)
-return;
-
-
-audioContext =
-new AudioContext();
-
-
-sourceNode =
-audioContext.createMediaElementSource(audio);
-
-
-
-bassFilter =
-audioContext.createBiquadFilter();
-
-bassFilter.type="lowshelf";
-bassFilter.frequency.value=200;
-
-
-
-midFilter =
-audioContext.createBiquadFilter();
-
-midFilter.type="peaking";
-midFilter.frequency.value=1000;
-
-
-
-trebleFilter =
-audioContext.createBiquadFilter();
-
-trebleFilter.type="highshelf";
-trebleFilter.frequency.value=3000;
-
-
-
-sourceNode
-.connect(bassFilter)
-.connect(midFilter)
-.connect(trebleFilter)
-.connect(audioContext.destination);
-
-
-}
 
 function toggleQueue(){
 
