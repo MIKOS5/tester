@@ -792,6 +792,94 @@ border-radius:10px;
 scroll-behavior:smooth;
 
 }
+
+
+/* =====================
+   TOOLTIP BUBBLES
+===================== */
+
+[data-tip]{
+
+position:relative;
+
+}
+
+
+[data-tip]::after{
+
+content:attr(data-tip);
+
+position:absolute;
+
+bottom:calc(100% + 10px);
+
+left:50%;
+
+transform:translateX(-50%);
+
+background:#101923;
+
+color:#65c9ff;
+
+border:1px solid #2793ff;
+
+border-radius:8px;
+
+padding:6px 10px;
+
+font-size:12px;
+
+font-weight:bold;
+
+white-space:nowrap;
+
+opacity:0;
+
+pointer-events:none;
+
+transition:.2s ease;
+
+box-shadow:0 0 15px rgba(39,147,255,.5);
+
+z-index:999999;
+
+}
+
+
+[data-tip]::before{
+
+content:"";
+
+position:absolute;
+
+bottom:100%;
+
+left:50%;
+
+transform:translateX(-50%);
+
+border-width:6px;
+
+border-style:solid;
+
+border-color:#2793ff transparent transparent transparent;
+
+opacity:0;
+
+transition:.2s ease;
+
+z-index:999999;
+
+}
+
+
+
+[data-tip]:hover::after,
+[data-tip]:hover::before{
+
+opacity:1;
+
+}
  
 </style>
 </head>
@@ -840,10 +928,10 @@ Title A-Z
 
 
 
-<button onclick="searchArchive(0)">
-
+<button 
+onclick="searchArchive(0)"
+data-tip="Search Archive Audio">
 🔎 SEARCH
-
 </button>
 
 
@@ -956,9 +1044,11 @@ Download
 </div>
 
 
-<button onclick="clearQueue()">
+<button 
+onclick="clearQueue()"
+data-tip="Clear Playlist">
 
-🗑 Clear Queue
+🗑 Clear Playlist
 
 </button>
 
@@ -990,11 +1080,13 @@ Download
 
 <div class="windowButtons">
 
-<button onclick="minimizeWinamp()" title="Minimize">
+<button 
+onclick="minimizeWinamp()" 
+data-tip="Minimize Player">
 −
-</button>
-
-<button onclick="hideWinamp()" title="Close">
+<button 
+onclick="hideWinamp()" 
+data-tip="Hide Player">
 ×
 </button>
 
@@ -1047,27 +1139,38 @@ max="100">
 <div id="winampButtons">
 
 
-<button onclick="previousTrack()">
+<button 
+onclick="previousTrack()"
+data-tip="Previous Track">
 ◀
 </button>
 
 
-<button onclick="togglePlay()">
-▶
+<button 
+onclick="togglePlay()"
+data-tip="Play / Pause">
+▶|⏸
 </button>
 
 
-<button onclick="nextTrack()">
+<button 
+onclick="nextTrack()"
+data-tip="Next Track">
 ▶▶
 </button>
 
-
-<button onclick="togglePlaylist()">
+<button 
+onclick="togglePlaylist()"
+data-tip="Show Playlist">
 ☰
 </button>
 
-<button onclick="exportM3U()">
+<button 
+onclick="exportM3U()"
+data-tip="Export .m3u Playlist">
+
 📻
+
 </button>
  
 </div>
@@ -1652,13 +1755,12 @@ ${track.size}
 <div>
 
 
-<button class="smallButton"
-
-onclick="addQueue(${index})">
-
+<button 
+class="smallButton"
+onclick="addQueue(${index})"
+data-tip="Add to Playlist">
 
 ➕
-
 
 </button>
 
