@@ -866,7 +866,37 @@ width:90%;
 
 }
 
+#eqPanel{
 
+padding:10px;
+
+background:rgba(0,0,0,.25);
+
+border-top:1px solid rgba(255,255,255,.15);
+
+}
+
+
+#eqPanel label{
+
+display:block;
+
+color:#55b8ff;
+
+font-size:13px;
+
+margin:8px;
+
+}
+
+
+#eqPanel input{
+
+width:100%;
+
+}
+
+ 
 </style>
 
 </head>
@@ -1121,7 +1151,24 @@ max="100">
 
 </div>
 
+<div id="eqPanel">
 
+<label>
+Bass
+<input id="bassEQ" type="range" min="-20" max="20" value="0">
+</label>
+
+<label>
+Mid
+<input id="midEQ" type="range" min="-20" max="20" value="0">
+</label>
+
+<label>
+Treble
+<input id="trebleEQ" type="range" min="-20" max="20" value="0">
+</label>
+
+</div>
 
 <div id="winampButtons">
 
@@ -1884,15 +1931,41 @@ let queue=[];
 
 let queueIndex=0;
 
+let bassFilter;
 
+let midFilter;
+
+let trebleFilter;
 
 let audio =
 document.getElementById("audio");
 
+let audioContext = new AudioContext();
+
+let source = audioContext.createMediaElementSource(audio);
+
+ 
+let bassFilter = audioContext.createBiquadFilter();
+bassFilter.type = "lowshelf";
+bassFilter.frequency.value = 200;
+
+
+let midFilter = audioContext.createBiquadFilter();
+midFilter.type = "peaking";
+midFilter.frequency.value = 1000;
+
+
+let trebleFilter = audioContext.createBiquadFilter();
+trebleFilter.type = "highshelf";
+trebleFilter.frequency.value = 3000;
 
 
 
-
+source
+.connect(bassFilter)
+.connect(midFilter)
+.connect(trebleFilter)
+.connect(audioContext.destination);
 
 // LOAD SAVED QUEUE
 
@@ -2136,6 +2209,12 @@ function playTrackURL(track){
 audio.src = track.url;
 
 
+setupEQ();
+
+
+audioContext.resume();
+
+
 audio.play();
 
 
@@ -2352,7 +2431,54 @@ renderQueue();
 // QUEUE PANEL
 // ======================================
 
+function setupEQ(){
 
+
+if(audioContext)
+return;
+
+
+audioContext =
+new AudioContext();
+
+
+sourceNode =
+audioContext.createMediaElementSource(audio);
+
+
+
+bassFilter =
+audioContext.createBiquadFilter();
+
+bassFilter.type="lowshelf";
+bassFilter.frequency.value=200;
+
+
+
+midFilter =
+audioContext.createBiquadFilter();
+
+midFilter.type="peaking";
+midFilter.frequency.value=1000;
+
+
+
+trebleFilter =
+audioContext.createBiquadFilter();
+
+trebleFilter.type="highshelf";
+trebleFilter.frequency.value=3000;
+
+
+
+sourceNode
+.connect(bassFilter)
+.connect(midFilter)
+.connect(trebleFilter)
+.connect(audioContext.destination);
+
+
+}
 
 function toggleQueue(){
 
@@ -2532,7 +2658,8 @@ document.addEventListener("touchend",function(){
     isDragging=false;
 
 });
-  
+
+
 </script>
 
 
