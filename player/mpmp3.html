@@ -743,10 +743,20 @@ Title A-Z
 
 
 </select>
+<select id="source">
+
+<option value="archive">
+Internet Archive
+</option>
+
+<option value="fma">
+Free Music Archive
+</option>
+
+</select>
 
 
-
-<button onclick="searchArchive(0)">
+<button onclick="searchMusic(0)">
 
 🔎 SEARCH
 
@@ -772,7 +782,7 @@ font-size:12px;
 <button onclick="togglePlaylist()">
 🎵 PLAYLIST
 </button>
-     
+    
 <div id="status">
 
 Ready
@@ -1674,6 +1684,53 @@ function exportM3U(){
 
 }
 
+
+ async function searchFMA(page){
+
+
+let search =
+document.getElementById("search").value.trim();
+
+
+let url =
+"https://freemusicarchive.org/search/?quicksearch="
++
+encodeURIComponent(search);
+
+
+
+document.getElementById("status").innerHTML =
+"Searching Free Music Archive...";
+
+
+
+window.open(url,"_blank");
+
+
+}
+ 
+function searchMusic(page){
+
+let source =
+document.getElementById("source").value;
+
+
+if(source=="archive"){
+
+searchArchive(page);
+
+}
+
+
+if(source=="fma"){
+
+searchFMA(page);
+
+}
+
+
+}
+ 
 // ======================================
 // HELPERS
 // ======================================
