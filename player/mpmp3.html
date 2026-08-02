@@ -1931,77 +1931,37 @@ let queue=[];
 
 let queueIndex=0;
 
+
 let audio =
 document.getElementById("audio");
 
-audio.onerror = function(){
+let audioContext = new AudioContext();
 
-console.error("Audio error:", audio.error);
+let source = audioContext.createMediaElementSource(audio);
 
-};
  
-let audioContext = null;
-let source = null;
-
-let bassFilter = null;
-let midFilter = null;
-let trebleFilter = null;
+let bassFilter = audioContext.createBiquadFilter();
+bassFilter.type = "lowshelf";
+bassFilter.frequency.value = 200;
 
 
-function setupEQ(){
-
-    if(audioContext)
-        return;
-
-
-    audioContext = new AudioContext();
+let midFilter = audioContext.createBiquadFilter();
+midFilter.type = "peaking";
+midFilter.frequency.value = 1000;
 
 
-    try{
-
-        source = audioContext.createMediaElementSource(audio);
-
-    }
-    catch(e){
-
-        console.error("EQ setup failed:",e);
-        return;
-
-    }
+let trebleFilter = audioContext.createBiquadFilter();
+trebleFilter.type = "highshelf";
+trebleFilter.frequency.value = 3000;
 
 
 
-    bassFilter =
-    audioContext.createBiquadFilter();
+source
+.connect(bassFilter)
+.connect(midFilter)
+.connect(trebleFilter)
+.connect(audioContext.destination);
 
-    bassFilter.type="lowshelf";
-    bassFilter.frequency.value=200;
-
-
-
-    midFilter =
-    audioContext.createBiquadFilter();
-
-    midFilter.type="peaking";
-    midFilter.frequency.value=1000;
-
-
-
-    trebleFilter =
-    audioContext.createBiquadFilter();
-
-    trebleFilter.type="highshelf";
-    trebleFilter.frequency.value=3000;
-
-
-
-    source
-    .connect(bassFilter)
-    .connect(midFilter)
-    .connect(trebleFilter)
-    .connect(audioContext.destination);
-
-}
 // LOAD SAVED QUEUE
 
 
@@ -2036,28 +1996,7 @@ renderQueue();
 
 
 
-document.getElementById("bassEQ").oninput=function(){
 
-if(bassFilter)
-bassFilter.gain.value=this.value;
-
-};
-
-
-document.getElementById("midEQ").oninput=function(){
-
-if(midFilter)
-midFilter.gain.value=this.value;
-
-};
-
-
-document.getElementById("trebleEQ").oninput=function(){
-
-if(trebleFilter)
-trebleFilter.gain.value=this.value;
-
-};
 
 
 
@@ -2256,59 +2195,54 @@ tracks[index]
 }
 
 
-function enableEQ(){
 
-    if(audioContext)
-        return;
-
-    audioContext = new AudioContext();
-
-    source = audioContext.createMediaElementSource(audio);
-
-    source
-    .connect(bassFilter)
-    .connect(midFilter)
-    .connect(trebleFilter)
-    .connect(audioContext.destination);
-
-}
 
 
 function playTrackURL(track){
 
-    console.log("Playing:", track.url);
 
-    audio.src = track.url;
-    audio.load();
-
-   
-
-    audioContext.resume().then(()=>{
-
-        audio.play()
-        .then(()=>{
-            console.log("Audio started");
-        })
-        .catch(err=>{
-            console.error("Playback failed:", err);
-        });
-
-    });
+audio.src = track.url;
 
 
-    document.getElementById("winampSong").innerHTML =
-    "🎵 " + escapeHTML(track.name);
 
 
-    document.getElementById("winampArtist").innerHTML =
-    escapeHTML(track.artist)
-    + "<br>"
-    + escapeHTML(track.album);
+
+audioContext.resume();
 
 
-    showWinamp();
+audio.play();
 
+
+
+document.getElementById(
+"winampSong"
+).innerHTML =
+"🎵 "+escapeHTML(track.name);
+
+
+
+document.getElementById(
+"winampArtist"
+).innerHTML =
+escapeHTML(track.artist)
++
+"<br>"
++
+escapeHTML(track.album);
+
+
+
+showWinamp();
+
+document.getElementById("miniStatus").innerHTML =
+"▶ " + track.name;
+
+currentPlayingIndex = queueIndex;
+
+renderQueue();
+     
 }
+
 
 
 
