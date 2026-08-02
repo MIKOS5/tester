@@ -705,84 +705,57 @@ width:90%;
 
 <body>
 
+
 <h1>
 🎵 Obvyris Archive MP3 Engine
 </h1>
 
+
+
 <div class="controls">
 
-<input
-id="search"
+
+<input id="search"
 placeholder="Search artist, album, concert...">
 
-<input
-id="creator"
+
+
+<input id="creator"
 placeholder="Creator">
 
+
 <select id="sort">
+
 
 <option value="downloads desc">
 Most Popular
 </option>
 
+
 <option value="date desc">
 Newest
 </option>
 
-</select>
 
-<select id="sortDisplay" onchange="sortTracks()">
-
-<option value="name-asc">
-Song A-Z
+<option value="titleSorter asc">
+Title A-Z
 </option>
 
-<option value="name-desc">
-Song Z-A
-</option>
-
-<option value="artist-asc">
-Artist A-Z
-</option>
-
-<option value="artist-desc">
-Artist Z-A
-</option>
-
-<option value="album-asc">
-Album A-Z
-</option>
-
-<option value="album-desc">
-Album Z-A
-</option>
 
 </select>
 
-<select id="source">
 
-<option value="all">
-All Sources
-</option>
-
-<option value="archive">
-Internet Archive
-</option>
-
-<option value="fma">
-Free Music Archive
-</option>
-
-</select>
 
 <button onclick="searchArchive(0)">
+
 🔎 SEARCH
+
 </button>
 
-</div>
 
-<button
-id="restorePlayer"
+
+</div>
+<button id="restorePlayer"
 onclick="showWinamp()"
 style="
 position:fixed;
@@ -795,62 +768,121 @@ font-size:12px;
 ">
 🎛️ Player
 </button>
-
+     
 <div id="status">
+
 Ready
+
 </div>
+
+
+
+
+
 
 <h2>
 🎵 MP3 Tracks
 </h2>
 
+
+
 <div class="musicTable">
+
 
 <div class="tableHeader">
 
-<div>▶</div>
 
-<div>Song</div>
+<div>
+▶
+</div>
 
-<div>Artist</div>
 
-<div>Album</div>
+<div>
+Song
+</div>
 
-<div>Size</div>
 
-<div>Queue</div>
+<div>
+Artist
+</div>
 
-<div>Download</div>
+
+<div>
+Album
+</div>
+
+
+<div>
+Size
+</div>
+
+
+<div>
+Queue
+</div>
+
+
+<div>
+Download
+</div>
+
+
 
 </div>
+
+
 
 <div id="tracks">
 
 </div>
 
+
+
 </div>
+
+
+
+
 
 <!-- QUEUE -->
 
+
 <div id="queuePanel">
 
+
 <div class="queueTitle">
+
 🎵 Playback Queue
+
 </div>
+
 
 <div id="queueList">
 
 </div>
 
+
 <button onclick="clearQueue()">
+
 🗑 Clear Queue
+
 </button>
+
 
 </div>
 
+
+
+
+
 <!-- PLAYER -->
 
+<!-- ===========================
+     OBVYRIS WINAMP PLAYER
+=========================== -->
+
 <div id="winampPlayer">
+
 
 <div id="winampHeader">
 
@@ -861,17 +893,14 @@ Ready
 </span>
 </span>
 
+
 <div class="windowButtons">
 
-<button
-onclick="minimizeWinamp()"
-title="Minimize">
+<button onclick="minimizeWinamp()" title="Minimize">
 −
 </button>
 
-<button
-onclick="hideWinamp()"
-title="Close">
+<button onclick="hideWinamp()" title="Close">
 ×
 </button>
 
@@ -879,23 +908,38 @@ title="Close">
 
 </div>
 
+
+
 <div id="winampDisplay">
 
+
 <div id="winampSong">
+
 No Track Playing
+
 </div>
+
 
 <div id="winampArtist">
+
 Archive Audio
-</div>
 
 </div>
+
+
+</div>
+
+
+
 
 <audio id="audio"></audio>
 
+
+
+
 <div id="progressBox">
 
-<input
+<input 
 type="range"
 id="seekBar"
 value="0"
@@ -904,19 +948,25 @@ max="100">
 
 </div>
 
+
+
 <div id="winampButtons">
+
 
 <button onclick="previousTrack()">
 ◀
 </button>
 
+
 <button onclick="togglePlay()">
 ▶
 </button>
 
+
 <button onclick="nextTrack()">
 ▶▶
 </button>
+
 
 <button onclick="togglePlaylist()">
 ☰
@@ -925,26 +975,31 @@ max="100">
 <button onclick="exportM3U()">
 📻
 </button>
-
+ 
 </div>
 
+
+
 <div id="playlistWindow">
+
 
 <h3>
 Playlist
 </h3>
 
+
 <div id="winampQueue">
 
 </div>
 
+
 </div>
+
+
 
 </div>
 
 <script>
-
-
 
 
 // ======================================
@@ -1216,7 +1271,7 @@ tracks.length
 " MP3 files";
 
 
-sortTracks();
+renderTracks();
 
 
 }
@@ -1385,7 +1440,7 @@ tracks.length
 
 
 
-sortTracks();
+renderTracks();
 
 
 
@@ -1553,62 +1608,7 @@ download>
 }
 
 
-function sortTracks(){
 
-let sort =
-document.getElementById("sortDisplay").value;
-
-if(sort === "name-asc"){
-
-tracks.sort((a,b)=>
-a.name.localeCompare(b.name)
-);
-
-}
-
-else if(sort === "name-desc"){
-
-tracks.sort((a,b)=>
-b.name.localeCompare(a.name)
-);
-
-}
-
-else if(sort === "artist-asc"){
-
-tracks.sort((a,b)=>
-a.artist.localeCompare(b.artist)
-);
-
-}
-
-else if(sort === "artist-desc"){
-
-tracks.sort((a,b)=>
-b.artist.localeCompare(a.artist)
-);
-
-}
-
-else if(sort === "album-asc"){
-
-tracks.sort((a,b)=>
-a.album.localeCompare(b.album)
-);
-
-}
-
-else if(sort === "album-desc"){
-
-tracks.sort((a,b)=>
-b.album.localeCompare(a.album)
-);
-
-}
-
-sortTracks();
-
-}
 
 function exportM3U(){
 
