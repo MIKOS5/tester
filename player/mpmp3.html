@@ -880,6 +880,34 @@ z-index:999999;
 opacity:1;
 
 }
+
+
+/* =====================
+   PLAYER TIME DISPLAY
+===================== */
+
+#timeDisplay{
+
+display:flex;
+
+justify-content:space-between;
+
+padding:5px 12px;
+
+font-size:12px;
+
+color:#65c9ff;
+
+font-family:monospace;
+
+}
+
+
+#seekBar{
+
+cursor:pointer;
+
+}
  
 </style>
 </head>
@@ -1120,10 +1148,21 @@ Archive Audio
 
 <audio id="audio"></audio>
 
-
-
-
 <div id="progressBox">
+
+<div id="timeDisplay">
+
+<span id="currentTime">
+0:00
+</span>
+
+
+<span id="durationTime">
+0:00
+</span>
+
+</div>
+
 
 <input 
 type="range"
@@ -1133,8 +1172,6 @@ min="0"
 max="100">
 
 </div>
-
-
 
 <div id="winampButtons">
 
@@ -2553,7 +2590,24 @@ renderQueue();
 }
 
 
+function formatTime(seconds){
 
+if(!seconds || isNaN(seconds))
+return "0:00";
+
+
+let min = Math.floor(seconds / 60);
+
+let sec = Math.floor(seconds % 60);
+
+
+if(sec < 10)
+sec = "0" + sec;
+
+
+return min + ":" + sec;
+
+}
 
 
 
@@ -2603,13 +2657,21 @@ audio.addEventListener(
 if(audio.duration){
 
 
-document.getElementById(
-"seekBar"
-).value =
+document.getElementById("seekBar").value =
 
-(audio.currentTime /
-audio.duration)
-*100;
+(audio.currentTime / audio.duration) * 100;
+
+
+
+document.getElementById("currentTime").innerHTML =
+
+formatTime(audio.currentTime);
+
+
+
+document.getElementById("durationTime").innerHTML =
+
+formatTime(audio.duration);
 
 
 }
