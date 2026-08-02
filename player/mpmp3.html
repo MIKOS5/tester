@@ -976,7 +976,10 @@ max="100">
 ☰
 </button>
 
-
+<button onclick="exportM3U()">
+📻 EXPORT M3U
+</button>
+ 
 </div>
 
 
@@ -1611,7 +1614,65 @@ download>
 
 
 
+function exportM3U(){
 
+    if(queue.length === 0){
+
+        alert("Playlist is empty");
+
+        return;
+
+    }
+
+
+    let m3u = "#EXTM3U\n\n";
+
+
+    queue.forEach(track=>{
+
+
+        m3u += 
+        "#EXTINF:-1,"
+        +
+        track.artist
+        +
+        " - "
+        +
+        track.name
+        +
+        "\n";
+
+
+        m3u += track.url + "\n\n";
+
+
+    });
+
+
+
+    let blob = new Blob(
+        [m3u],
+        {
+            type:"audio/x-mpegurl"
+        }
+    );
+
+
+    let url = URL.createObjectURL(blob);
+
+
+    let a = document.createElement("a");
+
+    a.href=url;
+
+    a.download="obvyris_playlist.m3u";
+
+    a.click();
+
+
+    URL.revokeObjectURL(url);
+
+}
 
 // ======================================
 // HELPERS
