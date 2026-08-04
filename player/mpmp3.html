@@ -1040,7 +1040,12 @@ Download
 
 </div>
 
-
+<input 
+type="file"
+id="m3uLoader"
+accept=".m3u,.m3u8"
+style="display:none"
+onchange="loadM3U(event)">
 
 <div id="tracks">
 
@@ -1207,6 +1212,14 @@ onclick="exportM3U()"
 data-tip="Export .m3u Playlist">
 
 📻
+
+</button>
+
+<button 
+onclick="document.getElementById('m3uLoader').click()"
+data-tip="Load .m3u Playlist">
+
+📂
 
 </button>
  
@@ -1907,7 +1920,110 @@ function exportM3U(){
 // HELPERS
 // ======================================
 
+function loadM3U(event){
 
+let file = event.target.files[0];
+
+
+if(!file)
+return;
+
+
+
+let reader = new FileReader();
+
+
+
+reader.onload = function(e){
+
+
+let lines = e.target.result.split(/\r?\n/);
+
+
+let newQueue = [];
+
+
+
+lines.forEach(line=>{
+
+
+line=line.trim();
+
+
+
+if(
+line &&
+!line.startsWith("#")
+){
+
+
+newQueue.push({
+
+name:
+line.split("/").pop(),
+
+artist:
+"Unknown",
+
+album:
+"Loaded M3U",
+
+url:
+line
+
+
+});
+
+
+}
+
+
+
+});
+
+
+
+if(newQueue.length){
+
+
+queue = newQueue;
+
+
+queueIndex = 0;
+
+
+currentPlayingIndex = -1;
+
+
+saveQueue();
+
+
+renderQueue();
+
+
+
+document.getElementById("status").innerHTML =
+
+"Loaded "
++
+queue.length
++
+" tracks from playlist";
+
+
+}
+
+
+
+};
+
+
+
+reader.readAsText(file);
+
+
+}
+ 
 
 function formatSize(bytes){
 
