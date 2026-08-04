@@ -1292,50 +1292,72 @@ async function loadGuide() {
         console.error("Station 2:", e);
 
     }
-// ---------- Radio Stations ----------
 
-radioStations = [];
 
-for(const station of OBVYRIS_STATIONS){
 
-    try{
+    // ---------- Radio Stations ----------
 
-        const res = await fetch(
-            station.api + "?t=" + Date.now()
-        );
+    radioStations = [];
 
-        const data = await res.json();
 
-        radioStations.push({
-            name: station.name,
-            program: data.program || "Unknown",
-            artist: data.artist || "-",
-            genre: data.genre || "-"
-        });
+    for(const station of OBVYRIS_STATIONS){
 
-    }catch(e){
+        try{
 
-        radioStations.push({
-            name: station.name,
-            program: "Unavailable",
-            artist: "-",
-            genre: "-"
-        });
+            const res = await fetch(
+                station.api + "?t=" + Date.now()
+            );
+
+            const data = await res.json();
+
+
+            radioStations.push({
+
+                name: station.name,
+                program: data.program || "Unknown",
+                artist: data.artist || "-",
+                genre: data.genre || "-"
+
+            });
+
+
+        }catch(e){
+
+
+            radioStations.push({
+
+                name: station.name,
+                program: "Unavailable",
+                artist: "-",
+                genre: "-"
+
+            });
+
+
+        }
+
+    }
+
+
+
+    // Start radio rotation only once
+
+    if(!radioTimer){
+
+        radioIndex = 0;
+
+        showNextRadioStation();
+
+
+        radioTimer = setInterval(()=>{
+
+            showNextRadioStation();
+
+        },5000);
 
     }
 
 }
-
-showNextRadioStation();
-
-if(!radioTimer){
-
-    radioTimer = setInterval(showNextRadioStation,5000);
-
-}
-
-}
-
 
 
 /*
