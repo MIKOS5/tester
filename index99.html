@@ -526,123 +526,39 @@ Entertainment • Media • Community • News • Gaming • Digital Experience
 
     <div class="stationGuide">
 
-        <b>📻 Obvyris Radio Bangers</b>
+    <b id="radioStationName">
+        📻 Loading...
+    </b>
 
-        <span class="programTitle" id="radioProgram0">
+    <span class="programTitle" id="radioProgram">
+        Loading...
+    </span>
+
+    <div class="status">
+
+        Artist:
+        <span id="radioArtist">
             Loading...
         </span>
 
+        <br>
 
-        <div class="status">
-
-            Artist:
-            <span id="radioArtist0">
-                Loading...
-            </span>
-
-            <br>
-
-            Genre:
-            <span id="radioGenre0">
-                Loading...
-            </span>
-
-        </div>
-
-
-        <button
-        class="stationButton"
-        onclick="event.stopPropagation();
-        location.href='Radio_Obvyris.html?station='+encodeURIComponent('Obvyris Radio Bangers');">
-
-            ▶ Open Bangers
-
-        </button>
-
-    </div>
-
-
-
-    <!-- RADIO STATION 2 -->
-
-    <div class="stationGuide">
-
-        <b>📻 Obvyris Radio Popular Music</b>
-
-        <span class="programTitle" id="radioProgram1">
+        Genre:
+        <span id="radioGenre">
             Loading...
         </span>
 
-
-        <div class="status">
-
-            Artist:
-            <span id="radioArtist1">
-                Loading...
-            </span>
-
-            <br>
-
-            Genre:
-            <span id="radioGenre1">
-                Loading...
-            </span>
-
-        </div>
-
-
-        <button
-        class="stationButton"
-        onclick="event.stopPropagation();
-        location.href='Radio_Obvyris.html?station='+encodeURIComponent('Obvyris Radio Popular Music');">
-
-            ▶ Open Popular Music
-
-        </button>
-
     </div>
 
+    <button
+    class="stationButton"
+    id="radioOpenButton">
 
+        ▶ Open Station
 
+    </button>
 
-    <!-- RADIO STATION 3 -->
-
-    <div class="stationGuide">
-
-        <b>📻 Obvyris Radio Mix</b>
-
-        <span class="programTitle" id="radioProgram2">
-            Loading...
-        </span>
-
-
-        <div class="status">
-
-            Artist:
-            <span id="radioArtist2">
-                Loading...
-            </span>
-
-            <br>
-
-            Genre:
-            <span id="radioGenre2">
-                Loading...
-            </span>
-
-        </div>
-
-
-        <button
-        class="stationButton"
-        onclick="event.stopPropagation();
-        location.href='Radio_Obvyris.html?station='+encodeURIComponent('Obvyris Radio Mix');">
-
-            ▶ Open Mix
-
-        </button>
-
-    </div>
+</div>
 
 
 
@@ -1288,7 +1204,11 @@ let CURRENT_STATION = "1";
 let sportsGames = [];
 let sportsIndex = 0;
 let sportsTimer = null;
+let radioStations = [];
+let radioIndex = 0;
+let radioTimer = null;
 
+    
 const OBVYRIS_STATIONS = [
 {
     name: "Obvyris Radio Bangers",
@@ -1374,9 +1294,9 @@ async function loadGuide() {
     }
 // ---------- Radio Stations ----------
 
-for(let i=0;i<OBVYRIS_STATIONS.length;i++){
+radioStations = [];
 
-    const station = OBVYRIS_STATIONS[i];
+for(const station of OBVYRIS_STATIONS){
 
     try{
 
@@ -1386,29 +1306,32 @@ for(let i=0;i<OBVYRIS_STATIONS.length;i++){
 
         const data = await res.json();
 
-        document.getElementById("radioProgram"+i).innerText =
-            data.program || "Unknown";
-
-        document.getElementById("radioArtist"+i).innerText =
-            data.artist || "-";
-
-        document.getElementById("radioGenre"+i).innerText =
-            data.genre || "-";
+        radioStations.push({
+            name: station.name,
+            program: data.program || "Unknown",
+            artist: data.artist || "-",
+            genre: data.genre || "-"
+        });
 
     }catch(e){
 
-        document.getElementById("radioProgram"+i).innerText =
-            "Unavailable";
-
-        document.getElementById("radioArtist"+i).innerText = "-";
-
-        document.getElementById("radioGenre"+i).innerText = "-";
-
-        console.error(station.name,e);
+        radioStations.push({
+            name: station.name,
+            program: "Unavailable",
+            artist: "-",
+            genre: "-"
+        });
 
     }
 
 }
+
+showNextRadioStation();
+
+if(!radioTimer){
+
+    radioTimer = setInterval(showNextRadioStation,5000);
+
 }
 
 
@@ -1427,7 +1350,53 @@ window.location.href =
 
 }
 
+function showNextRadioStation(){
 
+    if(!radioStations.length){
+        return;
+    }
+
+    const station = radioStations[radioIndex];
+
+    document.getElementById("radioStationName").innerText =
+        "📻 " + station.name;
+
+    document.getElementById("radioProgram").innerText =
+        station.program;
+
+    document.getElementById("radioArtist").innerText =
+        station.artist;
+
+    document.getElementById("radioGenre").innerText =
+        station.genre;
+
+    const btn =
+        document.getElementById("radioOpenButton");
+
+    btn.innerText =
+        "▶ Open " +
+        station.name.replace("Obvyris Radio ","");
+
+    btn.onclick = function(e){
+
+        e.stopPropagation();
+
+        location.href =
+            "Radio_Obvyris.html?station=" +
+            encodeURIComponent(station.name);
+
+    };
+
+    radioIndex++;
+
+    if(radioIndex >= radioStations.length){
+
+        radioIndex = 0;
+
+    }
+
+}
+    
 function openMLB(){
 
 window.open(
