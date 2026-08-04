@@ -798,24 +798,9 @@ scroll-behavior:smooth;
    TOOLTIP BUBBLES
 ===================== */
 
-[data-tip]{
+#tooltipBubble{
 
-position:relative;
-
-}
-
-
-[data-tip]::after{
-
-content:attr(data-tip);
-
-position:absolute;
-
-bottom:calc(100% + 10px);
-
-left:50%;
-
-transform:translateX(-50%);
+position:fixed;
 
 background:#101923;
 
@@ -833,55 +818,19 @@ font-weight:bold;
 
 white-space:nowrap;
 
-opacity:0;
+box-shadow:0 0 15px rgba(39,147,255,.5);
 
 pointer-events:none;
 
-transition:.2s ease;
-
-box-shadow:0 0 15px rgba(39,147,255,.5);
-
-z-index:999999;
-
-}
-
-
-[data-tip]::before{
-
-content:"";
-
-position:absolute;
-
-bottom:100%;
-
-left:50%;
-
-transform:translateX(-50%);
-
-border-width:6px;
-
-border-style:solid;
-
-border-color:#2793ff transparent transparent transparent;
-
 opacity:0;
 
-transition:.2s ease;
+transition:.15s ease;
 
-z-index:999999;
+z-index:999999999;
 
-}
-
-
-
-[data-tip]:hover::after,
-[data-tip]:hover::before{
-
-opacity:1;
+transform:translate(-50%,-100%);
 
 }
-
-
 /* =====================
    PLAYER TIME DISPLAY
 ===================== */
@@ -1246,6 +1195,8 @@ Playlist
 
 </div>
 
+<div id="tooltipBubble"></div>
+ 
 <script>
 
 
@@ -2892,7 +2843,40 @@ document.addEventListener("touchend",function(){
     isDragging=false;
 
 });
-  
+
+const tooltip = document.getElementById("tooltipBubble");
+
+
+document.querySelectorAll("[data-tip]").forEach(el=>{
+
+
+el.addEventListener("mouseenter",()=>{
+
+tooltip.innerHTML = el.dataset.tip;
+
+tooltip.style.opacity = "1";
+
+});
+
+
+el.addEventListener("mousemove",(e)=>{
+
+tooltip.style.left = e.clientX + "px";
+
+tooltip.style.top = e.clientY - 15 + "px";
+
+});
+
+
+el.addEventListener("mouseleave",()=>{
+
+tooltip.style.opacity="0";
+
+});
+
+
+});
+ 
 </script>
 
 
