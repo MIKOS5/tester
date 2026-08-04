@@ -1922,108 +1922,81 @@ function exportM3U(){
 
 function loadM3U(event){
 
-let file = event.target.files[0];
+    let file = event.target.files[0];
 
+    if(!file) return;
 
-if(!file)
-return;
+    let reader = new FileReader();
 
+    reader.onload = function(e){
 
+        let lines = e.target.result.split(/\r?\n/);
 
-let reader = new FileReader();
+        let newQueue = [];
 
+        let info = "";
 
+        lines.forEach(line=>{
 
-reader.onload = function(e){
+            line = line.trim();
 
+            if(!line) return;
 
-let lines = e.target.result.split(/\r?\n/);
+            if(line.startsWith("#EXTINF:")){
 
+                info = line.substring(line.indexOf(",")+1);
 
-let newQueue = [];
+                return;
 
+            }
 
+            if(line.startsWith("#")) return;
 
-lines.forEach(line=>{
+            let artist = "Unknown";
+            let name = decodeURIComponent(line.split("/").pop());
 
+            if(info){
 
-line=line.trim();
+                if(info.includes(" - ")){
 
+                    let parts = info.split(" - ");
 
+                    artist = parts.shift();
 
-if(
-line &&
-!line.startsWith("#")
-){
+                    name = parts.join(" - ");
 
+                }else{
 
-newQueue.push({
+                    name = info;
 
-name:
-line.split("/").pop(),
+                }
 
-artist:
-"Unknown",
+            }
 
-album:
-"Loaded M3U",
+            newQueue.push({
 
-url:
-line
+                name:name,
+                artist:artist,
+                album:"Loaded M3U",
+                url:line
 
+            });
 
-});
+            info="";
 
+        });
 
-}
+        queue = newQueue;
 
+        saveQueue();
 
+        renderQueue();
 
-});
+    };
 
-
-
-if(newQueue.length){
-
-
-queue = newQueue;
-
-
-queueIndex = 0;
-
-
-currentPlayingIndex = -1;
-
-
-saveQueue();
-
-
-renderQueue();
-
-
-
-document.getElementById("status").innerHTML =
-
-"Loaded "
-+
-queue.length
-+
-" tracks from playlist";
-
+    reader.readAsText(file);
 
 }
-
-
-
-};
-
-
-
-reader.readAsText(file);
-
-
-}
- 
 
 function formatSize(bytes){
 
