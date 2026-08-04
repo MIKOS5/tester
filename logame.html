@@ -4,9 +4,13 @@
 <head>
 
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
-<title>Obvyris Archive Data Engine</title>
+
+<title>
+Obvyris Archive Explorer
+</title>
 
 
 <style>
@@ -18,37 +22,58 @@ box-sizing:border-box;
 
 body{
 
+margin:10px;
+
+height:calc(100vh - 20px);
+
+overflow:hidden;
+
 background:#070d16;
 
 color:#d8e1ec;
 
-font-family:Arial,Helvetica,sans-serif;
+font-family:
+Arial,
+Helvetica,
+sans-serif;
 
 font-size:15px;
 
-margin:12px;
-
-padding-bottom:130px;
-
 }
 
 
-/* TITLE */
+
+/* =====================
+ HEADER
+===================== */
+
 
 h1{
 
-font-size:24px;
-
 color:#2793ff;
 
-margin:5px 0 12px;
+font-size:28px;
+
+margin:5px 0 15px;
 
 }
 
 
-/* SEARCH AREA */
+
+/* =====================
+ SEARCH PANEL
+===================== */
+
 
 .controls{
+
+background:#101923;
+
+border:1px solid #26384f;
+
+border-radius:12px;
+
+padding:14px;
 
 display:flex;
 
@@ -56,45 +81,37 @@ flex-wrap:wrap;
 
 gap:10px;
 
-align-items:center;
-
-background:#101a29;
-
-border:1px solid #25384d;
-
-padding:12px;
-
-border-radius:8px;
-
 }
+
 
 
 input,
 select,
 button{
 
+
 background:#17263a;
 
-color:#fff;
+color:white;
 
 border:1px solid #31465f;
 
-padding:10px 12px;
+border-radius:7px;
+
+padding:11px 14px;
 
 font-size:15px;
 
-border-radius:6px;
-
 }
+
 
 
 input{
 
 width:260px;
 
-max-width:100%;
-
 }
+
 
 
 button{
@@ -103,11 +120,12 @@ background:#2793ff;
 
 border:none;
 
+font-weight:bold;
+
 cursor:pointer;
 
-min-height:44px;
-
 }
+
 
 
 button:hover{
@@ -118,297 +136,691 @@ background:#55b5ff;
 
 
 
-/* NAVIGATION */
-
-.nav{
-
-display:flex;
-
-align-items:center;
-
-gap:8px;
-
-flex-wrap:wrap;
-
-margin-top:12px;
-
-}
-
-
-#pageInfo{
-
-color:#aaa;
-
-}
+/* =====================
+ STATUS
+===================== */
 
 
 #status{
 
-font-size:13px;
+margin-top:12px;
 
-color:#aaa;
-
-margin-top:10px;
+color:#9aaabd;
 
 }
 
 
 
-/* RESULTS */
+/* =====================
+ RESULTS AREA
+===================== */
+
+
+#results{
+
+
+height:calc(100vh - 250px);
+
+overflow-y:auto;
+
+padding-right:8px;
+
+
+}
+
+
 
 .card{
 
+
 background:#101923;
 
-border:1px solid #25384d;
+border:1px solid #26384f;
 
-padding:14px;
+border-radius:12px;
+
+padding:16px;
 
 margin-top:12px;
 
-border-radius:8px;
 
 }
+
+
+
+.card:hover{
+
+border-color:#2793ff;
+
+}
+
+
 
 
 .title{
 
-font-size:18px;
 
-color:#55b8ff;
+font-size:20px;
 
 font-weight:bold;
 
-margin-bottom:6px;
+color:#55b8ff;
+
+margin-bottom:10px;
+
 
 }
+
+
 
 
 .meta{
 
-line-height:22px;
+line-height:25px;
 
-color:#b9c6d6;
+color:#b8c5d6;
 
 }
 
 
+
+
 .tag{
+
 
 display:inline-block;
 
 background:#2793ff;
 
-padding:3px 8px;
+padding:4px 10px;
 
-border-radius:10px;
+border-radius:20px;
 
 font-size:12px;
 
-}
-
-
-
-/* FILES */
-
-.file{
-
-padding:10px;
-
-border-bottom:1px solid #26384f;
-
-cursor:pointer;
-
-font-size:15px;
 
 }
 
 
-.file:hover{
 
-background:#1b3048;
+/* =====================
+ THUMBNAILS
+===================== */
+
+
+.archiveThumb{
+
+
+width:140px;
+
+height:140px;
+
+object-fit:cover;
+
+border-radius:10px;
+
+float:right;
+
+margin-left:15px;
+
+border:1px solid #31465f;
+
 
 }
+
+
+
+/* =====================
+ FILE BROWSER
+===================== */
 
 
 .files{
 
+
 display:none;
 
-margin-top:10px;
-
-}
-
-
-
-.small{
-
-font-size:12px;
-
-color:#8995a5;
-
-}
-
-
-audio{
-
-width:100%;
-
-height:38px;
-
-margin-top:8px;
-
-}
-
-
-a{
-
-color:#65c9ff;
-
-word-break:break-word;
-
-}
-
-
-
-/* DETAILS */
-
-details{
-
-margin-top:6px;
-
-}
-
-
-summary{
-
-cursor:pointer;
-
-color:#65c9ff;
-
-font-size:13px;
-
-}
-
-
-details .small{
-
-padding:8px;
+margin-top:15px;
 
 background:#0c1522;
 
-border-left:2px solid #2793ff;
+border-radius:10px;
 
-margin-top:5px;
+padding:10px;
+
 
 }
 
 
 
-/* PLAYER */
+.file{
 
-#playerBar{
+
+padding:12px;
+
+border-bottom:
+
+1px solid #26384f;
+
+cursor:pointer;
+
+
+}
+
+
+
+.file:hover{
+
+
+background:#182b43;
+
+
+}
+
+
+
+
+
+/* =====================
+ METADATA
+===================== */
+
+
+.metaPanel{
+
+
+margin-top:10px;
+
+padding:14px;
+
+background:#0c1522;
+
+border-left:
+
+3px solid #2793ff;
+
+border-radius:8px;
+
+
+}
+
+
+
+
+
+/* =====================
+ VIDEO PLAYER
+===================== */
+
+
+
+#obvyrisVideoPlayer{
+
 
 position:fixed;
+
+
+left:50px;
+
+top:100px;
+
+
+width:520px;
+
+
+height:620px;
+
+display:none;
+ 
+background:
+
+rgba(16,25,35,.65);
+
+
+backdrop-filter:
+
+blur(12px);
+
+
+
+border:
+
+2px solid rgba(39,147,255,.8);
+
+
+border-radius:14px;
+
+
+box-shadow:
+
+0 0 35px rgba(0,0,0,.8);
+
+
+z-index:99999;
+
+
+resize:both;
+
+overflow:hidden;
+
+
+}
+
+
+
+
+#videoHeader{
+
+
+height:42px;
+
+
+padding:10px;
+
+
+background:
+
+rgba(20,35,56,.7);
+
+
+color:#55b8ff;
+
+
+font-weight:bold;
+
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+
+cursor:move;
+
+
+}
+
+
+
+
+.windowButtons button{
+
+
+width:22px;
+
+height:22px;
+
+padding:0;
+
+font-size:12px;
+
+
+}
+
+
+
+
+#videoDisplay{
+
+
+padding:15px;
+
+text-align:center;
+
+
+background:
+
+rgba(0,0,0,.25);
+
+
+}
+
+
+
+
+#videoTitle{
+
+
+font-size:18px;
+
+font-weight:bold;
+
+color:#55b8ff;
+
+
+}
+
+
+
+#videoMeta{
+
+
+color:#aaa;
+
+margin-top:6px;
+
+
+}
+
+
+
+#archiveVideo{
+
+
+width:100%;
+
+height:300px;
+
+background:black;
+
+
+}
+
+
+
+
+
+#videoProgress{
+
+
+padding:10px;
+
+
+}
+
+
+
+#videoTime{
+
+
+display:flex;
+
+justify-content:space-between;
+
+font-family:monospace;
+
+color:#65c9ff;
+
+
+}
+
+
+
+
+#videoSeek{
+
+
+width:100%;
+
+
+}
+
+
+
+
+#videoButtons{
+
+
+display:flex;
+
+justify-content:center;
+
+gap:8px;
+
+padding:10px;
+
+
+}
+
+
+
+#videoButtons button{
+
+
+width:55px;
+
+height:40px;
+
+
+}
+
+
+
+
+#videoPlaylist{
+
+
+height:160px;
+
+overflow:auto;
+
+padding:10px;
+
+border-top:
+
+1px solid #26384f;
+
+
+}
+
+
+
+.videoItem{
+
+
+padding:8px;
+
+border-bottom:
+
+1px solid #26384f;
+
+cursor:pointer;
+
+
+}
+
+
+
+.videoItem:hover{
+
+
+background:#182b43;
+
+
+}
+
+
+
+/* =====================
+ MINIMIZE
+===================== */
+
+
+#obvyrisVideoPlayer.minimized{
+
+
+height:45px;
+
+resize:none;
+
+
+}
+
+
+
+#obvyrisVideoPlayer.minimized
+#videoDisplay,
+
+#obvyrisVideoPlayer.minimized
+video,
+
+#obvyrisVideoPlayer.minimized
+#videoProgress,
+
+#obvyrisVideoPlayer.minimized
+#videoButtons,
+
+#obvyrisVideoPlayer.minimized
+#videoPlaylist{
+
+
+display:none;
+
+
+}
+
+
+
+/* =====================
+ RESTORE BUTTON
+===================== */
+
+
+#restorePlayer{
+
+
+position:fixed;
+
+
+bottom:20px;
+
+right:20px;
+
+
+display:block;
+
+
+z-index:99999;
+
+
+}
+
+
+
+
+/* =====================
+ FOOTER
+===================== */
+
+
+footer{
+
+
+position:fixed;
+
+bottom:0;
 
 left:0;
 
 right:0;
 
-bottom:0;
 
 background:#101923;
 
-border-top:1px solid #25384d;
+
+border-top:
+
+1px solid #26384f;
+
 
 padding:10px;
 
-font-size:13px;
 
-z-index:9999;
-
-}
+text-align:center;
 
 
-#playerBar button{
+color:#8995a5;
 
-padding:8px 14px;
-
-margin:4px;
-
-font-size:15px;
-
-min-width:60px;
-
-}
-
-
-#npName{
-
-color:#55b8ff;
-
-font-weight:bold;
-
-font-size:16px;
-
-}
-
-
-#npMeta{
-
-color:#aaa;
 
 font-size:13px;
 
-margin-bottom:6px;
 
 }
 
 
 
-/* ===================================
-   ANDROID PHONE MODE
-   =================================== */
 
-@media screen and (max-width:600px){
+
+/* =====================
+ SCROLLBARS
+===================== */
+
+
+::-webkit-scrollbar{
+
+
+width:10px;
+
+
+}
+
+
+::-webkit-scrollbar-track{
+
+
+background:#070d16;
+
+
+}
+
+
+
+::-webkit-scrollbar-thumb{
+
+
+background:#26384f;
+
+border-radius:10px;
+
+
+}
+
+
+
+::-webkit-scrollbar-thumb:hover{
+
+
+background:#2793ff;
+
+
+}
+
+
+
+
+
+/* =====================
+ MOBILE
+===================== */
+
+
+@media(max-width:700px){
 
 
 body{
 
-margin:0;
-
-padding:10px;
-
-padding-bottom:190px;
-
-font-size:18px;
+margin:5px;
 
 }
 
 
-/* HEADER */
 
 h1{
 
-font-size:28px;
+font-size:22px;
 
 text-align:center;
-
-margin:10px 0 20px;
 
 }
 
 
-
-/* SEARCH PANEL */
 
 .controls{
 
+
 display:block;
 
-padding:15px;
-
-border-radius:14px;
 
 }
 
@@ -418,360 +830,93 @@ border-radius:14px;
 .controls select,
 .controls button{
 
-
-display:block;
-
-width:100% !important;
-
-height:60px;
-
-margin-bottom:14px;
-
-font-size:21px;
-
-border-radius:12px;
-
-padding:10px;
-
-}
-
-
-
-.controls button{
-
-height:68px;
-
-font-size:25px;
-
-font-weight:bold;
-
-}
-
-
-
-/* PREVIOUS NEXT */
-
-.nav{
-
-display:grid;
-
-grid-template-columns:1fr 1fr;
-
-gap:12px;
-
-margin-top:15px;
-
-}
-
-
-.nav button{
-
-height:70px;
-
-font-size:24px;
-
-font-weight:bold;
-
-}
-
-
-#pageInfo{
-
-grid-column:1 / 3;
-
-text-align:center;
-
-font-size:21px;
-
-}
-
-
-
-/* STATUS */
-
-#status{
-
-font-size:18px;
-
-text-align:center;
-
-}
-
-
-
-/* CARDS */
-
-.card{
-
-padding:18px;
-
-margin-top:15px;
-
-border-radius:14px;
-
-}
-
-
-
-.title{
-
-font-size:23px;
-
-line-height:1.4;
-
-}
-
-
-
-.meta{
-
-font-size:18px;
-
-line-height:30px;
-
-}
-
-
-
-/* TAG */
-
-.tag{
-
-font-size:16px;
-
-padding:5px 12px;
-
-}
-
-
-
-/* GENRE */
-
-summary{
-
-font-size:20px;
-
-padding:10px;
-
-}
-
-
-details .small{
-
-font-size:18px;
-
-padding:14px;
-
-}
-
-
-
-/* FILES */
-
-.file{
-
-font-size:18px;
-
-padding:16px;
-
-}
-
-
-
-/* LINKS + BUTTONS */
-
-.card button,
-.card a{
-
-
-display:block;
 
 width:100%;
 
-height:62px;
-
-margin-top:12px;
-
-font-size:20px;
-
-text-align:center;
-
-padding:15px;
-
-border-radius:12px;
-
-}
-
-/* FOOTER */
-
-footer{
-
-background:#101923;
-
-border-top:1px solid #25384d;
-
-color:#8995a5;
-
-text-align:center;
-
-padding:18px;
-
-margin-top:40px;
-
-font-size:13px;
-
-}
-
-
-footer a{
-
-color:#65c9ff;
-
-text-decoration:none;
-
-}
-
-
-footer a:hover{
-
-text-decoration:underline;
-
-}
-
-
-@media screen and (max-width:600px){
-
-footer{
-
-font-size:16px;
-
-padding:20px;
-
-margin-bottom:120px;
-
-}
-
-}
-
-
-/* AUDIO PLAYER */
-
-#playerBar{
-
-padding:14px;
-
-}
-
-
-#npName{
-
-font-size:21px;
-
-}
-
-
-#npMeta{
-
-font-size:17px;
-
-}
-
-
-
-#playerBar button{
-
-
-width:31%;
-
-height:62px;
-
-font-size:23px;
-
-margin:5px 1%;
-
-}
-
-
-audio{
-
-height:52px;
-
-}
-
-
-
-}
-
-
-/* ===================================
-   SMALL ANDROID DEVICES
-   =================================== */
-
-@media screen and (max-width:360px){
-
-
-h1{
-
-font-size:24px;
-
-}
-
-
-.controls input,
-.controls select,
-.controls button{
-
-font-size:18px;
-
 height:55px;
 
-}
+margin-bottom:10px;
 
-
-.nav button{
-
-font-size:20px;
-
-height:62px;
 
 }
 
 
-.title{
 
-font-size:20px;
-
-}
+#results{
 
 
-.meta{
+height:calc(100vh - 330px);
 
-font-size:16px;
 
 }
 
 
+
+.archiveThumb{
+
+
+float:none;
+
+width:100%;
+
+height:180px;
+
+margin:0 0 10px 0;
+
+
 }
+
+
+
+
+#obvyrisVideoPlayer{
+
+
+left:5px;
+
+top:80px;
+
+width:95%;
+
+
+}
+
+
+
+footer{
+
+
+font-size:12px;
+
+
+}
+
+
+
+}
+
+
 
 </style>
-</head>
 
+</head>
 
 
 <body>
 
 
-
 <h1>
-🔎 Obvyris Archive Data Engine
+🌐 Obvyris Archive Explorer
 </h1>
 
 
 
 <div class="controls">
 
-<input id="search"
-placeholder="Search Internet Archive...">
+
+<input 
+id="search"
+placeholder="Search Internet Archive">
 
 
 <select id="type">
@@ -780,60 +925,66 @@ placeholder="Search Internet Archive...">
 All Media
 </option>
 
-<option value="audio">
-🎵 Audio
-</option>
 
 <option value="movies">
-🎬 Movies
+🎬 Video
 </option>
 
+
 <option value="texts">
-📚 Texts
+📚 Documents
 </option>
+
 
 <option value="software">
 💾 Software
 </option>
 
-<option value="etree">
-🎸 Live Concerts
+
+<option value="audio">
+🎵 Audio
 </option>
+
+
+<option value="image">
+🖼 Images
+</option>
+
 
 </select>
 
 
-<input id="creator"
+
+<input
+id="creator"
 placeholder="Creator">
 
 
-<input id="uploader"
-placeholder="Uploader">
-
-
-<input id="genre"
-placeholder="Genre">
-
 
 <select id="sort">
+
 
 <option value="downloads desc">
 Most Popular
 </option>
 
+
 <option value="date desc">
 Newest
 </option>
 
+
 <option value="titleSorter asc">
-Title A-Z
+A-Z
 </option>
+
 
 </select>
 
 
+
 <button onclick="searchArchive(0)">
-SEARCH
+🔎 SEARCH
 </button>
 
 
@@ -841,28 +992,64 @@ SEARCH
 
 
 
+<div id="status">
 
-<div class="nav">
+Ready
+
+</div>
 
 
-<button onclick="previousPage()">
 
-◀ Previous
+<div id="results">
+
+</div>
+
+
+
+
+
+<!-- VIDEO PLAYER -->
+
+
+<button id="restorePlayer"
+onclick="showVideoPlayer()">
+
+🎬 Player
 
 </button>
 
 
 
-<button onclick="nextPage()">
 
-Next ▶
+<div id="obvyrisVideoPlayer">
 
+
+
+<div id="videoHeader">
+
+
+<span>
+
+Obvyris Video Player
+
+</span>
+
+
+
+<div class="windowButtons">
+
+
+<button onclick="minimizeVideoPlayer()">
+−
 </button>
 
 
+<button onclick="hideVideoPlayer()">
+×
+</button>
 
-<span id="pageInfo"></span>
 
+</div>
 
 
 </div>
@@ -870,269 +1057,267 @@ Next ▶
 
 
 
-<h3 id="status"></h3>
+<div id="videoDisplay">
 
 
+<div id="videoTitle">
 
-<div id="results"></div>
+No Video Selected
 
-
-<!-- GLOBAL ARCHIVE PLAYER -->
-
-<div id="playerBar">
-
-<div id="npName">
-No Track Playing
-</div>
-
-<div id="npMeta">
-Archive Audio
 </div>
 
 
-<audio id="audio"></audio>
+<div id="videoMeta">
+
+Archive Video
+
+</div>
 
 
-<div>
+</div>
 
-<button onclick="archivePrev()">
+
+
+
+<video
+id="archiveVideo"
+controls>
+
+</video>
+
+
+
+
+<div id="videoProgress">
+
+
+<div id="videoTime">
+
+<span id="videoCurrent">
+
+0:00
+
+</span>
+
+
+<span id="videoDuration">
+
+0:00
+
+</span>
+
+
+</div>
+
+
+
+<input
+id="videoSeek"
+type="range"
+value="0"
+min="0"
+max="100">
+
+
+</div>
+
+
+
+
+
+<div id="videoButtons">
+
+
+<button onclick="previousVideo()">
 ◀
 </button>
 
 
-<button onclick="archiveToggle()">
-▶ / ⏸
+<button onclick="toggleVideo()">
+▶⏸
 </button>
 
 
-<button onclick="archiveNext()">
-▶
+<button onclick="nextVideo()">
+▶▶
 </button>
 
+
+<button onclick="fullscreenVideo()">
+⛶
+</button>
+
+
+</div>
+
+
+
+
+<div id="videoPlaylist">
+
+
+<h3>
+Playlist
+</h3>
+
+
+<div id="videoQueue">
+
 </div>
 
 
 </div>
 
-<footer>
 
-<div>
-<strong>Obvyris Archive Data Engine</strong>
-</div>
-
-<div>
-Powered by Internet Archive Metadata API
-</div>
-
-<div>
-
-<a href="https://archive.org" target="_blank">
-Internet Archive
-</a>
-
-|
-
-<a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'})">
-Back to Top
-</a>
 
 </div>
 
-<div class="small">
 
-© 2026 Obvyris. Digital media discovery platform.
 
-</div>
 
-</footer>
-   
+
 <script>
 
 
-let currentPage = 0;
+let currentPage=0;
+
+let pageSize=25;
 
 
-let pageSize = 500;
+let videoQueue=[];
 
-
-let currentQuery = "*";
-
-
-let currentSort = "downloads desc";
+let videoIndex=0;
 
 
 
-let playlist = [];
-
-let playlistIndex = 0;
-
+// ===========================
+// SEARCH ARCHIVE
+// ===========================
 
 
 async function searchArchive(page){
 
 
-currentPage = page;
+currentPage=page;
 
 
 
-let text =
-document.getElementById("search").value.trim();
+let text=
+
+document.getElementById("search")
+.value
+.trim();
 
 
 
-let type =
-document.getElementById("type").value;
+let type=
+
+document.getElementById("type")
+.value;
 
 
 
-currentSort =
-document.getElementById("sort").value;
+let creator=
 
-
-
-currentQuery =
-text || "*";
-
-
-// Media type filter
-
-if(type){
-
-currentQuery += 
-" AND mediatype:" + type;
-
-}
-
-
-// Creator filter
-
-let creator =
 document.getElementById("creator")
 .value
 .trim();
 
 
+
+let sort=
+
+document.getElementById("sort")
+.value;
+
+
+
+
+let query=text || "*";
+
+
+
+if(type){
+
+query +=
+" AND mediatype:"+type;
+
+}
+
+
+
 if(creator){
 
-currentQuery +=
-' AND creator:"' + creator + '"';
-
-}
-
-
-// Uploader filter
-
-let uploader =
-document.getElementById("uploader")
-.value
-.trim();
-
-
-if(uploader){
-
-currentQuery +=
-' AND uploader:"' + uploader + '"';
-
-}
-
-
-// Genre filter
-
-let genre =
-document.getElementById("genre")
-.value
-.trim();
-
-
-if(genre){
-
-currentQuery +=
-' AND subject:"' + genre + '"';
+query +=
+' AND creator:"'+creator+'"';
 
 }
 
 
 
-let start =
-page * pageSize;
 
 
-
-
-let url =
+let url=
 
 "https://archive.org/advancedsearch.php?q="
 
-+ encodeURIComponent(currentQuery)
++encodeURIComponent(query)
 
-+ "&fl[]=identifier,title,creator,uploader,description,mediatype,subject,date"
++"&fl[]=identifier,title,creator,description,mediatype,date"
 
-+ "&rows=" + pageSize
++"&rows="+pageSize
 
-+ "&start=" + start
++"&start="+(page*pageSize)
 
-+ "&sort[]=" + encodeURIComponent(currentSort)
++"&sort[]="+encodeURIComponent(sort)
 
-+ "&output=json";
-
-
-
-
-document.getElementById("status").innerHTML =
-"Loading 500 results...";
++"&output=json";
 
 
 
 
-let response =
+
+document.getElementById("status").innerHTML=
+
+"Searching Archive...";
+
+
+
+
+
+let response=
+
 await fetch(url);
 
 
 
-let data =
+let data=
+
 await response.json();
 
 
 
 
-document.getElementById("pageInfo").innerHTML =
 
-"Page " + (page + 1);
-
-
-
-document.getElementById("status").innerHTML =
+document.getElementById("status").innerHTML=
 
 "Found "
 
-+ data.response.numFound
++data.response.numFound
 
-+ " records";
-
-
-
-displayResults(data.response.docs);
++" items";
 
 
 
-}
 
 
-function nextPage(){
+renderResults(
 
-searchArchive(currentPage + 1);
+data.response.docs
 
-}
+);
 
 
-
-function previousPage(){
-
-if(currentPage > 0){
-
-searchArchive(currentPage - 1);
-
-}
 
 }
 
@@ -1140,71 +1325,66 @@ searchArchive(currentPage - 1);
 
 
 
-function displayResults(items){
+// ===========================
+// RESULTS
+// ===========================
 
 
-let box =
+function renderResults(items){
+
+
+let box=
+
 document.getElementById("results");
+
 
 
 box.innerHTML="";
 
 
 
+
 items.forEach(item=>{
 
 
-let icon="📁";
 
+let thumb=
 
-if(item.mediatype=="audio")
-icon="🎵";
+"https://archive.org/services/img/"
 
-if(item.mediatype=="movies")
-icon="🎬";
-
-if(item.mediatype=="texts")
-icon="📚";
-
-if(item.mediatype=="software")
-icon="💾";
-
-
-
-
-let subject = "";
-
-
-if(Array.isArray(item.subject)){
-
-subject=item.subject.join(", ");
-
-}
-
-else{
-
-subject=item.subject || "";
-
-}
++item.identifier;
 
 
 
 
 
-box.innerHTML += `
+box.innerHTML+=`
 
 
 <div class="card">
 
 
 
+<img
+
+class="archiveThumb"
+
+src="${thumb}"
+
+onerror="this.style.display='none'">
+
+
+
+
+
 <div class="title">
 
-${icon}
+📦
 
 ${escapeHTML(item.title || "Unknown")}
 
 </div>
+
 
 
 
@@ -1219,7 +1399,8 @@ ${item.mediatype}
 
 
 
-<br>
+<br><br>
+
 
 
 Creator:
@@ -1231,53 +1412,30 @@ ${escapeHTML(item.creator || "Unknown")}
 <br>
 
 
-Uploader:
-
-${escapeHTML(item.uploader || "Unknown")}
-
-
-
-<br>
-
-
 Date:
 
-${escapeHTML(item.date || "Unknown")}
+${escapeHTML(item.date || "")}
 
 
 
 <br>
 
 
-<details>
+Collection:
 
-<summary>
-Genre
-</summary>
+${escapeHTML(item.collection || "")}
 
 
-<div class="small">
 
-${escapeHTML(subject || "Unknown")}
-
-</div>
+<br><br>
 
 
-</details>
-
-
-<br>
-
-
-Description:
-
-<br>
 
 ${escapeHTML(
 
 (item.description || "No description")
 
-.substring(0,250)
+.substring(0,300)
 
 )}
 
@@ -1292,39 +1450,11 @@ ${escapeHTML(
 
 
 
-<button onclick="loadFiles('${item.identifier}',this)">
+<button onclick="loadFiles('${item.identifier}')">
 
-🎵 Load Tracks
+📂 Browse Files
 
 </button>
-
-
-
-<a target="_blank"
-
-href="https://archive.org/details/${item.identifier}">
-
-🌐 Archive Page
-
-</a>
-
-
-
-&nbsp;
-
-
-
-<a target="_blank"
-
-href="https://archive.org/download/${item.identifier}">
-
-📂 All Files
-
-</a>
-
-
-
-&nbsp;
 
 
 
@@ -1336,10 +1466,20 @@ href="https://archive.org/download/${item.identifier}">
 
 
 
+<div
 
-<div class="files"
+class="files"
 
 id="files-${item.identifier}">
+
+
+</div>
+
+
+
+<div
+
+id="meta-${item.identifier}">
 
 
 </div>
@@ -1363,38 +1503,38 @@ id="files-${item.identifier}">
 
 
 
-async function loadFiles(id,btn){
+// ===========================
+// FILE LOADER
+// ===========================
+
+
+async function loadFiles(id){
 
 
 
-let box =
+let box=
 
-document.getElementById("files-"+id);
-
-
-
-if(box.style.display=="block"){
-
-
-box.style.display="none";
-
-
-return;
-
-
-}
+document.getElementById(
+"files-"+id
+);
 
 
 
 box.style.display="block";
 
 
-box.innerHTML="Loading files...";
+
+box.innerHTML=
+
+"Loading files...";
 
 
 
 
-let response = await fetch(
+
+let response=
+
+await fetch(
 
 "https://archive.org/metadata/"+id
 
@@ -1402,16 +1542,17 @@ let response = await fetch(
 
 
 
-let data = await response.json();
+let data=
+
+await response.json();
 
 
 
-let tracks=[];
+let html="";
 
 
 
-let totalFiles =
-data.files.length;
+videoQueue=[];
 
 
 
@@ -1422,103 +1563,376 @@ data.files.forEach(file=>{
 let name=file.name || "";
 
 
+let ext=
 
-if(
+name.split(".").pop()
 
-name.toLowerCase().endsWith(".mp3")
-
-||
-
-name.toLowerCase().endsWith(".ogg")
-
-||
-
-name.toLowerCase().endsWith(".wav")
-
-){
+.toLowerCase();
 
 
 
-tracks.push({
 
 
-name:name,
-
-
-url:
+let url=
 
 "https://archive.org/download/"
 
 +id+"/"
 
-+encodeURIComponent(name)
++encodeURIComponent(name);
 
 
+
+
+
+
+if([
+
+"mp4",
+
+"webm",
+
+"ogv",
+
+"mkv"
+
+].includes(ext)){
+
+
+
+videoQueue.push({
+
+name:name,
+
+url:url
 
 });
 
 
 
-}
-
-
-
-});
-
-
-
-
-
-
-let html = `
-
-
-<div class="small">
-
-Files:
-
-${totalFiles}
-
-
-<br>
-
-
-Playable Tracks:
-
-${tracks.length}
-
-
-</div>
-
-
-
-<div id="player">
-
-</div>
-
-
-
-`;
-
-
-
-
-
-tracks.forEach((track,index)=>{
-
-
-html += `
+html+=`
 
 
 <div class="file"
 
-onclick="playArchiveFile('${id}',${index})">
+onclick="playVideo(${videoQueue.length-1})">
+
+
+🎬
+
+${escapeHTML(name)}
+
+
+</div>
+
+
+`;
+
+
+
+}
+
+
+
+
+
+else if([
+
+"mp3",
+
+"wav",
+
+"ogg"
+
+].includes(ext)){
+
+
+html+=`
+
+
+<div class="file">
 
 
 🎵
 
-${escapeHTML(track.name)}
+<a href="${url}">
 
+${escapeHTML(name)}
+
+</a>
+
+
+</div>
+
+
+`;
+
+
+
+}
+
+
+
+
+
+else if([
+
+"pdf",
+
+"epub",
+
+"txt"
+
+].includes(ext)){
+
+
+html+=`
+
+
+<div class="file">
+
+
+📚
+
+<a href="${url}" target="_blank">
+
+${escapeHTML(name)}
+
+</a>
+
+
+</div>
+
+
+`;
+
+
+
+}
+
+
+
+
+else{
+
+
+html+=`
+
+
+<div class="file">
+
+
+📄
+
+<a href="${url}" target="_blank">
+
+${escapeHTML(name)}
+
+</a>
+
+
+</div>
+
+
+`;
+
+
+
+}
+
+
+
+});
+
+
+
+
+
+box.innerHTML=html;
+
+
+
+renderVideoQueue();
+
+
+
+}
+
+
+
+
+
+// ===========================
+// VIDEO PLAYER
+// ===========================
+
+
+
+function playVideo(index){
+
+
+if(!videoQueue[index])
+return;
+
+
+
+videoIndex=index;
+
+
+
+let video=
+
+document.getElementById(
+"archiveVideo"
+);
+
+
+
+video.src=
+
+videoQueue[index].url;
+
+
+
+video.play();
+
+
+
+document.getElementById(
+"videoTitle"
+).innerHTML=
+
+videoQueue[index].name;
+
+
+
+document.getElementById(
+"videoMeta"
+).innerHTML=
+
+"Video "
+
++(index+1)
+
++" / "
+
++videoQueue.length;
+
+
+
+showVideoPlayer();
+
+
+
+}
+
+
+
+
+
+function toggleVideo(){
+
+
+let v=
+
+document.getElementById(
+"archiveVideo"
+);
+
+
+
+if(v.paused)
+
+v.play();
+
+else
+
+v.pause();
+
+
+
+}
+
+
+
+function nextVideo(){
+
+
+if(videoIndex < videoQueue.length-1){
+
+videoIndex++;
+
+playVideo(videoIndex);
+
+}
+
+
+}
+
+
+
+
+function previousVideo(){
+
+
+if(videoIndex>0){
+
+videoIndex--;
+
+playVideo(videoIndex);
+
+}
+
+
+}
+
+
+
+
+function fullscreenVideo(){
+
+
+document
+
+.getElementById("archiveVideo")
+
+.requestFullscreen();
+
+
+
+}
+
+
+
+
+
+function renderVideoQueue(){
+
+
+let box=
+
+document.getElementById(
+"videoQueue"
+);
+
+
+
+box.innerHTML="";
+
+
+
+videoQueue.forEach((v,i)=>{
+
+
+box.innerHTML+=`
+
+
+<div class="videoItem"
+
+onclick="playVideo(${i})">
+
+
+${i+1}. ${escapeHTML(v.name)}
 
 
 </div>
@@ -1532,15 +1946,53 @@ ${escapeHTML(track.name)}
 
 
 
-
-archivePlaylist = tracks;
-
-archiveIndex = 0;
+}
 
 
 
 
-box.innerHTML = html;
+// ===========================
+// PLAYER WINDOW
+// ===========================
+
+
+function minimizeVideoPlayer(){
+
+
+document
+
+.getElementById(
+"obvyrisVideoPlayer"
+)
+
+.classList.toggle(
+
+"minimized"
+
+);
+
+
+}
+
+
+
+
+function hideVideoPlayer(){
+
+
+document.getElementById(
+"obvyrisVideoPlayer"
+)
+
+.style.display="none";
+
+
+
+document.getElementById(
+"restorePlayer"
+)
+
+.style.display="block";
 
 
 
@@ -1548,73 +2000,43 @@ box.innerHTML = html;
 
 
 
-function playArchiveFile(id,index){
-
-    if(id){
-
-        loadFiles(id);
-
-    }
-
-    playTrack(index);
-
-}
-
-function archiveToggle(){
-
-const audio=document.getElementById("audio");
 
 
-if(audio.paused){
+function showVideoPlayer(){
 
-audio.play();
 
-}else{
+document.getElementById(
+"obvyrisVideoPlayer"
+)
 
-audio.pause();
+.style.display="block";
 
-}
+
+
+document.getElementById(
+"restorePlayer"
+)
+
+.style.display="none";
+
 
 }
 
 
 
-function archiveNext(){
-
-if(
-archiveIndex <
-archivePlaylist.length-1
-){
-
-archiveIndex++;
-
-playTrack(archiveIndex);
-
-}
-
-}
 
 
+// ===========================
+// METADATA
+// ===========================
 
-function archivePrev(){
 
-if(
-archiveIndex>0
-){
-
-archiveIndex--;
-
-playTrack(archiveIndex);
-
-}
-
-}
-  
 async function showMeta(id){
 
 
+let response=
 
-let response = await fetch(
+await fetch(
 
 "https://archive.org/metadata/"+id
 
@@ -1622,58 +2044,161 @@ let response = await fetch(
 
 
 
-let data = await response.json();
+let data=
+
+await response.json();
 
 
 
-let m=data.metadata;
+let box=
 
-
-
-alert(
-
-"Identifier:\n"
-
-+id+
-
-
-
-"\n\nTitle:\n"
-
-+(m.title || "")
-
-
-
-+"\n\nCreator:\n"
-
-+(m.creator || "")
-
-
-
-+"\n\nUploader:\n"
-
-+(m.uploader || "")
-
-
-
-+"\n\nCollection:\n"
-
-+(m.collection || "")
-
-
-
-+"\n\nDescription:\n"
-
-+(m.description || "")
-
-
-
+document.getElementById(
+"meta-"+id
 );
 
 
 
+box.innerHTML=`
+
+
+<div class="metaPanel">
+
+
+Identifier:
+
+<br>
+
+${id}
+
+
+
+<br><br>
+
+
+Files:
+
+${data.files.length}
+
+
+
+<br><br>
+
+
+Title:
+
+${escapeHTML(data.metadata.title || "")}
+
+
+
+</div>
+
+
+`;
+
+
 
 }
+
+
+
+
+
+// ===========================
+// VIDEO TIME
+// ===========================
+
+
+let video=
+
+document.getElementById(
+"archiveVideo"
+);
+
+
+
+video.addEventListener(
+"timeupdate",
+()=>{
+
+
+if(video.duration){
+
+
+document.getElementById(
+"videoSeek"
+).value=
+
+(video.currentTime/video.duration)*100;
+
+
+
+document.getElementById(
+"videoCurrent"
+).innerHTML=
+
+formatTime(video.currentTime);
+
+
+
+document.getElementById(
+"videoDuration"
+).innerHTML=
+
+formatTime(video.duration);
+
+
+
+}
+
+
+});
+
+
+
+
+
+document.getElementById(
+"videoSeek"
+).oninput=function(){
+
+
+video.currentTime=
+
+(video.duration*this.value)/100;
+
+
+};
+
+
+
+
+
+function formatTime(t){
+
+
+if(!t || isNaN(t))
+
+return "0:00";
+
+
+
+let m=Math.floor(t/60);
+
+let s=Math.floor(t%60);
+
+
+
+if(s<10)
+
+s="0"+s;
+
+
+
+return m+":"+s;
+
+
+}
+
 
 
 
@@ -1691,110 +2216,580 @@ return String(text)
 
 .replaceAll('"',"&quot;");
 
+
 }
 
-// =============================
-// GLOBAL AUDIO PLAYER
-// =============================
 
 
-let archivePlaylist=[];
-let archiveIndex=0;
 
 
-function playTrack(index){
+// =====================================
+// DRAGGABLE VIDEO PLAYER
+// =====================================
 
 
-if(!archivePlaylist[index])
+const videoWindow =
+document.getElementById(
+"obvyrisVideoPlayer"
+);
+
+
+const videoHeader =
+document.getElementById(
+"videoHeader"
+);
+
+
+
+let dragging=false;
+
+let offsetX=0;
+
+let offsetY=0;
+
+
+
+videoHeader.addEventListener(
+"mousedown",
+function(e){
+
+
+dragging=true;
+
+
+offsetX =
+e.clientX -
+videoWindow.offsetLeft;
+
+
+offsetY =
+e.clientY -
+videoWindow.offsetTop;
+
+
+
+});
+
+
+
+
+
+document.addEventListener(
+"mousemove",
+function(e){
+
+
+if(!dragging)
 return;
 
 
-archiveIndex=index;
 
+videoWindow.style.left =
 
-const track=archivePlaylist[index];
+(e.clientX-offsetX)
 
-
-const audio=document.getElementById("audio");
-
-
-audio.src=track.url;
-
-
-audio.play();
++"px";
 
 
 
-document.getElementById("npName").innerHTML =
-"🎵 " + track.name;
+videoWindow.style.top =
+
+(e.clientY-offsetY)
+
++"px";
 
 
-document.getElementById("npMeta").innerHTML =
-"Track " + (index+1) +
-" / " +
-archivePlaylist.length;
+
+savePlayerPosition();
 
 
-audio.onended=function(){
 
-    archiveNext();
+});
 
-};
+
+
+
+
+document.addEventListener(
+"mouseup",
+function(){
+
+
+dragging=false;
+
+
+});
+
+
+
+
+
+// TOUCH DRAG
+
+
+videoHeader.addEventListener(
+"touchstart",
+function(e){
+
+
+let t=e.touches[0];
+
+
+dragging=true;
+
+
+offsetX=
+
+t.clientX-
+
+videoWindow.offsetLeft;
+
+
+
+offsetY=
+
+t.clientY-
+
+videoWindow.offsetTop;
+
+
+});
+
+
+
+
+
+document.addEventListener(
+"touchmove",
+function(e){
+
+
+if(!dragging)
+return;
+
+
+
+let t=e.touches[0];
+
+
+
+videoWindow.style.left=
+
+(t.clientX-offsetX)
+
++"px";
+
+
+
+videoWindow.style.top=
+
+(t.clientY-offsetY)
+
++"px";
+
+
+
+savePlayerPosition();
+
+
+});
+
+
+
+
+
+document.addEventListener(
+"touchend",
+function(){
+
+dragging=false;
+
+});
+
+
+
+
+
+
+// =====================================
+// SAVE WINDOW POSITION
+// =====================================
+
+
+function savePlayerPosition(){
+
+
+localStorage.setItem(
+
+"obvyrisVideoPosition",
+
+JSON.stringify({
+
+left:videoWindow.style.left,
+
+top:videoWindow.style.top
+
+})
+
+);
 
 
 }
 
 
 
-function nextTrack(){
+
+function loadPlayerPosition(){
 
 
-if(playlistIndex < playlist.length-1){
+let saved=
+
+localStorage.getItem(
+
+"obvyrisVideoPosition"
+
+);
 
 
-playlistIndex++;
+
+if(saved){
 
 
-playTrack(playlistIndex);
+let pos=
+
+JSON.parse(saved);
+
+
+
+videoWindow.style.left=
+
+pos.left;
+
+
+
+videoWindow.style.top=
+
+pos.top;
+
+
+}
 
 
 
 }
 
 
+
+window.addEventListener(
+"load",
+()=>{
+
+
+loadPlayerPosition();
+
+
+});
+
+
+
+
+
+
+
+// =====================================
+// AUTO NEXT VIDEO
+// =====================================
+
+
+document
+
+.getElementById(
+"archiveVideo"
+)
+
+.addEventListener(
+
+"ended",
+
+()=>{
+
+
+nextVideo();
+
+
+}
+
+);
+
+
+
+
+
+
+
+
+// =====================================
+// SAVE VIDEO QUEUE
+// =====================================
+
+
+function saveVideoQueue(){
+
+
+localStorage.setItem(
+
+"obvyrisVideoQueue",
+
+JSON.stringify(videoQueue)
+
+);
+
+
 }
 
 
 
 
 
-function previousTrack(){
+function loadVideoQueue(){
 
 
-if(playlistIndex > 0){
+let saved=
+
+localStorage.getItem(
+
+"obvyrisVideoQueue"
+
+);
 
 
-playlistIndex--;
+
+if(saved){
 
 
-playTrack(playlistIndex);
+videoQueue=
+
+JSON.parse(saved);
+
+
+
+renderVideoQueue();
+
+
+}
 
 
 
 }
 
 
+
+
+
+window.addEventListener(
+
+"load",
+
+()=>{
+
+
+loadVideoQueue();
+
+
+});
+
+
+
+
+
+
+// =====================================
+// ENHANCED PLAYLIST DISPLAY
+// =====================================
+
+
+
+function renderVideoQueue(){
+
+
+
+let box=
+
+document.getElementById(
+"videoQueue"
+);
+
+
+
+box.innerHTML="";
+
+
+
+
+
+videoQueue.forEach(
+(v,i)=>{
+
+
+let active="";
+
+
+
+if(i===videoIndex)
+
+active="playing";
+
+
+
+box.innerHTML+=`
+
+
+<div class="videoItem ${active}"
+
+onclick="playVideo(${i})">
+
+
+🎬
+
+${i+1}.
+
+${escapeHTML(v.name)}
+
+
+</div>
+
+
+`;
+
+
+
+});
+
+
+
+saveVideoQueue();
+
+
+
 }
 
 
+
+
+
+
+
+// =====================================
+// KEYBOARD SHORTCUTS
+// =====================================
+
+
+document.addEventListener(
+"keydown",
+function(e){
+
+let active = document.activeElement;
+
+
+// DO NOT TRIGGER SHORTCUTS WHILE TYPING
+if(
+active.tagName === "INPUT" ||
+active.tagName === "TEXTAREA" ||
+active.tagName === "SELECT"
+){
+    return;
+}
+
+
+
+if(e.code==="Space"){
+
+e.preventDefault();
+
+toggleVideo();
+
+}
+
+
+
+if(e.code==="ArrowRight"){
+
+nextVideo();
+
+}
+
+
+
+if(e.code==="ArrowLeft"){
+
+previousVideo();
+
+}
+
+
+
+if(e.code==="KeyF"){
+
+fullscreenVideo();
+
+}
+
+
+
+if(e.code==="Escape"){
+
+hideVideoPlayer();
+
+}
+
+
+
+});
+
+
+
+// =====================================
+// DOUBLE CLICK FULLSCREEN
+// =====================================
+
+
+document
+
+.getElementById(
+"archiveVideo"
+)
+
+.addEventListener(
+
+"dblclick",
+
+()=>{
+
+
+fullscreenVideo();
+
+
+}
+
+);
+
+
+
+
+
+
+// =====================================
+// PLAYER START POSITION
+// =====================================
+
+
+loadPlayerPosition();
 
 
 
 </script>
 
 
-
 </body>
-
 
 </html>
