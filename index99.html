@@ -264,6 +264,91 @@ width:auto;
 cursor:pointer;
 }
 
+#archiveMiniPlayer{
+
+margin-top:20px;
+
+background:#0b1220;
+
+border:1px solid #253347;
+
+border-radius:12px;
+
+padding:15px;
+
+}
+
+
+#archiveMiniPlayer h3{
+
+color:#2793ff;
+
+margin-top:0;
+
+}
+
+
+#miniSong{
+
+color:#55b8ff;
+
+font-weight:bold;
+
+overflow:hidden;
+
+text-overflow:ellipsis;
+
+white-space:nowrap;
+
+}
+
+
+#miniArtist{
+
+color:#93a4bb;
+
+margin:8px 0;
+
+}
+
+
+#miniAudio{
+
+width:100%;
+
+}
+
+
+#miniPlaylist{
+
+max-height:180px;
+
+overflow:auto;
+
+margin-top:10px;
+
+font-size:13px;
+
+}
+
+
+.miniTrack{
+
+padding:8px;
+
+border-bottom:1px solid #253347;
+
+cursor:pointer;
+
+}
+
+
+.miniTrack:hover{
+
+background:#16263b;
+
+}
+    
 /* MOBILE */
 
 @media(max-width:700px){
@@ -906,6 +991,32 @@ onclick="event.stopPropagation();openARC();">
 
 </button>
 
+<div id="archiveMiniPlayer">
+
+<h3>🎧 Obvyris Player</h3>
+
+<div id="miniSong">
+No Track Playing
+</div>
+
+<div id="miniArtist">
+Archive Audio
+</div>
+
+<audio id="miniAudio" controls></audio>
+
+
+<h4>Playlist</h4>
+
+<div id="miniPlaylist">
+
+No playlist loaded
+
+</div>
+
+
+</div>
+    
 <button
 class="sportsButton"
 onclick="event.stopPropagation();openMP3();">
@@ -1970,6 +2081,88 @@ deferredPrompt=null;
 
 
 installBtn.style.display="none";
+
+
+});
+
+window.addEventListener("message",function(e){
+
+
+if(!e.data)
+return;
+
+
+
+if(e.data.type==="OBVYRIS_PLAYER"){
+
+
+
+let data=e.data;
+
+
+
+document.getElementById("miniSong").innerHTML =
+data.song || "No Track Playing";
+
+
+document.getElementById("miniArtist").innerHTML =
+data.artist || "Archive Audio";
+
+
+
+let audio =
+document.getElementById("miniAudio");
+
+
+if(data.url){
+
+audio.src=data.url;
+
+}
+
+
+
+
+let list =
+document.getElementById("miniPlaylist");
+
+
+list.innerHTML="";
+
+
+
+(data.queue || []).forEach((track,index)=>{
+
+
+let div=document.createElement("div");
+
+
+div.className="miniTrack";
+
+
+div.innerHTML =
+(index+1)+". "+
+track.name;
+
+
+
+div.onclick=function(){
+
+audio.src=track.url;
+
+audio.play();
+
+};
+
+
+list.appendChild(div);
+
+
+});
+
+
+
+}
 
 
 });
