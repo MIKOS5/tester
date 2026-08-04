@@ -1,0 +1,1900 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>
+Obvyris Archive Explorer
+</title>
+
+
+<style>
+
+*{
+box-sizing:border-box;
+}
+
+
+body{
+
+background:#070d16;
+
+color:#d8e1ec;
+
+font-family:Arial,Helvetica,sans-serif;
+
+font-size:15px;
+
+margin:12px;
+
+padding-bottom:160px;
+
+}
+
+
+/* HEADER */
+
+h1{
+
+font-size:26px;
+
+color:#2793ff;
+
+margin:5px 0 15px;
+
+}
+
+
+/* CONTROLS */
+
+.controls{
+
+display:flex;
+
+flex-wrap:wrap;
+
+gap:10px;
+
+align-items:center;
+
+background:#101a29;
+
+border:1px solid #25384d;
+
+padding:12px;
+
+border-radius:8px;
+
+}
+
+
+input,
+select,
+button{
+
+background:#17263a;
+
+color:white;
+
+border:1px solid #31465f;
+
+padding:10px 12px;
+
+font-size:15px;
+
+border-radius:6px;
+
+}
+
+
+input{
+
+width:260px;
+
+max-width:100%;
+
+}
+
+
+button{
+
+background:#2793ff;
+
+border:none;
+
+cursor:pointer;
+
+min-height:44px;
+
+}
+
+
+button:hover{
+
+background:#55b5ff;
+
+}
+
+
+
+/* NAV */
+
+.nav{
+
+display:flex;
+
+gap:10px;
+
+align-items:center;
+
+flex-wrap:wrap;
+
+margin-top:12px;
+
+}
+
+
+#pageInfo{
+
+color:#aaa;
+
+}
+
+
+#status{
+
+font-size:14px;
+
+color:#aaa;
+
+}
+
+
+
+/* RESULTS */
+
+.card{
+
+background:#101923;
+
+border:1px solid #25384d;
+
+padding:15px;
+
+margin-top:12px;
+
+border-radius:8px;
+
+}
+
+
+.title{
+
+font-size:19px;
+
+font-weight:bold;
+
+color:#55b8ff;
+
+margin-bottom:8px;
+
+}
+
+
+.meta{
+
+line-height:24px;
+
+color:#c2cfdd;
+
+}
+
+
+.tag{
+
+display:inline-block;
+
+background:#2793ff;
+
+padding:4px 10px;
+
+border-radius:12px;
+
+font-size:12px;
+
+}
+
+
+
+/* FILE LIST */
+
+.files{
+
+display:none;
+
+margin-top:12px;
+
+background:#0c1522;
+
+border-radius:8px;
+
+padding:8px;
+
+}
+
+
+.file{
+
+padding:12px;
+
+border-bottom:1px solid #26384f;
+
+cursor:pointer;
+
+}
+
+
+.file:hover{
+
+background:#1b3048;
+
+}
+
+
+
+/* DETAILS */
+
+details{
+
+margin-top:8px;
+
+}
+
+
+summary{
+
+cursor:pointer;
+
+color:#65c9ff;
+
+}
+
+
+.small{
+
+font-size:12px;
+
+color:#8995a5;
+
+}
+
+
+
+/* MEDIA VIEWER */
+
+#viewerBox{
+
+background:#101923;
+
+border:1px solid #25384d;
+
+border-radius:8px;
+
+padding:10px;
+
+margin-top:15px;
+
+display:none;
+
+}
+
+
+#video{
+
+width:100%;
+
+max-height:500px;
+
+background:black;
+
+}
+
+
+#viewer{
+
+width:100%;
+
+height:500px;
+
+border:none;
+
+}
+
+
+
+/* PLAYER BAR */
+
+#playerBar{
+
+position:fixed;
+
+bottom:0;
+
+left:0;
+
+right:0;
+
+background:#101923;
+
+border-top:1px solid #25384d;
+
+padding:10px;
+
+z-index:9999;
+
+}
+
+
+#npName{
+
+font-size:16px;
+
+font-weight:bold;
+
+color:#55b8ff;
+
+}
+
+
+#npMeta{
+
+font-size:13px;
+
+color:#aaa;
+
+margin-bottom:5px;
+
+}
+
+
+#playerBar button{
+
+padding:8px 15px;
+
+margin:3px;
+
+}
+
+
+
+audio{
+
+width:100%;
+
+height:38px;
+
+}
+
+
+
+a{
+
+color:#65c9ff;
+
+word-break:break-word;
+
+}
+
+
+
+/* FOOTER */
+
+footer{
+
+background:#101923;
+
+border-top:1px solid #25384d;
+
+text-align:center;
+
+color:#8995a5;
+
+padding:20px;
+
+margin-top:40px;
+
+}
+
+
+footer a{
+
+text-decoration:none;
+
+}
+
+
+
+/* MOBILE */
+
+@media screen and (max-width:600px){
+
+
+body{
+
+margin:0;
+
+padding:10px;
+
+padding-bottom:210px;
+
+font-size:18px;
+
+}
+
+
+
+h1{
+
+font-size:28px;
+
+text-align:center;
+
+}
+
+
+
+.controls{
+
+display:block;
+
+}
+
+
+
+.controls input,
+.controls select,
+.controls button{
+
+width:100%;
+
+height:60px;
+
+margin-bottom:12px;
+
+font-size:20px;
+
+}
+
+
+
+.nav{
+
+display:grid;
+
+grid-template-columns:1fr 1fr;
+
+}
+
+
+
+.nav button{
+
+height:65px;
+
+font-size:22px;
+
+}
+
+
+
+#pageInfo{
+
+grid-column:1 / 3;
+
+text-align:center;
+
+}
+
+
+
+.card{
+
+padding:18px;
+
+border-radius:14px;
+
+}
+
+
+
+.title{
+
+font-size:23px;
+
+}
+
+
+
+.meta{
+
+font-size:18px;
+
+line-height:30px;
+
+}
+
+
+
+.file{
+
+font-size:18px;
+
+padding:16px;
+
+}
+
+
+
+#npName{
+
+font-size:20px;
+
+}
+
+
+
+#npMeta{
+
+font-size:16px;
+
+}
+
+
+
+#playerBar button{
+
+width:30%;
+
+height:55px;
+
+font-size:20px;
+
+}
+
+
+
+audio{
+
+height:50px;
+
+}
+
+
+}
+
+
+
+/* SMALL PHONES */
+
+@media screen and (max-width:360px){
+
+
+h1{
+
+font-size:24px;
+
+}
+
+
+.title{
+
+font-size:20px;
+
+}
+
+
+.meta{
+
+font-size:16px;
+
+}
+
+
+}
+
+<style id="extra">
+.thumb{
+
+width:120px;
+
+height:120px;
+
+object-fit:cover;
+
+border-radius:8px;
+
+border:1px solid #31465f;
+
+float:right;
+
+margin-left:12px;
+
+}
+
+
+.metaPanel{
+
+background:#0c1522;
+
+border-left:3px solid #2793ff;
+
+padding:15px;
+
+margin-top:10px;
+
+border-radius:6px;
+
+}
+
+
+.groupTitle{
+
+color:#55b8ff;
+
+font-weight:bold;
+
+margin-top:12px;
+
+}
+
+
+.exportBtn{
+
+background:#19a974;
+
+margin-top:10px;
+
+}
+
+</style>
+  
+</style>
+
+</head>
+
+
+<body>
+
+
+<h1>
+🌐 Obvyris Archive Explorer
+</h1>
+
+
+<div class="controls">
+
+
+<input id="search"
+placeholder="Search Internet Archive...">
+
+
+<select id="type">
+
+
+<option value="">
+🌐 All Data
+</option>
+
+
+<option value="movies">
+🎬 Movies & Video
+</option>
+
+
+<option value="texts">
+📚 Books & Documents
+</option>
+
+
+<option value="software">
+💾 Software
+</option>
+
+
+<option value="image">
+🖼 Images
+</option>
+
+
+<option value="etree">
+🎸 Live Concerts
+</option>
+
+
+</select>
+
+
+
+<input id="creator"
+placeholder="Creator">
+
+
+<input id="uploader"
+placeholder="Uploader">
+
+
+<input id="genre"
+placeholder="Subject / Genre">
+
+
+
+<select id="sort">
+
+
+<option value="downloads desc">
+🔥 Most Popular
+</option>
+
+
+<option value="date desc">
+🆕 Newest
+</option>
+
+
+<option value="titleSorter asc">
+🔤 Title A-Z
+</option>
+
+
+</select>
+
+
+
+<button onclick="searchArchive(0)">
+SEARCH
+</button>
+
+
+
+</div>
+
+
+
+<div class="nav">
+
+
+<button onclick="previousPage()">
+◀ Previous
+</button>
+
+
+<button onclick="nextPage()">
+Next ▶
+</button>
+
+
+<span id="pageInfo"></span>
+
+
+</div>
+
+
+
+<h3 id="status"></h3>
+
+
+
+<div id="results"></div>
+
+
+
+<!-- MEDIA PREVIEW -->
+
+<div id="viewerBox">
+
+
+<video id="video" controls style="display:none"></video>
+
+
+<iframe id="viewer" style="display:none"></iframe>
+
+
+</div>
+
+
+
+<!-- GLOBAL PLAYER -->
+
+
+<div id="playerBar">
+
+
+<div id="npName">
+No Media Selected
+</div>
+
+
+<div id="npMeta">
+Obvyris Archive Explorer
+</div>
+
+
+<audio id="audio" controls></audio>
+
+
+<div>
+
+
+<button onclick="archivePrev()">
+◀
+</button>
+
+
+<button onclick="archiveToggle()">
+▶ / ⏸
+</button>
+
+
+<button onclick="archiveNext()">
+▶
+</button>
+
+
+</div>
+
+
+</div>
+
+
+
+<footer>
+
+
+<strong>
+Obvyris Archive Explorer
+</strong>
+
+
+<br>
+
+
+Powered by Internet Archive Metadata API
+
+
+<br>
+
+
+<a href="https://archive.org" target="_blank">
+Internet Archive
+</a>
+
+
+|
+
+
+<a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+Back To Top
+</a>
+
+
+<br>
+
+
+<span class="small">
+© 2026 Obvyris Digital Library
+</span>
+
+
+</footer>
+
+
+<script>
+
+
+let currentPage = 0;
+
+let pageSize = 100;
+
+let currentQuery="*";
+
+let currentSort="downloads desc";
+
+
+let archivePlaylist=[];
+
+let archiveIndex=0;
+
+
+
+async function searchArchive(page){
+
+
+currentPage=page;
+
+
+let text =
+document.getElementById("search").value.trim();
+
+
+let type =
+document.getElementById("type").value;
+
+
+
+currentSort =
+document.getElementById("sort").value;
+
+
+
+currentQuery =
+text || "*";
+
+
+
+if(type){
+
+currentQuery +=
+" AND mediatype:" + type;
+
+}
+
+
+
+let creator =
+document.getElementById("creator")
+.value.trim();
+
+
+if(creator){
+
+currentQuery +=
+' AND creator:"'+creator+'"';
+
+}
+
+
+
+let uploader =
+document.getElementById("uploader")
+.value.trim();
+
+
+if(uploader){
+
+currentQuery +=
+' AND uploader:"'+uploader+'"';
+
+}
+
+
+
+let genre =
+document.getElementById("genre")
+.value.trim();
+
+
+
+if(genre){
+
+currentQuery +=
+' AND subject:"'+genre+'"';
+
+}
+
+
+
+
+let start =
+page * pageSize;
+
+
+
+
+let url =
+
+"https://archive.org/advancedsearch.php?q="
+
++encodeURIComponent(currentQuery)
+
++"&fl[]=identifier,title,creator,uploader,description,mediatype,subject,date,downloads,collection,language,license"
+
++"&rows="+pageSize
+
++"&start="+start
+
++"&sort[]="+encodeURIComponent(currentSort)
+
++"&output=json";
+
+
+
+
+document.getElementById("status").innerHTML=
+"Loading archive data...";
+
+
+
+
+let response =
+await fetch(url);
+
+
+let data =
+await response.json();
+
+
+
+
+document.getElementById("status").innerHTML=
+
+"Found "
+
++data.response.numFound
+
++" records";
+
+
+
+document.getElementById("pageInfo").innerHTML=
+
+"Page "+(page+1);
+
+
+
+displayResults(data.response.docs);
+
+
+
+}
+
+
+
+
+function nextPage(){
+
+searchArchive(currentPage+1);
+
+}
+
+
+
+function previousPage(){
+
+if(currentPage>0){
+
+searchArchive(currentPage-1);
+
+}
+
+}
+
+
+
+
+
+function displayResults(items){
+
+
+let box =
+document.getElementById("results");
+
+
+box.innerHTML="";
+
+
+
+items.forEach(item=>{
+
+
+let icon="📁";
+
+
+if(item.mediatype=="audio")
+icon="🎵";
+
+
+if(item.mediatype=="movies")
+icon="🎬";
+
+
+if(item.mediatype=="texts")
+icon="📚";
+
+
+if(item.mediatype=="software")
+icon="💾";
+
+
+
+let subject="";
+
+
+if(Array.isArray(item.subject)){
+
+subject=item.subject.join(", ");
+
+}else{
+
+subject=item.subject || "";
+
+}
+
+let thumb =
+
+"https://archive.org/services/img/"
+
++item.identifier;
+
+
+box.innerHTML += `
+
+
+<div class="card">
+
+
+<div class="title">
+
+<img class="thumb"
+src="${thumb}"
+loading="lazy"
+onerror="this.style.display='none'">
+
+${icon}
+
+${escapeHTML(item.title || "Unknown")}
+
+</div>
+
+
+
+<div class="meta">
+
+
+<span class="tag">
+
+${item.mediatype || "unknown"}
+
+</span>
+
+
+<br><br>
+
+
+Creator:
+
+${escapeHTML(item.creator || "Unknown")}
+
+
+<br>
+
+
+Uploader:
+
+${escapeHTML(item.uploader || "Unknown")}
+
+
+<br>
+
+
+Date:
+
+${escapeHTML(item.date || "Unknown")}
+
+
+<br>
+
+
+Downloads:
+
+${escapeHTML(item.downloads || "Unknown")}
+
+
+<br>
+
+
+Language:
+
+${escapeHTML(item.language || "Unknown")}
+
+
+<br>
+
+
+Collection:
+
+${escapeHTML(item.collection || "Unknown")}
+
+
+
+<br><br>
+
+
+<details>
+
+<summary>
+Subjects
+</summary>
+
+
+<div class="small">
+
+${escapeHTML(subject || "None")}
+
+</div>
+
+
+</details>
+
+
+
+<br>
+
+
+${escapeHTML(
+
+(item.description || "No description")
+
+.substring(0,300)
+
+)}
+
+
+
+<br><br>
+
+
+<button onclick="loadFiles('${item.identifier}')">
+
+📂 Browse Files
+
+</button>
+
+
+<br>
+
+
+<a target="_blank"
+
+href="https://archive.org/details/${item.identifier}">
+
+🌐 Archive Page
+
+</a>
+
+
+<br>
+
+
+<a target="_blank"
+
+href="https://archive.org/download/${item.identifier}">
+
+⬇ Download Area
+
+</a>
+
+
+<button onclick="showMeta('${item.identifier}')">
+
+⚙ View Metadata
+
+</button>
+
+
+<div id="meta-${item.identifier}"></div>
+
+
+
+<div class="files"
+
+id="files-${item.identifier}">
+
+</div>
+
+
+</div>
+
+
+
+`;
+
+
+
+});
+
+
+
+}
+
+
+
+
+
+async function loadFiles(id){
+
+
+
+let box =
+document.getElementById("files-"+id);
+
+
+
+if(box.style.display=="block"){
+
+box.style.display="none";
+
+return;
+
+}
+
+
+
+box.style.display="block";
+
+box.innerHTML="Loading files...";
+
+
+
+
+let response =
+await fetch(
+
+"https://archive.org/metadata/"+id
+
+);
+
+
+
+let data =
+await response.json();
+
+
+
+archivePlaylist=[];
+
+
+
+let html=
+
+"<div class='groupTitle'>Available Files</div>";
+
+
+
+data.files.forEach(file=>{
+
+
+let name=file.name || "";
+
+
+let ext =
+name.split(".").pop().toLowerCase();
+
+
+
+let supported=[
+
+"mp3",
+"ogg",
+"wav",
+"mp4",
+"webm",
+"pdf",
+"epub",
+"txt",
+"zip"
+
+];
+
+
+
+if(supported.includes(ext)){
+
+
+
+let track={
+
+
+name:name,
+
+
+type:ext,
+
+
+url:
+
+"https://archive.org/download/"
+
++id+"/"
+
++encodeURIComponent(name)
+
+
+
+};
+
+
+
+archivePlaylist.push(track);
+
+
+
+let icon="📄";
+
+
+if(ext=="mp3" || ext=="wav" || ext=="ogg")
+icon="🎵";
+
+
+if(ext=="mp4" || ext=="webm")
+icon="🎬";
+
+
+if(ext=="pdf" || ext=="epub")
+icon="📚";
+
+
+if(ext=="zip")
+icon="💾";
+
+
+
+
+html += `
+
+
+<div class="file"
+
+onclick="playArchiveFile(${archivePlaylist.length-1})">
+
+
+${icon}
+
+${escapeHTML(name)}
+
+
+</div>
+
+
+
+`;
+
+
+
+}
+
+
+
+});
+
+
+
+box.innerHTML=html;
+
+
+
+}
+
+
+
+
+
+function playArchiveFile(index){
+
+
+if(!archivePlaylist[index])
+return;
+
+
+
+archiveIndex=index;
+
+
+let file =
+archivePlaylist[index];
+
+
+
+let audio =
+document.getElementById("audio");
+
+
+let video =
+document.getElementById("video");
+
+
+let viewer =
+document.getElementById("viewer");
+
+
+let box =
+document.getElementById("viewerBox");
+
+
+
+audio.style.display="none";
+
+video.style.display="none";
+
+viewer.style.display="none";
+
+
+
+box.style.display="block";
+
+
+
+
+if(
+
+file.type=="mp3" ||
+
+file.type=="wav" ||
+
+file.type=="ogg"
+
+){
+
+
+audio.style.display="block";
+
+audio.src=file.url;
+
+audio.play();
+
+
+
+}
+
+
+
+else if(
+
+file.type=="mp4" ||
+
+file.type=="webm"
+
+){
+
+
+video.style.display="block";
+
+video.src=file.url;
+
+video.play();
+
+
+}
+
+
+
+else if(
+
+file.type=="pdf" ||
+
+file.type=="epub"
+
+){
+
+
+viewer.style.display="block";
+
+viewer.src=file.url;
+
+
+}
+
+
+
+document.getElementById("npName").innerHTML=
+
+file.name;
+
+
+
+document.getElementById("npMeta").innerHTML=
+
+"File "+(index+1)+
+
+" / "+archivePlaylist.length;
+
+
+
+}
+
+
+
+function archiveToggle(){
+
+
+let audio =
+document.getElementById("audio");
+
+
+if(audio.paused){
+
+audio.play();
+
+}else{
+
+audio.pause();
+
+}
+
+
+}
+
+
+
+
+function archiveNext(){
+
+
+if(archiveIndex < archivePlaylist.length-1){
+
+archiveIndex++;
+
+playArchiveFile(archiveIndex);
+
+}
+
+
+}
+
+
+
+function archivePrev(){
+
+
+if(archiveIndex>0){
+
+archiveIndex--;
+
+playArchiveFile(archiveIndex);
+
+}
+
+
+}
+
+
+async function showMeta(id){
+
+
+let response =
+await fetch(
+
+"https://archive.org/metadata/"+id
+
+);
+
+
+let data =
+await response.json();
+
+
+let box =
+document.getElementById("meta-"+id);
+
+
+
+let m=data.metadata;
+
+
+
+box.innerHTML = `
+
+
+<div class="metaPanel">
+
+
+<strong>
+Identifier
+</strong>
+
+<br>
+
+${escapeHTML(id)}
+
+
+<br><br>
+
+
+<strong>
+Title
+</strong>
+
+<br>
+
+${escapeHTML(m.title || "")}
+
+
+<br><br>
+
+
+<strong>
+Creator
+</strong>
+
+<br>
+
+${escapeHTML(m.creator || "")}
+
+
+
+<br><br>
+
+
+<strong>
+Collection
+</strong>
+
+<br>
+
+${escapeHTML(m.collection || "")}
+
+
+
+<br><br>
+
+
+<strong>
+License
+</strong>
+
+<br>
+
+${escapeHTML(m.license || "Unknown")}
+
+
+
+<br><br>
+
+
+<strong>
+Files
+</strong>
+
+<br>
+
+${data.files.length}
+
+
+
+<br><br>
+
+
+<button class="exportBtn"
+onclick="exportM3U('${id}')">
+
+🎵 Export Audio Playlist
+
+</button>
+
+
+</div>
+
+
+`;
+
+}
+
+
+
+async function exportM3U(id){
+
+
+let response =
+await fetch(
+
+"https://archive.org/metadata/"+id
+
+);
+
+
+let data =
+await response.json();
+
+
+
+let m3u="#EXTM3U\n";
+
+
+
+data.files.forEach(file=>{
+
+
+let name=file.name || "";
+
+
+if(
+
+name.endsWith(".mp3")
+
+|| name.endsWith(".ogg")
+
+|| name.endsWith(".wav")
+
+){
+
+
+
+m3u +=
+
+"#EXTINF:-1,"
+
++name+
+
+"\n";
+
+
+m3u +=
+
+"https://archive.org/download/"
+
++id+"/"
+
++encodeURIComponent(name)
+
++"\n";
+
+
+
+}
+
+
+
+});
+
+
+
+let blob =
+new Blob(
+
+[m3u],
+
+{type:"audio/x-mpegurl"}
+
+);
+
+
+
+let url =
+URL.createObjectURL(blob);
+
+
+
+let a =
+document.createElement("a");
+
+
+a.href=url;
+
+
+a.download=id+".m3u";
+
+
+a.click();
+
+
+}
+
+function escapeHTML(text){
+
+return String(text)
+
+.replaceAll("&","&amp;")
+
+.replaceAll("<","&lt;")
+
+.replaceAll(">","&gt;")
+
+.replaceAll('"',"&quot;");
+
+}
+
+
+
+</script>
