@@ -1170,74 +1170,83 @@ let gameTimer = null;
     
 async function loadGuide() {
 
-    // ---------- Station 1 ----------
-    try {
+    // ==========================
+    // VIDEO STATIONS
+    // ==========================
 
-        const res1 = await fetch(
-            STATIONS["1"].api +
-            "?action=now&t=" + Date.now()
-        );
+    videoStations = [];
 
-        const data1 = await res1.json();
+    for (const id in STATIONS) {
 
-        document.getElementById("currentProgram").innerText =
-            data1.program || STATIONS["1"].name;
-
-        document.getElementById("streamStatus").innerText =
-            data1.url ? "ONLINE" : "OFFLINE";
-
-    } catch (e) {
-
-        document.getElementById("currentProgram").innerText = "Unavailable";
-        document.getElementById("streamStatus").innerText = "ERROR";
-
-        console.error("Station 1:", e);
-
-    }
-
-
-    // ---------- Station 2 ----------
-    try {
-
-        const res2 = await fetch(
-            STATIONS["2"].api +
-            "?action=now&t=" + Date.now()
-        );
-
-        const data2 = await res2.json();
-
-        document.getElementById("currentProgram2").innerText =
-            data2.program || STATIONS["2"].name;
-
-        document.getElementById("streamStatus2").innerText =
-            data2.url ? "ONLINE" : "OFFLINE";
-
-    } catch (e) {
-
-        document.getElementById("currentProgram2").innerText = "Unavailable";
-        document.getElementById("streamStatus2").innerText = "ERROR";
-
-        console.error("Station 2:", e);
-
-    }
-
-
-
-    // ---------- Radio Stations ----------
-
-    radioStations = [];
-
-
-    for(const station of OBVYRIS_STATIONS){
-
-        try{
+        try {
 
             const res = await fetch(
-                station.api + "?t=" + Date.now()
+                STATIONS[id].api +
+                "?action=now&t=" + Date.now()
             );
 
             const data = await res.json();
 
+            videoStations.push({
+
+                id: id,
+                name: STATIONS[id].name,
+                program: data.program || STATIONS[id].name,
+                online: !!data.url
+
+            });
+
+        } catch (e) {
+
+            console.error("Video Station:", e);
+
+            videoStations.push({
+
+                id: id,
+                name: STATIONS[id].name,
+                program: "Unavailable",
+                online: false
+
+            });
+
+        }
+
+    }
+
+    // Start video rotation only once
+
+    if (!videoTimer) {
+
+        videoIndex = 0;
+
+        showNextVideoStation();
+
+        videoTimer = setInterval(() => {
+
+            showNextVideoStation();
+
+        }, 5000);
+
+    }
+
+
+    // ==========================
+    // RADIO STATIONS
+    // ==========================
+
+    radioStations = [];
+
+    for (const station of OBVYRIS_STATIONS) {
+
+        try {
+
+            const res = await fetch(
+                station.api +
+                "?t=" +
+                Date.now()
+            );
+
+            const data = await res.json();
 
             radioStations.push({
 
@@ -1248,9 +1257,9 @@ async function loadGuide() {
 
             });
 
+        } catch (e) {
 
-        }catch(e){
-
+            console.error("Radio Station:", e);
 
             radioStations.push({
 
@@ -1261,27 +1270,23 @@ async function loadGuide() {
 
             });
 
-
         }
 
     }
 
-
-
     // Start radio rotation only once
 
-    if(!radioTimer){
+    if (!radioTimer) {
 
         radioIndex = 0;
 
         showNextRadioStation();
 
-
-        radioTimer = setInterval(()=>{
+        radioTimer = setInterval(() => {
 
             showNextRadioStation();
 
-        },5000);
+        }, 5000);
 
     }
 
@@ -1299,11 +1304,11 @@ function showNextVideoStation() {
     document.getElementById("streamStatus").innerText =
         station.online ? "ONLINE" : "OFFLINE";
 
-    document.querySelector(".stationGuide b").innerText =
+    document.getElementById("videoStationName").innerText =
         "📺 " + station.name;
 
     const btn =
-        document.querySelector(".stationButton");
+        document.getElementById("videoOpenButton");
 
     btn.innerText =
         "▶ Open " +
