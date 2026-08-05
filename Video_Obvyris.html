@@ -1703,44 +1703,113 @@ document.getElementById("list").onscroll=(e)=>{
 
 async function playMedia(url){
 
-  const v = document.getElementById("video");
-
-  try {
-
-    console.log("Original stream:", url);
+    console.log("PLAY REQUEST:", url);
 
 
-    // Resolve redirect URL first
-    const resolveAPI =
-      STREAM_API +
-      "?action=resolve&url=" +
-      encodeURIComponent(url);
+    // Handle M3U playlist files
+    if(url.toLowerCase().includes(".m3u") &&
+       !url.toLowerCase().includes(".m3u8")){
 
 
-    const resolveResponse =
-      await fetch(resolveAPI);
+        console.log("M3U playlist detected");
 
 
-    const resolveData =
-      await resolveResponse.json();
+        try{
+
+            const res = await fetch(url);
+
+            const text = await res.text();
 
 
-    let finalUrl = url;
+            const lines = text.split("\n");
 
 
-    if(resolveData.success && resolveData.finalUrl){
+            const stream =
+                lines.find(line =>
+                    line.startsWith("http")
+                );
 
-      finalUrl = resolveData.finalUrl;
 
-      console.log(
-        "Resolved stream:",
-        finalUrl
-      );
+            if(stream){
+
+                console.log(
+                    "Found stream inside M3U:",
+                    stream
+                );
+
+                return playMedia(stream.trim());
+
+            }
+
+
+        }
+        catch(err){
+
+            console.log(
+                "M3U parse failed",
+                err
+            );
+
+        }
 
     }
 
 
-    // Clear old player
+
+    let finalUrl=url;
+
+
+    // Only resolve redirects
+    if(
+       url.includes("jmp2.uk") ||
+       url.includes("redirect") ||
+       url.includes("short")
+    ){
+
+        try{
+
+            const response =
+            await fetch(
+                STREAM_API+
+                "?action=resolve&url="+
+                encodeURIComponent(url)
+            );
+
+
+            const data =
+            await response.json();
+
+
+            if(data.finalUrl){
+
+                finalUrl=data.finalUrl;
+
+            }
+
+
+            console.log(
+                "Resolved:",
+                finalUrl
+            );
+
+
+        }
+        catch(err){
+
+            console.log(
+                "Resolve failed",
+                err
+            );
+
+        }
+
+    }
+
+
+
+    const v=document.getElementById("video");
+
+
     v.pause();
 
     v.removeAttribute("src");
@@ -1749,139 +1818,52 @@ async function playMedia(url){
 
 
 
-    // HLS.js
     if(window.Hls && Hls.isSupported()){
 
 
-      if(window.hls){
+        if(window.hls){
 
-        window.hls.destroy();
+            window.hls.destroy();
 
-      }
-
-
-      window.hls = new Hls({
-
-        enableWorker:true,
-
-        maxBufferLength:30,
-
-        maxMaxBufferLength:60,
-
-        maxBufferSize:60 * 1000 * 1000,
-
-        liveSyncDurationCount:3,
-
-        liveMaxLatencyDurationCount:5,
-
-        fragLoadingTimeOut:20000,
-
-        manifestLoadingTimeOut:20000,
-
-        levelLoadingTimeOut:20000
-
-      });
+        }
 
 
+        window.hls=new Hls({
 
-      window.hls.on(
-        Hls.Events.ERROR,
-        (event,data)=>{
+            enableWorker:true
 
-          console.log(
-            "HLS ERROR:",
-            data
-          );
+        });
 
 
-          if(data.fatal){
+        window.hls.loadSource(finalUrl);
 
-            switch(data.type){
+        window.hls.attachMedia(v);
 
-              case Hls.ErrorTypes.NETWORK_ERROR:
+
+        window.hls.on(
+            Hls.Events.MANIFEST_PARSED,
+            ()=>{
 
                 console.log(
-                  "Retry network"
+                    "HLS READY"
                 );
 
-                window.hls.startLoad();
-
-                break;
-
-
-              case Hls.ErrorTypes.MEDIA_ERROR:
-
-                console.log(
-                  "Recover media"
-                );
-
-                window.hls.recoverMediaError();
-
-                break;
-
-
-              default:
-
-                window.hls.destroy();
+                v.play()
+                .catch(console.log);
 
             }
-
-          }
-
-
-        }
-      );
-
-
-
-      window.hls.loadSource(finalUrl);
-
-      window.hls.attachMedia(v);
-
-
-
-      window.hls.on(
-        Hls.Events.MANIFEST_PARSED,
-        ()=>{
-
-          v.play()
-          .catch(e=>console.log(e));
-
-        }
-      );
+        );
 
 
     }
-    else {
+    else{
 
+        v.src=finalUrl;
 
-      // Safari native HLS
-
-      v.src = finalUrl;
-
-      v.play()
-      .catch(e=>console.log(e));
-
+        v.play()
+        .catch(console.log);
 
     }
-
-
-  }
-  catch(err){
-
-    console.error(
-      "Playback resolve error:",
-      err
-    );
-
-
-    // fallback to original
-
-    v.src=url;
-
-    v.play();
-
-  }
 
 }
 
