@@ -1,462 +1,251 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 
-<title>Obvyris Email Creator Index</title>
-
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
+<title>Video Obvyris</title>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
 <style>
 
 body{
+    margin:0;
+    background:#111;
+    color:white;
+    font-family:Arial,sans-serif;
+}
 
-background:#070d16;
-color:#d8e1ec;
-font-family:Arial,Helvetica,sans-serif;
-margin:15px;
-font-size:14px;
+header{
+    background:#1b1b1b;
+    padding:15px;
+    font-size:24px;
+    font-weight:bold;
+}
+
+#container{
+    display:flex;
+    height:calc(100vh - 60px);
+}
+
+#sidebar{
+
+    width:340px;
+    overflow:auto;
+    background:#181818;
+    border-right:1px solid #333;
 
 }
 
+.station{
 
-h1{
-
-color:#2793ff;
-
-}
-
-
-input,
-select,
-button{
-
-background:#17263a;
-color:white;
-border:1px solid #31465f;
-padding:8px;
-font-size:14px;
+    display:flex;
+    gap:10px;
+    align-items:center;
+    padding:10px;
+    cursor:pointer;
+    border-bottom:1px solid #2d2d2d;
 
 }
 
+.station:hover{
 
-
-input{
-
-width:300px;
+    background:#2a2a2a;
 
 }
 
+.station img{
 
-
-button{
-
-background:#2793ff;
-border:none;
-cursor:pointer;
-
-}
-
-
-
-button:hover{
-
-background:#55b8ff;
+    width:60px;
+    height:60px;
+    object-fit:contain;
+    background:#000;
 
 }
 
+.stationName{
 
-
-.card{
-
-background:#101923;
-border:1px solid #25384d;
-padding:10px;
-margin-top:8px;
+    font-weight:bold;
 
 }
 
+.status{
 
-
-.email{
-
-font-size:16px;
-font-weight:bold;
-color:#55b8ff;
+    color:#66ff66;
+    font-size:12px;
 
 }
 
+#player{
 
-
-.count{
-
-color:#aaa;
-margin-top:5px;
+    flex:1;
+    display:flex;
+    flex-direction:column;
 
 }
 
+video{
 
+    width:100%;
+    height:100%;
+    background:black;
+
+}
+
+#info{
+
+    padding:12px;
+    background:#202020;
+
+}
 
 </style>
 
 </head>
 
-
 <body>
 
+<header>
 
-<h1>
-📧 Obvyris Email Creator Index
-</h1>
+Video Obvyris
 
+</header>
 
+<div id="container">
 
-<input id="search"
-placeholder="Search Archive (example: music)">
+<div id="sidebar"></div>
 
+<div id="player">
 
+<div id="info">
 
-<select id="type">
+<h2 id="title">Loading...</h2>
 
-<option value="">
-All Media
-</option>
+<div id="group"></div>
 
-<option value="audio">
-🎵 Audio
-</option>
+<div id="country"></div>
 
-<option value="movies">
-🎬 Movies
-</option>
+</div>
 
-<option value="texts">
-📚 Texts
-</option>
+<video
+id="video"
+controls
+autoplay
+playsinline></video>
 
-<option value="software">
-💾 Software
-</option>
+</div>
 
-</select>
-
-
-
-<button onclick="buildEmails()">
-
-BUILD EMAIL ARRAY
-
-</button>
-
-
-
-<h3 id="status"></h3>
-
-
-<div id="results"></div>
-
-
-
+</div>
 
 <script>
 
+const API="https://script.google.com/macros/s/AKfycbwBAaTs5v5taswwxQBJIpxW-jgG-ZbyY1zFVjN5W0bMcdFup9exPK-wquqRQIRU-Aqpow/exec";
 
-let emails={};
+let hls;
 
+async function loadStations(){
 
+    const res=await fetch(API+"?action=list");
 
-async function buildEmails(){
+    const data=await res.json();
 
+    const sidebar=document.getElementById("sidebar");
 
-emails={};
+    sidebar.innerHTML="";
 
+    data.streams.forEach(stream=>{
 
+        const div=document.createElement("div");
 
-let term =
-document.getElementById("search")
-.value
-.trim();
+        div.className="station";
 
+        div.innerHTML=`
 
+        <img src="${stream.Logo || 'https://placehold.co/60x60?text=TV'}">
 
-let type =
-document.getElementById("type")
-.value;
+        <div>
 
+            <div class="stationName">
 
+            ${stream.Name}
 
-let query =
-term || "mediatype:*";
+            </div>
 
+            <div>${stream.Group || ""}</div>
 
+            <div class="status">
 
-if(type){
+            ${stream.Status}
 
-query += " AND mediatype:" + type;
+            </div>
+
+        </div>
+
+        `;
+
+        div.onclick=()=>play(stream);
+
+        sidebar.appendChild(div);
+
+    });
+
+    if(data.streams.length){
+
+        play(data.streams[0]);
+
+    }
 
 }
 
+function play(stream){
 
+    document.getElementById("title").innerText=stream.Name;
 
+    document.getElementById("group").innerText=
+    "Group: "+(stream.Group||"");
 
-let url =
+    document.getElementById("country").innerText=
+    "Country: "+(stream.Country||"");
 
-"https://archive.org/advancedsearch.php?q="
+    const video=document.getElementById("video");
 
-+ encodeURIComponent(query)
+    if(hls){
 
-+ "&fl[]=identifier,title,creator,uploader,contributor,artist,publisher"
+        hls.destroy();
 
-+ "&rows=5000"
+    }
 
-+ "&output=json";
+    if(Hls.isSupported()){
 
+        hls=new Hls();
 
+        hls.loadSource(stream.URL);
 
+        hls.attachMedia(video);
 
-document.getElementById("status").innerHTML =
-"Loading Archive metadata...";
+        hls.on(Hls.Events.MANIFEST_PARSED,function(){
 
+            video.play();
 
+        });
 
+    }
 
-let response =
-await fetch(url);
+    else if(video.canPlayType("application/vnd.apple.mpegurl")){
 
+        video.src=stream.URL;
 
+        video.play();
 
-let data =
-await response.json();
-
-
-
-let docs =
-data.response.docs;
-
-
-
-
-docs.forEach(item=>{
-
-
-let fields=[];
-
-
-
-collect(item.creator,fields);
-
-collect(item.uploader,fields);
-
-collect(item.contributor,fields);
-
-collect(item.artist,fields);
-
-collect(item.publisher,fields);
-
-
-
-
-
-fields.forEach(value=>{
-
-
-extractEmail(value);
-
-
-});
-
-
-});
-
-
-
-
-displayEmails();
-
+    }
 
 }
 
-
-
-
-
-function collect(value,array){
-
-
-if(!value)
-return;
-
-
-
-if(Array.isArray(value)){
-
-
-value.forEach(v=>{
-
-array.push(v);
-
-});
-
-
-}
-
-else{
-
-
-array.push(value);
-
-
-}
-
-
-}
-
-
-
-
-
-function extractEmail(text){
-
-
-if(!text)
-return;
-
-
-
-let matches =
-
-String(text).match(
-
-/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi
-
-);
-
-
-
-if(!matches)
-return;
-
-
-
-matches.forEach(email=>{
-
-
-email=email.toLowerCase();
-
-
-
-if(!emails[email]){
-
-emails[email]=0;
-
-}
-
-
-emails[email]++;
-
-
-
-});
-
-
-}
-
-
-
-
-
-function displayEmails(){
-
-
-
-let box =
-document.getElementById("results");
-
-
-
-box.innerHTML="";
-
-
-
-let list =
-Object.keys(emails);
-
-
-
-list.sort();
-
-
-
-document.getElementById("status").innerHTML =
-
-"Unique Email Addresses Found: "
-
-+list.length;
-
-
-
-
-list.forEach(email=>{
-
-
-box.innerHTML += `
-
-
-<div class="card">
-
-
-<div class="email">
-
-📧 ${escapeHTML(email)}
-
-</div>
-
-
-<div class="count">
-
-Archive Records:
-${emails[email]}
-
-</div>
-
-
-</div>
-
-
-`;
-
-
-});
-
-
-
-}
-
-
-
-
-
-function escapeHTML(text){
-
-
-return String(text)
-
-.replaceAll("&","&amp;")
-
-.replaceAll("<","&lt;")
-
-.replaceAll(">","&gt;")
-
-.replaceAll('"',"&quot;");
-
-
-}
-
-
+loadStations();
 
 </script>
 
-
 </body>
-
 </html>
