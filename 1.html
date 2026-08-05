@@ -1,249 +1,203 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-
 <title>Video Obvyris</title>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
 <style>
-
+*{box-sizing:border-box}
 body{
     margin:0;
     background:#111;
-    color:white;
+    color:#fff;
     font-family:Arial,sans-serif;
 }
-
 header{
-    background:#1b1b1b;
+    background:#1f1f1f;
     padding:15px;
-    font-size:24px;
+    font-size:22px;
     font-weight:bold;
 }
-
-#container{
-    display:flex;
-    height:calc(100vh - 60px);
+#layout{
+    display:grid;
+    grid-template-columns:350px 1fr;
+    height:calc(100vh - 55px);
 }
-
 #sidebar{
-
-    width:340px;
     overflow:auto;
-    background:#181818;
     border-right:1px solid #333;
-
 }
-
-.station{
-
-    display:flex;
-    gap:10px;
-    align-items:center;
+#search{
+    width:100%;
+    padding:12px;
+    border:none;
+    outline:none;
+    font-size:16px;
+}
+.channel{
     padding:10px;
+    border-bottom:1px solid #222;
     cursor:pointer;
-    border-bottom:1px solid #2d2d2d;
-
 }
-
-.station:hover{
-
-    background:#2a2a2a;
-
+.channel:hover{
+    background:#2d2d2d;
 }
-
-.station img{
-
-    width:60px;
-    height:60px;
-    object-fit:contain;
-    background:#000;
-
-}
-
-.stationName{
-
+.channel .name{
     font-weight:bold;
-
 }
-
-.status{
-
-    color:#66ff66;
+.channel .status{
+    color:#7cff7c;
     font-size:12px;
-
 }
-
-#player{
-
-    flex:1;
+#playerArea{
     display:flex;
     flex-direction:column;
-
 }
-
+#title{
+    padding:12px;
+    background:#222;
+    font-size:20px;
+}
 video{
-
     width:100%;
     height:100%;
-    background:black;
-
+    background:#000;
 }
-
-#info{
-
-    padding:12px;
-    background:#202020;
-
-}
-
 </style>
-
 </head>
 
 <body>
 
-<header>
+<header>Video Obvyris</header>
 
-Video Obvyris
+<div id="layout">
 
-</header>
-
-<div id="container">
-
-<div id="sidebar"></div>
-
-<div id="player">
-
-<div id="info">
-
-<h2 id="title">Loading...</h2>
-
-<div id="group"></div>
-
-<div id="country"></div>
-
+<div id="sidebar">
+<input id="search" placeholder="Search channels...">
+<div id="list"></div>
 </div>
 
-<video
-id="video"
-controls
-autoplay
-playsinline></video>
-
+<div id="playerArea">
+<div id="title">Loading...</div>
+<video id="video" controls autoplay playsinline></video>
 </div>
 
 </div>
 
 <script>
 
-const API="https://script.google.com/macros/s/AKfycbwBAaTs5v5taswwxQBJIpxW-jgG-ZbyY1zFVjN5W0bMcdFup9exPK-wquqRQIRU-Aqpow/exec";
+const API="https://script.google.com/macros/s/AKfycbwBAaTs5v5taswwxQBJIpxW-jgG-ZbyY1zFVjN5W0bMcdFup9exPK-wquqRQIRU-Aqpow/exec?action=list";
 
+let streams=[];
 let hls;
 
-async function loadStations(){
+async function load(){
 
-    const res=await fetch(API+"?action=list");
-
+    const res=await fetch(API);
     const data=await res.json();
 
-    const sidebar=document.getElementById("sidebar");
+    streams=data.streams||[];
 
-    sidebar.innerHTML="";
+    render(streams);
 
-    data.streams.forEach(stream=>{
+    if(streams.length){
+        play(streams[0]);
+    }
+
+}
+
+function render(items){
+
+    const list=document.getElementById("list");
+
+    list.innerHTML="";
+
+    items.forEach(stream=>{
 
         const div=document.createElement("div");
 
-        div.className="station";
+        div.className="channel";
 
         div.innerHTML=`
-
-        <img src="${stream.Logo || 'https://placehold.co/60x60?text=TV'}">
-
-        <div>
-
-            <div class="stationName">
-
-            ${stream.Name}
-
-            </div>
-
-            <div>${stream.Group || ""}</div>
-
-            <div class="status">
-
-            ${stream.Status}
-
-            </div>
-
-        </div>
-
+            <div class="name">${stream.name}</div>
+            <div class="status">${stream.status}</div>
         `;
 
         div.onclick=()=>play(stream);
 
-        sidebar.appendChild(div);
+        list.appendChild(div);
 
     });
-
-    if(data.streams.length){
-
-        play(data.streams[0]);
-
-    }
 
 }
 
 function play(stream){
 
-    document.getElementById("title").innerText=stream.Name;
-
-    document.getElementById("group").innerText=
-    "Group: "+(stream.Group||"");
-
-    document.getElementById("country").innerText=
-    "Country: "+(stream.Country||"");
+    document.getElementById("title").textContent=stream.name;
 
     const video=document.getElementById("video");
 
     if(hls){
-
         hls.destroy();
-
     }
 
     if(Hls.isSupported()){
 
-        hls=new Hls();
+        hls=new Hls({
+            enableWorker:true
+        });
 
-        hls.loadSource(stream.URL);
+        hls.loadSource(stream.url);
 
         hls.attachMedia(video);
 
-        hls.on(Hls.Events.MANIFEST_PARSED,function(){
+        hls.on(Hls.Events.ERROR,function(event,data){
 
-            video.play();
+            if(data.fatal){
+
+                switch(data.type){
+
+                    case Hls.ErrorTypes.NETWORK_ERROR:
+                        hls.startLoad();
+                        break;
+
+                    case Hls.ErrorTypes.MEDIA_ERROR:
+                        hls.recoverMediaError();
+                        break;
+
+                    default:
+                        hls.destroy();
+                        break;
+                }
+
+            }
 
         });
 
-    }
+    }else{
 
-    else if(video.canPlayType("application/vnd.apple.mpegurl")){
-
-        video.src=stream.URL;
-
-        video.play();
+        video.src=stream.url;
 
     }
 
 }
 
-loadStations();
+document.getElementById("search").addEventListener("input",e=>{
+
+    const q=e.target.value.toLowerCase();
+
+    render(
+        streams.filter(s=>
+            (s.name||"").toLowerCase().includes(q)
+        )
+    );
+
+});
+
+load();
 
 </script>
 
