@@ -1,166 +1,66 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-
-<title>Video Obvyris</title>
+<title>Video Obvyris Pluto Player</title>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
 <style>
-
-*{box-sizing:border-box}
-
 body{
-margin:0;
-background:#111;
-color:white;
-font-family:Arial,Helvetica,sans-serif;
-}
-
-header{
-height:60px;
-background:#1b1b1b;
-display:flex;
-align-items:center;
-padding:0 20px;
-font-size:24px;
-font-weight:bold;
-}
-
-#layout{
-display:grid;
-grid-template-columns:360px 1fr;
-height:calc(100vh - 60px);
-}
-
-#sidebar{
-background:#151515;
-display:flex;
-flex-direction:column;
-overflow:hidden;
-}
-
-#search{
-width:100%;
-padding:14px;
-background:#222;
-color:white;
-border:0;
-font-size:16px;
-outline:none;
-}
-
-#count{
-padding:10px;
-color:#aaa;
-background:#181818;
+    background:#111;
+    color:white;
+    font-family:Arial;
 }
 
 #channels{
-overflow:auto;
-flex:1;
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+    gap:10px;
 }
 
-.channel{
-padding:12px;
-border-bottom:1px solid #292929;
-cursor:pointer;
+.card{
+    background:#222;
+    padding:15px;
+    border-radius:8px;
+    cursor:pointer;
 }
 
-.channel:hover{
-background:#292929;
-}
-
-.channel.active{
-background:#0066ff;
-}
-
-.name{
-font-weight:bold;
-}
-
-.status{
-font-size:12px;
-color:#7cff7c;
-}
-
-
-#playerArea{
-display:flex;
-flex-direction:column;
-}
-
-#now{
-padding:15px;
-background:#222;
-font-size:20px;
+.card:hover{
+    background:#333;
 }
 
 video{
-flex:1;
-width:100%;
-height:100%;
-background:black;
+    width:100%;
+    max-height:500px;
+    background:black;
 }
 
-
-@media(max-width:800px){
-
-#layout{
-grid-template-columns:1fr;
+.status{
+    margin:10px;
+    color:#0f0;
 }
-
-#sidebar{
-height:300px;
-}
-
-}
-
 </style>
 
 </head>
 
-
 <body>
 
 
-<header>
-📺 Video Obvyris
-</header>
+<h1>Video Obvyris</h1>
 
-
-<div id="layout">
-
-
-<div id="sidebar">
-
-<input id="search" placeholder="Search channels">
-
-<div id="count">
+<div class="status" id="status">
 Loading channels...
 </div>
 
+
+<video id="video" controls autoplay></video>
+
+
+<h2>Channels</h2>
+
 <div id="channels"></div>
 
-</div>
 
-
-
-<div id="playerArea">
-
-<div id="now">
-Select Channel
-</div>
-
-<video id="video" controls autoplay playsinline></video>
-
-</div>
-
-
-</div>
 
 <script>
 
@@ -169,115 +69,71 @@ const API =
 "https://script.google.com/macros/s/AKfycbwBAaTs5v5taswwxQBJIpxW-jgG-ZbyY1zFVjN5W0bMcdFup9exPK-wquqRQIRU-Aqpow/exec";
 
 
-let streams=[];
-let hls=null;
-let current=null;
+const video =
+document.getElementById("video");
+
+
+let hls;
 
 
 
 async function loadChannels(){
 
-try{
+
+    const res =
+    await fetch(
+        API+"?action=list&t="+Date.now()
+    );
 
 
-let res =
-await fetch(
-API+"?action=list&t="+Date.now()
-);
-
-
-let data =
-await res.json();
-
-
-console.log(data);
+    const data =
+    await res.json();
 
 
 
-streams=data.streams;
+    console.log(data);
 
 
 
-document.getElementById("count").innerHTML =
-streams.length+" Channels";
+    const box =
+    document.getElementById("channels");
 
 
-render(streams);
+    box.innerHTML="";
 
 
-
-if(streams.length){
-
-play(streams[0]);
-
-}
+    data.streams.forEach(stream=>{
 
 
-
-}catch(e){
-
-console.error(e);
-
-}
+        let div =
+        document.createElement("div");
 
 
+        div.className="card";
 
-}
+
+        div.innerHTML=
+        `
+        <b>${stream.name}</b><br>
+        <small>${stream.status}</small>
+        `;
 
 
 
-
-function render(list){
-
-let box =
-document.getElementById("channels");
+        div.onclick=()=>playStream(stream);
 
 
-box.innerHTML="";
-
-
-list.forEach(s=>{
-
-
-let div =
-document.createElement("div");
-
-
-div.className="channel";
+        box.appendChild(div);
 
 
 
-if(current && current.id===s.id){
-
-div.classList.add("active");
-
-}
+    });
 
 
 
-div.innerHTML=
-
-`
-<div class="name">
-${s.name}
-</div>
-
-<div class="status">
-${s.status}
-</div>
-`;
-
-
-
-div.onclick=()=>play(s);
-
-
-
-box.appendChild(div);
-
-
-
-});
+    document.getElementById("status").innerText =
+    data.streams.length+
+    " channels loaded";
 
 
 }
@@ -286,159 +142,140 @@ box.appendChild(div);
 
 
 
-function play(stream){
+function playStream(stream){
 
 
-current=stream;
-
-
-
-let video =
-document.getElementById("video");
-
-
-
-document.getElementById("now").innerHTML =
-stream.name;
+    console.log(
+        "Playing:",
+        stream.name
+    );
 
 
 
-if(hls){
-
-hls.destroy();
-
-}
+    document.getElementById("status").innerText =
+    "Loading "+stream.name;
 
 
 
-let url =
-stream.source ||
-stream.url;
+    let proxy =
+    API+
+    "?action=proxy&url="+
+    encodeURIComponent(
+        stream.url
+    )
+    +"&t="+Date.now();
 
 
 
-console.log(
-"Original:",
-url
-);
+    console.log(proxy);
 
 
 
-// USE APPS SCRIPT PROXY
+    if(hls){
 
-let proxyURL =
-API+
-"?action=proxy&url="+
-encodeURIComponent(url)
-+"&t="+Date.now();
+        hls.destroy();
 
-
-
-console.log(
-"Proxy:",
-proxyURL
-);
+    }
 
 
 
 
-if(Hls.isSupported()){
+    if(
+        Hls.isSupported()
+    ){
 
 
-hls =
-new Hls({
+        hls =
+        new Hls({
 
-enableWorker:true,
+            enableWorker:true,
 
-xhrSetup:function(xhr){
+            lowLatencyMode:false,
 
-xhr.setRequestHeader(
-"Accept",
-"*/*"
-);
+            xhrSetup:function(xhr){
 
-}
+                xhr.setRequestHeader(
+                    "Accept",
+                    "application/vnd.apple.mpegurl,*/*"
+                );
 
-});
+            }
 
-
-
-hls.loadSource(proxyURL);
-
-
-hls.attachMedia(video);
+        });
 
 
 
-hls.on(
-Hls.Events.MANIFEST_PARSED,
-()=>{
-
-console.log(
-"PLAYING"
-);
-
-video.play();
-
-});
+        hls.loadSource(proxy);
 
 
-hls.on(
-Hls.Events.ERROR,
-(e,data)=>{
-
-console.error(
-"HLS ERROR",
-data
-);
-
-
-});
+        hls.attachMedia(video);
 
 
 
-}
+        hls.on(
+            Hls.Events.MANIFEST_PARSED,
+            function(){
 
-else{
+                video.play();
+
+                document.getElementById("status").innerText =
+                "Playing "+stream.name;
+
+            }
+        );
 
 
-video.src=proxyURL;
 
-video.play();
+        hls.on(
+            Hls.Events.ERROR,
+            function(event,data){
 
 
-}
+                console.error(
+                    "HLS ERROR",
+                    data
+                );
+
+
+                if(data.fatal){
+
+                    document.getElementById("status").innerText =
+                    "Stream error";
+
+                }
+
+            }
+        );
+
+
+    }
+
+    else if(
+        video.canPlayType(
+            "application/vnd.apple.mpegurl"
+        )
+    ){
+
+        video.src=proxy;
+
+        video.play();
+
+    }
 
 
 
 }
 
 
-
-document
-.getElementById("search")
-.addEventListener(
-"input",
-e=>{
-
-
-let q =
-e.target.value.toLowerCase();
-
-
-render(
-streams.filter(
-s=>s.name.toLowerCase().includes(q)
-)
-);
-
-
-});
 
 
 
 loadChannels();
+
+
+
 </script>
-  
+
+
 </body>
 </html>
