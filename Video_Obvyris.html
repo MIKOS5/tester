@@ -1701,84 +1701,188 @@ document.getElementById("list").onscroll=(e)=>{
   }
 };
 
-function playMedia(url){
-  const v=document.getElementById("video");
+async function playMedia(url){
 
-  v.pause();
-  v.removeAttribute("src");
-  v.load();
+  const v = document.getElementById("video");
 
-  if(window.Hls && Hls.isSupported()){
+  try {
 
-    if(window.hls){
-      window.hls.destroy();
+    console.log("Original stream:", url);
+
+
+    // Resolve redirect URL first
+    const resolveAPI =
+      STREAM_API +
+      "?action=resolve&url=" +
+      encodeURIComponent(url);
+
+
+    const resolveResponse =
+      await fetch(resolveAPI);
+
+
+    const resolveData =
+      await resolveResponse.json();
+
+
+    let finalUrl = url;
+
+
+    if(resolveData.success && resolveData.finalUrl){
+
+      finalUrl = resolveData.finalUrl;
+
+      console.log(
+        "Resolved stream:",
+        finalUrl
+      );
+
     }
 
-    window.hls = new Hls({
-      enableWorker:true,
 
-      // buffer settings
-      maxBufferLength:30,
-      maxMaxBufferLength:60,
-      maxBufferSize:60 * 1000 * 1000,
+    // Clear old player
+    v.pause();
 
-      // faster recovery
-      liveSyncDurationCount:3,
-      liveMaxLatencyDurationCount:5,
+    v.removeAttribute("src");
 
-      // reduce stalls
-      fragLoadingTimeOut:20000,
-      manifestLoadingTimeOut:20000,
-      levelLoadingTimeOut:20000
-    });
+    v.load();
 
 
-    window.hls.on(Hls.Events.ERROR,(event,data)=>{
 
-      console.log("HLS ERROR:",data);
-
-      if(data.fatal){
-
-        switch(data.type){
-
-          case Hls.ErrorTypes.NETWORK_ERROR:
-            console.log("Retrying network...");
-            window.hls.startLoad();
-            break;
+    // HLS.js
+    if(window.Hls && Hls.isSupported()){
 
 
-          case Hls.ErrorTypes.MEDIA_ERROR:
-            console.log("Recovering media...");
-            window.hls.recoverMediaError();
-            break;
+      if(window.hls){
 
-
-          default:
-            window.hls.destroy();
-            break;
-        }
+        window.hls.destroy();
 
       }
 
-    });
+
+      window.hls = new Hls({
+
+        enableWorker:true,
+
+        maxBufferLength:30,
+
+        maxMaxBufferLength:60,
+
+        maxBufferSize:60 * 1000 * 1000,
+
+        liveSyncDurationCount:3,
+
+        liveMaxLatencyDurationCount:5,
+
+        fragLoadingTimeOut:20000,
+
+        manifestLoadingTimeOut:20000,
+
+        levelLoadingTimeOut:20000
+
+      });
 
 
-    window.hls.loadSource(url);
-    window.hls.attachMedia(v);
+
+      window.hls.on(
+        Hls.Events.ERROR,
+        (event,data)=>{
+
+          console.log(
+            "HLS ERROR:",
+            data
+          );
 
 
-    window.hls.on(Hls.Events.MANIFEST_PARSED,()=>{
-      v.play().catch(e=>console.log(e));
-    });
+          if(data.fatal){
+
+            switch(data.type){
+
+              case Hls.ErrorTypes.NETWORK_ERROR:
+
+                console.log(
+                  "Retry network"
+                );
+
+                window.hls.startLoad();
+
+                break;
 
 
-  }else{
+              case Hls.ErrorTypes.MEDIA_ERROR:
 
-    // Safari native HLS
+                console.log(
+                  "Recover media"
+                );
+
+                window.hls.recoverMediaError();
+
+                break;
+
+
+              default:
+
+                window.hls.destroy();
+
+            }
+
+          }
+
+
+        }
+      );
+
+
+
+      window.hls.loadSource(finalUrl);
+
+      window.hls.attachMedia(v);
+
+
+
+      window.hls.on(
+        Hls.Events.MANIFEST_PARSED,
+        ()=>{
+
+          v.play()
+          .catch(e=>console.log(e));
+
+        }
+      );
+
+
+    }
+    else {
+
+
+      // Safari native HLS
+
+      v.src = finalUrl;
+
+      v.play()
+      .catch(e=>console.log(e));
+
+
+    }
+
+
+  }
+  catch(err){
+
+    console.error(
+      "Playback resolve error:",
+      err
+    );
+
+
+    // fallback to original
+
     v.src=url;
+
     v.play();
 
   }
+
 }
 
 function play(i){
