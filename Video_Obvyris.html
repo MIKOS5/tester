@@ -1709,13 +1709,12 @@ async function playMedia(url){
     console.log("========== PLAY ==========");
     console.log("Original:", url);
 
+
     let finalUrl = url;
 
-    // Resolve redirect
-    if(
-    url.includes("jmp2.uk") ||
-    url.includes(".m3u8")
-){
+
+    // Resolve only redirect links
+    if(url.includes("jmp2.uk")){
 
         try{
 
@@ -1725,29 +1724,54 @@ async function playMedia(url){
                 encodeURIComponent(url)
             );
 
+
             const data = await r.json();
 
-            console.log(data);
+
+            console.log("Resolver:", data);
+
 
             if(data.success && data.finalUrl){
+
                 finalUrl = data.finalUrl;
+
             }
 
-        }catch(e){
-            console.log("Resolve failed",e);
+
+        }
+        catch(e){
+
+            console.log(
+                "Resolve failed",
+                e
+            );
+
         }
 
     }
 
-    console.log("Final:",finalUrl);
 
-    // Destroy old player
+    console.log(
+        "Final HLS URL:",
+        finalUrl
+    );
+
+
+
+    // Destroy previous HLS instance
     if(window.hls){
 
+        console.log(
+            "Destroy old HLS"
+        );
+
         window.hls.destroy();
+
         window.hls=null;
 
     }
+
+
 
     video.pause();
 
@@ -1755,79 +1779,157 @@ async function playMedia(url){
 
     video.load();
 
-    video.crossOrigin="anonymous";
 
 
+    // ==========================
+    // HLS.JS PLAYER
+    // ==========================
 
-    // ---------- HLS.js FIRST ----------
     if(Hls.isSupported()){
 
-        console.log("Using HLS.js");
 
-        window.hls=new Hls({
+        console.log(
+            "Using HLS.js"
+        );
+
+
+        window.hls = new Hls({
 
             enableWorker:true,
 
-            lowLatencyMode:false
+            lowLatencyMode:false,
+
+            backBufferLength:90,
+
+            xhrSetup:function(xhr,url){
+
+                xhr.withCredentials=false;
+
+            }
 
         });
+
+
 
         window.hls.attachMedia(video);
 
-        window.hls.on(Hls.Events.MEDIA_ATTACHED,function(){
 
-            console.log("Media attached");
-
-            window.hls.loadSource(finalUrl);
-
-        });
-
-        window.hls.on(Hls.Events.MANIFEST_PARSED,function(){
-
-            console.log("Manifest parsed");
-
-            video.play();
-
-        });
 
         window.hls.on(
-Hls.Events.ERROR,
-function(event,data){
+            Hls.Events.MEDIA_ATTACHED,
+            function(){
 
-    console.log("HLS ERROR",data);
-
-
-    if(data.fatal){
-
-        if(data.type === Hls.ErrorTypes.NETWORK_ERROR){
-
-            console.log("Retrying stream...");
-
-            window.hls.startLoad();
-
-        }
+                console.log(
+                    "Media attached"
+                );
 
 
-        else if(
-            data.type === Hls.ErrorTypes.MEDIA_ERROR
-        ){
-
-            console.log("Recover media");
-
-            window.hls.recoverMediaError();
-
-        }
+                window.hls.loadSource(
+                    finalUrl
+                );
 
 
-        else{
+            }
+        );
 
-            window.hls.destroy();
 
-        }
 
-    }
+        window.hls.on(
+            Hls.Events.MANIFEST_PARSED,
+            function(event,data){
 
-});
+                console.log(
+                    "Manifest parsed",
+                    data
+                );
+
+
+                video.play()
+                .catch(err=>{
+
+                    console.log(
+                        "Autoplay blocked",
+                        err
+                    );
+
+                });
+
+
+            }
+        );
+
+
+
+        window.hls.on(
+            Hls.Events.ERROR,
+            function(event,data){
+
+                console.log(
+                    "HLS ERROR:",
+                    data
+                );
+
+
+
+                if(!data.fatal){
+
+                    return;
+
+                }
+
+
+
+                switch(data.type){
+
+
+                    case Hls.ErrorTypes.NETWORK_ERROR:
+
+                        console.log(
+                            "Network error - retry"
+                        );
+
+
+                        window.hls.startLoad();
+
+
+                        break;
+
+
+
+                    case Hls.ErrorTypes.MEDIA_ERROR:
+
+
+                        console.log(
+                            "Media error - recover"
+                        );
+
+
+                        window.hls.recoverMediaError();
+
+
+                        break;
+
+
+
+                    default:
+
+
+                        console.log(
+                            "Fatal error - destroy"
+                        );
+
+
+                        window.hls.destroy();
+
+
+                        break;
+
+                }
+
+
+            }
+        );
+
 
         return;
 
@@ -1835,27 +1937,57 @@ function(event,data){
 
 
 
-    // ---------- Native HLS ----------
-    if(video.canPlayType("application/vnd.apple.mpegurl")){
 
-        console.log("Native HLS");
 
-        video.src=finalUrl;
+    // ==========================
+    // NATIVE HLS (Safari/iOS)
+    // ==========================
 
-        video.addEventListener("loadedmetadata",function(){
+    if(video.canPlayType(
+        "application/vnd.apple.mpegurl"
+    )){
 
-            video.play();
 
-        },{once:true});
+        console.log(
+            "Using native HLS"
+        );
+
+
+        video.src = finalUrl;
+
+
+
+        video.addEventListener(
+            "loadedmetadata",
+            function(){
+
+                video.play()
+                .catch(err=>{
+
+                    console.log(
+                        "Playback blocked",
+                        err
+                    );
+
+                });
+
+
+            },
+            {once:true}
+        );
+
 
         return;
 
     }
 
-    console.log("No HLS support.");
+
+
+    console.log(
+        "No HLS support"
+    );
 
 }
-
    
 function play(i){
 
