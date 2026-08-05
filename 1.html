@@ -11,158 +11,110 @@
 
 <style>
 
-*{
-    box-sizing:border-box;
-}
+*{box-sizing:border-box}
 
 body{
-    margin:0;
-    background:#111;
-    color:white;
-    font-family:Arial,Helvetica,sans-serif;
+margin:0;
+background:#111;
+color:white;
+font-family:Arial,Helvetica,sans-serif;
 }
 
 header{
-
-    height:60px;
-    background:#1b1b1b;
-    display:flex;
-    align-items:center;
-    padding:0 20px;
-    font-size:24px;
-    font-weight:bold;
-
+height:60px;
+background:#1b1b1b;
+display:flex;
+align-items:center;
+padding:0 20px;
+font-size:24px;
+font-weight:bold;
 }
 
 #layout{
-
-    display:grid;
-    grid-template-columns:360px 1fr;
-    height:calc(100vh - 60px);
-
+display:grid;
+grid-template-columns:360px 1fr;
+height:calc(100vh - 60px);
 }
-
 
 #sidebar{
-
-    background:#151515;
-    overflow:hidden;
-    display:flex;
-    flex-direction:column;
-
+background:#151515;
+display:flex;
+flex-direction:column;
+overflow:hidden;
 }
-
 
 #search{
-
-    width:100%;
-    padding:14px;
-    background:#222;
-    color:white;
-    border:0;
-    outline:none;
-    font-size:16px;
-
+width:100%;
+padding:14px;
+background:#222;
+color:white;
+border:0;
+font-size:16px;
+outline:none;
 }
-
 
 #count{
-
-    padding:10px;
-    background:#181818;
-    color:#aaa;
-
+padding:10px;
+color:#aaa;
+background:#181818;
 }
-
 
 #channels{
-
-    overflow:auto;
-    flex:1;
-
+overflow:auto;
+flex:1;
 }
-
 
 .channel{
-
-    padding:12px;
-    border-bottom:1px solid #292929;
-    cursor:pointer;
-
+padding:12px;
+border-bottom:1px solid #292929;
+cursor:pointer;
 }
-
 
 .channel:hover{
-
-    background:#292929;
-
+background:#292929;
 }
-
 
 .channel.active{
-
-    background:#0066ff;
-
+background:#0066ff;
 }
-
 
 .name{
-
-    font-weight:bold;
-    font-size:15px;
-
+font-weight:bold;
 }
-
 
 .status{
-
-    font-size:12px;
-    color:#7cff7c;
-
+font-size:12px;
+color:#7cff7c;
 }
-
 
 
 #playerArea{
-
-    display:flex;
-    flex-direction:column;
-
+display:flex;
+flex-direction:column;
 }
-
 
 #now{
-
-    padding:15px;
-    background:#222;
-    font-size:20px;
-
+padding:15px;
+background:#222;
+font-size:20px;
 }
-
 
 video{
-
-    flex:1;
-    width:100%;
-    height:100%;
-    background:black;
-
+flex:1;
+width:100%;
+height:100%;
+background:black;
 }
-
 
 
 @media(max-width:800px){
 
 #layout{
-
-    grid-template-columns:1fr;
-
+grid-template-columns:1fr;
 }
 
 #sidebar{
-
-    height:300px;
-
+height:300px;
 }
 
 }
@@ -185,17 +137,13 @@ video{
 
 <div id="sidebar">
 
-
 <input id="search" placeholder="Search channels">
-
 
 <div id="count">
 Loading channels...
 </div>
 
-
 <div id="channels"></div>
-
 
 </div>
 
@@ -203,19 +151,11 @@ Loading channels...
 
 <div id="playerArea">
 
-
 <div id="now">
 Select Channel
 </div>
 
-
-<video
-id="video"
-controls
-autoplay
-playsinline>
-</video>
-
+<video id="video" controls autoplay playsinline></video>
 
 </div>
 
@@ -232,30 +172,36 @@ const API =
 
 
 let streams=[];
-
 let hls=null;
-
 let current=null;
 
 
 
 async function loadChannels(){
 
-
 try{
 
 
-const res=await fetch(API);
+const res = await fetch(
+API+"&t="+Date.now()
+);
 
 
-const data=await res.json();
+const data = await res.json();
 
 
 console.log("API:",data);
 
 
 
-streams=data.streams || [];
+if(!data.streams){
+
+throw new Error("No streams returned");
+
+}
+
+
+streams=data.streams;
 
 
 
@@ -278,17 +224,15 @@ play(streams[0]);
 
 }catch(err){
 
-console.error(err);
+console.error("API ERROR:",err);
 
-document.getElementById("count").innerHTML=
+document.getElementById("count").innerHTML =
 "API ERROR";
 
 }
 
 
-
 }
-
 
 
 
@@ -298,7 +242,6 @@ function render(list){
 
 const box=document.getElementById("channels");
 
-
 box.innerHTML="";
 
 
@@ -307,7 +250,6 @@ list.forEach(stream=>{
 
 
 const div=document.createElement("div");
-
 
 div.className="channel";
 
@@ -361,26 +303,40 @@ function play(stream){
 current=stream;
 
 
-console.log("Playing:", stream.source || stream.url);
+const video=document.getElementById("video");
+
+
+const streamURL =
+stream.source || stream.url;
 
 
 
-document.getElementById("now").innerHTML =
-stream.name;
-
-
-
-render(
-streams.filter(s=>{
-
-return true;
-
-})
+console.log(
+"Loading Stream:",
+streamURL
 );
 
 
 
-const video=document.getElementById("video");
+document.getElementById("now").innerHTML =
+stream.name || "Unknown";
+
+
+
+render(streams);
+
+
+
+if(!streamURL){
+
+console.error(
+"No URL found",
+stream
+);
+
+return;
+
+}
 
 
 
@@ -397,18 +353,16 @@ hls=null;
 if(Hls.isSupported()){
 
 
-
 hls=new Hls({
 
 enableWorker:true,
-
 lowLatencyMode:true
 
 });
 
 
 
-hls.loadSource(stream.source);
+hls.loadSource(streamURL);
 
 
 hls.attachMedia(video);
@@ -419,12 +373,18 @@ hls.on(
 Hls.Events.MANIFEST_PARSED,
 ()=>{
 
-console.log("Stream ready");
+
+console.log(
+"STREAM READY"
+);
+
 
 video.play()
-.catch(e=>console.log(e));
+.catch(console.log);
+
 
 });
+
 
 
 
@@ -434,7 +394,7 @@ Hls.Events.ERROR,
 
 
 console.error(
-"HLS ERROR",
+"HLS ERROR:",
 data
 );
 
@@ -442,13 +402,14 @@ data
 
 if(data.fatal){
 
-
 switch(data.type){
 
 
 case Hls.ErrorTypes.NETWORK_ERROR:
 
-console.log("Retry network");
+console.log(
+"Network retry"
+);
 
 hls.startLoad();
 
@@ -458,7 +419,9 @@ break;
 
 case Hls.ErrorTypes.MEDIA_ERROR:
 
-console.log("Recover media");
+console.log(
+"Media recovery"
+);
 
 hls.recoverMediaError();
 
@@ -475,7 +438,6 @@ break;
 
 }
 
-
 }
 
 
@@ -486,11 +448,11 @@ break;
 }
 
 else if(video.canPlayType(
-'application/vnd.apple.mpegurl'
+"application/vnd.apple.mpegurl"
 )){
 
 
-video.src=stream.source;
+video.src=streamURL;
 
 video.play();
 
@@ -501,11 +463,12 @@ video.play();
 else{
 
 
-alert("Browser does not support HLS");
+alert(
+"HLS not supported"
+);
 
 
 }
-
 
 
 }
@@ -536,7 +499,6 @@ streams.filter(s=>
 )
 
 );
-
 
 
 });
