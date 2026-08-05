@@ -577,64 +577,49 @@ Entertainment • Media • Community • News • Gaming • Digital Experience
 
 <div class="card" onclick="openVideoTV()">
 
-
     <div class="icon">
-
         <img src="video_icon_cutout.png">
-
     </div>
-
 
     <h2>
         Video Obvyris
     </h2>
 
-
     <div class="description">
-
         Live Video Obvyris TV with current
         program information and streaming.
-
     </div>
 
-
     <div class="tags">
-
         <span>TV</span>
         <span>Streaming</span>
         <span>Live</span>
-
     </div>
 
-        <!-- MAIN APP BUTTON -->
-
+    <!-- MAIN APP BUTTON -->
 
     <button
-    onclick="event.stopPropagation();openVideoTV();">
+        onclick="event.stopPropagation();openVideoTV();">
 
         📺 Open Video Obvyris App
 
     </button>
 
-
-
-
-    <!-- VIDEO STATION 1 -->
-
+    <!-- ROTATING VIDEO STATION -->
 
     <div class="stationGuide">
 
+        <b id="videoStationName">
+            📺 Loading...
+        </b>
 
-        <b>📺 Video Obvyris TV</b>
-
-
-        <span class="programTitle" id="currentProgram">
+        <span
+            class="programTitle"
+            id="currentProgram">
 
             Loading...
 
         </span>
-
-
 
         <div class="status">
 
@@ -648,66 +633,13 @@ Entertainment • Media • Community • News • Gaming • Digital Experience
 
         </div>
 
-
-
         <button
-        class="stationButton"
-        onclick="event.stopPropagation();openVideoTV();">
+            class="stationButton"
+            id="videoOpenButton">
 
-
-            ▶ Open Station 1
-
+            ▶ Open Station
 
         </button>
-
-
-    </div>
-
-
-
-
-
-    <!-- VIDEO STATION 2 -->
-
-
-    <div class="stationGuide">
-
-
-        <b>📺 Video Obvyris TV 2</b>
-
-
-        <span class="programTitle" id="currentProgram2">
-
-            Loading...
-
-        </span>
-
-
-
-        <div class="status">
-
-            Status:
-
-            <span id="streamStatus2">
-
-                Connecting...
-
-            </span>
-
-        </div>
-
-
-
-        <button
-        class="stationButton"
-        onclick="event.stopPropagation();switchStation('2');">
-
-
-            ▶ Open Station 2
-
-
-        </button>
-
 
     </div>
 
@@ -1191,9 +1123,15 @@ const STATIONS = {
 
 
 let CURRENT_STATION = "1";
+
+let videoStations = [];
+let videoIndex = 0;
+let videoTimer = null;
+    
 let sportsGames = [];
 let sportsIndex = 0;
 let sportsTimer = null;
+    
 let radioStations = [];
 let radioIndex = 0;
 let radioTimer = null;
@@ -1349,6 +1287,44 @@ async function loadGuide() {
 
 }
 
+function showNextVideoStation() {
+
+    if (!videoStations.length) return;
+
+    const station = videoStations[videoIndex];
+
+    document.getElementById("currentProgram").innerText =
+        station.program;
+
+    document.getElementById("streamStatus").innerText =
+        station.online ? "ONLINE" : "OFFLINE";
+
+    document.querySelector(".stationGuide b").innerText =
+        "📺 " + station.name;
+
+    const btn =
+        document.querySelector(".stationButton");
+
+    btn.innerText =
+        "▶ Open " +
+        station.name.replace("Video Obvyris ", "");
+
+    btn.onclick = function (e) {
+
+        e.stopPropagation();
+
+        location.href =
+            "Video_Obvyris.html?station=" +
+            encodeURIComponent(station.name);
+
+    };
+
+    videoIndex++;
+
+    if (videoIndex >= videoStations.length)
+        videoIndex = 0;
+
+}
 
 /*
 Open Video Obvyris
