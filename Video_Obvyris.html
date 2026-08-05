@@ -1712,7 +1712,10 @@ async function playMedia(url){
     let finalUrl = url;
 
     // Resolve redirect
-    if(url.includes("jmp2.uk")){
+    if(
+    url.includes("jmp2.uk") ||
+    url.includes(".m3u8")
+){
 
         try{
 
@@ -1787,11 +1790,44 @@ async function playMedia(url){
 
         });
 
-        window.hls.on(Hls.Events.ERROR,function(event,data){
+        window.hls.on(
+Hls.Events.ERROR,
+function(event,data){
 
-            console.log("HLS ERROR",data);
+    console.log("HLS ERROR",data);
 
-        });
+
+    if(data.fatal){
+
+        if(data.type === Hls.ErrorTypes.NETWORK_ERROR){
+
+            console.log("Retrying stream...");
+
+            window.hls.startLoad();
+
+        }
+
+
+        else if(
+            data.type === Hls.ErrorTypes.MEDIA_ERROR
+        ){
+
+            console.log("Recover media");
+
+            window.hls.recoverMediaError();
+
+        }
+
+
+        else{
+
+            window.hls.destroy();
+
+        }
+
+    }
+
+});
 
         return;
 
