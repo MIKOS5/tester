@@ -162,13 +162,11 @@ Select Channel
 
 </div>
 
-
-
 <script>
 
 
 const API =
-"https://script.google.com/macros/s/AKfycbwBAaTs5v5taswwxQBJIpxW-jgG-ZbyY1zFVjN5W0bMcdFup9exPK-wquqRQIRU-Aqpow/exec?action=list";
+"https://script.google.com/macros/s/AKfycbwBAaTs5v5taswwxQBJIpxW-jgG-ZbyY1zFVjN5W0bMcdFup9exPK-wquqRQIRU-Aqpow/exec";
 
 
 let streams=[];
@@ -182,23 +180,18 @@ async function loadChannels(){
 try{
 
 
-const res = await fetch(
-API+"&t="+Date.now()
+let res =
+await fetch(
+API+"?action=list&t="+Date.now()
 );
 
 
-const data = await res.json();
+let data =
+await res.json();
 
 
-console.log("API:",data);
+console.log(data);
 
-
-
-if(!data.streams){
-
-throw new Error("No streams returned");
-
-}
 
 
 streams=data.streams;
@@ -207,7 +200,6 @@ streams=data.streams;
 
 document.getElementById("count").innerHTML =
 streams.length+" Channels";
-
 
 
 render(streams);
@@ -222,14 +214,12 @@ play(streams[0]);
 
 
 
-}catch(err){
+}catch(e){
 
-console.error("API ERROR:",err);
-
-document.getElementById("count").innerHTML =
-"API ERROR";
+console.error(e);
 
 }
+
 
 
 }
@@ -239,23 +229,25 @@ document.getElementById("count").innerHTML =
 
 function render(list){
 
+let box =
+document.getElementById("channels");
 
-const box=document.getElementById("channels");
 
 box.innerHTML="";
 
 
+list.forEach(s=>{
 
-list.forEach(stream=>{
 
+let div =
+document.createElement("div");
 
-const div=document.createElement("div");
 
 div.className="channel";
 
 
 
-if(current && current.id===stream.id){
+if(current && current.id===s.id){
 
 div.classList.add("active");
 
@@ -263,25 +255,21 @@ div.classList.add("active");
 
 
 
-div.innerHTML=`
+div.innerHTML=
 
+`
 <div class="name">
-${stream.name || "Unknown"}
+${s.name}
 </div>
 
 <div class="status">
-${stream.status || ""}
+${s.status}
 </div>
-
 `;
 
 
 
-div.onclick=()=>{
-
-play(stream);
-
-};
+div.onclick=()=>play(s);
 
 
 
@@ -297,46 +285,21 @@ box.appendChild(div);
 
 
 
+
 function play(stream){
 
 
 current=stream;
 
 
-const video=document.getElementById("video");
 
-
-const streamURL =
-stream.source || stream.url;
-
-
-
-console.log(
-"Loading Stream:",
-streamURL
-);
+let video =
+document.getElementById("video");
 
 
 
 document.getElementById("now").innerHTML =
-stream.name || "Unknown";
-
-
-
-render(streams);
-
-
-
-if(!streamURL){
-
-console.error(
-"No URL found",
-stream
-);
-
-return;
-
-}
+stream.name;
 
 
 
@@ -344,25 +307,62 @@ if(hls){
 
 hls.destroy();
 
-hls=null;
-
 }
+
+
+
+let url =
+stream.source ||
+stream.url;
+
+
+
+console.log(
+"Original:",
+url
+);
+
+
+
+// USE APPS SCRIPT PROXY
+
+let proxyURL =
+API+
+"?action=proxy&url="+
+encodeURIComponent(url);
+
+
+
+console.log(
+"Proxy:",
+proxyURL
+);
+
 
 
 
 if(Hls.isSupported()){
 
 
-hls=new Hls({
+hls =
+new Hls({
 
 enableWorker:true,
-lowLatencyMode:true
+
+xhrSetup:function(xhr){
+
+xhr.setRequestHeader(
+"Accept",
+"*/*"
+);
+
+}
 
 });
 
 
 
-hls.loadSource(streamURL);
+hls.loadSource(proxyURL);
 
 
 hls.attachMedia(video);
@@ -373,88 +373,26 @@ hls.on(
 Hls.Events.MANIFEST_PARSED,
 ()=>{
 
-
 console.log(
-"STREAM READY"
+"PLAYING"
 );
 
-
-video.play()
-.catch(console.log);
-
+video.play();
 
 });
-
-
 
 
 hls.on(
 Hls.Events.ERROR,
-(event,data)=>{
-
+(e,data)=>{
 
 console.error(
-"HLS ERROR:",
+"HLS ERROR",
 data
 );
 
 
-
-if(data.fatal){
-
-switch(data.type){
-
-
-case Hls.ErrorTypes.NETWORK_ERROR:
-
-console.log(
-"Network retry"
-);
-
-hls.startLoad();
-
-break;
-
-
-
-case Hls.ErrorTypes.MEDIA_ERROR:
-
-console.log(
-"Media recovery"
-);
-
-hls.recoverMediaError();
-
-break;
-
-
-
-default:
-
-hls.destroy();
-
-break;
-
-
-}
-
-}
-
-
 });
-
-
-
-}
-
-else if(video.canPlayType(
-"application/vnd.apple.mpegurl"
-)){
-
-
-video.src=streamURL;
-
-video.play();
 
 
 
@@ -463,17 +401,16 @@ video.play();
 else{
 
 
-alert(
-"HLS not supported"
-);
+video.src=proxyURL;
+
+video.play();
 
 
 }
 
 
+
 }
-
-
 
 
 
@@ -484,20 +421,14 @@ document
 e=>{
 
 
-const q=e.target.value.toLowerCase();
-
+let q =
+e.target.value.toLowerCase();
 
 
 render(
-
-streams.filter(s=>
-
-(s.name||"")
-.toLowerCase()
-.includes(q)
-
+streams.filter(
+s=>s.name.toLowerCase().includes(q)
 )
-
 );
 
 
@@ -505,13 +436,8 @@ streams.filter(s=>
 
 
 
-
-
 loadChannels();
-
-
 </script>
-
-
+  
 </body>
 </html>
