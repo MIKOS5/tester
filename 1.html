@@ -1,205 +1,555 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+
 <title>Video Obvyris</title>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
 <style>
-*{box-sizing:border-box}
+
+*{
+    box-sizing:border-box;
+}
+
 body{
     margin:0;
     background:#111;
-    color:#fff;
-    font-family:Arial,sans-serif;
+    color:white;
+    font-family:Arial,Helvetica,sans-serif;
 }
+
 header{
-    background:#1f1f1f;
-    padding:15px;
-    font-size:22px;
+
+    height:60px;
+    background:#1b1b1b;
+    display:flex;
+    align-items:center;
+    padding:0 20px;
+    font-size:24px;
     font-weight:bold;
+
 }
+
 #layout{
+
     display:grid;
-    grid-template-columns:350px 1fr;
-    height:calc(100vh - 55px);
+    grid-template-columns:360px 1fr;
+    height:calc(100vh - 60px);
+
 }
+
+
 #sidebar{
-    overflow:auto;
-    border-right:1px solid #333;
-}
-#search{
-    width:100%;
-    padding:12px;
-    border:none;
-    outline:none;
-    font-size:16px;
-}
-.channel{
-    padding:10px;
-    border-bottom:1px solid #222;
-    cursor:pointer;
-}
-.channel:hover{
-    background:#2d2d2d;
-}
-.channel .name{
-    font-weight:bold;
-}
-.channel .status{
-    color:#7cff7c;
-    font-size:12px;
-}
-#playerArea{
+
+    background:#151515;
+    overflow:hidden;
     display:flex;
     flex-direction:column;
+
 }
-#title{
+
+
+#search{
+
+    width:100%;
+    padding:14px;
+    background:#222;
+    color:white;
+    border:0;
+    outline:none;
+    font-size:16px;
+
+}
+
+
+#count{
+
+    padding:10px;
+    background:#181818;
+    color:#aaa;
+
+}
+
+
+#channels{
+
+    overflow:auto;
+    flex:1;
+
+}
+
+
+.channel{
+
     padding:12px;
+    border-bottom:1px solid #292929;
+    cursor:pointer;
+
+}
+
+
+.channel:hover{
+
+    background:#292929;
+
+}
+
+
+.channel.active{
+
+    background:#0066ff;
+
+}
+
+
+.name{
+
+    font-weight:bold;
+    font-size:15px;
+
+}
+
+
+.status{
+
+    font-size:12px;
+    color:#7cff7c;
+
+}
+
+
+
+#playerArea{
+
+    display:flex;
+    flex-direction:column;
+
+}
+
+
+#now{
+
+    padding:15px;
     background:#222;
     font-size:20px;
+
 }
+
+
 video{
+
+    flex:1;
     width:100%;
     height:100%;
-    background:#000;
+    background:black;
+
 }
+
+
+
+@media(max-width:800px){
+
+#layout{
+
+    grid-template-columns:1fr;
+
+}
+
+#sidebar{
+
+    height:300px;
+
+}
+
+}
+
 </style>
+
 </head>
+
 
 <body>
 
-<header>Video Obvyris</header>
+
+<header>
+📺 Video Obvyris
+</header>
+
 
 <div id="layout">
 
+
 <div id="sidebar">
-<input id="search" placeholder="Search channels...">
-<div id="list"></div>
+
+
+<input id="search" placeholder="Search channels">
+
+
+<div id="count">
+Loading channels...
 </div>
+
+
+<div id="channels"></div>
+
+
+</div>
+
+
 
 <div id="playerArea">
-<div id="title">Loading...</div>
-<video id="video" controls autoplay playsinline></video>
+
+
+<div id="now">
+Select Channel
 </div>
 
+
+<video
+id="video"
+controls
+autoplay
+playsinline>
+</video>
+
+
 </div>
+
+
+</div>
+
+
 
 <script>
 
-const API="https://script.google.com/macros/s/AKfycbwBAaTs5v5taswwxQBJIpxW-jgG-ZbyY1zFVjN5W0bMcdFup9exPK-wquqRQIRU-Aqpow/exec?action=list";
+
+const API =
+"https://script.google.com/macros/s/AKfycbwBAaTs5v5taswwxQBJIpxW-jgG-ZbyY1zFVjN5W0bMcdFup9exPK-wquqRQIRU-Aqpow/exec?action=list";
+
 
 let streams=[];
-let hls;
 
-async function load(){
+let hls=null;
 
-    const res=await fetch(API);
-    const data=await res.json();
+let current=null;
 
-    streams=data.streams||[];
 
-    render(streams);
 
-    if(streams.length){
-        play(streams[0]);
-    }
+async function loadChannels(){
 
-}
 
-function render(items){
+try{
 
-    const list=document.getElementById("list");
 
-    list.innerHTML="";
+const res=await fetch(API);
 
-    items.forEach(stream=>{
 
-        const div=document.createElement("div");
+const data=await res.json();
 
-        div.className="channel";
 
-        div.innerHTML=`
-            <div class="name">${stream.name}</div>
-            <div class="status">${stream.status}</div>
-        `;
+console.log("API:",data);
 
-        div.onclick=()=>play(stream);
 
-        list.appendChild(div);
 
-    });
+streams=data.streams || [];
 
-}
 
-function play(stream){
 
-    document.getElementById("title").textContent=stream.name;
+document.getElementById("count").innerHTML =
+streams.length+" Channels";
 
-    const video=document.getElementById("video");
 
-    if(hls){
-        hls.destroy();
-    }
 
-    if(Hls.isSupported()){
+render(streams);
 
-        hls=new Hls({
-            enableWorker:true
-        });
 
-        hls.loadSource(stream.url);
 
-        hls.attachMedia(video);
+if(streams.length){
 
-        hls.on(Hls.Events.ERROR,function(event,data){
-
-            if(data.fatal){
-
-                switch(data.type){
-
-                    case Hls.ErrorTypes.NETWORK_ERROR:
-                        hls.startLoad();
-                        break;
-
-                    case Hls.ErrorTypes.MEDIA_ERROR:
-                        hls.recoverMediaError();
-                        break;
-
-                    default:
-                        hls.destroy();
-                        break;
-                }
-
-            }
-
-        });
-
-    }else{
-
-        video.src=stream.url;
-
-    }
+play(streams[0]);
 
 }
 
-document.getElementById("search").addEventListener("input",e=>{
 
-    const q=e.target.value.toLowerCase();
 
-    render(
-        streams.filter(s=>
-            (s.name||"").toLowerCase().includes(q)
-        )
-    );
+}catch(err){
+
+console.error(err);
+
+document.getElementById("count").innerHTML=
+"API ERROR";
+
+}
+
+
+
+}
+
+
+
+
+
+function render(list){
+
+
+const box=document.getElementById("channels");
+
+
+box.innerHTML="";
+
+
+
+list.forEach(stream=>{
+
+
+const div=document.createElement("div");
+
+
+div.className="channel";
+
+
+
+if(current && current.id===stream.id){
+
+div.classList.add("active");
+
+}
+
+
+
+div.innerHTML=`
+
+<div class="name">
+${stream.name || "Unknown"}
+</div>
+
+<div class="status">
+${stream.status || ""}
+</div>
+
+`;
+
+
+
+div.onclick=()=>{
+
+play(stream);
+
+};
+
+
+
+box.appendChild(div);
+
+
 
 });
 
-load();
+
+}
+
+
+
+
+function play(stream){
+
+
+current=stream;
+
+
+console.log("Playing:",stream);
+
+
+
+document.getElementById("now").innerHTML =
+stream.name;
+
+
+
+render(
+streams.filter(s=>{
+
+return true;
+
+})
+);
+
+
+
+const video=document.getElementById("video");
+
+
+
+if(hls){
+
+hls.destroy();
+
+hls=null;
+
+}
+
+
+
+if(Hls.isSupported()){
+
+
+
+hls=new Hls({
+
+enableWorker:true,
+
+lowLatencyMode:true
+
+});
+
+
+
+hls.loadSource(stream.url);
+
+
+hls.attachMedia(video);
+
+
+
+hls.on(
+Hls.Events.MANIFEST_PARSED,
+()=>{
+
+console.log("Stream ready");
+
+video.play()
+.catch(e=>console.log(e));
+
+});
+
+
+
+hls.on(
+Hls.Events.ERROR,
+(event,data)=>{
+
+
+console.error(
+"HLS ERROR",
+data
+);
+
+
+
+if(data.fatal){
+
+
+switch(data.type){
+
+
+case Hls.ErrorTypes.NETWORK_ERROR:
+
+console.log("Retry network");
+
+hls.startLoad();
+
+break;
+
+
+
+case Hls.ErrorTypes.MEDIA_ERROR:
+
+console.log("Recover media");
+
+hls.recoverMediaError();
+
+break;
+
+
+
+default:
+
+hls.destroy();
+
+break;
+
+
+}
+
+
+}
+
+
+});
+
+
+
+}
+
+else if(video.canPlayType(
+'application/vnd.apple.mpegurl'
+)){
+
+
+video.src=stream.url;
+
+video.play();
+
+
+
+}
+
+else{
+
+
+alert("Browser does not support HLS");
+
+
+}
+
+
+
+}
+
+
+
+
+
+document
+.getElementById("search")
+.addEventListener(
+"input",
+e=>{
+
+
+const q=e.target.value.toLowerCase();
+
+
+
+render(
+
+streams.filter(s=>
+
+(s.name||"")
+.toLowerCase()
+.includes(q)
+
+)
+
+);
+
+
+
+});
+
+
+
+
+
+loadChannels();
+
 
 </script>
+
 
 </body>
 </html>
