@@ -1019,10 +1019,14 @@ async function load(){
         console.log("API:", STREAM_API);
 
 
-        const response = await fetch(STREAM_API, {
-            method:"GET",
-            redirect:"follow"
-        });
+        const response = await fetch(
+    STREAM_API + "?t=" + Date.now(),
+    {
+        method:"GET",
+        redirect:"follow",
+        cache:"no-store"
+    }
+);
 
 
         console.log("HTTP STATUS:", response.status);
@@ -2198,15 +2202,12 @@ async function voteChannel(){
     try{
 
         const response = await fetch(STREAM_API,{
-            method:"POST",
-            headers:{
-                "Content-Type":"application/json"
-            },
-            body:JSON.stringify({
-                action:"vote",
-                url:stream.url
-            })
-        });
+    method:"POST",
+    body:JSON.stringify({
+        action:"vote",
+        url:stream.url
+    })
+});
 
         const data = await response.json();
 
