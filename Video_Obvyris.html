@@ -2486,18 +2486,16 @@ async function checkStationUpdate(){
 
 function sortMostVotes(){
 
-    filtered = [...list];
+    filtered = list.filter(s => (Number(s.vote) || 0) > 0);
 
-    filtered.sort((a,b)=>{
-
-        return (Number(b.vote)||0) - (Number(a.vote)||0);
-
-    });
+    filtered.sort((a,b)=>
+        (Number(b.vote) || 0) - (Number(a.vote) || 0)
+    );
 
     render(true);
 
     document.getElementById("now").innerText =
-        "🔥 Most Voted Channels";
+        "🔥 Most Voted Channels (" + filtered.length + ")";
 
 }
    
