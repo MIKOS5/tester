@@ -753,16 +753,20 @@ body{
   <input id="search" placeholder="Search..." oninput="applyFilters()"/>
   <div id="sourceList">
 
-<div class="group" onclick="load()">
-📺 Live Streams
-</div>
-
 <div class="group" onclick="loadStation()">
 🎬 Video Obvyris TV
 </div>
 
 <div class="group" onclick="loadStation2()">
 🎬 Video Obvyris TV 2
+</div>
+
+<div class="group" onclick="load()">
+📺 Reload Live Streams
+</div>
+     
+<div class="group" onclick="sortMostVotes()">
+🔥 Most Voted
 </div>
      
 </div>
@@ -2207,12 +2211,12 @@ async function voteChannel(){
 
         if(data.success){
 
-            stream.vote = data.votes;
+    stream.vote = data.result.vote;
 
-            document.getElementById("voteDisplay").innerText =
-                "👍 " + data.votes + " Votes";
+    document.getElementById("voteDisplay").innerText =
+        "👍 " + stream.vote + " Votes";
 
-        }else{
+}else{
 
             alert(data.error || "Vote failed.");
 
@@ -2477,6 +2481,23 @@ async function checkStationUpdate(){
         );
 
     }
+
+}
+
+function sortMostVotes(){
+
+    filtered = [...list];
+
+    filtered.sort((a,b)=>{
+
+        return (Number(b.vote)||0) - (Number(a.vote)||0);
+
+    });
+
+    render(true);
+
+    document.getElementById("now").innerText =
+        "🔥 Most Voted Channels";
 
 }
    
