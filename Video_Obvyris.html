@@ -2191,16 +2191,17 @@ async function voteChannel(){
     const stream = filtered[index];
 
     if(!stream){
-
         alert("No channel selected.");
         return;
-
     }
 
     try{
 
         const response = await fetch(STREAM_API,{
             method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
             body:JSON.stringify({
                 action:"vote",
                 url:stream.url
@@ -2209,29 +2210,32 @@ async function voteChannel(){
 
         const data = await response.json();
 
-        if(data.success){
+        console.log("Vote response:", data);
 
-    stream.vote = data.result.vote;
+        if(data.success && data.result){
 
-    document.getElementById("voteDisplay").innerText =
-        "👍 " + stream.vote + " Votes";
+            stream.vote = Number(data.result.vote) || 0;
 
-}else{
+            document.getElementById("voteDisplay").innerText =
+                "👍 " + stream.vote + " Votes";
+
+        }else{
 
             alert(data.error || "Vote failed.");
 
         }
 
-    }
-    catch(err){
+    }catch(err){
 
         console.error(err);
-
         alert("Unable to submit vote.");
 
     }
 
 }
+
+
+   
 async function reportBadLink(){
 
     const stream = filtered[index] || list[index];
