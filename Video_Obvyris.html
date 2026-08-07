@@ -635,6 +635,73 @@ body{
 
 }
 
+/* =========================
+   FILTER DROPDOWNS
+========================= */
+
+.filterBox{
+    margin:6px;
+}
+
+
+.filterTitle{
+
+    padding:10px;
+
+    background:var(--bg);
+
+    border:1px solid var(--border);
+
+    border-radius:10px;
+
+    cursor:pointer;
+
+    font-size:12px;
+
+    font-weight:800;
+
+}
+
+
+.filterTitle:hover{
+
+    border-color:var(--blue);
+
+    background:rgba(39,147,255,.12);
+
+}
+
+
+.filterMenu{
+
+    display:none;
+
+    margin-top:4px;
+
+    max-height:220px;
+
+    overflow-y:auto;
+
+}
+
+
+.filterMenu.open{
+
+    display:block;
+
+}
+
+
+.filterMenu .group{
+
+    margin:3px 0;
+
+    padding:6px;
+
+    font-size:11px;
+
+}
+   
 /* DEFAULT DESKTOP CONTROLS */
 #controls{
   display:flex;
@@ -771,11 +838,37 @@ body{
      
 </div>
 
-<div id="groupList"></div>
+<div class="filterBox">
 
-<div id="countryList"></div>
+<div class="filterTitle" onclick="toggleFilter('groupMenu')">
+📺 All Channels ▼
+</div>
 
-<div id="cityList"></div>
+<div id="groupMenu" class="filterMenu"></div>
+
+</div>
+
+
+<div class="filterBox">
+
+<div class="filterTitle" onclick="toggleFilter('countryMenu')">
+🌎 Sub Category Channels ▼
+</div>
+
+<div id="countryMenu" class="filterMenu"></div>
+
+</div>
+
+
+<div class="filterBox">
+
+<div class="filterTitle" onclick="toggleFilter('languageMenu')">
+🗣 Language ▼
+</div>
+
+<div id="languageMenu" class="filterMenu"></div>
+
+</div>
 
 </div>
 
@@ -1183,7 +1276,7 @@ function buildCities(){
     const cities=[...citySet].sort();
 
 
-    const box=document.getElementById("cityList");
+    const box=document.getElementById("languageMenu");
 
     box.innerHTML="";
 
@@ -2119,7 +2212,7 @@ function buildCountries(){
     );
 
 
-    const box=document.getElementById("countryList");
+    const box=document.getElementById("countryMenu");
 
     box.innerHTML="";
 
@@ -2197,6 +2290,7 @@ function toggle(){
     }
 
 }
+
 
 async function voteChannel(){
 
@@ -2422,7 +2516,14 @@ const suggestedGroup =
 
 }
 
+function toggleFilter(id){
 
+    const box=document.getElementById(id);
+
+    box.classList.toggle("open");
+
+}
+   
 async function checkStationUpdate(){
 
     if(!stationMode) return;
