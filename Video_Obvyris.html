@@ -2518,47 +2518,76 @@ function sortMostVotes(){
 
 async function shareChannel(){
 
-    const stream = filtered[index];
-
-    if(!stream){
-
-        alert("No channel selected.");
-
-        return;
-
-    }
-
-
-    const id = String(stream.id || "").trim();
-
-
-    if(!id){
-
-        alert(
-            "This channel does not have a unique ID."
-        );
-
-        console.warn(
-            "Cannot share channel without ID:",
-            stream
-        );
-
-        return;
-
-    }
-
+    let shareURL = "";
 
     /*
     ========================================
-    CREATE SHARE URL
+    VIDEO OBVYRIS TV / TV 2
     ========================================
     */
 
-    const shareURL =
-        window.location.origin +
-        window.location.pathname +
-        "?id=" +
-        encodeURIComponent(id);
+    if(stationMode === "station1"){
+
+        shareURL =
+            window.location.origin +
+            window.location.pathname +
+            "?station=" +
+            encodeURIComponent("Video Obvyris TV");
+
+    }
+
+    else if(stationMode === "station2"){
+
+        shareURL =
+            window.location.origin +
+            window.location.pathname +
+            "?station=" +
+            encodeURIComponent("Video Obvyris TV 2");
+
+    }
+
+    /*
+    ========================================
+    NORMAL IPTV CHANNEL
+    ========================================
+    */
+
+    else{
+
+        const stream = filtered[index];
+
+        if(!stream){
+
+            alert("No channel selected.");
+
+            return;
+
+        }
+
+        const id = String(stream.id || "").trim();
+
+        if(!id){
+
+            alert(
+                "This channel does not have a unique ID."
+            );
+
+            console.warn(
+                "Cannot share channel without ID:",
+                stream
+            );
+
+            return;
+
+        }
+
+        shareURL =
+            window.location.origin +
+            window.location.pathname +
+            "?id=" +
+            encodeURIComponent(id);
+
+    }
 
 
     console.log(
@@ -2569,7 +2598,7 @@ async function shareChannel(){
 
     /*
     ========================================
-    COPY TO CLIPBOARD
+    COPY LINK
     ========================================
     */
 
@@ -2579,25 +2608,19 @@ async function shareChannel(){
             shareURL
         );
 
-
         alert(
             "📤 Share link copied!\n\n" +
             shareURL
         );
 
-
     }
+
     catch(err){
 
         console.warn(
             "Clipboard failed:",
             err
         );
-
-
-        /*
-        Fallback for older browsers
-        */
 
         prompt(
             "Copy this share link:",
