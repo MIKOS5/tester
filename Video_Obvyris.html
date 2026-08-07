@@ -1063,6 +1063,8 @@ async function load(){
         })
         .map(s=>({
 
+    id:String(s.id || ""),
+
     name:String(s.name || "Unknown"),
 
     group:String(s.group || "Other"),
@@ -2202,16 +2204,18 @@ async function voteChannel(){
     try{
 
         const response = await fetch(STREAM_API,{
-    method:"POST",
-    body:JSON.stringify({
-        action:"vote",
-        url:stream.url
-    })
-});
+            method:"POST",
+            body:JSON.stringify({
+                action:"vote",
+                id:stream.id
+            })
+        });
+
 
         const data = await response.json();
 
         console.log("Vote response:", data);
+
 
         if(data.success && data.result){
 
@@ -2226,6 +2230,7 @@ async function voteChannel(){
 
         }
 
+
     }catch(err){
 
         console.error(err);
@@ -2234,7 +2239,6 @@ async function voteChannel(){
     }
 
 }
-
 
    
 async function reportBadLink(){
@@ -2411,6 +2415,7 @@ const suggestedGroup =
 
 
 }
+
 
 async function checkStationUpdate(){
 
