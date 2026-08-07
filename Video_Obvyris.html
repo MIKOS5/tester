@@ -2514,80 +2514,197 @@ function goHome(){
 }
 
 
-
-
-
 window.addEventListener("DOMContentLoaded", async () => {
 
-    console.log("DOM READY");
+    console.log("================================");
+    console.log("VIDEO OBVYRIS DOM READY");
+    console.log("================================");
+
+    const requestedID =
+        urlParams.get("id");
+
+    const requestedStation =
+        urlParams.get("station");
+
+    console.log("Requested ID:", requestedID);
+    console.log("Requested Station:", requestedStation);
+
+
+    /*
+    ========================================
+    1. LOAD STREAM DATABASE
+    ========================================
+    */
 
     await load();
 
-    console.log("PAGE PARAM:", requestedStation);
 
-    if (!requestedStation) return;
+    /*
+    ========================================
+    2. ID HAS HIGHEST PRIORITY
+    ========================================
+    */
+
+    if(requestedID){
+
+        console.log(
+            "Looking for stream ID:",
+            requestedID
+        );
+
+        console.log(
+            "Available stream IDs:",
+            list.map(s => String(s.id))
+        );
 
 
-    if (requestedStation) {
+        const matchIndex = list.findIndex(s =>
+            String(s.id).trim().toLowerCase() ===
+            String(requestedID).trim().toLowerCase()
+        );
 
-    const stationName = requestedStation.trim().toLowerCase();
 
-    if (stationName === "video obvyris tv") {
+        console.log(
+            "ID MATCH INDEX:",
+            matchIndex
+        );
 
-        console.log("AUTO START VIDEO OBVYRIS TV");
 
-        await loadStation();
+        if(matchIndex !== -1){
 
-        return;
+            console.log(
+                "FOUND STREAM:",
+                list[matchIndex]
+            );
+
+
+            /*
+            IMPORTANT:
+            Set filtered to the complete list
+            so play() uses the correct index.
+            */
+
+            filtered = [...list];
+
+
+            /*
+            Open the requested video
+            */
+
+            play(matchIndex);
+
+
+            return;
+
+        }
+
+
+        console.warn(
+            "NO STREAM FOUND FOR ID:",
+            requestedID
+        );
 
     }
 
-    if (
-        stationName === "video obvyris tv station 2" ||
-        stationName === "video obvyris tv 2"
-    ) {
 
-        console.log("AUTO START VIDEO OBVYRIS TV 2");
+    /*
+    ========================================
+    3. STATION NAME
+    ========================================
+    */
 
-        await loadStation2();
+    if(requestedStation){
 
-        return;
+        const stationName =
+            requestedStation
+            .trim()
+            .toLowerCase();
+
+
+        /*
+        VIDEO OBVYRIS TV
+        */
+
+        if(stationName === "video obvyris tv"){
+
+            console.log(
+                "AUTO START VIDEO OBVYRIS TV"
+            );
+
+            await loadStation();
+
+            return;
+
+        }
+
+
+        /*
+        VIDEO OBVYRIS TV 2
+        */
+
+        if(
+            stationName === "video obvyris tv station 2" ||
+            stationName === "video obvyris tv 2"
+        ){
+
+            console.log(
+                "AUTO START VIDEO OBVYRIS TV 2"
+            );
+
+            await loadStation2();
+
+            return;
+
+        }
+
+
+        /*
+        NORMAL CHANNEL BY NAME
+        */
+
+        const matchIndex =
+            list.findIndex(s =>
+                String(s.name)
+                .trim()
+                .toLowerCase() ===
+                stationName
+            );
+
+
+        if(matchIndex !== -1){
+
+            console.log(
+                "FOUND STATION:",
+                list[matchIndex]
+            );
+
+
+            filtered = [...list];
+
+            play(matchIndex);
+
+            return;
+
+        }
+
+
+        console.warn(
+            "NO STATION FOUND:",
+            requestedStation
+        );
 
     }
 
-}
 
+    /*
+    ========================================
+    4. NORMAL PAGE
+    ========================================
+    */
 
-    const match = list.find(s =>
-        s.name.trim().toLowerCase()
-        ===
-        requestedStation.trim().toLowerCase()
+    console.log(
+        "No station or ID requested."
     );
-
-
-    if(match){
-
-        play(list.indexOf(match));
-
-    }
-
-    const requestedID = urlParams.get("id");
-
-if(requestedID){
-
-    const match = list.find(s =>
-        String(s.id) === String(requestedID)
-    );
-
-    if(match){
-
-        play(list.indexOf(match));
-
-        return;
-
-    }
-
-}
 
 });
    
