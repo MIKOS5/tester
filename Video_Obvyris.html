@@ -1050,44 +1050,43 @@ async function load(){
         }
 
 
+streamList = data.streams
+    .filter(s => {
 
-        streamList = data.streams
-        .filter(s=>{
+        return (
+            s.status &&
+            String(s.status).toUpperCase() === "ONLINE" &&
+            s.url
+        );
 
-            return (
-                s.status &&
-                s.status.toUpperCase()==="ONLINE" &&
-                s.url
-            );
+    })
+    .map(s => ({
 
-        })
-        map(s=>({
+        id: String(
+            s.id ||
+            s.ID ||
+            s.Id ||
+            s.streamId ||
+            s.streamID ||
+            ""
+        ).trim(),
 
-    id:String(
-        s.id ||
-        s.ID ||
-        s.Id ||
-        s.streamId ||
-        s.streamID ||
-        ""
-    ).trim(),
+        name: String(s.name || "Unknown"),
 
-    name:String(s.name || "Unknown"),
+        group: String(s.group || "Other"),
 
-    group:String(s.group || "Other"),
+        country: String(s.country || "Unknown"),
 
-    country:String(s.country || "Unknown"),
+        city: String(s.language || "Unknown"),
 
-    city:String(s.language || "Unknown"),
+        url: String(s.url || ""),
 
-    url:String(s.url || ""),
+        logo: String(s.logo || ""),
 
-    logo:String(s.logo || ""),
+        vote: Number(s.vote || 0)
 
-    vote:Number(s.vote || 0)
-
-}))
-.filter(s=>s.url);
+    }))
+    .filter(s => s.url);
 
 
 
