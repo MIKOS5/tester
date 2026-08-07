@@ -1061,9 +1061,16 @@ async function load(){
             );
 
         })
-        .map(s=>({
+        map(s=>({
 
-    id:String(s.id || ""),
+    id:String(
+        s.id ||
+        s.ID ||
+        s.Id ||
+        s.streamId ||
+        s.streamID ||
+        ""
+    ).trim(),
 
     name:String(s.name || "Unknown"),
 
