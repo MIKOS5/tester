@@ -834,7 +834,6 @@ body{
 >
 </div>
 
-
 <div class="controlRow bottom">
 
 <button id="muteBtn" onclick="toggleMute()">🔇</button>
@@ -842,6 +841,8 @@ body{
 <button onclick="fullscreenPlayer()">⛶</button>
 
 <button onclick="voteChannel()">👍</button>
+
+<button onclick="shareChannel()">📤</button>
 
 <button onclick="reportBadLink()">🚩</button>
 
@@ -2512,6 +2513,98 @@ function sortMostVotes(){
 
     document.getElementById("now").innerText =
         "🔥 Most Voted Channels (" + filtered.length + ")";
+
+}
+
+async function shareChannel(){
+
+    const stream = filtered[index];
+
+    if(!stream){
+
+        alert("No channel selected.");
+
+        return;
+
+    }
+
+
+    const id = String(stream.id || "").trim();
+
+
+    if(!id){
+
+        alert(
+            "This channel does not have a unique ID."
+        );
+
+        console.warn(
+            "Cannot share channel without ID:",
+            stream
+        );
+
+        return;
+
+    }
+
+
+    /*
+    ========================================
+    CREATE SHARE URL
+    ========================================
+    */
+
+    const shareURL =
+        window.location.origin +
+        window.location.pathname +
+        "?id=" +
+        encodeURIComponent(id);
+
+
+    console.log(
+        "Share URL:",
+        shareURL
+    );
+
+
+    /*
+    ========================================
+    COPY TO CLIPBOARD
+    ========================================
+    */
+
+    try{
+
+        await navigator.clipboard.writeText(
+            shareURL
+        );
+
+
+        alert(
+            "📤 Share link copied!\n\n" +
+            shareURL
+        );
+
+
+    }
+    catch(err){
+
+        console.warn(
+            "Clipboard failed:",
+            err
+        );
+
+
+        /*
+        Fallback for older browsers
+        */
+
+        prompt(
+            "Copy this share link:",
+            shareURL
+        );
+
+    }
 
 }
    
