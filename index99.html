@@ -2026,7 +2026,7 @@ Entertainment • Media • Community • News • Gaming • Digital Experience
 
 <!-- WEATHER BAR -->
 
-<div class="weatherBar">
+<div class="weatherBar" onclick="openWeatherPopup()">
 
     <div class="weatherMain">
 
@@ -2104,7 +2104,36 @@ Entertainment • Media • Community • News • Gaming • Digital Experience
 
 </div>
 
+<!-- WEATHER POPUP -->
 
+<div id="weatherPopup" class="modalOverlay">
+
+    <div class="modalBox">
+
+        <div class="modalHeader">
+
+            <h2>🌤️ Weather Forecast</h2>
+
+            <button
+                class="closeModal"
+                onclick="closeWeatherPopup()">
+
+                ×
+
+            </button>
+
+        </div>
+
+        <div id="weatherPopupContent">
+
+            Loading weather...
+
+        </div>
+
+    </div>
+
+</div>
+ 
 <div class="container">
 
 
@@ -2506,6 +2535,35 @@ display:none;
 
 
 </div> <!-- CLOSE CONTAINER -->
+<!-- WEATHER POPUP -->
+
+<div id="weatherModal" class="modalOverlay">
+
+    <div class="modalBox">
+
+        <div class="modalHeader">
+
+            <h2>🌤️ Weather Forecast</h2>
+
+            <button
+                class="closeModal"
+                onclick="closeWeather()">
+
+                ×
+
+            </button>
+
+        </div>
+
+        <div id="weatherPopupContent">
+
+            Loading weather...
+
+        </div>
+
+    </div>
+
+</div>
 <!-- INFO POPUP -->
 
 <div id="platformModal" class="modalOverlay">
@@ -4097,22 +4155,40 @@ function loadWeather(latitude, longitude, locationName){
         "https://api.open-meteo.com/v1/forecast" +
 
         "?latitude=" + latitude +
-
         "&longitude=" + longitude +
 
         "&current=" +
-
         "temperature_2m," +
         "apparent_temperature," +
         "relative_humidity_2m," +
         "wind_speed_10m," +
+        "wind_direction_10m," +
         "weather_code" +
 
+        "&hourly=" +
+        "temperature_2m," +
+        "apparent_temperature," +
+        "precipitation_probability," +
+        "precipitation," +
+        "weather_code," +
+        "wind_speed_10m" +
+
+        "&daily=" +
+        "weather_code," +
+        "temperature_2m_max," +
+        "temperature_2m_min," +
+        "apparent_temperature_max," +
+        "apparent_temperature_min," +
+        "sunrise," +
+        "sunset," +
+        "precipitation_sum," +
+        "precipitation_probability_max," +
+        "wind_speed_10m_max" +
+
         "&temperature_unit=fahrenheit" +
-
         "&wind_speed_unit=mph" +
-
-        "&timezone=auto";
+        "&timezone=auto" +
+        "&forecast_days=7";
 
 
     fetch(url)
@@ -4129,7 +4205,6 @@ function loadWeather(latitude, longitude, locationName){
 
     })
 
-
     .then(data => {
 
         const current = data.current;
@@ -4140,7 +4215,9 @@ function loadWeather(latitude, longitude, locationName){
             );
 
 
-        /* TEMPERATURE */
+        /* ==========================
+           CURRENT WEATHER BAR
+        ========================== */
 
         document.getElementById(
             "weatherTemp"
@@ -4150,23 +4227,17 @@ function loadWeather(latitude, longitude, locationName){
             ) + "°";
 
 
-        /* CONDITION */
-
         document.getElementById(
             "weatherCondition"
         ).textContent =
             weather[0];
 
 
-        /* ICON */
-
         document.getElementById(
             "weatherIcon"
         ).textContent =
             weather[1];
 
-
-        /* FEELS LIKE */
 
         document.getElementById(
             "weatherFeels"
@@ -4176,8 +4247,6 @@ function loadWeather(latitude, longitude, locationName){
             ) + "°";
 
 
-        /* WIND */
-
         document.getElementById(
             "weatherWind"
         ).textContent =
@@ -4186,22 +4255,267 @@ function loadWeather(latitude, longitude, locationName){
             ) + " mph";
 
 
-        /* HUMIDITY */
-
         document.getElementById(
             "weatherHumidity"
         ).textContent =
-            current.relative_humidity_2m
-            + "%";
+            current.relative_humidity_2m + "%";
 
-
-        /* LOCATION */
 
         document.getElementById(
             "weatherLocation"
         ).textContent =
             locationName;
 
+
+        /* ==========================
+           BUILD 7 DAY FORECAST
+        ========================== */
+
+        let forecastHTML = `
+
+            <div style="
+                display:grid;
+                gap:12px;
+            ">
+
+                <div style="
+                    padding:16px;
+                    border:1px solid var(--line);
+                    border-radius:16px;
+                    background:#0b1220;
+                ">
+
+                    <div style="
+                        font-size:13px;
+                        color:#6ec2ff;
+                        font-weight:800;
+                        margin-bottom:8px;
+                    ">
+                        📍 ${locationName}
+                    </div>
+
+                    <div style="
+                        font-size:28px;
+                        font-weight:900;
+                    ">
+                        ${Math.round(current.temperature_2m)}°
+                        ${weather[1]}
+                    </div>
+
+                    <div style="
+                        color:#cbd5e1;
+                        margin-top:5px;
+                    ">
+                        ${weather[0]}
+                    </div>
+
+                    <div style="
+                        margin-top:12px;
+                        font-size:13px;
+                        color:#93a4bb;
+                        line-height:1.8;
+                    ">
+
+                        Feels Like:
+                        <b style="color:white">
+                            ${Math.round(current.apparent_temperature)}°
+                        </b>
+
+                        <br>
+
+                        Humidity:
+                        <b style="color:white">
+                            ${current.relative_humidity_2m}%
+                        </b>
+
+                        <br>
+
+                        Wind:
+                        <b style="color:white">
+                            ${Math.round(current.wind_speed_10m)} mph
+                        </b>
+
+                        <br>
+
+                        Wind Direction:
+                        <b style="color:white">
+                            ${Math.round(current.wind_direction_10m)}°
+                        </b>
+
+                    </div>
+
+                </div>
+
+                <h3 style="
+                    margin:10px 0 0;
+                ">
+                    📅 7-Day Forecast
+                </h3>
+
+        `;
+
+
+        for(let i = 0; i < data.daily.time.length; i++){
+
+            const date =
+                new Date(
+                    data.daily.time[i] + "T12:00:00"
+                );
+
+
+            const dayName =
+                date.toLocaleDateString(
+                    undefined,
+                    {
+                        weekday:"long"
+                    }
+                );
+
+
+            const weatherDay =
+                weatherDescription(
+                    data.daily.weather_code[i]
+                );
+
+
+            forecastHTML += `
+
+                <div style="
+                    padding:16px;
+                    border:1px solid var(--line);
+                    border-radius:16px;
+                    background:
+                    linear-gradient(
+                        145deg,
+                        #162338,
+                        #0b1220
+                    );
+                ">
+
+                    <div style="
+                        display:flex;
+                        justify-content:space-between;
+                        align-items:center;
+                        gap:10px;
+                    ">
+
+                        <strong>
+                            ${dayName}
+                        </strong>
+
+                        <span style="
+                            font-size:25px;
+                        ">
+                            ${weatherDay[1]}
+                        </span>
+
+                    </div>
+
+                    <div style="
+                        color:#93a4bb;
+                        font-size:12px;
+                        margin-top:5px;
+                    ">
+                        ${data.daily.time[i]}
+                    </div>
+
+                    <div style="
+                        margin-top:12px;
+                        display:grid;
+                        grid-template-columns:
+                        repeat(2,1fr);
+                        gap:8px;
+                        font-size:13px;
+                    ">
+
+                        <div>
+                            🌡️ High
+                            <b>
+                                ${Math.round(
+                                    data.daily.temperature_2m_max[i]
+                                )}°
+                            </b>
+                        </div>
+
+                        <div>
+                            🥶 Low
+                            <b>
+                                ${Math.round(
+                                    data.daily.temperature_2m_min[i]
+                                )}°
+                            </b>
+                        </div>
+
+                        <div>
+                            🌧️ Rain
+                            <b>
+                                ${data.daily.precipitation_probability_max[i] ?? 0}%
+                            </b>
+                        </div>
+
+                        <div>
+                            💧 Precip
+                            <b>
+                                ${data.daily.precipitation_sum[i] ?? 0}
+                                mm
+                            </b>
+                        </div>
+
+                        <div>
+                            💨 Wind
+                            <b>
+                                ${Math.round(
+                                    data.daily.wind_speed_10m_max[i]
+                                )} mph
+                            </b>
+                        </div>
+
+                        <div>
+                            🌅 Sunrise
+                            <b>
+                                ${formatWeatherTime(
+                                    data.daily.sunrise[i]
+                                )}
+                            </b>
+                        </div>
+
+                        <div>
+                            🌇 Sunset
+                            <b>
+                                ${formatWeatherTime(
+                                    data.daily.sunset[i]
+                                )}
+                            </b>
+                        </div>
+
+                        <div>
+                            🌤️
+                            ${weatherDay[0]}
+                        </div>
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+
+
+        forecastHTML += `</div>`;
+
+
+        document.getElementById(
+            "weatherPopupContent"
+        ).innerHTML =
+            forecastHTML;
+
+
+        /*
+        Save latest weather data
+        */
+
+        window.obvyrisWeatherData = data;
 
     })
 
@@ -4218,11 +4532,77 @@ function loadWeather(latitude, longitude, locationName){
         ).textContent =
             "Weather unavailable";
 
+        document.getElementById(
+            "weatherPopupContent"
+        ).innerHTML = `
+
+            <div style="
+                padding:20px;
+                text-align:center;
+            ">
+
+                ❌ Unable to load weather.
+
+            </div>
+
+        `;
+
     });
 
 }
 
 
+function formatWeatherTime(time){
+
+    if(!time){
+        return "--";
+    }
+
+    const date = new Date(time);
+
+    return date.toLocaleTimeString(
+        [],
+        {
+            hour:"numeric",
+            minute:"2-digit"
+        }
+    );
+
+}
+
+
+function openWeatherPopup(){
+
+    document.getElementById(
+        "weatherPopup"
+    ).style.display = "flex";
+
+}
+
+
+function closeWeatherPopup(){
+
+    document.getElementById(
+        "weatherPopup"
+    ).style.display = "none";
+
+}
+
+
+document.getElementById(
+    "weatherPopup"
+).addEventListener(
+    "click",
+    function(e){
+
+        if(e.target === this){
+
+            closeWeatherPopup();
+
+        }
+
+    }
+);
 /* =================================
    GET LOCAL WEATHER
 ================================= */
