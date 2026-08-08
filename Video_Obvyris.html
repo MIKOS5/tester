@@ -2648,6 +2648,9 @@ window.addEventListener("DOMContentLoaded", async () => {
     const requestedStation =
         urlParams.get("station");
 
+    const requestedAction =
+    urlParams.get("action");
+   
     console.log("Requested ID:", requestedID);
     console.log("Requested Station:", requestedStation);
 
@@ -2661,13 +2664,36 @@ window.addEventListener("DOMContentLoaded", async () => {
     await load();
 
 
-    /*
-    ========================================
-    2. ID HAS HIGHEST PRIORITY
-    ========================================
-    */
+/*
+========================================
+2. ACTION
+========================================
+*/
 
-    if(requestedID){
+if(requestedAction){
+
+    switch(requestedAction.toLowerCase()){
+
+        case "most-voted":
+
+            console.log("Opening Most Voted");
+
+            sortMostVotes();
+
+            return;
+
+    }
+
+}
+
+
+/*
+========================================
+3. ID HAS HIGHEST PRIORITY
+========================================
+*/
+
+if(requestedID){
 
         console.log(
             "Looking for stream ID:",
