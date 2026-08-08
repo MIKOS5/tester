@@ -266,6 +266,108 @@ opacity:1;
 
 }
 
+/* ================================
+   OBVYRIS SHIP EASTER EGG
+================================ */
+
+/* ================================
+   OBVYRIS SHIP EASTER EGG
+================================ */
+
+#obvyrisShip{
+
+position:fixed;
+
+width:110px;
+
+height:auto;
+
+z-index:9998;
+
+pointer-events:none;
+
+display:none;
+
+filter:
+drop-shadow(0 0 12px rgba(39,147,255,.65))
+drop-shadow(0 0 30px rgba(39,147,255,.25));
+
+}
+
+
+/* LEFT → RIGHT */
+
+@keyframes shipLeftToRight{
+
+from{
+left:-150px;
+}
+
+to{
+left:calc(100vw + 150px);
+}
+
+}
+
+
+/* RIGHT → LEFT */
+
+@keyframes shipRightToLeft{
+
+from{
+left:calc(100vw + 150px);
+}
+
+to{
+left:-150px;
+}
+
+}
+
+
+/* TOP → BOTTOM */
+
+@keyframes shipTopToBottom{
+
+from{
+top:-150px;
+}
+
+to{
+top:calc(100vh + 150px);
+}
+
+}
+
+
+/* BOTTOM → TOP */
+
+@keyframes shipBottomToTop{
+
+from{
+top:calc(100vh + 150px);
+}
+
+to{
+top:-150px;
+}
+
+}
+
+
+/* MOBILE */
+
+@media(max-width:700px){
+
+#obvyrisShip{
+
+width:75px;
+
+}
+
+}
+
+
  
 .icon{
 
@@ -1513,7 +1615,11 @@ repeat(auto-fit,minmax(360px,1fr));
 
 
 <body>
-
+<img
+id="obvyrisShip"
+src="https://mikos5.github.io/tester/Oship.png"
+alt=""
+>
 
 <header class="header">
 
@@ -3027,7 +3133,220 @@ closeInfo();
 }
 
 });
-    
+/* =================================
+   OBVYRIS SHIP EASTER EGG
+================================= */
+
+const obvyrisShip =
+document.getElementById("obvyrisShip");
+
+let inactivityTimer = null;
+let shipTimer = null;
+
+
+/*
+RESET INACTIVITY TIMER
+*/
+
+function resetShipInactivity(){
+
+    clearTimeout(inactivityTimer);
+
+    /*
+    If the ship is currently flying,
+    don't interrupt it.
+    */
+
+    if(
+        obvyrisShip.style.display === "block"
+    ){
+        return;
+    }
+
+
+    inactivityTimer = setTimeout(
+        launchObvyrisShip,
+        30000
+    );
+
+}
+
+
+/*
+LAUNCH SHIP
+*/
+
+function launchObvyrisShip(){
+
+    /*
+    Random direction
+    */
+
+    const directions = [
+
+        "left",
+
+        "right",
+
+        "top",
+
+        "bottom"
+
+    ];
+
+
+    const direction =
+        directions[
+            Math.floor(
+                Math.random() *
+                directions.length
+            )
+        ];
+
+
+    /*
+    Random flight time
+    5–10 seconds
+    */
+
+    const duration =
+        Math.floor(
+            Math.random() * 5000
+        ) + 5000;
+
+
+    /*
+    Reset existing animation
+    */
+
+    obvyrisShip.style.display =
+        "block";
+
+    obvyrisShip.style.animation =
+        "none";
+
+
+    /*
+    Force browser reflow so
+    animation can restart
+    */
+
+    void obvyrisShip.offsetWidth;
+
+
+    /*
+    Apply animation
+    */
+
+    if(direction === "left"){
+
+        obvyrisShip.style.top =
+            (Math.random() * 80 + 10) + "%";
+
+        obvyrisShip.style.left =
+            "0";
+
+        obvyrisShip.style.animation =
+            `shipLeftToRight ${duration}ms linear forwards`;
+
+    }
+
+
+    if(direction === "right"){
+
+        obvyrisShip.style.top =
+            (Math.random() * 80 + 10) + "%";
+
+        obvyrisShip.style.left =
+            "0";
+
+        obvyrisShip.style.animation =
+            `shipRightToLeft ${duration}ms linear forwards`;
+
+    }
+
+
+    if(direction === "top"){
+
+        obvyrisShip.style.left =
+            (Math.random() * 80 + 10) + "%";
+
+        obvyrisShip.style.top =
+            "0";
+
+        obvyrisShip.style.animation =
+            `shipTopToBottom ${duration}ms linear forwards`;
+
+    }
+
+
+    if(direction === "bottom"){
+
+        obvyrisShip.style.left =
+            (Math.random() * 80 + 10) + "%";
+
+        obvyrisShip.style.top =
+            "0";
+
+        obvyrisShip.style.animation =
+            `shipBottomToTop ${duration}ms linear forwards`;
+
+    }
+
+
+    /*
+    Hide ship after flight
+    */
+
+    clearTimeout(shipTimer);
+
+    shipTimer = setTimeout(() => {
+
+        obvyrisShip.style.display =
+            "none";
+
+        obvyrisShip.style.animation =
+            "none";
+
+
+        /*
+        Start another inactivity period
+        */
+
+        resetShipInactivity();
+
+    }, duration + 200);
+
+
+}
+
+
+/*
+USER ACTIVITY
+*/
+
+[
+    "mousemove",
+    "mousedown",
+    "keydown",
+    "touchstart",
+    "scroll"
+].forEach(event => {
+
+    document.addEventListener(
+        event,
+        resetShipInactivity,
+        {passive:true}
+    );
+
+});
+
+
+/*
+START INITIAL 30 SECOND TIMER
+*/
+
+resetShipInactivity();
 </script>
 
 
