@@ -1527,7 +1527,183 @@ padding:0 10px;
 
 }
 
+/* =================================
+   WEATHER HUB BAR
+================================= */
 
+.weatherBar{
+
+    max-width:1500px;
+
+    margin:0 auto;
+
+    padding:12px 20px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    gap:20px;
+
+    background:
+
+    linear-gradient(
+        145deg,
+        rgba(17,24,39,.95),
+        rgba(11,18,32,.95)
+    );
+
+    border-bottom:1px solid var(--line);
+
+    border-left:1px solid var(--line);
+
+    border-right:1px solid var(--line);
+
+    box-shadow:
+
+    0 8px 25px rgba(0,0,0,.25),
+
+    inset 0 1px 0 rgba(255,255,255,.04);
+
+}
+
+
+/* CURRENT WEATHER */
+
+.weatherMain{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    white-space:nowrap;
+
+}
+
+
+#weatherIcon{
+
+    font-size:25px;
+
+}
+
+
+#weatherTemp{
+
+    font-size:22px;
+
+    font-weight:900;
+
+}
+
+
+#weatherCondition{
+
+    color:#cbd5e1;
+
+    font-size:13px;
+
+    font-weight:600;
+
+}
+
+
+/* DETAILS */
+
+.weatherDetails{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:18px;
+
+    color:var(--muted);
+
+    font-size:12px;
+
+}
+
+
+.weatherDetails b{
+
+    color:white;
+
+    font-weight:800;
+
+}
+
+
+/* LOCATION */
+
+.weatherLocation{
+
+    color:#9fb0c7;
+
+    font-size:12px;
+
+    white-space:nowrap;
+
+}
+
+
+#weatherLocation{
+
+    color:#6ec2ff;
+
+    font-weight:800;
+
+}
+
+
+/* MOBILE */
+
+@media(max-width:700px){
+
+    .weatherBar{
+
+        padding:10px 12px;
+
+        gap:10px;
+
+        flex-wrap:wrap;
+
+        justify-content:center;
+
+    }
+
+
+    .weatherMain{
+
+        width:100%;
+
+        justify-content:center;
+
+    }
+
+
+    .weatherDetails{
+
+        gap:10px;
+
+    }
+
+
+    .weatherLocation{
+
+        width:100%;
+
+        text-align:center;
+
+    }
+
+}
 
 .container{
 
@@ -1743,6 +1919,57 @@ Entertainment • Media • Community • News • Gaming • Digital Experience
 </div>
 
 </header>
+
+
+<!-- WEATHER BAR -->
+
+<div class="weatherBar">
+
+    <div class="weatherMain">
+
+        <span id="weatherIcon">🌤️</span>
+
+        <strong id="weatherTemp">
+            --°
+        </strong>
+
+        <span id="weatherCondition">
+            Loading...
+        </span>
+
+    </div>
+
+
+    <div class="weatherDetails">
+
+        <span>
+            Feels
+            <b id="weatherFeels">--°</b>
+        </span>
+
+        <span>
+            💨
+            <b id="weatherWind">-- mph</b>
+        </span>
+
+        <span>
+            💧
+            <b id="weatherHumidity">--%</b>
+        </span>
+
+    </div>
+
+
+    <div class="weatherLocation">
+
+        📍
+        <span id="weatherLocation">
+            Local
+        </span>
+
+    </div>
+
+</div>
 
 
 <div class="container">
@@ -3678,6 +3905,247 @@ obvyrisShip.addEventListener("click", function(){
         "https://mikos5.github.io/tester/chapters.html";
 
 });
+
+
+/* =================================
+   OBVYRIS WEATHER
+================================= */
+
+function weatherDescription(code){
+
+    const weather = {
+
+        0: ["Clear Sky","☀️"],
+
+        1: ["Mainly Clear","🌤️"],
+        2: ["Partly Cloudy","⛅"],
+        3: ["Overcast","☁️"],
+
+        45: ["Fog","🌫️"],
+        48: ["Fog","🌫️"],
+
+        51: ["Light Drizzle","🌦️"],
+        53: ["Drizzle","🌦️"],
+        55: ["Heavy Drizzle","🌧️"],
+
+        61: ["Light Rain","🌦️"],
+        63: ["Rain","🌧️"],
+        65: ["Heavy Rain","🌧️"],
+
+        71: ["Light Snow","🌨️"],
+        73: ["Snow","❄️"],
+        75: ["Heavy Snow","❄️"],
+
+        80: ["Rain Showers","🌦️"],
+        81: ["Rain Showers","🌧️"],
+        82: ["Heavy Rain Showers","🌧️"],
+
+        85: ["Snow Showers","🌨️"],
+        86: ["Heavy Snow Showers","❄️"],
+
+        95: ["Thunderstorm","⛈️"],
+        96: ["Thunderstorm","⛈️"],
+        99: ["Thunderstorm","⛈️"]
+
+    };
+
+    return weather[code] || ["Unknown","🌤️"];
+
+}
+
+
+/* =================================
+   LOAD WEATHER
+================================= */
+
+function loadWeather(latitude, longitude, locationName){
+
+    const url =
+        "https://api.open-meteo.com/v1/forecast" +
+
+        "?latitude=" + latitude +
+
+        "&longitude=" + longitude +
+
+        "&current=" +
+
+        "temperature_2m," +
+        "apparent_temperature," +
+        "relative_humidity_2m," +
+        "wind_speed_10m," +
+        "weather_code" +
+
+        "&temperature_unit=fahrenheit" +
+
+        "&wind_speed_unit=mph" +
+
+        "&timezone=auto";
+
+
+    fetch(url)
+
+    .then(response => {
+
+        if(!response.ok){
+
+            throw new Error("Weather API error");
+
+        }
+
+        return response.json();
+
+    })
+
+
+    .then(data => {
+
+        const current = data.current;
+
+        const weather =
+            weatherDescription(
+                current.weather_code
+            );
+
+
+        /* TEMPERATURE */
+
+        document.getElementById(
+            "weatherTemp"
+        ).textContent =
+            Math.round(
+                current.temperature_2m
+            ) + "°";
+
+
+        /* CONDITION */
+
+        document.getElementById(
+            "weatherCondition"
+        ).textContent =
+            weather[0];
+
+
+        /* ICON */
+
+        document.getElementById(
+            "weatherIcon"
+        ).textContent =
+            weather[1];
+
+
+        /* FEELS LIKE */
+
+        document.getElementById(
+            "weatherFeels"
+        ).textContent =
+            Math.round(
+                current.apparent_temperature
+            ) + "°";
+
+
+        /* WIND */
+
+        document.getElementById(
+            "weatherWind"
+        ).textContent =
+            Math.round(
+                current.wind_speed_10m
+            ) + " mph";
+
+
+        /* HUMIDITY */
+
+        document.getElementById(
+            "weatherHumidity"
+        ).textContent =
+            current.relative_humidity_2m
+            + "%";
+
+
+        /* LOCATION */
+
+        document.getElementById(
+            "weatherLocation"
+        ).textContent =
+            locationName;
+
+
+    })
+
+
+    .catch(error => {
+
+        console.error(
+            "Weather error:",
+            error
+        );
+
+        document.getElementById(
+            "weatherCondition"
+        ).textContent =
+            "Weather unavailable";
+
+    });
+
+}
+
+
+/* =================================
+   GET LOCAL WEATHER
+================================= */
+
+function loadLocalWeather(){
+
+    if(!navigator.geolocation){
+
+        console.log(
+            "Geolocation not supported"
+        );
+
+        return;
+
+    }
+
+
+    navigator.geolocation.getCurrentPosition(
+
+        position => {
+
+            const latitude =
+                position.coords.latitude;
+
+            const longitude =
+                position.coords.longitude;
+
+
+            loadWeather(
+                latitude,
+                longitude,
+                "Local"
+            );
+
+        },
+
+
+        error => {
+
+            console.log(
+                "Location unavailable:",
+                error.message
+            );
+
+        }
+
+    );
+
+}
+
+
+/* =================================
+   START WEATHER
+================================= */
+
+loadLocalWeather();
 </script>
 
 
