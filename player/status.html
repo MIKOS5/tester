@@ -1,5 +1,7 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
 <meta charset="UTF-8">
@@ -14,24 +16,86 @@ body {
     font-family: Arial, sans-serif;
     background: #101820;
     color: white;
+
     display: flex;
     justify-content: center;
     align-items: center;
+
     min-height: 100vh;
 }
 
 .weather {
     width: 90%;
     max-width: 600px;
+
     padding: 30px;
+
     border-radius: 20px;
+
     background: #182532;
-    box-shadow: 0 10px 40px rgba(0,0,0,.4);
+
+    box-shadow:
+        0 10px 40px rgba(0,0,0,.4);
+
     text-align: center;
 }
 
 h1 {
     margin-top: 0;
+}
+
+.location-box {
+    margin: 20px 0;
+}
+
+.location-box input {
+
+    width: 180px;
+
+    padding: 12px;
+
+    border-radius: 8px;
+
+    border: none;
+
+    font-size: 16px;
+
+    text-align: center;
+}
+
+.location-box button {
+
+    padding: 12px 18px;
+
+    margin-left: 6px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: #2793ff;
+
+    color: white;
+
+    font-size: 15px;
+
+    cursor: pointer;
+}
+
+.location-box button:hover {
+    opacity: .85;
+}
+
+.or {
+    margin: 12px 0;
+    opacity: .5;
+}
+
+.use-location {
+
+    background: #33495c !important;
+
+    margin-left: 0 !important;
 }
 
 .icon {
@@ -50,29 +114,42 @@ h1 {
 }
 
 .details {
+
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
     gap: 12px;
 }
 
 .detail {
+
     padding: 15px;
+
     background: #223444;
+
     border-radius: 12px;
 }
 
 .label {
+
     font-size: 13px;
+
     opacity: .7;
 }
 
 .value {
+
     font-size: 20px;
+
     margin-top: 5px;
 }
 
 #status {
+
     margin-top: 20px;
+
     opacity: .7;
 }
 
@@ -80,54 +157,145 @@ h1 {
 
 </head>
 
+
 <body>
+
 
 <div class="weather">
 
-    <h1>🌤️ Obvyris Weather</h1>
 
-    <div class="icon" id="icon">🌤️</div>
+<h1>🌤️ Obvyris Weather</h1>
 
-    <div class="temperature" id="temperature">
+
+<div class="location-box">
+
+    <input
+        type="text"
+        id="zip"
+        placeholder="Enter ZIP code"
+        maxlength="5"
+        inputmode="numeric"
+    >
+
+    <button onclick="getWeatherByZip()">
+        Search
+    </button>
+
+
+    <div class="or">
+        OR
+    </div>
+
+
+    <button
+        class="use-location"
+        onclick="getLocation()"
+    >
+        📍 Use My Location
+    </button>
+
+</div>
+
+
+<div class="icon" id="icon">
+    🌤️
+</div>
+
+
+<div class="temperature" id="temperature">
+    --°
+</div>
+
+
+<div class="condition" id="condition">
+    Enter a ZIP code or use your location
+</div>
+
+
+<div class="details">
+
+
+<div class="detail">
+
+    <div class="label">
+        FEELS LIKE
+    </div>
+
+    <div
+        class="value"
+        id="feels"
+    >
         --°
-    </div>
-
-    <div class="condition" id="condition">
-        Loading weather...
-    </div>
-
-    <div class="details">
-
-        <div class="detail">
-            <div class="label">FEELS LIKE</div>
-            <div class="value" id="feels">--°</div>
-        </div>
-
-        <div class="detail">
-            <div class="label">HUMIDITY</div>
-            <div class="value" id="humidity">--%</div>
-        </div>
-
-        <div class="detail">
-            <div class="label">WIND</div>
-            <div class="value" id="wind">-- mph</div>
-        </div>
-
-        <div class="detail">
-            <div class="label">LOCATION</div>
-            <div class="value" id="location">Detecting...</div>
-        </div>
-
-    </div>
-
-    <div id="status">
-        Getting your location...
     </div>
 
 </div>
 
 
+<div class="detail">
+
+    <div class="label">
+        HUMIDITY
+    </div>
+
+    <div
+        class="value"
+        id="humidity"
+    >
+        --%
+    </div>
+
+</div>
+
+
+<div class="detail">
+
+    <div class="label">
+        WIND
+    </div>
+
+    <div
+        class="value"
+        id="wind"
+    >
+        -- mph
+    </div>
+
+</div>
+
+
+<div class="detail">
+
+    <div class="label">
+        LOCATION
+    </div>
+
+    <div
+        class="value"
+        id="location"
+    >
+        --
+    </div>
+
+</div>
+
+
+</div>
+
+
+<div id="status">
+    Ready
+</div>
+
+
+</div>
+
+
 <script>
+
+
+/* ================================
+   WEATHER DESCRIPTION
+================================ */
 
 function weatherDescription(code) {
 
@@ -167,113 +335,298 @@ function weatherDescription(code) {
 
     };
 
-    return weather[code] || ["Unknown", "🌤️"];
+    return weather[code]
+        || ["Unknown", "🌤️"];
+
 }
 
 
-function getWeather(latitude, longitude) {
+/* ================================
+   GET WEATHER
+================================ */
+
+function getWeather(
+    latitude,
+    longitude,
+    locationName = "Local"
+) {
+
+
+    document.getElementById("status")
+        .textContent =
+        "Loading weather...";
+
 
     const url =
         "https://api.open-meteo.com/v1/forecast" +
-        "?latitude=" + latitude +
-        "&longitude=" + longitude +
+
+        "?latitude=" +
+        latitude +
+
+        "&longitude=" +
+        longitude +
+
         "&current=" +
+
         "temperature_2m," +
         "apparent_temperature," +
         "relative_humidity_2m," +
         "wind_speed_10m," +
         "weather_code," +
         "is_day" +
+
         "&temperature_unit=fahrenheit" +
+
         "&wind_speed_unit=mph" +
+
         "&timezone=auto";
 
 
     fetch(url)
 
-        .then(response => {
+    .then(response => {
 
-            if (!response.ok) {
-                throw new Error("Weather API error");
-            }
+        if (!response.ok) {
 
-            return response.json();
+            throw new Error(
+                "Weather API error"
+            );
 
-        })
+        }
 
-        .then(data => {
+        return response.json();
 
-            const current = data.current;
-
-            const weather =
-                weatherDescription(current.weather_code);
+    })
 
 
-            document.getElementById("temperature")
-                .textContent =
-                Math.round(current.temperature_2m) + "°";
+    .then(data => {
 
 
-            document.getElementById("feels")
-                .textContent =
-                Math.round(current.apparent_temperature) + "°";
+        const current =
+            data.current;
 
 
-            document.getElementById("humidity")
-                .textContent =
-                current.relative_humidity_2m + "%";
+        const weather =
+            weatherDescription(
+                current.weather_code
+            );
 
 
-            document.getElementById("wind")
-                .textContent =
-                Math.round(current.wind_speed_10m) + " mph";
+        document.getElementById(
+            "temperature"
+        ).textContent =
+            Math.round(
+                current.temperature_2m
+            ) + "°";
 
 
-            document.getElementById("condition")
-                .textContent =
-                weather[0];
+        document.getElementById(
+            "feels"
+        ).textContent =
+            Math.round(
+                current.apparent_temperature
+            ) + "°";
 
 
-            document.getElementById("icon")
-                .textContent =
-                weather[1];
+        document.getElementById(
+            "humidity"
+        ).textContent =
+            current.relative_humidity_2m
+            + "%";
 
 
-            document.getElementById("location")
-                .textContent =
-                current.timezone || "Local";
+        document.getElementById(
+            "wind"
+        ).textContent =
+            Math.round(
+                current.wind_speed_10m
+            ) + " mph";
 
 
-            document.getElementById("status")
-                .textContent =
-                "Weather updated";
+        document.getElementById(
+            "condition"
+        ).textContent =
+            weather[0];
 
 
-        })
+        document.getElementById(
+            "icon"
+        ).textContent =
+            weather[1];
 
-        .catch(error => {
 
-            console.error(error);
+        document.getElementById(
+            "location"
+        ).textContent =
+            locationName;
 
-            document.getElementById("condition")
-                .textContent =
-                "Weather unavailable";
 
-            document.getElementById("status")
-                .textContent =
-                "Could not load weather";
+        document.getElementById(
+            "status"
+        ).textContent =
+            "Weather updated";
 
-        });
+
+    })
+
+
+    .catch(error => {
+
+        console.error(error);
+
+        document.getElementById(
+            "condition"
+        ).textContent =
+            "Weather unavailable";
+
+
+        document.getElementById(
+            "status"
+        ).textContent =
+            "Could not load weather";
+
+    });
 
 }
 
 
+/* ================================
+   ZIP CODE SEARCH
+================================ */
+
+function getWeatherByZip() {
+
+
+    const zip =
+        document.getElementById(
+            "zip"
+        ).value.trim();
+
+
+    /* Check ZIP */
+
+    if (!/^\d{5}$/.test(zip)) {
+
+        document.getElementById(
+            "status"
+        ).textContent =
+            "Enter a valid 5-digit ZIP code.";
+
+        return;
+
+    }
+
+
+    document.getElementById(
+        "status"
+    ).textContent =
+        "Finding location...";
+
+
+    /*
+       Open-Meteo Geocoding API
+    */
+
+    const url =
+        "https://geocoding-api.open-meteo.com/v1/search" +
+
+        "?name=" +
+        encodeURIComponent(zip) +
+
+        "&count=1" +
+
+        "&language=en" +
+
+        "&format=json";
+
+
+    fetch(url)
+
+    .then(response => {
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Location search failed"
+            );
+
+        }
+
+        return response.json();
+
+    })
+
+
+    .then(data => {
+
+
+        if (
+            !data.results ||
+            data.results.length === 0
+        ) {
+
+            throw new Error(
+                "ZIP code not found"
+            );
+
+        }
+
+
+        const result =
+            data.results[0];
+
+
+        const latitude =
+            result.latitude;
+
+
+        const longitude =
+            result.longitude;
+
+
+        const locationName =
+            result.name +
+            ", " +
+            (result.admin1 || "") +
+            " " +
+            zip;
+
+
+        getWeather(
+            latitude,
+            longitude,
+            locationName
+        );
+
+    })
+
+
+    .catch(error => {
+
+        console.error(error);
+
+        document.getElementById(
+            "status"
+        ).textContent =
+            "ZIP code not found.";
+
+    });
+
+}
+
+
+/* ================================
+   BROWSER LOCATION
+================================ */
+
 function getLocation() {
+
 
     if (!navigator.geolocation) {
 
-        document.getElementById("status")
-            .textContent =
+        document.getElementById(
+            "status"
+        ).textContent =
             "Geolocation is not supported.";
 
         return;
@@ -281,33 +634,42 @@ function getLocation() {
     }
 
 
+    document.getElementById(
+        "status"
+    ).textContent =
+        "Requesting your location...";
+
+
     navigator.geolocation.getCurrentPosition(
 
         position => {
 
+
             const latitude =
                 position.coords.latitude;
+
 
             const longitude =
                 position.coords.longitude;
 
 
-            document.getElementById("status")
-                .textContent =
-                "Loading local weather...";
-
-
-            getWeather(latitude, longitude);
+            getWeather(
+                latitude,
+                longitude,
+                "Local"
+            );
 
         },
+
 
         error => {
 
             console.error(error);
 
-            document.getElementById("status")
-                .textContent =
-                "Location permission denied.";
+            document.getElementById(
+                "status"
+            ).textContent =
+                "Location permission denied. Enter a ZIP code instead.";
 
         }
 
@@ -316,10 +678,31 @@ function getLocation() {
 }
 
 
-getLocation();
+/* ================================
+   ENTER KEY
+================================ */
+
+document.getElementById("zip")
+    .addEventListener(
+        "keydown",
+        function(event) {
+
+            if (
+                event.key === "Enter"
+            ) {
+
+                getWeatherByZip();
+
+            }
+
+        }
+    );
+
 
 </script>
 
+
 </body>
+
 </html>
 ```
