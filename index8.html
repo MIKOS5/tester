@@ -1,2974 +1,2331 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
 <meta charset="UTF-8">
-
-<meta
-name="viewport"
-content="width=device-width, initial-scale=1.0"
-
->
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Obvyris Server Map</title>
 
 <style>
-
 :root{
+    --bg:#050a11;
+    --panel:#0b1420;
+    --panel2:#101c29;
+    --line:#24384b;
+    --text:#edf6ff;
+    --muted:#7890a4;
 
-  --bg:#03070d;
-  --panel:#08121d;
-  --panel2:#0d1a27;
-  --line:#29445c;
-
-  --text:#edf6ff;
-  --muted:#71879b;
-
-  --green:#22c55e;
-  --orange:#f59e0b;
-  --blue:#2793ff;
-  --purple:#a78bfa;
-  --cyan:#22d3ee;
-  --pink:#f472b6;
-  --red:#ef4444;
-
+    --backend:#35d07f;
+    --sheet:#ffb648;
+    --api:#43a7ff;
+    --status:#a78bfa;
+    --frontend:#39d9ff;
+    --external:#ff70bd;
+    --offline:#ff5964;
 }
 
 *{
-  box-sizing:border-box;
+    box-sizing:border-box;
 }
 
 html,
 body{
-
-  width:100%;
-  height:100%;
-
-  margin:0;
-  padding:0;
-
-  overflow:hidden;
-
-  background:var(--bg);
-
-  color:var(--text);
-
-  font-family:
-    Arial,
-    Helvetica,
-    sans-serif;
-
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:var(--bg);
+    color:var(--text);
+    font-family:Inter,Arial,Helvetica,sans-serif;
 }
 
+body{
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(39,147,255,.08),
+            transparent 38%
+        ),
+        #050a11;
+}
 
-/* =========================================================
-   TOP BAR
-========================================================= */
+/* =========================
+   HEADER
+========================= */
 
 .topbar{
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    height:62px;
+    z-index:1000;
 
-  position:fixed;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
 
-  top:0;
-  left:0;
-  right:0;
+    padding:0 15px;
 
-  height:58px;
+    background:rgba(5,10,17,.97);
+    border-bottom:1px solid #1d3042;
 
-  z-index:1000;
-
-  display:flex;
-
-  align-items:center;
-
-  justify-content:space-between;
-
-  padding:0 14px;
-
-  gap:10px;
-
-  background:
-    rgba(3,8,14,.97);
-
-  border-bottom:
-    1px solid #1d3347;
-
-  backdrop-filter:
-    blur(10px);
-
+    backdrop-filter:blur(14px);
 }
-
 
 .brand{
-
-  display:flex;
-
-  align-items:center;
-
-  gap:8px;
-
-  min-width:0;
-
+    display:flex;
+    align-items:center;
+    gap:10px;
 }
 
+.logo{
+    width:32px;
+    height:32px;
 
-.brand-icon{
+    display:grid;
+    place-items:center;
 
-  font-size:20px;
+    border:1px solid #367baa;
+    border-radius:50%;
 
+    color:#65bcff;
+
+    box-shadow:
+        0 0 20px rgba(39,147,255,.15);
 }
 
-
-.brand-name{
-
-  font-size:14px;
-
-  font-weight:900;
-
-  white-space:nowrap;
-
-  letter-spacing:.5px;
-
+.brand-title{
+    font-size:13px;
+    font-weight:900;
+    letter-spacing:1px;
 }
 
+.brand-subtitle{
+    margin-top:2px;
 
-.brand-sub{
+    color:#61788c;
 
-  color:#637b90;
-
-  font-size:8px;
-
-  white-space:nowrap;
-
+    font-size:7px;
+    letter-spacing:1px;
 }
 
-
-.controls{
-
-  display:flex;
-
-  align-items:center;
-
-  gap:5px;
-
+.toolbar{
+    display:flex;
+    align-items:center;
+    gap:6px;
 }
 
+.search{
+    width:220px;
+    height:32px;
 
-input{
+    padding:0 10px;
 
-  width:190px;
+    border:1px solid #29445a;
+    border-radius:7px;
 
-  height:30px;
+    outline:none;
 
-  padding:0 10px;
+    background:#08131e;
+    color:white;
 
-  outline:none;
-
-  border:
-    1px solid #29445c;
-
-  border-radius:6px;
-
-  background:#07121d;
-
-  color:white;
-
-  font-size:10px;
-
+    font-size:9px;
 }
 
-
-button{
-
-  height:30px;
-
-  padding:0 10px;
-
-  border:
-    1px solid #29445c;
-
-  border-radius:6px;
-
-  background:#091827;
-
-  color:#a9c8df;
-
-  font-size:9px;
-
-  font-weight:800;
-
-  cursor:pointer;
-
+.search:focus{
+    border-color:#4e8dbb;
 }
 
+.button{
+    height:32px;
 
-button:hover{
+    padding:0 10px;
 
-  background:#11283b;
+    border:1px solid #29445a;
+    border-radius:7px;
 
-  border-color:#47769b;
+    background:#091521;
+    color:#a9c1d3;
 
+    cursor:pointer;
+
+    font-size:8px;
+    font-weight:900;
 }
 
+.button:hover{
+    background:#102335;
+    color:white;
+}
 
-/* =========================================================
+/* =========================
    MAP
-========================================================= */
+========================= */
 
 #map{
+    position:absolute;
 
-  position:absolute;
+    top:62px;
+    left:0;
+    right:0;
+    bottom:0;
 
-  top:58px;
-  left:0;
-  right:0;
-  bottom:0;
+    overflow:hidden;
 
-  overflow:hidden;
+    cursor:grab;
 
-  cursor:grab;
-
-  background:
-
-    radial-gradient(
-      circle at center,
-      rgba(39,147,255,.08),
-      transparent 42%
-    );
-
+    touch-action:none;
 }
-
 
 #map.dragging{
-
-  cursor:grabbing;
-
+    cursor:grabbing;
 }
-
 
 #world{
+    position:absolute;
 
-  position:absolute;
+    width:7600px;
+    height:7600px;
 
-  width:7000px;
-  height:7000px;
+    left:0;
+    top:0;
 
-  left:0;
-  top:0;
-
-  transform-origin:
-    3500px 3500px;
-
+    transform-origin:3800px 3800px;
 }
-
-
-/* =========================================================
-   GRID
-========================================================= */
 
 #grid{
+    position:absolute;
 
-  position:absolute;
+    width:7600px;
+    height:7600px;
 
-  left:0;
-  top:0;
+    background-image:
+        linear-gradient(
+            rgba(40,67,88,.25) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(40,67,88,.25) 1px,
+            transparent 1px
+        );
 
-  width:7000px;
-  height:7000px;
+    background-size:50px 50px;
 
-  opacity:.15;
-
-  background-image:
-
-    linear-gradient(
-      #17334b 1px,
-      transparent 1px
-    ),
-
-    linear-gradient(
-      90deg,
-      #17334b 1px,
-      transparent 1px
-    );
-
-  background-size:
-    50px 50px;
-
+    opacity:.25;
 }
-
-
-/* =========================================================
-   SVG CONNECTIONS
-========================================================= */
 
 #connections{
+    position:absolute;
 
-  position:absolute;
+    width:7600px;
+    height:7600px;
 
-  left:0;
-  top:0;
-
-  width:7000px;
-  height:7000px;
-
-  pointer-events:none;
-
+    pointer-events:none;
 }
 
-
-/* =========================================================
-   CONNECTION STYLES
-========================================================= */
-
-.flow-line{
-
-  fill:none;
-
-  stroke:#29455d;
-
-  stroke-width:1.5;
-
-  opacity:.7;
-
-}
-
-
-.flow-line.main{
-
-  stroke:#3d6685;
-
-}
-
-
-.flow-line.frontend{
-
-  stroke:var(--cyan);
-
-  stroke-width:1.7;
-
-}
-
-
-.flow-line.external{
-
-  stroke:var(--pink);
-
-  stroke-width:1.6;
-
-  stroke-dasharray:5 4;
-
-}
-
-
-.flow-line.shared{
-
-  stroke:#ffffff;
-
-  stroke-width:2;
-
-  opacity:.9;
-
-}
-
-
-/* =========================================================
-   ARROWS
-========================================================= */
-
-.arrow{
-
-  fill:#55738b;
-
-}
-
-
-.arrow.frontend{
-
-  fill:var(--cyan);
-
-}
-
-
-.arrow.external{
-
-  fill:var(--pink);
-
-}
-
-
-/* =========================================================
+/* =========================
    HUB
-========================================================= */
+========================= */
 
 .hub{
+    position:absolute;
 
-  position:absolute;
+    left:3690px;
+    top:3690px;
 
-  left:3410px;
-  top:3410px;
+    width:220px;
+    height:110px;
 
-  width:180px;
-  min-height:82px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
 
-  z-index:300;
+    border:1px solid #3d8bc7;
+    border-radius:16px;
 
-  display:flex;
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(39,147,255,.22),
+            transparent 65%
+        ),
+        #08131f;
 
-  flex-direction:column;
+    box-shadow:
+        0 0 60px rgba(39,147,255,.2),
+        0 15px 45px rgba(0,0,0,.5);
 
-  align-items:center;
-
-  justify-content:center;
-
-  padding:12px;
-
-  text-align:center;
-
-  background:
-    radial-gradient(
-      circle,
-      #123c62,
-      #07131e
-    );
-
-  border:
-    2px solid var(--blue);
-
-  border-radius:14px;
-
-  box-shadow:
-    0 0 50px
-    rgba(39,147,255,.22);
-
+    z-index:100;
 }
 
+.hub-ring{
+    position:absolute;
+
+    width:150px;
+    height:150px;
+
+    border:1px solid rgba(67,167,255,.12);
+    border-radius:50%;
+}
 
 .hub-icon{
-
-  font-size:24px;
-
+    font-size:24px;
 }
-
 
 .hub-title{
+    margin-top:4px;
 
-  margin-top:3px;
-
-  font-size:14px;
-
-  font-weight:900;
-
+    font-size:15px;
+    font-weight:950;
+    letter-spacing:1px;
 }
-
 
 .hub-file{
+    margin-top:5px;
 
-  margin-top:4px;
+    color:#6dbdff;
 
-  color:#6db8ef;
-
-  font-size:8px;
-
+    font-size:8px;
 }
 
-
-/* =========================================================
+/* =========================
    WORKFLOW ROW
-========================================================= */
+========================= */
 
-.workflow-row{
+.workflow{
+    position:absolute;
 
-  position:absolute;
+    left:2200px;
 
-  left:2450px;
-
-  width:2050px;
-
-  height:90px;
-
+    width:3500px;
+    height:100px;
 }
 
-
-/* =========================================================
+/* =========================
    NODE
-========================================================= */
+========================= */
 
 .node{
+    position:absolute;
 
-  position:absolute;
+    width:142px;
+    min-height:70px;
 
-  width:145px;
+    padding:8px;
 
-  min-height:60px;
+    border:1px solid var(--line);
+    border-radius:8px;
 
-  padding:7px 8px;
+    background:
+        linear-gradient(
+            145deg,
+            #0d1925,
+            #071019
+        );
 
-  background:
-    linear-gradient(
-      145deg,
-      #0d1b29,
-      #07111b
-    );
+    box-shadow:
+        0 8px 22px rgba(0,0,0,.38);
 
-  border:
-    1px solid #29445c;
+    cursor:pointer;
 
-  border-radius:7px;
+    z-index:20;
 
-  box-shadow:
-    0 5px 16px
-    rgba(0,0,0,.38);
-
-  cursor:pointer;
-
-  transition:
-    .15s;
-
-  z-index:20;
-
+    transition:
+        transform .15s,
+        border-color .15s,
+        opacity .15s,
+        box-shadow .15s;
 }
-
 
 .node:hover{
+    transform:translateY(-3px);
 
-  border-color:white;
+    border-color:#66869e;
 
-  box-shadow:
-    0 0 20px
-    rgba(255,255,255,.14);
-
-  transform:
-    translateY(-2px);
-
+    box-shadow:
+        0 12px 28px rgba(0,0,0,.5),
+        0 0 22px rgba(67,167,255,.08);
 }
-
 
 .node.selected{
+    border-color:white;
 
-  border-color:white;
-
-  box-shadow:
-    0 0 25px
-    rgba(255,255,255,.25);
-
+    box-shadow:
+        0 0 0 1px rgba(255,255,255,.1),
+        0 0 28px rgba(67,167,255,.2);
 }
-
 
 .node.dim{
-
-  opacity:.08;
-
+    opacity:.06;
 }
-
-
-/* =========================================================
-   NODE TYPES
-========================================================= */
 
 .node.backend{
-
-  border-top:
-    3px solid var(--green);
-
+    border-top:3px solid var(--backend);
 }
-
 
 .node.sheet{
-
-  border-top:
-    3px solid var(--orange);
-
+    border-top:3px solid var(--sheet);
 }
-
 
 .node.api{
-
-  border-top:
-    3px solid var(--blue);
-
+    border-top:3px solid var(--api);
 }
-
 
 .node.status{
-
-  border-top:
-    3px solid var(--purple);
-
+    border-top:3px solid var(--status);
 }
-
 
 .node.frontend{
-
-  border-top:
-    3px solid var(--cyan);
-
+    border-top:3px solid var(--frontend);
 }
-
 
 .node.external{
-
-  border-top:
-    3px solid var(--pink);
-
+    border-top:3px solid var(--external);
 }
 
-
-/* =========================================================
-   NODE CONTENT
-========================================================= */
-
-.node-title{
-
-  display:flex;
-
-  align-items:center;
-
-  gap:5px;
-
-  font-size:9px;
-
-  font-weight:900;
-
+.node-head{
+    display:flex;
+    align-items:center;
+    gap:6px;
 }
-
 
 .node-icon{
+    width:17px;
+    height:17px;
 
-  font-size:11px;
+    display:grid;
+    place-items:center;
 
+    border-radius:4px;
+
+    background:rgba(255,255,255,.05);
+
+    font-size:9px;
 }
 
+.node-title{
+    overflow:hidden;
+
+    white-space:nowrap;
+    text-overflow:ellipsis;
+
+    font-size:8px;
+    font-weight:950;
+}
 
 .node-value{
+    margin-top:7px;
 
-  margin-top:5px;
+    color:#9bb0c1;
 
-  color:#9eb3c6;
+    font-size:7px;
+    line-height:1.35;
 
-  font-size:8px;
-
-  line-height:1.3;
-
-  word-break:break-all;
-
+    word-break:break-word;
 }
 
+.node-label{
+    margin-top:6px;
 
-.node-column{
+    color:#526b7f;
 
-  margin-top:6px;
-
-  color:#5a7288;
-
-  font-size:6px;
-
-  text-transform:uppercase;
-
-  letter-spacing:.5px;
-
+    font-size:5px;
+    letter-spacing:.8px;
+    text-transform:uppercase;
 }
 
+/* =========================
+   STATUS
+========================= */
 
-/* =========================================================
+.online{
+    color:var(--backend);
+}
+
+.offline{
+    color:var(--offline);
+}
+
+.status-dot{
+    display:inline-block;
+
+    width:6px;
+    height:6px;
+
+    margin-right:3px;
+
+    border-radius:50%;
+
+    background:currentColor;
+
+    box-shadow:
+        0 0 7px currentColor;
+}
+
+/* =========================
+   CONNECTIONS
+========================= */
+
+.flow-line{
+    fill:none;
+
+    stroke:#30485c;
+
+    stroke-width:1.4;
+
+    opacity:.75;
+}
+
+.flow-line.frontend{
+    stroke:var(--frontend);
+
+    stroke-width:1.7;
+}
+
+.flow-line.external{
+    stroke:var(--external);
+
+    stroke-width:1.5;
+
+    stroke-dasharray:5 4;
+}
+
+.flow-line.shared{
+    stroke:#ffffff;
+
+    stroke-width:2;
+
+    opacity:.85;
+}
+
+/* =========================
    INFO PANEL
-========================================================= */
+========================= */
 
 #info{
+    position:fixed;
 
-  position:fixed;
+    top:74px;
+    right:14px;
 
-  top:70px;
-  right:12px;
+    width:330px;
+    max-height:calc(100vh - 90px);
 
-  width:310px;
+    overflow:auto;
 
-  max-height:
-    calc(100vh - 90px);
+    z-index:900;
 
-  overflow:auto;
+    display:none;
 
-  z-index:900;
+    background:rgba(5,12,19,.98);
 
-  display:none;
+    border:1px solid #29445a;
+    border-radius:10px;
 
-  background:
-    rgba(4,11,18,.98);
-
-  border:
-    1px solid #29445c;
-
-  border-radius:9px;
-
-  box-shadow:
-    0 20px 50px
-    rgba(0,0,0,.6);
-
+    box-shadow:
+        0 20px 60px rgba(0,0,0,.65);
 }
 
+.info-header{
+    position:sticky;
+    top:0;
 
-.info-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
 
-  display:flex;
+    padding:11px 13px;
 
-  justify-content:space-between;
+    background:#08121d;
 
-  align-items:center;
-
-  padding:11px 12px;
-
-  border-bottom:
-    1px solid #1c3245;
-
+    border-bottom:1px solid #1d3041;
 }
-
 
 .info-title{
-
-  font-size:11px;
-
-  font-weight:900;
-
+    font-size:10px;
+    font-weight:950;
 }
 
+.close{
+    width:25px;
+    height:25px;
+
+    border:1px solid #30485d;
+    border-radius:5px;
+
+    background:#0b1723;
+    color:#9ab0c0;
+
+    cursor:pointer;
+}
 
 .info-body{
-
-  padding:12px;
-
+    padding:13px;
 }
 
-
-.info-row{
-
-  padding:8px 0;
-
-  border-bottom:
-    1px solid #172a3b;
-
+.info-section{
+    margin-bottom:13px;
 }
-
 
 .info-label{
+    color:#526a7e;
 
-  color:#5e758a;
+    font-size:6px;
+    font-weight:900;
 
-  font-size:7px;
-
-  text-transform:uppercase;
-
+    letter-spacing:1px;
+    text-transform:uppercase;
 }
-
 
 .info-value{
+    margin-top:4px;
 
-  margin-top:3px;
+    color:#c9d8e4;
 
-  color:#c4d4e1;
+    font-size:9px;
+    line-height:1.45;
 
-  font-size:9px;
-
-  line-height:1.4;
-
-  word-break:break-all;
-
+    word-break:break-word;
 }
-
 
 .info-link{
+    display:block;
 
-  display:inline-block;
+    margin-top:8px;
+    padding:8px;
 
-  margin-top:10px;
+    border:1px solid #284a65;
+    border-radius:6px;
 
-  color:#6ebcff;
+    background:#091827;
 
-  font-size:9px;
+    color:#67b8f8;
 
-  text-decoration:none;
+    text-decoration:none;
 
+    font-size:8px;
+    font-weight:900;
 }
-
 
 .info-link:hover{
-
-  text-decoration:underline;
-
+    background:#0d2234;
 }
 
-
-/* =========================================================
+/* =========================
    LEGEND
-========================================================= */
+========================= */
 
 .legend{
+    position:fixed;
 
-  position:fixed;
+    left:14px;
+    bottom:14px;
 
-  left:12px;
-  bottom:12px;
+    z-index:500;
 
-  z-index:500;
+    padding:10px 12px;
 
-  padding:9px 11px;
+    border:1px solid #1e3448;
+    border-radius:8px;
 
-  background:
-    rgba(4,11,18,.94);
+    background:rgba(5,12,19,.95);
 
-  border:
-    1px solid #20364a;
+    box-shadow:
+        0 10px 30px rgba(0,0,0,.45);
 
-  border-radius:7px;
-
-  font-size:8px;
-
+    font-size:7px;
 }
-
 
 .legend-title{
+    margin-bottom:7px;
 
-  margin-bottom:7px;
+    color:#6d8498;
 
-  color:#7d94a8;
-
-  font-weight:900;
-
+    font-size:7px;
+    font-weight:950;
+    letter-spacing:1px;
 }
-
 
 .legend-row{
+    display:flex;
+    align-items:center;
 
-  display:flex;
+    gap:7px;
 
-  align-items:center;
+    margin:5px 0;
 
-  gap:6px;
-
-  margin:4px 0;
-
+    color:#9aafc0;
 }
-
 
 .legend-dot{
+    width:7px;
+    height:7px;
 
-  width:7px;
-  height:7px;
-
-  border-radius:50%;
-
+    border-radius:50%;
 }
 
-
 .green{
-  background:var(--green);
+    background:var(--backend);
 }
 
 .orange{
-  background:var(--orange);
+    background:var(--sheet);
 }
 
 .blue{
-  background:var(--blue);
+    background:var(--api);
 }
 
 .purple{
-  background:var(--purple);
+    background:var(--status);
 }
 
 .cyan{
-  background:var(--cyan);
+    background:var(--frontend);
 }
 
 .pink{
-  background:var(--pink);
+    background:var(--external);
 }
 
-
-/* =========================================================
-   STATUS
-========================================================= */
+/* =========================
+   STATUS BAR
+========================= */
 
 #statusbar{
+    position:fixed;
 
-  position:fixed;
+    right:14px;
+    bottom:14px;
 
-  right:12px;
-  bottom:12px;
+    z-index:500;
 
-  z-index:500;
+    padding:8px 11px;
 
-  padding:7px 10px;
+    border:1px solid #1e3448;
+    border-radius:7px;
 
-  background:
-    rgba(4,11,18,.94);
+    background:rgba(5,12,19,.95);
 
-  border:
-    1px solid #20364a;
+    color:#71889b;
 
-  border-radius:6px;
-
-  color:#6f879c;
-
-  font-size:8px;
-
+    font-size:7px;
 }
 
-
-/* =========================================================
+/* =========================
    LOADING
-========================================================= */
+========================= */
 
 #loading{
+    position:fixed;
 
-  position:fixed;
+    inset:0;
 
-  inset:0;
+    z-index:2000;
 
-  z-index:2000;
+    display:flex;
+    align-items:center;
+    justify-content:center;
 
-  display:flex;
-
-  align-items:center;
-
-  justify-content:center;
-
-  background:#03070d;
-
-  color:#7791a7;
-
-  font-size:11px;
-
+    background:#050a11;
 }
 
+.loading-box{
+    text-align:center;
+}
 
-/* =========================================================
+.loading-ring{
+    width:52px;
+    height:52px;
+
+    margin:auto;
+
+    border:1px solid #286b98;
+    border-top-color:#67bfff;
+
+    border-radius:50%;
+
+    animation:spin 1s linear infinite;
+}
+
+.loading-text{
+    margin-top:12px;
+
+    color:#71899c;
+
+    font-size:9px;
+    letter-spacing:1px;
+}
+
+@keyframes spin{
+    to{
+        transform:rotate(360deg);
+    }
+}
+
+/* =========================
    MOBILE
-========================================================= */
+========================= */
 
-@media(max-width:800px){
+@media(max-width:850px){
 
-  .brand-sub{
+    .topbar{
+        height:58px;
+        padding:0 8px;
+    }
 
-    display:none;
+    .brand-subtitle{
+        display:none;
+    }
 
-  }
+    .brand-title{
+        font-size:10px;
+    }
 
-  .brand-name{
+    .logo{
+        width:27px;
+        height:27px;
+    }
 
-    font-size:11px;
+    .search{
+        width:125px;
+    }
 
-  }
+    .button{
+        padding:0 7px;
+    }
 
-  input{
+    .legend{
+        display:none;
+    }
 
-    width:120px;
+    #info{
+        left:8px;
+        right:8px;
 
-  }
+        width:auto;
+    }
 
-  .controls button{
-
-    display:none;
-
-  }
-
-  #info{
-
-    width:
-      calc(100vw - 24px);
-
-  }
-
+    #statusbar{
+        right:8px;
+        bottom:8px;
+    }
 }
-
 </style>
-
 </head>
 
 <body>
 
-<!-- =======================================================
-     HEADER
-======================================================= -->
+<header class="topbar">
 
-<div class="topbar">
+    <div class="brand">
 
-  <div class="brand">
+        <div class="logo">
+            ◉
+        </div>
 
-```
-<span class="brand-icon">
-  🛰️
-</span>
+        <div>
 
-<span class="brand-name">
-  OBVYRIS SERVER MAP
-</span>
+            <div class="brand-title">
+                OBVYRIS SERVER MAP
+            </div>
 
-<span class="brand-sub">
-  BACKEND → FRONTEND → EXTERNAL
-</span>
-```
+            <div class="brand-subtitle">
+                SYSTEM ARCHITECTURE • DATA FLOW • FRONTEND BRANCHES
+            </div>
 
-  </div>
+        </div>
 
-  <div class="controls">
+    </div>
 
-```
-<input
-  id="search"
-  type="text"
-  placeholder="Search MAP..."
->
+    <div class="toolbar">
 
+        <input
+            id="search"
+            class="search"
+            placeholder="Search server, URL, frontend..."
+        >
 
-<button id="refreshBtn">
-  ↻ REFRESH
-</button>
+        <button
+            class="button"
+            id="refresh"
+        >
+            ↻ REFRESH
+        </button>
 
+        <button
+            class="button"
+            id="center"
+        >
+            CENTER
+        </button>
 
-<button id="centerBtn">
-  CENTER
-</button>
+        <button
+            class="button"
+            id="zoomOut"
+        >
+            −
+        </button>
 
+        <button
+            class="button"
+            id="zoomIn"
+        >
+            +
+        </button>
 
-<button id="zoomInBtn">
-  +
-</button>
+    </div>
 
-
-<button id="zoomOutBtn">
-  −
-</button>
-```
-
-  </div>
-
-</div>
-
-<!-- =======================================================
-     MAP
-======================================================= -->
+</header>
 
 <div id="map">
 
-  <div id="world">
+    <div id="world">
 
-```
-<div id="grid"></div>
+        <div id="grid"></div>
 
+        <svg
+            id="connections"
+            viewBox="0 0 7600 7600"
+            preserveAspectRatio="none"
+        ></svg>
 
-<svg
-  id="connections"
-  viewBox="0 0 7000 7000"
-  preserveAspectRatio="none"
-></svg>
+        <div class="hub">
 
+            <div class="hub-ring"></div>
 
-<div class="hub">
+            <div class="hub-icon">
+                🛰️
+            </div>
 
-  <div class="hub-icon">
-    🛰️
-  </div>
+            <div class="hub-title">
+                OBVYRIS HUB
+            </div>
 
-  <div class="hub-title">
-    OBVYRIS HUB
-  </div>
+            <div class="hub-file">
+                index99.html
+            </div>
 
-  <div class="hub-file">
-    index99.html
-  </div>
+        </div>
 
-</div>
-```
-
-  </div>
+    </div>
 
 </div>
-
-<!-- =======================================================
-     INFO
-======================================================= -->
 
 <div id="info">
 
-  <div class="info-head">
+    <div class="info-header">
 
-```
-<div
-  id="infoTitle"
-  class="info-title"
->
-  MAP NODE
+        <div
+            id="infoTitle"
+            class="info-title"
+        >
+            NODE
+        </div>
+
+        <button
+            id="close"
+            class="close"
+        >
+            ×
+        </button>
+
+    </div>
+
+    <div
+        id="infoBody"
+        class="info-body"
+    ></div>
+
 </div>
-
-<button id="closeInfo">
-  ×
-</button>
-```
-
-  </div>
-
-  <div
-    id="infoBody"
-    class="info-body"
-  ></div>
-
-</div>
-
-<!-- =======================================================
-     LEGEND
-======================================================= -->
 
 <div class="legend">
 
-  <div class="legend-title">
-    SERVER FLOW
-  </div>
+    <div class="legend-title">
+        SERVER FLOW
+    </div>
 
-  <div class="legend-row">
-    <span class="legend-dot green"></span>
-    Backend
-  </div>
+    <div class="legend-row">
+        <span class="legend-dot green"></span>
+        Backend
+    </div>
 
-  <div class="legend-row">
-    <span class="legend-dot orange"></span>
-    Sheet
-  </div>
+    <div class="legend-row">
+        <span class="legend-dot orange"></span>
+        Sheet
+    </div>
 
-  <div class="legend-row">
-    <span class="legend-dot blue"></span>
-    API
-  </div>
+    <div class="legend-row">
+        <span class="legend-dot blue"></span>
+        Sheet API
+    </div>
 
-  <div class="legend-row">
-    <span class="legend-dot purple"></span>
-    Status
-  </div>
+    <div class="legend-row">
+        <span class="legend-dot purple"></span>
+        Status
+    </div>
 
-  <div class="legend-row">
-    <span class="legend-dot cyan"></span>
-    Frontend
-  </div>
+    <div class="legend-row">
+        <span class="legend-dot cyan"></span>
+        Frontend
+    </div>
 
-  <div class="legend-row">
-    <span class="legend-dot pink"></span>
-    External
-  </div>
+    <div class="legend-row">
+        <span class="legend-dot pink"></span>
+        External
+    </div>
 
 </div>
 
 <div id="statusbar">
-  Connecting to MAP API...
+    Connecting...
 </div>
 
 <div id="loading">
-  🛰️ Loading Obvyris Server Map...
+
+    <div class="loading-box">
+
+        <div class="loading-ring"></div>
+
+        <div class="loading-text">
+            LOADING OBVYRIS SERVER MAP
+        </div>
+
+    </div>
+
 </div>
 
 <script>
 
-
-/* =========================================================
-   MAP API
-========================================================= */
-
 const MAP_API =
-  "https://script.google.com/macros/s/AKfycbxmet73uElazLhNTF6K9Ziizu4hbgq7VWbXJ8nKjSeXkn-tN4CyoBDjSdeK69A_J5XG/exec";
-
-
-/* =========================================================
-   GLOBALS
-========================================================= */
-
-let rows = [];
-
-let allNodes = [];
-
-let scale = 1;
-
-let panX = 0;
-
-let panY = 0;
-
-let dragging = false;
-
-let dragStartX = 0;
-
-let dragStartY = 0;
-
-let startPanX = 0;
-
-let startPanY = 0;
-
-
-/* =========================================================
-   FLOW
-========================================================= */
+"https://script.google.com/macros/s/AKfycbxmet73uElazLhNTF6K9Ziizu4hbgq7VWbXJ8nKjSeXkn-tN4CyoBDjSdeK69A_J5XG/exec";
 
 const FLOW = [
 
-  {
-    column:"Backends Sheet",
-    type:"backend",
-    icon:"🗄️"
-  },
+    {
+        column:"Backends Sheet",
+        type:"backend",
+        icon:"▣"
+    },
 
-  {
-    column:"Sheet",
-    type:"sheet",
-    icon:"📊"
-  },
+    {
+        column:"Sheet",
+        type:"sheet",
+        icon:"▤"
+    },
 
-  {
-    column:"Sheet API",
-    type:"api",
-    icon:"🔌"
-  },
+    {
+        column:"Sheet API",
+        type:"api",
+        icon:"⌘"
+    },
 
-  {
-    column:"Status",
-    type:"status",
-    icon:"●"
-  },
+    {
+        column:"Status",
+        type:"status",
+        icon:"●"
+    },
 
-  {
-    column:"MAIN HTML FRONTEND",
-    type:"frontend",
-    icon:"🖥️"
-  },
+    {
+        column:"MAIN HTML FRONTEND",
+        type:"frontend",
+        icon:"▣"
+    },
 
-  {
-    column:"HTML FRONTEND 2",
-    type:"frontend",
-    icon:"🖥️"
-  },
+    {
+        column:"HTML FRONTEND 2",
+        type:"frontend",
+        icon:"▣"
+    },
 
-  {
-    column:"HTML FRONTEND 3",
-    type:"frontend",
-    icon:"🖥️"
-  },
+    {
+        column:"HTML FRONTEND 3",
+        type:"frontend",
+        icon:"▣"
+    },
 
-  {
-    column:"HTML FRONTEND 4",
-    type:"frontend",
-    icon:"🖥️"
-  },
+    {
+        column:"HTML FRONTEND 4",
+        type:"frontend",
+        icon:"▣"
+    },
 
-  {
-    column:"HTML FRONTEND 5",
-    type:"frontend",
-    icon:"🖥️"
-  },
+    {
+        column:"HTML FRONTEND 5",
+        type:"frontend",
+        icon:"▣"
+    },
 
-  {
-    column:"EXTERNAL",
-    type:"external",
-    icon:"🌐"
-  },
+    {
+        column:"EXTERNAL",
+        type:"external",
+        icon:"◎"
+    },
 
-  {
-    column:"EXTERNAL API",
-    type:"api",
-    icon:"🔗"
-  },
+    {
+        column:"EXTERNAL API",
+        type:"api",
+        icon:"↗"
+    },
 
-  {
-    column:"EXTERNAL API 2",
-    type:"api",
-    icon:"🔗"
-  }
+    {
+        column:"EXTERNAL API 2",
+        type:"api",
+        icon:"↗"
+    }
 
 ];
 
+let rows=[];
+let nodes=[];
 
-/* =========================================================
-   ELEMENTS
-========================================================= */
+let scale=1;
+let panX=0;
+let panY=0;
 
-const map =
-  document.getElementById(
-    "map"
-  );
+let dragging=false;
 
+let dragStartX=0;
+let dragStartY=0;
 
-const world =
-  document.getElementById(
-    "world"
-  );
-
-
-const svg =
-  document.getElementById(
-    "connections"
-  );
+let startPanX=0;
+let startPanY=0;
 
 
-/* =========================================================
-   LOAD MAP
-========================================================= */
+/* =========================
+   HELPERS
+========================= */
+
+function valid(value){
+
+    if(
+        value===null ||
+        value===undefined
+    ){
+        return false;
+    }
+
+    value=String(value).trim();
+
+    return value!=="" && value!=="#";
+}
+
+
+function escapeHtml(value){
+
+    return String(value || "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+}
+
+
+function shortValue(value){
+
+    if(value.length<=25){
+        return value;
+    }
+
+    return value.substring(0,22)+"...";
+}
+
+
+function setStatus(text){
+
+    document
+        .getElementById("statusbar")
+        .textContent=text;
+
+}
+
+
+/* =========================
+   LOAD API
+========================= */
 
 function loadMap(){
 
-  setStatus(
-    "Loading MAP API..."
-  );
+    setStatus("Loading MAP API...");
 
-
-  fetch(
-    MAP_API,
-    {
-      method:"GET",
-      cache:"no-store"
-    }
-  )
-
-  .then(
-    function(response){
-
-      if(
-        !response.ok
-      ){
-
-        throw new Error(
-          "HTTP " +
-          response.status
-        );
-
-      }
-
-
-      return response.json();
-
-    }
-  )
-
-  .then(
-    function(data){
-
-      if(
-        !data ||
-        data.success !== true
-      ){
-
-        throw new Error(
-          "Invalid MAP API response"
-        );
-
-      }
-
-
-      buildMap(
-        data
-      );
-
-    }
-  )
-
-  .catch(
-    function(error){
-
-      console.error(
-        "MAP API ERROR:",
-        error
-      );
-
-
-      document.getElementById(
-        "loading"
-      ).style.display =
-        "none";
-
-
-      setStatus(
-        "MAP API ERROR"
-      );
-
-
-      document.getElementById(
-        "statusbar"
-      ).style.color =
-        "#ef4444";
-
-
-      /*
-        Don't use alert.
-        Show the error in the
-        map instead.
-      */
-
-      showMapError(
-        error.message
-      );
-
-    }
-  );
-
-}
-
-
-/* =========================================================
-   BUILD MAP
-========================================================= */
-
-function buildMap(
-  data
-){
-
-  rows =
-    data.rows || [];
-
-
-  /*
-    Remove previous rows.
-  */
-
-  document
-    .querySelectorAll(
-      ".workflow-row"
+    fetch(
+        MAP_API+
+        "?t="+
+        Date.now(),
+        {
+            method:"GET",
+            cache:"no-store"
+        }
     )
-    .forEach(
-      function(element){
 
-        element.remove();
+    .then(response=>{
 
-      }
-    );
+        if(!response.ok){
 
+            throw new Error(
+                "HTTP "+response.status
+            );
 
-  allNodes = [];
+        }
 
+        return response.json();
 
-  /*
-    Build every MAP row.
-  */
+    })
 
-  rows.forEach(
-    function(row,index){
+    .then(data=>{
 
-      buildRow(
-        row,
-        index
-      );
+        if(
+            !data ||
+            data.success!==true
+        ){
 
-    }
-  );
+            throw new Error(
+                "Invalid MAP API response"
+            );
 
+        }
 
-  /*
-    Draw all connections.
-  */
+        rows=
+            Array.isArray(data.rows)
+            ? data.rows
+            : [];
 
-  drawConnections();
+        renderMap();
 
+    })
 
-  /*
-    Hide loading.
-  */
+    .catch(error=>{
 
-  document.getElementById(
-    "loading"
-  ).style.display =
-    "none";
+        console.error(error);
 
+        document
+            .getElementById("loading")
+            .innerHTML=`
 
-  /*
-    Center.
-  */
+                <div class="loading-box">
 
-  centerMap();
+                    <div style="
+                        font-size:28px;
+                        margin-bottom:10px;
+                    ">
+                        ⚠
+                    </div>
 
+                    <div style="
+                        color:#ff5964;
+                        font-size:11px;
+                        font-weight:900;
+                    ">
+                        MAP API ERROR
+                    </div>
 
-  /*
-    Status.
-  */
+                    <div style="
+                        color:#71899c;
+                        font-size:8px;
+                        margin-top:8px;
+                    ">
+                        ${escapeHtml(error.message)}
+                    </div>
 
-  setStatus(
-    rows.length +
-    " MAP rows • " +
-    allNodes.length +
-    " cards"
-  );
+                    <button
+                        class="button"
+                        onclick="loadMap()"
+                        style="margin-top:14px"
+                    >
+                        TRY AGAIN
+                    </button>
+
+                </div>
+
+            `;
+
+        setStatus("API ERROR");
+
+    });
 
 }
 
 
-/* =========================================================
-   BUILD ROW
-========================================================= */
+/* =========================
+   RENDER MAP
+========================= */
 
-function buildRow(
-  row,
-  rowIndex
-){
+function renderMap(){
 
-  const workflow =
-    document.createElement(
-      "div"
+    document
+        .querySelectorAll(".workflow")
+        .forEach(element=>{
+            element.remove();
+        });
+
+    nodes=[];
+
+    const center=3800;
+
+    const spacing=145;
+
+    const totalHeight=
+        Math.max(rows.length,1)*
+        spacing;
+
+    rows.forEach(
+        (row,rowIndex)=>{
+
+            const workflow=
+                document.createElement("div");
+
+            workflow.className="workflow";
+
+            workflow.style.top=
+                (
+                    center-
+                    totalHeight/2+
+                    rowIndex*spacing
+                )+
+                "px";
+
+            FLOW.forEach(
+                (config,index)=>{
+
+                    const value=
+                        row[config.column];
+
+                    if(!valid(value)){
+                        return;
+                    }
+
+                    const node=
+                        createNode(
+                            row,
+                            rowIndex,
+                            config,
+                            String(value).trim()
+                        );
+
+                    node.style.left=
+                        getNodeX(index)+
+                        "px";
+
+                    workflow.appendChild(node);
+
+                }
+            );
+
+            document
+                .getElementById("world")
+                .appendChild(workflow);
+
+        }
     );
 
+    drawConnections();
 
-  workflow.className =
-    "workflow-row";
+    document
+        .getElementById("loading")
+        .style.display="none";
 
+    centerMap();
 
-  /*
-    Vertical spacing.
-
-    Rows surround the HUB.
-  */
-
-  const spacing = 135;
-
-  const center =
-    3500;
-
-  const total =
-    rows.length *
-    spacing;
-
-
-  const first =
-    center -
-    total / 2;
-
-
-  const y =
-    first +
-    rowIndex *
-    spacing;
-
-
-  workflow.style.top =
-    y + "px";
-
-
-  workflow.dataset.row =
-    rowIndex;
-
-
-  /*
-    Every populated cell
-    becomes a card.
-  */
-
-  FLOW.forEach(
-    function(config,index){
-
-      const value =
-        row[
-          config.column
-        ];
-
-
-      if(
-        !valid(value)
-      ){
-
-        return;
-
-      }
-
-
-      const node =
-        createNode(
-          row,
-          rowIndex,
-          config,
-          value
-        );
-
-
-      /*
-        Position cards.
-
-        0 Backend
-        1 Sheet
-        2 Sheet API
-        3 Status
-
-        4-8 Frontends
-
-        9 External
-        10 External API
-        11 External API 2
-      */
-
-      if(
-        index <= 3
-      ){
-
-        node.style.left =
-          (
-            index *
-            165
-          ) +
-          "px";
-
-      }
-
-
-      else if(
-        index >= 4 &&
-        index <= 8
-      ){
-
-        node.style.left =
-          (
-            580 +
-            (
-              index -
-              4
-            ) *
-            160
-          ) +
-          "px";
-
-      }
-
-
-      else if(
-        index === 9
-      ){
-
-        node.style.left =
-          "1380px";
-
-      }
-
-
-      else if(
-        index === 10
-      ){
-
-        node.style.left =
-          "1545px";
-
-      }
-
-
-      else if(
-        index === 11
-      ){
-
-        node.style.left =
-          "1710px";
-
-      }
-
-
-      node.style.top =
-        "0px";
-
-
-      workflow.appendChild(
-        node
-      );
-
-    }
-  );
-
-
-  world.appendChild(
-    workflow
-  );
+    setStatus(
+        rows.length+
+        " systems • "+
+        nodes.length+
+        " resources"
+    );
 
 }
 
 
-/* =========================================================
+/* =========================
+   NODE POSITION
+========================= */
+
+function getNodeX(index){
+
+    if(index<=3){
+
+        return index*160;
+
+    }
+
+    if(index<=8){
+
+        return 650+
+            (index-4)*160;
+
+    }
+
+    if(index===9){
+
+        return 1500;
+
+    }
+
+    if(index===10){
+
+        return 1660;
+
+    }
+
+    return 1820;
+
+}
+
+
+/* =========================
    CREATE NODE
-========================================================= */
+========================= */
 
 function createNode(
-  row,
-  rowIndex,
-  config,
-  value
+    row,
+    rowIndex,
+    config,
+    value
 ){
 
-  const node =
-    document.createElement(
-      "div"
-    );
+    const node=
+        document.createElement("div");
 
+    node.className=
+        "node "+
+        config.type;
 
-  node.className =
-    "node " +
-    config.type;
+    let displayValue;
 
+    if(config.type==="status"){
 
-  const text =
-    String(value)
-      .trim();
+        const status=
+            value.toUpperCase();
 
+        let className="";
 
-  node.innerHTML = `
+        if(status==="ONLINE"){
 
-    <div class="node-title">
+            className="online";
 
-      <span class="node-icon">
-        ${config.icon}
-      </span>
+        }
 
-      <span>
-        ${escapeHtml(
-          shortValue(text)
-        )}
-      </span>
+        else if(status==="OFFLINE"){
 
-    </div>
+            className="offline";
 
+        }
 
-    <div class="node-value">
+        displayValue=`
 
-      ${escapeHtml(text)}
+            <span
+                class="status-dot ${className}"
+            ></span>
 
-    </div>
+            ${escapeHtml(status)}
 
-
-    <div class="node-column">
-
-      ${escapeHtml(
-        config.column
-      )}
-
-    </div>
-
-  `;
-
-
-  const data = {
-
-    element:node,
-
-    row:row,
-
-    rowIndex:rowIndex,
-
-    column:
-      config.column,
-
-    type:
-      config.type,
-
-    value:
-      text
-
-  };
-
-
-  allNodes.push(
-    data
-  );
-
-
-  node.addEventListener(
-    "click",
-    function(event){
-
-      event.stopPropagation();
-
-      selectNode(
-        data
-      );
+        `;
 
     }
-  );
 
+    else{
 
-  return node;
+        displayValue=
+            escapeHtml(
+                shortValue(value)
+            );
+
+    }
+
+    node.innerHTML=`
+
+        <div class="node-head">
+
+            <div class="node-icon">
+                ${config.icon}
+            </div>
+
+            <div class="node-title">
+                ${escapeHtml(config.column)}
+            </div>
+
+        </div>
+
+        <div class="node-value">
+            ${displayValue}
+        </div>
+
+        <div class="node-label">
+            RESOURCE
+        </div>
+
+    `;
+
+    const data={
+
+        element:node,
+
+        row:row,
+
+        rowIndex:rowIndex,
+
+        column:config.column,
+
+        type:config.type,
+
+        value:value
+
+    };
+
+    nodes.push(data);
+
+    node.addEventListener(
+        "click",
+        event=>{
+
+            event.stopPropagation();
+
+            selectNode(data);
+
+        }
+    );
+
+    return node;
 
 }
 
 
-/* =========================================================
+/* =========================
+   POSITION
+========================= */
+
+function getPosition(node){
+
+    const parent=
+        node.element.parentElement;
+
+    const left=
+        parent.offsetLeft+
+        node.element.offsetLeft;
+
+    const top=
+        parent.offsetTop+
+        node.element.offsetTop;
+
+    const width=
+        node.element.offsetWidth;
+
+    const height=
+        node.element.offsetHeight;
+
+    return{
+
+        left:left,
+
+        right:left+width,
+
+        top:top,
+
+        bottom:top+height,
+
+        centerY:
+            top+
+            height/2
+
+    };
+
+}
+
+
+/* =========================
    DRAW CONNECTIONS
-========================================================= */
+========================= */
 
 function drawConnections(){
 
-  svg.innerHTML = "";
+    const svg=
+        document.getElementById(
+            "connections"
+        );
+
+    svg.innerHTML="";
 
 
-  rows.forEach(
-    function(row,rowIndex){
+    /* ROW FLOW */
 
-      const rowNodes =
-        allNodes.filter(
-          function(node){
+    rows.forEach(
+        (row,rowIndex)=>{
 
-            return node.rowIndex ===
-              rowIndex;
+            const rowNodes=
+                nodes
+                .filter(
+                    node=>
+                        node.rowIndex===
+                        rowIndex
+                )
+                .sort(
+                    (a,b)=>
+                        FLOW.findIndex(
+                            f=>
+                                f.column===
+                                a.column
+                        )
+                        -
+                        FLOW.findIndex(
+                            f=>
+                                f.column===
+                                b.column
+                        )
+                );
 
-          }
+            for(
+                let i=0;
+                i<rowNodes.length-1;
+                i++
+            ){
+
+                connectNodes(
+                    rowNodes[i],
+                    rowNodes[i+1]
+                );
+
+            }
+
+        }
+    );
+
+
+    /* SHARED RESOURCES */
+
+    const groups={};
+
+    nodes.forEach(node=>{
+
+        if(!valid(node.value)){
+            return;
+        }
+
+        const key=
+            node.value.trim();
+
+        if(!groups[key]){
+            groups[key]=[];
+        }
+
+        groups[key].push(node);
+
+    });
+
+
+    Object
+        .values(groups)
+        .forEach(group=>{
+
+            if(group.length<2){
+                return;
+            }
+
+            for(
+                let i=1;
+                i<group.length;
+                i++
+            ){
+
+                connectNodes(
+                    group[0],
+                    group[i],
+                    "shared"
+                );
+
+            }
+
+        });
+
+}
+
+
+/* =========================
+   CONNECTION
+========================= */
+
+function connectNodes(
+    from,
+    to,
+    special=""
+){
+
+    const a=
+        getPosition(from);
+
+    const b=
+        getPosition(to);
+
+    let x1=a.right;
+    let y1=a.centerY;
+
+    let x2=b.left;
+    let y2=b.centerY;
+
+
+    if(
+        from.type==="external"
+    ){
+
+        x1=a.left;
+        x2=b.right;
+
+    }
+
+
+    const middle=
+        (x1+x2)/2;
+
+
+    const path=
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "path"
         );
 
 
-      rowNodes.sort(
-        function(a,b){
-
-          return FLOW.findIndex(
-            function(flow){
-
-              return flow.column ===
-                a.column;
-
-            }
-          )
-
-          -
-
-          FLOW.findIndex(
-            function(flow){
-
-              return flow.column ===
-                b.column;
-
-            }
-          );
-
-        }
-      );
+    path.setAttribute(
+        "d",
+        `
+            M ${x1} ${y1}
+            C ${middle} ${y1},
+              ${middle} ${y2},
+              ${x2} ${y2}
+        `
+    );
 
 
-      for(
-        let i=0;
-        i<rowNodes.length-1;
-        i++
-      ){
-
-        const from =
-          rowNodes[i];
+    path.classList.add(
+        "flow-line"
+    );
 
 
-        const to =
-          rowNodes[i+1];
+    if(special){
+
+        path.classList.add(
+            special
+        );
+
+    }
 
 
-        let lineType =
-          "main";
+    if(
+        from.type==="frontend" ||
+        to.type==="frontend"
+    ){
 
-
-        if(
-          from.type ===
+        path.classList.add(
             "frontend"
-        ){
-
-          lineType =
-            "frontend";
-
-        }
-
-
-        if(
-          to.type ===
-            "external"
-        ){
-
-          lineType =
-            "external";
-
-        }
-
-
-        createConnection(
-          from,
-          to,
-          lineType
         );
 
-      }
+    }
+
+
+    if(
+        from.type==="external" ||
+        to.type==="external"
+    ){
+
+        path.classList.add(
+            "external"
+        );
 
     }
-  );
+
+
+    document
+        .getElementById("connections")
+        .appendChild(path);
 
 }
 
 
-/* =========================================================
-   CREATE CONNECTION
-========================================================= */
+/* =========================
+   NODE SELECTION
+========================= */
 
-function createConnection(
-  from,
-  to,
-  type
-){
+function selectNode(selected){
 
-  const a =
-    getWorldPosition(
-      from.element
-    );
+    nodes.forEach(node=>{
 
-
-  const b =
-    getWorldPosition(
-      to.element
-    );
-
-
-  let x1;
-  let y1;
-  let x2;
-  let y2;
-
-
-  /*
-    Normal:
-
-    A → B
-  */
-
-  if(
-    to.type !==
-      "external"
-  ){
-
-    x1 =
-      a.right;
-
-    y1 =
-      a.centerY;
-
-    x2 =
-      b.left;
-
-    y2 =
-      b.centerY;
-
-  }
-
-
-  /*
-    External:
-
-    Frontend ← External
-  */
-
-  else{
-
-    x1 =
-      b.left;
-
-    y1 =
-      b.centerY;
-
-    x2 =
-      a.right;
-
-    y2 =
-      a.centerY;
-
-  }
-
-
-  const midpoint =
-    (
-      x1 +
-      x2
-    ) / 2;
-
-
-  const path =
-    document.createElementNS(
-      "http://www.w3.org/2000/svg",
-      "path"
-    );
-
-
-  path.setAttribute(
-    "d",
-    `
-      M ${x1} ${y1}
-      C ${midpoint} ${y1},
-        ${midpoint} ${y2},
-        ${x2} ${y2}
-    `
-  );
-
-
-  path.classList.add(
-    "flow-line",
-    type
-  );
-
-
-  svg.appendChild(
-    path
-  );
-
-}
-
-
-/* =========================================================
-   POSITION
-========================================================= */
-
-function getWorldPosition(
-  element
-){
-
-  const row =
-    element.parentElement;
-
-
-  const left =
-    row.offsetLeft +
-    element.offsetLeft;
-
-
-  const top =
-    row.offsetTop +
-    element.offsetTop;
-
-
-  const width =
-    element.offsetWidth;
-
-
-  const height =
-    element.offsetHeight;
-
-
-  return {
-
-    left:left,
-
-    right:
-      left +
-      width,
-
-    top:top,
-
-    bottom:
-      top +
-      height,
-
-    centerY:
-      top +
-      height / 2
-
-  };
-
-}
-
-
-/* =========================================================
-   SELECT NODE
-========================================================= */
-
-function selectNode(
-  selected
-){
-
-  /*
-    Dim everything.
-  */
-
-  allNodes.forEach(
-    function(node){
-
-      node.element.classList.add(
-        "dim"
-      );
-
-      node.element.classList.remove(
-        "selected"
-      );
-
-    }
-  );
-
-
-  /*
-    Highlight same value.
-
-    This is what creates the
-    branching / spiderweb
-    effect for shared URLs.
-  */
-
-  const matches =
-    allNodes.filter(
-      function(node){
-
-        return node.value ===
-          selected.value;
-
-      }
-    );
-
-
-  matches.forEach(
-    function(node){
-
-      node.element.classList.remove(
-        "dim"
-      );
-
-      node.element.classList.add(
-        "selected"
-      );
-
-    }
-  );
-
-
-  /*
-    Also show the entire row.
-  */
-
-  allNodes.forEach(
-    function(node){
-
-      if(
-        node.rowIndex ===
-          selected.rowIndex
-      ){
+        node.element.classList.add(
+            "dim"
+        );
 
         node.element.classList.remove(
-          "dim"
+            "selected"
         );
 
-      }
-
-    }
-  );
+    });
 
 
-  showInfo(
-    selected,
-    matches.length
-  );
+    nodes
+        .filter(
+            node=>
+                node.rowIndex===
+                selected.rowIndex
+        )
+        .forEach(node=>{
+
+            node.element.classList.remove(
+                "dim"
+            );
+
+        });
+
+
+    const shared=
+        nodes.filter(
+            node=>
+                node.value===
+                selected.value
+        );
+
+
+    shared.forEach(node=>{
+
+        node.element.classList.remove(
+            "dim"
+        );
+
+        node.element.classList.add(
+            "selected"
+        );
+
+    });
+
+
+    showInfo(
+        selected,
+        shared.length
+    );
 
 }
 
 
-/* =========================================================
+/* =========================
    INFO
-========================================================= */
+========================= */
 
 function showInfo(
-  node,
-  sharedCount
+    node,
+    sharedCount
 ){
 
-  const info =
-    document.getElementById(
-      "info"
-    );
+    const info=
+        document.getElementById("info");
+
+    const title=
+        document.getElementById("infoTitle");
+
+    const body=
+        document.getElementById("infoBody");
 
 
-  const title =
-    document.getElementById(
-      "infoTitle"
-    );
+    title.textContent=
+        node.column;
 
 
-  const body =
-    document.getElementById(
-      "infoBody"
-    );
+    let html="";
 
 
-  title.textContent =
-    node.column;
+    html+=`
 
+        <div class="info-section">
 
-  let html = `
+            <div class="info-label">
+                Backend
+            </div>
 
-    <div class="info-row">
+            <div class="info-value">
+                ${escapeHtml(
+                    node.row["Backends Sheet"] ||
+                    "No backend"
+                )}
+            </div>
 
-      <div class="info-label">
-        Backend
-      </div>
-
-      <div class="info-value">
-        ${escapeHtml(
-          node.row[
-            "Backends Sheet"
-          ] || "—"
-        )}
-      </div>
-
-    </div>
-
-
-    <div class="info-row">
-
-      <div class="info-label">
-        Column
-      </div>
-
-      <div class="info-value">
-        ${escapeHtml(
-          node.column
-        )}
-      </div>
-
-    </div>
-
-
-    <div class="info-row">
-
-      <div class="info-label">
-        Value
-      </div>
-
-      <div class="info-value">
-        ${escapeHtml(
-          node.value
-        )}
-      </div>
-
-    </div>
-
-
-    <div class="info-row">
-
-      <div class="info-label">
-        Status
-      </div>
-
-      <div class="info-value">
-        ${escapeHtml(
-          node.row.Status || "—"
-        )}
-      </div>
-
-    </div>
-
-
-    <div class="info-row">
-
-      <div class="info-label">
-        MAP Row
-      </div>
-
-      <div class="info-value">
-        ${node.rowIndex + 2}
-      </div>
-
-    </div>
-
-  `;
-
-
-  if(
-    sharedCount > 1
-  ){
-
-    html += `
-
-      <div class="info-row">
-
-        <div class="info-label">
-          Shared Resource
         </div>
-
-        <div class="info-value">
-          This value appears in
-          ${sharedCount}
-          MAP cells.
-        </div>
-
-      </div>
 
     `;
 
-  }
 
+    html+=`
 
-  if(
-    /^https?:\/\//i.test(
-      node.value
-    )
-  ){
+        <div class="info-section">
 
-    html += `
+            <div class="info-label">
+                MAP Column
+            </div>
 
-      <a
-        class="info-link"
-        href="${escapeHtml(
-          node.value
-        )}"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
+            <div class="info-value">
+                ${escapeHtml(
+                    node.column
+                )}
+            </div>
 
-        OPEN RESOURCE ↗
-
-      </a>
+        </div>
 
     `;
 
-  }
+
+    html+=`
+
+        <div class="info-section">
+
+            <div class="info-label">
+                Resource
+            </div>
+
+            <div class="info-value">
+                ${escapeHtml(
+                    node.value
+                )}
+            </div>
+
+        </div>
+
+    `;
 
 
-  body.innerHTML =
-    html;
+    html+=`
+
+        <div class="info-section">
+
+            <div class="info-label">
+                Status
+            </div>
+
+            <div class="info-value">
+                ${escapeHtml(
+                    node.row.Status ||
+                    "UNKNOWN"
+                )}
+            </div>
+
+        </div>
+
+    `;
 
 
-  info.style.display =
-    "block";
+    if(sharedCount>1){
+
+        html+=`
+
+            <div class="info-section">
+
+                <div class="info-label">
+                    Shared Resource
+                </div>
+
+                <div class="info-value">
+                    Connected to
+                    ${sharedCount}
+                    MAP cells.
+                </div>
+
+            </div>
+
+        `;
+
+    }
+
+
+    if(
+        /^https?:\/\//i.test(
+            node.value
+        )
+    ){
+
+        html+=`
+
+            <a
+                class="info-link"
+                href="${escapeHtml(node.value)}"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                OPEN RESOURCE ↗
+            </a>
+
+        `;
+
+    }
+
+
+    body.innerHTML=html;
+
+    info.style.display="block";
 
 }
 
 
-/* =========================================================
+/* =========================
    CLOSE INFO
-========================================================= */
+========================= */
 
 function closeInfo(){
 
-  document.getElementById(
-    "info"
-  ).style.display =
-    "none";
+    document
+        .getElementById("info")
+        .style.display="none";
 
 
-  allNodes.forEach(
-    function(node){
+    nodes.forEach(node=>{
 
-      node.element.classList.remove(
-        "dim",
-        "selected"
-      );
+        node.element.classList.remove(
+            "dim",
+            "selected"
+        );
 
-    }
-  );
+    });
 
 }
 
 
-/* =========================================================
-   SEARCH
-========================================================= */
+/* =========================
+   MAP TRANSFORM
+========================= */
 
-function searchMap(
-  value
-){
+function applyTransform(){
 
-  const query =
-    String(value || "")
-      .toLowerCase()
-      .trim();
-
-
-  if(!query){
-
-    closeInfo();
-
-    setStatus(
-      rows.length +
-      " MAP rows • " +
-      allNodes.length +
-      " cards"
-    );
-
-    return;
-
-  }
-
-
-  let matches = 0;
-
-
-  allNodes.forEach(
-    function(node){
-
-      const text =
-        (
-          node.value +
-          " " +
-          node.column +
-          " " +
-          (
-            node.row[
-              "Backends Sheet"
-            ] || ""
-          )
-        )
-        .toLowerCase();
-
-
-      if(
-        text.includes(
-          query
-        )
-      ){
-
-        node.element.classList.remove(
-          "dim"
-        );
-
-        node.element.classList.add(
-          "selected"
-        );
-
-        matches++;
-
-      }
-
-      else{
-
-        node.element.classList.add(
-          "dim"
-        );
-
-        node.element.classList.remove(
-          "selected"
-        );
-
-      }
-
-    }
-  );
-
-
-  setStatus(
-    matches +
-    " matching cards"
-  );
+    document
+        .getElementById("world")
+        .style.transform=
+        `
+            translate(
+                ${panX}px,
+                ${panY}px
+            )
+            scale(${scale})
+        `;
 
 }
 
-
-/* =========================================================
-   CENTER
-========================================================= */
 
 function centerMap(){
 
-  const rect =
-    map.getBoundingClientRect();
+    const rect=
+        document
+            .getElementById("map")
+            .getBoundingClientRect();
 
+    scale=1;
 
-  scale = 1;
+    panX=
+        rect.width/2-
+        3800;
 
+    panY=
+        rect.height/2-
+        3800;
 
-  panX =
-    rect.width / 2 -
-    3500;
-
-
-  panY =
-    rect.height / 2 -
-    3500;
-
-
-  applyTransform();
+    applyTransform();
 
 }
 
 
-/* =========================================================
-   ZOOM
-========================================================= */
-
 function zoomIn(){
 
-  scale =
-    Math.min(
-      2.5,
-      scale + .12
-    );
+    scale=
+        Math.min(
+            2.5,
+            scale+.12
+        );
 
-
-  applyTransform();
+    applyTransform();
 
 }
 
 
 function zoomOut(){
 
-  scale =
-    Math.max(
-      .3,
-      scale - .12
-    );
+    scale=
+        Math.max(
+            .3,
+            scale-.12
+        );
 
-
-  applyTransform();
+    applyTransform();
 
 }
 
 
-/* =========================================================
-   TRANSFORM
-========================================================= */
+/* =========================
+   SEARCH
+========================= */
 
-function applyTransform(){
+function searchMap(value){
 
-  world.style.transform =
-    `
-      translate(
-        ${panX}px,
-        ${panY}px
-      )
-      scale(
-        ${scale}
-      )
-    `;
+    const query=
+        String(value || "")
+            .toLowerCase()
+            .trim();
+
+
+    if(!query){
+
+        nodes.forEach(node=>{
+
+            node.element.classList.remove(
+                "dim",
+                "selected"
+            );
+
+        });
+
+        setStatus(
+            rows.length+
+            " systems • "+
+            nodes.length+
+            " resources"
+        );
+
+        return;
+
+    }
+
+
+    let count=0;
+
+
+    nodes.forEach(node=>{
+
+        const text=
+            (
+                node.value+
+                " "+
+                node.column+
+                " "+
+                (
+                    node.row[
+                        "Backends Sheet"
+                    ] ||
+                    ""
+                )
+            )
+            .toLowerCase();
+
+
+        if(
+            text.includes(query)
+        ){
+
+            node.element.classList.remove(
+                "dim"
+            );
+
+            node.element.classList.add(
+                "selected"
+            );
+
+            count++;
+
+        }
+
+        else{
+
+            node.element.classList.add(
+                "dim"
+            );
+
+            node.element.classList.remove(
+                "selected"
+            );
+
+        }
+
+    });
+
+
+    setStatus(
+        count+
+        " matching resources"
+    );
 
 }
 
 
-/* =========================================================
-   DRAG
-========================================================= */
+/* =========================
+   MOUSE PAN
+========================= */
+
+const map=
+    document.getElementById("map");
+
 
 map.addEventListener(
-  "mousedown",
-  function(event){
+    "mousedown",
+    event=>{
 
-    if(
-      event.target.closest(
-        ".node"
-      ) ||
-      event.target.closest(
-        ".hub"
-      ) ||
-      event.target.closest(
-        "button"
-      )
-    ){
+        if(
+            event.target.closest(".node") ||
+            event.target.closest(".hub") ||
+            event.target.closest("button") ||
+            event.target.closest("input")
+        ){
 
-      return;
+            return;
+
+        }
+
+
+        dragging=true;
+
+        map.classList.add(
+            "dragging"
+        );
+
+
+        dragStartX=
+            event.clientX;
+
+        dragStartY=
+            event.clientY;
+
+
+        startPanX=panX;
+        startPanY=panY;
 
     }
-
-
-    dragging = true;
-
-    map.classList.add(
-      "dragging"
-    );
-
-
-    dragStartX =
-      event.clientX;
-
-
-    dragStartY =
-      event.clientY;
-
-
-    startPanX =
-      panX;
-
-
-    startPanY =
-      panY;
-
-  }
 );
 
 
 window.addEventListener(
-  "mousemove",
-  function(event){
+    "mousemove",
+    event=>{
 
-    if(!dragging){
+        if(!dragging){
+            return;
+        }
 
-      return;
+
+        panX=
+            startPanX+
+            event.clientX-
+            dragStartX;
+
+
+        panY=
+            startPanY+
+            event.clientY-
+            dragStartY;
+
+
+        applyTransform();
 
     }
-
-
-    panX =
-      startPanX +
-      event.clientX -
-      dragStartX;
-
-
-    panY =
-      startPanY +
-      event.clientY -
-      dragStartY;
-
-
-    applyTransform();
-
-  }
 );
 
 
 window.addEventListener(
-  "mouseup",
-  function(){
+    "mouseup",
+    ()=>{
 
-    dragging = false;
+        dragging=false;
 
-    map.classList.remove(
-      "dragging"
-    );
-
-  }
-);
-
-
-/* =========================================================
-   TOUCH DRAG
-========================================================= */
-
-let touchStartX = 0;
-
-let touchStartY = 0;
-
-let touchPanX = 0;
-
-let touchPanY = 0;
-
-
-map.addEventListener(
-  "touchstart",
-  function(event){
-
-    if(
-      event.touches.length !== 1
-    ){
-
-      return;
+        map.classList.remove(
+            "dragging"
+        );
 
     }
-
-
-    touchStartX =
-      event.touches[0].clientX;
-
-
-    touchStartY =
-      event.touches[0].clientY;
-
-
-    touchPanX =
-      panX;
-
-
-    touchPanY =
-      panY;
-
-  },
-  {
-    passive:true
-  }
 );
 
 
-map.addEventListener(
-  "touchmove",
-  function(event){
-
-    if(
-      event.touches.length !== 1
-    ){
-
-      return;
-
-    }
-
-
-    panX =
-      touchPanX +
-      event.touches[0].clientX -
-      touchStartX;
-
-
-    panY =
-      touchPanY +
-      event.touches[0].clientY -
-      touchStartY;
-
-
-    applyTransform();
-
-  },
-  {
-    passive:true
-  }
-);
-
-
-/* =========================================================
+/* =========================
    WHEEL
-========================================================= */
+========================= */
 
 map.addEventListener(
-  "wheel",
-  function(event){
+    "wheel",
+    event=>{
 
-    event.preventDefault();
+        event.preventDefault();
 
 
-    if(
-      event.deltaY < 0
-    ){
+        if(event.deltaY<0){
 
-      zoomIn();
+            zoomIn();
 
+        }
+
+        else{
+
+            zoomOut();
+
+        }
+
+    },
+    {
+        passive:false
     }
-
-    else{
-
-      zoomOut();
-
-    }
-
-  },
-  {
-    passive:false
-  }
 );
 
 
-/* =========================================================
-   HELPERS
-========================================================= */
+/* =========================
+   BUTTONS
+========================= */
 
-function valid(
-  value
-){
-
-  if(
-    value === null ||
-    value === undefined
-  ){
-
-    return false;
-
-  }
-
-
-  const text =
-    String(value)
-      .trim();
-
-
-  return (
-    text !== "" &&
-    text !== "#"
-  );
-
-}
-
-
-function shortValue(
-  value
-){
-
-  if(
-    value.length <= 25
-  ){
-
-    return value;
-
-  }
-
-
-  return (
-    value.substring(
-      0,
-      22
-    ) +
-    "..."
-  );
-
-}
-
-
-function escapeHtml(
-  value
-){
-
-  return String(
-    value || ""
-  )
-
-  .replace(
-    /&/g,
-    "&amp;"
-  )
-
-  .replace(
-    /</g,
-    "&lt;"
-  )
-
-  .replace(
-    />/g,
-    "&gt;"
-  )
-
-  .replace(
-    /"/g,
-    "&quot;"
-  )
-
-  .replace(
-    /'/g,
-    "&#039;"
-  );
-
-}
-
-
-function setStatus(
-  text
-){
-
-  document.getElementById(
-    "statusbar"
-  ).textContent =
-    text;
-
-}
-
-
-/* =========================================================
-   API ERROR
-========================================================= */
-
-function showMapError(
-  message
-){
-
-  const loading =
-    document.getElementById(
-      "loading"
+document
+    .getElementById("refresh")
+    .addEventListener(
+        "click",
+        loadMap
     );
 
 
-  loading.style.display =
-    "flex";
-
-
-  loading.innerHTML = `
-
-    <div style="
-      text-align:center;
-      max-width:420px;
-      padding:20px;
-    ">
-
-      <div style="
-        font-size:30px;
-        margin-bottom:12px;
-      ">
-        ⚠️
-      </div>
-
-      <div style="
-        color:#ef4444;
-        font-weight:900;
-        margin-bottom:8px;
-      ">
-        MAP API ERROR
-      </div>
-
-      <div style="
-        color:#8298aa;
-        font-size:9px;
-        line-height:1.5;
-      ">
-        ${escapeHtml(message)}
-      </div>
-
-      <button
-        onclick="loadMap()"
-        style="
-          margin-top:15px;
-        "
-      >
-        TRY AGAIN
-      </button>
-
-    </div>
-
-  `;
-
-}
-
-
-/* =========================================================
-   BUTTON EVENTS
-========================================================= */
-
 document
-  .getElementById(
-    "refreshBtn"
-  )
-  .addEventListener(
-    "click",
-    loadMap
-  );
+    .getElementById("center")
+    .addEventListener(
+        "click",
+        centerMap
+    );
 
 
 document
-  .getElementById(
-    "centerBtn"
-  )
-  .addEventListener(
-    "click",
-    centerMap
-  );
+    .getElementById("zoomIn")
+    .addEventListener(
+        "click",
+        zoomIn
+    );
 
 
 document
-  .getElementById(
-    "zoomInBtn"
-  )
-  .addEventListener(
-    "click",
-    zoomIn
-  );
+    .getElementById("zoomOut")
+    .addEventListener(
+        "click",
+        zoomOut
+    );
 
 
 document
-  .getElementById(
-    "zoomOutBtn"
-  )
-  .addEventListener(
-    "click",
-    zoomOut
-  );
+    .getElementById("close")
+    .addEventListener(
+        "click",
+        closeInfo
+    );
 
 
 document
-  .getElementById(
-    "closeInfo"
-  )
-  .addEventListener(
-    "click",
-    closeInfo
-  );
+    .getElementById("search")
+    .addEventListener(
+        "input",
+        event=>{
+            searchMap(
+                event.target.value
+            );
+        }
+    );
 
 
-document
-  .getElementById(
-    "search"
-  )
-  .addEventListener(
-    "input",
-    function(){
-
-      searchMap(
-        this.value
-      );
-
-    }
-  );
-
-
-/* =========================================================
+/* =========================
    START
-========================================================= */
+========================= */
 
 loadMap();
 
 </script>
 
 </body>
-
 </html>
