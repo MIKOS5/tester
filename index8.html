@@ -1,38 +1,44 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 
-<title>Obvyris Server Map</title>
+<title>Obvyris Server Architecture</title>
 
 <style>
 
 :root{
-    --bg:#040810;
+    --bg:#03070d;
     --bg2:#07111d;
-    --panel:#0b1522;
-    --panel2:#0e1b2b;
+    --panel:#0b1623;
+    --panel2:#0f1d2d;
 
-    --text:#edf6ff;
-    --muted:#7f94aa;
+    --text:#edf7ff;
+    --muted:#71879c;
 
     --blue:#2793ff;
-    --blue2:#55b0ff;
+    --blue-soft:#5db8ff;
 
-    --backend:#318fe0;
-    --sheet:#477da8;
-    --sheetapi:#9b6bd6;
+    --backend:#2997ed;
+    --sheet:#4d81aa;
+    --sheetapi:#a46bdf;
+    --frontend:#3da9ff;
 
-    --frontend:#48a8ff;
+    --external:#a16bd2;
+    --externalapi:#c57be8;
 
-    --external:#a367d2;
-    --externalapi:#c27be7;
+    --border:#20364b;
+    --border2:#29465e;
 
-    --line:#294158;
-    --line-soft:rgba(75,130,175,.45);
+    --shadow:
+        0 12px 30px rgba(0,0,0,.38);
 }
+
+
+/* =========================================================
+   RESET
+========================================================= */
 
 *{
     box-sizing:border-box;
@@ -43,45 +49,50 @@ body{
     width:100%;
     height:100%;
     margin:0;
+    padding:0;
 }
 
 body{
     overflow:hidden;
 
-    background:
-        radial-gradient(
-            circle at 50% 50%,
-            #122944 0%,
-            #081421 34%,
-            #040810 72%,
-            #02050a 100%
-        );
-
     color:var(--text);
 
     font-family:
         Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
         Arial,
-        Helvetica,
         sans-serif;
+
+    background:
+        radial-gradient(
+            circle at 50% 50%,
+            #102840 0%,
+            #081522 30%,
+            #040a11 67%,
+            #02050a 100%
+        );
 }
 
 
 /* =========================================================
-   HEADER
+   TOP BAR
 ========================================================= */
 
 .header{
 
     position:fixed;
 
-    top:0;
     left:0;
     right:0;
+    top:0;
 
     height:64px;
 
-    z-index:1000;
+    z-index:5000;
 
     display:flex;
 
@@ -89,19 +100,21 @@ body{
 
     justify-content:space-between;
 
-    padding:0 18px;
+    padding:
+        0 18px;
 
     background:
-        rgba(3,8,15,.94);
+        rgba(3,8,14,.94);
 
     border-bottom:
-        1px solid #1c3044;
-
-    backdrop-filter:
-        blur(14px);
+        1px solid #1b3044;
 
     box-shadow:
-        0 8px 30px rgba(0,0,0,.25);
+        0 8px 28px
+        rgba(0,0,0,.28);
+
+    backdrop-filter:
+        blur(16px);
 }
 
 .brand{
@@ -111,12 +124,16 @@ body{
     align-items:center;
 
     gap:11px;
+
+    min-width:0;
 }
 
-.logo{
+.brand-logo{
 
     width:36px;
     height:36px;
+
+    flex:none;
 
     display:grid;
 
@@ -124,82 +141,98 @@ body{
 
     border-radius:50%;
 
-    background:
-        radial-gradient(
-            circle at 35% 30%,
-            #5bb8ff,
-            #2793ff 45%,
-            #1454a0 100%
-        );
-
-    box-shadow:
-        0 0 24px
-        rgba(39,147,255,.35);
+    font-size:17px;
 
     font-weight:900;
 
-    font-size:18px;
+    color:white;
+
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+            #72c5ff,
+            #2793ff 45%,
+            #124b8c
+        );
+
+    box-shadow:
+        0 0 25px
+        rgba(39,147,255,.4);
 }
 
-.brand h1{
+.brand-name{
 
-    margin:0;
+    font-size:15px;
 
-    font-size:17px;
+    font-weight:850;
 
-    font-weight:800;
-
-    letter-spacing:.3px;
+    letter-spacing:.4px;
 }
 
-.brand small{
-
-    display:block;
+.brand-sub{
 
     margin-top:2px;
 
-    color:var(--muted);
+    color:#688198;
 
-    font-size:9px;
+    font-size:8px;
 
-    letter-spacing:1px;
+    font-weight:700;
+
+    letter-spacing:1.8px;
 }
 
-.actions{
+.toolbar{
 
     display:flex;
+
+    align-items:center;
 
     gap:7px;
 }
 
-.action{
+.tool{
+
+    height:32px;
+
+    padding:
+        0 11px;
 
     border:
-        1px solid #263c52;
+        1px solid #263d52;
+
+    border-radius:7px;
 
     background:
-        #0b1624;
+        #0a1521;
 
     color:#dcecff;
 
-    border-radius:8px;
+    font-size:10px;
 
-    padding:8px 11px;
-
-    font-size:11px;
+    font-weight:700;
 
     cursor:pointer;
 
-    transition:.15s;
+    transition:
+        .15s ease;
 }
 
-.action:hover{
+.tool:hover{
 
     border-color:
         #3987c5;
 
     background:
-        #102235;
+        #102338;
+
+    color:white;
+}
+
+.tool:active{
+
+    transform:
+        translateY(1px);
 }
 
 
@@ -211,17 +244,20 @@ body{
 
     position:absolute;
 
-    top:64px;
     left:0;
     right:0;
+
+    top:64px;
     bottom:0;
 
     overflow:hidden;
+
+    touch-action:none;
 }
 
 
 /* =========================================================
-   MAP GRID
+   GRID
 ========================================================= */
 
 #map::before{
@@ -232,31 +268,32 @@ body{
 
     inset:0;
 
-    opacity:.14;
+    pointer-events:none;
+
+    opacity:.13;
 
     background-image:
 
         linear-gradient(
-            rgba(70,120,165,.22) 1px,
+            rgba(83,132,169,.28) 1px,
             transparent 1px
         ),
 
         linear-gradient(
             90deg,
-            rgba(70,120,165,.22) 1px,
+            rgba(83,132,169,.28) 1px,
             transparent 1px
         );
 
     background-size:
-        40px 40px;
-
-    pointer-events:none;
+        42px 42px;
 
     mask-image:
         radial-gradient(
-            circle at center,
+            ellipse at center,
             black 0%,
-            transparent 78%
+            rgba(0,0,0,.7) 48%,
+            transparent 82%
         );
 }
 
@@ -274,27 +311,27 @@ body{
     left:50%;
     top:50%;
 
-    width:600px;
-    height:600px;
+    width:700px;
+    height:700px;
 
     transform:
         translate(-50%,-50%);
+
+    pointer-events:none;
 
     border-radius:50%;
 
     background:
         radial-gradient(
             circle,
-            rgba(39,147,255,.09),
+            rgba(39,147,255,.095),
             transparent 68%
         );
-
-    pointer-events:none;
 }
 
 
 /* =========================================================
-   SVG CONNECTION LAYER
+   CONNECTION SVG
 ========================================================= */
 
 #connections{
@@ -306,7 +343,7 @@ body{
     width:100%;
     height:100%;
 
-    z-index:5;
+    z-index:10;
 
     pointer-events:none;
 
@@ -317,48 +354,92 @@ body{
 
     fill:none;
 
-    stroke-width:1.25;
+    stroke-width:1.15;
 
-    opacity:.62;
+    stroke-linecap:round;
+
+    opacity:.58;
 
     vector-effect:
         non-scaling-stroke;
+
+    filter:
+        drop-shadow(
+            0 0 3px
+            rgba(39,147,255,.14)
+        );
 }
 
 .connection.backend{
-
-    stroke:
-        var(--backend);
+    stroke:var(--backend);
 }
 
 .connection.sheet{
-
-    stroke:
-        var(--sheet);
+    stroke:var(--sheet);
 }
 
 .connection.sheet-api{
-
-    stroke:
-        var(--sheetapi);
+    stroke:var(--sheetapi);
 }
 
 .connection.frontend{
-
-    stroke:
-        var(--frontend);
+    stroke:var(--frontend);
 }
 
 .connection.external{
-
-    stroke:
-        var(--external);
+    stroke:var(--external);
 }
 
 .connection.external-api{
+    stroke:var(--externalapi);
+}
 
-    stroke:
-        var(--externalapi);
+
+/* =========================================================
+   ZONE LABELS
+========================================================= */
+
+.zone{
+
+    position:absolute;
+
+    left:50%;
+
+    transform:
+        translateX(-50%);
+
+    z-index:30;
+
+    padding:
+        5px 13px;
+
+    border:
+        1px solid #1d354a;
+
+    border-radius:20px;
+
+    background:
+        rgba(4,10,17,.78);
+
+    color:#668199;
+
+    font-size:7px;
+
+    font-weight:900;
+
+    letter-spacing:2.8px;
+
+    pointer-events:none;
+}
+
+.zone.backend{
+
+    top:13px;
+}
+
+.zone.external{
+
+    bottom:13px;
 }
 
 
@@ -373,13 +454,13 @@ body{
     left:50%;
     top:50%;
 
-    width:158px;
-    height:158px;
+    width:164px;
+    height:164px;
 
     transform:
         translate(-50%,-50%);
 
-    z-index:100;
+    z-index:3000;
 
     display:flex;
 
@@ -391,32 +472,36 @@ body{
 
     border-radius:50%;
 
-    background:
-        radial-gradient(
-            circle at 50% 38%,
-            #19436d 0%,
-            #102c49 38%,
-            #091727 70%,
-            #050b13 100%
-        );
-
     border:
         2px solid
-        rgba(60,166,255,.9);
+        rgba(64,171,255,.92);
+
+    background:
+        radial-gradient(
+            circle at 50% 34%,
+            #1b4a75 0%,
+            #113453 35%,
+            #0a1b2c 67%,
+            #040b13 100%
+        );
 
     box-shadow:
 
         0 0 0 7px
-        rgba(39,147,255,.045),
+        rgba(39,147,255,.035),
 
-        0 0 0 18px
+        0 0 0 17px
         rgba(39,147,255,.018),
 
-        0 0 55px
+        0 0 60px
         rgba(39,147,255,.28),
 
         inset 0 0 35px
-        rgba(39,147,255,.12);
+        rgba(39,147,255,.14);
+
+    user-select:none;
+
+    pointer-events:none;
 }
 
 #hub::before{
@@ -431,10 +516,10 @@ body{
 
     border:
         1px solid
-        rgba(68,164,235,.28);
+        rgba(77,180,255,.27);
 
     animation:
-        hubPulse 3s ease-in-out infinite;
+        hubPulse 3.2s ease-in-out infinite;
 }
 
 @keyframes hubPulse{
@@ -447,21 +532,21 @@ body{
 
     50%{
         transform:scale(1.06);
-        opacity:.8;
+        opacity:.75;
     }
 }
 
-.hub-symbol{
+.hub-icon{
 
-    font-size:30px;
+    font-size:29px;
 
     line-height:1;
 
-    color:#8fd0ff;
+    color:#9bd7ff;
 
     text-shadow:
         0 0 20px
-        rgba(80,180,255,.8);
+        rgba(85,185,255,.85);
 }
 
 .hub-title{
@@ -470,7 +555,7 @@ body{
 
     font-size:17px;
 
-    font-weight:900;
+    font-weight:950;
 
     letter-spacing:3px;
 }
@@ -479,59 +564,24 @@ body{
 
     margin-top:4px;
 
-    color:#79a9d1;
+    color:#78a8cc;
 
-    font-size:8px;
+    font-size:7px;
+
+    font-weight:800;
 
     letter-spacing:2px;
 }
 
+.hub-lock{
 
-/* =========================================================
-   ZONES
-========================================================= */
+    margin-top:7px;
 
-.zone{
+    color:#4e7797;
 
-    position:absolute;
+    font-size:6px;
 
-    z-index:20;
-
-    left:50%;
-
-    transform:
-        translateX(-50%);
-
-    padding:
-        5px 13px;
-
-    border:
-        1px solid #1d354d;
-
-    border-radius:20px;
-
-    background:
-        rgba(4,10,17,.8);
-
-    color:#718ca7;
-
-    font-size:8px;
-
-    font-weight:900;
-
-    letter-spacing:3px;
-
-    white-space:nowrap;
-}
-
-.zone.backend{
-
-    top:14px;
-}
-
-.zone.external{
-
-    bottom:14px;
+    letter-spacing:1.5px;
 }
 
 
@@ -545,43 +595,79 @@ body{
 
     inset:0;
 
-    z-index:20;
+    z-index:100;
 
     pointer-events:none;
 }
+
+
+/* =========================================================
+   BRANCH
+========================================================= */
 
 .branch{
 
     position:absolute;
 
-    width:230px;
+    width:235px;
 
     transform:
         translate(-50%,-50%);
 
     pointer-events:auto;
+
+    cursor:grab;
+
+    user-select:none;
+
+    touch-action:none;
+
+    transition:
+        box-shadow .15s ease;
+}
+
+.branch.dragging{
+
+    cursor:grabbing;
+
+    z-index:2500;
+
+    filter:
+        drop-shadow(
+            0 12px 25px
+            rgba(0,0,0,.5)
+        );
 }
 
 
 /* =========================================================
-   BRANCH TITLE
+   BRANCH LABEL
 ========================================================= */
 
 .branch-label{
 
     margin-bottom:6px;
 
+    padding:
+        3px 7px;
+
+    overflow:hidden;
+
     text-align:center;
 
-    color:#56748f;
+    color:#58748c;
 
     font-size:7px;
 
     font-weight:900;
 
-    letter-spacing:2px;
+    letter-spacing:1.7px;
 
     text-transform:uppercase;
+
+    white-space:nowrap;
+
+    text-overflow:ellipsis;
 }
 
 
@@ -607,46 +693,40 @@ body{
 
     position:relative;
 
-    min-height:38px;
+    min-height:39px;
 
     padding:
-        7px 9px;
+        7px 9px 7px 11px;
 
     border:
-        1px solid #21374d;
+        1px solid var(--border);
 
     border-radius:8px;
 
     background:
         linear-gradient(
             145deg,
-            rgba(13,26,42,.98),
+            rgba(13,27,43,.98),
             rgba(6,13,22,.98)
         );
 
     box-shadow:
-        0 7px 18px
-        rgba(0,0,0,.28);
+        var(--shadow);
 
     overflow:hidden;
 
     transition:
-        transform .15s ease,
         border-color .15s ease,
-        box-shadow .15s ease;
+        transform .15s ease;
 }
 
 .card:hover{
 
-    transform:
-        translateY(-2px);
-
     border-color:
-        #4c779d;
+        var(--border2);
 
-    box-shadow:
-        0 10px 24px
-        rgba(0,0,0,.42);
+    transform:
+        translateY(-1px);
 }
 
 .card::before{
@@ -661,8 +741,7 @@ body{
 
     width:3px;
 
-    background:
-        #31556f;
+    background:#355168;
 }
 
 .card.backend::before{
@@ -691,11 +770,11 @@ body{
 
 .card-title{
 
+    color:#e9f5ff;
+
     font-size:9px;
 
-    font-weight:900;
-
-    color:#e8f4ff;
+    font-weight:850;
 
     white-space:nowrap;
 
@@ -708,27 +787,29 @@ body{
 
     margin-top:3px;
 
+    color:#7c91a5;
+
     font-size:7px;
 
-    line-height:1.3;
+    line-height:1.35;
 
-    color:#7e94aa;
+    overflow:hidden;
 
-    word-break:
-        break-word;
+    word-break:break-word;
 }
 
 .card-value a{
 
-    color:#63b5ff;
+    color:#61b6ff;
 
     text-decoration:none;
 }
 
 .card-value a:hover{
 
-    text-decoration:
-        underline;
+    color:#9ad6ff;
+
+    text-decoration:underline;
 }
 
 
@@ -750,7 +831,7 @@ body{
 
     min-width:0;
 
-    min-height:46px;
+    min-height:48px;
 
     padding:
         6px 4px;
@@ -762,34 +843,34 @@ body{
 
     font-size:6.5px;
 
-    white-space:normal;
-
     line-height:1.15;
+
+    white-space:normal;
 }
 
 .frontend-card .card-value{
 
-    font-size:5.8px;
-
     max-height:28px;
 
-    overflow:hidden;
+    font-size:5.7px;
+
+    line-height:1.25;
 }
 
 
 /* =========================================================
-   EMPTY STATE
+   EMPTY
 ========================================================= */
 
-.empty{
+#empty{
 
     position:absolute;
 
     inset:0;
 
-    z-index:80;
+    z-index:2000;
 
-    display:flex;
+    display:none;
 
     align-items:center;
 
@@ -800,21 +881,22 @@ body{
 
 .empty-box{
 
-    padding:20px 25px;
+    padding:
+        20px 26px;
 
     border:
-        1px solid #263c52;
+        1px solid #263c51;
 
     border-radius:12px;
 
     background:
-        rgba(8,17,28,.94);
+        rgba(8,17,28,.95);
 
-    color:#8096ac;
+    color:#8097ac;
 
     text-align:center;
 
-    font-size:12px;
+    font-size:11px;
 }
 
 
@@ -828,7 +910,7 @@ body{
 
     inset:0;
 
-    z-index:500;
+    z-index:4500;
 
     display:flex;
 
@@ -837,10 +919,10 @@ body{
     justify-content:center;
 
     background:
-        rgba(3,8,14,.92);
+        rgba(3,8,14,.94);
 
     backdrop-filter:
-        blur(5px);
+        blur(6px);
 }
 
 .loading-box{
@@ -851,28 +933,28 @@ body{
 
     align-items:center;
 
-    gap:12px;
+    gap:11px;
 
-    color:#8ca2b8;
+    color:#8298ad;
 
-    font-size:11px;
+    font-size:10px;
 }
 
 .spinner{
 
-    width:32px;
-    height:32px;
-
-    border-radius:50%;
+    width:31px;
+    height:31px;
 
     border:
-        3px solid #1d3147;
+        3px solid #1b2f43;
 
     border-top-color:
         var(--blue);
 
+    border-radius:50%;
+
     animation:
-        spin .8s linear infinite;
+        spin .75s linear infinite;
 }
 
 @keyframes spin{
@@ -897,46 +979,46 @@ body{
     transform:
         translate(-50%,-50%);
 
-    z-index:400;
+    z-index:4000;
 
     display:none;
 
     width:
-        min(500px,90vw);
+        min(520px,90vw);
 
-    padding:18px;
+    padding:20px;
 
     border:
-        1px solid #61313b;
+        1px solid #60313b;
 
-    border-radius:11px;
+    border-radius:12px;
 
     background:
-        rgba(28,9,14,.96);
+        rgba(26,9,14,.97);
 
     box-shadow:
-        0 15px 40px
-        rgba(0,0,0,.45);
+        0 20px 50px
+        rgba(0,0,0,.55);
 
     text-align:center;
 }
 
 .error-title{
 
-    color:#ff8d9a;
-
-    font-weight:900;
+    color:#ff9aa5;
 
     font-size:13px;
 
-    margin-bottom:7px;
+    font-weight:900;
 }
 
 .error-text{
 
-    color:#a9828a;
+    margin-top:8px;
 
-    font-size:10px;
+    color:#aa8189;
+
+    font-size:9px;
 
     line-height:1.5;
 
@@ -945,7 +1027,7 @@ body{
 
 
 /* =========================================================
-   INFO
+   STATUS BAR
 ========================================================= */
 
 #info{
@@ -953,215 +1035,261 @@ body{
     position:fixed;
 
     right:12px;
-    bottom:12px;
+    bottom:11px;
 
-    z-index:1000;
+    z-index:5000;
 
     padding:
         6px 9px;
 
     border:
-        1px solid #1b3045;
+        1px solid #1b3044;
 
     border-radius:7px;
 
     background:
         rgba(3,8,14,.9);
 
-    color:#647f99;
+    color:#607c95;
 
-    font-size:8px;
+    font-size:7px;
+
+    font-weight:700;
+
+    letter-spacing:.4px;
 }
 
 
 /* =========================================================
-   MOBILE
+   RESPONSIVE
 ========================================================= */
 
-@media(max-width:900px){
+@media(max-width:850px){
 
-    .brand-text small{
+    .brand-sub{
         display:none;
     }
 
-    .brand h1{
-        font-size:14px;
+    .brand-name{
+        font-size:13px;
     }
 
-    .action{
-        padding:7px 9px;
-        font-size:10px;
+    .tool{
+        padding:
+            0 8px;
+
+        font-size:9px;
     }
 
-    #map{
+    #hub{
 
-        width:1500px;
+        width:145px;
+        height:145px;
 
-        left:
-            calc(50% - 750px);
-
-        right:auto;
     }
 
+    .hub-title{
+        font-size:15px;
+    }
+
+    .branch{
+        width:215px;
+    }
 }
 
 </style>
-
 </head>
+
 
 <body>
 
+
+<!-- =======================================================
+     HEADER
+======================================================== -->
+
 <header class="header">
 
-```
-<div class="brand">
+    <div class="brand">
 
-    <div class="logo">
-        O
-    </div>
-
-    <div>
-
-        <h1>
-            Obvyris Server Map
-        </h1>
-
-        <small>
-            LIVE ARCHITECTURE • BACKEND • FRONTEND • EXTERNAL
-        </small>
-
-    </div>
-
-</div>
-
-
-<div class="actions">
-
-    <button
-        class="action"
-        onclick="loadMap()">
-        ↻ Refresh
-    </button>
-
-    <button
-        class="action"
-        onclick="resetView()">
-        ◎ Center
-    </button>
-
-</div>
-```
-
-</header>
-
-<div id="map">
-
-```
-<svg
-    id="connections"
-    aria-hidden="true">
-</svg>
-
-
-<div class="zone backend">
-    BACKEND ROUTES
-</div>
-
-
-<div class="zone external">
-    EXTERNAL API ROUTES
-</div>
-
-
-<div
-    id="backendLayer"
-    class="layer">
-</div>
-
-
-<div
-    id="externalLayer"
-    class="layer">
-</div>
-
-
-<div id="hub">
-
-    <div class="hub-symbol">
-        ◉
-    </div>
-
-    <div class="hub-title">
-        OBVYRIS
-    </div>
-
-    <div class="hub-sub">
-        CENTRAL HUB
-    </div>
-
-</div>
-
-
-<div
-    id="empty"
-    class="empty"
-    style="display:none">
-
-    <div class="empty-box">
-        No server map records found.
-    </div>
-
-</div>
-
-
-<div id="loading">
-
-    <div class="loading-box">
-
-        <div class="spinner"></div>
+        <div class="brand-logo">
+            O
+        </div>
 
         <div>
-            Loading Obvyris server architecture...
+
+            <div class="brand-name">
+                Obvyris Server Architecture
+            </div>
+
+            <div class="brand-sub">
+                LIVE INFRASTRUCTURE MAP
+            </div>
+
         </div>
 
     </div>
 
-</div>
+
+    <div class="toolbar">
+
+        <button
+            class="tool"
+            onclick="loadMap()">
+
+            ↻ Refresh
+
+        </button>
 
 
-<div id="error">
+        <button
+            class="tool"
+            onclick="centerBranches()">
 
-    <div class="error-title">
-        Server Map API Error
+            ◎ Recenter
+
+        </button>
+
     </div>
+
+</header>
+
+
+<!-- =======================================================
+     MAP
+======================================================== -->
+
+<main id="map">
+
+
+    <!-- CONNECTIONS -->
+
+    <svg
+        id="connections"
+        aria-hidden="true">
+    </svg>
+
+
+    <!-- ZONES -->
+
+    <div class="zone backend">
+        BACKEND ROUTES
+    </div>
+
+
+    <div class="zone external">
+        EXTERNAL API ROUTES
+    </div>
+
+
+    <!-- BACKEND BRANCHES -->
 
     <div
-        id="errorText"
-        class="error-text">
+        id="backendLayer"
+        class="layer">
     </div>
 
-    <br>
 
-    <button
-        class="action"
-        onclick="loadMap()">
-        Try Again
-    </button>
+    <!-- EXTERNAL BRANCHES -->
 
-</div>
-```
+    <div
+        id="externalLayer"
+        class="layer">
+    </div>
 
-</div>
+
+    <!-- ===================================================
+         CENTRAL HUB
+    ==================================================== -->
+
+    <div id="hub">
+
+        <div class="hub-icon">
+            ◉
+        </div>
+
+        <div class="hub-title">
+            OBVYRIS
+        </div>
+
+        <div class="hub-sub">
+            CENTRAL HUB
+        </div>
+
+        <div class="hub-lock">
+            CENTER LOCKED
+        </div>
+
+    </div>
+
+
+    <!-- EMPTY -->
+
+    <div id="empty">
+
+        <div class="empty-box">
+            No server architecture records were returned.
+        </div>
+
+    </div>
+
+
+    <!-- LOADING -->
+
+    <div id="loading">
+
+        <div class="loading-box">
+
+            <div class="spinner"></div>
+
+            <div>
+                Loading Obvyris architecture...
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ERROR -->
+
+    <div id="error">
+
+        <div class="error-title">
+            Unable to Load Server Map
+        </div>
+
+        <div
+            id="errorText"
+            class="error-text">
+        </div>
+
+        <button
+            class="tool"
+            style="margin-top:13px"
+            onclick="loadMap()">
+
+            Try Again
+
+        </button>
+
+    </div>
+
+</main>
+
+
+<!-- INFO -->
 
 <div id="info">
     Connecting to MAP API...
 </div>
 
+
 <script>
 
 
 /* =========================================================
-   YOUR MAP API
+   MAP API
 ========================================================= */
 
 const MAP_API =
@@ -1169,12 +1297,12 @@ const MAP_API =
 
 
 /* =========================================================
-   GLOBAL DATA
+   DATA
 ========================================================= */
 
 let mapRows = [];
 
-let lastGenerated = "";
+let savedPositions = {};
 
 
 /* =========================================================
@@ -1183,31 +1311,9 @@ let lastGenerated = "";
 
 document.addEventListener(
     "DOMContentLoaded",
-    () => {
+    function(){
 
         loadMap();
-
-    }
-);
-
-
-/* =========================================================
-   RESIZE
-========================================================= */
-
-window.addEventListener(
-    "resize",
-    () => {
-
-        clearTimeout(
-            window.resizeTimer
-        );
-
-        window.resizeTimer =
-            setTimeout(
-                drawConnections,
-                150
-            );
 
     }
 );
@@ -1226,24 +1332,14 @@ async function loadMap(){
 
     try{
 
-        /*
-         * Cache-busting parameter.
-         */
-
-        const url =
-            MAP_API +
-            "?t=" +
-            Date.now();
-
-
         const response =
             await fetch(
-                url,
+                MAP_API +
+                "?t=" +
+                Date.now(),
                 {
                     method:"GET",
-
                     cache:"no-store",
-
                     redirect:"follow"
                 }
             );
@@ -1268,7 +1364,6 @@ async function loadMap(){
 
 
         if(
-            !text ||
             !text.trim()
         ){
 
@@ -1285,14 +1380,11 @@ async function loadMap(){
         try{
 
             data =
-                JSON.parse(
-                    text
-                );
+                JSON.parse(text);
 
-        }catch(jsonError){
+        }catch(error){
 
             console.error(
-                "RAW API RESPONSE:",
                 text
             );
 
@@ -1309,71 +1401,44 @@ async function loadMap(){
 
             throw new Error(
                 data.error ||
-                "MAP API reported an error."
+                "The MAP API reported an error."
             );
 
         }
 
 
         if(
-            !Array.isArray(
-                data.rows
-            )
+            !Array.isArray(data.rows)
         ){
 
             throw new Error(
-                "MAP API JSON does not contain a rows array."
+                "The API response does not contain a rows array."
             );
 
         }
 
 
-        /*
-         * Keep ALL data.
-
-         * Status is intentionally preserved here.
-         *
-         * It is available as:
-         *
-         * row["Status"]
-         *
-         * but is never drawn as a card.
-         */
-
         mapRows =
             data.rows;
-
-
-        lastGenerated =
-            data.generated ||
-            "";
 
 
         renderMap();
 
 
         updateInfo(
-            mapRows.length,
-            lastGenerated
+            data
         );
 
 
     }catch(error){
 
         console.error(
-            "OBVYRIS MAP ERROR:",
+            "MAP ERROR:",
             error
         );
 
-
         showError(
             error.message
-        );
-
-
-        updateInfo(
-            0,
-            ""
         );
 
     }finally{
@@ -1386,73 +1451,110 @@ async function loadMap(){
 
 
 /* =========================================================
-   RENDER
+   RENDER MAP
 ========================================================= */
 
 function renderMap(){
 
-    const backend =
+    const backendLayer =
         document.getElementById(
             "backendLayer"
         );
 
-    const external =
+
+    const externalLayer =
         document.getElementById(
             "externalLayer"
         );
 
 
-    backend.innerHTML = "";
-
-    external.innerHTML = "";
-
-
-    document
-        .getElementById("empty")
-        .style.display =
-            mapRows.length
-                ? "none"
-                : "flex";
+    backendLayer.innerHTML =
+        "";
 
 
-    /*
-     * BACKEND DATA
-     */
+    externalLayer.innerHTML =
+        "";
+
+
+    if(
+        !mapRows.length
+    ){
+
+        document.getElementById(
+            "empty"
+        ).style.display =
+            "flex";
+
+        return;
+
+    }
+
+
+    document.getElementById(
+        "empty"
+    ).style.display =
+        "none";
+
 
     const backendRows =
         mapRows.filter(
-            row =>
-                hasValue(
-                    row["Backends Sheet"]
-                ) ||
-                hasValue(
-                    row["Sheet"]
-                ) ||
-                hasValue(
-                    row["Sheet API"]
-                ) ||
-                hasFrontend(
-                    row
-                )
+            function(row){
+
+                return (
+
+                    hasValue(
+                        row["Backends Sheet"]
+                    )
+
+                    ||
+
+                    hasValue(
+                        row["Sheet"]
+                    )
+
+                    ||
+
+                    hasValue(
+                        row["Sheet API"]
+                    )
+
+                    ||
+
+                    hasFrontend(
+                        row
+                    )
+
+                );
+
+            }
         );
 
 
-    /*
-     * EXTERNAL DATA
-     */
-
     const externalRows =
         mapRows.filter(
-            row =>
-                hasValue(
-                    row["EXTERNAL"]
-                ) ||
-                hasValue(
-                    row["EXTERNAL API"]
-                ) ||
-                hasValue(
-                    row["EXTERNAL API 2"]
-                )
+            function(row){
+
+                return (
+
+                    hasValue(
+                        row["EXTERNAL"]
+                    )
+
+                    ||
+
+                    hasValue(
+                        row["EXTERNAL API"]
+                    )
+
+                    ||
+
+                    hasValue(
+                        row["EXTERNAL API 2"]
+                    )
+
+                );
+
+            }
         );
 
 
@@ -1467,11 +1569,9 @@ function renderMap(){
 
 
     requestAnimationFrame(
-        () => {
+        function(){
 
-            requestAnimationFrame(
-                drawConnections
-            );
+            drawConnections();
 
         }
     );
@@ -1480,7 +1580,7 @@ function renderMap(){
 
 
 /* =========================================================
-   PLACE BACKEND
+   BACKEND POSITIONING
 ========================================================= */
 
 function placeBackendBranches(
@@ -1515,32 +1615,19 @@ function placeBackendBranches(
         height / 2;
 
 
-    if(!rows.length){
-        return;
-    }
-
-
-    /*
-     * Spread across the upper
-     * 360-degree-style arc.
-     */
-
     const count =
         rows.length;
 
 
-    const maxWidth =
+    const usableWidth =
         Math.min(
-            width * .90,
-            1450
+            width * .88,
+            1500
         );
 
 
     rows.forEach(
-        (
-            row,
-            index
-        ) => {
+        function(row,index){
 
             const branch =
                 createBackendBranch(
@@ -1552,6 +1639,31 @@ function placeBackendBranches(
             layer.appendChild(
                 branch
             );
+
+
+            const id =
+                "B-" +
+                (
+                    row["ID"] ||
+                    index
+                );
+
+
+            if(
+                savedPositions[id]
+            ){
+
+                branch.style.left =
+                    savedPositions[id].x +
+                    "px";
+
+                branch.style.top =
+                    savedPositions[id].y +
+                    "px";
+
+                return;
+
+            }
 
 
             let x;
@@ -1568,37 +1680,33 @@ function placeBackendBranches(
 
                 x =
                     centerX -
-                    maxWidth / 2 +
-                    (
-                        maxWidth *
-                        index /
-                        (count - 1)
-                    );
+                    usableWidth / 2 +
+
+                    usableWidth *
+                    index /
+                    (count - 1);
 
             }
 
 
-            /*
-             * Multiple vertical levels
-             * create the spiderweb effect.
-             */
-
-            const level =
+            const rowLevel =
                 index % 3;
 
 
             const y =
                 centerY -
-                210 -
-                level * 72;
+                205 -
+                rowLevel * 76;
 
 
             branch.style.left =
-                x + "px";
+                x +
+                "px";
 
 
             branch.style.top =
-                y + "px";
+                y +
+                "px";
 
         }
     );
@@ -1607,7 +1715,7 @@ function placeBackendBranches(
 
 
 /* =========================================================
-   PLACE EXTERNAL
+   EXTERNAL POSITIONING
 ========================================================= */
 
 function placeExternalBranches(
@@ -1642,27 +1750,19 @@ function placeExternalBranches(
         height / 2;
 
 
-    if(!rows.length){
-        return;
-    }
-
-
     const count =
         rows.length;
 
 
-    const maxWidth =
+    const usableWidth =
         Math.min(
-            width * .90,
-            1450
+            width * .88,
+            1500
         );
 
 
     rows.forEach(
-        (
-            row,
-            index
-        ) => {
+        function(row,index){
 
             const branch =
                 createExternalBranch(
@@ -1674,6 +1774,31 @@ function placeExternalBranches(
             layer.appendChild(
                 branch
             );
+
+
+            const id =
+                "E-" +
+                (
+                    row["ID"] ||
+                    index
+                );
+
+
+            if(
+                savedPositions[id]
+            ){
+
+                branch.style.left =
+                    savedPositions[id].x +
+                    "px";
+
+                branch.style.top =
+                    savedPositions[id].y +
+                    "px";
+
+                return;
+
+            }
 
 
             let x;
@@ -1690,32 +1815,33 @@ function placeExternalBranches(
 
                 x =
                     centerX -
-                    maxWidth / 2 +
-                    (
-                        maxWidth *
-                        index /
-                        (count - 1)
-                    );
+                    usableWidth / 2 +
+
+                    usableWidth *
+                    index /
+                    (count - 1);
 
             }
 
 
-            const level =
+            const rowLevel =
                 index % 3;
 
 
             const y =
                 centerY +
-                210 +
-                level * 72;
+                205 +
+                rowLevel * 76;
 
 
             branch.style.left =
-                x + "px";
+                x +
+                "px";
 
 
             branch.style.top =
-                y + "px";
+                y +
+                "px";
 
         }
     );
@@ -1743,6 +1869,14 @@ function createBackendBranch(
 
 
     branch.dataset.rowId =
+        String(
+            row["ID"] ||
+            index
+        );
+
+
+    branch.dataset.positionId =
+        "B-" +
         String(
             row["ID"] ||
             index
@@ -1779,10 +1913,6 @@ function createBackendBranch(
         "chain";
 
 
-    /*
-     * BACKEND
-     */
-
     addIfPresent(
         chain,
         row,
@@ -1791,10 +1921,6 @@ function createBackendBranch(
         "backend"
     );
 
-
-    /*
-     * SHEET
-     */
 
     addIfPresent(
         chain,
@@ -1805,10 +1931,6 @@ function createBackendBranch(
     );
 
 
-    /*
-     * SHEET API
-     */
-
     addIfPresent(
         chain,
         row,
@@ -1818,88 +1940,19 @@ function createBackendBranch(
     );
 
 
-    /*
-     * STATUS IS NOT DRAWN.
-
-     * The value remains in row["Status"].
-     */
-
-
-    /*
-     * FRONTENDS
-     */
-
-    const fields = [
-
-        "MAIN HTML FRONTEND",
-
-        "HTML FRONTEND 2",
-
-        "HTML FRONTEND 3",
-
-        "HTML FRONTEND 4",
-
-        "HTML FRONTEND 5"
-
-    ];
-
-
-    const active =
-        fields.filter(
-            field =>
-                hasValue(
-                    row[field]
-                )
-        );
-
-
-    if(active.length){
-
-        const frontendGroup =
-            document.createElement(
-                "div"
-            );
-
-
-        frontendGroup.className =
-            "frontends";
-
-
-        active.forEach(
-            (
-                field,
-                index
-            ) => {
-
-                const card =
-                    createCard(
-                        "Frontend " +
-                        (
-                            index + 1
-                        ),
-                        row[field],
-                        "frontend",
-                        row
-                    );
-
-
-                frontendGroup.appendChild(
-                    card
-                );
-
-            }
-        );
-
-
-        chain.appendChild(
-            frontendGroup
-        );
-
-    }
+    createFrontendGroup(
+        chain,
+        row
+    );
 
 
     branch.appendChild(
         chain
+    );
+
+
+    enableDragging(
+        branch
     );
 
 
@@ -1928,6 +1981,14 @@ function createExternalBranch(
 
 
     branch.dataset.rowId =
+        String(
+            row["ID"] ||
+            index
+        );
+
+
+    branch.dataset.positionId =
+        "E-" +
         String(
             row["ID"] ||
             index
@@ -1996,13 +2057,97 @@ function createExternalBranch(
     );
 
 
+    enableDragging(
+        branch
+    );
+
+
     return branch;
 
 }
 
 
 /* =========================================================
-   ADD CARD IF PRESENT
+   FRONTEND GROUP
+========================================================= */
+
+function createFrontendGroup(
+    parent,
+    row
+){
+
+    const fields = [
+
+        "MAIN HTML FRONTEND",
+        "HTML FRONTEND 2",
+        "HTML FRONTEND 3",
+        "HTML FRONTEND 4",
+        "HTML FRONTEND 5"
+
+    ];
+
+
+    const active =
+        fields.filter(
+            function(field){
+
+                return hasValue(
+                    row[field]
+                );
+
+            }
+        );
+
+
+    if(
+        !active.length
+    ){
+
+        return;
+
+    }
+
+
+    const group =
+        document.createElement(
+            "div"
+        );
+
+
+    group.className =
+        "frontends";
+
+
+    active.forEach(
+        function(field,index){
+
+            const card =
+                createCard(
+                    "Frontend " +
+                    (index + 1),
+                    row[field],
+                    "frontend",
+                    row
+                );
+
+
+            group.appendChild(
+                card
+            );
+
+        }
+    );
+
+
+    parent.appendChild(
+        group
+    );
+
+}
+
+
+/* =========================================================
+   ADD CARD
 ========================================================= */
 
 function addIfPresent(
@@ -2058,15 +2203,15 @@ function createCard(
         type;
 
 
+    card.dataset.type =
+        type;
+
+
     card.dataset.rowId =
         String(
             row["ID"] ||
             ""
         );
-
-
-    card.dataset.type =
-        type;
 
 
     const titleElement =
@@ -2094,9 +2239,7 @@ function createCard(
 
 
     if(
-        isURL(
-            value
-        )
+        isURL(value)
     ){
 
         const link =
@@ -2117,14 +2260,14 @@ function createCard(
             "noopener noreferrer";
 
 
+        link.title =
+            value;
+
+
         link.textContent =
             shortenURL(
                 value
             );
-
-
-        link.title =
-            value;
 
 
         valueElement.appendChild(
@@ -2134,7 +2277,9 @@ function createCard(
     }else{
 
         valueElement.textContent =
-            value;
+            String(
+                value
+            );
 
     }
 
@@ -2155,6 +2300,334 @@ function createCard(
 
 
 /* =========================================================
+   DRAG SYSTEM
+========================================================= */
+
+let drag = null;
+
+
+function enableDragging(
+    branch
+){
+
+    branch.addEventListener(
+        "pointerdown",
+        function(event){
+
+            /*
+             * Do not drag when clicking
+             * a link.
+             */
+
+            if(
+                event.target.closest("a")
+            ){
+
+                return;
+
+            }
+
+
+            const map =
+                document.getElementById(
+                    "map"
+                );
+
+
+            const mapRect =
+                map.getBoundingClientRect();
+
+
+            const branchRect =
+                branch.getBoundingClientRect();
+
+
+            const currentX =
+                branchRect.left -
+                mapRect.left +
+                branchRect.width / 2;
+
+
+            const currentY =
+                branchRect.top -
+                mapRect.top +
+                branchRect.height / 2;
+
+
+            drag = {
+
+                branch:branch,
+
+                pointerId:
+                    event.pointerId,
+
+                offsetX:
+                    event.clientX -
+                    mapRect.left -
+                    currentX,
+
+                offsetY:
+                    event.clientY -
+                    mapRect.top -
+                    currentY
+
+            };
+
+
+            branch.classList.add(
+                "dragging"
+            );
+
+
+            branch.setPointerCapture(
+                event.pointerId
+            );
+
+
+            event.preventDefault();
+
+        }
+    );
+
+
+    branch.addEventListener(
+        "pointermove",
+        function(event){
+
+            if(
+                !drag ||
+                drag.branch !== branch
+            ){
+
+                return;
+
+            }
+
+
+            const map =
+                document.getElementById(
+                    "map"
+                );
+
+
+            const mapRect =
+                map.getBoundingClientRect();
+
+
+            let x =
+                event.clientX -
+                mapRect.left -
+                drag.offsetX;
+
+
+            let y =
+                event.clientY -
+                mapRect.top -
+                drag.offsetY;
+
+
+            const halfW =
+                branch.offsetWidth /
+                2;
+
+
+            const halfH =
+                branch.offsetHeight /
+                2;
+
+
+            const padding =
+                15;
+
+
+            x =
+                Math.max(
+                    halfW + padding,
+                    Math.min(
+                        map.clientWidth -
+                        halfW -
+                        padding,
+                        x
+                    )
+                );
+
+
+            y =
+                Math.max(
+                    halfH + padding,
+                    Math.min(
+                        map.clientHeight -
+                        halfH -
+                        padding,
+                        y
+                    )
+                );
+
+
+            branch.style.left =
+                x +
+                "px";
+
+
+            branch.style.top =
+                y +
+                "px";
+
+
+            saveBranchPosition(
+                branch
+            );
+
+
+            drawConnections();
+
+        }
+    );
+
+
+    branch.addEventListener(
+        "pointerup",
+        function(){
+
+            finishDrag(
+                branch
+            );
+
+        }
+    );
+
+
+    branch.addEventListener(
+        "pointercancel",
+        function(){
+
+            finishDrag(
+                branch
+            );
+
+        }
+    );
+
+}
+
+
+function finishDrag(
+    branch
+){
+
+    if(
+        drag &&
+        drag.branch === branch
+    ){
+
+        branch.classList.remove(
+            "dragging"
+        );
+
+
+        drag =
+            null;
+
+
+        drawConnections();
+
+    }
+
+}
+
+
+/* =========================================================
+   SAVE LOCAL POSITION
+========================================================= */
+
+function saveBranchPosition(
+    branch
+){
+
+    const id =
+        branch.dataset.positionId;
+
+
+    if(
+        !id
+    ){
+
+        return;
+
+    }
+
+
+    savedPositions[id] = {
+
+        x:
+            parseFloat(
+                branch.style.left
+            ),
+
+        y:
+            parseFloat(
+                branch.style.top
+            )
+
+    };
+
+
+    try{
+
+        localStorage.setItem(
+            "obvyrisServerMapPositions",
+            JSON.stringify(
+                savedPositions
+            )
+        );
+
+    }catch(error){
+
+        console.warn(
+            "Could not save map positions."
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   LOAD SAVED POSITIONS
+========================================================= */
+
+function loadSavedPositions(){
+
+    try{
+
+        const saved =
+            localStorage.getItem(
+                "obvyrisServerMapPositions"
+            );
+
+
+        if(saved){
+
+            savedPositions =
+                JSON.parse(
+                    saved
+                ) || {};
+
+        }
+
+    }catch(error){
+
+        savedPositions = {};
+
+    }
+
+}
+
+
+loadSavedPositions();
+
+
+/* =========================================================
    CONNECTION ENGINE
 ========================================================= */
 
@@ -2166,7 +2639,8 @@ function drawConnections(){
         );
 
 
-    svg.innerHTML = "";
+    svg.innerHTML =
+        "";
 
 
     const map =
@@ -2205,22 +2679,19 @@ function drawConnections(){
 
 
     /*
-     * IMPORTANT:
-     *
-     * We NEVER search for nearest
-     * cards globally.
-     *
-     * Each branch owns its own
-     * connection chain.
-     */
+     * Each branch is processed
+     * independently.
 
+     * No global nearest-card
+     * searching is used.
+     */
 
     document
         .querySelectorAll(
             "#backendLayer .branch"
         )
         .forEach(
-            branch => {
+            function(branch){
 
                 connectBranch(
                     branch,
@@ -2237,7 +2708,7 @@ function drawConnections(){
             "#externalLayer .branch"
         )
         .forEach(
-            branch => {
+            function(branch){
 
                 connectBranch(
                     branch,
@@ -2252,7 +2723,7 @@ function drawConnections(){
 
 
 /* =========================================================
-   CONNECT ONE BRANCH
+   CONNECT BRANCH
 ========================================================= */
 
 function connectBranch(
@@ -2271,6 +2742,10 @@ function connectBranch(
         map.getBoundingClientRect();
 
 
+    /*
+     * Get only this branch's cards.
+     */
+
     const cards =
         Array.from(
             branch.querySelectorAll(
@@ -2288,45 +2763,33 @@ function connectBranch(
     }
 
 
-    /*
-     * The frontend group contains
-     * multiple small cards.
+    const points =
+        cards.map(
+            function(card){
 
-     * Treat them as one endpoint
-     * for the main branch.
-     */
-
-    const endpoints = [];
+                const rect =
+                    card.getBoundingClientRect();
 
 
-    cards.forEach(
-        card => {
+                return {
 
-            const rect =
-                card.getBoundingClientRect();
+                    x:
+                        rect.left -
+                        mapRect.left +
+                        rect.width / 2,
 
+                    y:
+                        rect.top -
+                        mapRect.top +
+                        rect.height / 2,
 
-            endpoints.push({
+                    type:
+                        card.dataset.type
 
-                element:card,
+                };
 
-                x:
-                    rect.left -
-                    mapRect.left +
-                    rect.width / 2,
-
-                y:
-                    rect.top -
-                    mapRect.top +
-                    rect.height / 2,
-
-                type:
-                    card.dataset.type
-
-            });
-
-        }
-    );
+            }
+        );
 
 
     /*
@@ -2335,7 +2798,7 @@ function connectBranch(
 
     drawLine(
         hubPoint,
-        endpoints[0],
+        points[0],
         direction === "north"
             ? "backend"
             : "external"
@@ -2343,90 +2806,23 @@ function connectBranch(
 
 
     /*
-     * Sequential connections.
+     * Card → card
 
-     * These can ONLY connect cards
-     * belonging to this branch.
+     * ONLY within this branch.
      */
 
     for(
         let i = 0;
-        i < endpoints.length - 1;
+        i < points.length - 1;
         i++
     ){
 
-        const a =
-            endpoints[i];
-
-
-        const b =
-            endpoints[i + 1];
-
-
-        let lineType =
-            "sheet";
-
-
-        if(
-            a.type ===
-            "backend"
-        ){
-
-            lineType =
-                "backend";
-
-        }
-        else if(
-            a.type ===
-            "sheet"
-        ){
-
-            lineType =
-                "sheet";
-
-        }
-        else if(
-            a.type ===
-            "sheet-api"
-        ){
-
-            lineType =
-                "sheet-api";
-
-        }
-        else if(
-            a.type ===
-            "frontend"
-        ){
-
-            lineType =
-                "frontend";
-
-        }
-        else if(
-            a.type ===
-            "external"
-        ){
-
-            lineType =
-                "external";
-
-        }
-        else if(
-            a.type ===
-            "external-api"
-        ){
-
-            lineType =
-                "external-api";
-
-        }
-
-
         drawLine(
-            a,
-            b,
-            lineType
+            points[i],
+            points[i + 1],
+            getLineType(
+                points[i].type
+            )
         );
 
     }
@@ -2435,7 +2831,43 @@ function connectBranch(
 
 
 /* =========================================================
-   DRAW CURVE
+   LINE TYPE
+========================================================= */
+
+function getLineType(
+    type
+){
+
+    switch(type){
+
+        case "backend":
+            return "backend";
+
+        case "sheet":
+            return "sheet";
+
+        case "sheet-api":
+            return "sheet-api";
+
+        case "frontend":
+            return "frontend";
+
+        case "external":
+            return "external";
+
+        case "external-api":
+            return "external-api";
+
+        default:
+            return "sheet";
+
+    }
+
+}
+
+
+/* =========================================================
+   DRAW CURVED LINE
 ========================================================= */
 
 function drawLine(
@@ -2462,12 +2894,16 @@ function drawLine(
         a.y;
 
 
+    const distance =
+        Math.abs(dy);
+
+
     const bend =
         Math.max(
             35,
             Math.min(
-                150,
-                Math.abs(dy) * .45
+                160,
+                distance * .42
             )
         );
 
@@ -2481,16 +2917,16 @@ function drawLine(
 
         d =
             `M ${a.x} ${a.y}
-             C ${a.x} ${a.y-bend},
-               ${b.x} ${b.y+bend},
+             C ${a.x} ${a.y - bend},
+               ${b.x} ${b.y + bend},
                ${b.x} ${b.y}`;
 
     }else{
 
         d =
             `M ${a.x} ${a.y}
-             C ${a.x} ${a.y+bend},
-               ${b.x} ${b.y-bend},
+             C ${a.x} ${a.y + bend},
+               ${b.x} ${b.y - bend},
                ${b.x} ${b.y}`;
 
     }
@@ -2557,20 +2993,19 @@ function hasFrontend(
     return [
 
         "MAIN HTML FRONTEND",
-
         "HTML FRONTEND 2",
-
         "HTML FRONTEND 3",
-
         "HTML FRONTEND 4",
-
         "HTML FRONTEND 5"
 
     ].some(
-        field =>
-            hasValue(
+        function(field){
+
+            return hasValue(
                 row[field]
-            )
+            );
+
+        }
     );
 
 }
@@ -2581,9 +3016,7 @@ function isURL(
 ){
 
     return /^https?:\/\//i.test(
-        String(
-            value
-        )
+        String(value)
     );
 
 }
@@ -2601,34 +3034,115 @@ function shortenURL(
             );
 
 
-        let path =
+        let result =
+            url.hostname +
             url.pathname;
 
 
         if(
-            path.length > 38
+            result.length > 42
         ){
 
-            path =
-                path.slice(
+            result =
+                result.substring(
                     0,
-                    35
+                    39
                 ) +
                 "...";
 
         }
 
 
-        return (
-            url.hostname +
-            path
+        return result;
+
+    }catch(error){
+
+        return String(
+            value
         );
 
-    }catch{
+    }
 
-        return value;
+}
+
+
+/* =========================================================
+   CENTER BRANCHES
+========================================================= */
+
+function centerBranches(){
+
+    savedPositions = {};
+
+    try{
+
+        localStorage.removeItem(
+            "obvyrisServerMapPositions"
+        );
+
+    }catch(error){}
+
+
+    renderMap();
+
+}
+
+
+/* =========================================================
+   INFO
+========================================================= */
+
+function updateInfo(
+    data
+){
+
+    const info =
+        document.getElementById(
+            "info"
+        );
+
+
+    const count =
+        Array.isArray(
+            data.rows
+        )
+            ? data.rows.length
+            : 0;
+
+
+    let generated =
+        "";
+
+
+    if(
+        data.generated
+    ){
+
+        const date =
+            new Date(
+                data.generated
+            );
+
+
+        if(
+            !Number.isNaN(
+                date.getTime()
+            )
+        ){
+
+            generated =
+                " • " +
+                date.toLocaleTimeString();
+
+        }
 
     }
+
+
+    info.textContent =
+        count +
+        " architecture records" +
+        generated;
 
 }
 
@@ -2639,24 +3153,20 @@ function shortenURL(
 
 function showLoading(){
 
-    document
-        .getElementById(
-            "loading"
-        )
-        .style.display =
-            "flex";
+    document.getElementById(
+        "loading"
+    ).style.display =
+        "flex";
 
 }
 
 
 function hideLoading(){
 
-    document
-        .getElementById(
-            "loading"
-        )
-        .style.display =
-            "none";
+    document.getElementById(
+        "loading"
+    ).style.display =
+        "none";
 
 }
 
@@ -2669,19 +3179,15 @@ function showError(
     message
 ){
 
-    const error =
-        document.getElementById(
-            "error"
-        );
-
-
     document.getElementById(
         "errorText"
     ).textContent =
         message;
 
 
-    error.style.display =
+    document.getElementById(
+        "error"
+    ).style.display =
         "block";
 
 }
@@ -2689,114 +3195,47 @@ function showError(
 
 function hideError(){
 
-    document
-        .getElementById(
-            "error"
-        )
-        .style.display =
-            "none";
+    document.getElementById(
+        "error"
+    ).style.display =
+        "none";
 
 }
 
 
 /* =========================================================
-   INFO
+   REDRAW
 ========================================================= */
 
-function updateInfo(
-    count,
-    generated
-){
+window.addEventListener(
+    "resize",
+    function(){
 
-    const info =
-        document.getElementById(
-            "info"
+        clearTimeout(
+            window.__mapResizeTimer
         );
 
 
-    if(!count){
-
-        info.textContent =
-            "No MAP records";
-
-        return;
-
-    }
-
-
-    let time =
-        "";
-
-
-    if(generated){
-
-        const date =
-            new Date(
-                generated
+        window.__mapResizeTimer =
+            setTimeout(
+                drawConnections,
+                100
             );
 
-
-        if(
-            !Number.isNaN(
-                date.getTime()
-            )
-        ){
-
-            time =
-                " • " +
-                date.toLocaleTimeString();
-
-        }
-
     }
+);
 
-
-    info.textContent =
-        count +
-        " map records" +
-        time;
-
-}
-
-
-/* =========================================================
-   CENTER
-========================================================= */
-
-function resetView(){
-
-    /*
-     * The hub is already fixed at
-     * the visual center.
-
-     * This redraw simply guarantees
-     * the lines are positioned correctly.
-     */
-
-    drawConnections();
-
-}
-
-
-/* =========================================================
-   INITIAL REDRAW
-========================================================= */
 
 setTimeout(
     drawConnections,
     300
 );
 
+
 setTimeout(
     drawConnections,
     1000
 );
-
-setTimeout(
-    drawConnections,
-    2000
-);
-
 
 </script>
 
