@@ -8,7 +8,7 @@
 
 <meta
 name="viewport"
-content="width=device-width,initial-scale=1"
+content="width=device-width, initial-scale=1.0"
 
 >
 
@@ -20,21 +20,19 @@ content="width=device-width,initial-scale=1"
 
   --bg:#03070d;
   --panel:#08121d;
-  --panel2:#0b1724;
-
-  --line:#28445d;
+  --panel2:#0d1a27;
+  --line:#29445c;
 
   --text:#edf6ff;
-  --muted:#6f859b;
+  --muted:#71879b;
 
-  --backend:#22c55e;
-  --sheet:#f59e0b;
-  --api:#2793ff;
-  --status:#a78bfa;
-  --frontend:#22d3ee;
-  --external:#f472b6;
-
-  --hub:#2793ff;
+  --green:#22c55e;
+  --orange:#f59e0b;
+  --blue:#2793ff;
+  --purple:#a78bfa;
+  --cyan:#22d3ee;
+  --pink:#f472b6;
+  --red:#ef4444;
 
 }
 
@@ -45,11 +43,11 @@ content="width=device-width,initial-scale=1"
 html,
 body{
 
-  margin:0;
-  padding:0;
-
   width:100%;
   height:100%;
+
+  margin:0;
+  padding:0;
 
   overflow:hidden;
 
@@ -73,9 +71,9 @@ body{
 
   position:fixed;
 
+  top:0;
   left:0;
   right:0;
-  top:0;
 
   height:58px;
 
@@ -87,16 +85,15 @@ body{
 
   justify-content:space-between;
 
-  gap:12px;
+  padding:0 14px;
 
-  padding:
-    0 14px;
+  gap:10px;
 
   background:
-    rgba(3,8,14,.96);
+    rgba(3,8,14,.97);
 
   border-bottom:
-    1px solid #1b3044;
+    1px solid #1d3347;
 
   backdrop-filter:
     blur(10px);
@@ -112,7 +109,7 @@ body{
 
   gap:8px;
 
-  white-space:nowrap;
+  min-width:0;
 
 }
 
@@ -130,6 +127,8 @@ body{
 
   font-weight:900;
 
+  white-space:nowrap;
+
   letter-spacing:.5px;
 
 }
@@ -137,11 +136,11 @@ body{
 
 .brand-sub{
 
-  color:#5f778e;
+  color:#637b90;
 
   font-size:8px;
 
-  margin-left:4px;
+  white-space:nowrap;
 
 }
 
@@ -159,17 +158,18 @@ body{
 
 input{
 
-  width:180px;
+  width:190px;
 
-  padding:
-    8px 10px;
+  height:30px;
+
+  padding:0 10px;
+
+  outline:none;
 
   border:
     1px solid #29445c;
 
   border-radius:6px;
-
-  outline:none;
 
   background:#07121d;
 
@@ -182,21 +182,22 @@ input{
 
 button{
 
-  padding:
-    7px 10px;
+  height:30px;
+
+  padding:0 10px;
 
   border:
     1px solid #29445c;
 
   border-radius:6px;
 
-  background:#0a1826;
+  background:#091827;
 
-  color:#a8c8e4;
+  color:#a9c8df;
 
   font-size:9px;
 
-  font-weight:bold;
+  font-weight:800;
 
   cursor:pointer;
 
@@ -205,9 +206,9 @@ button{
 
 button:hover{
 
-  background:#11283c;
+  background:#11283b;
 
-  border-color:#39709a;
+  border-color:#47769b;
 
 }
 
@@ -233,8 +234,8 @@ button:hover{
 
     radial-gradient(
       circle at center,
-      rgba(39,147,255,.055),
-      transparent 48%
+      rgba(39,147,255,.08),
+      transparent 42%
     );
 
 }
@@ -247,10 +248,6 @@ button:hover{
 }
 
 
-/* =========================================================
-   WORLD
-========================================================= */
-
 #world{
 
   position:absolute;
@@ -258,8 +255,8 @@ button:hover{
   width:7000px;
   height:7000px;
 
-  left:-3500px;
-  top:-3500px;
+  left:0;
+  top:0;
 
   transform-origin:
     3500px 3500px;
@@ -281,18 +278,18 @@ button:hover{
   width:7000px;
   height:7000px;
 
-  opacity:.17;
+  opacity:.15;
 
   background-image:
 
     linear-gradient(
-      #173249 1px,
+      #17334b 1px,
       transparent 1px
     ),
 
     linear-gradient(
       90deg,
-      #173249 1px,
+      #17334b 1px,
       transparent 1px
     );
 
@@ -303,7 +300,7 @@ button:hover{
 
 
 /* =========================================================
-   CONNECTION SVG
+   SVG CONNECTIONS
 ========================================================= */
 
 #connections{
@@ -322,35 +319,32 @@ button:hover{
 
 
 /* =========================================================
-   FLOW LINES
+   CONNECTION STYLES
 ========================================================= */
 
 .flow-line{
 
   fill:none;
 
-  stroke:
-    #28465f;
+  stroke:#29455d;
 
-  stroke-width:1.4;
+  stroke-width:1.5;
 
-  opacity:.65;
+  opacity:.7;
 
 }
 
 
 .flow-line.main{
 
-  stroke:
-    #397395;
+  stroke:#3d6685;
 
 }
 
 
 .flow-line.frontend{
 
-  stroke:
-    var(--frontend);
+  stroke:var(--cyan);
 
   stroke-width:1.7;
 
@@ -359,25 +353,47 @@ button:hover{
 
 .flow-line.external{
 
-  stroke:
-    var(--external);
+  stroke:var(--pink);
 
-  stroke-width:1.5;
+  stroke-width:1.6;
 
-  stroke-dasharray:
-    5 4;
+  stroke-dasharray:5 4;
 
 }
 
 
-.flow-line.highlight{
+.flow-line.shared{
 
-  stroke:
-    white;
+  stroke:#ffffff;
 
-  stroke-width:2.5;
+  stroke-width:2;
 
-  opacity:1;
+  opacity:.9;
+
+}
+
+
+/* =========================================================
+   ARROWS
+========================================================= */
+
+.arrow{
+
+  fill:#55738b;
+
+}
+
+
+.arrow.frontend{
+
+  fill:var(--cyan);
+
+}
+
+
+.arrow.external{
+
+  fill:var(--pink);
 
 }
 
@@ -394,10 +410,9 @@ button:hover{
   top:3410px;
 
   width:180px;
+  min-height:82px;
 
-  min-height:80px;
-
-  padding:13px;
+  z-index:300;
 
   display:flex;
 
@@ -407,37 +422,37 @@ button:hover{
 
   justify-content:center;
 
-  text-align:center;
+  padding:12px;
 
-  z-index:200;
+  text-align:center;
 
   background:
     radial-gradient(
       circle,
-      #123b61,
-      #071521
+      #123c62,
+      #07131e
     );
 
   border:
-    2px solid var(--hub);
+    2px solid var(--blue);
 
   border-radius:14px;
 
   box-shadow:
-    0 0 45px
-    rgba(39,147,255,.18);
+    0 0 50px
+    rgba(39,147,255,.22);
 
 }
 
 
 .hub-icon{
 
-  font-size:25px;
+  font-size:24px;
 
 }
 
 
-.hub-name{
+.hub-title{
 
   margin-top:3px;
 
@@ -450,9 +465,9 @@ button:hover{
 
 .hub-file{
 
-  margin-top:3px;
+  margin-top:4px;
 
-  color:#75baf1;
+  color:#6db8ef;
 
   font-size:8px;
 
@@ -460,42 +475,20 @@ button:hover{
 
 
 /* =========================================================
-   ROW WORKFLOW
+   WORKFLOW ROW
 ========================================================= */
 
 .workflow-row{
 
   position:absolute;
 
+  left:2450px;
+
   width:2050px;
 
-  min-height:90px;
+  height:90px;
 
 }
-
-
-/*
-  The workflow is deliberately horizontal:
-
-  Backend
-      ↓
-  Sheet
-      ↓
-  Sheet API
-      ↓
-  Status
-      ↓
-  Frontend = Frontend 2 = ...
-      ↓
-  External
-      ↓
-  External API
-      ↓
-  External API 2
-
-  On screen the frontend group
-  occupies one horizontal section.
-*/
 
 
 /* =========================================================
@@ -508,82 +501,76 @@ button:hover{
 
   width:145px;
 
-  min-height:58px;
+  min-height:60px;
 
-  padding:
-    7px 8px;
+  padding:7px 8px;
 
   background:
     linear-gradient(
       145deg,
-      #0c1a28,
+      #0d1b29,
       #07111b
     );
 
   border:
-    1px solid #274159;
+    1px solid #29445c;
 
   border-radius:7px;
 
   box-shadow:
     0 5px 16px
-    rgba(0,0,0,.35);
+    rgba(0,0,0,.38);
 
   cursor:pointer;
 
-  user-select:none;
-
   transition:
-    opacity .15s,
-    border-color .15s,
-    box-shadow .15s;
+    .15s;
+
+  z-index:20;
 
 }
 
 
 .node:hover{
 
-  border-color:
-    white;
+  border-color:white;
 
   box-shadow:
-    0 0 18px
-    rgba(255,255,255,.1);
+    0 0 20px
+    rgba(255,255,255,.14);
 
-  z-index:100;
+  transform:
+    translateY(-2px);
 
 }
 
 
 .node.selected{
 
-  border-color:
-    white;
+  border-color:white;
 
   box-shadow:
-    0 0 22px
-    rgba(255,255,255,.2);
-
-  z-index:100;
+    0 0 25px
+    rgba(255,255,255,.25);
 
 }
 
 
 .node.dim{
 
-  opacity:.12;
+  opacity:.08;
 
 }
 
 
 /* =========================================================
-   NODE TYPE COLORS
+   NODE TYPES
 ========================================================= */
 
 .node.backend{
 
   border-top:
-    3px solid var(--backend);
+    3px solid var(--green);
 
 }
 
@@ -591,7 +578,7 @@ button:hover{
 .node.sheet{
 
   border-top:
-    3px solid var(--sheet);
+    3px solid var(--orange);
 
 }
 
@@ -599,7 +586,7 @@ button:hover{
 .node.api{
 
   border-top:
-    3px solid var(--api);
+    3px solid var(--blue);
 
 }
 
@@ -607,7 +594,7 @@ button:hover{
 .node.status{
 
   border-top:
-    3px solid var(--status);
+    3px solid var(--purple);
 
 }
 
@@ -615,7 +602,7 @@ button:hover{
 .node.frontend{
 
   border-top:
-    3px solid var(--frontend);
+    3px solid var(--cyan);
 
 }
 
@@ -623,7 +610,7 @@ button:hover{
 .node.external{
 
   border-top:
-    3px solid var(--external);
+    3px solid var(--pink);
 
 }
 
@@ -658,7 +645,7 @@ button:hover{
 
   margin-top:5px;
 
-  color:#9ab0c4;
+  color:#9eb3c6;
 
   font-size:8px;
 
@@ -673,65 +660,14 @@ button:hover{
 
   margin-top:6px;
 
-  color:#536c83;
+  color:#5a7288;
 
-  font-size:6.5px;
+  font-size:6px;
 
   text-transform:uppercase;
 
   letter-spacing:.5px;
 
-}
-
-
-/* =========================================================
-   FRONTEND CHAIN
-========================================================= */
-
-.frontend-chain{
-
-  position:absolute;
-
-  left:580px;
-
-  top:0;
-
-  width:800px;
-
-  height:80px;
-
-}
-
-
-.frontend-node{
-
-  top:0;
-
-}
-
-
-/*
-  Five frontend positions
-*/
-
-.frontend-1{
-  left:0;
-}
-
-.frontend-2{
-  left:160px;
-}
-
-.frontend-3{
-  left:320px;
-}
-
-.frontend-4{
-  left:480px;
-}
-
-.frontend-5{
-  left:640px;
 }
 
 
@@ -746,19 +682,19 @@ button:hover{
   top:70px;
   right:12px;
 
-  width:290px;
+  width:310px;
 
   max-height:
-    calc(100vh - 85px);
+    calc(100vh - 90px);
 
   overflow:auto;
 
+  z-index:900;
+
   display:none;
 
-  z-index:800;
-
   background:
-    rgba(5,12,20,.97);
+    rgba(4,11,18,.98);
 
   border:
     1px solid #29445c;
@@ -766,8 +702,8 @@ button:hover{
   border-radius:9px;
 
   box-shadow:
-    0 15px 45px
-    rgba(0,0,0,.55);
+    0 20px 50px
+    rgba(0,0,0,.6);
 
 }
 
@@ -778,12 +714,12 @@ button:hover{
 
   justify-content:space-between;
 
-  gap:10px;
+  align-items:center;
 
-  padding:12px;
+  padding:11px 12px;
 
   border-bottom:
-    1px solid #203449;
+    1px solid #1c3245;
 
 }
 
@@ -806,18 +742,17 @@ button:hover{
 
 .info-row{
 
-  padding:
-    8px 0;
+  padding:8px 0;
 
   border-bottom:
-    1px solid #172a3d;
+    1px solid #172a3b;
 
 }
 
 
 .info-label{
 
-  color:#5f778e;
+  color:#5e758a;
 
   font-size:7px;
 
@@ -830,11 +765,11 @@ button:hover{
 
   margin-top:3px;
 
-  color:#bfd0df;
+  color:#c4d4e1;
 
   font-size:9px;
 
-  line-height:1.35;
+  line-height:1.4;
 
   word-break:break-all;
 
@@ -847,11 +782,18 @@ button:hover{
 
   margin-top:10px;
 
-  color:#70bcff;
+  color:#6ebcff;
+
+  font-size:9px;
 
   text-decoration:none;
 
-  font-size:9px;
+}
+
+
+.info-link:hover{
+
+  text-decoration:underline;
 
 }
 
@@ -869,13 +811,13 @@ button:hover{
 
   z-index:500;
 
-  padding:9px 10px;
+  padding:9px 11px;
 
   background:
-    rgba(5,12,20,.92);
+    rgba(4,11,18,.94);
 
   border:
-    1px solid #203449;
+    1px solid #20364a;
 
   border-radius:7px;
 
@@ -888,11 +830,9 @@ button:hover{
 
   margin-bottom:7px;
 
-  color:#8197ab;
+  color:#7d94a8;
 
-  font-weight:bold;
-
-  text-transform:uppercase;
+  font-weight:900;
 
 }
 
@@ -920,33 +860,33 @@ button:hover{
 }
 
 
-.legend-backend{
-  background:var(--backend);
+.green{
+  background:var(--green);
 }
 
-.legend-sheet{
-  background:var(--sheet);
+.orange{
+  background:var(--orange);
 }
 
-.legend-api{
-  background:var(--api);
+.blue{
+  background:var(--blue);
 }
 
-.legend-status{
-  background:var(--status);
+.purple{
+  background:var(--purple);
 }
 
-.legend-frontend{
-  background:var(--frontend);
+.cyan{
+  background:var(--cyan);
 }
 
-.legend-external{
-  background:var(--external);
+.pink{
+  background:var(--pink);
 }
 
 
 /* =========================================================
-   STATUS BAR
+   STATUS
 ========================================================= */
 
 #statusbar{
@@ -958,18 +898,17 @@ button:hover{
 
   z-index:500;
 
-  padding:
-    7px 9px;
+  padding:7px 10px;
 
   background:
-    rgba(5,12,20,.92);
+    rgba(4,11,18,.94);
 
   border:
-    1px solid #203449;
+    1px solid #20364a;
 
   border-radius:6px;
 
-  color:#6e859b;
+  color:#6f879c;
 
   font-size:8px;
 
@@ -996,7 +935,7 @@ button:hover{
 
   background:#03070d;
 
-  color:#7690a8;
+  color:#7791a7;
 
   font-size:11px;
 
@@ -1015,7 +954,13 @@ button:hover{
 
   }
 
-  .search{
+  .brand-name{
+
+    font-size:11px;
+
+  }
+
+  input{
 
     width:120px;
 
@@ -1024,6 +969,13 @@ button:hover{
   .controls button{
 
     display:none;
+
+  }
+
+  #info{
+
+    width:
+      calc(100vw - 24px);
 
   }
 
@@ -1036,7 +988,7 @@ button:hover{
 <body>
 
 <!-- =======================================================
-     TOP BAR
+     HEADER
 ======================================================= -->
 
 <div class="topbar">
@@ -1066,26 +1018,25 @@ button:hover{
   id="search"
   type="text"
   placeholder="Search MAP..."
-  oninput="searchMap(this.value)"
 >
 
 
-<button onclick="loadMap()">
+<button id="refreshBtn">
   ↻ REFRESH
 </button>
 
 
-<button onclick="centerMap()">
+<button id="centerBtn">
   CENTER
 </button>
 
 
-<button onclick="zoomIn()">
+<button id="zoomInBtn">
   +
 </button>
 
 
-<button onclick="zoomOut()">
+<button id="zoomOutBtn">
   −
 </button>
 ```
@@ -1105,6 +1056,7 @@ button:hover{
 ```
 <div id="grid"></div>
 
+
 <svg
   id="connections"
   viewBox="0 0 7000 7000"
@@ -1112,15 +1064,13 @@ button:hover{
 ></svg>
 
 
-<!-- HUB -->
-
 <div class="hub">
 
   <div class="hub-icon">
     🛰️
   </div>
 
-  <div class="hub-name">
+  <div class="hub-title">
     OBVYRIS HUB
   </div>
 
@@ -1131,48 +1081,6 @@ button:hover{
 </div>
 ```
 
-  </div>
-
-</div>
-
-<!-- =======================================================
-     LEGEND
-======================================================= -->
-
-<div class="legend">
-
-  <div class="legend-title">
-    MAP FLOW
-  </div>
-
-  <div class="legend-row">
-    <span class="legend-dot legend-backend"></span>
-    Backend
-  </div>
-
-  <div class="legend-row">
-    <span class="legend-dot legend-sheet"></span>
-    Sheet
-  </div>
-
-  <div class="legend-row">
-    <span class="legend-dot legend-api"></span>
-    API
-  </div>
-
-  <div class="legend-row">
-    <span class="legend-dot legend-status"></span>
-    Status
-  </div>
-
-  <div class="legend-row">
-    <span class="legend-dot legend-frontend"></span>
-    Frontend
-  </div>
-
-  <div class="legend-row">
-    <span class="legend-dot legend-external"></span>
-    External
   </div>
 
 </div>
@@ -1193,9 +1101,7 @@ button:hover{
   MAP NODE
 </div>
 
-<button
-  onclick="closeInfo()"
->
+<button id="closeInfo">
   ×
 </button>
 ```
@@ -1209,15 +1115,65 @@ button:hover{
 
 </div>
 
+<!-- =======================================================
+     LEGEND
+======================================================= -->
+
+<div class="legend">
+
+  <div class="legend-title">
+    SERVER FLOW
+  </div>
+
+  <div class="legend-row">
+    <span class="legend-dot green"></span>
+    Backend
+  </div>
+
+  <div class="legend-row">
+    <span class="legend-dot orange"></span>
+    Sheet
+  </div>
+
+  <div class="legend-row">
+    <span class="legend-dot blue"></span>
+    API
+  </div>
+
+  <div class="legend-row">
+    <span class="legend-dot purple"></span>
+    Status
+  </div>
+
+  <div class="legend-row">
+    <span class="legend-dot cyan"></span>
+    Frontend
+  </div>
+
+  <div class="legend-row">
+    <span class="legend-dot pink"></span>
+    External
+  </div>
+
+</div>
+
 <div id="statusbar">
-  Loading...
+  Connecting to MAP API...
 </div>
 
 <div id="loading">
-  🛰️ Building Obvyris Server Map...
+  🛰️ Loading Obvyris Server Map...
 </div>
 
 <script>
+
+
+/* =========================================================
+   MAP API
+========================================================= */
+
+const MAP_API =
+  "https://script.google.com/macros/s/AKfycbxmet73uElazLhNTF6K9Ziizu4hbgq7VWbXJ8nKjSeXkn-tN4CyoBDjSdeK69A_J5XG/exec";
 
 
 /* =========================================================
@@ -1227,8 +1183,6 @@ button:hover{
 let rows = [];
 
 let allNodes = [];
-
-let nodeLookup = {};
 
 let scale = 1;
 
@@ -1248,14 +1202,89 @@ let startPanY = 0;
 
 
 /* =========================================================
-   WORLD
+   FLOW
 ========================================================= */
 
-const world =
-  document.getElementById(
-    "world"
-  );
+const FLOW = [
 
+  {
+    column:"Backends Sheet",
+    type:"backend",
+    icon:"🗄️"
+  },
+
+  {
+    column:"Sheet",
+    type:"sheet",
+    icon:"📊"
+  },
+
+  {
+    column:"Sheet API",
+    type:"api",
+    icon:"🔌"
+  },
+
+  {
+    column:"Status",
+    type:"status",
+    icon:"●"
+  },
+
+  {
+    column:"MAIN HTML FRONTEND",
+    type:"frontend",
+    icon:"🖥️"
+  },
+
+  {
+    column:"HTML FRONTEND 2",
+    type:"frontend",
+    icon:"🖥️"
+  },
+
+  {
+    column:"HTML FRONTEND 3",
+    type:"frontend",
+    icon:"🖥️"
+  },
+
+  {
+    column:"HTML FRONTEND 4",
+    type:"frontend",
+    icon:"🖥️"
+  },
+
+  {
+    column:"HTML FRONTEND 5",
+    type:"frontend",
+    icon:"🖥️"
+  },
+
+  {
+    column:"EXTERNAL",
+    type:"external",
+    icon:"🌐"
+  },
+
+  {
+    column:"EXTERNAL API",
+    type:"api",
+    icon:"🔗"
+  },
+
+  {
+    column:"EXTERNAL API 2",
+    type:"api",
+    icon:"🔗"
+  }
+
+];
+
+
+/* =========================================================
+   ELEMENTS
+========================================================= */
 
 const map =
   document.getElementById(
@@ -1263,228 +1292,135 @@ const map =
   );
 
 
-/* =========================================================
-   EXACT MAP FLOW
-========================================================= */
+const world =
+  document.getElementById(
+    "world"
+  );
 
-const FLOW = [
 
-  {
-    column:
-      "Backends Sheet",
-
-    type:
-      "backend",
-
-    icon:
-      "🗄️"
-
-  },
-
-  {
-    column:
-      "Sheet",
-
-    type:
-      "sheet",
-
-    icon:
-      "📊"
-
-  },
-
-  {
-    column:
-      "Sheet API",
-
-    type:
-      "api",
-
-    icon:
-      "🔌"
-
-  },
-
-  {
-    column:
-      "Status",
-
-    type:
-      "status",
-
-    icon:
-      "●"
-
-  },
-
-  {
-    column:
-      "MAIN HTML FRONTEND",
-
-    type:
-      "frontend",
-
-    icon:
-      "🖥️"
-
-  },
-
-  {
-    column:
-      "HTML FRONTEND 2",
-
-    type:
-      "frontend",
-
-    icon:
-      "🖥️"
-
-  },
-
-  {
-    column:
-      "HTML FRONTEND 3",
-
-    type:
-      "frontend",
-
-    icon:
-      "🖥️"
-
-  },
-
-  {
-    column:
-      "HTML FRONTEND 4",
-
-    type:
-      "frontend",
-
-    icon:
-      "🖥️"
-
-  },
-
-  {
-    column:
-      "HTML FRONTEND 5",
-
-    type:
-      "frontend",
-
-    icon:
-      "🖥️"
-
-  },
-
-  {
-    column:
-      "EXTERNAL",
-
-    type:
-      "external",
-
-    icon:
-      "🌐"
-
-  },
-
-  {
-    column:
-      "EXTERNAL API",
-
-    type:
-      "api",
-
-    icon:
-      "🔗"
-
-  },
-
-  {
-    column:
-      "EXTERNAL API 2",
-
-    type:
-      "api",
-
-    icon:
-      "🔗"
-
-  }
-
-];
+const svg =
+  document.getElementById(
+    "connections"
+  );
 
 
 /* =========================================================
-   LOAD DATA
+   LOAD MAP
 ========================================================= */
 
 function loadMap(){
 
   setStatus(
-    "Loading MAP..."
+    "Loading MAP API..."
   );
 
 
-  google.script.run
+  fetch(
+    MAP_API,
+    {
+      method:"GET",
+      cache:"no-store"
+    }
+  )
 
-    .withSuccessHandler(
-      buildMap
-    )
+  .then(
+    function(response){
 
-    .withFailureHandler(
-      function(error){
+      if(
+        !response.ok
+      ){
 
-        setStatus(
-          "MAP ERROR"
-        );
-
-        document.getElementById(
-          "loading"
-        ).style.display =
-          "none";
-
-
-        alert(
-          error.message ||
-          error
+        throw new Error(
+          "HTTP " +
+          response.status
         );
 
       }
-    )
 
-    .getMapData();
+
+      return response.json();
+
+    }
+  )
+
+  .then(
+    function(data){
+
+      if(
+        !data ||
+        data.success !== true
+      ){
+
+        throw new Error(
+          "Invalid MAP API response"
+        );
+
+      }
+
+
+      buildMap(
+        data
+      );
+
+    }
+  )
+
+  .catch(
+    function(error){
+
+      console.error(
+        "MAP API ERROR:",
+        error
+      );
+
+
+      document.getElementById(
+        "loading"
+      ).style.display =
+        "none";
+
+
+      setStatus(
+        "MAP API ERROR"
+      );
+
+
+      document.getElementById(
+        "statusbar"
+      ).style.color =
+        "#ef4444";
+
+
+      /*
+        Don't use alert.
+        Show the error in the
+        map instead.
+      */
+
+      showMapError(
+        error.message
+      );
+
+    }
+  );
 
 }
 
 
 /* =========================================================
-   BUILD
+   BUILD MAP
 ========================================================= */
 
-function buildMap(data){
-
-  if(
-    !data ||
-    !data.success
-  ){
-
-    setStatus(
-      "MAP DATA ERROR"
-    );
-
-    return;
-
-  }
-
+function buildMap(
+  data
+){
 
   rows =
     data.rows || [];
 
 
   /*
-    Clear old workflow rows.
+    Remove previous rows.
   */
 
   document
@@ -1492,34 +1428,27 @@ function buildMap(data){
       ".workflow-row"
     )
     .forEach(
-      function(row){
+      function(element){
 
-        row.remove();
+        element.remove();
 
       }
     );
 
 
-  /*
-    Clear lookup.
-  */
-
   allNodes = [];
 
-  nodeLookup = {};
-
 
   /*
-    Build one workflow
-    for every MAP row.
+    Build every MAP row.
   */
 
   rows.forEach(
-    function(row,rowIndex){
+    function(row,index){
 
-      buildWorkflowRow(
+      buildRow(
         row,
-        rowIndex
+        index
       );
 
     }
@@ -1527,25 +1456,32 @@ function buildMap(data){
 
 
   /*
-    Draw connections after
-    every node exists.
+    Draw all connections.
   */
 
   drawConnections();
 
 
   /*
-    Center on HUB.
+    Hide loading.
   */
-
-  centerMap();
-
 
   document.getElementById(
     "loading"
   ).style.display =
     "none";
 
+
+  /*
+    Center.
+  */
+
+  centerMap();
+
+
+  /*
+    Status.
+  */
 
   setStatus(
     rows.length +
@@ -1558,10 +1494,10 @@ function buildMap(data){
 
 
 /* =========================================================
-   BUILD ONE ROW
+   BUILD ROW
 ========================================================= */
 
-function buildWorkflowRow(
+function buildRow(
   row,
   rowIndex
 ){
@@ -1577,32 +1513,30 @@ function buildWorkflowRow(
 
 
   /*
-    Spread rows vertically
-    around the HUB.
+    Vertical spacing.
+
+    Rows surround the HUB.
   */
 
-  const rowSpacing = 145;
+  const spacing = 135;
 
-  const centerY = 3500;
+  const center =
+    3500;
 
-  const totalHeight =
+  const total =
     rows.length *
-    rowSpacing;
+    spacing;
 
 
-  const firstY =
-    centerY -
-    totalHeight / 2;
+  const first =
+    center -
+    total / 2;
 
 
   const y =
-    firstY +
+    first +
     rowIndex *
-    rowSpacing;
-
-
-  workflow.style.left =
-    "2450px";
+    spacing;
 
 
   workflow.style.top =
@@ -1614,8 +1548,8 @@ function buildWorkflowRow(
 
 
   /*
-    Create cards following
-    the exact MAP flow.
+    Every populated cell
+    becomes a card.
   */
 
   FLOW.forEach(
@@ -1646,103 +1580,97 @@ function buildWorkflowRow(
 
 
       /*
-        Position based on
-        exact flow position.
+        Position cards.
+
+        0 Backend
+        1 Sheet
+        2 Sheet API
+        3 Status
+
+        4-8 Frontends
+
+        9 External
+        10 External API
+        11 External API 2
       */
 
       if(
-        config.type ===
-        "frontend"
+        index <= 3
       ){
 
-        /*
-          Frontends are connected
-          side-by-side with "="
-          style relationship.
-        */
+        node.style.left =
+          (
+            index *
+            165
+          ) +
+          "px";
 
-        const frontendIndex =
-          index - 4;
+      }
 
 
-        node.element.style.left =
+      else if(
+        index >= 4 &&
+        index <= 8
+      ){
+
+        node.style.left =
           (
             580 +
-            frontendIndex *
+            (
+              index -
+              4
+            ) *
             160
           ) +
           "px";
 
       }
 
-      else{
 
-        /*
-          Backend → Sheet →
-          API → Status occupy
-          the first positions.
+      else if(
+        index === 9
+      ){
 
-          External direction
-          reverses visually so
-          the arrow path reads:
-
-          Frontend ← External
-          ← External API
-          ← External API 2
-        */
-
-        if(
-          index <= 3
-        ){
-
-          node.element.style.left =
-            (
-              index *
-              165
-            ) +
-            "px";
-
-        }
-
-        else if(
-          index === 9
-        ){
-
-          node.element.style.left =
-            "1380px";
-
-        }
-
-        else if(
-          index === 10
-        ){
-
-          node.element.style.left =
-            "1545px";
-
-        }
-
-        else if(
-          index === 11
-        ){
-
-          node.element.style.left =
-            "1710px";
-
-        }
+        node.style.left =
+          "1380px";
 
       }
 
 
-      node.element.style.top =
+      else if(
+        index === 10
+      ){
+
+        node.style.left =
+          "1545px";
+
+      }
+
+
+      else if(
+        index === 11
+      ){
+
+        node.style.left =
+          "1710px";
+
+      }
+
+
+      node.style.top =
         "0px";
 
 
       workflow.appendChild(
-        node.element
+        node
       );
 
     }
+  );
+
+
+  world.appendChild(
+    workflow
   );
 
 }
@@ -1759,40 +1687,23 @@ function createNode(
   value
 ){
 
-  const cleanValue =
-    String(value)
-      .trim();
-
-
-  /*
-    Every cell is its own
-    logical card.
-
-    The same value can be
-    associated with multiple
-    MAP rows.
-  */
-
-  const key =
-    config.type +
-    "|" +
-    config.column +
-    "|" +
-    cleanValue;
-
-
-  const element =
+  const node =
     document.createElement(
       "div"
     );
 
 
-  element.className =
+  node.className =
     "node " +
     config.type;
 
 
-  element.innerHTML = `
+  const text =
+    String(value)
+      .trim();
+
+
+  node.innerHTML = `
 
     <div class="node-title">
 
@@ -1802,9 +1713,7 @@ function createNode(
 
       <span>
         ${escapeHtml(
-          shortValue(
-            cleanValue
-          )
+          shortValue(text)
         )}
       </span>
 
@@ -1813,9 +1722,7 @@ function createNode(
 
     <div class="node-value">
 
-      ${escapeHtml(
-        cleanValue
-      )}
+      ${escapeHtml(text)}
 
     </div>
 
@@ -1831,11 +1738,13 @@ function createNode(
   `;
 
 
-  const node = {
+  const data = {
 
-    key:key,
+    element:node,
 
-    row:rowIndex,
+    row:row,
+
+    rowIndex:rowIndex,
 
     column:
       config.column,
@@ -1843,54 +1752,29 @@ function createNode(
     type:
       config.type,
 
-    icon:
-      config.icon,
-
     value:
-      cleanValue,
-
-    element:
-      element
+      text
 
   };
 
 
   allNodes.push(
-    node
+    data
   );
 
 
-  /*
-    Store every node in lookup.
-  */
-
-  if(
-    !nodeLookup[key]
-  ){
-
-    nodeLookup[key] = [];
-
-  }
-
-
-  nodeLookup[key].push(
-    node
-  );
-
-
-  /*
-    Also make the resource
-    value searchable across rows.
-  */
-
-  element.onclick =
+  node.addEventListener(
+    "click",
     function(event){
 
       event.stopPropagation();
 
-      selectNode(node);
+      selectNode(
+        data
+      );
 
-    };
+    }
+  );
 
 
   return node;
@@ -1904,36 +1788,8 @@ function createNode(
 
 function drawConnections(){
 
-  const svg =
-    document.getElementById(
-      "connections"
-    );
-
-
   svg.innerHTML = "";
 
-
-  /*
-    Draw each row's workflow.
-
-    IMPORTANT:
-
-    Backend
-      →
-    Sheet
-      →
-    Sheet API
-      →
-    Status
-      →
-    Frontends
-      ←
-    External
-      ←
-    External API
-      ←
-    External API 2
-  */
 
   rows.forEach(
     function(row,rowIndex){
@@ -1942,53 +1798,39 @@ function drawConnections(){
         allNodes.filter(
           function(node){
 
-            return node.row ===
+            return node.rowIndex ===
               rowIndex;
 
           }
         );
 
 
-      /*
-        Sort according to
-        FLOW order.
-      */
-
       rowNodes.sort(
         function(a,b){
 
-          const ai =
-            FLOW.findIndex(
-              function(item){
+          return FLOW.findIndex(
+            function(flow){
 
-                return item.column ===
-                  a.column;
+              return flow.column ===
+                a.column;
 
-              }
-            );
+            }
+          )
 
+          -
 
-          const bi =
-            FLOW.findIndex(
-              function(item){
+          FLOW.findIndex(
+            function(flow){
 
-                return item.column ===
-                  b.column;
+              return flow.column ===
+                b.column;
 
-              }
-            );
-
-
-          return ai - bi;
+            }
+          );
 
         }
       );
 
-
-      /*
-        Connect every populated
-        cell in sequence.
-      */
 
       for(
         let i=0;
@@ -1996,25 +1838,44 @@ function drawConnections(){
         i++
       ){
 
-        const current =
+        const from =
           rowNodes[i];
 
 
-        const next =
+        const to =
           rowNodes[i+1];
 
 
-        addConnection(
-          svg,
-          current,
-          next,
-          current.type ===
+        let lineType =
+          "main";
+
+
+        if(
+          from.type ===
             "frontend"
-            ? "frontend"
-            : next.type ===
-              "external"
-              ? "external"
-              : "main"
+        ){
+
+          lineType =
+            "frontend";
+
+        }
+
+
+        if(
+          to.type ===
+            "external"
+        ){
+
+          lineType =
+            "external";
+
+        }
+
+
+        createConnection(
+          from,
+          to,
+          lineType
         );
 
       }
@@ -2026,31 +1887,22 @@ function drawConnections(){
 
 
 /* =========================================================
-   CONNECTION
+   CREATE CONNECTION
 ========================================================= */
 
-function addConnection(
-  svg,
+function createConnection(
   from,
   to,
   type
 ){
 
-  /*
-    Nodes are located inside
-    workflow rows.
-
-    Convert their positions
-    into world coordinates.
-  */
-
-  const fromRect =
+  const a =
     getWorldPosition(
       from.element
     );
 
 
-  const toRect =
+  const b =
     getWorldPosition(
       to.element
     );
@@ -2063,60 +1915,55 @@ function addConnection(
 
 
   /*
-    Normal flow:
+    Normal:
 
-    right side →
-    left side
-
-    External flow is reversed:
-
-    Frontend ← External
+    A → B
   */
 
   if(
-    from.column ===
-      "EXTERNAL" ||
-    from.column ===
-      "EXTERNAL API"
+    to.type !==
+      "external"
   ){
 
     x1 =
-      fromRect.left;
+      a.right;
 
     y1 =
-      fromRect.centerY;
+      a.centerY;
 
     x2 =
-      toRect.right;
+      b.left;
 
     y2 =
-      toRect.centerY;
-
-  }
-
-  else{
-
-    x1 =
-      fromRect.right;
-
-    y1 =
-      fromRect.centerY;
-
-    x2 =
-      toRect.left;
-
-    y2 =
-      toRect.centerY;
+      b.centerY;
 
   }
 
 
   /*
-    Use curved paths to create
-    the spiderweb appearance.
+    External:
+
+    Frontend ← External
   */
 
-  const midX =
+  else{
+
+    x1 =
+      b.left;
+
+    y1 =
+      b.centerY;
+
+    x2 =
+      a.right;
+
+    y2 =
+      a.centerY;
+
+  }
+
+
+  const midpoint =
     (
       x1 +
       x2
@@ -2134,57 +1981,17 @@ function addConnection(
     "d",
     `
       M ${x1} ${y1}
-
-      C ${midX} ${y1},
-        ${midX} ${y2},
+      C ${midpoint} ${y1},
+        ${midpoint} ${y2},
         ${x2} ${y2}
     `
   );
 
 
   path.classList.add(
-    "flow-line"
+    "flow-line",
+    type
   );
-
-
-  if(
-    type === "frontend"
-  ){
-
-    path.classList.add(
-      "frontend"
-    );
-
-  }
-
-  else if(
-    type === "external"
-  ){
-
-    path.classList.add(
-      "external"
-    );
-
-  }
-
-  else{
-
-    path.classList.add(
-      "main"
-    );
-
-  }
-
-
-  /*
-    Store node references.
-  */
-
-  path.dataset.from =
-    from.key;
-
-  path.dataset.to =
-    to.key;
 
 
   svg.appendChild(
@@ -2195,36 +2002,25 @@ function addConnection(
 
 
 /* =========================================================
-   WORLD POSITION
+   POSITION
 ========================================================= */
 
 function getWorldPosition(
   element
 ){
 
-  /*
-    element offset values are
-    relative to workflow row.
-  */
-
-  const nodeLeft =
-    element.offsetLeft;
-
-
-  const nodeTop =
-    element.offsetTop;
-
-
   const row =
     element.parentElement;
 
 
-  const rowLeft =
-    row.offsetLeft;
+  const left =
+    row.offsetLeft +
+    element.offsetLeft;
 
 
-  const rowTop =
-    row.offsetTop;
+  const top =
+    row.offsetTop +
+    element.offsetTop;
 
 
   const width =
@@ -2237,28 +2033,21 @@ function getWorldPosition(
 
   return {
 
-    left:
-      rowLeft +
-      nodeLeft,
+    left:left,
 
     right:
-      rowLeft +
-      nodeLeft +
+      left +
       width,
 
-    centerY:
-      rowTop +
-      nodeTop +
-      height / 2,
-
-    top:
-      rowTop +
-      nodeTop,
+    top:top,
 
     bottom:
-      rowTop +
-      nodeTop +
-      height
+      top +
+      height,
+
+    centerY:
+      top +
+      height / 2
 
   };
 
@@ -2266,24 +2055,26 @@ function getWorldPosition(
 
 
 /* =========================================================
-   SELECT
+   SELECT NODE
 ========================================================= */
 
-function selectNode(node){
+function selectNode(
+  selected
+){
 
   /*
-    Clear selection.
+    Dim everything.
   */
 
   allNodes.forEach(
-    function(item){
+    function(node){
 
-      item.element.classList.remove(
-        "selected"
+      node.element.classList.add(
+        "dim"
       );
 
-      item.element.classList.add(
-        "dim"
+      node.element.classList.remove(
+        "selected"
       );
 
     }
@@ -2291,33 +2082,32 @@ function selectNode(node){
 
 
   /*
-    Find every occurrence
-    of the same value.
+    Highlight same value.
 
-    This creates the
-    spiderweb effect when a
-    shared URL is selected.
+    This is what creates the
+    branching / spiderweb
+    effect for shared URLs.
   */
 
-  const sameValue =
+  const matches =
     allNodes.filter(
-      function(item){
+      function(node){
 
-        return item.value ===
-          node.value;
+        return node.value ===
+          selected.value;
 
       }
     );
 
 
-  sameValue.forEach(
-    function(item){
+  matches.forEach(
+    function(node){
 
-      item.element.classList.remove(
+      node.element.classList.remove(
         "dim"
       );
 
-      item.element.classList.add(
+      node.element.classList.add(
         "selected"
       );
 
@@ -2326,18 +2116,18 @@ function selectNode(node){
 
 
   /*
-    Restore immediate row.
+    Also show the entire row.
   */
 
   allNodes.forEach(
-    function(item){
+    function(node){
 
       if(
-        item.row ===
-        node.row
+        node.rowIndex ===
+          selected.rowIndex
       ){
 
-        item.element.classList.remove(
+        node.element.classList.remove(
           "dim"
         );
 
@@ -2347,44 +2137,10 @@ function selectNode(node){
   );
 
 
-  /*
-    Highlight matching lines.
-  */
-
-  document
-    .querySelectorAll(
-      ".flow-line"
-    )
-    .forEach(
-      function(line){
-
-        line.classList.remove(
-          "highlight"
-        );
-
-
-        if(
-          line.dataset.from ===
-            node.key ||
-          line.dataset.to ===
-            node.key
-        ){
-
-          line.classList.add(
-            "highlight"
-          );
-
-        }
-
-      }
-    );
-
-
-  /*
-    Information panel.
-  */
-
-  showInfo(node);
+  showInfo(
+    selected,
+    matches.length
+  );
 
 }
 
@@ -2393,9 +2149,12 @@ function selectNode(node){
    INFO
 ========================================================= */
 
-function showInfo(node){
+function showInfo(
+  node,
+  sharedCount
+){
 
-  const panel =
+  const info =
     document.getElementById(
       "info"
     );
@@ -2422,12 +2181,29 @@ function showInfo(node){
     <div class="info-row">
 
       <div class="info-label">
-        Type
+        Backend
       </div>
 
       <div class="info-value">
         ${escapeHtml(
-          node.type
+          node.row[
+            "Backends Sheet"
+          ] || "—"
+        )}
+      </div>
+
+    </div>
+
+
+    <div class="info-row">
+
+      <div class="info-label">
+        Column
+      </div>
+
+      <div class="info-value">
+        ${escapeHtml(
+          node.column
         )}
       </div>
 
@@ -2452,11 +2228,26 @@ function showInfo(node){
     <div class="info-row">
 
       <div class="info-label">
+        Status
+      </div>
+
+      <div class="info-value">
+        ${escapeHtml(
+          node.row.Status || "—"
+        )}
+      </div>
+
+    </div>
+
+
+    <div class="info-row">
+
+      <div class="info-label">
         MAP Row
       </div>
 
       <div class="info-value">
-        ${node.row + 2}
+        ${node.rowIndex + 2}
       </div>
 
     </div>
@@ -2464,23 +2255,8 @@ function showInfo(node){
   `;
 
 
-  /*
-    Count shared values.
-  */
-
-  const matches =
-    allNodes.filter(
-      function(item){
-
-        return item.value ===
-          node.value;
-
-      }
-    );
-
-
   if(
-    matches.length > 1
+    sharedCount > 1
   ){
 
     html += `
@@ -2488,14 +2264,13 @@ function showInfo(node){
       <div class="info-row">
 
         <div class="info-label">
-          Shared By
+          Shared Resource
         </div>
 
         <div class="info-value">
-
-          ${matches.length}
-          MAP cells
-
+          This value appears in
+          ${sharedCount}
+          MAP cells.
         </div>
 
       </div>
@@ -2505,13 +2280,10 @@ function showInfo(node){
   }
 
 
-  /*
-    Make URLs clickable.
-  */
-
   if(
-    /^https?:\/\//i
-      .test(node.value)
+    /^https?:\/\//i.test(
+      node.value
+    )
   ){
 
     html += `
@@ -2522,7 +2294,7 @@ function showInfo(node){
           node.value
         )}"
         target="_blank"
-        rel="noopener"
+        rel="noopener noreferrer"
       >
 
         OPEN RESOURCE ↗
@@ -2538,7 +2310,7 @@ function showInfo(node){
     html;
 
 
-  panel.style.display =
+  info.style.display =
     "block";
 
 }
@@ -2567,21 +2339,6 @@ function closeInfo(){
     }
   );
 
-
-  document
-    .querySelectorAll(
-      ".flow-line"
-    )
-    .forEach(
-      function(line){
-
-        line.classList.remove(
-          "highlight"
-        );
-
-      }
-    );
-
 }
 
 
@@ -2590,38 +2347,57 @@ function closeInfo(){
 ========================================================= */
 
 function searchMap(
-  query
+  value
 ){
 
-  const q =
-    String(query || "")
+  const query =
+    String(value || "")
       .toLowerCase()
       .trim();
 
 
-  if(!q){
+  if(!query){
 
     closeInfo();
+
+    setStatus(
+      rows.length +
+      " MAP rows • " +
+      allNodes.length +
+      " cards"
+    );
 
     return;
 
   }
 
 
+  let matches = 0;
+
+
   allNodes.forEach(
     function(node){
 
-      const match =
-        node.value
-          .toLowerCase()
-          .includes(q) ||
+      const text =
+        (
+          node.value +
+          " " +
+          node.column +
+          " " +
+          (
+            node.row[
+              "Backends Sheet"
+            ] || ""
+          )
+        )
+        .toLowerCase();
 
-        node.column
-          .toLowerCase()
-          .includes(q);
 
-
-      if(match){
+      if(
+        text.includes(
+          query
+        )
+      ){
 
         node.element.classList.remove(
           "dim"
@@ -2631,12 +2407,18 @@ function searchMap(
           "selected"
         );
 
+        matches++;
+
       }
 
       else{
 
         node.element.classList.add(
           "dim"
+        );
+
+        node.element.classList.remove(
+          "selected"
         );
 
       }
@@ -2646,8 +2428,8 @@ function searchMap(
 
 
   setStatus(
-    "Search: " +
-    query
+    matches +
+    " matching cards"
   );
 
 }
@@ -2663,11 +2445,8 @@ function centerMap(){
     map.getBoundingClientRect();
 
 
-  /*
-    World HUB is at:
+  scale = 1;
 
-    3500,3500
-  */
 
   panX =
     rect.width / 2 -
@@ -2677,9 +2456,6 @@ function centerMap(){
   panY =
     rect.height / 2 -
     3500;
-
-
-  scale = 1;
 
 
   applyTransform();
@@ -2740,7 +2516,7 @@ function applyTransform(){
 
 
 /* =========================================================
-   DRAGGING
+   DRAG
 ========================================================= */
 
 map.addEventListener(
@@ -2753,6 +2529,9 @@ map.addEventListener(
       ) ||
       event.target.closest(
         ".hub"
+      ) ||
+      event.target.closest(
+        "button"
       )
     ){
 
@@ -2831,6 +2610,88 @@ window.addEventListener(
 
 
 /* =========================================================
+   TOUCH DRAG
+========================================================= */
+
+let touchStartX = 0;
+
+let touchStartY = 0;
+
+let touchPanX = 0;
+
+let touchPanY = 0;
+
+
+map.addEventListener(
+  "touchstart",
+  function(event){
+
+    if(
+      event.touches.length !== 1
+    ){
+
+      return;
+
+    }
+
+
+    touchStartX =
+      event.touches[0].clientX;
+
+
+    touchStartY =
+      event.touches[0].clientY;
+
+
+    touchPanX =
+      panX;
+
+
+    touchPanY =
+      panY;
+
+  },
+  {
+    passive:true
+  }
+);
+
+
+map.addEventListener(
+  "touchmove",
+  function(event){
+
+    if(
+      event.touches.length !== 1
+    ){
+
+      return;
+
+    }
+
+
+    panX =
+      touchPanX +
+      event.touches[0].clientX -
+      touchStartX;
+
+
+    panY =
+      touchPanY +
+      event.touches[0].clientY -
+      touchStartY;
+
+
+    applyTransform();
+
+  },
+  {
+    passive:true
+  }
+);
+
+
+/* =========================================================
    WHEEL
 ========================================================= */
 
@@ -2863,10 +2724,12 @@ map.addEventListener(
 
 
 /* =========================================================
-   VALID
+   HELPERS
 ========================================================= */
 
-function valid(value){
+function valid(
+  value
+){
 
   if(
     value === null ||
@@ -2891,10 +2754,6 @@ function valid(value){
 }
 
 
-/* =========================================================
-   SHORT VALUE
-========================================================= */
-
 function shortValue(
   value
 ){
@@ -2908,17 +2767,16 @@ function shortValue(
   }
 
 
-  return value.substring(
-    0,
-    22
-  ) + "...";
+  return (
+    value.substring(
+      0,
+      22
+    ) +
+    "..."
+  );
 
 }
 
-
-/* =========================================================
-   ESCAPE
-========================================================= */
 
 function escapeHtml(
   value
@@ -2956,10 +2814,6 @@ function escapeHtml(
 }
 
 
-/* =========================================================
-   STATUS
-========================================================= */
-
 function setStatus(
   text
 ){
@@ -2970,6 +2824,141 @@ function setStatus(
     text;
 
 }
+
+
+/* =========================================================
+   API ERROR
+========================================================= */
+
+function showMapError(
+  message
+){
+
+  const loading =
+    document.getElementById(
+      "loading"
+    );
+
+
+  loading.style.display =
+    "flex";
+
+
+  loading.innerHTML = `
+
+    <div style="
+      text-align:center;
+      max-width:420px;
+      padding:20px;
+    ">
+
+      <div style="
+        font-size:30px;
+        margin-bottom:12px;
+      ">
+        ⚠️
+      </div>
+
+      <div style="
+        color:#ef4444;
+        font-weight:900;
+        margin-bottom:8px;
+      ">
+        MAP API ERROR
+      </div>
+
+      <div style="
+        color:#8298aa;
+        font-size:9px;
+        line-height:1.5;
+      ">
+        ${escapeHtml(message)}
+      </div>
+
+      <button
+        onclick="loadMap()"
+        style="
+          margin-top:15px;
+        "
+      >
+        TRY AGAIN
+      </button>
+
+    </div>
+
+  `;
+
+}
+
+
+/* =========================================================
+   BUTTON EVENTS
+========================================================= */
+
+document
+  .getElementById(
+    "refreshBtn"
+  )
+  .addEventListener(
+    "click",
+    loadMap
+  );
+
+
+document
+  .getElementById(
+    "centerBtn"
+  )
+  .addEventListener(
+    "click",
+    centerMap
+  );
+
+
+document
+  .getElementById(
+    "zoomInBtn"
+  )
+  .addEventListener(
+    "click",
+    zoomIn
+  );
+
+
+document
+  .getElementById(
+    "zoomOutBtn"
+  )
+  .addEventListener(
+    "click",
+    zoomOut
+  );
+
+
+document
+  .getElementById(
+    "closeInfo"
+  )
+  .addEventListener(
+    "click",
+    closeInfo
+  );
+
+
+document
+  .getElementById(
+    "search"
+  )
+  .addEventListener(
+    "input",
+    function(){
+
+      searchMap(
+        this.value
+      );
+
+    }
+  );
 
 
 /* =========================================================
