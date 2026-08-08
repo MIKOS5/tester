@@ -1,329 +1,2985 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Obvyris Media OS v2.3</title>
 
-<meta name="theme-color" content="#2793ff">
+<meta charset="UTF-8">
 
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="https://mikos5.github.io/tester/navicon.png">
+<meta
+name="viewport"
+content="width=device-width,initial-scale=1"
 
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+>
+
+<title>Obvyris Server Map</title>
 
 <style>
+
 :root{
-  --bg:#0b0f18;
-  --panel:#111827;
-  --text:#fff;
-  --muted:#94a3b8;
-  --blue:#2793ff;
+
+  --bg:#03070d;
+  --panel:#08121d;
+  --panel2:#0b1724;
+
+  --line:#28445d;
+
+  --text:#edf6ff;
+  --muted:#6f859b;
+
+  --backend:#22c55e;
+  --sheet:#f59e0b;
+  --api:#2793ff;
+  --status:#a78bfa;
+  --frontend:#22d3ee;
+  --external:#f472b6;
+
+  --hub:#2793ff;
+
 }
 
+*{
+  box-sizing:border-box;
+}
+
+html,
 body{
+
   margin:0;
-  font-family:Arial;
-  background:var(--bg);
-  color:var(--text);
-  display:flex;
-  height:100vh;
+  padding:0;
+
+  width:100%;
+  height:100%;
+
   overflow:hidden;
+
+  background:var(--bg);
+
+  color:var(--text);
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
 }
 
-/* SIDEBAR */
-.sidebar{
-  width:320px;
-  background:var(--panel);
-  overflow:auto;
-  padding:10px;
+
+/* =========================================================
+   TOP BAR
+========================================================= */
+
+.topbar{
+
+  position:fixed;
+
+  left:0;
+  right:0;
+  top:0;
+
+  height:58px;
+
+  z-index:1000;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:space-between;
+
+  gap:12px;
+
+  padding:
+    0 14px;
+
+  background:
+    rgba(3,8,14,.96);
+
+  border-bottom:
+    1px solid #1b3044;
+
+  backdrop-filter:
+    blur(10px);
+
 }
 
-.title{font-size:22px;font-weight:900}
+
+.brand{
+
+  display:flex;
+
+  align-items:center;
+
+  gap:8px;
+
+  white-space:nowrap;
+
+}
+
+
+.brand-icon{
+
+  font-size:20px;
+
+}
+
+
+.brand-name{
+
+  font-size:14px;
+
+  font-weight:900;
+
+  letter-spacing:.5px;
+
+}
+
+
+.brand-sub{
+
+  color:#5f778e;
+
+  font-size:8px;
+
+  margin-left:4px;
+
+}
+
+
+.controls{
+
+  display:flex;
+
+  align-items:center;
+
+  gap:5px;
+
+}
+
+
+input{
+
+  width:180px;
+
+  padding:
+    8px 10px;
+
+  border:
+    1px solid #29445c;
+
+  border-radius:6px;
+
+  outline:none;
+
+  background:#07121d;
+
+  color:white;
+
+  font-size:10px;
+
+}
+
 
 button{
-  padding:10px;
-  border:none;
-  border-radius:8px;
-  background:var(--blue);
-  color:#fff;
-  font-weight:700;
+
+  padding:
+    7px 10px;
+
+  border:
+    1px solid #29445c;
+
+  border-radius:6px;
+
+  background:#0a1826;
+
+  color:#a8c8e4;
+
+  font-size:9px;
+
+  font-weight:bold;
+
   cursor:pointer;
+
 }
 
-.mode{display:flex;gap:10px;margin:10px 0}
 
-/* MAIN */
-.main{
-  flex:1;
+button:hover{
+
+  background:#11283c;
+
+  border-color:#39709a;
+
+}
+
+
+/* =========================================================
+   MAP
+========================================================= */
+
+#map{
+
+  position:absolute;
+
+  top:58px;
+  left:0;
+  right:0;
+  bottom:0;
+
+  overflow:hidden;
+
+  cursor:grab;
+
+  background:
+
+    radial-gradient(
+      circle at center,
+      rgba(39,147,255,.055),
+      transparent 48%
+    );
+
+}
+
+
+#map.dragging{
+
+  cursor:grabbing;
+
+}
+
+
+/* =========================================================
+   WORLD
+========================================================= */
+
+#world{
+
+  position:absolute;
+
+  width:7000px;
+  height:7000px;
+
+  left:-3500px;
+  top:-3500px;
+
+  transform-origin:
+    3500px 3500px;
+
+}
+
+
+/* =========================================================
+   GRID
+========================================================= */
+
+#grid{
+
+  position:absolute;
+
+  left:0;
+  top:0;
+
+  width:7000px;
+  height:7000px;
+
+  opacity:.17;
+
+  background-image:
+
+    linear-gradient(
+      #173249 1px,
+      transparent 1px
+    ),
+
+    linear-gradient(
+      90deg,
+      #173249 1px,
+      transparent 1px
+    );
+
+  background-size:
+    50px 50px;
+
+}
+
+
+/* =========================================================
+   CONNECTION SVG
+========================================================= */
+
+#connections{
+
+  position:absolute;
+
+  left:0;
+  top:0;
+
+  width:7000px;
+  height:7000px;
+
+  pointer-events:none;
+
+}
+
+
+/* =========================================================
+   FLOW LINES
+========================================================= */
+
+.flow-line{
+
+  fill:none;
+
+  stroke:
+    #28465f;
+
+  stroke-width:1.4;
+
+  opacity:.65;
+
+}
+
+
+.flow-line.main{
+
+  stroke:
+    #397395;
+
+}
+
+
+.flow-line.frontend{
+
+  stroke:
+    var(--frontend);
+
+  stroke-width:1.7;
+
+}
+
+
+.flow-line.external{
+
+  stroke:
+    var(--external);
+
+  stroke-width:1.5;
+
+  stroke-dasharray:
+    5 4;
+
+}
+
+
+.flow-line.highlight{
+
+  stroke:
+    white;
+
+  stroke-width:2.5;
+
+  opacity:1;
+
+}
+
+
+/* =========================================================
+   HUB
+========================================================= */
+
+.hub{
+
+  position:absolute;
+
+  left:3410px;
+  top:3410px;
+
+  width:180px;
+
+  min-height:80px;
+
+  padding:13px;
+
+  display:flex;
+
+  flex-direction:column;
+
+  align-items:center;
+
+  justify-content:center;
+
+  text-align:center;
+
+  z-index:200;
+
+  background:
+    radial-gradient(
+      circle,
+      #123b61,
+      #071521
+    );
+
+  border:
+    2px solid var(--hub);
+
+  border-radius:14px;
+
+  box-shadow:
+    0 0 45px
+    rgba(39,147,255,.18);
+
+}
+
+
+.hub-icon{
+
+  font-size:25px;
+
+}
+
+
+.hub-name{
+
+  margin-top:3px;
+
+  font-size:14px;
+
+  font-weight:900;
+
+}
+
+
+.hub-file{
+
+  margin-top:3px;
+
+  color:#75baf1;
+
+  font-size:8px;
+
+}
+
+
+/* =========================================================
+   ROW WORKFLOW
+========================================================= */
+
+.workflow-row{
+
+  position:absolute;
+
+  width:2050px;
+
+  min-height:90px;
+
+}
+
+
+/*
+  The workflow is deliberately horizontal:
+
+  Backend
+      ↓
+  Sheet
+      ↓
+  Sheet API
+      ↓
+  Status
+      ↓
+  Frontend = Frontend 2 = ...
+      ↓
+  External
+      ↓
+  External API
+      ↓
+  External API 2
+
+  On screen the frontend group
+  occupies one horizontal section.
+*/
+
+
+/* =========================================================
+   NODE
+========================================================= */
+
+.node{
+
+  position:absolute;
+
+  width:145px;
+
+  min-height:58px;
+
+  padding:
+    7px 8px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #0c1a28,
+      #07111b
+    );
+
+  border:
+    1px solid #274159;
+
+  border-radius:7px;
+
+  box-shadow:
+    0 5px 16px
+    rgba(0,0,0,.35);
+
+  cursor:pointer;
+
+  user-select:none;
+
+  transition:
+    opacity .15s,
+    border-color .15s,
+    box-shadow .15s;
+
+}
+
+
+.node:hover{
+
+  border-color:
+    white;
+
+  box-shadow:
+    0 0 18px
+    rgba(255,255,255,.1);
+
+  z-index:100;
+
+}
+
+
+.node.selected{
+
+  border-color:
+    white;
+
+  box-shadow:
+    0 0 22px
+    rgba(255,255,255,.2);
+
+  z-index:100;
+
+}
+
+
+.node.dim{
+
+  opacity:.12;
+
+}
+
+
+/* =========================================================
+   NODE TYPE COLORS
+========================================================= */
+
+.node.backend{
+
+  border-top:
+    3px solid var(--backend);
+
+}
+
+
+.node.sheet{
+
+  border-top:
+    3px solid var(--sheet);
+
+}
+
+
+.node.api{
+
+  border-top:
+    3px solid var(--api);
+
+}
+
+
+.node.status{
+
+  border-top:
+    3px solid var(--status);
+
+}
+
+
+.node.frontend{
+
+  border-top:
+    3px solid var(--frontend);
+
+}
+
+
+.node.external{
+
+  border-top:
+    3px solid var(--external);
+
+}
+
+
+/* =========================================================
+   NODE CONTENT
+========================================================= */
+
+.node-title{
+
+  display:flex;
+
+  align-items:center;
+
+  gap:5px;
+
+  font-size:9px;
+
+  font-weight:900;
+
+}
+
+
+.node-icon{
+
+  font-size:11px;
+
+}
+
+
+.node-value{
+
+  margin-top:5px;
+
+  color:#9ab0c4;
+
+  font-size:8px;
+
+  line-height:1.3;
+
+  word-break:break-all;
+
+}
+
+
+.node-column{
+
+  margin-top:6px;
+
+  color:#536c83;
+
+  font-size:6.5px;
+
+  text-transform:uppercase;
+
+  letter-spacing:.5px;
+
+}
+
+
+/* =========================================================
+   FRONTEND CHAIN
+========================================================= */
+
+.frontend-chain{
+
+  position:absolute;
+
+  left:580px;
+
+  top:0;
+
+  width:800px;
+
+  height:80px;
+
+}
+
+
+.frontend-node{
+
+  top:0;
+
+}
+
+
+/*
+  Five frontend positions
+*/
+
+.frontend-1{
+  left:0;
+}
+
+.frontend-2{
+  left:160px;
+}
+
+.frontend-3{
+  left:320px;
+}
+
+.frontend-4{
+  left:480px;
+}
+
+.frontend-5{
+  left:640px;
+}
+
+
+/* =========================================================
+   INFO PANEL
+========================================================= */
+
+#info{
+
+  position:fixed;
+
+  top:70px;
+  right:12px;
+
+  width:290px;
+
+  max-height:
+    calc(100vh - 85px);
+
   overflow:auto;
+
+  display:none;
+
+  z-index:800;
+
+  background:
+    rgba(5,12,20,.97);
+
+  border:
+    1px solid #29445c;
+
+  border-radius:9px;
+
+  box-shadow:
+    0 15px 45px
+    rgba(0,0,0,.55);
+
 }
 
-video{
-  width:100%;
-  height:55vh;
-  background:black;
+
+.info-head{
+
+  display:flex;
+
+  justify-content:space-between;
+
+  gap:10px;
+
+  padding:12px;
+
+  border-bottom:
+    1px solid #203449;
+
 }
 
-/* CARD */
-.card{
-  background:var(--panel);
-  margin:6px;
-  padding:10px;
-  border-radius:10px;
-  cursor:pointer;
-  border:1px solid #222;
+
+.info-title{
+
+  font-size:11px;
+
+  font-weight:900;
+
 }
 
-/* INFINITE SCROLL BUFFER */
-#sentinel{
-  height:60px;
+
+.info-body{
+
+  padding:12px;
+
 }
+
+
+.info-row{
+
+  padding:
+    8px 0;
+
+  border-bottom:
+    1px solid #172a3d;
+
+}
+
+
+.info-label{
+
+  color:#5f778e;
+
+  font-size:7px;
+
+  text-transform:uppercase;
+
+}
+
+
+.info-value{
+
+  margin-top:3px;
+
+  color:#bfd0df;
+
+  font-size:9px;
+
+  line-height:1.35;
+
+  word-break:break-all;
+
+}
+
+
+.info-link{
+
+  display:inline-block;
+
+  margin-top:10px;
+
+  color:#70bcff;
+
+  text-decoration:none;
+
+  font-size:9px;
+
+}
+
+
+/* =========================================================
+   LEGEND
+========================================================= */
+
+.legend{
+
+  position:fixed;
+
+  left:12px;
+  bottom:12px;
+
+  z-index:500;
+
+  padding:9px 10px;
+
+  background:
+    rgba(5,12,20,.92);
+
+  border:
+    1px solid #203449;
+
+  border-radius:7px;
+
+  font-size:8px;
+
+}
+
+
+.legend-title{
+
+  margin-bottom:7px;
+
+  color:#8197ab;
+
+  font-weight:bold;
+
+  text-transform:uppercase;
+
+}
+
+
+.legend-row{
+
+  display:flex;
+
+  align-items:center;
+
+  gap:6px;
+
+  margin:4px 0;
+
+}
+
+
+.legend-dot{
+
+  width:7px;
+  height:7px;
+
+  border-radius:50%;
+
+}
+
+
+.legend-backend{
+  background:var(--backend);
+}
+
+.legend-sheet{
+  background:var(--sheet);
+}
+
+.legend-api{
+  background:var(--api);
+}
+
+.legend-status{
+  background:var(--status);
+}
+
+.legend-frontend{
+  background:var(--frontend);
+}
+
+.legend-external{
+  background:var(--external);
+}
+
+
+/* =========================================================
+   STATUS BAR
+========================================================= */
+
+#statusbar{
+
+  position:fixed;
+
+  right:12px;
+  bottom:12px;
+
+  z-index:500;
+
+  padding:
+    7px 9px;
+
+  background:
+    rgba(5,12,20,.92);
+
+  border:
+    1px solid #203449;
+
+  border-radius:6px;
+
+  color:#6e859b;
+
+  font-size:8px;
+
+}
+
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+#loading{
+
+  position:fixed;
+
+  inset:0;
+
+  z-index:2000;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  background:#03070d;
+
+  color:#7690a8;
+
+  font-size:11px;
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media(max-width:800px){
+
+  .brand-sub{
+
+    display:none;
+
+  }
+
+  .search{
+
+    width:120px;
+
+  }
+
+  .controls button{
+
+    display:none;
+
+  }
+
+}
+
 </style>
+
 </head>
 
 <body>
 
-<div class="sidebar">
-  <div class="title">📡 Obvyris OS v2.3</div>
+<!-- =======================================================
+     TOP BAR
+======================================================= -->
 
-  <div class="mode">
-    <button onclick="setMode('video')">📺 Video</button>
-    <button onclick="setMode('radio')">📻 Radio</button>
-    <button onclick="setMode('sheet')">📡 Sheets</button>
+<div class="topbar">
+
+  <div class="brand">
+
+```
+<span class="brand-icon">
+  🛰️
+</span>
+
+<span class="brand-name">
+  OBVYRIS SERVER MAP
+</span>
+
+<span class="brand-sub">
+  BACKEND → FRONTEND → EXTERNAL
+</span>
+```
+
   </div>
 
-  <button onclick="toggleTheme()">🌙 Theme</button>
+  <div class="controls">
 
-  <div id="list"></div>
+```
+<input
+  id="search"
+  type="text"
+  placeholder="Search MAP..."
+  oninput="searchMap(this.value)"
+>
+
+
+<button onclick="loadMap()">
+  ↻ REFRESH
+</button>
+
+
+<button onclick="centerMap()">
+  CENTER
+</button>
+
+
+<button onclick="zoomIn()">
+  +
+</button>
+
+
+<button onclick="zoomOut()">
+  −
+</button>
+```
+
+  </div>
+
 </div>
 
-<div class="main">
+<!-- =======================================================
+     MAP
+======================================================= -->
 
-  <video id="video" controls autoplay></video>
+<div id="map">
 
-  <div style="padding:10px;display:flex;gap:10px;">
-    <button onclick="prev()">⏮</button>
-    <button onclick="toggle()">▶</button>
-    <button onclick="next()">⏭</button>
+  <div id="world">
+
+```
+<div id="grid"></div>
+
+<svg
+  id="connections"
+  viewBox="0 0 7000 7000"
+  preserveAspectRatio="none"
+></svg>
+
+
+<!-- HUB -->
+
+<div class="hub">
+
+  <div class="hub-icon">
+    🛰️
   </div>
 
+  <div class="hub-name">
+    OBVYRIS HUB
+  </div>
+
+  <div class="hub-file">
+    index99.html
+  </div>
+
+</div>
+```
+
+  </div>
+
+</div>
+
+<!-- =======================================================
+     LEGEND
+======================================================= -->
+
+<div class="legend">
+
+  <div class="legend-title">
+    MAP FLOW
+  </div>
+
+  <div class="legend-row">
+    <span class="legend-dot legend-backend"></span>
+    Backend
+  </div>
+
+  <div class="legend-row">
+    <span class="legend-dot legend-sheet"></span>
+    Sheet
+  </div>
+
+  <div class="legend-row">
+    <span class="legend-dot legend-api"></span>
+    API
+  </div>
+
+  <div class="legend-row">
+    <span class="legend-dot legend-status"></span>
+    Status
+  </div>
+
+  <div class="legend-row">
+    <span class="legend-dot legend-frontend"></span>
+    Frontend
+  </div>
+
+  <div class="legend-row">
+    <span class="legend-dot legend-external"></span>
+    External
+  </div>
+
+</div>
+
+<!-- =======================================================
+     INFO
+======================================================= -->
+
+<div id="info">
+
+  <div class="info-head">
+
+```
+<div
+  id="infoTitle"
+  class="info-title"
+>
+  MAP NODE
+</div>
+
+<button
+  onclick="closeInfo()"
+>
+  ×
+</button>
+```
+
+  </div>
+
+  <div
+    id="infoBody"
+    class="info-body"
+  ></div>
+
+</div>
+
+<div id="statusbar">
+  Loading...
+</div>
+
+<div id="loading">
+  🛰️ Building Obvyris Server Map...
 </div>
 
 <script>
 
-/* ================= STATE ================= */
-let mode="video";
-let index=0;
 
-let videoList=[];
-let radioList=[];
-let sheetList=[];
-let feed=[];
-let page=0;
-const PAGE_SIZE=80;
+/* =========================================================
+   GLOBALS
+========================================================= */
 
-const video=document.getElementById("video");
+let rows = [];
 
-/* ================= M3U PARSER (FIXED NAMES) ================= */
-async function loadVideo(){
-  const res=await fetch("https://iptv-org.github.io/iptv/index.m3u");
-  const text=await res.text();
+let allNodes = [];
 
-  const lines=text.split("\n");
-  let name="";
+let nodeLookup = {};
 
-  videoList=[];
+let scale = 1;
 
-  for(let l of lines){
-    if(l.startsWith("#EXTINF")){
-      name=l.split(",")[1]||"Channel";
-    }
-    if(l.startsWith("http")){
-      videoList.push({name,url:l.trim()});
-    }
+let panX = 0;
+
+let panY = 0;
+
+let dragging = false;
+
+let dragStartX = 0;
+
+let dragStartY = 0;
+
+let startPanX = 0;
+
+let startPanY = 0;
+
+
+/* =========================================================
+   WORLD
+========================================================= */
+
+const world =
+  document.getElementById(
+    "world"
+  );
+
+
+const map =
+  document.getElementById(
+    "map"
+  );
+
+
+/* =========================================================
+   EXACT MAP FLOW
+========================================================= */
+
+const FLOW = [
+
+  {
+    column:
+      "Backends Sheet",
+
+    type:
+      "backend",
+
+    icon:
+      "🗄️"
+
+  },
+
+  {
+    column:
+      "Sheet",
+
+    type:
+      "sheet",
+
+    icon:
+      "📊"
+
+  },
+
+  {
+    column:
+      "Sheet API",
+
+    type:
+      "api",
+
+    icon:
+      "🔌"
+
+  },
+
+  {
+    column:
+      "Status",
+
+    type:
+      "status",
+
+    icon:
+      "●"
+
+  },
+
+  {
+    column:
+      "MAIN HTML FRONTEND",
+
+    type:
+      "frontend",
+
+    icon:
+      "🖥️"
+
+  },
+
+  {
+    column:
+      "HTML FRONTEND 2",
+
+    type:
+      "frontend",
+
+    icon:
+      "🖥️"
+
+  },
+
+  {
+    column:
+      "HTML FRONTEND 3",
+
+    type:
+      "frontend",
+
+    icon:
+      "🖥️"
+
+  },
+
+  {
+    column:
+      "HTML FRONTEND 4",
+
+    type:
+      "frontend",
+
+    icon:
+      "🖥️"
+
+  },
+
+  {
+    column:
+      "HTML FRONTEND 5",
+
+    type:
+      "frontend",
+
+    icon:
+      "🖥️"
+
+  },
+
+  {
+    column:
+      "EXTERNAL",
+
+    type:
+      "external",
+
+    icon:
+      "🌐"
+
+  },
+
+  {
+    column:
+      "EXTERNAL API",
+
+    type:
+      "api",
+
+    icon:
+      "🔗"
+
+  },
+
+  {
+    column:
+      "EXTERNAL API 2",
+
+    type:
+      "api",
+
+    icon:
+      "🔗"
+
   }
 
-  render();
+];
+
+
+/* =========================================================
+   LOAD DATA
+========================================================= */
+
+function loadMap(){
+
+  setStatus(
+    "Loading MAP..."
+  );
+
+
+  google.script.run
+
+    .withSuccessHandler(
+      buildMap
+    )
+
+    .withFailureHandler(
+      function(error){
+
+        setStatus(
+          "MAP ERROR"
+        );
+
+        document.getElementById(
+          "loading"
+        ).style.display =
+          "none";
+
+
+        alert(
+          error.message ||
+          error
+        );
+
+      }
+    )
+
+    .getMapData();
+
 }
 
-/* ================= RADIO ================= */
-async function loadRadio(){
-  const res=await fetch("https://all.api.radio-browser.info/json/stations/search?limit=500");
-  const data=await res.json();
 
-  radioList=data.map(s=>({
-    name:s.name,
-    url:s.url_resolved,
-    id:s.stationuuid
-  }));
+/* =========================================================
+   BUILD
+========================================================= */
 
-  render();
-}
+function buildMap(data){
 
-/* ================= SHEETS BLEND ================= */
-const SHEET="https://script.google.com/macros/s/AKfycbzZ5MwOcYUY_bpsUKSxPd810xE8rV_Y3z2GwzPublb_4O60CP8L_lC_V2kqkCQ_JdF5/exec";
+  if(
+    !data ||
+    !data.success
+  ){
 
-async function loadSheets(){
-  const actions=[
-    "get","mood","misc","international","undiscovered","international2","artistal","artistmz"
-  ];
+    setStatus(
+      "MAP DATA ERROR"
+    );
 
-  sheetList=[];
+    return;
 
-  for(let a of actions){
-    try{
-      const res=await fetch(SHEET+"?action="+a);
-      const json=await res.json();
-
-      const arr=(json.data||json||[]).map(s=>({
-        name:s.name,
-        url:s.url,
-        type:a,
-        id:s.id
-      }));
-
-      sheetList.push(...arr);
-
-    }catch(e){}
   }
 
-  render();
-}
 
-/* ================= MODE ================= */
-function setMode(m){
-  mode=m;
-  index=0;
+  rows =
+    data.rows || [];
 
-  if(m==="video") loadVideo();
-  if(m==="radio") loadRadio();
-  if(m==="sheet") loadSheets();
-}
 
-/* ================= UNIFIED FEED ================= */
-function getSource(){
-  if(mode==="video") return videoList;
-  if(mode==="radio") return radioList;
-  return sheetList;
-}
+  /*
+    Clear old workflow rows.
+  */
 
-/* ================= VIRTUAL INFINITE RENDER ================= */
-function render(reset=true){
-  const el=document.getElementById("list");
-  const arr=getSource();
+  document
+    .querySelectorAll(
+      ".workflow-row"
+    )
+    .forEach(
+      function(row){
 
-  if(reset){
-    el.innerHTML="";
-    feed=[];
-    page=0;
-  }
+        row.remove();
 
-  const start=page*PAGE_SIZE;
-  const chunk=arr.slice(start,start+PAGE_SIZE);
+      }
+    );
 
-  feed.push(...chunk);
 
-  el.innerHTML="";
+  /*
+    Clear lookup.
+  */
 
-  feed.forEach((item,i)=>{
-    const div=document.createElement("div");
-    div.className="card";
-    div.innerHTML=`${item.name}<br><small>${item.type||""}</small>`;
-    div.onclick=()=>play(i);
-    el.appendChild(div);
-  });
+  allNodes = [];
 
-  observeScroll();
-}
+  nodeLookup = {};
 
-/* ================= AUTO LOAD MORE ================= */
-function observeScroll(){
-  const main=document.querySelector(".main");
 
-  main.onscroll=()=>{
-    if(main.scrollTop+main.clientHeight>=main.scrollHeight-200){
-      loadMore();
+  /*
+    Build one workflow
+    for every MAP row.
+  */
+
+  rows.forEach(
+    function(row,rowIndex){
+
+      buildWorkflowRow(
+        row,
+        rowIndex
+      );
+
     }
+  );
+
+
+  /*
+    Draw connections after
+    every node exists.
+  */
+
+  drawConnections();
+
+
+  /*
+    Center on HUB.
+  */
+
+  centerMap();
+
+
+  document.getElementById(
+    "loading"
+  ).style.display =
+    "none";
+
+
+  setStatus(
+    rows.length +
+    " MAP rows • " +
+    allNodes.length +
+    " cards"
+  );
+
+}
+
+
+/* =========================================================
+   BUILD ONE ROW
+========================================================= */
+
+function buildWorkflowRow(
+  row,
+  rowIndex
+){
+
+  const workflow =
+    document.createElement(
+      "div"
+    );
+
+
+  workflow.className =
+    "workflow-row";
+
+
+  /*
+    Spread rows vertically
+    around the HUB.
+  */
+
+  const rowSpacing = 145;
+
+  const centerY = 3500;
+
+  const totalHeight =
+    rows.length *
+    rowSpacing;
+
+
+  const firstY =
+    centerY -
+    totalHeight / 2;
+
+
+  const y =
+    firstY +
+    rowIndex *
+    rowSpacing;
+
+
+  workflow.style.left =
+    "2450px";
+
+
+  workflow.style.top =
+    y + "px";
+
+
+  workflow.dataset.row =
+    rowIndex;
+
+
+  /*
+    Create cards following
+    the exact MAP flow.
+  */
+
+  FLOW.forEach(
+    function(config,index){
+
+      const value =
+        row[
+          config.column
+        ];
+
+
+      if(
+        !valid(value)
+      ){
+
+        return;
+
+      }
+
+
+      const node =
+        createNode(
+          row,
+          rowIndex,
+          config,
+          value
+        );
+
+
+      /*
+        Position based on
+        exact flow position.
+      */
+
+      if(
+        config.type ===
+        "frontend"
+      ){
+
+        /*
+          Frontends are connected
+          side-by-side with "="
+          style relationship.
+        */
+
+        const frontendIndex =
+          index - 4;
+
+
+        node.element.style.left =
+          (
+            580 +
+            frontendIndex *
+            160
+          ) +
+          "px";
+
+      }
+
+      else{
+
+        /*
+          Backend → Sheet →
+          API → Status occupy
+          the first positions.
+
+          External direction
+          reverses visually so
+          the arrow path reads:
+
+          Frontend ← External
+          ← External API
+          ← External API 2
+        */
+
+        if(
+          index <= 3
+        ){
+
+          node.element.style.left =
+            (
+              index *
+              165
+            ) +
+            "px";
+
+        }
+
+        else if(
+          index === 9
+        ){
+
+          node.element.style.left =
+            "1380px";
+
+        }
+
+        else if(
+          index === 10
+        ){
+
+          node.element.style.left =
+            "1545px";
+
+        }
+
+        else if(
+          index === 11
+        ){
+
+          node.element.style.left =
+            "1710px";
+
+        }
+
+      }
+
+
+      node.element.style.top =
+        "0px";
+
+
+      workflow.appendChild(
+        node.element
+      );
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   CREATE NODE
+========================================================= */
+
+function createNode(
+  row,
+  rowIndex,
+  config,
+  value
+){
+
+  const cleanValue =
+    String(value)
+      .trim();
+
+
+  /*
+    Every cell is its own
+    logical card.
+
+    The same value can be
+    associated with multiple
+    MAP rows.
+  */
+
+  const key =
+    config.type +
+    "|" +
+    config.column +
+    "|" +
+    cleanValue;
+
+
+  const element =
+    document.createElement(
+      "div"
+    );
+
+
+  element.className =
+    "node " +
+    config.type;
+
+
+  element.innerHTML = `
+
+    <div class="node-title">
+
+      <span class="node-icon">
+        ${config.icon}
+      </span>
+
+      <span>
+        ${escapeHtml(
+          shortValue(
+            cleanValue
+          )
+        )}
+      </span>
+
+    </div>
+
+
+    <div class="node-value">
+
+      ${escapeHtml(
+        cleanValue
+      )}
+
+    </div>
+
+
+    <div class="node-column">
+
+      ${escapeHtml(
+        config.column
+      )}
+
+    </div>
+
+  `;
+
+
+  const node = {
+
+    key:key,
+
+    row:rowIndex,
+
+    column:
+      config.column,
+
+    type:
+      config.type,
+
+    icon:
+      config.icon,
+
+    value:
+      cleanValue,
+
+    element:
+      element
+
   };
-}
 
-function loadMore(){
-  const arr=getSource();
 
-  if(feed.length>=arr.length) return;
+  allNodes.push(
+    node
+  );
 
-  page++;
-  const start=page*PAGE_SIZE;
-  const chunk=arr.slice(start,start+PAGE_SIZE);
 
-  feed.push(...chunk);
-  render(false);
-}
+  /*
+    Store every node in lookup.
+  */
 
-/* ================= PLAY ================= */
-function play(i){
-  index=i;
+  if(
+    !nodeLookup[key]
+  ){
 
-  const arr=getSource();
-  const item=arr[i];
-  if(!item) return;
+    nodeLookup[key] = [];
 
-  if(mode==="video"){
-    if(item.url.includes(".m3u8") && Hls.isSupported()){
-      const hls=new Hls();
-      hls.loadSource(item.url);
-      hls.attachMedia(video);
-    }else{
-      video.src=item.url;
-    }
-    video.play();
-  }else{
-    video.src=item.url;
-    video.play();
   }
+
+
+  nodeLookup[key].push(
+    node
+  );
+
+
+  /*
+    Also make the resource
+    value searchable across rows.
+  */
+
+  element.onclick =
+    function(event){
+
+      event.stopPropagation();
+
+      selectNode(node);
+
+    };
+
+
+  return node;
+
 }
 
-/* ================= CONTROLS ================= */
-function next(){
-  const arr=getSource();
-  index=(index+1)%arr.length;
-  play(index);
+
+/* =========================================================
+   DRAW CONNECTIONS
+========================================================= */
+
+function drawConnections(){
+
+  const svg =
+    document.getElementById(
+      "connections"
+    );
+
+
+  svg.innerHTML = "";
+
+
+  /*
+    Draw each row's workflow.
+
+    IMPORTANT:
+
+    Backend
+      →
+    Sheet
+      →
+    Sheet API
+      →
+    Status
+      →
+    Frontends
+      ←
+    External
+      ←
+    External API
+      ←
+    External API 2
+  */
+
+  rows.forEach(
+    function(row,rowIndex){
+
+      const rowNodes =
+        allNodes.filter(
+          function(node){
+
+            return node.row ===
+              rowIndex;
+
+          }
+        );
+
+
+      /*
+        Sort according to
+        FLOW order.
+      */
+
+      rowNodes.sort(
+        function(a,b){
+
+          const ai =
+            FLOW.findIndex(
+              function(item){
+
+                return item.column ===
+                  a.column;
+
+              }
+            );
+
+
+          const bi =
+            FLOW.findIndex(
+              function(item){
+
+                return item.column ===
+                  b.column;
+
+              }
+            );
+
+
+          return ai - bi;
+
+        }
+      );
+
+
+      /*
+        Connect every populated
+        cell in sequence.
+      */
+
+      for(
+        let i=0;
+        i<rowNodes.length-1;
+        i++
+      ){
+
+        const current =
+          rowNodes[i];
+
+
+        const next =
+          rowNodes[i+1];
+
+
+        addConnection(
+          svg,
+          current,
+          next,
+          current.type ===
+            "frontend"
+            ? "frontend"
+            : next.type ===
+              "external"
+              ? "external"
+              : "main"
+        );
+
+      }
+
+    }
+  );
+
 }
 
-function prev(){
-  const arr=getSource();
-  index=(index-1+arr.length)%arr.length;
-  play(index);
+
+/* =========================================================
+   CONNECTION
+========================================================= */
+
+function addConnection(
+  svg,
+  from,
+  to,
+  type
+){
+
+  /*
+    Nodes are located inside
+    workflow rows.
+
+    Convert their positions
+    into world coordinates.
+  */
+
+  const fromRect =
+    getWorldPosition(
+      from.element
+    );
+
+
+  const toRect =
+    getWorldPosition(
+      to.element
+    );
+
+
+  let x1;
+  let y1;
+  let x2;
+  let y2;
+
+
+  /*
+    Normal flow:
+
+    right side →
+    left side
+
+    External flow is reversed:
+
+    Frontend ← External
+  */
+
+  if(
+    from.column ===
+      "EXTERNAL" ||
+    from.column ===
+      "EXTERNAL API"
+  ){
+
+    x1 =
+      fromRect.left;
+
+    y1 =
+      fromRect.centerY;
+
+    x2 =
+      toRect.right;
+
+    y2 =
+      toRect.centerY;
+
+  }
+
+  else{
+
+    x1 =
+      fromRect.right;
+
+    y1 =
+      fromRect.centerY;
+
+    x2 =
+      toRect.left;
+
+    y2 =
+      toRect.centerY;
+
+  }
+
+
+  /*
+    Use curved paths to create
+    the spiderweb appearance.
+  */
+
+  const midX =
+    (
+      x1 +
+      x2
+    ) / 2;
+
+
+  const path =
+    document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "path"
+    );
+
+
+  path.setAttribute(
+    "d",
+    `
+      M ${x1} ${y1}
+
+      C ${midX} ${y1},
+        ${midX} ${y2},
+        ${x2} ${y2}
+    `
+  );
+
+
+  path.classList.add(
+    "flow-line"
+  );
+
+
+  if(
+    type === "frontend"
+  ){
+
+    path.classList.add(
+      "frontend"
+    );
+
+  }
+
+  else if(
+    type === "external"
+  ){
+
+    path.classList.add(
+      "external"
+    );
+
+  }
+
+  else{
+
+    path.classList.add(
+      "main"
+    );
+
+  }
+
+
+  /*
+    Store node references.
+  */
+
+  path.dataset.from =
+    from.key;
+
+  path.dataset.to =
+    to.key;
+
+
+  svg.appendChild(
+    path
+  );
+
 }
 
-function toggle(){
-  if(video.paused) video.play();
-  else video.pause();
+
+/* =========================================================
+   WORLD POSITION
+========================================================= */
+
+function getWorldPosition(
+  element
+){
+
+  /*
+    element offset values are
+    relative to workflow row.
+  */
+
+  const nodeLeft =
+    element.offsetLeft;
+
+
+  const nodeTop =
+    element.offsetTop;
+
+
+  const row =
+    element.parentElement;
+
+
+  const rowLeft =
+    row.offsetLeft;
+
+
+  const rowTop =
+    row.offsetTop;
+
+
+  const width =
+    element.offsetWidth;
+
+
+  const height =
+    element.offsetHeight;
+
+
+  return {
+
+    left:
+      rowLeft +
+      nodeLeft,
+
+    right:
+      rowLeft +
+      nodeLeft +
+      width,
+
+    centerY:
+      rowTop +
+      nodeTop +
+      height / 2,
+
+    top:
+      rowTop +
+      nodeTop,
+
+    bottom:
+      rowTop +
+      nodeTop +
+      height
+
+  };
+
 }
 
-/* ================= THEME ================= */
-function toggleTheme(){
-  document.body.classList.toggle("light");
-}
-  
-/* ================= INIT ================= */
-loadVideo();
 
-</script>
+/* =========================================================
+   SELECT
+========================================================= */
 
-<!-- PWA SERVICE WORKER REGISTRATION (HERE) -->
-<script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js")
-      .then(() => console.log("PWA Ready"))
-      .catch(err => console.error(err));
-  });
+function selectNode(node){
+
+  /*
+    Clear selection.
+  */
+
+  allNodes.forEach(
+    function(item){
+
+      item.element.classList.remove(
+        "selected"
+      );
+
+      item.element.classList.add(
+        "dim"
+      );
+
+    }
+  );
+
+
+  /*
+    Find every occurrence
+    of the same value.
+
+    This creates the
+    spiderweb effect when a
+    shared URL is selected.
+  */
+
+  const sameValue =
+    allNodes.filter(
+      function(item){
+
+        return item.value ===
+          node.value;
+
+      }
+    );
+
+
+  sameValue.forEach(
+    function(item){
+
+      item.element.classList.remove(
+        "dim"
+      );
+
+      item.element.classList.add(
+        "selected"
+      );
+
+    }
+  );
+
+
+  /*
+    Restore immediate row.
+  */
+
+  allNodes.forEach(
+    function(item){
+
+      if(
+        item.row ===
+        node.row
+      ){
+
+        item.element.classList.remove(
+          "dim"
+        );
+
+      }
+
+    }
+  );
+
+
+  /*
+    Highlight matching lines.
+  */
+
+  document
+    .querySelectorAll(
+      ".flow-line"
+    )
+    .forEach(
+      function(line){
+
+        line.classList.remove(
+          "highlight"
+        );
+
+
+        if(
+          line.dataset.from ===
+            node.key ||
+          line.dataset.to ===
+            node.key
+        ){
+
+          line.classList.add(
+            "highlight"
+          );
+
+        }
+
+      }
+    );
+
+
+  /*
+    Information panel.
+  */
+
+  showInfo(node);
+
 }
+
+
+/* =========================================================
+   INFO
+========================================================= */
+
+function showInfo(node){
+
+  const panel =
+    document.getElementById(
+      "info"
+    );
+
+
+  const title =
+    document.getElementById(
+      "infoTitle"
+    );
+
+
+  const body =
+    document.getElementById(
+      "infoBody"
+    );
+
+
+  title.textContent =
+    node.column;
+
+
+  let html = `
+
+    <div class="info-row">
+
+      <div class="info-label">
+        Type
+      </div>
+
+      <div class="info-value">
+        ${escapeHtml(
+          node.type
+        )}
+      </div>
+
+    </div>
+
+
+    <div class="info-row">
+
+      <div class="info-label">
+        Value
+      </div>
+
+      <div class="info-value">
+        ${escapeHtml(
+          node.value
+        )}
+      </div>
+
+    </div>
+
+
+    <div class="info-row">
+
+      <div class="info-label">
+        MAP Row
+      </div>
+
+      <div class="info-value">
+        ${node.row + 2}
+      </div>
+
+    </div>
+
+  `;
+
+
+  /*
+    Count shared values.
+  */
+
+  const matches =
+    allNodes.filter(
+      function(item){
+
+        return item.value ===
+          node.value;
+
+      }
+    );
+
+
+  if(
+    matches.length > 1
+  ){
+
+    html += `
+
+      <div class="info-row">
+
+        <div class="info-label">
+          Shared By
+        </div>
+
+        <div class="info-value">
+
+          ${matches.length}
+          MAP cells
+
+        </div>
+
+      </div>
+
+    `;
+
+  }
+
+
+  /*
+    Make URLs clickable.
+  */
+
+  if(
+    /^https?:\/\//i
+      .test(node.value)
+  ){
+
+    html += `
+
+      <a
+        class="info-link"
+        href="${escapeHtml(
+          node.value
+        )}"
+        target="_blank"
+        rel="noopener"
+      >
+
+        OPEN RESOURCE ↗
+
+      </a>
+
+    `;
+
+  }
+
+
+  body.innerHTML =
+    html;
+
+
+  panel.style.display =
+    "block";
+
+}
+
+
+/* =========================================================
+   CLOSE INFO
+========================================================= */
+
+function closeInfo(){
+
+  document.getElementById(
+    "info"
+  ).style.display =
+    "none";
+
+
+  allNodes.forEach(
+    function(node){
+
+      node.element.classList.remove(
+        "dim",
+        "selected"
+      );
+
+    }
+  );
+
+
+  document
+    .querySelectorAll(
+      ".flow-line"
+    )
+    .forEach(
+      function(line){
+
+        line.classList.remove(
+          "highlight"
+        );
+
+      }
+    );
+
+}
+
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+function searchMap(
+  query
+){
+
+  const q =
+    String(query || "")
+      .toLowerCase()
+      .trim();
+
+
+  if(!q){
+
+    closeInfo();
+
+    return;
+
+  }
+
+
+  allNodes.forEach(
+    function(node){
+
+      const match =
+        node.value
+          .toLowerCase()
+          .includes(q) ||
+
+        node.column
+          .toLowerCase()
+          .includes(q);
+
+
+      if(match){
+
+        node.element.classList.remove(
+          "dim"
+        );
+
+        node.element.classList.add(
+          "selected"
+        );
+
+      }
+
+      else{
+
+        node.element.classList.add(
+          "dim"
+        );
+
+      }
+
+    }
+  );
+
+
+  setStatus(
+    "Search: " +
+    query
+  );
+
+}
+
+
+/* =========================================================
+   CENTER
+========================================================= */
+
+function centerMap(){
+
+  const rect =
+    map.getBoundingClientRect();
+
+
+  /*
+    World HUB is at:
+
+    3500,3500
+  */
+
+  panX =
+    rect.width / 2 -
+    3500;
+
+
+  panY =
+    rect.height / 2 -
+    3500;
+
+
+  scale = 1;
+
+
+  applyTransform();
+
+}
+
+
+/* =========================================================
+   ZOOM
+========================================================= */
+
+function zoomIn(){
+
+  scale =
+    Math.min(
+      2.5,
+      scale + .12
+    );
+
+
+  applyTransform();
+
+}
+
+
+function zoomOut(){
+
+  scale =
+    Math.max(
+      .3,
+      scale - .12
+    );
+
+
+  applyTransform();
+
+}
+
+
+/* =========================================================
+   TRANSFORM
+========================================================= */
+
+function applyTransform(){
+
+  world.style.transform =
+    `
+      translate(
+        ${panX}px,
+        ${panY}px
+      )
+      scale(
+        ${scale}
+      )
+    `;
+
+}
+
+
+/* =========================================================
+   DRAGGING
+========================================================= */
+
+map.addEventListener(
+  "mousedown",
+  function(event){
+
+    if(
+      event.target.closest(
+        ".node"
+      ) ||
+      event.target.closest(
+        ".hub"
+      )
+    ){
+
+      return;
+
+    }
+
+
+    dragging = true;
+
+    map.classList.add(
+      "dragging"
+    );
+
+
+    dragStartX =
+      event.clientX;
+
+
+    dragStartY =
+      event.clientY;
+
+
+    startPanX =
+      panX;
+
+
+    startPanY =
+      panY;
+
+  }
+);
+
+
+window.addEventListener(
+  "mousemove",
+  function(event){
+
+    if(!dragging){
+
+      return;
+
+    }
+
+
+    panX =
+      startPanX +
+      event.clientX -
+      dragStartX;
+
+
+    panY =
+      startPanY +
+      event.clientY -
+      dragStartY;
+
+
+    applyTransform();
+
+  }
+);
+
+
+window.addEventListener(
+  "mouseup",
+  function(){
+
+    dragging = false;
+
+    map.classList.remove(
+      "dragging"
+    );
+
+  }
+);
+
+
+/* =========================================================
+   WHEEL
+========================================================= */
+
+map.addEventListener(
+  "wheel",
+  function(event){
+
+    event.preventDefault();
+
+
+    if(
+      event.deltaY < 0
+    ){
+
+      zoomIn();
+
+    }
+
+    else{
+
+      zoomOut();
+
+    }
+
+  },
+  {
+    passive:false
+  }
+);
+
+
+/* =========================================================
+   VALID
+========================================================= */
+
+function valid(value){
+
+  if(
+    value === null ||
+    value === undefined
+  ){
+
+    return false;
+
+  }
+
+
+  const text =
+    String(value)
+      .trim();
+
+
+  return (
+    text !== "" &&
+    text !== "#"
+  );
+
+}
+
+
+/* =========================================================
+   SHORT VALUE
+========================================================= */
+
+function shortValue(
+  value
+){
+
+  if(
+    value.length <= 25
+  ){
+
+    return value;
+
+  }
+
+
+  return value.substring(
+    0,
+    22
+  ) + "...";
+
+}
+
+
+/* =========================================================
+   ESCAPE
+========================================================= */
+
+function escapeHtml(
+  value
+){
+
+  return String(
+    value || ""
+  )
+
+  .replace(
+    /&/g,
+    "&amp;"
+  )
+
+  .replace(
+    /</g,
+    "&lt;"
+  )
+
+  .replace(
+    />/g,
+    "&gt;"
+  )
+
+  .replace(
+    /"/g,
+    "&quot;"
+  )
+
+  .replace(
+    /'/g,
+    "&#039;"
+  );
+
+}
+
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+function setStatus(
+  text
+){
+
+  document.getElementById(
+    "statusbar"
+  ).textContent =
+    text;
+
+}
+
+
+/* =========================================================
+   START
+========================================================= */
+
+loadMap();
+
 </script>
 
 </body>
+
 </html>
