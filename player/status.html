@@ -1,253 +1,80 @@
 ```html
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Obvyris Health</title>
-
-<link rel="icon" href="navicon.png">
+<title>Obvyris Weather Test</title>
 
 <style>
 
-:root{
-    --bg:#07111d;
-    --panel:#0d1a2a;
-    --panel2:#111f31;
-    --line:#26384d;
-    --text:#f5f8fc;
-    --muted:#91a4ba;
-    --blue:#2793ff;
-    --green:#22c55e;
-    --red:#ef4444;
-    --yellow:#f59e0b;
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #101820;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
 }
 
-*{
-    box-sizing:border-box;
+.weather {
+    width: 90%;
+    max-width: 600px;
+    padding: 30px;
+    border-radius: 20px;
+    background: #182532;
+    box-shadow: 0 10px 40px rgba(0,0,0,.4);
+    text-align: center;
 }
 
-body{
-    margin:0;
-    background:var(--bg);
-    color:var(--text);
-    font-family:Inter,Arial,sans-serif;
+h1 {
+    margin-top: 0;
 }
 
-header{
-    padding:28px 22px 20px;
-    border-bottom:1px solid var(--line);
-    background:linear-gradient(
-        180deg,
-        #0d1b2c,
-        #091522
-    );
+.icon {
+    font-size: 70px;
+    margin: 15px;
 }
 
-.header-inner{
-    max-width:1200px;
-    margin:auto;
+.temperature {
+    font-size: 64px;
+    font-weight: bold;
 }
 
-h1{
-    margin:0;
-    font-size:28px;
+.condition {
+    font-size: 22px;
+    margin-bottom: 20px;
 }
 
-.subtitle{
-    margin-top:7px;
-    color:var(--muted);
+.details {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
 }
 
-.controls{
-    max-width:1200px;
-    margin:20px auto;
-    padding:0 22px;
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
+.detail {
+    padding: 15px;
+    background: #223444;
+    border-radius: 12px;
 }
 
-button,
-select,
-input{
-    background:var(--panel);
-    color:var(--text);
-    border:1px solid var(--line);
-    border-radius:8px;
-    padding:10px 13px;
+.label {
+    font-size: 13px;
+    opacity: .7;
 }
 
-button{
-    cursor:pointer;
-    background:var(--blue);
-    border-color:var(--blue);
-    font-weight:600;
+.value {
+    font-size: 20px;
+    margin-top: 5px;
 }
 
-button:hover{
-    opacity:.9;
-}
-
-#search{
-    flex:1;
-    min-width:220px;
-}
-
-.summary{
-    max-width:1200px;
-    margin:0 auto 20px;
-    padding:0 22px;
-}
-
-.summary-grid{
-    display:grid;
-    grid-template-columns:
-        repeat(auto-fit,minmax(150px,1fr));
-    gap:12px;
-}
-
-.stat{
-    background:var(--panel);
-    border:1px solid var(--line);
-    border-radius:12px;
-    padding:18px;
-}
-
-.stat-number{
-    font-size:26px;
-    font-weight:700;
-}
-
-.stat-label{
-    margin-top:5px;
-    color:var(--muted);
-    font-size:13px;
-}
-
-.container{
-    max-width:1200px;
-    margin:auto;
-    padding:0 22px 40px;
-}
-
-.category{
-    margin-top:25px;
-    margin-bottom:10px;
-    font-size:15px;
-    color:var(--blue);
-    font-weight:700;
-    text-transform:uppercase;
-    letter-spacing:.08em;
-}
-
-.resource{
-    display:grid;
-    grid-template-columns:
-        120px
-        minmax(180px,1fr)
-        minmax(250px,2fr)
-        110px;
-
-    gap:15px;
-    align-items:center;
-
-    padding:14px 16px;
-    margin-bottom:7px;
-
-    background:var(--panel);
-    border:1px solid var(--line);
-    border-radius:10px;
-}
-
-.resource:hover{
-    background:var(--panel2);
-}
-
-.type{
-    font-size:12px;
-    font-weight:700;
-    color:var(--muted);
-}
-
-.name{
-    font-weight:600;
-}
-
-.url{
-    color:var(--muted);
-    font-size:12px;
-    word-break:break-all;
-}
-
-.status{
-    text-align:right;
-    font-size:12px;
-    font-weight:700;
-}
-
-.status.ok{
-    color:var(--green);
-}
-
-.status.error{
-    color:var(--red);
-}
-
-.status.external{
-    color:var(--yellow);
-}
-
-.status.checking{
-    color:var(--blue);
-}
-
-.details{
-    grid-column:1/-1;
-    color:var(--muted);
-    font-size:12px;
-}
-
-.empty{
-    text-align:center;
-    padding:40px;
-    color:var(--muted);
-}
-
-.progress{
-    max-width:1200px;
-    margin:0 auto 20px;
-    padding:0 22px;
-}
-
-.progress-bar{
-    height:5px;
-    background:var(--panel);
-    border-radius:5px;
-    overflow:hidden;
-}
-
-.progress-fill{
-    width:0%;
-    height:100%;
-    background:var(--blue);
-    transition:.2s;
-}
-
-@media(max-width:800px){
-
-    .resource{
-        grid-template-columns:1fr;
-        gap:7px;
-    }
-
-    .status{
-        text-align:left;
-    }
-
+#status {
+    margin-top: 20px;
+    opacity: .7;
 }
 
 </style>
@@ -256,1037 +83,244 @@ button:hover{
 
 <body>
 
-<header>
+<div class="weather">
 
-<div class="header-inner">
+    <h1>🌤️ Obvyris Weather</h1>
 
-<h1>🩺 Obvyris Health</h1>
+    <div class="icon" id="icon">🌤️</div>
 
-<div class="subtitle">
-Live health check for Obvyris pages, scripts,
-data files, APIs, playlists and resources.
-</div>
+    <div class="temperature" id="temperature">
+        --°
+    </div>
 
-</div>
+    <div class="condition" id="condition">
+        Loading weather...
+    </div>
 
-</header>
+    <div class="details">
 
+        <div class="detail">
+            <div class="label">FEELS LIKE</div>
+            <div class="value" id="feels">--°</div>
+        </div>
 
-<div class="controls">
+        <div class="detail">
+            <div class="label">HUMIDITY</div>
+            <div class="value" id="humidity">--%</div>
+        </div>
 
-<input
-    id="search"
-    type="text"
-    placeholder="Search resources..."
->
+        <div class="detail">
+            <div class="label">WIND</div>
+            <div class="value" id="wind">-- mph</div>
+        </div>
 
-<select id="filter">
+        <div class="detail">
+            <div class="label">LOCATION</div>
+            <div class="value" id="location">Detecting...</div>
+        </div>
 
-<option value="all">All</option>
-<option value="ok">Working</option>
-<option value="error">Broken</option>
-<option value="external">External</option>
-<option value="checking">Checking</option>
+    </div>
 
-</select>
-
-<button onclick="runHealthCheck()">
-Run Health Check
-</button>
-
-</div>
-
-
-<div class="progress">
-
-<div class="progress-bar">
-
-<div
-    id="progressFill"
-    class="progress-fill">
-</div>
+    <div id="status">
+        Getting your location...
+    </div>
 
 </div>
-
-</div>
-
-
-<div class="summary">
-
-<div class="summary-grid">
-
-<div class="stat">
-
-<div
-    id="totalCount"
-    class="stat-number">
-0
-</div>
-
-<div class="stat-label">
-Resources
-</div>
-
-</div>
-
-
-<div class="stat">
-
-<div
-    id="workingCount"
-    class="stat-number">
-0
-</div>
-
-<div class="stat-label">
-Working
-</div>
-
-</div>
-
-
-<div class="stat">
-
-<div
-    id="brokenCount"
-    class="stat-number">
-0
-</div>
-
-<div class="stat-label">
-Broken
-</div>
-
-</div>
-
-
-<div class="stat">
-
-<div
-    id="externalCount"
-    class="stat-number">
-0
-</div>
-
-<div class="stat-label">
-External
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-
-<main
-    id="results"
-    class="container">
-
-<div class="empty">
-Press "Run Health Check" to begin.
-</div>
-
-</main>
 
 
 <script>
 
-/*
-=========================================================
-OBVYRIS HEALTH MONITOR
-=========================================================
+function weatherDescription(code) {
 
-The monitor begins with index99.html.
+    const weather = {
 
-It discovers:
+        0: ["Clear Sky", "☀️"],
 
-HTML
-JS
-CSS
-JSON
-M3U
-images
-API URLs
-other internal resources
+        1: ["Mainly Clear", "🌤️"],
+        2: ["Partly Cloudy", "⛅"],
+        3: ["Overcast", "☁️"],
 
-Important:
+        45: ["Fog", "🌫️"],
+        48: ["Fog", "🌫️"],
 
-External resources may be marked "External"
-because browsers cannot inspect their response without
-CORS permission.
+        51: ["Light Drizzle", "🌦️"],
+        53: ["Drizzle", "🌦️"],
+        55: ["Heavy Drizzle", "🌧️"],
 
-=========================================================
-*/
+        61: ["Light Rain", "🌦️"],
+        63: ["Rain", "🌧️"],
+        65: ["Heavy Rain", "🌧️"],
 
+        71: ["Light Snow", "🌨️"],
+        73: ["Snow", "❄️"],
+        75: ["Heavy Snow", "❄️"],
 
-const ROOT =
-    location.origin +
-    "/tester/";
+        80: ["Rain Showers", "🌦️"],
+        81: ["Rain Showers", "🌧️"],
+        82: ["Heavy Rain Showers", "🌧️"],
 
-const START_PAGE =
-    ROOT + "index99.html";
+        85: ["Snow Showers", "🌨️"],
+        86: ["Heavy Snow Showers", "❄️"],
 
+        95: ["Thunderstorm", "⛈️"],
+        96: ["Thunderstorm", "⛈️"],
+        99: ["Thunderstorm", "⛈️"]
 
-let resources = [];
+    };
 
-let visited = new Set();
-
-let checking = false;
-
-
-/*
-=========================================================
-RESOURCE TYPE
-=========================================================
-*/
-
-function getType(url){
-
-    const clean =
-        url.split("?")[0]
-            .split("#")[0]
-            .toLowerCase();
-
-    if(clean.endsWith(".html") ||
-       clean.endsWith(".htm"))
-        return "HTML";
-
-    if(clean.endsWith(".js"))
-        return "JS";
-
-    if(clean.endsWith(".css"))
-        return "CSS";
-
-    if(clean.endsWith(".json"))
-        return "JSON";
-
-    if(clean.endsWith(".m3u") ||
-       clean.endsWith(".m3u8"))
-        return "M3U";
-
-    if(clean.endsWith(".png") ||
-       clean.endsWith(".jpg") ||
-       clean.endsWith(".jpeg") ||
-       clean.endsWith(".webp") ||
-       clean.endsWith(".gif") ||
-       clean.endsWith(".svg") ||
-       clean.endsWith(".ico"))
-        return "IMAGE";
-
-    if(
-        url.includes("/api/") ||
-        url.includes("script.google.com") ||
-        url.includes("googleapis.com")
-    )
-        return "API";
-
-    return "RESOURCE";
+    return weather[code] || ["Unknown", "🌤️"];
 }
 
 
-/*
-=========================================================
-INTERNAL URL
-=========================================================
-*/
-
-function isInternal(url){
-
-    try{
-
-        const parsed =
-            new URL(url, location.href);
-
-        return parsed.origin === location.origin &&
-               parsed.pathname.startsWith("/tester/");
-
-    }catch{
-
-        return false;
-
-    }
-
-}
-
-
-/*
-=========================================================
-ADD RESOURCE
-=========================================================
-*/
-
-function addResource(url, source){
-
-    try{
-
-        const absolute =
-            new URL(url, source).href;
-
-        if(
-            !absolute.startsWith("http://") &&
-            !absolute.startsWith("https://")
-        )
-            return;
-
-        if(
-            absolute.startsWith("data:") ||
-            absolute.startsWith("javascript:")
-        )
-            return;
-
-        const exists =
-            resources.some(
-                r => r.url === absolute
-            );
-
-        if(exists)
-            return;
-
-        resources.push({
-
-            url:absolute,
-
-            type:getType(absolute),
-
-            source:source,
-
-            status:"checking",
-
-            message:"Waiting..."
-
-        });
-
-    }catch{
-
-    }
-
-}
-
-
-/*
-=========================================================
-EXTRACT URLS FROM HTML
-=========================================================
-*/
-
-function extractHTML(html, source){
-
-    const parser =
-        new DOMParser();
-
-    const doc =
-        parser.parseFromString(
-            html,
-            "text/html"
-        );
-
-
-    /*
-    Links
-    */
-
-    doc.querySelectorAll(
-        "a[href]"
-    ).forEach(el => {
-
-        addResource(
-            el.getAttribute("href"),
-            source
-        );
-
-    });
-
-
-    /*
-    Scripts
-    */
-
-    doc.querySelectorAll(
-        "script[src]"
-    ).forEach(el => {
-
-        addResource(
-            el.getAttribute("src"),
-            source
-        );
-
-    });
-
-
-    /*
-    Stylesheets
-    */
-
-    doc.querySelectorAll(
-        "link[href]"
-    ).forEach(el => {
-
-        addResource(
-            el.getAttribute("href"),
-            source
-        );
-
-    });
-
-
-    /*
-    Images
-    */
-
-    doc.querySelectorAll(
-        "img[src]"
-    ).forEach(el => {
-
-        addResource(
-            el.getAttribute("src"),
-            source
-        );
-
-    });
-
-
-    /*
-    Video
-    */
-
-    doc.querySelectorAll(
-        "video[src],source[src]"
-    ).forEach(el => {
-
-        addResource(
-            el.getAttribute("src"),
-            source
-        );
-
-    });
-
-
-    /*
-    Audio
-    */
-
-    doc.querySelectorAll(
-        "audio[src]"
-    ).forEach(el => {
-
-        addResource(
-            el.getAttribute("src"),
-            source
-        );
-
-    });
-
-
-    /*
-    Search HTML source for API,
-    JSON and M3U URLs.
-    */
-
-    const sourceText =
-        html.match(
-            /https?:\/\/[^\s"'<>]+/g
-        ) || [];
-
-
-    sourceText.forEach(url => {
-
-        addResource(
-            url,
-            source
-        );
-
-    });
-
-}
-
-
-/*
-=========================================================
-CRAWL INTERNAL HTML
-=========================================================
-*/
-
-async function crawlPage(url){
-
-    if(visited.has(url))
-        return;
-
-    visited.add(url);
-
-    try{
-
-        const response =
-            await fetch(
-                url,
-                {
-                    cache:"no-store"
-                }
-            );
-
-        if(!response.ok)
-            return;
-
-        const text =
-            await response.text();
-
-        extractHTML(
-            text,
-            url
-        );
-
-    }catch(error){
-
-        console.warn(
-            "Could not crawl:",
-            url,
-            error
-        );
-
-    }
-
-}
-
-
-/*
-=========================================================
-DISCOVER SITE
-=========================================================
-*/
-
-async function discoverSite(){
-
-    resources = [];
-
-    visited.clear();
-
-
-    addResource(
-        START_PAGE,
-        location.href
-    );
-
-
-    await crawlPage(
-        START_PAGE
-    );
-
-
-    /*
-    Keep crawling newly discovered
-    internal HTML pages.
-    */
-
-    let changed = true;
-
-    while(changed){
-
-        changed = false;
-
-        const htmlPages =
-            resources.filter(
-                r =>
-                    r.type === "HTML" &&
-                    isInternal(r.url)
-            );
-
-
-        for(const resource of htmlPages){
-
-            if(!visited.has(resource.url)){
-
-                const before =
-                    resources.length;
-
-                await crawlPage(
-                    resource.url
-                );
-
-                if(
-                    resources.length >
-                    before
-                )
-                    changed = true;
-
+function getWeather(latitude, longitude) {
+
+    const url =
+        "https://api.open-meteo.com/v1/forecast" +
+        "?latitude=" + latitude +
+        "&longitude=" + longitude +
+        "&current=" +
+        "temperature_2m," +
+        "apparent_temperature," +
+        "relative_humidity_2m," +
+        "wind_speed_10m," +
+        "weather_code," +
+        "is_day" +
+        "&temperature_unit=fahrenheit" +
+        "&wind_speed_unit=mph" +
+        "&timezone=auto";
+
+
+    fetch(url)
+
+        .then(response => {
+
+            if (!response.ok) {
+                throw new Error("Weather API error");
             }
 
-        }
+            return response.json();
 
-    }
+        })
 
-}
+        .then(data => {
 
+            const current = data.current;
 
-/*
-=========================================================
-CHECK RESOURCE
-=========================================================
-*/
+            const weather =
+                weatherDescription(current.weather_code);
 
-async function checkResource(resource){
 
-    /*
-    External URLs
+            document.getElementById("temperature")
+                .textContent =
+                Math.round(current.temperature_2m) + "°";
 
-    Browser security may prevent reading
-    their response.
-    */
 
-    if(!isInternal(resource.url)){
+            document.getElementById("feels")
+                .textContent =
+                Math.round(current.apparent_temperature) + "°";
 
-        resource.status =
-            "external";
 
-        resource.message =
-            "External resource — browser CORS may prevent verification.";
+            document.getElementById("humidity")
+                .textContent =
+                current.relative_humidity_2m + "%";
 
-        return;
 
-    }
+            document.getElementById("wind")
+                .textContent =
+                Math.round(current.wind_speed_10m) + " mph";
 
 
-    try{
+            document.getElementById("condition")
+                .textContent =
+                weather[0];
 
-        const start =
-            performance.now();
 
+            document.getElementById("icon")
+                .textContent =
+                weather[1];
 
-        const response =
-            await fetch(
-                resource.url,
-                {
-                    method:"GET",
-                    cache:"no-store"
-                }
-            );
 
+            document.getElementById("location")
+                .textContent =
+                current.timezone || "Local";
 
-        const time =
-            Math.round(
-                performance.now() -
-                start
-            );
 
+            document.getElementById("status")
+                .textContent =
+                "Weather updated";
 
-        if(response.ok){
 
-            resource.status =
-                "ok";
+        })
 
-            resource.message =
-                response.status +
-                " OK • " +
-                time +
-                " ms";
+        .catch(error => {
 
-        }else{
+            console.error(error);
 
-            resource.status =
-                "error";
+            document.getElementById("condition")
+                .textContent =
+                "Weather unavailable";
 
-            resource.message =
-                "HTTP " +
-                response.status +
-                " • " +
-                response.statusText;
-
-        }
-
-
-    }catch(error){
-
-        resource.status =
-            "error";
-
-        resource.message =
-            error.message ||
-            "Request failed";
-
-    }
-
-}
-
-
-/*
-=========================================================
-RUN CHECK
-=========================================================
-*/
-
-async function runHealthCheck(){
-
-    if(checking)
-        return;
-
-    checking = true;
-
-
-    document.getElementById(
-        "results"
-    ).innerHTML =
-        '<div class="empty">Discovering Obvyris resources...</div>';
-
-
-    /*
-    Discover everything reachable
-    from index99.html.
-    */
-
-    await discoverSite();
-
-
-    /*
-    Remove duplicates.
-    */
-
-    const map =
-        new Map();
-
-    resources.forEach(resource => {
-
-        map.set(
-            resource.url,
-            resource
-        );
-
-    });
-
-    resources =
-        [...map.values()];
-
-
-    render();
-
-
-    /*
-    Check each resource.
-    */
-
-    for(
-        let i = 0;
-        i < resources.length;
-        i++
-    ){
-
-        await checkResource(
-            resources[i]
-        );
-
-
-        const percent =
-            Math.round(
-                ((i + 1) /
-                resources.length) *
-                100
-            );
-
-
-        document.getElementById(
-            "progressFill"
-        ).style.width =
-            percent + "%";
-
-
-        render();
-
-    }
-
-
-    checking = false;
-
-}
-
-
-/*
-=========================================================
-RENDER
-=========================================================
-*/
-
-function render(){
-
-    const search =
-        document.getElementById(
-            "search"
-        ).value
-        .toLowerCase();
-
-
-    const filter =
-        document.getElementById(
-            "filter"
-        ).value;
-
-
-    const filtered =
-        resources.filter(resource => {
-
-            const matchesSearch =
-                !search ||
-                resource.url
-                    .toLowerCase()
-                    .includes(search) ||
-                resource.type
-                    .toLowerCase()
-                    .includes(search);
-
-
-            const matchesFilter =
-                filter === "all" ||
-                resource.status === filter;
-
-
-            return (
-                matchesSearch &&
-                matchesFilter
-            );
+            document.getElementById("status")
+                .textContent =
+                "Could not load weather";
 
         });
 
-
-    /*
-    Counters
-    */
-
-    const working =
-        resources.filter(
-            r => r.status === "ok"
-        ).length;
-
-    const broken =
-        resources.filter(
-            r => r.status === "error"
-        ).length;
-
-    const external =
-        resources.filter(
-            r => r.status === "external"
-        ).length;
+}
 
 
-    document.getElementById(
-        "totalCount"
-    ).textContent =
-        resources.length;
+function getLocation() {
 
+    if (!navigator.geolocation) {
 
-    document.getElementById(
-        "workingCount"
-    ).textContent =
-        working;
-
-
-    document.getElementById(
-        "brokenCount"
-    ).textContent =
-        broken;
-
-
-    document.getElementById(
-        "externalCount"
-    ).textContent =
-        external;
-
-
-    /*
-    Results
-    */
-
-    const container =
-        document.getElementById(
-            "results"
-        );
-
-
-    if(!filtered.length){
-
-        container.innerHTML =
-            '<div class="empty">No resources found.</div>';
+        document.getElementById("status")
+            .textContent =
+            "Geolocation is not supported.";
 
         return;
 
     }
 
 
-    /*
-    Group by type.
-    */
+    navigator.geolocation.getCurrentPosition(
 
-    const groups = {};
+        position => {
 
+            const latitude =
+                position.coords.latitude;
 
-    filtered.forEach(resource => {
-
-        if(!groups[resource.type])
-            groups[resource.type] = [];
-
-        groups[resource.type]
-            .push(resource);
-
-    });
+            const longitude =
+                position.coords.longitude;
 
 
-    let html = "";
+            document.getElementById("status")
+                .textContent =
+                "Loading local weather...";
 
 
-    Object.keys(groups)
-        .sort()
-        .forEach(type => {
+            getWeather(latitude, longitude);
 
-            html += `
-                <div class="category">
-                    ${type}
-                </div>
-            `;
+        },
 
+        error => {
 
-            groups[type]
-                .forEach(resource => {
+            console.error(error);
 
-                    const label =
-                        resource.status === "ok"
-                            ? "● WORKING"
-                            :
-                        resource.status === "error"
-                            ? "● BROKEN"
-                            :
-                        resource.status === "external"
-                            ? "● EXTERNAL"
-                            :
-                            "● CHECKING";
+            document.getElementById("status")
+                .textContent =
+                "Location permission denied.";
 
+        }
 
-                    html += `
-
-                        <div class="resource">
-
-                            <div class="type">
-                                ${resource.type}
-                            </div>
-
-                            <div class="name">
-                                ${getName(resource.url)}
-                            </div>
-
-                            <div class="url">
-                                ${escapeHTML(resource.url)}
-                            </div>
-
-                            <div class="status ${resource.status}">
-                                ${label}
-                            </div>
-
-                            <div class="details">
-                                ${escapeHTML(resource.message)}
-                                <br>
-                                Source:
-                                ${escapeHTML(resource.source)}
-                            </div>
-
-                        </div>
-
-                    `;
-
-                });
-
-        });
-
-
-    container.innerHTML =
-        html;
+    );
 
 }
 
 
-/*
-=========================================================
-NAME
-=========================================================
-*/
-
-function getName(url){
-
-    try{
-
-        const parsed =
-            new URL(url);
-
-        const path =
-            parsed.pathname;
-
-        const last =
-            path.split("/")
-                .filter(Boolean)
-                .pop();
-
-
-        return last ||
-               parsed.hostname;
-
-    }catch{
-
-        return url;
-
-    }
-
-}
-
-
-/*
-=========================================================
-ESCAPE HTML
-=========================================================
-*/
-
-function escapeHTML(value){
-
-    return String(value)
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
-
-}
-
-
-/*
-=========================================================
-LIVE FILTERING
-=========================================================
-*/
-
-document.getElementById(
-    "search"
-).addEventListener(
-    "input",
-    render
-);
-
-
-document.getElementById(
-    "filter"
-).addEventListener(
-    "change",
-    render
-);
-
-
-/*
-=========================================================
-AUTOMATIC CHECK
-
-Uncomment this if you want the page
-to automatically scan when opened.
-
-=========================================================
-*/
-
-// runHealthCheck();
+getLocation();
 
 </script>
 
 </body>
-
 </html>
 ```
