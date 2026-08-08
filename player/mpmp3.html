@@ -874,13 +874,13 @@ Obvyris Archive MP3 Engine
 <div class="controls">
 
 
-<input id="search"
-placeholder="Search artist, album, concert...">
+<input 
+id="creator"
+placeholder="Search artist / band / creator">
 
-
-
-<input id="creator"
-placeholder="Creator">
+<input 
+id="search"
+placeholder="Filter songs...">
 
 
 <select id="sort">
@@ -1209,8 +1209,8 @@ let currentPage = 0;
 
 let pageSize = 25;
 
-
 let tracks = [];
+let allTracks = [];
 
 let currentCollection = "";
 
@@ -1220,150 +1220,123 @@ let currentPlayingIndex = -1;
 
 async function searchArchive(page){
 
+    currentPage = page;
 
-currentPage = page;
+    let search =
+        document.getElementById("search")
+        .value
+        .trim();
 
+    let creator =
+        document.getElementById("creator")
+        .value
+        .trim();
 
+    let sort =
+        document.getElementById("sort")
+        .value;
 
-let search =
 
-document.getElementById("search")
-.value
-.trim();
+    /*
+    ======================================
+    ARCHIVE SEARCH
+    Creator is the PRIMARY search.
+    The normal search field is NOT sent
+    to Archive.
+    ======================================
+    */
 
+    let query = "mediatype:audio";
 
 
-let creator =
+    if(creator){
 
-document.getElementById("creator")
-.value
-.trim();
+        query +=
+        ' AND creator:"' +
+        creator +
+        '"';
 
+    }
 
 
-let sort =
+    let url =
 
-document.getElementById("sort")
-.value;
+        "https://archive.org/advancedsearch.php?q="
 
+        +
 
+        encodeURIComponent(query)
 
-let query = "mediatype:audio";
+        +
 
+        "&fl[]=identifier,title,creator,description,date"
 
-if(search){
+        +
 
-query +=
+        "&rows="
 
-' AND title:"'+
+        +
 
-search+
+        pageSize
 
-'"';
+        +
 
-}
+        "&start="
 
+        +
 
-if(creator){
+        (page * pageSize)
 
-query +=
+        +
 
-' AND creator:"'+
+        "&sort[]="
 
-creator+
+        +
 
-'"';
+        encodeURIComponent(sort)
 
-}
+        +
 
+        "&output=json";
 
 
+    document.getElementById("status").innerHTML =
+        "Searching Archive...";
 
-let url =
 
+    try{
 
-"https://archive.org/advancedsearch.php?q="
+        let response = await fetch(url);
 
-+
+        let data = await response.json();
 
-encodeURIComponent(query)
 
-+
+        document.getElementById("status").innerHTML =
 
-"&fl[]=identifier,title,creator,description,date"
+            "Found "
 
-+
+            +
 
-"&rows="
+            data.response.numFound
 
-+
+            +
 
-pageSize
+            " audio collections. Scanning MP3 files...";
 
-+
 
-"&start="
+        await loadMP3FromCollections(
+            data.response.docs
+        );
 
-+
 
-(page * pageSize)
+    }catch(err){
 
-+
+        console.error(err);
 
-"&sort[]="
+        document.getElementById("status").innerHTML =
+            "Archive search failed.";
 
-+
-
-encodeURIComponent(sort)
-
-+
-
-"&output=json";
-
-
-
-
-
-
-document.getElementById("status").innerHTML =
-
-"Searching Archive...";
-
-
-
-
-
-
-let response =
-
-await fetch(url);
-
-
-
-let data =
-
-await response.json();
-
-
-
-
-document.getElementById("status").innerHTML =
-
-"Found "
-
-+
-
-data.response.numFound
-
-+
-
-" audio collections";
-
-
-
-loadMP3FromCollections(data.response.docs);
-
-
+    }
 
 }
 
@@ -1377,103 +1350,154 @@ loadMP3FromCollections(data.response.docs);
 
 async function loadMP3FromCollections(items){
 
-let foundTracks = [];
+    let foundTracks = [];
 
-document.getElementById("status").innerHTML =
-"Scanning collections for MP3 files...";
-
-
-for(const item of items){
+    document.getElementById("status").innerHTML =
+        "Scanning collections for MP3 files...";
 
 
-try{
+    for(const item of items){
+
+        try{
+
+            let response = await fetch(
+                "https://archive.org/metadata/" +
+                item.identifier
+            );
+
+            let data = await response.json();
 
 
-let response = await fetch(
-"https://archive.org/metadata/" + item.identifier
-);
+            data.files.forEach(file=>{
+
+                let name = file.name || "";
 
 
-let data = await response.json();
+                if(name.toLowerCase().endsWith(".mp3")){
+
+                    foundTracks.push({
+
+                        name:name,
+
+                        artist:
+                            data.metadata.creator ||
+                            "Unknown",
+
+                        album:
+                            data.metadata.title ||
+                            "Unknown",
+
+                        size:
+                            formatSize(file.size),
+
+                        url:
+                            "https://archive.org/download/"
+                            +
+                            item.identifier
+                            +
+                            "/"
+                            +
+                            encodeURIComponent(name)
+
+                    });
+
+                }
+
+            });
 
 
+        }catch(err){
 
-data.files.forEach(file=>{
+            console.log(err);
 
+        }
 
-let name = file.name || "";
-
-
-if(name.toLowerCase().endsWith(".mp3")){
-
-
-foundTracks.push({
+    }
 
 
-name:name,
+    /*
+    ======================================
+    SAVE COMPLETE CREATOR RESULTS
+    ======================================
+    */
+
+    allTracks = foundTracks;
 
 
-artist:
-data.metadata.creator || "Unknown",
+    /*
+    ======================================
+    APPLY SONG FILTER
+    ======================================
+    */
 
-
-album:
-data.metadata.title || "Unknown",
-
-
-size:
-formatSize(file.size),
-
-
-url:
-"https://archive.org/download/"
-+
-item.identifier
-+
-"/"
-+
-encodeURIComponent(name)
-
-
-
-});
-
-
-}
-
-
-
-});
-
-
-}catch(err){
-
-console.log(err);
-
-}
-
-
-}
-
-
-
-tracks = foundTracks;
-
-
-document.getElementById("status").innerHTML =
-
-"Found "
-+
-tracks.length
-+
-" MP3 files";
-
-
-renderTracks();
+    filterTracks();
 
 
 }
 
+function filterTracks(){
+
+    let filter =
+        document.getElementById("search")
+        .value
+        .trim()
+        .toLowerCase();
+
+
+    /*
+    No filter = show everything
+    */
+
+    if(!filter){
+
+        tracks = [...allTracks];
+
+    }else{
+
+        /*
+        Search ONLY the Song column
+        */
+
+        tracks = allTracks.filter(track=>{
+
+            let song =
+                String(track.name || "")
+                .toLowerCase();
+
+            return song.includes(filter);
+
+        });
+
+    }
+
+
+    document.getElementById("status").innerHTML =
+
+        "Showing "
+
+        +
+
+        tracks.length
+
+        +
+
+        " MP3 tracks"
+
+        +
+
+        (
+            allTracks.length !== tracks.length
+            ?
+            " (" + allTracks.length + " total)"
+            :
+            ""
+        );
+
+
+    renderTracks();
+
+}
+ 
 // ======================================
 // LOAD MP3 FILES
 // ======================================
@@ -2876,6 +2900,12 @@ tooltip.style.opacity="0";
 
 
 });
+
+
+document.getElementById("search").addEventListener(
+    "input",
+    filterTracks
+);
  
 </script>
 
