@@ -447,7 +447,110 @@ top:-180px;
 
 }
 
+/* =================================
+   WEATHER LOCATION CONTROLS
+================================= */
 
+.weatherLocationControls{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:flex-end;
+
+    gap:6px;
+
+    margin-top:7px;
+
+}
+
+
+.weatherLocationControls input{
+
+    width:85px;
+
+    padding:7px 9px;
+
+    border-radius:9px;
+
+    border:1px solid var(--line);
+
+    background:#0b1220;
+
+    color:white;
+
+    font-size:12px;
+
+    font-weight:700;
+
+    outline:none;
+
+    text-align:center;
+
+}
+
+
+.weatherLocationControls input::placeholder{
+
+    color:#718096;
+
+}
+
+
+.weatherLocationControls input:focus{
+
+    border-color:var(--blue);
+
+    box-shadow:
+        0 0 10px rgba(39,147,255,.2);
+
+}
+
+
+.weatherLocationButton{
+
+    width:auto;
+
+    margin:0;
+
+    padding:7px 9px;
+
+    border-radius:9px;
+
+    font-size:11px;
+
+    font-weight:800;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(39,147,255,.18),
+            rgba(24,105,217,.35)
+        );
+
+}
+
+
+/* MOBILE WEATHER CONTROLS */
+
+@media(max-width:700px){
+
+    .weatherLocationControls{
+
+        justify-content:center;
+
+        width:100%;
+
+    }
+
+    .weatherLocationControls input{
+
+        width:90px;
+
+    }
+
+}
 /* =================================
    MOBILE
 ================================= */
@@ -1962,12 +2065,42 @@ Entertainment • Media • Community • News • Gaming • Digital Experience
 
     <div class="weatherLocation">
 
-        📍
-        <span id="weatherLocation">
-            Local
-        </span>
+    📍
+    <span id="weatherLocation">
+        Local
+    </span>
+
+    <div class="weatherLocationControls">
+
+        <button
+            type="button"
+            onclick="useMyLocation()"
+            class="weatherLocationButton">
+
+            📍 GPS
+
+        </button>
+
+        <input
+            type="text"
+            id="zipCode"
+            placeholder="ZIP Code"
+            maxlength="5"
+            inputmode="numeric"
+        >
+
+        <button
+            type="button"
+            onclick="loadZipWeather()"
+            class="weatherLocationButton">
+
+            📮 ZIP
+
+        </button>
 
     </div>
+
+</div>
 
 </div>
 
@@ -4094,7 +4227,7 @@ function loadWeather(latitude, longitude, locationName){
    GET LOCAL WEATHER
 ================================= */
 
-function loadLocalWeather(){
+ function loadLocalWeather(){
 
     if(!navigator.geolocation){
 
@@ -4141,6 +4274,178 @@ function loadLocalWeather(){
 }
 
 
+/* =================================
+   LOAD WEATHER BY ZIP CODE
+================================= */
+
+function loadZipWeather(){
+
+    const zipInput =
+        document.getElementById("zipCode");
+
+    const zip =
+        zipInput.value.trim();
+
+
+    /* CHECK ZIP */
+
+    if(!/^\d{5}$/.test(zip)){
+
+        alert(
+            "Please enter a valid 5-digit ZIP code."
+        );
+
+        zipInput.focus();
+
+        return;
+
+    }
+
+
+    /*
+    =================================
+    GET ZIP LOCATION
+    =================================
+    */
+
+    document.getElementById(
+        "weatherLocation"
+    ).textContent =
+        "Finding ZIP " + zip + "...";
+
+
+    fetch(
+        "https://api.zippopotam.us/us/" +
+        zip
+    )
+
+    .then(response => {
+
+        if(!response.ok){
+
+            throw new Error(
+                "ZIP code not found"
+            );
+
+        }
+
+        return response.json();
+
+    })
+
+
+    .then(data => {
+
+        if(
+            !data.places ||
+            !data.places.length
+        ){
+
+            throw new Error(
+                "ZIP location unavailable"
+            );
+
+        }
+
+
+        const place =
+            data.places[0];
+
+
+        const latitude =
+            parseFloat(
+                place.latitude
+            );
+
+
+        const longitude =
+            parseFloat(
+                place.longitude
+            );
+
+
+        const city =
+            place["place name"];
+
+
+        const state =
+            place["state abbreviation"] ||
+            place.state;
+
+
+        const locationName =
+            city +
+            ", " +
+            state +
+            " " +
+            zip;
+
+
+        /*
+        =================================
+        LOAD WEATHER
+        =================================
+        */
+
+        loadWeather(
+            latitude,
+            longitude,
+            locationName
+        );
+
+
+        /*
+        Save ZIP for next visit
+        */
+
+        localStorage.setItem(
+            "obvyrisWeatherZip",
+            zip
+        );
+
+    })
+
+
+    .catch(error => {
+
+        console.error(
+            "ZIP weather error:",
+            error
+        );
+
+
+        document.getElementById(
+            "weatherLocation"
+        ).textContent =
+            "ZIP not found";
+
+
+        alert(
+            "Unable to find that ZIP code."
+        );
+
+    });
+
+}
+
+
+/* =================================
+   USE GPS LOCATION
+================================= */
+
+function useMyLocation(){
+
+    document.getElementById(
+        "weatherLocation"
+    ).textContent =
+        "Locating...";
+
+
+    loadLocalWeather();
+
+}
+
+ 
 /* =================================
    START WEATHER
 ================================= */
