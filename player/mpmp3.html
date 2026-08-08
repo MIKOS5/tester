@@ -2412,47 +2412,115 @@ tracks[index]
 
 }
 
+const archiveChannel =
+    "BroadcastChannel" in window
+    ? new BroadcastChannel("obvyrisArchivePlayer")
+    : null;
+
+// ======================================
+// SEND PLAYER STATUS TO OBBVYRIS HUB
+// ======================================
+
+const ARCHIVE_PLAYER_KEY = "obvyrisArchivePlayer";
+
+function updateArchivePlayerStatus(track = null){
+
+    const status = {
+
+        playing: track ? !audio.paused : false,
+
+        name: track ? track.name : "No Track Playing",
+
+        artist: track ? track.artist : "Archive Audio",
+
+        album: track ? track.album : "",
+
+        url: track ? track.url : "",
+
+        time: audio.currentTime || 0,
+
+        duration: audio.duration || 0,
+
+        updated: Date.now()
+
+    };
 
 
+    localStorage.setItem(
+        ARCHIVE_PLAYER_KEY,
+        JSON.stringify(status)
+    );
+
+
+    // Live communication between pages/tabs
+    if("BroadcastChannel" in window){
+
+        archiveChannel.postMessage(status);
+
+    }
+
+}
 
 
 function playTrackURL(track){
 
+    audio.src = track.url;
 
-audio.src = track.url;
+    audio.play();
+
+    document.getElementById(
+        "winampSong"
+    ).innerHTML =
+        escapeHTML(track.name);
+
+    document.getElementById(
+        "winampArtist"
+    ).innerHTML =
+        escapeHTML(track.artist)
+        +
+        "<br>"
+        +
+        escapeHTML(track.album);
+
+    showWinamp();
+
+    document.getElementById(
+        "miniStatus"
+    ).innerHTML =
+        "▶ " + escapeHTML(track.name);
+
+    currentPlayingIndex = queueIndex;
+
+    renderQueue();
 
 
-audio.play();
+    // ======================================
+    // SEND PLAYER STATUS TO OVBYRIS HUB
+    // ======================================
 
+    localStorage.setItem(
+        "obvyrisMP3PlayerState",
+        JSON.stringify({
 
+            playing: true,
 
-document.getElementById(
-"winampSong"
-).innerHTML =
-""+escapeHTML(track.name);
+            song: track.name,
 
+            artist: track.artist,
 
+            album: track.album,
 
-document.getElementById(
-"winampArtist"
-).innerHTML =
-escapeHTML(track.artist)
-+
-"<br>"
-+
-escapeHTML(track.album);
+            url: track.url,
 
+            time: audio.currentTime,
 
+            duration: audio.duration || 0,
 
-showWinamp();
+            updated: Date.now()
 
-document.getElementById("miniStatus").innerHTML =
-"▶ " + track.name;
+        })
+    );
 
-currentPlayingIndex = queueIndex;
-
-renderQueue();
-     
 }
 
 
@@ -2462,35 +2530,154 @@ renderQueue();
 // PLAYER CONTROLS
 // ======================================
 
-
-
 function togglePlay(){
 
+    if(audio.paused){
 
-if(audio.paused){
+        audio.play();
 
+    }
 
-audio.play();
+    else{
 
+        audio.pause();
 
-}
-
-else{
-
-
-audio.pause();
-
+    }
 
 }
 
 
+// ======================================
+// KEEP HUB UPDATED WITH PLAY/PAUSE
+// ======================================
+
+audio.addEventListener(
+    "play",
+    function(){
+
+        let state =
+            JSON.parse(
+                localStorage.getItem(
+                    "obvyrisMP3PlayerState"
+                ) || "{}"
+            );
+
+
+        state.playing = true;
+
+        state.time = audio.currentTime;
+
+        state.duration = audio.duration || 0;
+
+        state.updated = Date.now();
+
+
+        localStorage.setItem(
+            "obvyrisMP3PlayerState",
+            JSON.stringify(state)
+        );
+
+    }
+);
+
+
+audio.addEventListener(
+    "pause",
+    function(){
+
+        let state =
+            JSON.parse(
+                localStorage.getItem(
+                    "obvyrisMP3PlayerState"
+                ) || "{}"
+            );
+
+
+        state.playing = false;
+
+        state.time = audio.currentTime;
+
+        state.duration = audio.duration || 0;
+
+        state.updated = Date.now();
+
+
+        localStorage.setItem(
+            "obvyrisMP3PlayerState",
+            JSON.stringify(state)
+        );
+
+    }
+);
+
+
+audio.addEventListener(
+"timeupdate",
+()=>{
+
+
+if(audio.duration){
+
+
+document.getElementById("seekBar").value =
+
+(audio.currentTime / audio.duration) * 100;
+
+
+
+document.getElementById("currentTime").innerHTML =
+
+formatTime(audio.currentTime);
+
+
+
+document.getElementById("durationTime").innerHTML =
+
+formatTime(audio.duration);
+
+
 }
 
 
+/* SEND CURRENT PLAYER TIME TO HUB */
+
+const saved =
+    localStorage.getItem(
+        ARCHIVE_PLAYER_KEY
+    );
 
 
+if(saved){
+
+    const status =
+        JSON.parse(saved);
 
 
+    status.playing =
+        !audio.paused;
+
+
+    status.time =
+        audio.currentTime;
+
+
+    status.duration =
+        audio.duration || 0;
+
+
+    status.updated =
+        Date.now();
+
+
+    localStorage.setItem(
+        ARCHIVE_PLAYER_KEY,
+        JSON.stringify(status)
+    );
+
+}
+
+
+});
 
 function nextTrack(){
 
