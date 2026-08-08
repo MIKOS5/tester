@@ -3,33 +3,35 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-
-<title>Obvyris Server Map</title>
-
-<style><!DOCTYPE html>
-
-<html lang="en">
-<head>
-<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Obvyris Server Map</title>
 
 <style>
+
 :root{
-    --bg:#050a12;
-    --panel:#0b1422;
-    --panel2:#101c2d;
-    --line:#29415c;
+    --bg:#040810;
+    --bg2:#07111d;
+    --panel:#0b1522;
+    --panel2:#0e1b2b;
+
     --text:#edf6ff;
-    --muted:#8499b1;
+    --muted:#7f94aa;
+
     --blue:#2793ff;
-    --blue2:#54a9ff;
-    --purple:#9b6be3;
-    --purple2:#c084fc;
-    --green:#22c55e;
-    --red:#ef4444;
+    --blue2:#55b0ff;
+
+    --backend:#318fe0;
+    --sheet:#477da8;
+    --sheetapi:#9b6bd6;
+
+    --frontend:#48a8ff;
+
+    --external:#a367d2;
+    --externalapi:#c27be7;
+
+    --line:#294158;
+    --line-soft:rgba(75,130,175,.45);
 }
 
 *{
@@ -41,25 +43,37 @@ body{
     width:100%;
     height:100%;
     margin:0;
+}
+
+body{
     overflow:hidden;
+
     background:
         radial-gradient(
-            circle at center,
-            #12233a 0%,
-            #07111e 35%,
-            #03070d 100%
+            circle at 50% 50%,
+            #122944 0%,
+            #081421 34%,
+            #040810 72%,
+            #02050a 100%
         );
+
     color:var(--text);
-    font-family:Inter,Arial,sans-serif;
+
+    font-family:
+        Inter,
+        Arial,
+        Helvetica,
+        sans-serif;
 }
+
 
 /* =========================================================
    HEADER
 ========================================================= */
 
 .header{
+
     position:fixed;
-    z-index:1000;
 
     top:0;
     left:0;
@@ -67,84 +81,134 @@ body{
 
     height:64px;
 
+    z-index:1000;
+
     display:flex;
+
     align-items:center;
+
     justify-content:space-between;
 
-    padding:0 20px;
+    padding:0 18px;
 
-    background:rgba(5,10,18,.94);
-    border-bottom:1px solid #1d3045;
+    background:
+        rgba(3,8,15,.94);
 
-    backdrop-filter:blur(14px);
+    border-bottom:
+        1px solid #1c3044;
+
+    backdrop-filter:
+        blur(14px);
+
+    box-shadow:
+        0 8px 30px rgba(0,0,0,.25);
 }
 
 .brand{
+
     display:flex;
+
     align-items:center;
+
     gap:11px;
 }
 
 .logo{
+
     width:36px;
     height:36px;
 
     display:grid;
+
     place-items:center;
 
     border-radius:50%;
 
     background:
-        linear-gradient(
-            145deg,
-            #2793ff,
-            #1457b9
+        radial-gradient(
+            circle at 35% 30%,
+            #5bb8ff,
+            #2793ff 45%,
+            #1454a0 100%
         );
 
     box-shadow:
-        0 0 25px rgba(39,147,255,.4);
+        0 0 24px
+        rgba(39,147,255,.35);
 
     font-weight:900;
+
     font-size:18px;
 }
 
-.brand-text h1{
+.brand h1{
+
     margin:0;
-    font-size:18px;
+
+    font-size:17px;
+
+    font-weight:800;
+
+    letter-spacing:.3px;
 }
 
-.brand-text small{
+.brand small{
+
+    display:block;
+
+    margin-top:2px;
+
     color:var(--muted);
-    font-size:10px;
+
+    font-size:9px;
+
+    letter-spacing:1px;
 }
 
-.controls{
+.actions{
+
     display:flex;
+
     gap:7px;
 }
 
-button{
-    border:1px solid #29415c;
-    background:#0c1726;
-    color:white;
+.action{
 
-    padding:8px 12px;
+    border:
+        1px solid #263c52;
+
+    background:
+        #0b1624;
+
+    color:#dcecff;
 
     border-radius:8px;
 
+    padding:8px 11px;
+
+    font-size:11px;
+
     cursor:pointer;
+
+    transition:.15s;
 }
 
-button:hover{
-    background:#15263b;
-    border-color:#3979b3;
+.action:hover{
+
+    border-color:
+        #3987c5;
+
+    background:
+        #102235;
 }
+
 
 /* =========================================================
    MAP
 ========================================================= */
 
 #map{
+
     position:absolute;
 
     top:64px;
@@ -155,11 +219,86 @@ button:hover{
     overflow:hidden;
 }
 
+
 /* =========================================================
-   SVG
+   MAP GRID
+========================================================= */
+
+#map::before{
+
+    content:"";
+
+    position:absolute;
+
+    inset:0;
+
+    opacity:.14;
+
+    background-image:
+
+        linear-gradient(
+            rgba(70,120,165,.22) 1px,
+            transparent 1px
+        ),
+
+        linear-gradient(
+            90deg,
+            rgba(70,120,165,.22) 1px,
+            transparent 1px
+        );
+
+    background-size:
+        40px 40px;
+
+    pointer-events:none;
+
+    mask-image:
+        radial-gradient(
+            circle at center,
+            black 0%,
+            transparent 78%
+        );
+}
+
+
+/* =========================================================
+   CENTER GLOW
+========================================================= */
+
+#map::after{
+
+    content:"";
+
+    position:absolute;
+
+    left:50%;
+    top:50%;
+
+    width:600px;
+    height:600px;
+
+    transform:
+        translate(-50%,-50%);
+
+    border-radius:50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(39,147,255,.09),
+            transparent 68%
+        );
+
+    pointer-events:none;
+}
+
+
+/* =========================================================
+   SVG CONNECTION LAYER
 ========================================================= */
 
 #connections{
+
     position:absolute;
 
     inset:0;
@@ -167,146 +306,193 @@ button:hover{
     width:100%;
     height:100%;
 
-    z-index:1;
+    z-index:5;
 
     pointer-events:none;
+
+    overflow:visible;
 }
 
 .connection{
+
     fill:none;
 
-    stroke-width:1.3;
+    stroke-width:1.25;
 
-    opacity:.65;
+    opacity:.62;
+
+    vector-effect:
+        non-scaling-stroke;
 }
 
 .connection.backend{
-    stroke:#2c83cf;
+
+    stroke:
+        var(--backend);
 }
 
 .connection.sheet{
-    stroke:#3675a9;
+
+    stroke:
+        var(--sheet);
 }
 
-.connection.api{
-    stroke:#8a65bd;
+.connection.sheet-api{
+
+    stroke:
+        var(--sheetapi);
 }
 
 .connection.frontend{
-    stroke:#4fa4ff;
+
+    stroke:
+        var(--frontend);
 }
 
 .connection.external{
-    stroke:#9b68cf;
+
+    stroke:
+        var(--external);
 }
 
 .connection.external-api{
-    stroke:#b779e0;
+
+    stroke:
+        var(--externalapi);
 }
+
 
 /* =========================================================
    HUB
 ========================================================= */
 
 #hub{
-    position:absolute;
 
-    z-index:50;
+    position:absolute;
 
     left:50%;
     top:50%;
 
+    width:158px;
+    height:158px;
+
     transform:
         translate(-50%,-50%);
 
-    width:155px;
-    height:155px;
-
-    border-radius:50%;
+    z-index:100;
 
     display:flex;
+
     flex-direction:column;
 
     align-items:center;
+
     justify-content:center;
+
+    border-radius:50%;
 
     background:
         radial-gradient(
-            circle,
-            #173c65 0%,
-            #0c223b 45%,
-            #07121f 100%
+            circle at 50% 38%,
+            #19436d 0%,
+            #102c49 38%,
+            #091727 70%,
+            #050b13 100%
         );
 
-    border:2px solid var(--blue);
+    border:
+        2px solid
+        rgba(60,166,255,.9);
 
     box-shadow:
-        0 0 0 10px
-            rgba(39,147,255,.035),
 
-        0 0 45px
-            rgba(39,147,255,.25),
+        0 0 0 7px
+        rgba(39,147,255,.045),
 
-        inset 0 0 30px
-            rgba(39,147,255,.12);
+        0 0 0 18px
+        rgba(39,147,255,.018),
+
+        0 0 55px
+        rgba(39,147,255,.28),
+
+        inset 0 0 35px
+        rgba(39,147,255,.12);
 }
 
-#hub:before{
+#hub::before{
+
     content:"";
 
     position:absolute;
 
-    inset:-12px;
+    inset:-9px;
 
     border-radius:50%;
 
-    border:1px solid
-        rgba(39,147,255,.22);
+    border:
+        1px solid
+        rgba(68,164,235,.28);
 
     animation:
-        hubPulse 3s infinite;
+        hubPulse 3s ease-in-out infinite;
 }
 
 @keyframes hubPulse{
 
-    0%,100%{
+    0%,
+    100%{
         transform:scale(1);
-        opacity:.25;
+        opacity:.3;
     }
 
     50%{
-        transform:scale(1.08);
+        transform:scale(1.06);
         opacity:.8;
     }
 }
 
-.hub-icon{
+.hub-symbol{
+
     font-size:30px;
+
+    line-height:1;
+
+    color:#8fd0ff;
+
+    text-shadow:
+        0 0 20px
+        rgba(80,180,255,.8);
 }
 
-.hub-name{
+.hub-title{
+
+    margin-top:7px;
+
+    font-size:17px;
+
+    font-weight:900;
+
+    letter-spacing:3px;
+}
+
+.hub-sub{
+
     margin-top:4px;
 
-    font-size:16px;
-    font-weight:900;
+    color:#79a9d1;
+
+    font-size:8px;
 
     letter-spacing:2px;
 }
 
-.hub-sub{
-    margin-top:4px;
-
-    color:#7da7d0;
-
-    font-size:9px;
-    letter-spacing:1px;
-}
 
 /* =========================================================
-   ZONE LABELS
+   ZONES
 ========================================================= */
 
 .zone{
+
     position:absolute;
 
     z-index:20;
@@ -316,53 +502,59 @@ button:hover{
     transform:
         translateX(-50%);
 
-    padding:5px 13px;
+    padding:
+        5px 13px;
 
-    border:1px solid #20364d;
+    border:
+        1px solid #1d354d;
+
     border-radius:20px;
 
     background:
-        rgba(5,11,19,.82);
+        rgba(4,10,17,.8);
 
-    color:#6f8eaa;
+    color:#718ca7;
 
-    font-size:9px;
+    font-size:8px;
+
     font-weight:900;
 
     letter-spacing:3px;
+
+    white-space:nowrap;
 }
 
 .zone.backend{
+
     top:14px;
 }
 
 .zone.external{
+
     bottom:14px;
 }
 
+
 /* =========================================================
-   NETWORK LAYERS
+   BRANCH LAYERS
 ========================================================= */
 
-#backendLayer,
-#externalLayer{
+.layer{
+
     position:absolute;
 
     inset:0;
 
-    z-index:10;
+    z-index:20;
 
     pointer-events:none;
 }
 
-/* =========================================================
-   BRANCH
-========================================================= */
-
 .branch{
+
     position:absolute;
 
-    width:245px;
+    width:230px;
 
     transform:
         translate(-50%,-50%);
@@ -370,57 +562,140 @@ button:hover{
     pointer-events:auto;
 }
 
-.branch-chain{
+
+/* =========================================================
+   BRANCH TITLE
+========================================================= */
+
+.branch-label{
+
+    margin-bottom:6px;
+
+    text-align:center;
+
+    color:#56748f;
+
+    font-size:7px;
+
+    font-weight:900;
+
+    letter-spacing:2px;
+
+    text-transform:uppercase;
+}
+
+
+/* =========================================================
+   CHAIN
+========================================================= */
+
+.chain{
+
     display:flex;
+
     flex-direction:column;
 
-    gap:7px;
+    gap:5px;
 }
+
 
 /* =========================================================
    CARD
 ========================================================= */
 
 .card{
-    min-height:44px;
 
-    padding:8px 10px;
+    position:relative;
 
-    border:1px solid #263c54;
+    min-height:38px;
 
-    border-radius:9px;
+    padding:
+        7px 9px;
+
+    border:
+        1px solid #21374d;
+
+    border-radius:8px;
 
     background:
         linear-gradient(
             145deg,
-            rgba(16,29,46,.97),
-            rgba(7,14,24,.97)
+            rgba(13,26,42,.98),
+            rgba(6,13,22,.98)
         );
 
     box-shadow:
-        0 8px 22px
+        0 7px 18px
         rgba(0,0,0,.28);
 
+    overflow:hidden;
+
     transition:
-        transform .15s,
-        border-color .15s,
-        box-shadow .15s;
+        transform .15s ease,
+        border-color .15s ease,
+        box-shadow .15s ease;
 }
 
 .card:hover{
-    transform:translateY(-2px);
 
-    border-color:#4e82ad;
+    transform:
+        translateY(-2px);
+
+    border-color:
+        #4c779d;
 
     box-shadow:
-        0 10px 28px
-        rgba(0,0,0,.4);
+        0 10px 24px
+        rgba(0,0,0,.42);
+}
+
+.card::before{
+
+    content:"";
+
+    position:absolute;
+
+    left:0;
+    top:0;
+    bottom:0;
+
+    width:3px;
+
+    background:
+        #31556f;
+}
+
+.card.backend::before{
+    background:var(--backend);
+}
+
+.card.sheet::before{
+    background:var(--sheet);
+}
+
+.card.sheet-api::before{
+    background:var(--sheetapi);
+}
+
+.card.frontend::before{
+    background:var(--frontend);
+}
+
+.card.external::before{
+    background:var(--external);
+}
+
+.card.external-api::before{
+    background:var(--externalapi);
 }
 
 .card-title{
-    font-size:10px;
+
+    font-size:9px;
 
     font-weight:900;
+
+    color:#e8f4ff;
 
     white-space:nowrap;
 
@@ -430,134 +705,146 @@ button:hover{
 }
 
 .card-value{
-    margin-top:4px;
 
-    font-size:8px;
+    margin-top:3px;
 
-    line-height:1.35;
+    font-size:7px;
 
-    color:#879bb1;
+    line-height:1.3;
 
-    word-break:break-word;
+    color:#7e94aa;
+
+    word-break:
+        break-word;
 }
 
-.card a{
-    color:#59aaff;
+.card-value a{
+
+    color:#63b5ff;
 
     text-decoration:none;
 }
 
-.card a:hover{
-    text-decoration:underline;
+.card-value a:hover{
+
+    text-decoration:
+        underline;
 }
+
 
 /* =========================================================
-   CARD TYPES
-========================================================= */
-
-.backend-card{
-    border-color:#21649b;
-}
-
-.sheet-card{
-    border-color:#2c5274;
-}
-
-.sheet-api-card{
-    border-color:#6d4c9a;
-}
-
-.frontend-card{
-    border-color:#285a87;
-}
-
-.external-card{
-    border-color:#69458a;
-}
-
-.external-api-card{
-    border-color:#8555a8;
-}
-
-.external-api2-card{
-    border-color:#a064bd;
-}
-
-/* =========================================================
-   FRONTENDS
+   FRONTEND GROUP
 ========================================================= */
 
 .frontends{
+
     display:grid;
 
     grid-template-columns:
         repeat(5,1fr);
 
-    gap:4px;
+    gap:3px;
 }
 
 .frontend-card{
-    min-height:52px;
 
-    padding:6px;
+    min-width:0;
+
+    min-height:46px;
+
+    padding:
+        6px 4px;
 
     text-align:center;
 }
 
 .frontend-card .card-title{
-    font-size:8px;
+
+    font-size:6.5px;
+
+    white-space:normal;
+
+    line-height:1.15;
 }
 
 .frontend-card .card-value{
-    font-size:6.8px;
+
+    font-size:5.8px;
+
+    max-height:28px;
+
+    overflow:hidden;
 }
+
 
 /* =========================================================
-   INFO
+   EMPTY STATE
 ========================================================= */
 
-#info{
-    position:fixed;
+.empty{
 
-    z-index:1000;
+    position:absolute;
 
-    right:13px;
-    bottom:13px;
+    inset:0;
 
-    padding:7px 10px;
+    z-index:80;
 
-    border:1px solid #1c3047;
+    display:flex;
 
-    border-radius:7px;
+    align-items:center;
+
+    justify-content:center;
+
+    pointer-events:none;
+}
+
+.empty-box{
+
+    padding:20px 25px;
+
+    border:
+        1px solid #263c52;
+
+    border-radius:12px;
 
     background:
-        rgba(5,10,18,.9);
+        rgba(8,17,28,.94);
 
-    color:#7189a3;
+    color:#8096ac;
 
-    font-size:9px;
+    text-align:center;
+
+    font-size:12px;
 }
+
 
 /* =========================================================
    LOADING
 ========================================================= */
 
 #loading{
+
     position:absolute;
 
-    z-index:500;
-
     inset:0;
+
+    z-index:500;
 
     display:flex;
 
     align-items:center;
+
     justify-content:center;
 
-    background:#050a12;
+    background:
+        rgba(3,8,14,.92);
+
+    backdrop-filter:
+        blur(5px);
 }
 
-.loader{
+.loading-box{
+
     display:flex;
 
     flex-direction:column;
@@ -566,20 +853,23 @@ button:hover{
 
     gap:12px;
 
-    color:#8499b1;
+    color:#8ca2b8;
 
-    font-size:12px;
+    font-size:11px;
 }
 
 .spinner{
-    width:30px;
-    height:30px;
+
+    width:32px;
+    height:32px;
 
     border-radius:50%;
 
-    border:3px solid #1d3148;
+    border:
+        3px solid #1d3147;
 
-    border-top-color:#2793ff;
+    border-top-color:
+        var(--blue);
 
     animation:
         spin .8s linear infinite;
@@ -590,8 +880,99 @@ button:hover{
     to{
         transform:rotate(360deg);
     }
-
 }
+
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+#error{
+
+    position:absolute;
+
+    left:50%;
+    top:50%;
+
+    transform:
+        translate(-50%,-50%);
+
+    z-index:400;
+
+    display:none;
+
+    width:
+        min(500px,90vw);
+
+    padding:18px;
+
+    border:
+        1px solid #61313b;
+
+    border-radius:11px;
+
+    background:
+        rgba(28,9,14,.96);
+
+    box-shadow:
+        0 15px 40px
+        rgba(0,0,0,.45);
+
+    text-align:center;
+}
+
+.error-title{
+
+    color:#ff8d9a;
+
+    font-weight:900;
+
+    font-size:13px;
+
+    margin-bottom:7px;
+}
+
+.error-text{
+
+    color:#a9828a;
+
+    font-size:10px;
+
+    line-height:1.5;
+
+    word-break:break-word;
+}
+
+
+/* =========================================================
+   INFO
+========================================================= */
+
+#info{
+
+    position:fixed;
+
+    right:12px;
+    bottom:12px;
+
+    z-index:1000;
+
+    padding:
+        6px 9px;
+
+    border:
+        1px solid #1b3045;
+
+    border-radius:7px;
+
+    background:
+        rgba(3,8,14,.9);
+
+    color:#647f99;
+
+    font-size:8px;
+}
+
 
 /* =========================================================
    MOBILE
@@ -599,19 +980,27 @@ button:hover{
 
 @media(max-width:900px){
 
-    body{
-        overflow:auto;
+    .brand-text small{
+        display:none;
+    }
+
+    .brand h1{
+        font-size:14px;
+    }
+
+    .action{
+        padding:7px 9px;
+        font-size:10px;
     }
 
     #map{
-        width:1400px;
-        min-height:1800px;
 
-        overflow:visible;
-    }
+        width:1500px;
 
-    .branch{
-        width:210px;
+        left:
+            calc(50% - 750px);
+
+        right:auto;
     }
 
 }
@@ -631,14 +1020,14 @@ button:hover{
         O
     </div>
 
-    <div class="brand-text">
+    <div>
 
         <h1>
             Obvyris Server Map
         </h1>
 
         <small>
-            Backend • Frontend • External Architecture
+            LIVE ARCHITECTURE • BACKEND • FRONTEND • EXTERNAL
         </small>
 
     </div>
@@ -646,13 +1035,17 @@ button:hover{
 </div>
 
 
-<div class="controls">
+<div class="actions">
 
-    <button onclick="loadMap()">
+    <button
+        class="action"
+        onclick="loadMap()">
         ↻ Refresh
     </button>
 
-    <button onclick="centerHub()">
+    <button
+        class="action"
+        onclick="resetView()">
         ◎ Center
     </button>
 
@@ -664,7 +1057,10 @@ button:hover{
 <div id="map">
 
 ```
-<svg id="connections"></svg>
+<svg
+    id="connections"
+    aria-hidden="true">
+</svg>
 
 
 <div class="zone backend">
@@ -677,19 +1073,25 @@ button:hover{
 </div>
 
 
-<div id="backendLayer"></div>
+<div
+    id="backendLayer"
+    class="layer">
+</div>
 
 
-<div id="externalLayer"></div>
+<div
+    id="externalLayer"
+    class="layer">
+</div>
 
 
 <div id="hub">
 
-    <div class="hub-icon">
+    <div class="hub-symbol">
         ◉
     </div>
 
-    <div class="hub-name">
+    <div class="hub-title">
         OBVYRIS
     </div>
 
@@ -700,17 +1102,51 @@ button:hover{
 </div>
 
 
+<div
+    id="empty"
+    class="empty"
+    style="display:none">
+
+    <div class="empty-box">
+        No server map records found.
+    </div>
+
+</div>
+
+
 <div id="loading">
 
-    <div class="loader">
+    <div class="loading-box">
 
         <div class="spinner"></div>
 
         <div>
-            Loading server map...
+            Loading Obvyris server architecture...
         </div>
 
     </div>
+
+</div>
+
+
+<div id="error">
+
+    <div class="error-title">
+        Server Map API Error
+    </div>
+
+    <div
+        id="errorText"
+        class="error-text">
+    </div>
+
+    <br>
+
+    <button
+        class="action"
+        onclick="loadMap()">
+        Try Again
+    </button>
 
 </div>
 ```
@@ -718,13 +1154,14 @@ button:hover{
 </div>
 
 <div id="info">
-    Loading MAP API...
+    Connecting to MAP API...
 </div>
 
 <script>
 
+
 /* =========================================================
-   MAP API
+   YOUR MAP API
 ========================================================= */
 
 const MAP_API =
@@ -732,143 +1169,216 @@ const MAP_API =
 
 
 /* =========================================================
-   DATA
+   GLOBAL DATA
 ========================================================= */
 
 let mapRows = [];
 
+let lastGenerated = "";
+
 
 /* =========================================================
-   LOAD
+   START
 ========================================================= */
 
-window.addEventListener(
-    "load",
-    loadMap
-);
-
-
-window.addEventListener(
-    "resize",
+document.addEventListener(
+    "DOMContentLoaded",
     () => {
 
-        setTimeout(
-            drawConnections,
-            100
-        );
+        loadMap();
 
     }
 );
 
 
 /* =========================================================
-   LOAD API
+   RESIZE
+========================================================= */
+
+window.addEventListener(
+    "resize",
+    () => {
+
+        clearTimeout(
+            window.resizeTimer
+        );
+
+        window.resizeTimer =
+            setTimeout(
+                drawConnections,
+                150
+            );
+
+    }
+);
+
+
+/* =========================================================
+   LOAD MAP
 ========================================================= */
 
 async function loadMap(){
 
-    const loading =
-        document.getElementById(
-            "loading"
-        );
+    showLoading();
 
-    loading.style.display =
-        "flex";
+    hideError();
 
 
     try{
 
+        /*
+         * Cache-busting parameter.
+         */
+
+        const url =
+            MAP_API +
+            "?t=" +
+            Date.now();
+
+
         const response =
             await fetch(
-                MAP_API +
-                "?t=" +
-                Date.now(),
+                url,
                 {
-                    cache:"no-store"
+                    method:"GET",
+
+                    cache:"no-store",
+
+                    redirect:"follow"
                 }
             );
 
 
-        if(!response.ok){
+        if(
+            !response.ok
+        ){
 
             throw new Error(
                 "HTTP " +
-                response.status
+                response.status +
+                " " +
+                response.statusText
             );
 
         }
 
 
-        const data =
-            await response.json();
+        const text =
+            await response.text();
 
 
         if(
-            !data ||
+            !text ||
+            !text.trim()
+        ){
+
+            throw new Error(
+                "The MAP API returned an empty response."
+            );
+
+        }
+
+
+        let data;
+
+
+        try{
+
+            data =
+                JSON.parse(
+                    text
+                );
+
+        }catch(jsonError){
+
+            console.error(
+                "RAW API RESPONSE:",
+                text
+            );
+
+            throw new Error(
+                "The MAP API did not return valid JSON."
+            );
+
+        }
+
+
+        if(
+            data.success === false
+        ){
+
+            throw new Error(
+                data.error ||
+                "MAP API reported an error."
+            );
+
+        }
+
+
+        if(
             !Array.isArray(
                 data.rows
             )
         ){
 
             throw new Error(
-                "Invalid MAP API response"
+                "MAP API JSON does not contain a rows array."
             );
 
         }
 
 
         /*
-           IMPORTANT:
+         * Keep ALL data.
 
-           Status remains in mapRows.
-
-           It is intentionally NOT rendered
-           as a card.
-
-           Future JavaScript can use:
-
-           row.Status
-
-           for health monitoring,
-           filtering, colors, etc.
-        */
+         * Status is intentionally preserved here.
+         *
+         * It is available as:
+         *
+         * row["Status"]
+         *
+         * but is never drawn as a card.
+         */
 
         mapRows =
             data.rows;
 
 
+        lastGenerated =
+            data.generated ||
+            "";
+
+
         renderMap();
 
 
-        document.getElementById(
-            "info"
-        ).textContent =
-            data.count +
-            " records • " +
-            formatTime(
-                data.generated
-            );
+        updateInfo(
+            mapRows.length,
+            lastGenerated
+        );
 
 
     }catch(error){
 
         console.error(
-            "MAP API ERROR:",
+            "OBVYRIS MAP ERROR:",
             error
         );
 
 
-        document.getElementById(
-            "info"
-        ).textContent =
-            "MAP API ERROR: " +
-            error.message;
+        showError(
+            error.message
+        );
 
+
+        updateInfo(
+            0,
+            ""
+        );
 
     }finally{
 
-        loading.style.display =
-            "none";
+        hideLoading();
 
     }
 
@@ -876,102 +1386,82 @@ async function loadMap(){
 
 
 /* =========================================================
-   RENDER MAP
+   RENDER
 ========================================================= */
 
 function renderMap(){
 
-    const backendLayer =
+    const backend =
         document.getElementById(
             "backendLayer"
         );
 
-
-    const externalLayer =
+    const external =
         document.getElementById(
             "externalLayer"
         );
 
 
-    backendLayer.innerHTML =
-        "";
+    backend.innerHTML = "";
+
+    external.innerHTML = "";
 
 
-    externalLayer.innerHTML =
-        "";
+    document
+        .getElementById("empty")
+        .style.display =
+            mapRows.length
+                ? "none"
+                : "flex";
 
 
     /*
-       Backend records.
-    */
+     * BACKEND DATA
+     */
 
     const backendRows =
         mapRows.filter(
-            row => {
-
-                return (
-                    hasValue(
-                        row[
-                            "Backends Sheet"
-                        ]
-                    ) ||
-                    hasValue(
-                        row[
-                            "Sheet"
-                        ]
-                    ) ||
-                    hasValue(
-                        row[
-                            "Sheet API"
-                        ]
-                    ) ||
-                    hasFrontend(
-                        row
-                    )
-                );
-
-            }
+            row =>
+                hasValue(
+                    row["Backends Sheet"]
+                ) ||
+                hasValue(
+                    row["Sheet"]
+                ) ||
+                hasValue(
+                    row["Sheet API"]
+                ) ||
+                hasFrontend(
+                    row
+                )
         );
 
 
     /*
-       External records.
-
-       Status is deliberately ignored.
-    */
+     * EXTERNAL DATA
+     */
 
     const externalRows =
         mapRows.filter(
-            row => {
-
-                return (
-                    hasValue(
-                        row[
-                            "EXTERNAL"
-                        ]
-                    ) ||
-                    hasValue(
-                        row[
-                            "EXTERNAL API"
-                        ]
-                    ) ||
-                    hasValue(
-                        row[
-                            "EXTERNAL API 2"
-                        ]
-                    )
-                );
-
-            }
+            row =>
+                hasValue(
+                    row["EXTERNAL"]
+                ) ||
+                hasValue(
+                    row["EXTERNAL API"]
+                ) ||
+                hasValue(
+                    row["EXTERNAL API 2"]
+                )
         );
 
 
-    positionBackendRows(
+    placeBackendBranches(
         backendRows
     );
 
 
-    positionExternalRows(
+    placeExternalBranches(
         externalRows
     );
 
@@ -990,10 +1480,10 @@ function renderMap(){
 
 
 /* =========================================================
-   BACKEND POSITIONS
+   PLACE BACKEND
 ========================================================= */
 
-function positionBackendRows(
+function placeBackendBranches(
     rows
 ){
 
@@ -1001,11 +1491,6 @@ function positionBackendRows(
         document.getElementById(
             "backendLayer"
         );
-
-
-    if(!rows.length){
-        return;
-    }
 
 
     const map =
@@ -1030,10 +1515,24 @@ function positionBackendRows(
         height / 2;
 
 
-    const usableWidth =
+    if(!rows.length){
+        return;
+    }
+
+
+    /*
+     * Spread across the upper
+     * 360-degree-style arc.
+     */
+
+    const count =
+        rows.length;
+
+
+    const maxWidth =
         Math.min(
-            width * .88,
-            rows.length * 285
+            width * .90,
+            1450
         );
 
 
@@ -1058,7 +1557,9 @@ function positionBackendRows(
             let x;
 
 
-            if(rows.length === 1){
+            if(
+                count === 1
+            ){
 
                 x =
                     centerX;
@@ -1067,27 +1568,29 @@ function positionBackendRows(
 
                 x =
                     centerX -
-                    usableWidth / 2 +
+                    maxWidth / 2 +
                     (
-                        usableWidth *
+                        maxWidth *
                         index /
-                        (
-                            rows.length - 1
-                        )
+                        (count - 1)
                     );
 
             }
 
 
+            /*
+             * Multiple vertical levels
+             * create the spiderweb effect.
+             */
+
+            const level =
+                index % 3;
+
+
             const y =
-                Math.max(
-                    170,
-                    centerY -
-                    245 -
-                    (
-                        index % 3
-                    ) * 35
-                );
+                centerY -
+                210 -
+                level * 72;
 
 
             branch.style.left =
@@ -1104,10 +1607,10 @@ function positionBackendRows(
 
 
 /* =========================================================
-   EXTERNAL POSITIONS
+   PLACE EXTERNAL
 ========================================================= */
 
-function positionExternalRows(
+function placeExternalBranches(
     rows
 ){
 
@@ -1115,11 +1618,6 @@ function positionExternalRows(
         document.getElementById(
             "externalLayer"
         );
-
-
-    if(!rows.length){
-        return;
-    }
 
 
     const map =
@@ -1144,10 +1642,19 @@ function positionExternalRows(
         height / 2;
 
 
-    const usableWidth =
+    if(!rows.length){
+        return;
+    }
+
+
+    const count =
+        rows.length;
+
+
+    const maxWidth =
         Math.min(
-            width * .88,
-            rows.length * 285
+            width * .90,
+            1450
         );
 
 
@@ -1172,7 +1679,9 @@ function positionExternalRows(
             let x;
 
 
-            if(rows.length === 1){
+            if(
+                count === 1
+            ){
 
                 x =
                     centerX;
@@ -1181,27 +1690,24 @@ function positionExternalRows(
 
                 x =
                     centerX -
-                    usableWidth / 2 +
+                    maxWidth / 2 +
                     (
-                        usableWidth *
+                        maxWidth *
                         index /
-                        (
-                            rows.length - 1
-                        )
+                        (count - 1)
                     );
 
             }
 
 
+            const level =
+                index % 3;
+
+
             const y =
-                Math.min(
-                    height - 230,
-                    centerY +
-                    245 +
-                    (
-                        index % 3
-                    ) * 35
-                );
+                centerY +
+                210 +
+                level * 72;
 
 
             branch.style.left =
@@ -1238,8 +1744,29 @@ function createBackendBranch(
 
     branch.dataset.rowId =
         String(
-            row["ID"] || index
+            row["ID"] ||
+            index
         );
+
+
+    const label =
+        document.createElement(
+            "div"
+        );
+
+
+    label.className =
+        "branch-label";
+
+
+    label.textContent =
+        row["Backends Sheet"] ||
+        "Backend Route";
+
+
+    branch.appendChild(
+        label
+    );
 
 
     const chain =
@@ -1249,104 +1776,60 @@ function createBackendBranch(
 
 
     chain.className =
-        "branch-chain";
+        "chain";
 
 
     /*
-       Backend
-    */
+     * BACKEND
+     */
 
-    if(
-        hasValue(
-            row[
-                "Backends Sheet"
-            ]
-        )
-    ){
-
-        chain.appendChild(
-            createCard(
-                "Backend",
-                row[
-                    "Backends Sheet"
-                ],
-                "backend-card",
-                row,
-                "backend"
-            )
-        );
-
-    }
+    addIfPresent(
+        chain,
+        row,
+        "Backends Sheet",
+        "Backend",
+        "backend"
+    );
 
 
     /*
-       Sheet
-    */
+     * SHEET
+     */
 
-    if(
-        hasValue(
-            row[
-                "Sheet"
-            ]
-        )
-    ){
-
-        chain.appendChild(
-            createCard(
-                "Sheet",
-                row[
-                    "Sheet"
-                ],
-                "sheet-card",
-                row,
-                "sheet"
-            )
-        );
-
-    }
+    addIfPresent(
+        chain,
+        row,
+        "Sheet",
+        "Sheet",
+        "sheet"
+    );
 
 
     /*
-       Sheet API
-    */
+     * SHEET API
+     */
 
-    if(
-        hasValue(
-            row[
-                "Sheet API"
-            ]
-        )
-    ){
-
-        chain.appendChild(
-            createCard(
-                "Sheet API",
-                row[
-                    "Sheet API"
-                ],
-                "sheet-api-card",
-                row,
-                "sheet-api"
-            )
-        );
-
-    }
+    addIfPresent(
+        chain,
+        row,
+        "Sheet API",
+        "Sheet API",
+        "sheet-api"
+    );
 
 
     /*
-       STATUS IS NOT RENDERED.
+     * STATUS IS NOT DRAWN.
 
-       It remains available in:
-
-       row["Status"]
-    */
+     * The value remains in row["Status"].
+     */
 
 
     /*
-       Frontends
-    */
+     * FRONTENDS
+     */
 
-    const frontendFields = [
+    const fields = [
 
         "MAIN HTML FRONTEND",
 
@@ -1361,8 +1844,8 @@ function createBackendBranch(
     ];
 
 
-    const activeFrontends =
-        frontendFields.filter(
+    const active =
+        fields.filter(
             field =>
                 hasValue(
                     row[field]
@@ -1370,37 +1853,38 @@ function createBackendBranch(
         );
 
 
-    if(
-        activeFrontends.length
-    ){
+    if(active.length){
 
-        const group =
+        const frontendGroup =
             document.createElement(
                 "div"
             );
 
 
-        group.className =
+        frontendGroup.className =
             "frontends";
 
 
-        activeFrontends.forEach(
+        active.forEach(
             (
                 field,
                 index
             ) => {
 
-                group.appendChild(
+                const card =
                     createCard(
                         "Frontend " +
                         (
                             index + 1
                         ),
                         row[field],
-                        "frontend-card",
-                        row,
-                        "frontend"
-                    )
+                        "frontend",
+                        row
+                    );
+
+
+                frontendGroup.appendChild(
+                    card
                 );
 
             }
@@ -1408,7 +1892,7 @@ function createBackendBranch(
 
 
         chain.appendChild(
-            group
+            frontendGroup
         );
 
     }
@@ -1445,8 +1929,29 @@ function createExternalBranch(
 
     branch.dataset.rowId =
         String(
-            row["ID"] || index
+            row["ID"] ||
+            index
         );
+
+
+    const label =
+        document.createElement(
+            "div"
+        );
+
+
+    label.className =
+        "branch-label";
+
+
+    label.textContent =
+        row["Backends Sheet"] ||
+        "External Route";
+
+
+    branch.appendChild(
+        label
+    );
 
 
     const chain =
@@ -1456,88 +1961,34 @@ function createExternalBranch(
 
 
     chain.className =
-        "branch-chain";
+        "chain";
 
 
-    /*
-       External
-    */
-
-    if(
-        hasValue(
-            row[
-                "EXTERNAL"
-            ]
-        )
-    ){
-
-        chain.appendChild(
-            createCard(
-                "External",
-                row[
-                    "EXTERNAL"
-                ],
-                "external-card",
-                row,
-                "external"
-            )
-        );
-
-    }
+    addIfPresent(
+        chain,
+        row,
+        "EXTERNAL",
+        "External",
+        "external"
+    );
 
 
-    /*
-       External API
-    */
-
-    if(
-        hasValue(
-            row[
-                "EXTERNAL API"
-            ]
-        )
-    ){
-
-        chain.appendChild(
-            createCard(
-                "External API",
-                row[
-                    "EXTERNAL API"
-                ],
-                "external-api-card",
-                row,
-                "external-api"
-            )
-        );
-
-    }
+    addIfPresent(
+        chain,
+        row,
+        "EXTERNAL API",
+        "External API",
+        "external-api"
+    );
 
 
-    /*
-       External API 2
-    */
-
-    if(
-        hasValue(
-            row[
-                "EXTERNAL API 2"
-            ]
-        )
-    ){
-
-        chain.appendChild(
-            createCard(
-                "External API 2",
-                row[
-                    "EXTERNAL API 2"
-                ],
-                "external-api2-card",
-                row,
-                "external-api-2"
-            )
-        );
-
-    }
+    addIfPresent(
+        chain,
+        row,
+        "EXTERNAL API 2",
+        "External API 2",
+        "external-api"
+    );
 
 
     branch.appendChild(
@@ -1551,15 +2002,49 @@ function createExternalBranch(
 
 
 /* =========================================================
-   CARD
+   ADD CARD IF PRESENT
+========================================================= */
+
+function addIfPresent(
+    parent,
+    row,
+    field,
+    title,
+    type
+){
+
+    if(
+        !hasValue(
+            row[field]
+        )
+    ){
+
+        return;
+
+    }
+
+
+    parent.appendChild(
+        createCard(
+            title,
+            row[field],
+            type,
+            row
+        )
+    );
+
+}
+
+
+/* =========================================================
+   CREATE CARD
 ========================================================= */
 
 function createCard(
     title,
     value,
-    className,
-    row,
-    type
+    type,
+    row
 ){
 
     const card =
@@ -1570,12 +2055,13 @@ function createCard(
 
     card.className =
         "card " +
-        className;
+        type;
 
 
     card.dataset.rowId =
         String(
-            row["ID"] || ""
+            row["ID"] ||
+            ""
         );
 
 
@@ -1608,7 +2094,9 @@ function createCard(
 
 
     if(
-        isURL(value)
+        isURL(
+            value
+        )
     ){
 
         const link =
@@ -1626,10 +2114,16 @@ function createCard(
 
 
         link.rel =
-            "noopener";
+            "noopener noreferrer";
 
 
         link.textContent =
+            shortenURL(
+                value
+            );
+
+
+        link.title =
             value;
 
 
@@ -1661,7 +2155,7 @@ function createCard(
 
 
 /* =========================================================
-   CONNECTIONS
+   CONNECTION ENGINE
 ========================================================= */
 
 function drawConnections(){
@@ -1672,8 +2166,7 @@ function drawConnections(){
         );
 
 
-    svg.innerHTML =
-        "";
+    svg.innerHTML = "";
 
 
     const map =
@@ -1712,13 +2205,15 @@ function drawConnections(){
 
 
     /*
-       Every branch is handled separately.
+     * IMPORTANT:
+     *
+     * We NEVER search for nearest
+     * cards globally.
+     *
+     * Each branch owns its own
+     * connection chain.
+     */
 
-       There is NO nearest-card search.
-
-       This prevents lines from jumping
-       between unrelated rows.
-    */
 
     document
         .querySelectorAll(
@@ -1727,7 +2222,7 @@ function drawConnections(){
         .forEach(
             branch => {
 
-                drawBranch(
+                connectBranch(
                     branch,
                     hubPoint,
                     "north"
@@ -1744,7 +2239,7 @@ function drawConnections(){
         .forEach(
             branch => {
 
-                drawBranch(
+                connectBranch(
                     branch,
                     hubPoint,
                     "south"
@@ -1757,10 +2252,10 @@ function drawConnections(){
 
 
 /* =========================================================
-   BRANCH CONNECTIONS
+   CONNECT ONE BRANCH
 ========================================================= */
 
-function drawBranch(
+function connectBranch(
     branch,
     hubPoint,
     direction
@@ -1784,48 +2279,63 @@ function drawBranch(
         );
 
 
-    if(!cards.length){
+    if(
+        !cards.length
+    ){
+
         return;
+
     }
 
 
-    const points =
-        cards.map(
-            card => {
+    /*
+     * The frontend group contains
+     * multiple small cards.
 
-                const rect =
-                    card.getBoundingClientRect();
+     * Treat them as one endpoint
+     * for the main branch.
+     */
+
+    const endpoints = [];
 
 
-                return {
+    cards.forEach(
+        card => {
 
-                    card,
+            const rect =
+                card.getBoundingClientRect();
 
-                    x:
-                        rect.left -
-                        mapRect.left +
-                        rect.width / 2,
 
-                    y:
-                        rect.top -
-                        mapRect.top +
-                        rect.height / 2
+            endpoints.push({
 
-                };
+                element:card,
 
-            }
-        );
+                x:
+                    rect.left -
+                    mapRect.left +
+                    rect.width / 2,
+
+                y:
+                    rect.top -
+                    mapRect.top +
+                    rect.height / 2,
+
+                type:
+                    card.dataset.type
+
+            });
+
+        }
+    );
 
 
     /*
-       HUB → first card
-    */
+     * HUB → first card
+     */
 
-    drawCurve(
-        hubPoint.x,
-        hubPoint.y,
-        points[0].x,
-        points[0].y,
+    drawLine(
+        hubPoint,
+        endpoints[0],
         direction === "north"
             ? "backend"
             : "external"
@@ -1833,70 +2343,90 @@ function drawBranch(
 
 
     /*
-       Card → next card.
+     * Sequential connections.
 
-       Only within this branch.
-    */
+     * These can ONLY connect cards
+     * belonging to this branch.
+     */
 
     for(
-        let i=0;
-        i<points.length-1;
+        let i = 0;
+        i < endpoints.length - 1;
         i++
     ){
 
         const a =
-            points[i];
+            endpoints[i];
 
 
         const b =
-            points[i+1];
+            endpoints[i + 1];
 
 
-        let type =
-            direction === "north"
-            ? "sheet"
-            : "external";
+        let lineType =
+            "sheet";
 
 
         if(
-            a.card.dataset.type ===
+            a.type ===
+            "backend"
+        ){
+
+            lineType =
+                "backend";
+
+        }
+        else if(
+            a.type ===
+            "sheet"
+        ){
+
+            lineType =
+                "sheet";
+
+        }
+        else if(
+            a.type ===
             "sheet-api"
         ){
 
-            type =
-                "api";
+            lineType =
+                "sheet-api";
 
         }
-
-
-        if(
-            a.card.dataset.type ===
+        else if(
+            a.type ===
             "frontend"
         ){
 
-            type =
+            lineType =
                 "frontend";
 
         }
+        else if(
+            a.type ===
+            "external"
+        ){
 
+            lineType =
+                "external";
 
-        if(
-            a.card.dataset.type ===
+        }
+        else if(
+            a.type ===
             "external-api"
         ){
 
-            type =
+            lineType =
                 "external-api";
 
         }
 
 
-        drawCurve(
-            a.x,
-            a.y,
-            b.x,
-            b.y,
-            type
+        drawLine(
+            a,
+            b,
+            lineType
         );
 
     }
@@ -1905,14 +2435,12 @@ function drawBranch(
 
 
 /* =========================================================
-   CURVED LINE
+   DRAW CURVE
 ========================================================= */
 
-function drawCurve(
-    x1,
-    y1,
-    x2,
-    y2,
+function drawLine(
+    a,
+    b,
     type
 ){
 
@@ -1929,18 +2457,17 @@ function drawCurve(
         );
 
 
-    const distance =
-        Math.abs(
-            y2-y1
-        );
+    const dy =
+        b.y -
+        a.y;
 
 
     const bend =
         Math.max(
             35,
             Math.min(
-                140,
-                distance * .38
+                150,
+                Math.abs(dy) * .45
             )
         );
 
@@ -1949,28 +2476,22 @@ function drawCurve(
 
 
     if(
-        y2 < y1
+        dy < 0
     ){
 
         d =
-            `
-            M ${x1} ${y1}
-            C
-            ${x1} ${y1-bend},
-            ${x2} ${y2+bend},
-            ${x2} ${y2}
-            `;
+            `M ${a.x} ${a.y}
+             C ${a.x} ${a.y-bend},
+               ${b.x} ${b.y+bend},
+               ${b.x} ${b.y}`;
 
     }else{
 
         d =
-            `
-            M ${x1} ${y1}
-            C
-            ${x1} ${y1+bend},
-            ${x2} ${y2-bend},
-            ${x2} ${y2}
-            `;
+            `M ${a.x} ${a.y}
+             C ${a.x} ${a.y+bend},
+               ${b.x} ${b.y-bend},
+               ${b.x} ${b.y}`;
 
     }
 
@@ -2004,8 +2525,10 @@ function hasValue(
 ){
 
     if(
-        value === undefined ||
-        value === null
+        value ===
+        undefined ||
+        value ===
+        null
     ){
 
         return false;
@@ -2014,7 +2537,9 @@ function hasValue(
 
 
     const text =
-        String(value).trim();
+        String(
+            value
+        ).trim();
 
 
     return (
@@ -2056,1994 +2581,222 @@ function isURL(
 ){
 
     return /^https?:\/\//i.test(
-        String(value)
+        String(
+            value
+        )
     );
 
 }
 
 
-function formatTime(
+function shortenURL(
     value
 ){
 
-    if(!value){
-        return "unknown";
-    }
+    try{
+
+        const url =
+            new URL(
+                value
+            );
 
 
-    const date =
-        new Date(value);
+        let path =
+            url.pathname;
 
 
-    if(
-        Number.isNaN(
-            date.getTime()
-        )
-    ){
+        if(
+            path.length > 38
+        ){
+
+            path =
+                path.slice(
+                    0,
+                    35
+                ) +
+                "...";
+
+        }
+
+
+        return (
+            url.hostname +
+            path
+        );
+
+    }catch{
 
         return value;
 
     }
 
-
-    return date.toLocaleTimeString();
-
 }
 
-
-/* =========================================================
-   HUB CENTER
-========================================================= */
-
-function centerHub(){
-
-    const map =
-        document.getElementById(
-            "map"
-        );
-
-
-    map.scrollTo({
-
-        left:
-            Math.max(
-                0,
-                map.scrollWidth / 2 -
-                map.clientWidth / 2
-            ),
-
-        top:
-            Math.max(
-                0,
-                map.scrollHeight / 2 -
-                map.clientHeight / 2
-            ),
-
-        behavior:
-            "smooth"
-
-    });
-
-}
-
-
-/* =========================================================
-   REDRAW
-========================================================= */
-
-setTimeout(
-    drawConnections,
-    500
-);
-
-
-setTimeout(
-    drawConnections,
-    1200
-);
-
-
-setTimeout(
-    drawConnections,
-    2500
-);
-
-</script>
-
-</body>
-</html>
-
-:root{
-    --bg:#050a12;
-    --panel:#0b1220;
-    --panel2:#101a2b;
-    --line:#263750;
-    --text:#eef5ff;
-    --muted:#8fa4bd;
-    --blue:#2793ff;
-    --green:#22c55e;
-    --red:#ef4444;
-    --orange:#f59e0b;
-    --purple:#a855f7;
-    --cyan:#06b6d4;
-}
-
-*{
-    box-sizing:border-box;
-}
-
-html,
-body{
-    margin:0;
-    width:100%;
-    height:100%;
-    overflow:hidden;
-    background:
-        radial-gradient(circle at center,#111e33 0%,#07101c 35%,#03070d 100%);
-    color:var(--text);
-    font-family:Inter,Arial,sans-serif;
-}
-
-/* =========================================================
-   HEADER
-========================================================= */
-
-.header{
-    position:fixed;
-    z-index:100;
-    top:0;
-    left:0;
-    right:0;
-    height:64px;
-
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-
-    padding:0 22px;
-
-    background:rgba(5,10,18,.92);
-    border-bottom:1px solid #1d2b40;
-    backdrop-filter:blur(12px);
-}
-
-.title{
-    display:flex;
-    align-items:center;
-    gap:12px;
-}
-
-.logo{
-    width:36px;
-    height:36px;
-    border-radius:50%;
-
-    display:grid;
-    place-items:center;
-
-    background:linear-gradient(145deg,#2793ff,#1458c9);
-    box-shadow:0 0 25px rgba(39,147,255,.45);
-
-    font-weight:900;
-}
-
-.title h1{
-    margin:0;
-    font-size:19px;
-}
-
-.title small{
-    color:var(--muted);
-    font-size:11px;
-}
-
-.controls{
-    display:flex;
-    gap:8px;
-}
-
-button{
-    border:1px solid #263750;
-    background:#0d1726;
-    color:white;
-    padding:8px 12px;
-    border-radius:8px;
-    cursor:pointer;
-}
-
-button:hover{
-    background:#16253a;
-    border-color:#3973a9;
-}
-
-/* =========================================================
-   MAP
-========================================================= */
-
-#map{
-    position:absolute;
-    top:64px;
-    left:0;
-    right:0;
-    bottom:0;
-    overflow:hidden;
-}
-
-/* =========================================================
-   SVG CONNECTION LAYER
-========================================================= */
-
-#connections{
-    position:absolute;
-    inset:0;
-    width:100%;
-    height:100%;
-    pointer-events:none;
-    z-index:1;
-}
-
-.connection{
-    fill:none;
-    stroke:#31506f;
-    stroke-width:1.4;
-    opacity:.65;
-}
-
-.connection.backend{
-    stroke:#287fc9;
-}
-
-.connection.frontend{
-    stroke:#4b9fff;
-}
-
-.connection.external{
-    stroke:#8a5cc4;
-}
-
-.connection.api{
-    stroke:#8c6bd1;
-}
-
-.connection.status{
-    stroke:#22a966;
-}
-
-.connection.active{
-    opacity:.95;
-    stroke-width:2;
-    filter:drop-shadow(0 0 5px currentColor);
-}
-
-/* =========================================================
-   HUB
-========================================================= */
-
-#hub{
-    position:absolute;
-    z-index:20;
-
-    left:50%;
-    top:50%;
-
-    transform:translate(-50%,-50%);
-
-    width:150px;
-    height:150px;
-
-    border-radius:50%;
-
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-
-    background:
-        radial-gradient(circle,#16365c 0%,#0c2039 48%,#071321 100%);
-
-    border:2px solid #2793ff;
-
-    box-shadow:
-        0 0 0 10px rgba(39,147,255,.04),
-        0 0 45px rgba(39,147,255,.25),
-        inset 0 0 30px rgba(39,147,255,.12);
-}
-
-#hub::before{
-    content:"";
-    position:absolute;
-    inset:-12px;
-
-    border-radius:50%;
-
-    border:1px solid rgba(39,147,255,.18);
-
-    animation:pulse 3s infinite;
-}
-
-@keyframes pulse{
-    0%,100%{
-        transform:scale(1);
-        opacity:.3;
-    }
-    50%{
-        transform:scale(1.08);
-        opacity:.8;
-    }
-}
-
-.hub-icon{
-    font-size:31px;
-}
-
-.hub-title{
-    font-weight:900;
-    letter-spacing:2px;
-    margin-top:4px;
-}
-
-.hub-sub{
-    font-size:9px;
-    color:#7ea8d2;
-    margin-top:4px;
-}
-
-/* =========================================================
-   SECTION LABELS
-========================================================= */
-
-.zone{
-    position:absolute;
-    z-index:5;
-
-    left:50%;
-
-    transform:translateX(-50%);
-
-    font-size:10px;
-    font-weight:800;
-    letter-spacing:3px;
-
-    padding:5px 12px;
-
-    border:1px solid #1e334c;
-    border-radius:20px;
-
-    background:rgba(7,14,24,.8);
-    color:#6e91b5;
-}
-
-.zone.backend{
-    top:14px;
-}
-
-.zone.external{
-    bottom:14px;
-}
-
-/* =========================================================
-   ROW NETWORK
-========================================================= */
-
-.network{
-    position:absolute;
-    z-index:10;
-
-    width:250px;
-
-    transform:translate(-50%,-50%);
-}
-
-.backend-network{
-    top:27%;
-}
-
-.external-network{
-    top:73%;
-}
-
-/* =========================================================
-   CARDS
-========================================================= */
-
-.card{
-    position:relative;
-
-    min-height:45px;
-
-    padding:8px 10px;
-
-    border:1px solid #263950;
-    border-radius:9px;
-
-    background:
-        linear-gradient(145deg,
-            rgba(18,31,49,.96),
-            rgba(8,16,27,.96));
-
-    box-shadow:
-        0 8px 25px rgba(0,0,0,.28);
-
-    overflow:hidden;
-}
-
-.card:hover{
-    border-color:#4b82b6;
-    transform:translateY(-1px);
-}
-
-.card-title{
-    font-size:11px;
-    font-weight:800;
-
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-}
-
-.card-value{
-    margin-top:4px;
-
-    font-size:9px;
-    line-height:1.35;
-
-    color:#8ea4bb;
-
-    word-break:break-word;
-}
-
-.card-value a{
-    color:#58a9ff;
-    text-decoration:none;
-}
-
-.card-value a:hover{
-    text-decoration:underline;
-}
-
-/* =========================================================
-   BACKEND CHAIN
-========================================================= */
-
-.backend-chain{
-    display:flex;
-    flex-direction:column;
-    gap:7px;
-}
-
-.backend-main{
-    border-color:#236ba6;
-    box-shadow:0 0 20px rgba(39,147,255,.08);
-}
-
-.sheet-card{
-    border-color:#285276;
-}
-
-.api-card{
-    border-color:#7655a7;
-}
-
-.status-card.online{
-    border-color:#23804d;
-}
-
-.status-card.offline{
-    border-color:#803b3b;
-}
-
-.status{
-    display:inline-flex;
-    align-items:center;
-    gap:5px;
-}
-
-.status-dot{
-    width:7px;
-    height:7px;
-    border-radius:50%;
-    background:#64748b;
-}
-
-.online .status-dot{
-    background:var(--green);
-    box-shadow:0 0 8px var(--green);
-}
-
-.offline .status-dot{
-    background:var(--red);
-    box-shadow:0 0 8px var(--red);
-}
-
-/* =========================================================
-   FRONTEND GROUP
-========================================================= */
-
-.frontends{
-    display:grid;
-
-    grid-template-columns:repeat(5,1fr);
-
-    gap:4px;
-
-    margin-top:2px;
-}
-
-.frontend-card{
-    min-height:54px;
-    padding:6px;
-
-    border-color:#27527d;
-
-    text-align:center;
-}
-
-.frontend-card .card-title{
-    font-size:8px;
-}
-
-.frontend-card .card-value{
-    font-size:7px;
-}
-
-/* =========================================================
-   EXTERNAL
-========================================================= */
-
-.external-chain{
-    display:flex;
-    flex-direction:column;
-    gap:7px;
-}
-
-.external-card{
-    border-color:#60468a;
-}
-
-.external-api-card{
-    border-color:#7655a7;
-}
-
-.external-api2-card{
-    border-color:#9b62bf;
-}
-
-/* =========================================================
-   MANY BRANCHES
-========================================================= */
-
-#backendLayer,
-#externalLayer{
-    position:absolute;
-    inset:0;
-    z-index:8;
-    pointer-events:none;
-}
-
-.backend-network,
-.external-network{
-    pointer-events:auto;
-}
 
 /* =========================================================
    LOADING
 ========================================================= */
 
-#loading{
-    position:absolute;
-    z-index:200;
+function showLoading(){
 
-    inset:0;
+    document
+        .getElementById(
+            "loading"
+        )
+        .style.display =
+            "flex";
 
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    background:#050a12;
-
-    font-size:14px;
-    color:#8fa4bd;
 }
 
-.loader{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:12px;
+
+function hideLoading(){
+
+    document
+        .getElementById(
+            "loading"
+        )
+        .style.display =
+            "none";
+
 }
 
-.spinner{
-    width:30px;
-    height:30px;
 
-    border:3px solid #1d3048;
-    border-top-color:#2793ff;
+/* =========================================================
+   ERROR
+========================================================= */
 
-    border-radius:50%;
+function showError(
+    message
+){
 
-    animation:spin .8s linear infinite;
+    const error =
+        document.getElementById(
+            "error"
+        );
+
+
+    document.getElementById(
+        "errorText"
+    ).textContent =
+        message;
+
+
+    error.style.display =
+        "block";
+
 }
 
-@keyframes spin{
-    to{
-        transform:rotate(360deg);
-    }
+
+function hideError(){
+
+    document
+        .getElementById(
+            "error"
+        )
+        .style.display =
+            "none";
+
 }
+
 
 /* =========================================================
    INFO
 ========================================================= */
 
-#info{
-    position:fixed;
-    z-index:150;
-
-    right:14px;
-    bottom:14px;
-
-    padding:7px 10px;
-
-    border:1px solid #1c3047;
-    border-radius:7px;
-
-    background:rgba(5,10,18,.85);
-
-    color:#7289a2;
-
-    font-size:9px;
-}
-
-/* =========================================================
-   MOBILE
-========================================================= */
-
-@media(max-width:900px){
-
-    body{
-        overflow:auto;
-    }
-
-    #map{
-        position:relative;
-        top:64px;
-
-        width:1400px;
-        min-height:1800px;
-
-        overflow:visible;
-    }
-
-    #connections{
-        position:absolute;
-    }
-
-    #hub{
-        top:50%;
-    }
-
-    .backend-network,
-    .external-network{
-        width:210px;
-    }
-
-}
-</style>
-
-</head>
-
-<body>
-
-<header class="header">
-
-```
-<div class="title">
-
-    <div class="logo">O</div>
-
-    <div>
-        <h1>Obvyris Server Map</h1>
-        <small>Backend • Frontend • External Service Architecture</small>
-    </div>
-
-</div>
-
-<div class="controls">
-    <button onclick="loadMap()">↻ Refresh</button>
-    <button onclick="centerHub()">◎ Center</button>
-</div>
-```
-
-</header>
-
-<div id="map">
-
-```
-<svg id="connections"></svg>
-
-<div class="zone backend">
-    BACKEND ROUTES
-</div>
-
-<div class="zone external">
-    EXTERNAL API ROUTES
-</div>
-
-
-<div id="backendLayer"></div>
-<div id="externalLayer"></div>
-
-
-<div id="hub">
-
-    <div class="hub-icon">◉</div>
-
-    <div class="hub-title">
-        OBVYRIS
-    </div>
-
-    <div class="hub-sub">
-        CENTRAL HUB
-    </div>
-
-</div>
-
-
-<div id="loading">
-
-    <div class="loader">
-
-        <div class="spinner"></div>
-
-        <div>
-            Loading server map...
-        </div>
-
-    </div>
-
-</div>
-```
-
-</div>
-
-<div id="info">
-    Loading MAP API...
-</div>
-
-<script>
-
-/* =========================================================
-   CONFIG
-========================================================= */
-
-const MAP_API =
-"https://script.google.com/macros/s/AKfycbxmet73uElazLhNTF6K9Ziizu4hbgq7VWbXJ8nKjSeXkn-tN4CyoBDjSdeK69A_J5XG/exec";
-
-
-/* =========================================================
-   STATE
-========================================================= */
-
-let mapRows = [];
-
-
-/* =========================================================
-   START
-========================================================= */
-
-window.addEventListener("load",loadMap);
-
-window.addEventListener(
-    "resize",
-    () => {
-        setTimeout(drawConnections,100);
-    }
-);
-
-
-/* =========================================================
-   LOAD API
-========================================================= */
-
-async function loadMap(){
-
-    const loading =
-        document.getElementById("loading");
-
-    loading.style.display="flex";
-
-    try{
-
-        const response =
-            await fetch(
-                MAP_API + "?t=" + Date.now(),
-                {
-                    cache:"no-store"
-                }
-            );
-
-        if(!response.ok){
-            throw new Error(
-                "HTTP " + response.status
-            );
-        }
-
-        const data =
-            await response.json();
-
-        if(
-            !data ||
-            !Array.isArray(data.rows)
-        ){
-            throw new Error(
-                "Invalid MAP API response"
-            );
-        }
-
-        mapRows = data.rows;
-
-        renderMap();
-
-        document.getElementById("info").textContent =
-            data.count +
-            " map records • " +
-            "Updated " +
-            formatTime(data.generated);
-
-    }catch(error){
-
-        console.error(error);
-
-        document.getElementById("info").textContent =
-            "MAP API ERROR: " +
-            error.message;
-
-    }finally{
-
-        loading.style.display="none";
-
-    }
-
-}
-
-
-/* =========================================================
-   RENDER
-========================================================= */
-
-function renderMap(){
-
-    const backendLayer =
-        document.getElementById("backendLayer");
-
-    const externalLayer =
-        document.getElementById("externalLayer");
-
-    backendLayer.innerHTML="";
-    externalLayer.innerHTML="";
-
-
-    /*
-       Only rows containing backend information
-       become backend branches.
-    */
-
-    const backendRows =
-        mapRows.filter(row =>
-            hasValue(row["Backends Sheet"]) ||
-            hasValue(row["Sheet"]) ||
-            hasValue(row["Sheet API"]) ||
-            hasValue(row["Status"]) ||
-            hasFrontend(row)
-        );
-
-
-    /*
-       Only rows containing external information
-       become external branches.
-    */
-
-    const externalRows =
-        mapRows.filter(row =>
-            hasValue(row["EXTERNAL"]) ||
-            hasValue(row["EXTERNAL API"]) ||
-            hasValue(row["EXTERNAL API 2"])
-        );
-
-
-    /*
-       Spread branches around the hub.
-    */
-
-    positionBackendRows(
-        backendRows
-    );
-
-    positionExternalRows(
-        externalRows
-    );
-
-
-    requestAnimationFrame(() => {
-
-        requestAnimationFrame(() => {
-
-            drawConnections();
-
-        });
-
-    });
-
-}
-
-
-/* =========================================================
-   BACKEND POSITIONING
-========================================================= */
-
-function positionBackendRows(rows){
-
-    const layer =
-        document.getElementById(
-            "backendLayer"
-        );
-
-    if(!rows.length) return;
-
-
-    /*
-       North hemisphere.
-
-       Rows are distributed left → right.
-       Every branch gets its own radial line.
-    */
-
-    const width =
-        document.getElementById("map")
-            .clientWidth;
-
-    const height =
-        document.getElementById("map")
-            .clientHeight;
-
-
-    const centerX =
-        width / 2;
-
-    const centerY =
-        height / 2;
-
-
-    const usableWidth =
-        Math.min(
-            width * .86,
-            rows.length * 285
-        );
-
-
-    rows.forEach(
-        (row,index) => {
-
-            const card =
-                createBackendNetwork(
-                    row,
-                    index
-                );
-
-            layer.appendChild(card);
-
-
-            let x;
-
-            if(rows.length === 1){
-
-                x = centerX;
-
-            }else{
-
-                x =
-                    centerX -
-                    usableWidth/2 +
-                    (
-                        usableWidth *
-                        index /
-                        (rows.length-1)
-                    );
-
-            }
-
-
-            /*
-               North positions.
-
-               Larger networks move slightly
-               higher so the map has a radial feel.
-            */
-
-            const y =
-                Math.max(
-                    170,
-                    centerY -
-                    240 -
-                    (
-                        index % 3
-                    ) * 35
-                );
-
-
-            card.style.left =
-                x + "px";
-
-            card.style.top =
-                y + "px";
-
-        }
-
-    );
-
-}
-
-
-/* =========================================================
-   EXTERNAL POSITIONING
-========================================================= */
-
-function positionExternalRows(rows){
-
-    const layer =
-        document.getElementById(
-            "externalLayer"
-        );
-
-    if(!rows.length) return;
-
-
-    const width =
-        document.getElementById("map")
-            .clientWidth;
-
-    const height =
-        document.getElementById("map")
-            .clientHeight;
-
-
-    const centerX =
-        width / 2;
-
-    const centerY =
-        height / 2;
-
-
-    const usableWidth =
-        Math.min(
-            width * .86,
-            rows.length * 285
-        );
-
-
-    rows.forEach(
-        (row,index) => {
-
-            const card =
-                createExternalNetwork(
-                    row,
-                    index
-                );
-
-            layer.appendChild(card);
-
-
-            let x;
-
-            if(rows.length === 1){
-
-                x = centerX;
-
-            }else{
-
-                x =
-                    centerX -
-                    usableWidth/2 +
-                    (
-                        usableWidth *
-                        index /
-                        (rows.length-1)
-                    );
-
-            }
-
-
-            const y =
-                Math.min(
-                    height - 240,
-                    centerY +
-                    240 +
-                    (
-                        index % 3
-                    ) * 35
-                );
-
-
-            card.style.left =
-                x + "px";
-
-            card.style.top =
-                y + "px";
-
-        }
-
-    );
-
-}
-
-
-/* =========================================================
-   CREATE BACKEND NETWORK
-========================================================= */
-
-function createBackendNetwork(
-    row,
-    index
+function updateInfo(
+    count,
+    generated
 ){
 
-    const wrapper =
-        document.createElement("div");
-
-    wrapper.className =
-        "network backend-network";
-
-
-    wrapper.dataset.rowId =
-        String(row["ID"] || index);
-
-
-    const chain =
-        document.createElement("div");
-
-    chain.className =
-        "backend-chain";
-
-
-    /*
-       BACKEND
-    */
-
-    if(hasValue(row["Backends Sheet"])){
-
-        chain.appendChild(
-            createCard(
-                "Backend",
-                row["Backends Sheet"],
-                "backend-main",
-                row,
-                "backend"
-            )
-        );
-
-    }
-
-
-    /*
-       SHEET
-    */
-
-    if(hasValue(row["Sheet"])){
-
-        chain.appendChild(
-            createCard(
-                "Sheet",
-                row["Sheet"],
-                "sheet-card",
-                row,
-                "sheet"
-            )
-        );
-
-    }
-
-
-    /*
-       SHEET API
-    */
-
-    if(hasValue(row["Sheet API"])){
-
-        chain.appendChild(
-            createCard(
-                "Sheet API",
-                row["Sheet API"],
-                "api-card",
-                row,
-                "sheet-api"
-            )
-        );
-
-    }
-
-
-    /*
-       STATUS
-    */
-
-    if(hasValue(row["Status"])){
-
-        const status =
-            String(
-                row["Status"]
-            ).toUpperCase();
-
-        const statusCard =
-            createCard(
-                "Status",
-                status,
-                "status-card " +
-                (
-                    status === "ONLINE"
-                    ? "online"
-                    : "offline"
-                ),
-                row,
-                "status"
-            );
-
-        statusCard.innerHTML =
-            `
-            <div class="card-title">
-                Status
-            </div>
-
-            <div class="card-value status">
-                <span class="status-dot"></span>
-                ${escapeHTML(status)}
-            </div>
-            `;
-
-        chain.appendChild(
-            statusCard
-        );
-
-    }
-
-
-    /*
-       FRONTENDS
-    */
-
-    const frontendFields = [
-        "MAIN HTML FRONTEND",
-        "HTML FRONTEND 2",
-        "HTML FRONTEND 3",
-        "HTML FRONTEND 4",
-        "HTML FRONTEND 5"
-    ];
-
-
-    const frontends =
-        frontendFields.filter(
-            field =>
-                hasValue(row[field])
-        );
-
-
-    if(frontends.length){
-
-        const frontendGroup =
-            document.createElement("div");
-
-        frontendGroup.className =
-            "frontends";
-
-
-        frontends.forEach(
-            (field,index) => {
-
-                const card =
-                    createCard(
-                        "Frontend " +
-                        (
-                            index === 0
-                            ? "1"
-                            : index + 1
-                        ),
-                        row[field],
-                        "frontend-card",
-                        row,
-                        "frontend"
-                    );
-
-                frontendGroup.appendChild(
-                    card
-                );
-
-            }
-        );
-
-
-        chain.appendChild(
-            frontendGroup
-        );
-
-    }
-
-
-    wrapper.appendChild(chain);
-
-    return wrapper;
-
-}
-
-
-/* =========================================================
-   CREATE EXTERNAL NETWORK
-========================================================= */
-
-function createExternalNetwork(
-    row,
-    index
-){
-
-    const wrapper =
-        document.createElement("div");
-
-    wrapper.className =
-        "network external-network";
-
-
-    wrapper.dataset.rowId =
-        String(row["ID"] || index);
-
-
-    const chain =
-        document.createElement("div");
-
-    chain.className =
-        "external-chain";
-
-
-    /*
-       EXTERNAL
-    */
-
-    if(hasValue(row["EXTERNAL"])){
-
-        chain.appendChild(
-            createCard(
-                "External",
-                row["EXTERNAL"],
-                "external-card",
-                row,
-                "external"
-            )
-        );
-
-    }
-
-
-    /*
-       EXTERNAL API
-    */
-
-    if(hasValue(row["EXTERNAL API"])){
-
-        chain.appendChild(
-            createCard(
-                "External API",
-                row["EXTERNAL API"],
-                "external-api-card",
-                row,
-                "external-api"
-            )
-        );
-
-    }
-
-
-    /*
-       EXTERNAL API 2
-    */
-
-    if(hasValue(row["EXTERNAL API 2"])){
-
-        chain.appendChild(
-            createCard(
-                "External API 2",
-                row["EXTERNAL API 2"],
-                "external-api2-card",
-                row,
-                "external-api-2"
-            )
-        );
-
-    }
-
-
-    wrapper.appendChild(chain);
-
-    return wrapper;
-
-}
-
-
-/* =========================================================
-   CARD
-========================================================= */
-
-function createCard(
-    title,
-    value,
-    className,
-    row,
-    type
-){
-
-    const card =
-        document.createElement("div");
-
-    card.className =
-        "card " +
-        className;
-
-
-    card.dataset.type =
-        type;
-
-    card.dataset.rowId =
-        String(row["ID"] || "");
-
-
-    const titleDiv =
-        document.createElement("div");
-
-    titleDiv.className =
-        "card-title";
-
-    titleDiv.textContent =
-        title;
-
-
-    const valueDiv =
-        document.createElement("div");
-
-    valueDiv.className =
-        "card-value";
-
-
-    if(isURL(value)){
-
-        const link =
-            document.createElement("a");
-
-        link.href =
-            value;
-
-        link.target =
-            "_blank";
-
-        link.rel =
-            "noopener";
-
-        link.textContent =
-            value;
-
-        valueDiv.appendChild(
-            link
-        );
-
-    }else{
-
-        valueDiv.textContent =
-            value;
-
-    }
-
-
-    card.appendChild(
-        titleDiv
-    );
-
-    card.appendChild(
-        valueDiv
-    );
-
-
-    return card;
-
-}
-
-
-/* =========================================================
-   DRAW CONNECTIONS
-========================================================= */
-
-function drawConnections(){
-
-    const svg =
+    const info =
         document.getElementById(
-            "connections"
-        );
-
-    svg.innerHTML="";
-
-
-    const map =
-        document.getElementById(
-            "map"
-        );
-
-    const mapRect =
-        map.getBoundingClientRect();
-
-
-    /*
-       Hub connection point.
-    */
-
-    const hub =
-        document.getElementById(
-            "hub"
-        );
-
-    const hubRect =
-        hub.getBoundingClientRect();
-
-
-    const hubPoint = {
-        x:
-            hubRect.left -
-            mapRect.left +
-            hubRect.width / 2,
-
-        y:
-            hubRect.top -
-            mapRect.top +
-            hubRect.height / 2
-    };
-
-
-    /*
-       BACKEND NETWORKS
-
-       Each row is treated independently.
-    */
-
-    document
-        .querySelectorAll(
-            ".backend-network"
-        )
-        .forEach(
-            network => {
-
-                drawNetworkConnections(
-                    network,
-                    hubPoint,
-                    "backend"
-                );
-
-            }
+            "info"
         );
 
 
-    /*
-       EXTERNAL NETWORKS
+    if(!count){
 
-       Each row is treated independently.
-    */
+        info.textContent =
+            "No MAP records";
 
-    document
-        .querySelectorAll(
-            ".external-network"
-        )
-        .forEach(
-            network => {
-
-                drawNetworkConnections(
-                    network,
-                    hubPoint,
-                    "external"
-                );
-
-            }
-        );
-
-}
-
-
-/* =========================================================
-   DRAW ONE NETWORK
-========================================================= */
-
-function drawNetworkConnections(
-    network,
-    hubPoint,
-    direction
-){
-
-    const map =
-        document.getElementById(
-            "map"
-        );
-
-    const mapRect =
-        map.getBoundingClientRect();
-
-
-    const cards =
-        Array.from(
-            network.querySelectorAll(
-                ".card"
-            )
-        );
-
-
-    if(!cards.length){
         return;
-    }
-
-
-    /*
-       Find centers of cards.
-    */
-
-    const points =
-        cards.map(card => {
-
-            const rect =
-                card.getBoundingClientRect();
-
-            return {
-
-                card,
-
-                x:
-                    rect.left -
-                    mapRect.left +
-                    rect.width/2,
-
-                y:
-                    rect.top -
-                    mapRect.top +
-                    rect.height/2,
-
-                top:
-                    rect.top -
-                    mapRect.top,
-
-                bottom:
-                    rect.bottom -
-                    mapRect.top,
-
-                left:
-                    rect.left -
-                    mapRect.left,
-
-                right:
-                    rect.right -
-                    mapRect.left
-
-            };
-
-        });
-
-
-    /*
-       First card connects to HUB.
-
-       This is deliberately done only
-       for this specific row.
-    */
-
-    const first =
-        points[0];
-
-
-    drawLine(
-        hubPoint.x,
-        hubPoint.y,
-        first.x,
-        first.y,
-        direction === "backend"
-            ? "backend"
-            : "external"
-    );
-
-
-    /*
-       Connect cards in their actual
-       DOM order.
-
-       No global nearest-neighbor
-       searching.
-
-       This prevents cross-row
-       connections.
-    */
-
-    for(
-        let i=0;
-        i<points.length-1;
-        i++
-    ){
-
-        const a =
-            points[i];
-
-        const b =
-            points[i+1];
-
-
-        let className =
-            direction === "backend"
-            ? "backend"
-            : "external";
-
-
-        if(
-            a.card.dataset.type ===
-            "status"
-        ){
-
-            className =
-                "status";
-
-        }
-
-
-        if(
-            a.card.dataset.type ===
-            "frontend"
-        ){
-
-            className =
-                "frontend";
-
-        }
-
-
-        if(
-            a.card.dataset.type ===
-            "sheet-api" ||
-            a.card.dataset.type ===
-            "external-api"
-        ){
-
-            className =
-                "api";
-
-        }
-
-
-        drawLine(
-            a.x,
-            a.y,
-            b.x,
-            b.y,
-            className
-        );
 
     }
 
-}
+
+    let time =
+        "";
 
 
-/* =========================================================
-   DRAW LINE
-========================================================= */
+    if(generated){
 
-function drawLine(
-    x1,
-    y1,
-    x2,
-    y2,
-    className
-){
-
-    const svg =
-        document.getElementById(
-            "connections"
-        );
+        const date =
+            new Date(
+                generated
+            );
 
 
-    /*
-       Curved path creates the
-       spider-web/radial appearance.
-    */
-
-    const distance =
-        Math.abs(y2-y1);
-
-
-    const bend =
-        Math.max(
-            35,
-            Math.min(
-                130,
-                distance * .35
+        if(
+            !Number.isNaN(
+                date.getTime()
             )
-        );
+        ){
 
+            time =
+                " • " +
+                date.toLocaleTimeString();
 
-    let d;
-
-
-    if(
-        y2 < y1
-    ){
-
-        d =
-            `
-            M ${x1} ${y1}
-            C
-            ${x1} ${y1-bend},
-            ${x2} ${y2+bend},
-            ${x2} ${y2}
-            `;
-
-    }else{
-
-        d =
-            `
-            M ${x1} ${y1}
-            C
-            ${x1} ${y1+bend},
-            ${x2} ${y2-bend},
-            ${x2} ${y2}
-            `;
+        }
 
     }
 
 
-    const path =
-        document.createElementNS(
-            "http://www.w3.org/2000/svg",
-            "path"
-        );
-
-
-    path.setAttribute(
-        "d",
-        d
-    );
-
-
-    path.setAttribute(
-        "class",
-        "connection " +
-        className
-    );
-
-
-    svg.appendChild(
-        path
-    );
+    info.textContent =
+        count +
+        " map records" +
+        time;
 
 }
 
 
 /* =========================================================
-   HELPERS
+   CENTER
 ========================================================= */
 
-function hasValue(value){
+function resetView(){
 
-    return (
-        value !== undefined &&
-        value !== null &&
-        String(value).trim() !== "" &&
-        String(value).trim() !== "#"
-    );
+    /*
+     * The hub is already fixed at
+     * the visual center.
 
-}
+     * This redraw simply guarantees
+     * the lines are positioned correctly.
+     */
 
-
-function hasFrontend(row){
-
-    return [
-        "MAIN HTML FRONTEND",
-        "HTML FRONTEND 2",
-        "HTML FRONTEND 3",
-        "HTML FRONTEND 4",
-        "HTML FRONTEND 5"
-    ].some(
-        key =>
-            hasValue(row[key])
-    );
-
-}
-
-
-function isURL(value){
-
-    return /^https?:\/\//i.test(
-        String(value)
-    );
-
-}
-
-
-function escapeHTML(value){
-
-    return String(value)
-        .replace(/&/g,"&amp;")
-        .replace(/</g,"&lt;")
-        .replace(/>/g,"&gt;")
-        .replace(/"/g,"&quot;")
-        .replace(/'/g,"&#039;");
-
-}
-
-
-function formatTime(value){
-
-    if(!value){
-        return "unknown";
-    }
-
-    const date =
-        new Date(value);
-
-    if(
-        Number.isNaN(
-            date.getTime()
-        )
-    ){
-
-        return value;
-
-    }
-
-    return date.toLocaleTimeString();
+    drawConnections();
 
 }
 
 
 /* =========================================================
-   CENTER HUB
-========================================================= */
-
-function centerHub(){
-
-    const map =
-        document.getElementById(
-            "map"
-        );
-
-    map.scrollTo({
-        left:
-            Math.max(
-                0,
-                map.scrollWidth /
-                2 -
-                map.clientWidth /
-                2
-            ),
-
-        top:
-            Math.max(
-                0,
-                map.scrollHeight /
-                2 -
-                map.clientHeight /
-                2
-            ),
-
-        behavior:"smooth"
-    });
-
-}
-
-
-/* =========================================================
-   REDRAW AFTER FONTS / LAYOUT
+   INITIAL REDRAW
 ========================================================= */
 
 setTimeout(
     drawConnections,
-    500
+    300
 );
 
 setTimeout(
     drawConnections,
-    1500
+    1000
 );
+
+setTimeout(
+    drawConnections,
+    2000
+);
+
 
 </script>
 
