@@ -1366,6 +1366,12 @@ data-tip="Export .m3u Playlist">
 
 </button>
 
+<button
+onclick="saveCurrentPlaylist()"
+data-tip="Save Playlist to Obvyris">
+💾
+</button>
+ 
 <button 
 onclick="document.getElementById('m3uLoader').click()"
 data-tip="Load .m3u Playlist">
@@ -1466,19 +1472,20 @@ async function loadPlaylistList(){
         select.innerHTML =
             '<option value="">Select Playlist</option>';
 
-        data.playlists.forEach(function(id){
+        data.playlists.forEach(function(playlist){
 
-            const option =
-                document.createElement("option");
+    const option =
+        document.createElement("option");
 
-            option.value = id;
+    option.value =
+        playlist.id;
 
-            option.textContent =
-                "Playlist " + id;
+    option.textContent =
+        playlist.name;
 
-            select.appendChild(option);
+    select.appendChild(option);
 
-        });
+});
 
         status.innerHTML =
             "Found " +
@@ -2429,6 +2436,140 @@ function exportM3U(){
 
 }
 
+
+// ======================================
+// SAVE PLAYLIST TO OBVYRIS BACKEND
+// ======================================
+
+async function saveCurrentPlaylist(){
+
+    const status =
+        document.getElementById("status");
+
+    if(!queue || queue.length === 0){
+
+        status.innerHTML =
+            "Playlist is empty";
+
+        return;
+
+    }
+
+    const playlistName =
+        prompt(
+            "Enter a name for this playlist:"
+        );
+
+    if(playlistName === null)
+        return;
+
+    const cleanName =
+        playlistName.trim();
+
+    if(!cleanName){
+
+        status.innerHTML =
+            "Playlist name is required";
+
+        return;
+
+    }
+
+    status.innerHTML =
+        "Saving playlist...";
+
+    const playlistTracks =
+        queue.map(function(track,index){
+
+            return {
+
+                position:
+                    index + 1,
+
+                artist:
+                    track.artist || "",
+
+                song:
+                    track.name || "",
+
+                album:
+                    track.album || "",
+
+                url:
+                    track.url || ""
+
+            };
+
+        });
+
+    try{
+
+        const response =
+            await fetch(
+                PLAYLIST_API,
+                {
+                    method:"POST",
+
+                    headers:{
+                        "Content-Type":
+                            "text/plain;charset=utf-8"
+                    },
+
+                    body:JSON.stringify({
+
+                        action:
+                            "savePlaylist",
+
+                        playlistName:
+                            cleanName,
+
+                        tracks:
+                            playlistTracks
+
+                    })
+
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if(!data.success){
+
+            throw new Error(
+                data.error ||
+                "Playlist save failed"
+            );
+
+        }
+
+        status.innerHTML =
+            "Saved playlist: " +
+            escapeHTML(
+                data.playlistName ||
+                cleanName
+            ) +
+            " — " +
+            playlistTracks.length +
+            " tracks";
+
+        await loadPlaylistList();
+
+    }catch(error){
+
+        console.error(
+            "Playlist save error:",
+            error
+        );
+
+        status.innerHTML =
+            "Playlist save failed: " +
+            error.message;
+
+    }
+
+}
+ 
 // ======================================
 // HELPERS
 // ======================================
