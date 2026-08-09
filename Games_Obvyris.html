@@ -656,7 +656,14 @@ width:230px;
 
 }
 
+#gameScreen{
+transition:transform 0.3s ease;
+transform-origin:center center;
+}
 
+#gameScreen.rotated{
+transform:rotate(90deg);
+}
 
 /* MOBILE GAMES */
 
@@ -967,6 +974,7 @@ Game Player
 </span>
 
 <div>
+<button id="rotateGameBtn" onclick="rotateGameScreen()">↻ Rotate</button>
 <button onclick="reloadGame()">🔄</button>
 <button onclick="fullscreenGame()">⛶</button>
 <button onclick="closeGame()">✖</button>
@@ -1569,7 +1577,23 @@ frame.src;
 }
 
 
+function rotateGameScreen(){
 
+const gameScreen = document.getElementById("gameScreen");
+const button = document.getElementById("rotateGameBtn");
+
+if(!gameScreen) return;
+
+gameScreen.classList.toggle("rotated");
+
+if(gameScreen.classList.contains("rotated")){
+    button.textContent = "↺ Rotate";
+}else{
+    button.textContent = "↻ Rotate";
+}
+
+}
+    
 
 function fullscreenGame(){
 
