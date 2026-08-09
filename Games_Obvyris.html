@@ -873,7 +873,74 @@ user-select:text;
 pointer-events:auto;
 
 }
-    
+
+#gameKeyboard{
+
+display:none;
+
+position:absolute;
+
+left:0;
+
+right:0;
+
+bottom:0;
+
+background:#111827;
+
+border-top:2px solid #2793ff;
+
+padding:6px;
+
+z-index:20;
+
+}
+
+#gameKeyboard.open{
+
+display:block;
+
+}
+
+.keyboardRow{
+
+display:flex;
+
+gap:4px;
+
+margin-bottom:4px;
+
+justify-content:center;
+
+}
+
+.keyboardRow button{
+
+width:auto;
+
+min-width:35px;
+
+height:38px;
+
+padding:4px 8px;
+
+font-size:13px;
+
+font-weight:800;
+
+border-radius:6px;
+
+}
+
+.keyboardRow .wideKey{
+
+flex:1;
+
+max-width:250px;
+
+}
+
+
 </style>
 
 </head>
@@ -1004,7 +1071,69 @@ id="gameFrame"
 allowfullscreen>
 </iframe>
 
+<div id="gameKeyboard"> <div class="keyboardRow">
 
+<button onclick="sendGameKey('1')">1</button>
+<button onclick="sendGameKey('2')">2</button>
+<button onclick="sendGameKey('3')">3</button>
+<button onclick="sendGameKey('4')">4</button>
+<button onclick="sendGameKey('5')">5</button>
+<button onclick="sendGameKey('6')">6</button>
+<button onclick="sendGameKey('7')">7</button>
+<button onclick="sendGameKey('8')">8</button>
+<button onclick="sendGameKey('9')">9</button>
+<button onclick="sendGameKey('0')">0</button>
+
+</div> <div class="keyboardRow">
+
+<button onclick="sendGameKey('q')">Q</button>
+<button onclick="sendGameKey('w')">W</button>
+<button onclick="sendGameKey('e')">E</button>
+<button onclick="sendGameKey('r')">R</button>
+<button onclick="sendGameKey('t')">T</button>
+<button onclick="sendGameKey('y')">Y</button>
+<button onclick="sendGameKey('u')">U</button>
+<button onclick="sendGameKey('i')">I</button>
+<button onclick="sendGameKey('o')">O</button>
+<button onclick="sendGameKey('p')">P</button>
+
+</div> <div class="keyboardRow">
+
+<button onclick="sendGameKey('a')">A</button>
+<button onclick="sendGameKey('s')">S</button>
+<button onclick="sendGameKey('d')">D</button>
+<button onclick="sendGameKey('f')">F</button>
+<button onclick="sendGameKey('g')">G</button>
+<button onclick="sendGameKey('h')">H</button>
+<button onclick="sendGameKey('j')">J</button>
+<button onclick="sendGameKey('k')">K</button>
+<button onclick="sendGameKey('l')">L</button>
+
+</div> <div class="keyboardRow">
+
+<button onclick="sendGameKey('z')">Z</button>
+<button onclick="sendGameKey('x')">X</button>
+<button onclick="sendGameKey('c')">C</button>
+<button onclick="sendGameKey('v')">V</button>
+<button onclick="sendGameKey('b')">B</button>
+<button onclick="sendGameKey('n')">N</button>
+<button onclick="sendGameKey('m')">M</button>
+
+</div> <div class="keyboardRow">
+
+<button class="wideKey" onclick="sendGameKey(' ')">SPACE</button>
+<button onclick="sendGameKey('Backspace')">⌫</button>
+<button onclick="sendGameKey('Enter')">ENTER</button>
+
+</div> <div class="keyboardRow">
+
+<button onclick="sendGameKey('ArrowLeft')">←</button>
+<button onclick="sendGameKey('ArrowUp')">↑</button>
+<button onclick="sendGameKey('ArrowDown')">↓</button>
+<button onclick="sendGameKey('ArrowRight')">→</button>
+
+</div> </div>
+    
 </div>
 
 
@@ -1575,9 +1704,6 @@ document
 
 }
 
-
-
-
 function reloadGame(){
 
 
@@ -1592,6 +1718,46 @@ frame.src;
 
 }
 
+function toggleKeyboard(){
+
+const keyboard =
+    document.getElementById("gameKeyboard");
+
+const button =
+    document.getElementById("keyboardBtn");
+
+if(!keyboard) return;
+
+keyboard.classList.toggle("open");
+
+if(keyboard.classList.contains("open")){
+
+    button.textContent = "✖⌨";
+
+}else{
+
+    button.textContent = "⌨";
+
+}
+
+}
+
+function sendGameKey(key){
+
+const frame =
+    document.getElementById("gameFrame");
+
+if(!frame) return;
+
+frame.contentWindow.postMessage({
+
+    type:"gameKeyboard",
+
+    key:key
+
+},"*");
+
+}
 function keyboardGame(){
 
 const frame =
@@ -1777,25 +1943,25 @@ return String(text || "")
 loadMoreGames();
 
 
-document.addEventListener("touchend", function(e){
+window.addEventListener("message", function(event){
 
-const input = e.target.closest(
-    "input, textarea, select, [contenteditable='true']"
-);
+if(!event.data) return;
 
-if(!input) return;
+if(event.data.type !== "gameKeyboard") return;
 
-setTimeout(function(){
+const key = event.data.key;
 
-    input.focus();
+const keyDown = new KeyboardEvent("keydown", {
+    key:key,
+    code:key === " " ? "Space" : "Key" + key.toUpperCase(),
+    bubbles:true,
+    cancelable:true
+});
 
-    if(input.tagName === "INPUT"){
-        input.click();
-    }
+document.dispatchEvent(keyDown);
 
-}, 50);
+});
 
-}, {passive:true});
     
 </script>
 
