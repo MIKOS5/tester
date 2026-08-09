@@ -4,41 +4,25 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 
-<title>Obvyris Server Architecture</title>
+<title>Obvyris Server Architecture Map</title>
 
 <style>
 
 :root{
-    --bg:#03070d;
-    --bg2:#07111d;
-    --panel:#0b1623;
-    --panel2:#0f1d2d;
-
-    --text:#edf7ff;
-    --muted:#71879c;
-
+    --bg:#050914;
+    --panel:#0b1220;
+    --panel2:#101a2b;
+    --line:#26364f;
+    --text:#f4f7fb;
+    --muted:#8392aa;
     --blue:#2793ff;
-    --blue-soft:#5db8ff;
-
-    --backend:#2997ed;
-    --sheet:#4d81aa;
-    --sheetapi:#a46bdf;
-    --frontend:#3da9ff;
-
-    --external:#a16bd2;
-    --externalapi:#c57be8;
-
-    --border:#20364b;
-    --border2:#29465e;
-
-    --shadow:
-        0 12px 30px rgba(0,0,0,.38);
+    --cyan:#22d3ee;
+    --green:#22c55e;
+    --red:#ef4444;
+    --orange:#f59e0b;
+    --purple:#a78bfa;
+    --shadow:0 15px 45px rgba(0,0,0,.45);
 }
-
-
-/* =========================================================
-   RESET
-========================================================= */
 
 *{
     box-sizing:border-box;
@@ -49,1196 +33,882 @@ body{
     width:100%;
     height:100%;
     margin:0;
-    padding:0;
-}
-
-body{
     overflow:hidden;
-
+    background:var(--bg);
     color:var(--text);
-
     font-family:
         Inter,
-        ui-sans-serif,
         system-ui,
         -apple-system,
         BlinkMacSystemFont,
         "Segoe UI",
-        Arial,
         sans-serif;
-
-    background:
-        radial-gradient(
-            circle at 50% 50%,
-            #102840 0%,
-            #081522 30%,
-            #040a11 67%,
-            #02050a 100%
-        );
 }
 
+/* =========================================================
+   APP
+========================================================= */
+
+#app{
+    width:100%;
+    height:100%;
+    position:relative;
+    overflow:hidden;
+}
 
 /* =========================================================
-   TOP BAR
+   HEADER
 ========================================================= */
 
 .header{
-
     position:fixed;
-
+    top:0;
     left:0;
     right:0;
-    top:0;
-
-    height:64px;
-
-    z-index:5000;
+    height:68px;
+    z-index:1000;
 
     display:flex;
-
     align-items:center;
-
     justify-content:space-between;
 
-    padding:
-        0 18px;
+    padding:0 20px;
 
     background:
-        rgba(3,8,14,.94);
+        linear-gradient(
+            180deg,
+            rgba(5,9,20,.98),
+            rgba(5,9,20,.88)
+        );
 
-    border-bottom:
-        1px solid #1b3044;
+    border-bottom:1px solid rgba(255,255,255,.08);
 
-    box-shadow:
-        0 8px 28px
-        rgba(0,0,0,.28);
-
-    backdrop-filter:
-        blur(16px);
+    backdrop-filter:blur(14px);
 }
 
 .brand{
-
     display:flex;
-
     align-items:center;
-
-    gap:11px;
-
-    min-width:0;
+    gap:12px;
 }
 
-.brand-logo{
+.brandMark{
+    width:38px;
+    height:38px;
+    border-radius:12px;
 
-    width:36px;
-    height:36px;
-
-    flex:none;
-
-    display:grid;
-
-    place-items:center;
-
-    border-radius:50%;
-
-    font-size:17px;
-
-    font-weight:900;
-
-    color:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
 
     background:
-        radial-gradient(
-            circle at 35% 30%,
-            #72c5ff,
-            #2793ff 45%,
-            #124b8c
+        linear-gradient(
+            135deg,
+            #2793ff,
+            #7c3aed
         );
 
     box-shadow:
-        0 0 25px
-        rgba(39,147,255,.4);
+        0 0 25px rgba(39,147,255,.25);
+
+    font-weight:900;
 }
 
-.brand-name{
+.brandText{
+    display:flex;
+    flex-direction:column;
+}
 
+.brandTitle{
     font-size:15px;
-
-    font-weight:850;
-
+    font-weight:800;
     letter-spacing:.4px;
 }
 
-.brand-sub{
-
+.brandSub{
+    font-size:11px;
+    color:var(--muted);
     margin-top:2px;
-
-    color:#688198;
-
-    font-size:8px;
-
-    font-weight:700;
-
-    letter-spacing:1.8px;
 }
 
-.toolbar{
-
+.controls{
     display:flex;
-
     align-items:center;
-
-    gap:7px;
+    gap:8px;
 }
 
-.tool{
+.controlButton{
+    height:36px;
+    min-width:36px;
 
-    height:32px;
+    padding:0 12px;
 
-    padding:
-        0 11px;
+    border-radius:9px;
+    border:1px solid rgba(255,255,255,.10);
 
-    border:
-        1px solid #263d52;
-
-    border-radius:7px;
-
-    background:
-        #0a1521;
-
-    color:#dcecff;
-
-    font-size:10px;
-
-    font-weight:700;
+    background:#0d1728;
+    color:#dce7f7;
 
     cursor:pointer;
 
-    transition:
-        .15s ease;
+    font-size:13px;
+    font-weight:700;
+
+    transition:.18s;
 }
 
-.tool:hover{
-
-    border-color:
-        #3987c5;
-
-    background:
-        #102338;
-
-    color:white;
+.controlButton:hover{
+    background:#17243a;
+    border-color:rgba(39,147,255,.5);
 }
 
-.tool:active{
-
-    transform:
-        translateY(1px);
+.zoomValue{
+    min-width:65px;
+    text-align:center;
+    color:#8fa1bb;
+    font-size:12px;
+    font-weight:700;
 }
-
 
 /* =========================================================
-   MAP
+   LEGEND
 ========================================================= */
 
-#map{
+.legend{
+    position:fixed;
+    left:18px;
+    bottom:18px;
 
+    z-index:1000;
+
+    display:flex;
+    align-items:center;
+    gap:15px;
+
+    padding:10px 14px;
+
+    border-radius:12px;
+
+    background:rgba(8,14,25,.92);
+    border:1px solid rgba(255,255,255,.08);
+
+    backdrop-filter:blur(12px);
+
+    box-shadow:var(--shadow);
+
+    font-size:11px;
+    color:#9aaac0;
+}
+
+.legendItem{
+    display:flex;
+    align-items:center;
+    gap:6px;
+}
+
+.legendDot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+}
+
+.dotBackend{
+    background:var(--blue);
+    box-shadow:0 0 10px rgba(39,147,255,.7);
+}
+
+.dotExternal{
+    background:var(--orange);
+    box-shadow:0 0 10px rgba(245,158,11,.7);
+}
+
+.dotFrontend{
+    background:var(--purple);
+    box-shadow:0 0 10px rgba(167,139,250,.7);
+}
+
+/* =========================================================
+   INFO
+========================================================= */
+
+.info{
+    position:fixed;
+    right:18px;
+    bottom:18px;
+
+    z-index:1000;
+
+    padding:9px 12px;
+
+    border-radius:10px;
+
+    background:rgba(8,14,25,.88);
+    border:1px solid rgba(255,255,255,.08);
+
+    color:#75859d;
+
+    font-size:11px;
+}
+
+/* =========================================================
+   CANVAS
+========================================================= */
+
+#viewport{
     position:absolute;
 
     left:0;
     right:0;
-
-    top:64px;
+    top:68px;
     bottom:0;
 
     overflow:hidden;
 
-    touch-action:none;
-}
-
-
-/* =========================================================
-   GRID
-========================================================= */
-
-#map::before{
-
-    content:"";
-
-    position:absolute;
-
-    inset:0;
-
-    pointer-events:none;
-
-    opacity:.13;
-
-    background-image:
-
-        linear-gradient(
-            rgba(83,132,169,.28) 1px,
-            transparent 1px
-        ),
-
-        linear-gradient(
-            90deg,
-            rgba(83,132,169,.28) 1px,
-            transparent 1px
-        );
-
-    background-size:
-        42px 42px;
-
-    mask-image:
-        radial-gradient(
-            ellipse at center,
-            black 0%,
-            rgba(0,0,0,.7) 48%,
-            transparent 82%
-        );
-}
-
-
-/* =========================================================
-   CENTER GLOW
-========================================================= */
-
-#map::after{
-
-    content:"";
-
-    position:absolute;
-
-    left:50%;
-    top:50%;
-
-    width:700px;
-    height:700px;
-
-    transform:
-        translate(-50%,-50%);
-
-    pointer-events:none;
-
-    border-radius:50%;
+    cursor:grab;
 
     background:
         radial-gradient(
-            circle,
-            rgba(39,147,255,.095),
-            transparent 68%
+            circle at center,
+            rgba(39,147,255,.035),
+            transparent 45%
         );
 }
 
+#viewport.grabbing{
+    cursor:grabbing;
+}
+
+/* Infinite grid */
+
+#grid{
+    position:absolute;
+    inset:-5000px;
+
+    background-image:
+        linear-gradient(
+            rgba(255,255,255,.025) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(255,255,255,.025) 1px,
+            transparent 1px
+        );
+
+    background-size:40px 40px;
+
+    transform-origin:0 0;
+
+    pointer-events:none;
+}
+
+/* =========================================================
+   WORLD
+========================================================= */
+
+#world{
+    position:absolute;
+
+    width:0;
+    height:0;
+
+    left:0;
+    top:0;
+
+    transform-origin:0 0;
+}
 
 /* =========================================================
    CONNECTION SVG
 ========================================================= */
 
 #connections{
-
     position:absolute;
 
-    inset:0;
+    left:-10000px;
+    top:-10000px;
 
-    width:100%;
-    height:100%;
+    width:20000px;
+    height:20000px;
 
-    z-index:10;
+    overflow:visible;
 
     pointer-events:none;
 
-    overflow:visible;
+    z-index:2;
 }
 
 .connection{
-
     fill:none;
 
-    stroke-width:1.15;
+    stroke-width:2;
 
-    stroke-linecap:round;
+    opacity:.48;
 
-    opacity:.58;
-
-    vector-effect:
-        non-scaling-stroke;
-
-    filter:
-        drop-shadow(
-            0 0 3px
-            rgba(39,147,255,.14)
-        );
+    vector-effect:non-scaling-stroke;
 }
 
 .connection.backend{
-    stroke:var(--backend);
-}
-
-.connection.sheet{
-    stroke:var(--sheet);
-}
-
-.connection.sheet-api{
-    stroke:var(--sheetapi);
-}
-
-.connection.frontend{
-    stroke:var(--frontend);
+    stroke:var(--blue);
 }
 
 .connection.external{
-    stroke:var(--external);
+    stroke:var(--orange);
 }
 
-.connection.external-api{
-    stroke:var(--externalapi);
+.connection.frontend{
+    stroke:var(--purple);
 }
 
-
-/* =========================================================
-   ZONE LABELS
-========================================================= */
-
-.zone{
-
-    position:absolute;
-
-    left:50%;
-
-    transform:
-        translateX(-50%);
-
-    z-index:30;
-
-    padding:
-        5px 13px;
-
-    border:
-        1px solid #1d354a;
-
-    border-radius:20px;
-
-    background:
-        rgba(4,10,17,.78);
-
-    color:#668199;
-
-    font-size:7px;
-
-    font-weight:900;
-
-    letter-spacing:2.8px;
-
-    pointer-events:none;
+.connection.sheet{
+    stroke:#38bdf8;
 }
 
-.zone.backend{
-
-    top:13px;
+.connection.api{
+    stroke:#22c55e;
 }
-
-.zone.external{
-
-    bottom:13px;
-}
-
 
 /* =========================================================
    HUB
 ========================================================= */
 
 #hub{
-
     position:absolute;
 
-    left:50%;
-    top:50%;
+    width:230px;
+    height:130px;
 
-    width:164px;
-    height:164px;
+    left:-115px;
+    top:-65px;
 
-    transform:
-        translate(-50%,-50%);
+    z-index:50;
 
-    z-index:3000;
-
-    display:flex;
-
-    flex-direction:column;
-
-    align-items:center;
-
-    justify-content:center;
-
-    border-radius:50%;
-
-    border:
-        2px solid
-        rgba(64,171,255,.92);
+    border-radius:24px;
 
     background:
         radial-gradient(
-            circle at 50% 34%,
-            #1b4a75 0%,
-            #113453 35%,
-            #0a1b2c 67%,
-            #040b13 100%
+            circle at 50% 30%,
+            rgba(39,147,255,.22),
+            transparent 60%
+        ),
+        linear-gradient(
+            145deg,
+            #111f35,
+            #08101d
         );
 
+    border:1px solid rgba(39,147,255,.7);
+
     box-shadow:
+        0 0 0 1px rgba(39,147,255,.12),
+        0 0 50px rgba(39,147,255,.16),
+        0 20px 60px rgba(0,0,0,.55);
 
-        0 0 0 7px
-        rgba(39,147,255,.035),
-
-        0 0 0 17px
-        rgba(39,147,255,.018),
-
-        0 0 60px
-        rgba(39,147,255,.28),
-
-        inset 0 0 35px
-        rgba(39,147,255,.14);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
 
     user-select:none;
-
-    pointer-events:none;
 }
 
-#hub::before{
-
-    content:"";
-
-    position:absolute;
-
-    inset:-9px;
+.hubOrb{
+    width:35px;
+    height:35px;
 
     border-radius:50%;
 
-    border:
-        1px solid
-        rgba(77,180,255,.27);
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+            #fff,
+            #2793ff 30%,
+            #1763b5 65%,
+            #071426
+        );
 
-    animation:
-        hubPulse 3.2s ease-in-out infinite;
+    box-shadow:
+        0 0 25px rgba(39,147,255,.8);
+
+    margin-bottom:9px;
 }
 
-@keyframes hubPulse{
-
-    0%,
-    100%{
-        transform:scale(1);
-        opacity:.3;
-    }
-
-    50%{
-        transform:scale(1.06);
-        opacity:.75;
-    }
+.hubTitle{
+    font-size:18px;
+    font-weight:900;
+    letter-spacing:1px;
 }
 
-.hub-icon{
-
-    font-size:29px;
-
-    line-height:1;
-
-    color:#9bd7ff;
-
-    text-shadow:
-        0 0 20px
-        rgba(85,185,255,.85);
+.hubSub{
+    margin-top:5px;
+    font-size:10px;
+    color:#7f95b3;
+    letter-spacing:1px;
+    text-transform:uppercase;
 }
-
-.hub-title{
-
-    margin-top:7px;
-
-    font-size:17px;
-
-    font-weight:950;
-
-    letter-spacing:3px;
-}
-
-.hub-sub{
-
-    margin-top:4px;
-
-    color:#78a8cc;
-
-    font-size:7px;
-
-    font-weight:800;
-
-    letter-spacing:2px;
-}
-
-.hub-lock{
-
-    margin-top:7px;
-
-    color:#4e7797;
-
-    font-size:6px;
-
-    letter-spacing:1.5px;
-}
-
 
 /* =========================================================
-   BRANCH LAYERS
+   NODE
 ========================================================= */
 
-.layer{
-
+.node{
     position:absolute;
 
-    inset:0;
+    width:190px;
 
-    z-index:100;
+    min-height:74px;
 
-    pointer-events:none;
-}
+    padding:11px 12px;
 
+    border-radius:14px;
 
-/* =========================================================
-   BRANCH
-========================================================= */
+    background:
+        linear-gradient(
+            145deg,
+            rgba(17,29,48,.98),
+            rgba(8,15,27,.98)
+        );
 
-.branch{
+    border:1px solid rgba(255,255,255,.09);
 
-    position:absolute;
+    box-shadow:
+        0 12px 35px rgba(0,0,0,.4);
 
-    width:235px;
-
-    transform:
-        translate(-50%,-50%);
-
-    pointer-events:auto;
+    z-index:20;
 
     cursor:grab;
 
     user-select:none;
 
-    touch-action:none;
-
     transition:
-        box-shadow .15s ease;
+        border-color .15s,
+        box-shadow .15s,
+        transform .15s;
 }
 
-.branch.dragging{
+.node:hover{
+    border-color:rgba(255,255,255,.24);
 
+    box-shadow:
+        0 15px 40px rgba(0,0,0,.5),
+        0 0 20px rgba(39,147,255,.06);
+}
+
+.node.dragging{
     cursor:grabbing;
 
-    z-index:2500;
+    z-index:200;
 
-    filter:
-        drop-shadow(
-            0 12px 25px
-            rgba(0,0,0,.5)
-        );
+    border-color:rgba(39,147,255,.75);
+
+    box-shadow:
+        0 25px 60px rgba(0,0,0,.65),
+        0 0 30px rgba(39,147,255,.15);
 }
 
+/* Backend */
 
-/* =========================================================
-   BRANCH LABEL
-========================================================= */
+.node.backend{
+    border-left:3px solid var(--blue);
+}
 
-.branch-label{
+/* Sheet */
 
-    margin-bottom:6px;
+.node.sheet{
+    border-left:3px solid #38bdf8;
+}
 
-    padding:
-        3px 7px;
+/* API */
 
-    overflow:hidden;
+.node.api{
+    border-left:3px solid var(--green);
+}
 
-    text-align:center;
+/* Frontend */
 
-    color:#58748c;
+.node.frontend{
+    border-left:3px solid var(--purple);
+}
 
-    font-size:7px;
+/* External */
 
-    font-weight:900;
+.node.external{
+    border-left:3px solid var(--orange);
+}
 
-    letter-spacing:1.7px;
+.nodeHead{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
 
-    text-transform:uppercase;
+    gap:8px;
+}
+
+.nodeTitle{
+    font-size:12px;
+    font-weight:800;
 
     white-space:nowrap;
-
+    overflow:hidden;
     text-overflow:ellipsis;
 }
 
+.nodeType{
+    font-size:8px;
 
-/* =========================================================
-   CHAIN
-========================================================= */
+    padding:3px 6px;
 
-.chain{
+    border-radius:5px;
 
-    display:flex;
+    background:rgba(255,255,255,.06);
 
-    flex-direction:column;
+    color:#71839d;
 
-    gap:5px;
+    text-transform:uppercase;
+    letter-spacing:.6px;
 }
 
+.nodeValue{
+    margin-top:7px;
 
-/* =========================================================
-   CARD
-========================================================= */
-
-.card{
-
-    position:relative;
-
-    min-height:39px;
-
-    padding:
-        7px 9px 7px 11px;
-
-    border:
-        1px solid var(--border);
-
-    border-radius:8px;
-
-    background:
-        linear-gradient(
-            145deg,
-            rgba(13,27,43,.98),
-            rgba(6,13,22,.98)
-        );
-
-    box-shadow:
-        var(--shadow);
-
-    overflow:hidden;
-
-    transition:
-        border-color .15s ease,
-        transform .15s ease;
-}
-
-.card:hover{
-
-    border-color:
-        var(--border2);
-
-    transform:
-        translateY(-1px);
-}
-
-.card::before{
-
-    content:"";
-
-    position:absolute;
-
-    left:0;
-    top:0;
-    bottom:0;
-
-    width:3px;
-
-    background:#355168;
-}
-
-.card.backend::before{
-    background:var(--backend);
-}
-
-.card.sheet::before{
-    background:var(--sheet);
-}
-
-.card.sheet-api::before{
-    background:var(--sheetapi);
-}
-
-.card.frontend::before{
-    background:var(--frontend);
-}
-
-.card.external::before{
-    background:var(--external);
-}
-
-.card.external-api::before{
-    background:var(--externalapi);
-}
-
-.card-title{
-
-    color:#e9f5ff;
+    color:#8191a8;
 
     font-size:9px;
 
-    font-weight:850;
-
-    white-space:nowrap;
-
-    overflow:hidden;
-
-    text-overflow:ellipsis;
-}
-
-.card-value{
-
-    margin-top:3px;
-
-    color:#7c91a5;
-
-    font-size:7px;
-
     line-height:1.35;
-
-    overflow:hidden;
 
     word-break:break-word;
 }
 
-.card-value a{
-
-    color:#61b6ff;
-
+.nodeValue a{
+    color:#77baff;
     text-decoration:none;
 }
 
-.card-value a:hover{
-
-    color:#9ad6ff;
-
+.nodeValue a:hover{
     text-decoration:underline;
 }
 
-
-/* =========================================================
-   FRONTEND GROUP
-========================================================= */
-
-.frontends{
-
-    display:grid;
-
-    grid-template-columns:
-        repeat(5,1fr);
-
-    gap:3px;
-}
-
-.frontend-card{
-
-    min-width:0;
-
-    min-height:48px;
-
-    padding:
-        6px 4px;
-
-    text-align:center;
-}
-
-.frontend-card .card-title{
-
-    font-size:6.5px;
-
-    line-height:1.15;
-
-    white-space:normal;
-}
-
-.frontend-card .card-value{
-
-    max-height:28px;
-
-    font-size:5.7px;
-
-    line-height:1.25;
-}
-
-
-/* =========================================================
-   EMPTY
-========================================================= */
-
-#empty{
-
+.nodeStatus{
     position:absolute;
 
-    inset:0;
+    top:9px;
+    right:9px;
 
-    z-index:2000;
+    width:7px;
+    height:7px;
 
-    display:none;
+    border-radius:50%;
 
-    align-items:center;
-
-    justify-content:center;
-
-    pointer-events:none;
+    background:#4b5563;
 }
 
-.empty-box{
+.nodeStatus.online{
+    background:var(--green);
+    box-shadow:0 0 9px rgba(34,197,94,.8);
+}
 
-    padding:
-        20px 26px;
+.nodeStatus.offline{
+    background:var(--red);
+    box-shadow:0 0 9px rgba(239,68,68,.5);
+}
 
-    border:
-        1px solid #263c51;
+/* =========================================================
+   TOOLTIP
+========================================================= */
 
-    border-radius:12px;
+.tooltip{
+    position:fixed;
 
-    background:
-        rgba(8,17,28,.95);
+    z-index:5000;
 
-    color:#8097ac;
+    max-width:340px;
 
-    text-align:center;
+    padding:10px 12px;
+
+    border-radius:10px;
+
+    background:#0a1220;
+
+    border:1px solid rgba(255,255,255,.12);
+
+    box-shadow:var(--shadow);
+
+    color:#dce7f5;
 
     font-size:11px;
+
+    line-height:1.5;
+
+    pointer-events:none;
+
+    opacity:0;
+
+    transform:translateY(5px);
+
+    transition:.12s;
 }
 
+.tooltip.show{
+    opacity:1;
+    transform:translateY(0);
+}
 
 /* =========================================================
    LOADING
 ========================================================= */
 
-#loading{
-
+.loading{
     position:absolute;
 
-    inset:0;
+    left:50%;
+    top:50%;
 
-    z-index:4500;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    background:
-        rgba(3,8,14,.94);
-
-    backdrop-filter:
-        blur(6px);
-}
-
-.loading-box{
+    transform:translate(-50%,-50%);
 
     display:flex;
-
     flex-direction:column;
-
     align-items:center;
 
-    gap:11px;
+    gap:12px;
 
-    color:#8298ad;
+    color:#8495ad;
 
-    font-size:10px;
+    font-size:12px;
+
+    z-index:500;
 }
 
 .spinner{
-
-    width:31px;
-    height:31px;
-
-    border:
-        3px solid #1b2f43;
-
-    border-top-color:
-        var(--blue);
+    width:30px;
+    height:30px;
 
     border-radius:50%;
 
-    animation:
-        spin .75s linear infinite;
+    border:3px solid rgba(255,255,255,.08);
+
+    border-top-color:var(--blue);
+
+    animation:spin .8s linear infinite;
 }
 
 @keyframes spin{
-
     to{
         transform:rotate(360deg);
     }
 }
-
 
 /* =========================================================
    ERROR
 ========================================================= */
 
 #error{
+    display:none;
 
     position:absolute;
 
     left:50%;
     top:50%;
 
-    transform:
-        translate(-50%,-50%);
+    transform:translate(-50%,-50%);
 
-    z-index:4000;
+    width:min(600px,90vw);
 
-    display:none;
+    padding:25px;
 
-    width:
-        min(520px,90vw);
+    border-radius:16px;
 
-    padding:20px;
+    background:#101827;
 
-    border:
-        1px solid #60313b;
+    border:1px solid rgba(239,68,68,.35);
 
-    border-radius:12px;
+    color:#e5e7eb;
 
-    background:
-        rgba(26,9,14,.97);
-
-    box-shadow:
-        0 20px 50px
-        rgba(0,0,0,.55);
-
-    text-align:center;
+    z-index:1000;
 }
 
-.error-title{
-
-    color:#ff9aa5;
-
-    font-size:13px;
-
-    font-weight:900;
+#error strong{
+    color:#f87171;
 }
 
-.error-text{
+#error pre{
+    white-space:pre-wrap;
 
-    margin-top:8px;
+    color:#9aa9bd;
 
-    color:#aa8189;
-
-    font-size:9px;
-
-    line-height:1.5;
-
-    word-break:break-word;
+    font-size:11px;
 }
-
 
 /* =========================================================
-   STATUS BAR
+   MOBILE
 ========================================================= */
 
-#info{
+@media(max-width:700px){
 
-    position:fixed;
-
-    right:12px;
-    bottom:11px;
-
-    z-index:5000;
-
-    padding:
-        6px 9px;
-
-    border:
-        1px solid #1b3044;
-
-    border-radius:7px;
-
-    background:
-        rgba(3,8,14,.9);
-
-    color:#607c95;
-
-    font-size:7px;
-
-    font-weight:700;
-
-    letter-spacing:.4px;
-}
-
-
-/* =========================================================
-   RESPONSIVE
-========================================================= */
-
-@media(max-width:850px){
-
-    .brand-sub{
+    .brandSub{
         display:none;
     }
 
-    .brand-name{
-        font-size:13px;
+    .legend{
+        display:none;
     }
 
-    .tool{
-        padding:
-            0 8px;
+    .info{
+        display:none;
+    }
 
-        font-size:9px;
+    .header{
+        height:58px;
+    }
+
+    #viewport{
+        top:58px;
+    }
+
+    .node{
+        width:175px;
     }
 
     #hub{
-
-        width:145px;
-        height:145px;
-
+        width:210px;
     }
 
-    .hub-title{
-        font-size:15px;
-    }
-
-    .branch{
-        width:215px;
-    }
 }
 
 </style>
 </head>
 
-
 <body>
 
+<div id="app">
 
-<!-- =======================================================
-     HEADER
-======================================================== -->
+    <header class="header">
 
-<header class="header">
+        <div class="brand">
 
-    <div class="brand">
-
-        <div class="brand-logo">
-            O
-        </div>
-
-        <div>
-
-            <div class="brand-name">
-                Obvyris Server Architecture
+            <div class="brandMark">
+                O
             </div>
 
-            <div class="brand-sub">
-                LIVE INFRASTRUCTURE MAP
+            <div class="brandText">
+
+                <div class="brandTitle">
+                    OBVYRIS SERVER MAP
+                </div>
+
+                <div class="brandSub">
+                    Live Architecture & Dependency Network
+                </div>
+
             </div>
 
         </div>
 
-    </div>
+        <div class="controls">
 
+            <button
+                class="controlButton"
+                id="zoomOut">
+                −
+            </button>
 
-    <div class="toolbar">
+            <div
+                class="zoomValue"
+                id="zoomValue">
+                100%
+            </div>
 
-        <button
-            class="tool"
-            onclick="loadMap()">
+            <button
+                class="controlButton"
+                id="zoomIn">
+                +
+            </button>
 
-            ↻ Refresh
+            <button
+                class="controlButton"
+                id="resetView">
+                Reset
+            </button>
 
-        </button>
+            <button
+                class="controlButton"
+                id="reload">
+                ↻
+            </button>
 
-
-        <button
-            class="tool"
-            onclick="centerBranches()">
-
-            ◎ Recenter
-
-        </button>
-
-    </div>
-
-</header>
-
-
-<!-- =======================================================
-     MAP
-======================================================== -->
-
-<main id="map">
-
-
-    <!-- CONNECTIONS -->
-
-    <svg
-        id="connections"
-        aria-hidden="true">
-    </svg>
-
-
-    <!-- ZONES -->
-
-    <div class="zone backend">
-        BACKEND ROUTES
-    </div>
-
-
-    <div class="zone external">
-        EXTERNAL API ROUTES
-    </div>
-
-
-    <!-- BACKEND BRANCHES -->
-
-    <div
-        id="backendLayer"
-        class="layer">
-    </div>
-
-
-    <!-- EXTERNAL BRANCHES -->
-
-    <div
-        id="externalLayer"
-        class="layer">
-    </div>
-
-
-    <!-- ===================================================
-         CENTRAL HUB
-    ==================================================== -->
-
-    <div id="hub">
-
-        <div class="hub-icon">
-            ◉
         </div>
 
-        <div class="hub-title">
-            OBVYRIS
+    </header>
+
+
+    <main id="viewport">
+
+        <div id="grid"></div>
+
+        <div id="world">
+
+            <svg id="connections">
+
+                <defs>
+
+                    <marker
+                        id="arrowBackend"
+                        markerWidth="8"
+                        markerHeight="8"
+                        refX="7"
+                        refY="3"
+                        orient="auto">
+
+                        <path
+                            d="M0,0 L0,6 L7,3 z"
+                            fill="#2793ff">
+                        </path>
+
+                    </marker>
+
+                    <marker
+                        id="arrowExternal"
+                        markerWidth="8"
+                        markerHeight="8"
+                        refX="7"
+                        refY="3"
+                        orient="auto">
+
+                        <path
+                            d="M0,0 L0,6 L7,3 z"
+                            fill="#f59e0b">
+                        </path>
+
+                    </marker>
+
+                </defs>
+
+                <g id="connectionLayer"></g>
+
+            </svg>
+
+
+            <div id="hub">
+
+                <div class="hubOrb">
+                </div>
+
+                <div class="hubTitle">
+                    OBVYRIS HUB
+                </div>
+
+                <div class="hubSub">
+                    Central Architecture
+                </div>
+
+            </div>
+
         </div>
 
-        <div class="hub-sub">
-            CENTRAL HUB
-        </div>
 
-        <div class="hub-lock">
-            CENTER LOCKED
-        </div>
-
-    </div>
-
-
-    <!-- EMPTY -->
-
-    <div id="empty">
-
-        <div class="empty-box">
-            No server architecture records were returned.
-        </div>
-
-    </div>
-
-
-    <!-- LOADING -->
-
-    <div id="loading">
-
-        <div class="loading-box">
+        <div
+            class="loading"
+            id="loading">
 
             <div class="spinner"></div>
 
@@ -1248,48 +918,66 @@ body{
 
         </div>
 
+
+        <div id="error">
+
+            <strong>
+                Unable to load MAP API
+            </strong>
+
+            <pre id="errorText"></pre>
+
+        </div>
+
+    </main>
+
+
+    <div class="legend">
+
+        <div class="legendItem">
+
+            <span class="legendDot dotBackend"></span>
+
+            Backend
+
+        </div>
+
+        <div class="legendItem">
+
+            <span class="legendDot dotFrontend"></span>
+
+            Frontend
+
+        </div>
+
+        <div class="legendItem">
+
+            <span class="legendDot dotExternal"></span>
+
+            External API
+
+        </div>
+
     </div>
 
 
-    <!-- ERROR -->
-
-    <div id="error">
-
-        <div class="error-title">
-            Unable to Load Server Map
-        </div>
-
-        <div
-            id="errorText"
-            class="error-text">
-        </div>
-
-        <button
-            class="tool"
-            style="margin-top:13px"
-            onclick="loadMap()">
-
-            Try Again
-
-        </button>
-
+    <div class="info">
+        Drag cards • Drag empty space to pan • Wheel to zoom • Double-click to reset
     </div>
 
-</main>
 
+    <div
+        class="tooltip"
+        id="tooltip">
+    </div>
 
-<!-- INFO -->
-
-<div id="info">
-    Connecting to MAP API...
 </div>
 
 
 <script>
 
-
 /* =========================================================
-   MAP API
+   OBVYRIS MAP API
 ========================================================= */
 
 const MAP_API =
@@ -1297,37 +985,1075 @@ const MAP_API =
 
 
 /* =========================================================
-   DATA
+   ELEMENTS
 ========================================================= */
 
-let mapRows = [];
+const viewport =
+    document.getElementById("viewport");
 
-let savedPositions = {};
+const world =
+    document.getElementById("world");
+
+const grid =
+    document.getElementById("grid");
+
+const connectionLayer =
+    document.getElementById("connectionLayer");
+
+const loading =
+    document.getElementById("loading");
+
+const errorBox =
+    document.getElementById("error");
+
+const errorText =
+    document.getElementById("errorText");
+
+const zoomValue =
+    document.getElementById("zoomValue");
+
+const tooltip =
+    document.getElementById("tooltip");
 
 
 /* =========================================================
-   START
+   WORLD STATE
 ========================================================= */
 
-document.addEventListener(
-    "DOMContentLoaded",
+let scale = 1;
+
+let offsetX =
+    window.innerWidth / 2;
+
+let offsetY =
+    (window.innerHeight + 68) / 2;
+
+const MIN_ZOOM = 0.05;
+
+const MAX_ZOOM = 20;
+
+
+/* =========================================================
+   NODE DATA
+========================================================= */
+
+let rows = [];
+
+const nodes = new Map();
+
+let nodeCounter = 0;
+
+
+/* =========================================================
+   DRAG STATE
+========================================================= */
+
+let draggingNode = null;
+
+let draggingCanvas = false;
+
+let dragStartX = 0;
+let dragStartY = 0;
+
+let startWorldX = 0;
+let startWorldY = 0;
+
+let canvasStartX = 0;
+let canvasStartY = 0;
+
+
+/* =========================================================
+   POSITION STORAGE
+========================================================= */
+
+const STORAGE_KEY =
+    "obvyris_server_map_positions_v3";
+
+let savedPositions = {};
+
+try{
+
+    savedPositions =
+        JSON.parse(
+            localStorage.getItem(STORAGE_KEY)
+        ) || {};
+
+}catch(e){
+
+    savedPositions = {};
+
+}
+
+
+/* =========================================================
+   UPDATE WORLD TRANSFORM
+========================================================= */
+
+function updateWorld(){
+
+    world.style.transform =
+        `translate(${offsetX}px,${offsetY}px) scale(${scale})`;
+
+    grid.style.transform =
+        `translate(${offsetX}px,${offsetY}px) scale(${scale})`;
+
+    zoomValue.textContent =
+        Math.round(scale * 100) + "%";
+
+    drawConnections();
+
+}
+
+
+/* =========================================================
+   SAVE POSITIONS
+========================================================= */
+
+function savePositions(){
+
+    const data = {};
+
+    nodes.forEach((node, key)=>{
+
+        data[key] = {
+            x:node.x,
+            y:node.y
+        };
+
+    });
+
+    try{
+
+        localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify(data)
+        );
+
+    }catch(e){}
+
+}
+
+
+/* =========================================================
+   CLEAR SAVED POSITIONS
+========================================================= */
+
+function clearSavedPositions(){
+
+    try{
+
+        localStorage.removeItem(
+            STORAGE_KEY
+        );
+
+    }catch(e){}
+
+}
+
+
+/* =========================================================
+   RESET VIEW
+========================================================= */
+
+function resetView(){
+
+    scale = 1;
+
+    offsetX =
+        viewport.clientWidth / 2;
+
+    offsetY =
+        viewport.clientHeight / 2;
+
+    updateWorld();
+
+}
+
+
+/* =========================================================
+   ZOOM
+========================================================= */
+
+function zoomAt(
+    factor,
+    screenX,
+    screenY
+){
+
+    const oldScale =
+        scale;
+
+    const newScale =
+        Math.max(
+            MIN_ZOOM,
+            Math.min(
+                MAX_ZOOM,
+                scale * factor
+            )
+        );
+
+    if(newScale === oldScale){
+        return;
+    }
+
+    /*
+        Keep the point underneath
+        the cursor stationary.
+    */
+
+    const worldX =
+        (screenX - offsetX) /
+        oldScale;
+
+    const worldY =
+        (screenY - offsetY) /
+        oldScale;
+
+    scale =
+        newScale;
+
+    offsetX =
+        screenX -
+        worldX * scale;
+
+    offsetY =
+        screenY -
+        worldY * scale;
+
+    updateWorld();
+
+}
+
+
+/* =========================================================
+   MOUSE WHEEL
+========================================================= */
+
+viewport.addEventListener(
+    "wheel",
+    function(e){
+
+        e.preventDefault();
+
+        const rect =
+            viewport.getBoundingClientRect();
+
+        const x =
+            e.clientX -
+            rect.left;
+
+        const y =
+            e.clientY -
+            rect.top;
+
+        const factor =
+            e.deltaY < 0
+                ? 1.12
+                : 0.89;
+
+        zoomAt(
+            factor,
+            x,
+            y
+        );
+
+    },
+    {
+        passive:false
+    }
+);
+
+
+/* =========================================================
+   ZOOM BUTTONS
+========================================================= */
+
+document
+.getElementById("zoomIn")
+.addEventListener(
+    "click",
     function(){
 
-        loadMap();
+        zoomAt(
+            1.25,
+            viewport.clientWidth / 2,
+            viewport.clientHeight / 2
+        );
+
+    }
+);
+
+
+document
+.getElementById("zoomOut")
+.addEventListener(
+    "click",
+    function(){
+
+        zoomAt(
+            .8,
+            viewport.clientWidth / 2,
+            viewport.clientHeight / 2
+        );
+
+    }
+);
+
+
+document
+.getElementById("resetView")
+.addEventListener(
+    "click",
+    resetView
+);
+
+
+/* =========================================================
+   DOUBLE CLICK
+========================================================= */
+
+viewport.addEventListener(
+    "dblclick",
+    function(e){
+
+        if(
+            e.target.closest(".node") ||
+            e.target.closest("#hub")
+        ){
+            return;
+        }
+
+        resetView();
 
     }
 );
 
 
 /* =========================================================
-   LOAD MAP
+   CANVAS PAN
+========================================================= */
+
+viewport.addEventListener(
+    "pointerdown",
+    function(e){
+
+        if(
+            e.target.closest(".node") ||
+            e.target.closest("#hub")
+        ){
+            return;
+        }
+
+        draggingCanvas = true;
+
+        viewport.classList.add(
+            "grabbing"
+        );
+
+        dragStartX =
+            e.clientX;
+
+        dragStartY =
+            e.clientY;
+
+        canvasStartX =
+            offsetX;
+
+        canvasStartY =
+            offsetY;
+
+        viewport.setPointerCapture(
+            e.pointerId
+        );
+
+    }
+);
+
+
+viewport.addEventListener(
+    "pointermove",
+    function(e){
+
+        if(!draggingCanvas){
+            return;
+        }
+
+        offsetX =
+            canvasStartX +
+            (e.clientX - dragStartX);
+
+        offsetY =
+            canvasStartY +
+            (e.clientY - dragStartY);
+
+        updateWorld();
+
+    }
+);
+
+
+viewport.addEventListener(
+    "pointerup",
+    function(){
+
+        draggingCanvas = false;
+
+        viewport.classList.remove(
+            "grabbing"
+        );
+
+    }
+);
+
+
+/* =========================================================
+   NODE DRAG
+========================================================= */
+
+function enableNodeDrag(
+    element,
+    node
+){
+
+    element.addEventListener(
+        "pointerdown",
+        function(e){
+
+            e.stopPropagation();
+
+            draggingNode = node;
+
+            element.classList.add(
+                "dragging"
+            );
+
+            dragStartX =
+                e.clientX;
+
+            dragStartY =
+                e.clientY;
+
+            startWorldX =
+                node.x;
+
+            startWorldY =
+                node.y;
+
+            element.setPointerCapture(
+                e.pointerId
+            );
+
+        }
+    );
+
+
+    element.addEventListener(
+        "pointermove",
+        function(e){
+
+            if(
+                draggingNode !== node
+            ){
+                return;
+            }
+
+            const dx =
+                (e.clientX - dragStartX) /
+                scale;
+
+            const dy =
+                (e.clientY - dragStartY) /
+                scale;
+
+            node.x =
+                startWorldX + dx;
+
+            node.y =
+                startWorldY + dy;
+
+            element.style.left =
+                node.x + "px";
+
+            element.style.top =
+                node.y + "px";
+
+            drawConnections();
+
+        }
+    );
+
+
+    element.addEventListener(
+        "pointerup",
+        function(){
+
+            if(
+                draggingNode === node
+            ){
+
+                draggingNode = null;
+
+                element.classList.remove(
+                    "dragging"
+                );
+
+                savePositions();
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   NORMALIZE ROW
+========================================================= */
+
+function value(row,key){
+
+    return String(
+        row[key] ?? ""
+    ).trim();
+
+}
+
+
+/* =========================================================
+   URL CHECK
+========================================================= */
+
+function isURL(value){
+
+    return /^https?:\/\//i.test(
+        value
+    );
+
+}
+
+
+/* =========================================================
+   CREATE NODE
+========================================================= */
+
+function createNode(
+    key,
+    title,
+    type,
+    valueText,
+    x,
+    y,
+    status,
+    url
+){
+
+    const element =
+        document.createElement("div");
+
+    element.className =
+        "node " + type;
+
+    element.dataset.key =
+        key;
+
+    element.style.left =
+        x + "px";
+
+    element.style.top =
+        y + "px";
+
+
+    const statusClass =
+        status.toUpperCase() === "ONLINE"
+            ? "online"
+            : status.toUpperCase() === "OFFLINE"
+                ? "offline"
+                : "";
+
+
+    element.innerHTML = `
+
+        <div class="nodeStatus ${statusClass}">
+        </div>
+
+        <div class="nodeHead">
+
+            <div class="nodeTitle">
+                ${escapeHTML(title)}
+            </div>
+
+            <div class="nodeType">
+                ${escapeHTML(type)}
+            </div>
+
+        </div>
+
+        <div class="nodeValue">
+            ${formatValue(valueText,url)}
+        </div>
+
+    `;
+
+
+    world.appendChild(
+        element
+    );
+
+
+    const node = {
+
+        key:key,
+
+        element:element,
+
+        x:x,
+
+        y:y,
+
+        width:190,
+
+        height:74,
+
+        type:type
+
+    };
+
+
+    nodes.set(
+        key,
+        node
+    );
+
+
+    enableNodeDrag(
+        element,
+        node
+    );
+
+
+    element.addEventListener(
+        "mouseenter",
+        function(e){
+
+            showTooltip(
+                e,
+                title,
+                valueText,
+                status
+            );
+
+        }
+    );
+
+
+    element.addEventListener(
+        "mousemove",
+        function(e){
+
+            moveTooltip(e);
+
+        }
+    );
+
+
+    element.addEventListener(
+        "mouseleave",
+        hideTooltip
+    );
+
+
+    return node;
+
+}
+
+
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
+
+function escapeHTML(value){
+
+    return String(value)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+
+}
+
+
+/* =========================================================
+   FORMAT VALUE
+========================================================= */
+
+function formatValue(
+    text,
+    url
+){
+
+    const clean =
+        escapeHTML(text);
+
+    if(
+        url &&
+        isURL(url)
+    ){
+
+        return `
+            <a
+                href="${escapeHTML(url)}"
+                target="_blank"
+                rel="noopener"
+                onclick="event.stopPropagation()">
+                ${clean}
+            </a>
+        `;
+
+    }
+
+    if(
+        isURL(text)
+    ){
+
+        return `
+            <a
+                href="${clean}"
+                target="_blank"
+                rel="noopener"
+                onclick="event.stopPropagation()">
+                ${clean}
+            </a>
+        `;
+
+    }
+
+    return clean || "No data";
+
+}
+
+
+/* =========================================================
+   TOOLTIP
+========================================================= */
+
+function showTooltip(
+    event,
+    title,
+    valueText,
+    status
+){
+
+    tooltip.innerHTML = `
+
+        <strong>
+            ${escapeHTML(title)}
+        </strong>
+
+        <br>
+
+        ${escapeHTML(valueText || "No data")}
+
+        ${
+            status
+            ? `<br><span style="color:#71839d">
+                Status: ${escapeHTML(status)}
+               </span>`
+            : ""
+        }
+
+    `;
+
+    tooltip.classList.add(
+        "show"
+    );
+
+    moveTooltip(event);
+
+}
+
+
+function moveTooltip(event){
+
+    tooltip.style.left =
+        Math.min(
+            event.clientX + 15,
+            window.innerWidth - 360
+        ) + "px";
+
+    tooltip.style.top =
+        Math.min(
+            event.clientY + 15,
+            window.innerHeight - 120
+        ) + "px";
+
+}
+
+
+function hideTooltip(){
+
+    tooltip.classList.remove(
+        "show"
+    );
+
+}
+
+
+/* =========================================================
+   CONNECTION
+========================================================= */
+
+function connect(
+    from,
+    to,
+    className
+){
+
+    if(
+        !from ||
+        !to
+    ){
+        return;
+    }
+
+    const line =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "path"
+        );
+
+    line.classList.add(
+        "connection",
+        className || ""
+    );
+
+    line.dataset.from =
+        from.key;
+
+    line.dataset.to =
+        to.key;
+
+    connectionLayer.appendChild(
+        line
+    );
+
+}
+
+
+/* =========================================================
+   CONNECTION PATH
+========================================================= */
+
+function drawConnections(){
+
+    connectionLayer
+        .querySelectorAll("path")
+        .forEach(
+            path => {
+
+                const from =
+                    nodes.get(
+                        path.dataset.from
+                    );
+
+                const to =
+                    nodes.get(
+                        path.dataset.to
+                    );
+
+                if(
+                    !from ||
+                    !to
+                ){
+                    return;
+                }
+
+
+                const x1 =
+                    from.x +
+                    from.width / 2;
+
+                const y1 =
+                    from.y +
+                    from.height / 2;
+
+                const x2 =
+                    to.x +
+                    to.width / 2;
+
+                const y2 =
+                    to.y +
+                    to.height / 2;
+
+
+                /*
+                    Calculate edge points
+                    so lines connect to
+                    card edges instead of
+                    card centers.
+                */
+
+                const dx =
+                    x2 - x1;
+
+                const dy =
+                    y2 - y1;
+
+
+                let sx;
+                let sy;
+                let ex;
+                let ey;
+
+
+                if(
+                    Math.abs(dx) >
+                    Math.abs(dy)
+                ){
+
+                    if(dx > 0){
+
+                        sx =
+                            from.x +
+                            from.width;
+
+                        sy =
+                            y1;
+
+                        ex =
+                            to.x;
+
+                        ey =
+                            y2;
+
+                    }else{
+
+                        sx =
+                            from.x;
+
+                        sy =
+                            y1;
+
+                        ex =
+                            to.x +
+                            to.width;
+
+                        ey =
+                            y2;
+
+                    }
+
+                }else{
+
+                    if(dy > 0){
+
+                        sx =
+                            x1;
+
+                        sy =
+                            from.y +
+                            from.height;
+
+                        ex =
+                            x2;
+
+                        ey =
+                            to.y;
+
+                    }else{
+
+                        sx =
+                            x1;
+
+                        sy =
+                            from.y;
+
+                        ex =
+                            x2;
+
+                        ey =
+                            to.y +
+                            to.height;
+
+                    }
+
+                }
+
+
+                /*
+                    Curved network line.
+                */
+
+                let cx1;
+                let cy1;
+                let cx2;
+                let cy2;
+
+
+                if(
+                    Math.abs(dx) >
+                    Math.abs(dy)
+                ){
+
+                    cx1 =
+                        sx +
+                        (ex - sx) * .45;
+
+                    cy1 =
+                        sy;
+
+                    cx2 =
+                        ex -
+                        (ex - sx) * .45;
+
+                    cy2 =
+                        ey;
+
+                }else{
+
+                    cx1 =
+                        sx;
+
+                    cy1 =
+                        sy +
+                        (ey - sy) * .45;
+
+                    cx2 =
+                        ex;
+
+                    cy2 =
+                        ey -
+                        (ey - sy) * .45;
+
+                }
+
+
+                path.setAttribute(
+                    "d",
+                    `M ${sx} ${sy}
+                     C ${cx1} ${cy1},
+                       ${cx2} ${cy2},
+                       ${ex} ${ey}`
+                );
+
+            }
+        );
+
+}
+
+
+/* =========================================================
+   LOAD API
 ========================================================= */
 
 async function loadMap(){
 
-    showLoading();
+    loading.style.display =
+        "flex";
 
-    hideError();
+    errorBox.style.display =
+        "none";
 
 
     try{
@@ -1338,112 +2064,66 @@ async function loadMap(){
                 "?t=" +
                 Date.now(),
                 {
-                    method:"GET",
-                    cache:"no-store",
-                    redirect:"follow"
+                    cache:"no-store"
                 }
             );
 
 
-        if(
-            !response.ok
-        ){
+        if(!response.ok){
 
             throw new Error(
                 "HTTP " +
-                response.status +
-                " " +
-                response.statusText
+                response.status
             );
 
         }
 
 
-        const text =
-            await response.text();
+        const data =
+            await response.json();
 
 
         if(
-            !text.trim()
-        ){
-
-            throw new Error(
-                "The MAP API returned an empty response."
-            );
-
-        }
-
-
-        let data;
-
-
-        try{
-
-            data =
-                JSON.parse(text);
-
-        }catch(error){
-
-            console.error(
-                text
-            );
-
-            throw new Error(
-                "The MAP API did not return valid JSON."
-            );
-
-        }
-
-
-        if(
-            data.success === false
-        ){
-
-            throw new Error(
-                data.error ||
-                "The MAP API reported an error."
-            );
-
-        }
-
-
-        if(
+            !data ||
             !Array.isArray(data.rows)
         ){
 
             throw new Error(
-                "The API response does not contain a rows array."
+                "MAP API did not return a rows array."
             );
 
         }
 
 
-        mapRows =
+        rows =
             data.rows;
 
 
-        renderMap();
+        buildMap();
 
 
-        updateInfo(
-            data
-        );
+        loading.style.display =
+            "none";
 
 
     }catch(error){
 
         console.error(
-            "MAP ERROR:",
+            "MAP API ERROR:",
             error
         );
 
-        showError(
-            error.message
-        );
 
-    }finally{
+        loading.style.display =
+            "none";
 
-        hideLoading();
+        errorBox.style.display =
+            "block";
+
+        errorText.textContent =
+            error.message +
+            "\n\nAPI:\n" +
+            MAP_API;
 
     }
 
@@ -1451,1614 +2131,397 @@ async function loadMap(){
 
 
 /* =========================================================
-   RENDER MAP
+   BUILD MAP
 ========================================================= */
 
-function renderMap(){
+function buildMap(){
 
-    const backendLayer =
-        document.getElementById(
-            "backendLayer"
+    /*
+        Remove previous nodes.
+    */
+
+    world
+        .querySelectorAll(".node")
+        .forEach(
+            node => node.remove()
         );
 
 
-    const externalLayer =
-        document.getElementById(
-            "externalLayer"
-        );
-
-
-    backendLayer.innerHTML =
+    connectionLayer.innerHTML =
         "";
 
 
-    externalLayer.innerHTML =
-        "";
+    nodes.clear();
 
 
-    if(
-        !mapRows.length
-    ){
-
-        document.getElementById(
-            "empty"
-        ).style.display =
-            "flex";
-
-        return;
-
-    }
+    /*
+        HUB is always 0,0.
+        Everything else spreads around it.
+    */
 
 
-    document.getElementById(
-        "empty"
-    ).style.display =
-        "none";
+    createArchitecture();
 
+
+    drawConnections();
+
+}
+
+
+/* =========================================================
+   CREATE ARCHITECTURE
+========================================================= */
+
+function createArchitecture(){
 
     const backendRows =
-        mapRows.filter(
-            function(row){
-
-                return (
-
-                    hasValue(
-                        row["Backends Sheet"]
-                    )
-
-                    ||
-
-                    hasValue(
-                        row["Sheet"]
-                    )
-
-                    ||
-
-                    hasValue(
-                        row["Sheet API"]
-                    )
-
-                    ||
-
-                    hasFrontend(
-                        row
-                    )
-
-                );
-
-            }
-        );
-
-
-    const externalRows =
-        mapRows.filter(
-            function(row){
-
-                return (
-
-                    hasValue(
-                        row["EXTERNAL"]
-                    )
-
-                    ||
-
-                    hasValue(
-                        row["EXTERNAL API"]
-                    )
-
-                    ||
-
-                    hasValue(
-                        row["EXTERNAL API 2"]
-                    )
-
-                );
-
-            }
-        );
-
-
-    placeBackendBranches(
-        backendRows
-    );
-
-
-    placeExternalBranches(
-        externalRows
-    );
-
-
-    requestAnimationFrame(
-        function(){
-
-            drawConnections();
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   BACKEND POSITIONING
-========================================================= */
-
-function placeBackendBranches(
-    rows
-){
-
-    const layer =
-        document.getElementById(
-            "backendLayer"
-        );
-
-
-    const map =
-        document.getElementById(
-            "map"
-        );
-
-
-    const width =
-        map.clientWidth;
-
-
-    const height =
-        map.clientHeight;
-
-
-    const centerX =
-        width / 2;
-
-
-    const centerY =
-        height / 2;
-
-
-    const count =
-        rows.length;
-
-
-    const usableWidth =
-        Math.min(
-            width * .88,
-            1500
-        );
-
-
-    rows.forEach(
-        function(row,index){
-
-            const branch =
-                createBackendBranch(
+        rows.filter(
+            row =>
+                value(
                     row,
-                    index
-                );
-
-
-            layer.appendChild(
-                branch
-            );
-
-
-            const id =
-                "B-" +
-                (
-                    row["ID"] ||
-                    index
-                );
-
-
-            if(
-                savedPositions[id]
-            ){
-
-                branch.style.left =
-                    savedPositions[id].x +
-                    "px";
-
-                branch.style.top =
-                    savedPositions[id].y +
-                    "px";
-
-                return;
-
-            }
-
-
-            let x;
-
-
-            if(
-                count === 1
-            ){
-
-                x =
-                    centerX;
-
-            }else{
-
-                x =
-                    centerX -
-                    usableWidth / 2 +
-
-                    usableWidth *
-                    index /
-                    (count - 1);
-
-            }
-
-
-            const rowLevel =
-                index % 3;
-
-
-            const y =
-                centerY -
-                205 -
-                rowLevel * 76;
-
-
-            branch.style.left =
-                x +
-                "px";
-
-
-            branch.style.top =
-                y +
-                "px";
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   EXTERNAL POSITIONING
-========================================================= */
-
-function placeExternalBranches(
-    rows
-){
-
-    const layer =
-        document.getElementById(
-            "externalLayer"
+                    "Backends Sheet"
+                )
         );
 
 
-    const map =
-        document.getElementById(
-            "map"
-        );
+    /*
+        BACKEND BRANCHES
+        North of HUB
+    */
 
+    backendRows.forEach(
+        (row,index)=>{
 
-    const width =
-        map.clientWidth;
-
-
-    const height =
-        map.clientHeight;
-
-
-    const centerX =
-        width / 2;
-
-
-    const centerY =
-        height / 2;
-
-
-    const count =
-        rows.length;
-
-
-    const usableWidth =
-        Math.min(
-            width * .88,
-            1500
-        );
-
-
-    rows.forEach(
-        function(row,index){
-
-            const branch =
-                createExternalBranch(
+            const backend =
+                value(
                     row,
-                    index
+                    "Backends Sheet"
+                );
+
+            const backendKey =
+                "backend-" +
+                value(row,"ID");
+
+
+            const position =
+                getSavedPosition(
+                    backendKey,
+                    getBackendPosition(
+                        index,
+                        backendRows.length
+                    )
                 );
 
 
-            layer.appendChild(
-                branch
-            );
-
-
-            const id =
-                "E-" +
-                (
-                    row["ID"] ||
-                    index
+            const backendNode =
+                createNode(
+                    backendKey,
+                    backend,
+                    "backend",
+                    "Backend",
+                    position.x,
+                    position.y,
+                    value(row,"Status")
                 );
 
-
-            if(
-                savedPositions[id]
-            ){
-
-                branch.style.left =
-                    savedPositions[id].x +
-                    "px";
-
-                branch.style.top =
-                    savedPositions[id].y +
-                    "px";
-
-                return;
-
-            }
-
-
-            let x;
-
-
-            if(
-                count === 1
-            ){
-
-                x =
-                    centerX;
-
-            }else{
-
-                x =
-                    centerX -
-                    usableWidth / 2 +
-
-                    usableWidth *
-                    index /
-                    (count - 1);
-
-            }
-
-
-            const rowLevel =
-                index % 3;
-
-
-            const y =
-                centerY +
-                205 +
-                rowLevel * 76;
-
-
-            branch.style.left =
-                x +
-                "px";
-
-
-            branch.style.top =
-                y +
-                "px";
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   BACKEND BRANCH
-========================================================= */
-
-function createBackendBranch(
-    row,
-    index
-){
-
-    const branch =
-        document.createElement(
-            "div"
-        );
-
-
-    branch.className =
-        "branch";
-
-
-    branch.dataset.rowId =
-        String(
-            row["ID"] ||
-            index
-        );
-
-
-    branch.dataset.positionId =
-        "B-" +
-        String(
-            row["ID"] ||
-            index
-        );
-
-
-    const label =
-        document.createElement(
-            "div"
-        );
-
-
-    label.className =
-        "branch-label";
-
-
-    label.textContent =
-        row["Backends Sheet"] ||
-        "Backend Route";
-
-
-    branch.appendChild(
-        label
-    );
-
-
-    const chain =
-        document.createElement(
-            "div"
-        );
-
-
-    chain.className =
-        "chain";
-
-
-    addIfPresent(
-        chain,
-        row,
-        "Backends Sheet",
-        "Backend",
-        "backend"
-    );
-
-
-    addIfPresent(
-        chain,
-        row,
-        "Sheet",
-        "Sheet",
-        "sheet"
-    );
-
-
-    addIfPresent(
-        chain,
-        row,
-        "Sheet API",
-        "Sheet API",
-        "sheet-api"
-    );
-
-
-    createFrontendGroup(
-        chain,
-        row
-    );
-
-
-    branch.appendChild(
-        chain
-    );
-
-
-    enableDragging(
-        branch
-    );
-
-
-    return branch;
-
-}
-
-
-/* =========================================================
-   EXTERNAL BRANCH
-========================================================= */
-
-function createExternalBranch(
-    row,
-    index
-){
-
-    const branch =
-        document.createElement(
-            "div"
-        );
-
-
-    branch.className =
-        "branch";
-
-
-    branch.dataset.rowId =
-        String(
-            row["ID"] ||
-            index
-        );
-
-
-    branch.dataset.positionId =
-        "E-" +
-        String(
-            row["ID"] ||
-            index
-        );
-
-
-    const label =
-        document.createElement(
-            "div"
-        );
-
-
-    label.className =
-        "branch-label";
-
-
-    label.textContent =
-        row["Backends Sheet"] ||
-        "External Route";
-
-
-    branch.appendChild(
-        label
-    );
-
-
-    const chain =
-        document.createElement(
-            "div"
-        );
-
-
-    chain.className =
-        "chain";
-
-
-    addIfPresent(
-        chain,
-        row,
-        "EXTERNAL",
-        "External",
-        "external"
-    );
-
-
-    addIfPresent(
-        chain,
-        row,
-        "EXTERNAL API",
-        "External API",
-        "external-api"
-    );
-
-
-    addIfPresent(
-        chain,
-        row,
-        "EXTERNAL API 2",
-        "External API 2",
-        "external-api"
-    );
-
-
-    branch.appendChild(
-        chain
-    );
-
-
-    enableDragging(
-        branch
-    );
-
-
-    return branch;
-
-}
-
-
-/* =========================================================
-   FRONTEND GROUP
-========================================================= */
-
-function createFrontendGroup(
-    parent,
-    row
-){
-
-    const fields = [
-
-        "MAIN HTML FRONTEND",
-        "HTML FRONTEND 2",
-        "HTML FRONTEND 3",
-        "HTML FRONTEND 4",
-        "HTML FRONTEND 5"
-
-    ];
-
-
-    const active =
-        fields.filter(
-            function(field){
-
-                return hasValue(
-                    row[field]
-                );
-
-            }
-        );
-
-
-    if(
-        !active.length
-    ){
-
-        return;
-
-    }
-
-
-    const group =
-        document.createElement(
-            "div"
-        );
-
-
-    group.className =
-        "frontends";
-
-
-    active.forEach(
-        function(field,index){
-
-            const card =
-                createCard(
-                    "Frontend " +
-                    (index + 1),
-                    row[field],
-                    "frontend",
-                    row
-                );
-
-
-            group.appendChild(
-                card
-            );
-
-        }
-    );
-
-
-    parent.appendChild(
-        group
-    );
-
-}
-
-
-/* =========================================================
-   ADD CARD
-========================================================= */
-
-function addIfPresent(
-    parent,
-    row,
-    field,
-    title,
-    type
-){
-
-    if(
-        !hasValue(
-            row[field]
-        )
-    ){
-
-        return;
-
-    }
-
-
-    parent.appendChild(
-        createCard(
-            title,
-            row[field],
-            type,
-            row
-        )
-    );
-
-}
-
-
-/* =========================================================
-   CREATE CARD
-========================================================= */
-
-function createCard(
-    title,
-    value,
-    type,
-    row
-){
-
-    const card =
-        document.createElement(
-            "div"
-        );
-
-
-    card.className =
-        "card " +
-        type;
-
-
-    card.dataset.type =
-        type;
-
-
-    card.dataset.rowId =
-        String(
-            row["ID"] ||
-            ""
-        );
-
-
-    const titleElement =
-        document.createElement(
-            "div"
-        );
-
-
-    titleElement.className =
-        "card-title";
-
-
-    titleElement.textContent =
-        title;
-
-
-    const valueElement =
-        document.createElement(
-            "div"
-        );
-
-
-    valueElement.className =
-        "card-value";
-
-
-    if(
-        isURL(value)
-    ){
-
-        const link =
-            document.createElement(
-                "a"
-            );
-
-
-        link.href =
-            value;
-
-
-        link.target =
-            "_blank";
-
-
-        link.rel =
-            "noopener noreferrer";
-
-
-        link.title =
-            value;
-
-
-        link.textContent =
-            shortenURL(
-                value
-            );
-
-
-        valueElement.appendChild(
-            link
-        );
-
-    }else{
-
-        valueElement.textContent =
-            String(
-                value
-            );
-
-    }
-
-
-    card.appendChild(
-        titleElement
-    );
-
-
-    card.appendChild(
-        valueElement
-    );
-
-
-    return card;
-
-}
-
-
-/* =========================================================
-   DRAG SYSTEM
-========================================================= */
-
-let drag = null;
-
-
-function enableDragging(
-    branch
-){
-
-    branch.addEventListener(
-        "pointerdown",
-        function(event){
 
             /*
-             * Do not drag when clicking
-             * a link.
-             */
+                Backend -> HUB
+            */
 
-            if(
-                event.target.closest("a")
-            ){
+            connect(
+                document.getElementById(
+                    "hub"
+                )
+                    ? {
+                        key:"hub",
+                        x:-115,
+                        y:-65,
+                        width:230,
+                        height:130
+                    }
+                    : null,
+                backendNode,
+                "backend"
+            );
 
-                return;
+
+            /*
+                Sheet
+            */
+
+            const sheet =
+                value(
+                    row,
+                    "Sheet"
+                );
+
+
+            if(sheet){
+
+                const key =
+                    backendKey +
+                    "-sheet";
+
+
+                const p =
+                    getSavedPosition(
+                        key,
+                        {
+                            x:
+                                position.x,
+                            y:
+                                position.y -
+                                125
+                        }
+                    );
+
+
+                const sheetNode =
+                    createNode(
+                        key,
+                        backend +
+                        " Sheet",
+                        "sheet",
+                        sheet,
+                        p.x,
+                        p.y,
+                        value(row,"Status"),
+                        sheet
+                    );
+
+
+                connect(
+                    backendNode,
+                    sheetNode,
+                    "sheet"
+                );
+
+
+                /*
+                    Sheet API
+                */
+
+                const sheetAPI =
+                    value(
+                        row,
+                        "Sheet API"
+                    );
+
+
+                if(sheetAPI){
+
+                    const apiKey =
+                        backendKey +
+                        "-api";
+
+
+                    const ap =
+                        getSavedPosition(
+                            apiKey,
+                            {
+                                x:
+                                    p.x,
+                                y:
+                                    p.y -
+                                    125
+                            }
+                        );
+
+
+                    const apiNode =
+                        createNode(
+                            apiKey,
+                            backend +
+                            " Sheet API",
+                            "api",
+                            sheetAPI,
+                            ap.x,
+                            ap.y,
+                            value(row,"Status"),
+                            sheetAPI
+                        );
+
+
+                    connect(
+                        sheetNode,
+                        apiNode,
+                        "api"
+                    );
+
+                }
 
             }
 
 
-            const map =
-                document.getElementById(
-                    "map"
-                );
+            /*
+                Frontends
+            */
 
-
-            const mapRect =
-                map.getBoundingClientRect();
-
-
-            const branchRect =
-                branch.getBoundingClientRect();
-
-
-            const currentX =
-                branchRect.left -
-                mapRect.left +
-                branchRect.width / 2;
-
-
-            const currentY =
-                branchRect.top -
-                mapRect.top +
-                branchRect.height / 2;
-
-
-            drag = {
-
-                branch:branch,
-
-                pointerId:
-                    event.pointerId,
-
-                offsetX:
-                    event.clientX -
-                    mapRect.left -
-                    currentX,
-
-                offsetY:
-                    event.clientY -
-                    mapRect.top -
-                    currentY
-
-            };
-
-
-            branch.classList.add(
-                "dragging"
+            createFrontendBranches(
+                row,
+                backendNode,
+                backendKey
             );
 
 
-            branch.setPointerCapture(
-                event.pointerId
+            /*
+                External APIs
+            */
+
+            createExternalBranches(
+                row,
+                backendNode,
+                backendKey
             );
 
-
-            event.preventDefault();
-
-        }
-    );
-
-
-    branch.addEventListener(
-        "pointermove",
-        function(event){
-
-            if(
-                !drag ||
-                drag.branch !== branch
-            ){
-
-                return;
-
-            }
-
-
-            const map =
-                document.getElementById(
-                    "map"
-                );
-
-
-            const mapRect =
-                map.getBoundingClientRect();
-
-
-            let x =
-                event.clientX -
-                mapRect.left -
-                drag.offsetX;
-
-
-            let y =
-                event.clientY -
-                mapRect.top -
-                drag.offsetY;
-
-
-            const halfW =
-                branch.offsetWidth /
-                2;
-
-
-            const halfH =
-                branch.offsetHeight /
-                2;
-
-
-            const padding =
-                15;
-
-
-            x =
-                Math.max(
-                    halfW + padding,
-                    Math.min(
-                        map.clientWidth -
-                        halfW -
-                        padding,
-                        x
-                    )
-                );
-
-
-            y =
-                Math.max(
-                    halfH + padding,
-                    Math.min(
-                        map.clientHeight -
-                        halfH -
-                        padding,
-                        y
-                    )
-                );
-
-
-            branch.style.left =
-                x +
-                "px";
-
-
-            branch.style.top =
-                y +
-                "px";
-
-
-            saveBranchPosition(
-                branch
-            );
-
-
-            drawConnections();
-
-        }
-    );
-
-
-    branch.addEventListener(
-        "pointerup",
-        function(){
-
-            finishDrag(
-                branch
-            );
-
-        }
-    );
-
-
-    branch.addEventListener(
-        "pointercancel",
-        function(){
-
-            finishDrag(
-                branch
-            );
-
-        }
-    );
-
-}
-
-
-function finishDrag(
-    branch
-){
-
-    if(
-        drag &&
-        drag.branch === branch
-    ){
-
-        branch.classList.remove(
-            "dragging"
-        );
-
-
-        drag =
-            null;
-
-
-        drawConnections();
-
-    }
+        });
 
 }
 
 
 /* =========================================================
-   SAVE LOCAL POSITION
+   BACKEND POSITION
 ========================================================= */
 
-function saveBranchPosition(
-    branch
+function getBackendPosition(
+    index,
+    total
 ){
 
-    const id =
-        branch.dataset.positionId;
+    /*
+        Spread around a wide
+        northern arc.
+
+        As the number of
+        backends grows, the
+        radius automatically
+        increases.
+    */
+
+    const radius =
+        Math.max(
+            360,
+            300 +
+            total * 75
+        );
 
 
-    if(
-        !id
-    ){
+    const start =
+        Math.PI * 1.15;
 
-        return;
-
-    }
+    const end =
+        Math.PI * 1.85;
 
 
-    savedPositions[id] = {
+    const angle =
+        total === 1
+            ? Math.PI * 1.5
+            : start +
+              (
+                end - start
+              ) *
+              (
+                index /
+                (total - 1)
+              );
+
+
+    return {
 
         x:
-            parseFloat(
-                branch.style.left
-            ),
+            Math.cos(angle) *
+            radius -
+            95,
 
         y:
-            parseFloat(
-                branch.style.top
-            )
+            Math.sin(angle) *
+            radius -
+            40
 
     };
 
-
-    try{
-
-        localStorage.setItem(
-            "obvyrisServerMapPositions",
-            JSON.stringify(
-                savedPositions
-            )
-        );
-
-    }catch(error){
-
-        console.warn(
-            "Could not save map positions."
-        );
-
-    }
-
 }
 
 
 /* =========================================================
-   LOAD SAVED POSITIONS
+   FRONTEND BRANCHES
 ========================================================= */
 
-function loadSavedPositions(){
-
-    try{
-
-        const saved =
-            localStorage.getItem(
-                "obvyrisServerMapPositions"
-            );
-
-
-        if(saved){
-
-            savedPositions =
-                JSON.parse(
-                    saved
-                ) || {};
-
-        }
-
-    }catch(error){
-
-        savedPositions = {};
-
-    }
-
-}
-
-
-loadSavedPositions();
-
-
-/* =========================================================
-   CONNECTION ENGINE
-========================================================= */
-
-function drawConnections(){
-
-    const svg =
-        document.getElementById(
-            "connections"
-        );
-
-
-    svg.innerHTML =
-        "";
-
-
-    const map =
-        document.getElementById(
-            "map"
-        );
-
-
-    const mapRect =
-        map.getBoundingClientRect();
-
-
-    const hub =
-        document.getElementById(
-            "hub"
-        );
-
-
-    const hubRect =
-        hub.getBoundingClientRect();
-
-
-    const hubPoint = {
-
-        x:
-            hubRect.left -
-            mapRect.left +
-            hubRect.width / 2,
-
-        y:
-            hubRect.top -
-            mapRect.top +
-            hubRect.height / 2
-
-    };
-
-
-    /*
-     * Each branch is processed
-     * independently.
-
-     * No global nearest-card
-     * searching is used.
-     */
-
-    document
-        .querySelectorAll(
-            "#backendLayer .branch"
-        )
-        .forEach(
-            function(branch){
-
-                connectBranch(
-                    branch,
-                    hubPoint,
-                    "north"
-                );
-
-            }
-        );
-
-
-    document
-        .querySelectorAll(
-            "#externalLayer .branch"
-        )
-        .forEach(
-            function(branch){
-
-                connectBranch(
-                    branch,
-                    hubPoint,
-                    "south"
-                );
-
-            }
-        );
-
-}
-
-
-/* =========================================================
-   CONNECT BRANCH
-========================================================= */
-
-function connectBranch(
-    branch,
-    hubPoint,
-    direction
+function createFrontendBranches(
+    row,
+    backendNode,
+    backendKey
 ){
-
-    const map =
-        document.getElementById(
-            "map"
-        );
-
-
-    const mapRect =
-        map.getBoundingClientRect();
-
-
-    /*
-     * Get only this branch's cards.
-     */
-
-    const cards =
-        Array.from(
-            branch.querySelectorAll(
-                ".card"
-            )
-        );
-
-
-    if(
-        !cards.length
-    ){
-
-        return;
-
-    }
-
-
-    const points =
-        cards.map(
-            function(card){
-
-                const rect =
-                    card.getBoundingClientRect();
-
-
-                return {
-
-                    x:
-                        rect.left -
-                        mapRect.left +
-                        rect.width / 2,
-
-                    y:
-                        rect.top -
-                        mapRect.top +
-                        rect.height / 2,
-
-                    type:
-                        card.dataset.type
-
-                };
-
-            }
-        );
-
-
-    /*
-     * HUB → first card
-     */
-
-    drawLine(
-        hubPoint,
-        points[0],
-        direction === "north"
-            ? "backend"
-            : "external"
-    );
-
-
-    /*
-     * Card → card
-
-     * ONLY within this branch.
-     */
 
     for(
-        let i = 0;
-        i < points.length - 1;
+        let i = 1;
+        i <= 5;
         i++
     ){
 
-        drawLine(
-            points[i],
-            points[i + 1],
-            getLineType(
-                points[i].type
-            )
-        );
+        const column =
+            i === 1
+                ? "MAIN HTML FRONTEND"
+                : "HTML FRONTEND " +
+                  i;
 
-    }
-
-}
-
-
-/* =========================================================
-   LINE TYPE
-========================================================= */
-
-function getLineType(
-    type
-){
-
-    switch(type){
-
-        case "backend":
-            return "backend";
-
-        case "sheet":
-            return "sheet";
-
-        case "sheet-api":
-            return "sheet-api";
-
-        case "frontend":
-            return "frontend";
-
-        case "external":
-            return "external";
-
-        case "external-api":
-            return "external-api";
-
-        default:
-            return "sheet";
-
-    }
-
-}
-
-
-/* =========================================================
-   DRAW CURVED LINE
-========================================================= */
-
-function drawLine(
-    a,
-    b,
-    type
-){
-
-    const svg =
-        document.getElementById(
-            "connections"
-        );
-
-
-    const path =
-        document.createElementNS(
-            "http://www.w3.org/2000/svg",
-            "path"
-        );
-
-
-    const dy =
-        b.y -
-        a.y;
-
-
-    const distance =
-        Math.abs(dy);
-
-
-    const bend =
-        Math.max(
-            35,
-            Math.min(
-                160,
-                distance * .42
-            )
-        );
-
-
-    let d;
-
-
-    if(
-        dy < 0
-    ){
-
-        d =
-            `M ${a.x} ${a.y}
-             C ${a.x} ${a.y - bend},
-               ${b.x} ${b.y + bend},
-               ${b.x} ${b.y}`;
-
-    }else{
-
-        d =
-            `M ${a.x} ${a.y}
-             C ${a.x} ${a.y + bend},
-               ${b.x} ${b.y - bend},
-               ${b.x} ${b.y}`;
-
-    }
-
-
-    path.setAttribute(
-        "d",
-        d
-    );
-
-
-    path.setAttribute(
-        "class",
-        "connection " +
-        type
-    );
-
-
-    svg.appendChild(
-        path
-    );
-
-}
-
-
-/* =========================================================
-   HELPERS
-========================================================= */
-
-function hasValue(
-    value
-){
-
-    if(
-        value ===
-        undefined ||
-        value ===
-        null
-    ){
-
-        return false;
-
-    }
-
-
-    const text =
-        String(
-            value
-        ).trim();
-
-
-    return (
-        text !== "" &&
-        text !== "#"
-    );
-
-}
-
-
-function hasFrontend(
-    row
-){
-
-    return [
-
-        "MAIN HTML FRONTEND",
-        "HTML FRONTEND 2",
-        "HTML FRONTEND 3",
-        "HTML FRONTEND 4",
-        "HTML FRONTEND 5"
-
-    ].some(
-        function(field){
-
-            return hasValue(
-                row[field]
-            );
-
-        }
-    );
-
-}
-
-
-function isURL(
-    value
-){
-
-    return /^https?:\/\//i.test(
-        String(value)
-    );
-
-}
-
-
-function shortenURL(
-    value
-){
-
-    try{
 
         const url =
-            new URL(
-                value
+            value(
+                row,
+                column
             );
 
 
-        let result =
-            url.hostname +
-            url.pathname;
-
-
-        if(
-            result.length > 42
-        ){
-
-            result =
-                result.substring(
-                    0,
-                    39
-                ) +
-                "...";
-
+        if(!url){
+            continue;
         }
 
 
-        return result;
+        const key =
+            backendKey +
+            "-frontend-" +
+            i;
 
-    }catch(error){
 
-        return String(
-            value
+        const index =
+            i - 1;
+
+
+        const p =
+            getSavedPosition(
+                key,
+                {
+                    x:
+                        backendNode.x +
+                        index * 215 -
+                        215,
+
+                    y:
+                        backendNode.y +
+                        145
+                }
+            );
+
+
+        const frontend =
+            createNode(
+                key,
+                column,
+                "frontend",
+                url,
+                p.x,
+                p.y,
+                value(row,"Status"),
+                url
+            );
+
+
+        connect(
+            backendNode,
+            frontend,
+            "frontend"
         );
 
     }
@@ -3067,175 +2530,337 @@ function shortenURL(
 
 
 /* =========================================================
-   CENTER BRANCHES
+   EXTERNAL BRANCHES
 ========================================================= */
 
-function centerBranches(){
+function createExternalBranches(
+    row,
+    backendNode,
+    backendKey
+){
 
-    savedPositions = {};
-
-    try{
-
-        localStorage.removeItem(
-            "obvyrisServerMapPositions"
+    const external =
+        value(
+            row,
+            "EXTERNAL"
         );
 
-    }catch(error){}
+
+    const api1 =
+        value(
+            row,
+            "EXTERNAL API"
+        );
 
 
-    renderMap();
+    const api2 =
+        value(
+            row,
+            "EXTERNAL API 2"
+        );
+
+
+    /*
+        External information
+        travels SOUTH.
+    */
+
+
+    if(external){
+
+        const key =
+            backendKey +
+            "-external";
+
+
+        const p =
+            getSavedPosition(
+                key,
+                {
+                    x:
+                        backendNode.x -
+                        105,
+
+                    y:
+                        backendNode.y +
+                        300
+                }
+            );
+
+
+        const externalNode =
+            createNode(
+                key,
+                external,
+                "external",
+                external,
+                p.x,
+                p.y,
+                value(row,"Status")
+            );
+
+
+        connect(
+            backendNode,
+            externalNode,
+            "external"
+        );
+
+
+        if(api1){
+
+            createExternalAPI(
+                api1,
+                externalNode,
+                backendKey +
+                "-external-api-1",
+                1
+            );
+
+        }
+
+    }else if(api1){
+
+        const key =
+            backendKey +
+            "-external-api-1";
+
+
+        const p =
+            getSavedPosition(
+                key,
+                {
+                    x:
+                        backendNode.x -
+                        105,
+
+                    y:
+                        backendNode.y +
+                        300
+                }
+            );
+
+
+        const apiNode =
+            createNode(
+                key,
+                "External API",
+                "api",
+                api1,
+                p.x,
+                p.y,
+                value(row,"Status"),
+                api1
+            );
+
+
+        connect(
+            backendNode,
+            apiNode,
+            "external"
+        );
+
+        if(api2){
+
+            createExternalAPI(
+                api2,
+                apiNode,
+                backendKey +
+                "-external-api-2",
+                2
+            );
+
+        }
+
+    }
 
 }
 
 
 /* =========================================================
-   INFO
+   EXTERNAL API
 ========================================================= */
 
-function updateInfo(
-    data
+function createExternalAPI(
+    url,
+    parent,
+    key,
+    level
 ){
 
-    const info =
-        document.getElementById(
-            "info"
+    const p =
+        getSavedPosition(
+            key,
+            {
+                x:
+                    parent.x +
+                    25,
+
+                y:
+                    parent.y +
+                    130
+            }
         );
 
 
-    const count =
-        Array.isArray(
-            data.rows
-        )
-            ? data.rows.length
-            : 0;
+    const node =
+        createNode(
+            key,
+            "External API " +
+            level,
+            "api",
+            url,
+            p.x,
+            p.y,
+            "",
+            url
+        );
 
 
-    let generated =
-        "";
+    connect(
+        parent,
+        node,
+        "api"
+    );
 
+}
+
+
+/* =========================================================
+   SAVED POSITION
+========================================================= */
+
+function getSavedPosition(
+    key,
+    fallback
+){
 
     if(
-        data.generated
+        savedPositions &&
+        savedPositions[key]
     ){
 
-        const date =
-            new Date(
-                data.generated
+        return {
+
+            x:
+                Number(
+                    savedPositions[key].x
+                ),
+
+            y:
+                Number(
+                    savedPositions[key].y
+                )
+
+        };
+
+    }
+
+    return fallback;
+
+}
+
+
+/* =========================================================
+   RELOAD
+========================================================= */
+
+document
+.getElementById("reload")
+.addEventListener(
+    "click",
+    async function(){
+
+        this.textContent =
+            "…";
+
+        await loadMap();
+
+        this.textContent =
+            "↻";
+
+    }
+);
+
+
+/* =========================================================
+   KEYBOARD CONTROLS
+========================================================= */
+
+document.addEventListener(
+    "keydown",
+    function(e){
+
+        if(
+            e.key === "+" ||
+            e.key === "="
+        ){
+
+            zoomAt(
+                1.2,
+                viewport.clientWidth / 2,
+                viewport.clientHeight / 2
             );
+
+        }
 
 
         if(
-            !Number.isNaN(
-                date.getTime()
-            )
+            e.key === "-" ||
+            e.key === "_"
         ){
 
-            generated =
-                " • " +
-                date.toLocaleTimeString();
+            zoomAt(
+                .83,
+                viewport.clientWidth / 2,
+                viewport.clientHeight / 2
+            );
+
+        }
+
+
+        if(
+            e.key.toLowerCase() === "r"
+        ){
+
+            resetView();
 
         }
 
     }
-
-
-    info.textContent =
-        count +
-        " architecture records" +
-        generated;
-
-}
+);
 
 
 /* =========================================================
-   LOADING
-========================================================= */
-
-function showLoading(){
-
-    document.getElementById(
-        "loading"
-    ).style.display =
-        "flex";
-
-}
-
-
-function hideLoading(){
-
-    document.getElementById(
-        "loading"
-    ).style.display =
-        "none";
-
-}
-
-
-/* =========================================================
-   ERROR
-========================================================= */
-
-function showError(
-    message
-){
-
-    document.getElementById(
-        "errorText"
-    ).textContent =
-        message;
-
-
-    document.getElementById(
-        "error"
-    ).style.display =
-        "block";
-
-}
-
-
-function hideError(){
-
-    document.getElementById(
-        "error"
-    ).style.display =
-        "none";
-
-}
-
-
-/* =========================================================
-   REDRAW
+   RESIZE
 ========================================================= */
 
 window.addEventListener(
     "resize",
     function(){
 
-        clearTimeout(
-            window.__mapResizeTimer
-        );
+        if(
+            !offsetX ||
+            !offsetY
+        ){
 
+            resetView();
 
-        window.__mapResizeTimer =
-            setTimeout(
-                drawConnections,
-                100
-            );
+        }
+
+        drawConnections();
 
     }
 );
 
 
-setTimeout(
-    drawConnections,
-    300
-);
+/* =========================================================
+   START
+========================================================= */
 
+resetView();
 
-setTimeout(
-    drawConnections,
-    1000
-);
+loadMap();
 
 </script>
 
