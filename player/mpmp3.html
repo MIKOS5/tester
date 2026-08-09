@@ -571,6 +571,188 @@ font-size:11px;
 }
 
 
+/* ===========================
+   FULLSCREEN PLAYER
+=========================== */
+
+#winampPlayer:fullscreen{
+
+    width:100vw;
+    height:100vh;
+
+    left:0;
+    top:0;
+
+    border-radius:0;
+    border:2px solid #2793ff;
+
+    background:rgba(7,13,22,.96);
+
+    display:flex;
+    flex-direction:column;
+
+    resize:none;
+
+}
+
+
+/* Fullscreen header */
+
+#winampPlayer:fullscreen #winampHeader{
+
+    height:55px;
+
+    flex-shrink:0;
+
+    padding:12px 15px;
+
+}
+
+
+/* Fullscreen display */
+
+#winampPlayer:fullscreen #winampDisplay{
+
+    padding:30px;
+
+    flex-shrink:0;
+
+}
+
+
+/* Bigger song title */
+
+#winampPlayer:fullscreen #winampSong{
+
+    font-size:28px;
+
+}
+
+
+/* Bigger artist */
+
+#winampPlayer:fullscreen #winampArtist{
+
+    font-size:18px;
+
+}
+
+
+/* Player controls */
+
+#winampPlayer:fullscreen #winampButtons{
+
+    padding:15px;
+
+    flex-shrink:0;
+
+}
+
+
+#winampPlayer:fullscreen #winampButtons button{
+
+    width:65px;
+
+    height:50px;
+
+    font-size:18px;
+
+}
+
+
+/* Playlist fills remaining screen */
+
+#winampPlayer:fullscreen #playlistWindow{
+
+    flex:1;
+
+    height:auto;
+
+    min-height:0;
+
+}
+
+
+/* Fullscreen audio */
+
+#winampPlayer:fullscreen audio{
+
+    height:50px;
+
+}
+
+#winampPlayer.playerFullscreen{
+
+    position:fixed;
+
+    left:0;
+    top:0;
+
+    width:100vw;
+    height:100vh;
+
+    border-radius:0;
+
+    z-index:999999999;
+
+    resize:none;
+
+    background:#070d16;
+
+    display:flex;
+    flex-direction:column;
+
+}
+ 
+/* Mobile fullscreen */
+
+@media(max-width:700px){
+
+    #winampPlayer:fullscreen{
+
+        width:100vw;
+
+        height:100vh;
+
+        left:0;
+
+        top:0;
+
+    }
+
+
+    #winampPlayer:fullscreen #winampSong{
+
+        font-size:22px;
+
+    }
+
+
+    #winampPlayer:fullscreen #winampDisplay{
+
+        padding:20px 10px;
+
+    }
+
+
+    #winampPlayer:fullscreen #winampButtons{
+
+        gap:5px;
+
+    }
+
+
+    #winampPlayer:fullscreen #winampButtons button{
+
+        width:55px;
+
+        height:48px;
+
+    }
+
+}
+ 
+
 /* MINI */
 
 #winampPlayer.minimized{
@@ -1069,6 +1251,15 @@ Obvyris Player
 onclick="minimizeWinamp()" 
 data-tip="Minimize Player">
 −
+</button>
+
+<button 
+id="fullscreenButton"
+onclick="togglePlayerFullscreen()" 
+data-tip="Fullscreen Player">
+⛶
+</button>
+
 <button 
 onclick="hideWinamp()" 
 data-tip="Hide Player">
@@ -1345,7 +1536,141 @@ async function searchArchive(page){
 
 
 
+// ======================================
+// PLAYER FULLSCREEN
+// ======================================
 
+async function togglePlayerFullscreen(){
+
+    const player =
+        document.getElementById("winampPlayer");
+
+    const button =
+        document.getElementById("fullscreenButton");
+
+
+    /*
+    ======================================
+    EXIT FULLSCREEN
+    ======================================
+    */
+
+    if(document.fullscreenElement){
+
+        try{
+
+            await document.exitFullscreen();
+
+        }catch(error){
+
+            console.log(
+                "Unable to exit fullscreen:",
+                error
+            );
+
+        }
+
+        return;
+
+    }
+
+
+    /*
+    ======================================
+    ENTER FULLSCREEN
+    ======================================
+    */
+
+    try{
+
+        if(player.requestFullscreen){
+
+            await player.requestFullscreen();
+
+        }else{
+
+            /*
+            Fallback for browsers
+            without Fullscreen API
+            */
+
+            player.classList.add("playerFullscreen");
+
+        }
+
+    }catch(error){
+
+        console.log(
+            "Fullscreen request failed:",
+            error
+        );
+
+        /*
+        CSS fallback
+        */
+
+        player.classList.add(
+            "playerFullscreen"
+        );
+
+    }
+
+}
+
+
+/*
+======================================
+UPDATE FULLSCREEN BUTTON
+======================================
+*/
+
+function updateFullscreenButton(){
+
+    const button =
+        document.getElementById(
+            "fullscreenButton"
+        );
+
+
+    if(!button)
+        return;
+
+
+    if(document.fullscreenElement){
+
+        button.innerHTML = "⛶";
+
+        button.dataset.tip =
+            "Exit Fullscreen";
+
+    }else{
+
+        button.innerHTML = "⛶";
+
+        button.dataset.tip =
+            "Fullscreen Player";
+
+    }
+
+}
+
+
+/*
+======================================
+BROWSER FULLSCREEN CHANGED
+======================================
+*/
+
+document.addEventListener(
+    "fullscreenchange",
+    function(){
+
+        updateFullscreenButton();
+
+    }
+);
+
+ 
 
 // ======================================
 // DISPLAY COLLECTIONS
