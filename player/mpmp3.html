@@ -14,575 +14,392 @@ Obvyris Archive MP3 Engine
 <link rel="icon" type="image/png" href="https://mikos5.github.io/tester/navicon.png">
 <link rel="apple-touch-icon" href="https://mikos5.github.io/tester/navicon.png">
  
+Below is the cleaned and reorganized CSS. It keeps your existing styling while fixing the Android fullscreen playlist scrolling with `100dvh`, flex sizing, `overflow-y:scroll`, `touch-action:pan-y`, and `-webkit-overflow-scrolling:touch`.
+
 <style>
 
+/* =========================================================
+   GLOBAL
+========================================================= */
+
 *{
-box-sizing:border-box;
+    box-sizing:border-box;
+}
+
+html,
+body{
+    width:100%;
+    height:100%;
 }
 
 body{
-
-margin:10px;
-
-background:#070d16;
-
-color:#d8e1ec;
-
-font-family:Arial,Helvetica,sans-serif;
-
-font-size:15px;
-
-height:calc(100vh - 20px);
-
-overflow:hidden;
-
+    margin:10px;
+    background:#070d16;
+    color:#d8e1ec;
+    font-family:Arial,Helvetica,sans-serif;
+    font-size:15px;
+    height:calc(100vh - 20px);
+    overflow:hidden;
 }
 
+
+/* =========================================================
+   HEADINGS
+========================================================= */
 
 h1{
+    color:#2793ff;
+    font-size:26px;
+    margin:5px 0 15px;
+}
 
-color:#2793ff;
-
-font-size:26px;
-
-margin:5px 0 15px;
-
+h2{
+    margin-top:15px;
 }
 
 
-/* =====================
- SEARCH
-===================== */
+/* =========================================================
+   SEARCH / CONTROLS
+========================================================= */
 
 .controls{
-
-background:#101923;
-
-border:1px solid #26384f;
-
-border-radius:10px;
-
-padding:12px;
-
-display:flex;
-
-gap:10px;
-
-flex-wrap:wrap;
-
+    background:#101923;
+    border:1px solid #26384f;
+    border-radius:10px;
+    padding:12px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
 }
-
 
 input,
 select,
 button{
-
-background:#17263a;
-
-color:white;
-
-border:1px solid #31465f;
-
-border-radius:6px;
-
-padding:10px 14px;
-
-font-size:15px;
-
+    background:#17263a;
+    color:white;
+    border:1px solid #31465f;
+    border-radius:6px;
+    padding:10px 14px;
+    font-size:15px;
 }
-
 
 input{
-
-width:280px;
-
+    width:280px;
 }
-
 
 button{
-
-background:#2793ff;
-
-border:none;
-
-cursor:pointer;
-
-font-weight:bold;
-
+    background:#2793ff;
+    border:none;
+    cursor:pointer;
+    font-weight:bold;
 }
-
 
 button:hover{
-
-background:#55b5ff;
-
+    background:#55b5ff;
 }
-
 
 #status{
-
-margin-top:12px;
-
-color:#9aaabd;
-
+    margin-top:12px;
+    color:#9aaabd;
 }
 
 
-/* =====================
- TABLE
-===================== */
+/* =========================================================
+   MUSIC TABLE
+========================================================= */
 
 .musicTable{
-
-margin-top:15px;
-
-border:1px solid #26384f;
-
-border-radius:10px;
-
-overflow:hidden;
-
-height:calc(100vh - 300px);
-
-display:flex;
-
-flex-direction:column;
-
+    margin-top:15px;
+    border:1px solid #26384f;
+    border-radius:10px;
+    overflow:hidden;
+    height:calc(100vh - 300px);
+    display:flex;
+    flex-direction:column;
 }
-
 
 .tableHeader{
-
-display:grid;
-
-grid-template-columns:
-
-40px
-minmax(260px,2fr)
-180px
-220px
-90px
-90px
-90px;
-
-background:#142338;
-
-padding:12px;
-
-color:#65c9ff;
-
-font-weight:bold;
-
-flex-shrink:0;
-
+    display:grid;
+    grid-template-columns:
+        40px
+        minmax(260px,2fr)
+        180px
+        220px
+        90px
+        90px
+        90px;
+    background:#142338;
+    padding:12px;
+    color:#65c9ff;
+    font-weight:bold;
+    flex-shrink:0;
 }
-
-
 
 #tracks{
-
-flex:1;
-
-min-height:0;
-
-overflow-y:auto;
-
-overflow-x:hidden;
-
+    flex:1;
+    min-height:0;
+    overflow-y:auto;
+    overflow-x:hidden;
 }
-
-
 
 .trackRow{
-
-display:grid;
-
-grid-template-columns:
-
-40px
-minmax(260px,2fr)
-180px
-220px
-90px
-90px
-90px;
-
-
-padding:10px 12px;
-
-background:#101923;
-
-border-top:1px solid #26384f;
-
-align-items:center;
-
+    display:grid;
+    grid-template-columns:
+        40px
+        minmax(260px,2fr)
+        180px
+        220px
+        90px
+        90px
+        90px;
+    padding:10px 12px;
+    background:#101923;
+    border-top:1px solid #26384f;
+    align-items:center;
 }
-
 
 .trackRow:hover{
-
-background:#182b43;
-
+    background:#182b43;
 }
-
-
 
 .song{
-
-color:#55b8ff;
-
-font-weight:bold;
-
-white-space:nowrap;
-
-overflow:hidden;
-
-text-overflow:ellipsis;
-
+    color:#55b8ff;
+    font-weight:bold;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
 }
-
 
 .info{
-
-color:#b5c3d5;
-
-white-space:nowrap;
-
-overflow:hidden;
-
-text-overflow:ellipsis;
-
+    color:#b5c3d5;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
 }
-
 
 .smallButton{
-
-padding:6px 10px;
-
-font-size:13px;
-
+    padding:6px 10px;
+    font-size:13px;
 }
-
 
 a{
-
-color:#65c9ff;
-
-text-decoration:none;
-
+    color:#65c9ff;
+    text-decoration:none;
 }
 
 
-/* =====================
- QUEUE
-===================== */
+/* =========================================================
+   QUEUE PANEL
+========================================================= */
 
 #queuePanel{
-
-position:fixed;
-
-right:15px;
-
-top:80px;
-
-width:330px;
-
-max-height:70vh;
-
-overflow:auto;
-
-background:rgba(16,25,35,.85);
-
-backdrop-filter:blur(10px);
-
--webkit-backdrop-filter:blur(10px);
-
-border:1px solid #26384f;
-
-border-radius:10px;
-
-padding:12px;
-
-display:none;
-
-z-index:9000;
-
+    position:fixed;
+    right:15px;
+    top:80px;
+    width:330px;
+    max-height:70vh;
+    overflow:auto;
+    background:rgba(16,25,35,.85);
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+    border:1px solid #26384f;
+    border-radius:10px;
+    padding:12px;
+    display:none;
+    z-index:9000;
 }
 
 
-/* =====================
- WINAMP PLAYER
-===================== */
+/* =========================================================
+   WINAMP PLAYER
+========================================================= */
 
 #winampPlayer{
-
-position:fixed;
-
-left:50px;
-
-top:100px;
-
-width:360px;
-
-height:520px;
-
-background:rgba(16,25,35,.55);
-
-backdrop-filter:blur(12px);
-
--webkit-backdrop-filter:blur(12px);
-
-border:2px solid rgba(39,147,255,.8);
-
-border-radius:12px;
-
-box-shadow:0 0 30px rgba(0,0,0,.8);
-
-z-index:99999;
-
-resize:both;
-
-overflow:hidden;
-
+    position:fixed;
+    left:50px;
+    top:100px;
+    width:360px;
+    height:520px;
+    background:rgba(16,25,35,.55);
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+    border:2px solid rgba(39,147,255,.8);
+    border-radius:12px;
+    box-shadow:0 0 30px rgba(0,0,0,.8);
+    z-index:99999;
+    resize:both;
+    overflow:hidden;
 }
 
+
+/* =========================================================
+   PLAYER HEADER
+========================================================= */
 
 #winampHeader{
-
-height:40px;
-
-background:rgba(20,35,56,.55);
-
-color:#55b8ff;
-
-font-weight:bold;
-
-padding:10px;
-
-cursor:move;
-
-display:flex;
-
-justify-content:space-between;
-
-align-items:center;
-
+    height:40px;
+    flex-shrink:0;
+    background:rgba(20,35,56,.55);
+    color:#55b8ff;
+    font-weight:bold;
+    padding:10px;
+    cursor:move;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
 }
-
 
 .windowButtons{
-
-display:flex;
-
-gap:4px;
-
+    display:flex;
+    gap:4px;
 }
-
-
 
 #winampHeader button{
-
-width:18px;
-
-height:18px;
-
-padding:0;
-
-font-size:11px;
-
+    width:18px;
+    height:18px;
+    padding:0;
+    font-size:11px;
 }
-
 
 #winampHeader button:first-child{
-
-background:#7d5c00;
-
+    background:#7d5c00;
 }
-
 
 #winampHeader button:last-child{
-
-background:#7f2020;
-
+    background:#7f2020;
 }
 
 
-/* DISPLAY */
+/* =========================================================
+   PLAYER DISPLAY
+========================================================= */
 
 #winampDisplay{
-
-padding:15px;
-
-background:rgba(5,11,18,.45);
-
-text-align:center;
-
+    padding:15px;
+    background:rgba(5,11,18,.45);
+    text-align:center;
+    flex-shrink:0;
 }
-
 
 #winampSong{
-
-font-size:18px;
-
-color:#55b8ff;
-
-font-weight:bold;
-
+    font-size:18px;
+    color:#55b8ff;
+    font-weight:bold;
 }
-
 
 #winampArtist{
-
-color:#ddd;
-
-margin-top:8px;
-
+    color:#ddd;
+    margin-top:8px;
 }
 
+
+/* =========================================================
+   AUDIO / SEEK
+========================================================= */
 
 audio{
-
-width:100%;
-
-height:40px;
-
+    width:100%;
+    height:40px;
+    flex-shrink:0;
 }
-
 
 #seekBar{
-
-width:100%;
-
+    width:100%;
+    cursor:pointer;
 }
 
 
-/* PLAYER BUTTONS */
+/* =========================================================
+   PLAYER BUTTONS
+========================================================= */
 
 #winampButtons{
-
-display:flex;
-
-justify-content:center;
-
-gap:10px;
-
-padding:10px;
-
-background:rgba(0,0,0,.25);
-
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    padding:10px;
+    background:rgba(0,0,0,.25);
+    flex-shrink:0;
 }
-
 
 #winampButtons button{
-
-width:40px;
-
-height:40px;
-
-font-size:10px;
+    width:40px;
+    height:40px;
+    font-size:10px;
 }
 
 
-/* PLAYLIST */
+/* =========================================================
+   PLAYLIST
+========================================================= */
 
 #playlistWindow{
-
-height:330px;
-
-overflow:auto;
-
-border-top:1px solid rgba(255,255,255,.15);
-
-padding:10px;
-
-background:rgba(0,0,0,.25);
-
+    height:330px;
+    min-height:0;
+    overflow-y:auto;
+    overflow-x:hidden;
+    border-top:1px solid rgba(255,255,255,.15);
+    padding:10px;
+    background:rgba(0,0,0,.25);
+    -webkit-overflow-scrolling:touch;
 }
-
 
 .winampItem{
-
-display:flex;
-
-justify-content:space-between;
-
-align-items:center;
-
-padding:8px;
-
-border-bottom:1px solid rgba(255,255,255,.15);
-
-background:rgba(16,25,35,.35);
-
-cursor:grab;
-
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:8px;
+    border-bottom:1px solid rgba(255,255,255,.15);
+    background:rgba(16,25,35,.35);
+    cursor:grab;
 }
-
 
 .winampItem.dragging{
-
-opacity:.4;
-
-background:#2793ff;
-
+    opacity:.4;
+    background:#2793ff;
 }
-
 
 .playlistTitle{
-
-flex:1;
-
-cursor:pointer;
-
+    flex:1;
+    cursor:pointer;
 }
-
 
 .playing{
-
-background:rgba(39,147,255,.35);
-
-border-left:5px solid #55b8ff;
-
+    background:rgba(39,147,255,.35);
+    border-left:5px solid #55b8ff;
 }
-
 
 .playing .playlistTitle{
-
-color:#55b8ff;
-
-font-weight:bold;
-
+    color:#55b8ff;
+    font-weight:bold;
 }
-
 
 .removeSong{
-
-background:#7f2020;
-
-color:white;
-
-width:18px;
-
-height:18px;
-
-padding:0;
-
-font-size:11px;
-
+    background:#7f2020;
+    color:white;
+    width:18px;
+    height:18px;
+    padding:0;
+    font-size:11px;
 }
 
 
-/* ===========================
+/* =========================================================
    FULLSCREEN PLAYER
-=========================== */
+   Android / Chrome Fullscreen
+========================================================= */
 
 #winampPlayer:fullscreen{
-
-    width:100vw;
-    height:100vh;
+    position:fixed;
 
     left:0;
     top:0;
+
+    width:100vw;
+    height:100dvh;
+
+    min-width:0;
+    min-height:0;
 
     border-radius:0;
     border:2px solid #2793ff;
@@ -593,104 +410,111 @@ font-size:11px;
     flex-direction:column;
 
     resize:none;
+    overflow:hidden;
 
+    z-index:999999999;
 }
 
 
-/* Fullscreen header */
+/* =========================================================
+   FULLSCREEN HEADER
+========================================================= */
 
 #winampPlayer:fullscreen #winampHeader{
-
     height:55px;
-
-    flex-shrink:0;
-
+    flex:0 0 55px;
     padding:12px 15px;
-
 }
 
 
-/* Fullscreen display */
+/* =========================================================
+   FULLSCREEN DISPLAY
+========================================================= */
 
 #winampPlayer:fullscreen #winampDisplay{
-
     padding:30px;
-
-    flex-shrink:0;
-
+    flex:0 0 auto;
 }
-
-
-/* Bigger song title */
 
 #winampPlayer:fullscreen #winampSong{
-
     font-size:28px;
-
 }
-
-
-/* Bigger artist */
 
 #winampPlayer:fullscreen #winampArtist{
-
     font-size:18px;
-
 }
 
 
-/* Player controls */
-
-#winampPlayer:fullscreen #winampButtons{
-
-    padding:15px;
-
-    flex-shrink:0;
-
-}
-
-
-#winampPlayer:fullscreen #winampButtons button{
-
-    width:65px;
-
-    height:50px;
-
-    font-size:18px;
-
-}
-
-
-/* Playlist fills remaining screen */
-
-#winampPlayer:fullscreen #playlistWindow{
-
-    flex:1;
-
-    height:auto;
-
-    min-height:0;
-
-}
-
-
-/* Fullscreen audio */
+/* =========================================================
+   FULLSCREEN AUDIO
+========================================================= */
 
 #winampPlayer:fullscreen audio{
-
     height:50px;
-
+    flex:0 0 50px;
 }
 
-#winampPlayer.playerFullscreen{
 
+/* =========================================================
+   FULLSCREEN PLAYER BUTTONS
+========================================================= */
+
+#winampPlayer:fullscreen #winampButtons{
+    padding:15px;
+    flex:0 0 auto;
+}
+
+#winampPlayer:fullscreen #winampButtons button{
+    width:65px;
+    height:50px;
+    font-size:18px;
+}
+
+
+/* =========================================================
+   FULLSCREEN PLAYLIST
+   IMPORTANT FOR ANDROID TOUCH SCROLLING
+========================================================= */
+
+#winampPlayer:fullscreen #playlistWindow{
+    flex:1 1 0;
+
+    width:100%;
+    height:0;
+
+    min-height:0;
+    max-height:none;
+
+    overflow-y:scroll;
+    overflow-x:hidden;
+
+    -webkit-overflow-scrolling:touch;
+
+    overscroll-behavior:contain;
+
+    touch-action:pan-y;
+}
+
+#winampPlayer:fullscreen #winampQueue{
+    min-height:0;
+}
+
+
+/* =========================================================
+   CSS FALLBACK FULLSCREEN
+========================================================= */
+
+#winampPlayer.playerFullscreen{
     position:fixed;
 
     left:0;
     top:0;
 
     width:100vw;
-    height:100vh;
+    height:100dvh;
+
+    min-width:0;
+    min-height:0;
 
     border-radius:0;
 
@@ -703,506 +527,505 @@ font-size:11px;
     display:flex;
     flex-direction:column;
 
+    overflow:hidden;
 }
- 
-/* Mobile fullscreen */
 
-@media(max-width:700px){
+#winampPlayer.playerFullscreen #playlistWindow{
+    flex:1 1 0;
 
-    #winampPlayer:fullscreen{
+    width:100%;
+    height:0;
 
-        width:100vw;
+    min-height:0;
 
-        height:100vh;
+    overflow-y:scroll;
+    overflow-x:hidden;
 
-        left:0;
+    -webkit-overflow-scrolling:touch;
 
-        top:0;
+    overscroll-behavior:contain;
 
-    }
-
-
-    #winampPlayer:fullscreen #winampSong{
-
-        font-size:22px;
-
-    }
-
-
-    #winampPlayer:fullscreen #winampDisplay{
-
-        padding:20px 10px;
-
-    }
-
-
-    #winampPlayer:fullscreen #winampButtons{
-
-        gap:5px;
-
-    }
-
-
-    #winampPlayer:fullscreen #winampButtons button{
-
-        width:55px;
-
-        height:48px;
-
-    }
-
+    touch-action:pan-y;
 }
- 
 
-/* MINI */
+
+/* =========================================================
+   MINIMIZED PLAYER
+========================================================= */
 
 #winampPlayer.minimized{
-
-width:360px;
-
-height:45px;
-
-resize:none;
-
-overflow:hidden;
-
+    width:360px;
+    height:45px;
+    resize:none;
+    overflow:hidden;
 }
-
 
 #winampPlayer.minimized #winampDisplay,
 #winampPlayer.minimized #progressBox,
 #winampPlayer.minimized #winampButtons,
 #winampPlayer.minimized #playlistWindow{
-
-display:none;
-
+    display:none;
 }
-
 
 #miniStatus{
-
-display:none;
-
-color:#55b8ff;
-
-margin-left:10px;
-
+    display:none;
+    color:#55b8ff;
+    margin-left:10px;
 }
-
 
 #winampPlayer.minimized #miniStatus{
-
-display:inline;
-
+    display:inline;
 }
 
+
+/* =========================================================
+   PLAYLIST MANAGER
+========================================================= */
+
 #playlistManager{
+    position:absolute;
 
+    left:10px;
+    right:10px;
+    top:50px;
+    bottom:10px;
 
-position:absolute;
+    background:rgba(7,13,22,.97);
 
-left:10px;
-right:10px;
-top:50px;
-bottom:10px;
+    border:1px solid #2793ff;
+    border-radius:10px;
 
-background:rgba(7,13,22,.97);
+    display:none;
+    flex-direction:column;
 
-border:1px solid #2793ff;
+    z-index:1000;
 
-border-radius:10px;
-
-display:none;
-
-flex-direction:column;
-
-z-index:1000;
-
-box-shadow:
-    0 0 25px rgba(0,0,0,.8);
-
-
+    box-shadow:0 0 25px rgba(0,0,0,.8);
 }
 
 #playlistManagerHeader{
+    height:45px;
+    flex-shrink:0;
 
+    padding:8px 10px;
 
-height:45px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
 
-flex-shrink:0;
-
-padding:8px 10px;
-
-display:flex;
-
-align-items:center;
-
-justify-content:space-between;
-
-background:#142338;
-
-color:#55b8ff;
-
-font-weight:bold;
-
-
+    background:#142338;
+    color:#55b8ff;
+    font-weight:bold;
 }
 
 #playlistManagerHeader button{
-
-
-width:28px;
-height:28px;
-
-padding:0;
-
-background:#7f2020;
-
-
+    width:28px;
+    height:28px;
+    padding:0;
+    background:#7f2020;
 }
 
 #playlistManagerBody{
+    display:flex;
+    flex-direction:column;
 
+    flex:1;
+    min-height:0;
 
-display:flex;
-
-flex-direction:column;
-
-flex:1;
-
-min-height:0;
-
-padding:10px;
-
-gap:10px;
-
-
+    padding:10px;
+    gap:10px;
 }
 
 .playlistManagerControls{
-
-
-display:flex;
-
-gap:6px;
-
-flex-wrap:wrap;
-
-
+    display:flex;
+    gap:6px;
+    flex-wrap:wrap;
 }
 
 .playlistManagerControls button{
-
-
-flex:1;
-
-min-width:80px;
-
-padding:8px;
-
-font-size:12px;
-
-
+    flex:1;
+    min-width:80px;
+    padding:8px;
+    font-size:12px;
 }
 
 #playerPlaylistSelect{
+    width:100%;
+    flex:1;
+    min-height:0;
 
+    background:#101923;
+    color:#d8e1ec;
 
-width:100%;
+    border:1px solid #26384f;
+    border-radius:6px;
 
-flex:1;
-
-min-height:0;
-
-background:#101923;
-
-color:#d8e1ec;
-
-border:1px solid #26384f;
-
-border-radius:6px;
-
-padding:5px;
-
-
+    padding:5px;
 }
 
 #playerPlaylistSelect option{
-
-
-padding:8px;
-
-
+    padding:8px;
 }
 
 #playerPlaylistSelect option:checked{
-
-
-background:#2793ff;
-
-color:white;
-
-
+    background:#2793ff;
+    color:white;
 }
 
 #playlistManagerStatus{
-
-
-color:#9aaabd;
-
-font-size:12px;
-
-
+    color:#9aaabd;
+    font-size:12px;
 }
 
 
-/* =====================
- MOBILE
-===================== */
+/* =========================================================
+   PLAYER TIME DISPLAY
+========================================================= */
 
-@media(max-width:700px){
+#timeDisplay{
+    display:flex;
+    justify-content:space-between;
 
+    padding:5px 12px;
 
-body{
-
-margin:5px;
-
+    font-size:12px;
+    color:#65c9ff;
+    font-family:monospace;
 }
 
 
-h1{
+/* =========================================================
+   TOOLTIP
+========================================================= */
 
-text-align:center;
+#tooltipBubble{
+    position:fixed;
 
-font-size:22px;
+    background:#101923;
+    color:#65c9ff;
 
+    border:1px solid #2793ff;
+    border-radius:8px;
+
+    padding:6px 10px;
+
+    font-size:12px;
+    font-weight:bold;
+
+    white-space:nowrap;
+
+    box-shadow:0 0 15px rgba(39,147,255,.5);
+
+    pointer-events:none;
+
+    opacity:0;
+    transition:.15s ease;
+
+    z-index:999999999;
+
+    transform:translate(-50%,-100%);
 }
 
 
-.controls{
-
-display:block;
-
-}
-
-
-.controls input,
-.controls select,
-.controls button{
-
-width:100%;
-
-margin-bottom:10px;
-
-height:55px;
-
-font-size:18px;
-
-}
-
-
-
-.tableHeader{
-
-display:none;
-
-}
-
-
-.trackRow{
-
-grid-template-columns:
-
-35px
-1fr;
-
-gap:8px;
-
-}
-
-
-.trackRow div:nth-child(n+3){
-
-display:none;
-
-}
-
-
-#queuePanel{
-
-left:10px;
-
-right:10px;
-
-width:auto;
-
-}
-
-
-#winampPlayer{
-
-left:10px;
-
-top:80px;
-
-width:90%;
-
-}
-
-
-}
-
-/* =====================
+/* =========================================================
    CUSTOM SCROLLBARS
-===================== */
-
-
-/* Chrome / Edge / Safari */
+========================================================= */
 
 ::-webkit-scrollbar{
-
-width:10px;
-height:10px;
-
+    width:10px;
+    height:10px;
 }
-
 
 ::-webkit-scrollbar-track{
-
-background:#070d16;
-
-border-radius:10px;
-
+    background:#070d16;
+    border-radius:10px;
 }
-
 
 ::-webkit-scrollbar-thumb{
-
-background:#26384f;
-
-border-radius:10px;
-
-border:2px solid #070d16;
-
+    background:#26384f;
+    border-radius:10px;
+    border:2px solid #070d16;
 }
-
 
 ::-webkit-scrollbar-thumb:hover{
-
-background:#2793ff;
-
+    background:#2793ff;
 }
-
-
-/* Firefox */
 
 *{
-
-scrollbar-width:thin;
-
-scrollbar-color:#26384f #070d16;
-
+    scrollbar-width:thin;
+    scrollbar-color:#26384f #070d16;
 }
 
 
-/* Playlist specific */
+/* Playlist / table scrollbars */
 
 #playlistWindow::-webkit-scrollbar,
 #tracks::-webkit-scrollbar,
 #queuePanel::-webkit-scrollbar{
-
-width:8px;
-
+    width:8px;
 }
-
 
 #playlistWindow::-webkit-scrollbar-thumb,
 #tracks::-webkit-scrollbar-thumb,
 #queuePanel::-webkit-scrollbar-thumb{
-
-background:#2793ff;
-
-border-radius:10px;
-
+    background:#2793ff;
+    border-radius:10px;
 }
 
 
-/* Smooth scrolling */
+/* =========================================================
+   SMOOTH SCROLLING
+========================================================= */
 
 #tracks,
 #playlistWindow,
 #queuePanel{
+    scroll-behavior:smooth;
+}
 
-scroll-behavior:smooth;
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media(max-width:700px){
+
+    body{
+        margin:5px;
+    }
+
+    h1{
+        text-align:center;
+        font-size:22px;
+    }
+
+    .controls{
+        display:block;
+    }
+
+    .controls input,
+    .controls select,
+    .controls button{
+        width:100%;
+        margin-bottom:10px;
+        height:55px;
+        font-size:18px;
+    }
+
+    .tableHeader{
+        display:none;
+    }
+
+    .trackRow{
+        grid-template-columns:
+            35px
+            1fr;
+
+        gap:8px;
+    }
+
+    .trackRow div:nth-child(n+3){
+        display:none;
+    }
+
+    #queuePanel{
+        left:10px;
+        right:10px;
+        width:auto;
+    }
+
+    #winampPlayer{
+        left:10px;
+        top:80px;
+        width:90%;
+    }
+
+
+    /* ==========================================
+       ANDROID FULLSCREEN
+    ========================================== */
+
+    #winampPlayer:fullscreen{
+        width:100vw;
+        height:100dvh;
+
+        min-height:0;
+
+        left:0;
+        top:0;
+
+        border-radius:0;
+
+        display:flex;
+        flex-direction:column;
+
+        overflow:hidden;
+    }
+
+
+    #winampPlayer:fullscreen #winampHeader{
+        flex:0 0 55px;
+    }
+
+
+    #winampPlayer:fullscreen #winampDisplay{
+        padding:20px 10px;
+        flex:0 0 auto;
+    }
+
+
+    #winampPlayer:fullscreen #winampSong{
+        font-size:22px;
+    }
+
+
+    #winampPlayer:fullscreen #winampArtist{
+        font-size:16px;
+    }
+
+
+    #winampPlayer:fullscreen #winampButtons{
+        gap:5px;
+        padding:10px;
+        flex:0 0 auto;
+    }
+
+
+    #winampPlayer:fullscreen #winampButtons button{
+        width:55px;
+        height:48px;
+        font-size:16px;
+    }
+
+
+    /* ==========================================
+       ANDROID PLAYLIST SCROLL AREA
+    ========================================== */
+
+    #winampPlayer:fullscreen #playlistWindow{
+
+        flex:1 1 0;
+
+        width:100%;
+
+        height:0;
+
+        min-height:0;
+
+        max-height:none;
+
+        overflow-y:scroll;
+        overflow-x:hidden;
+
+        -webkit-overflow-scrolling:touch;
+
+        overscroll-behavior:contain;
+
+        touch-action:pan-y;
+
+        scrollbar-width:thin;
+    }
+
+
+    #winampPlayer:fullscreen #winampQueue{
+        min-height:0;
+    }
+
+
+    /* ==========================================
+       FALLBACK FULLSCREEN ON MOBILE
+    ========================================== */
+
+    #winampPlayer.playerFullscreen{
+
+        width:100vw;
+        height:100dvh;
+
+        min-height:0;
+
+        left:0;
+        top:0;
+
+        border-radius:0;
+
+        display:flex;
+        flex-direction:column;
+
+        overflow:hidden;
+    }
+
+
+    #winampPlayer.playerFullscreen #playlistWindow{
+
+        flex:1 1 0;
+
+        width:100%;
+
+        height:0;
+
+        min-height:0;
+
+        overflow-y:scroll;
+        overflow-x:hidden;
+
+        -webkit-overflow-scrolling:touch;
+
+        overscroll-behavior:contain;
+
+        touch-action:pan-y;
+    }
 
 }
 
 
-/* =====================
-   TOOLTIP BUBBLES
-===================== */
+/* =========================================================
+   SMALL HEIGHT SCREENS
+   Android landscape / short displays
+========================================================= */
 
-#tooltipBubble{
+@media(max-height:600px){
 
-position:fixed;
+    #winampPlayer:fullscreen #winampDisplay{
+        padding:8px 10px;
+    }
 
-background:#101923;
+    #winampPlayer:fullscreen #winampSong{
+        font-size:18px;
+    }
 
-color:#65c9ff;
+    #winampPlayer:fullscreen #winampArtist{
+        font-size:14px;
+        margin-top:3px;
+    }
 
-border:1px solid #2793ff;
+    #winampPlayer:fullscreen #winampButtons{
+        padding:5px;
+    }
 
-border-radius:8px;
-
-padding:6px 10px;
-
-font-size:12px;
-
-font-weight:bold;
-
-white-space:nowrap;
-
-box-shadow:0 0 15px rgba(39,147,255,.5);
-
-pointer-events:none;
-
-opacity:0;
-
-transition:.15s ease;
-
-z-index:999999999;
-
-transform:translate(-50%,-100%);
-
-}
-/* =====================
-   PLAYER TIME DISPLAY
-===================== */
-
-#timeDisplay{
-
-display:flex;
-
-justify-content:space-between;
-
-padding:5px 12px;
-
-font-size:12px;
-
-color:#65c9ff;
-
-font-family:monospace;
+    #winampPlayer:fullscreen #winampButtons button{
+        width:48px;
+        height:42px;
+        font-size:14px;
+    }
 
 }
 
 
-#seekBar{
+/* =========================================================
+   SAFE AREA SUPPORT
+   Android / iPhone edge-to-edge displays
+========================================================= */
 
-cursor:pointer;
-
+#winampPlayer:fullscreen{
+    padding-bottom:env(safe-area-inset-bottom);
 }
- 
+
+#winampPlayer:fullscreen #winampHeader{
+    padding-top:max(12px,env(safe-area-inset-top));
+}
+
 </style>
+
 </head>
 
 
