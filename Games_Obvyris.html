@@ -656,13 +656,13 @@ width:230px;
 
 }
 
-#gameScreen{
+#gamePlayer{
 transition:transform 0.3s ease;
 transform-origin:center center;
 }
 
-#gameScreen.rotated{
-transform:rotate(90deg);
+#gamePlayer.rotated{
+transform:translate(-50%,-50%) rotate(90deg);
 }
 
 /* MOBILE GAMES */
@@ -856,6 +856,22 @@ body::-webkit-scrollbar,
 #sidebar::-webkit-scrollbar,
 #categoryMenu::-webkit-scrollbar{
     display:none; /* Chrome, Safari, Android */
+}
+
+
+
+input,
+textarea,
+select,
+[contenteditable="true"]{
+
+-webkit-user-select:text;
+user-select:text;
+
+-webkit-touch-callout:default;
+
+pointer-events:auto;
+
 }
     
 </style>
@@ -1579,17 +1595,24 @@ frame.src;
 
 function rotateGameScreen(){
 
-const gameScreen = document.getElementById("gameScreen");
-const button = document.getElementById("rotateGameBtn");
+const gamePlayer =
+    document.getElementById("gamePlayer");
 
-if(!gameScreen) return;
+const button =
+    document.getElementById("rotateGameBtn");
 
-gameScreen.classList.toggle("rotated");
+if(!gamePlayer) return;
 
-if(gameScreen.classList.contains("rotated")){
-    button.textContent = "↺ Rotate";
+gamePlayer.classList.toggle("rotated");
+
+if(gamePlayer.classList.contains("rotated")){
+
+    button.textContent = "↺";
+
 }else{
-    button.textContent = "↻ Rotate";
+
+    button.textContent = "↻";
+
 }
 
 }
@@ -1736,6 +1759,28 @@ return String(text || "")
 // =============================
 
 loadMoreGames();
+
+
+document.addEventListener("touchend", function(e){
+
+const input = e.target.closest(
+    "input, textarea, select, [contenteditable='true']"
+);
+
+if(!input) return;
+
+setTimeout(function(){
+
+    input.focus();
+
+    if(input.tagName === "INPUT"){
+        input.click();
+    }
+
+}, 50);
+
+}, {passive:true});
+    
 </script>
 
 
