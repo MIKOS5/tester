@@ -2,24 +2,30 @@
 
 <html lang="en">
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Obvyris Server Map</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Obvyris System Map</title>
 
 <style>
+
 :root{
     --bg:#07101c;
-    --panel:#0d1827;
-    --panel2:#111f31;
-    --line:#263a52;
-    --text:#f4f7fb;
-    --muted:#8fa4bd;
+    --panel:#0d1726;
+    --panel2:#111e30;
+    --line:#26374d;
+    --text:#ffffff;
+    --muted:#8fa2b9;
+
     --blue:#2793ff;
-    --green:#20c997;
-    --red:#ff5d6c;
-    --orange:#ffad42;
-    --purple:#9b7bff;
-    --cyan:#32d7ff;
+    --green:#20c878;
+    --red:#ff4d5e;
+    --orange:#ff9f43;
+    --purple:#a66cff;
+    --cyan:#28d7e8;
+    --yellow:#f5c542;
+    --gray:#7f8da0;
 }
 
 *{
@@ -28,56 +34,102 @@
 
 html,
 body{
+    margin:0;
     width:100%;
     height:100%;
-    margin:0;
     overflow:hidden;
+    font-family:Inter,Arial,sans-serif;
     background:var(--bg);
     color:var(--text);
-    font-family:Inter,Arial,sans-serif;
 }
 
-body{
+/* =========================================================
+   APP
+========================================================= */
+
+.app{
+    display:flex;
+    width:100%;
+    height:100%;
+}
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.sidebar{
+    width:330px;
+    min-width:330px;
+    height:100%;
+    background:var(--panel);
+    border-right:1px solid var(--line);
     display:flex;
     flex-direction:column;
-}
-
-/* =========================
-   TOP BAR
-========================= */
-
-.topbar{
-    height:64px;
-    min-height:64px;
-    display:flex;
-    align-items:center;
-    gap:12px;
-    padding:10px 16px;
-    background:#091522;
-    border-bottom:1px solid var(--line);
     z-index:20;
 }
 
 .brand{
-    font-size:20px;
-    font-weight:800;
-    letter-spacing:.4px;
-    white-space:nowrap;
+    padding:18px;
+    border-bottom:1px solid var(--line);
 }
 
-.brand span{
-    color:var(--blue);
+.brand-title{
+    font-size:22px;
+    font-weight:800;
+}
+
+.brand-sub{
+    color:var(--muted);
+    font-size:12px;
+    margin-top:4px;
+}
+
+/* =========================================================
+   STATS
+========================================================= */
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:8px;
+    padding:12px;
+    border-bottom:1px solid var(--line);
+}
+
+.stat{
+    background:var(--panel2);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:10px;
+}
+
+.stat-label{
+    color:var(--muted);
+    font-size:11px;
+}
+
+.stat-value{
+    font-size:20px;
+    font-weight:800;
+    margin-top:3px;
+}
+
+/* =========================================================
+   CONTROLS
+========================================================= */
+
+.controls{
+    padding:12px;
+    border-bottom:1px solid var(--line);
 }
 
 .search{
-    width:300px;
-    max-width:35vw;
-    height:40px;
+    width:100%;
+    background:#081321;
     border:1px solid var(--line);
-    border-radius:9px;
-    background:#0a1421;
     color:white;
-    padding:0 13px;
+    border-radius:8px;
+    padding:10px;
     outline:none;
 }
 
@@ -85,2095 +137,2532 @@ body{
     border-color:var(--blue);
 }
 
-.toolbar{
-    margin-left:auto;
+.control-row{
     display:flex;
     gap:7px;
+    margin-top:8px;
 }
 
+select,
 button{
-    border:1px solid var(--line);
-    background:var(--panel);
+    background:#132236;
     color:white;
-    border-radius:8px;
-    padding:9px 12px;
+    border:1px solid var(--line);
+    border-radius:7px;
+    padding:8px 10px;
     cursor:pointer;
 }
 
-button:hover{
-    background:var(--panel2);
-    border-color:#3c5674;
+button:hover,
+select:hover{
+    border-color:var(--blue);
 }
 
-.status{
-    font-size:12px;
-    color:var(--muted);
-    white-space:nowrap;
-}
-
-/* =========================
-   MAP
-========================= */
-
-#viewport{
-    position:relative;
+select{
     flex:1;
+}
+
+/* =========================================================
+   NODE LIST
+========================================================= */
+
+.node-list{
+    flex:1;
+    overflow:auto;
+    padding:10px;
+}
+
+.node-item{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px;
+    margin-bottom:6px;
+    border:1px solid transparent;
+    border-radius:9px;
+    cursor:pointer;
+}
+
+.node-item:hover{
+    background:#132236;
+    border-color:var(--line);
+}
+
+.node-item.selected{
+    background:#162b45;
+    border-color:var(--blue);
+}
+
+.node-dot{
+    width:10px;
+    height:10px;
+    border-radius:50%;
+    flex-shrink:0;
+}
+
+.node-name{
+    font-size:13px;
+    font-weight:700;
+}
+
+.node-meta{
+    font-size:10px;
+    color:var(--muted);
+    margin-top:2px;
+}
+
+/* =========================================================
+   MAIN
+========================================================= */
+
+.main{
+    flex:1;
+    position:relative;
+    overflow:hidden;
+}
+
+/* =========================================================
+   TOPBAR
+========================================================= */
+
+.topbar{
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+    height:62px;
+    background:rgba(7,16,28,.92);
+    border-bottom:1px solid var(--line);
+    display:flex;
+    align-items:center;
+    padding:0 15px;
+    gap:8px;
+    z-index:10;
+    backdrop-filter:blur(10px);
+}
+
+.top-title{
+    font-size:18px;
+    font-weight:800;
+    margin-right:auto;
+}
+
+.top-status{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    color:var(--muted);
+    font-size:12px;
+}
+
+.status-dot{
+    width:9px;
+    height:9px;
+    border-radius:50%;
+}
+
+.online{
+    background:var(--green);
+    box-shadow:0 0 9px rgba(32,200,120,.7);
+}
+
+.offline{
+    background:var(--red);
+}
+
+.unknown{
+    background:var(--gray);
+}
+
+/* =========================================================
+   MAP
+========================================================= */
+
+.map{
+    position:absolute;
+    inset:62px 0 0 0;
     overflow:hidden;
     background:
-        radial-gradient(circle at center,#112238 0%,#07101c 48%,#050b13 100%);
+        linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+    background-size:40px 40px;
+    cursor:grab;
 }
 
-#world{
+.map.dragging{
+    cursor:grabbing;
+}
+
+.map-world{
     position:absolute;
+    width:2600px;
+    height:1800px;
     left:50%;
     top:50%;
-    width:1px;
-    height:1px;
-    transform-origin:0 0;
+    transform-origin:center center;
 }
 
-/* =========================
-   GRID
-========================= */
+/* =========================================================
+   CONNECTION SVG
+========================================================= */
 
-.grid{
+.connections{
     position:absolute;
-    width:100000px;
-    height:100000px;
-    left:-50000px;
-    top:-50000px;
-
-    background-image:
-        linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),
-        linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
-
-    background-size:50px 50px;
-    pointer-events:none;
-}
-
-/* =========================
-   CONNECTIONS
-========================= */
-
-#connections{
-    position:absolute;
-    left:-50000px;
-    top:-50000px;
-    width:100000px;
-    height:100000px;
+    inset:0;
+    width:100%;
+    height:100%;
     pointer-events:none;
     overflow:visible;
 }
 
 .connection{
-    fill:none;
-    stroke:#314964;
+    stroke:#40556f;
     stroke-width:2;
+    fill:none;
     opacity:.75;
 }
 
-.connection.backend{
-    stroke:var(--blue);
+.connection.online-line{
+    stroke:#2879b9;
 }
 
-.connection.frontend{
-    stroke:var(--green);
+.connection.offline-line{
+    stroke:#70333c;
+    stroke-dasharray:7 7;
 }
 
-.connection.external{
-    stroke:var(--orange);
-}
-
-/* =========================
+/* =========================================================
    NODES
-========================= */
+========================================================= */
 
 .node{
     position:absolute;
     width:180px;
-    min-height:72px;
+    min-height:70px;
     transform:translate(-50%,-50%);
-    border:1px solid var(--line);
+    border:2px solid var(--node-color);
+    background:#0c1828;
     border-radius:12px;
-    background:rgba(13,24,39,.97);
-    box-shadow:0 12px 35px rgba(0,0,0,.35);
-    cursor:grab;
+    padding:10px 12px;
+    cursor:pointer;
+    box-shadow:0 8px 25px rgba(0,0,0,.35);
     user-select:none;
-    z-index:5;
-}
-
-.node:active{
-    cursor:grabbing;
+    transition:.15s;
+    z-index:2;
 }
 
 .node:hover{
-    border-color:#55708e;
-    box-shadow:0 15px 45px rgba(0,0,0,.55);
+    transform:translate(-50%,-50%) scale(1.04);
+    box-shadow:0 0 25px color-mix(in srgb,var(--node-color) 35%,transparent);
 }
 
 .node.selected{
-    border-color:white;
-    box-shadow:0 0 0 2px rgba(39,147,255,.35),
-               0 18px 50px rgba(0,0,0,.6);
+    box-shadow:
+        0 0 0 3px rgba(39,147,255,.25),
+        0 0 30px color-mix(in srgb,var(--node-color) 40%,transparent);
 }
 
-.node-head{
+.node-header{
     display:flex;
     align-items:center;
     gap:8px;
-    padding:10px 11px 5px;
 }
 
-.dot{
-    width:9px;
-    height:9px;
-    border-radius:50%;
-    flex:none;
-}
-
-.dot.backend{
-    background:var(--blue);
-}
-
-.dot.frontend{
-    background:var(--green);
-}
-
-.dot.external{
-    background:var(--orange);
-}
-
-.dot.hub{
-    background:var(--purple);
+.node-icon{
+    width:26px;
+    height:26px;
+    display:grid;
+    place-items:center;
+    border-radius:7px;
+    background:color-mix(in srgb,var(--node-color) 18%,transparent);
+    font-size:14px;
 }
 
 .node-title{
+    font-weight:800;
     font-size:13px;
-    font-weight:750;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-}
-
-.node-body{
-    padding:2px 11px 10px;
-    color:var(--muted);
-    font-size:10px;
-    line-height:1.4;
+    line-height:1.15;
 }
 
 .node-type{
+    color:var(--muted);
     font-size:9px;
-    text-transform:uppercase;
-    letter-spacing:1px;
-    color:#66819d;
+    margin-top:2px;
 }
 
-/* =========================
-   HUB
-========================= */
-
-#hub{
-    position:absolute;
-    width:190px;
-    height:190px;
-    left:0;
-    top:0;
-    transform:translate(-50%,-50%);
-    border-radius:50%;
-    background:
-        radial-gradient(circle,#162d48 0%,#0c1c2f 55%,#081321 100%);
-    border:2px solid var(--purple);
-    box-shadow:
-        0 0 0 10px rgba(155,123,255,.06),
-        0 0 60px rgba(155,123,255,.25),
-        0 25px 80px rgba(0,0,0,.6);
+.node-bottom{
     display:flex;
     align-items:center;
-    justify-content:center;
-    flex-direction:column;
-    z-index:10;
-    pointer-events:none;
+    gap:6px;
+    margin-top:8px;
 }
 
-.hub-title{
-    font-size:24px;
-    font-weight:900;
-    letter-spacing:1px;
+.node-status{
+    width:7px;
+    height:7px;
+    border-radius:50%;
 }
 
-.hub-sub{
-    margin-top:5px;
+.node-status-text{
+    font-size:10px;
     color:var(--muted);
-    font-size:11px;
-    letter-spacing:2px;
-    text-transform:uppercase;
 }
 
-/* =========================
-   SIDE PANEL
-========================= */
+/* =========================================================
+   DETAIL PANEL
+========================================================= */
 
-#details{
+.details{
     position:absolute;
-    right:16px;
-    top:80px;
-    width:330px;
-    max-height:calc(100vh - 100px);
+    top:76px;
+    right:15px;
+    width:350px;
+    max-height:calc(100% - 91px);
     overflow:auto;
-    background:rgba(9,19,31,.96);
+    background:rgba(13,23,38,.96);
     border:1px solid var(--line);
-    border-radius:12px;
-    box-shadow:0 20px 70px rgba(0,0,0,.5);
-    padding:16px;
-    z-index:30;
+    border-radius:13px;
+    box-shadow:0 15px 45px rgba(0,0,0,.45);
+    z-index:15;
     display:none;
+    backdrop-filter:blur(12px);
 }
 
-#details.show{
+.details.open{
     display:block;
 }
 
-.details-title{
-    font-size:18px;
+.details-head{
+    padding:15px;
+    border-bottom:1px solid var(--line);
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.details-close{
+    margin-left:auto;
+}
+
+.details-body{
+    padding:15px;
+}
+
+.detail-title{
+    font-size:20px;
     font-weight:800;
-    margin-bottom:4px;
 }
 
-.details-type{
+.detail-desc{
     color:var(--muted);
-    font-size:11px;
-    text-transform:uppercase;
-    letter-spacing:1px;
-    margin-bottom:16px;
-}
-
-.detail-row{
-    border-top:1px solid #1d2d41;
-    padding:10px 0;
-}
-
-.detail-label{
-    color:#728aa4;
-    font-size:10px;
-    text-transform:uppercase;
-    letter-spacing:.8px;
-    margin-bottom:4px;
-}
-
-.detail-value{
     font-size:12px;
-    line-height:1.45;
-    word-break:break-word;
+    line-height:1.5;
+    margin-top:6px;
 }
 
-.detail-value a{
-    color:var(--cyan);
+.detail-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    margin-top:15px;
+}
+
+.detail-box{
+    background:#091523;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:9px;
+}
+
+.detail-box-label{
+    color:var(--muted);
+    font-size:9px;
+}
+
+.detail-box-value{
+    font-size:12px;
+    font-weight:700;
+    margin-top:3px;
+}
+
+.section-title{
+    margin-top:18px;
+    margin-bottom:8px;
+    font-size:12px;
+    font-weight:800;
+    color:#c5d3e4;
+}
+
+/* =========================================================
+   URL LIST
+========================================================= */
+
+.url-item{
+    background:#091523;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:9px;
+    margin-bottom:7px;
+}
+
+.url-label{
+    font-size:11px;
+    font-weight:700;
+}
+
+.url-type{
+    color:var(--blue);
+    font-size:9px;
+    margin-top:2px;
+}
+
+.url-link{
+    display:block;
+    margin-top:6px;
+    color:#69b7ff;
+    font-size:10px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
     text-decoration:none;
 }
 
-.detail-value a:hover{
+.url-link:hover{
     text-decoration:underline;
 }
 
-.close{
-    float:right;
-    border:0;
-    background:transparent;
-    padding:2px 6px;
-    font-size:20px;
-}
-
-/* =========================
+/* =========================================================
    LEGEND
-========================= */
+========================================================= */
 
 .legend{
     position:absolute;
-    left:16px;
-    bottom:16px;
-    background:rgba(9,19,31,.9);
+    left:15px;
+    bottom:15px;
+    background:rgba(13,23,38,.94);
     border:1px solid var(--line);
     border-radius:10px;
-    padding:10px 12px;
-    z-index:20;
-    font-size:11px;
+    padding:10px;
+    z-index:10;
+}
+
+.legend-title{
+    font-size:10px;
+    color:var(--muted);
+    margin-bottom:7px;
 }
 
 .legend-row{
     display:flex;
     align-items:center;
     gap:7px;
+    font-size:10px;
     margin:5px 0;
 }
 
-/* =========================
+.legend-dot{
+    width:9px;
+    height:9px;
+    border-radius:50%;
+}
+
+/* =========================================================
    ZOOM
-========================= */
+========================================================= */
 
 .zoom{
     position:absolute;
-    left:16px;
-    top:80px;
+    right:15px;
+    bottom:15px;
     display:flex;
     flex-direction:column;
     gap:5px;
-    z-index:20;
+    z-index:10;
 }
 
 .zoom button{
-    width:40px;
-    height:40px;
+    width:38px;
+    height:38px;
+    font-size:18px;
     padding:0;
-    font-size:20px;
 }
 
-/* =========================
+/* =========================================================
    LOADING
-========================= */
+========================================================= */
 
-#loading{
+.loading{
     position:absolute;
     inset:0;
     display:flex;
     align-items:center;
     justify-content:center;
-    background:#07101c;
-    z-index:100;
+    background:rgba(7,16,28,.85);
+    z-index:50;
 }
 
 .loader{
     text-align:center;
 }
 
-.loader strong{
-    display:block;
-    font-size:22px;
-    margin-bottom:8px;
+.spinner{
+    width:38px;
+    height:38px;
+    border:3px solid #26374d;
+    border-top-color:var(--blue);
+    border-radius:50%;
+    animation:spin .8s linear infinite;
+    margin:auto;
 }
 
-.loader span{
-    color:var(--muted);
-    font-size:12px;
+@keyframes spin{
+    to{
+        transform:rotate(360deg);
+    }
 }
 
-/* =========================
+/* =========================================================
    MOBILE
-========================= */
+========================================================= */
 
-@media(max-width:800px){
+@media(max-width:900px){
 
-    .search{
-        width:170px;
+    .sidebar{
+        width:260px;
+        min-width:260px;
     }
 
-    .status{
-        display:none;
-    }
-
-    #details{
-        width:calc(100vw - 32px);
-    }
-
-    .node{
-        width:160px;
+    .details{
+        width:300px;
+        right:8px;
     }
 
 }
+
+@media(max-width:650px){
+
+    .sidebar{
+        position:absolute;
+        left:-280px;
+        width:280px;
+        min-width:280px;
+        transition:.2s;
+        z-index:100;
+    }
+
+    .sidebar.open{
+        left:0;
+    }
+
+    .menu-button{
+        display:block !important;
+    }
+
+    .top-title{
+        font-size:15px;
+    }
+
+    .details{
+        left:10px;
+        right:10px;
+        width:auto;
+    }
+
+}
+
+.menu-button{
+    display:none;
+}
+
 </style>
 
 </head>
 
 <body>
 
-<header class="topbar">
+<div class="app">
 
 ```
-<div class="brand">
-    <span>OBVYRIS</span> SERVER MAP
-</div>
+<!-- =====================================================
+     SIDEBAR
+====================================================== -->
 
-<input
-    id="search"
-    class="search"
-    type="search"
-    placeholder="Search backend, frontend, API..."
->
+<aside class="sidebar" id="sidebar">
 
-<div class="toolbar">
-    <button id="resetBtn">Reset View</button>
-    <button id="fitBtn">Fit Map</button>
-    <button id="reloadBtn">Reload</button>
-</div>
-
-<div id="statusText" class="status">
-    Connecting...
-</div>
-```
-
-</header>
-
-<main id="viewport">
-
-```
-<div id="loading">
-    <div class="loader">
-        <strong>Obvyris Server Map</strong>
-        <span>Loading architecture...</span>
-    </div>
-</div>
-
-<div id="world">
-
-    <div class="grid"></div>
-
-    <svg id="connections"
-         viewBox="0 0 100000 100000"
-         preserveAspectRatio="none">
-    </svg>
-
-    <div id="hub">
-        <div class="hub-title">OBVYRIS</div>
-        <div class="hub-sub">Central Hub</div>
+    <div class="brand">
+        <div class="brand-title">OBVYRIS</div>
+        <div class="brand-sub">System Architecture</div>
     </div>
 
-    <div id="nodes"></div>
+    <div class="stats">
 
-</div>
+        <div class="stat">
+            <div class="stat-label">SYSTEMS</div>
+            <div class="stat-value" id="statSystems">0</div>
+        </div>
 
-<div class="zoom">
-    <button id="zoomIn">+</button>
-    <button id="zoomOut">−</button>
-    <button id="zoomReset">1×</button>
-</div>
+        <div class="stat">
+            <div class="stat-label">ONLINE</div>
+            <div class="stat-value" id="statOnline">0</div>
+        </div>
 
-<div class="legend">
+        <div class="stat">
+            <div class="stat-label">BACKENDS</div>
+            <div class="stat-value" id="statBackends">0</div>
+        </div>
 
-    <div class="legend-row">
-        <span class="dot backend"></span>
-        Backend
+        <div class="stat">
+            <div class="stat-label">FRONTENDS</div>
+            <div class="stat-value" id="statFrontends">0</div>
+        </div>
+
     </div>
 
-    <div class="legend-row">
-        <span class="dot frontend"></span>
-        Frontend
+    <div class="controls">
+
+        <input
+            id="search"
+            class="search"
+            placeholder="Search systems..."
+        >
+
+        <div class="control-row">
+
+            <select id="groupFilter">
+                <option value="ALL">All Groups</option>
+            </select>
+
+            <select id="statusFilter">
+                <option value="ALL">All Status</option>
+                <option value="ONLINE">Online</option>
+                <option value="OFFLINE">Offline</option>
+            </select>
+
+        </div>
+
+        <div class="control-row">
+
+            <button onclick="autoLayout()">
+                Layout
+            </button>
+
+            <button onclick="resetView()">
+                Reset
+            </button>
+
+            <button onclick="loadData()">
+                ↻
+            </button>
+
+        </div>
+
     </div>
 
-    <div class="legend-row">
-        <span class="dot external"></span>
-        External API
-    </div>
-
-    <div class="legend-row">
-        <span class="dot hub"></span>
-        Obvyris Hub
-    </div>
-
-</div>
-
-<aside id="details">
-
-    <button
-        class="close"
-        id="closeDetails">
-        ×
-    </button>
-
-    <div id="detailsContent"></div>
+    <div class="node-list" id="nodeList"></div>
 
 </aside>
-```
+
+
+<!-- =====================================================
+     MAIN MAP
+====================================================== -->
+
+<main class="main">
+
+    <div class="topbar">
+
+        <button
+            class="menu-button"
+            onclick="toggleSidebar()"
+        >
+            ☰
+        </button>
+
+        <div class="top-title">
+            Obvyris System Map
+        </div>
+
+        <div class="top-status">
+
+            <span
+                id="apiStatusDot"
+                class="status-dot unknown"
+            ></span>
+
+            <span id="apiStatus">
+                Connecting...
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <div
+        class="map"
+        id="map"
+        onmousedown="startPan(event)"
+    >
+
+        <div
+            class="map-world"
+            id="world"
+        >
+
+            <svg
+                class="connections"
+                id="connections"
+            ></svg>
+
+            <div id="nodes"></div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         DETAILS
+    ================================================== -->
+
+    <div
+        class="details"
+        id="details"
+    >
+
+        <div class="details-head">
+
+            <div
+                id="detailIcon"
+                class="node-icon"
+            >
+                ◉
+            </div>
+
+            <div>
+                <div
+                    id="detailName"
+                    class="detail-title"
+                >
+                    System
+                </div>
+            </div>
+
+            <button
+                class="details-close"
+                onclick="closeDetails()"
+            >
+                ×
+            </button>
+
+        </div>
+
+        <div class="details-body">
+
+            <div
+                id="detailDescription"
+                class="detail-desc"
+            ></div>
+
+            <div class="detail-grid">
+
+                <div class="detail-box">
+                    <div class="detail-box-label">
+                        TYPE
+                    </div>
+
+                    <div
+                        id="detailType"
+                        class="detail-box-value"
+                    ></div>
+                </div>
+
+                <div class="detail-box">
+                    <div class="detail-box-label">
+                        GROUP
+                    </div>
+
+                    <div
+                        id="detailGroup"
+                        class="detail-box-value"
+                    ></div>
+                </div>
+
+                <div class="detail-box">
+                    <div class="detail-box-label">
+                        STATUS
+                    </div>
+
+                    <div
+                        id="detailStatus"
+                        class="detail-box-value"
+                    ></div>
+                </div>
+
+                <div class="detail-box">
+                    <div class="detail-box-label">
+                        NODE ID
+                    </div>
+
+                    <div
+                        id="detailNodeId"
+                        class="detail-box-value"
+                    ></div>
+                </div>
+
+            </div>
+
+            <div class="section-title">
+                CONNECTIONS
+            </div>
+
+            <div id="detailConnections"></div>
+
+            <div class="section-title">
+                URLS
+            </div>
+
+            <div id="detailUrls"></div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         LEGEND
+    ================================================== -->
+
+    <div class="legend">
+
+        <div class="legend-title">
+            NODE TYPES
+        </div>
+
+        <div class="legend-row">
+            <span
+                class="legend-dot"
+                style="background:var(--blue)"
+            ></span>
+            HUB
+        </div>
+
+        <div class="legend-row">
+            <span
+                class="legend-dot"
+                style="background:var(--red)"
+            ></span>
+            BACKEND
+        </div>
+
+        <div class="legend-row">
+            <span
+                class="legend-dot"
+                style="background:var(--purple)"
+            ></span>
+            FRONTEND
+        </div>
+
+        <div class="legend-row">
+            <span
+                class="legend-dot"
+                style="background:var(--orange)"
+            ></span>
+            EXTERNAL
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         ZOOM
+    ================================================== -->
+
+    <div class="zoom">
+
+        <button onclick="zoomIn()">+</button>
+
+        <button onclick="zoomOut()">−</button>
+
+    </div>
+
+    <!-- =================================================
+         LOADING
+    ================================================== -->
+
+    <div
+        class="loading"
+        id="loading"
+    >
+
+        <div class="loader">
+
+            <div class="spinner"></div>
+
+            <div style="
+                margin-top:12px;
+                color:#8fa2b9;
+                font-size:12px;
+            ">
+                Loading Obvyris system map...
+            </div>
+
+        </div>
+
+    </div>
 
 </main>
+```
+
+</div>
 
 <script>
 
-/* ============================================================
+/* =========================================================
    CONFIGURATION
-============================================================ */
+========================================================= */
 
-const MAP_API =
+const API_URL =
 "https://script.google.com/macros/s/AKfycbxmet73uElazLhNTF6K9Ziizu4hbgq7VWbXJ8nKjSeXkn-tN4CyoBDjSdeK69A_J5XG/exec";
 
 
-/* ============================================================
-   STATE
-============================================================ */
+/* =========================================================
+   APPLICATION STATE
+========================================================= */
 
-let data = {
-    backends:[],
-    frontends:[],
-    externals:[],
-    links:[]
+let DATA = null;
+
+let systems = [];
+let nodes = [];
+let connections = [];
+let urls = [];
+let settings = [];
+
+let selectedNode = null;
+
+let zoom = 1;
+
+let panX = 0;
+let panY = 0;
+
+let dragging = false;
+
+let dragStartX = 0;
+let dragStartY = 0;
+
+let originalPanX = 0;
+let originalPanY = 0;
+
+
+/* =========================================================
+   COLOR MAP
+========================================================= */
+
+const COLORS = {
+
+    blue:"#2793ff",
+    red:"#ff4d5e",
+    purple:"#a66cff",
+    green:"#20c878",
+    orange:"#ff9f43",
+    cyan:"#28d7e8",
+    yellow:"#f5c542",
+    gray:"#7f8da0"
+
 };
 
-let nodes = [];
 
-let scale = 1;
+/* =========================================================
+   ICON MAP
+========================================================= */
 
-let offsetX = 0;
-let offsetY = 0;
+const ICONS = {
 
-let draggingWorld = false;
+    hub:"⌂",
+    sports:"⚾",
+    tv:"▣",
+    radio:"◉",
+    news:"📰",
+    chat:"💬",
+    game:"🎮",
+    book:"📖",
+    server:"▤",
+    page:"▣",
+    globe:"◎"
 
-let panStartX = 0;
-let panStartY = 0;
-
-let startOffsetX = 0;
-let startOffsetY = 0;
-
-const STORAGE_KEY =
-"obvyris-server-map-view";
-
-
-/* ============================================================
-   ELEMENTS
-============================================================ */
-
-const viewport =
-document.getElementById("viewport");
-
-const world =
-document.getElementById("world");
-
-const nodesContainer =
-document.getElementById("nodes");
-
-const connections =
-document.getElementById("connections");
-
-const loading =
-document.getElementById("loading");
-
-const statusText =
-document.getElementById("statusText");
-
-const details =
-document.getElementById("details");
-
-const detailsContent =
-document.getElementById("detailsContent");
+};
 
 
-/* ============================================================
-   INITIAL VIEW
-============================================================ */
+/* =========================================================
+   LOAD DATA
+========================================================= */
 
-function loadView(){
+async function loadData(){
 
-    try{
+    showLoading(true);
 
-        const saved =
-            JSON.parse(
-                localStorage.getItem(STORAGE_KEY)
-            );
-
-        if(saved){
-
-            scale =
-                Number(saved.scale) || 1;
-
-            offsetX =
-                Number(saved.offsetX) || 0;
-
-            offsetY =
-                Number(saved.offsetY) || 0;
-
-            applyTransform();
-
-            return;
-        }
-
-    }catch(e){}
-
-    centerView();
-
-}
-
-
-function saveView(){
-
-    localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({
-            scale,
-            offsetX,
-            offsetY
-        })
+    setApiStatus(
+        "Connecting...",
+        "unknown"
     );
-
-}
-
-
-function centerView(){
-
-    scale = 1;
-
-    offsetX = 0;
-
-    offsetY = 0;
-
-    applyTransform();
-
-    saveView();
-
-}
-
-
-function applyTransform(){
-
-    world.style.transform =
-        `translate(${offsetX}px,${offsetY}px) scale(${scale})`;
-
-}
-
-
-/* ============================================================
-   FETCH MAP
-============================================================ */
-
-async function loadMap(){
-
-    loading.style.display = "flex";
-
-    statusText.textContent =
-        "Loading map...";
 
     try{
 
         const response =
             await fetch(
-                MAP_API +
-                "?action=map&_=" +
-                Date.now(),
+                API_URL + "?action=all&t=" + Date.now(),
                 {
                     cache:"no-store"
                 }
             );
 
         if(!response.ok){
+
             throw new Error(
                 "HTTP " + response.status
             );
+
         }
 
         const json =
             await response.json();
 
-        normalizeData(json);
+        if(!json.success){
 
-        renderMap();
+            throw new Error(
+                "Backend returned success=false"
+            );
 
-        loading.style.display = "none";
+        }
 
-        statusText.textContent =
-            `${nodes.length} nodes loaded`;
+        DATA = json.data;
+
+        systems =
+            DATA.systems || [];
+
+        nodes =
+            DATA.nodes || [];
+
+        connections =
+            DATA.connections || [];
+
+        urls =
+            DATA.urls || [];
+
+        settings =
+            DATA.settings || [];
+
+        setApiStatus(
+            "Backend Online",
+            "online"
+        );
+
+        buildFilters();
+
+        updateStats();
+
+        autoLayout();
+
+        render();
+
+        showLoading(false);
 
     }catch(error){
 
         console.error(error);
 
-        statusText.textContent =
-            "Map API error";
+        setApiStatus(
+            "Backend Error",
+            "offline"
+        );
 
-        loading.innerHTML = `
-            <div class="loader">
-                <strong>Unable to load map</strong>
-                <span>${escapeHtml(error.message)}</span>
-                <br><br>
-                <button onclick="loadMap()">
-                    Try Again
-                </button>
-            </div>
-        `;
+        showLoading(false);
+
+        alert(
+            "Unable to load the Obvyris backend.\n\n" +
+            error.message
+        );
 
     }
 
 }
 
 
-/* ============================================================
-   NORMALIZE API DATA
-============================================================ */
+/* =========================================================
+   API STATUS
+========================================================= */
 
-function normalizeData(json){
+function setApiStatus(text,status){
 
-    /*
-       Supports either:
+    const label =
+        document.getElementById("apiStatus");
 
-       {
-          backends:[],
-          frontends:[],
-          externals:[],
-          links:[]
-       }
+    const dot =
+        document.getElementById("apiStatusDot");
 
-       OR a generic:
+    label.textContent = text;
 
-       {
-          rows:[]
-       }
-    */
+    dot.className =
+        "status-dot " + status;
 
-    if(
-        json &&
-        (
-            json.backends ||
-            json.frontends ||
-            json.externals
-        )
-    ){
+}
 
-        data.backends =
-            json.backends || [];
 
-        data.frontends =
-            json.frontends || [];
+/* =========================================================
+   FILTERS
+========================================================= */
 
-        data.externals =
-            json.externals || [];
+function buildFilters(){
 
-        data.links =
-            json.links || [];
+    const select =
+        document.getElementById("groupFilter");
 
-        return;
-    }
+    const groups =
+        [...new Set(
+            nodes
+                .map(n => n.Group)
+                .filter(Boolean)
+        )]
+        .sort();
 
+    select.innerHTML =
+        `<option value="ALL">All Groups</option>`;
 
-    const rows =
-        Array.isArray(json.rows)
-            ? json.rows
-            : Array.isArray(json)
-                ? json
-                : [];
+    groups.forEach(group => {
 
+        const option =
+            document.createElement("option");
 
-    data.backends = [];
+        option.value = group;
+        option.textContent = group;
 
-    data.frontends = [];
-
-    data.externals = [];
-
-    data.links = [];
-
-
-    rows.forEach(row => {
-
-        const backend =
-            clean(row["Backends Sheet"]);
-
-        if(backend){
-
-            data.backends.push({
-                id:"backend-" + clean(row.ID),
-                name:backend,
-                type:"backend",
-                data:row
-            });
-
-        }
-
-
-        const frontendFields = [
-            "MAIN HTML FRONTEND",
-            "HTML FRONTEND 2",
-            "HTML FRONTEND 3",
-            "HTML FRONTEND 4",
-            "HTML FRONTEND 5"
-        ];
-
-
-        frontendFields.forEach(
-            (field,index) => {
-
-                const url =
-                    clean(row[field]);
-
-                if(!url) return;
-
-                data.frontends.push({
-
-                    id:
-                        "frontend-" +
-                        clean(row.ID) +
-                        "-" +
-                        index,
-
-                    name:
-                        getPageName(url),
-
-                    url,
-
-                    type:"frontend",
-
-                    backend:
-                        backend,
-
-                    data:row
-
-                });
-
-            }
-        );
-
-
-        const external =
-            clean(row.EXTERNAL);
-
-        const api =
-            clean(row["EXTERNAL API"]);
-
-        const api2 =
-            clean(row["EXTERNAL API 2"]);
-
-
-        if(external || api || api2){
-
-            if(external){
-
-                data.externals.push({
-                    id:
-                        "external-" +
-                        clean(row.ID),
-
-                    name:external,
-
-                    type:"external",
-
-                    url:api,
-
-                    data:row
-
-                });
-
-            }
-
-            if(api && !external){
-
-                data.externals.push({
-                    id:
-                        "external-api-" +
-                        clean(row.ID),
-
-                    name:
-                        getPageName(api),
-
-                    type:"external",
-
-                    url:api,
-
-                    data:row
-
-                });
-
-            }
-
-            if(api2){
-
-                data.externals.push({
-                    id:
-                        "external-api2-" +
-                        clean(row.ID),
-
-                    name:
-                        getPageName(api2),
-
-                    type:"external",
-
-                    url:api2,
-
-                    data:row
-
-                });
-
-            }
-
-        }
+        select.appendChild(option);
 
     });
 
 }
 
 
-/* ============================================================
-   RENDER
-============================================================ */
+/* =========================================================
+   STATISTICS
+========================================================= */
 
-function renderMap(){
+function updateStats(){
 
-    nodesContainer.innerHTML = "";
+    const backendCount =
+        systems.filter(
+            s => String(s.Type).toUpperCase() === "BACKEND"
+        ).length;
 
-    while(
-        connections.firstChild
-    ){
-        connections.removeChild(
-            connections.firstChild
-        );
-    }
+    const frontendCount =
+        systems.filter(
+            s => String(s.Type).toUpperCase() === "FRONTEND"
+        ).length;
 
+    const onlineCount =
+        systems.filter(
+            s =>
+                String(s.Status).toUpperCase()
+                === "ONLINE"
+        ).length;
 
-    nodes = [];
+    document.getElementById(
+        "statSystems"
+    ).textContent =
+        systems.length;
 
+    document.getElementById(
+        "statOnline"
+    ).textContent =
+        onlineCount;
 
-    /*
-       BACKENDS
-       North / upper arc
-    */
+    document.getElementById(
+        "statBackends"
+    ).textContent =
+        backendCount;
 
-    data.backends.forEach(
-        (item,index) => {
-
-            const pos =
-                radialPosition(
-                    index,
-                    data.backends.length,
-                    520,
-                    Math.PI * 1.15,
-                    Math.PI * 1.85
-                );
-
-            createNode(
-                item,
-                pos.x,
-                pos.y
-            );
-
-        }
-    );
-
-
-    /*
-       FRONTENDS
-       Middle / outer branches
-    */
-
-    data.frontends.forEach(
-        (item,index) => {
-
-            const pos =
-                radialPosition(
-                    index,
-                    data.frontends.length,
-                    850,
-                    Math.PI * .15,
-                    Math.PI * .85
-                );
-
-            createNode(
-                item,
-                pos.x,
-                pos.y
-            );
-
-        }
-    );
-
-
-    /*
-       EXTERNALS
-       South arc
-    */
-
-    data.externals.forEach(
-        (item,index) => {
-
-            const pos =
-                radialPosition(
-                    index,
-                    data.externals.length,
-                    850,
-                    Math.PI * 1.15,
-                    Math.PI * 1.85
-                );
-
-            createNode(
-                item,
-                pos.x,
-                pos.y
-            );
-
-        }
-    );
-
-
-    /*
-       Draw connections only AFTER
-       every node has been created.
-    */
-
-    drawConnections();
+    document.getElementById(
+        "statFrontends"
+    ).textContent =
+        frontendCount;
 
 }
 
 
-/* ============================================================
-   RADIAL POSITION
-============================================================ */
+/* =========================================================
+   NODE COLOR
+========================================================= */
 
-function radialPosition(
-    index,
-    total,
-    radius,
-    startAngle,
-    endAngle
-){
+function getNodeColor(node){
 
-    if(total <= 1){
+    if(node.Color){
 
-        const angle =
-            (startAngle + endAngle) / 2;
+        return COLORS[node.Color]
+            || node.Color;
+
+    }
+
+    switch(
+        String(node.NodeType || node["Node Type"] || "")
+            .toUpperCase()
+    ){
+
+        case "HUB":
+            return COLORS.blue;
+
+        case "BACKEND":
+            return COLORS.red;
+
+        case "FRONTEND":
+            return COLORS.purple;
+
+        case "EXTERNAL":
+            return COLORS.orange;
+
+        default:
+            return COLORS.gray;
+
+    }
+
+}
+
+
+/* =========================================================
+   NODE ICON
+========================================================= */
+
+function getNodeIcon(node){
+
+    const icon =
+        node.Icon || "server";
+
+    return ICONS[icon] || "●";
+
+}
+
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+function getStatusClass(status){
+
+    status =
+        String(status || "")
+        .toUpperCase();
+
+    if(status === "ONLINE")
+        return "online";
+
+    if(status === "OFFLINE")
+        return "offline";
+
+    return "unknown";
+
+}
+
+
+/* =========================================================
+   NODE LOOKUP
+========================================================= */
+
+function nodeKey(id){
+
+    return String(id);
+
+}
+
+
+function findNode(id){
+
+    return nodes.find(
+        n => nodeKey(
+            n["Node ID"] ?? n.NodeID
+        ) === nodeKey(id)
+    );
+
+}
+
+
+/* =========================================================
+   SYSTEM LOOKUP
+========================================================= */
+
+function findSystem(id){
+
+    return systems.find(
+        s =>
+            nodeKey(s["System ID"])
+            === nodeKey(id)
+    );
+
+}
+
+
+/* =========================================================
+   FILTERED NODES
+========================================================= */
+
+function getVisibleNodes(){
+
+    const search =
+        document.getElementById(
+            "search"
+        ).value
+        .toLowerCase()
+        .trim();
+
+    const group =
+        document.getElementById(
+            "groupFilter"
+        ).value;
+
+    const status =
+        document.getElementById(
+            "statusFilter"
+        ).value;
+
+    return nodes.filter(node => {
+
+        const name =
+            String(
+                node.Name || ""
+            ).toLowerCase();
+
+        const description =
+            String(
+                node.Description || ""
+            ).toLowerCase();
+
+        const nodeGroup =
+            String(
+                node.Group || ""
+            );
+
+        let nodeStatus =
+            "";
+
+        const system =
+            findSystem(
+                node["Node ID"]
+            );
+
+        if(system){
+
+            nodeStatus =
+                String(
+                    system.Status || ""
+                ).toUpperCase();
+
+        }
+
+        if(
+            search &&
+            !name.includes(search) &&
+            !description.includes(search)
+        ){
+
+            return false;
+
+        }
+
+        if(
+            group !== "ALL" &&
+            nodeGroup !== group
+        ){
+
+            return false;
+
+        }
+
+        if(
+            status !== "ALL" &&
+            nodeStatus !== status
+        ){
+
+            return false;
+
+        }
+
+        return true;
+
+    });
+
+}
+
+
+/* =========================================================
+   RENDER
+========================================================= */
+
+function render(){
+
+    renderNodes();
+
+    renderConnections();
+
+    renderNodeList();
+
+}
+
+
+/* =========================================================
+   RENDER NODES
+========================================================= */
+
+function renderNodes(){
+
+    const container =
+        document.getElementById("nodes");
+
+    container.innerHTML = "";
+
+    const visible =
+        getVisibleNodes();
+
+    visible.forEach(node => {
+
+        const el =
+            document.createElement("div");
+
+        el.className = "node";
+
+        const id =
+            node["Node ID"];
+
+        if(
+            selectedNode &&
+            nodeKey(selectedNode) === nodeKey(id)
+        ){
+
+            el.classList.add("selected");
+
+        }
+
+        const color =
+            getNodeColor(node);
+
+        el.style.setProperty(
+            "--node-color",
+            color
+        );
+
+        const x =
+            Number(node["Position X"]);
+
+        const y =
+            Number(node["Position Y"]);
+
+        const position =
+            getPosition(
+                node,
+                x,
+                y
+            );
+
+        el.style.left =
+            position.x + "px";
+
+        el.style.top =
+            position.y + "px";
+
+        const status =
+            getNodeStatus(node);
+
+        el.innerHTML = `
+
+            <div class="node-header">
+
+                <div class="node-icon">
+
+                    ${getNodeIcon(node)}
+
+                </div>
+
+                <div>
+
+                    <div class="node-title">
+                        ${escapeHTML(
+                            node.Name || "Unnamed"
+                        )}
+                    </div>
+
+                    <div class="node-type">
+                        ${escapeHTML(
+                            node["Node Type"] || ""
+                        )}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="node-bottom">
+
+                <span
+                    class="node-status ${getStatusClass(status)}"
+                ></span>
+
+                <span class="node-status-text">
+                    ${escapeHTML(status || "UNKNOWN")}
+                </span>
+
+            </div>
+
+        `;
+
+        el.addEventListener(
+            "click",
+            event => {
+
+                event.stopPropagation();
+
+                selectNode(id);
+
+            }
+        );
+
+        container.appendChild(el);
+
+    });
+
+}
+
+
+/* =========================================================
+   NODE STATUS
+========================================================= */
+
+function getNodeStatus(node){
+
+    const system =
+        findSystem(
+            node["Node ID"]
+        );
+
+    if(system){
+
+        return system.Status
+            || "UNKNOWN";
+
+    }
+
+    return node.Status
+        || "UNKNOWN";
+
+}
+
+
+/* =========================================================
+   POSITION
+========================================================= */
+
+function getPosition(node,x,y){
+
+    if(
+        Number.isFinite(x) &&
+        Number.isFinite(y) &&
+        !(x === 0 && y === 0)
+    ){
 
         return {
-            x:Math.cos(angle) * radius,
-            y:Math.sin(angle) * radius
+            x:1300 + x,
+            y:900 + y
         };
 
     }
 
-    const angle =
-        startAngle +
-        (endAngle - startAngle) *
-        (index / (total - 1));
-
-    return {
-        x:
-            Math.cos(angle) *
-            radius,
-
-        y:
-            Math.sin(angle) *
-            radius
-    };
-
-}
-
-
-/* ============================================================
-   CREATE NODE
-============================================================ */
-
-function createNode(
-    item,
-    x,
-    y
-){
-
-    const element =
-        document.createElement("div");
-
-    element.className =
-        "node";
-
-    element.dataset.id =
-        item.id;
-
-    element.dataset.type =
-        item.type;
-
-
-    element.style.left =
-        x + "px";
-
-    element.style.top =
-        y + "px";
-
-
-    element.innerHTML = `
-
-        <div class="node-head">
-
-            <span class="dot ${item.type}"></span>
-
-            <div class="node-title">
-                ${escapeHtml(item.name || "Unnamed")}
-            </div>
-
-        </div>
-
-        <div class="node-body">
-
-            <div class="node-type">
-                ${escapeHtml(item.type)}
-            </div>
-
-            ${
-                item.url
-                ?
-                escapeHtml(
-                    shorten(item.url,55)
-                )
-                :
-                ""
-            }
-
-        </div>
-
-    `;
-
-
-    nodesContainer.appendChild(
-        element
-    );
-
-
-    const node = {
-
-        id:item.id,
-
-        type:item.type,
-
-        item,
-
-        element,
-
-        x,
-
-        y
-
-    };
-
-
-    nodes.push(node);
-
-
-    makeDraggable(node);
-
-
-    element.addEventListener(
-        "click",
-        event => {
-
-            event.stopPropagation();
-
-            selectNode(node);
-
-        }
-    );
-
-}
-
-
-/* ============================================================
-   DRAG NODES
-============================================================ */
-
-function makeDraggable(node){
-
-    let dragging = false;
-
-    let startX = 0;
-
-    let startY = 0;
-
-    let originalX = 0;
-
-    let originalY = 0;
-
-
-    node.element.addEventListener(
-        "pointerdown",
-        event => {
-
-            dragging = true;
-
-            node.element.setPointerCapture(
-                event.pointerId
-            );
-
-            startX =
-                event.clientX;
-
-            startY =
-                event.clientY;
-
-            originalX =
-                node.x;
-
-            originalY =
-                node.y;
-
-            node.element.style.cursor =
-                "grabbing";
-
-        }
-    );
-
-
-    node.element.addEventListener(
-        "pointermove",
-        event => {
-
-            if(!dragging) return;
-
-            const dx =
-                (event.clientX - startX) /
-                scale;
-
-            const dy =
-                (event.clientY - startY) /
-                scale;
-
-            node.x =
-                originalX + dx;
-
-            node.y =
-                originalY + dy;
-
-
-            node.element.style.left =
-                node.x + "px";
-
-            node.element.style.top =
-                node.y + "px";
-
-
-            drawConnections();
-
-        }
-    );
-
-
-    node.element.addEventListener(
-        "pointerup",
-        () => {
-
-            dragging = false;
-
-            node.element.style.cursor =
-                "grab";
-
-        }
-    );
-
-}
-
-
-/* ============================================================
-   CONNECTIONS
-============================================================ */
-
-function drawConnections(){
-
-    while(
-        connections.firstChild
+    if(
+        String(
+            node["Node ID"]
+        ) === "HUB"
     ){
-        connections.removeChild(
-            connections.firstChild
-        );
+
+        return {
+            x:1300,
+            y:900
+        };
+
     }
 
+    return calculatedPosition(node);
 
-    nodes.forEach(node => {
+}
 
-        if(node.type === "backend"){
 
-            drawLine(
-                0,
-                0,
-                node.x,
-                node.y,
-                "backend"
+/* =========================================================
+   AUTO POSITION
+========================================================= */
+
+function calculatedPosition(node){
+
+    const type =
+        String(
+            node["Node Type"] || ""
+        ).toUpperCase();
+
+    const hub =
+        nodeKey(
+            node["Node ID"]
+        ) === "HUB";
+
+    if(hub){
+
+        return {
+            x:1300,
+            y:900
+        };
+
+    }
+
+    const sameType =
+        nodes.filter(
+            n =>
+                String(
+                    n["Node Type"] || ""
+                ).toUpperCase()
+                === type
+                &&
+                nodeKey(
+                    n["Node ID"]
+                ) !== "HUB"
+        );
+
+    const index =
+        sameType.findIndex(
+            n =>
+                nodeKey(
+                    n["Node ID"]
+                ) === nodeKey(
+                    node["Node ID"]
+                )
+        );
+
+    const count =
+        Math.max(
+            sameType.length,
+            1
+        );
+
+    const angle =
+        (index / count) *
+        Math.PI * 2;
+
+    let radius = 450;
+
+    if(type === "BACKEND")
+        radius = 420;
+
+    if(type === "FRONTEND")
+        radius = 760;
+
+    if(type === "EXTERNAL")
+        radius = 1050;
+
+    return {
+
+        x:
+            1300 +
+            Math.cos(angle) * radius,
+
+        y:
+            900 +
+            Math.sin(angle) * radius
+
+    };
+
+}
+
+
+/* =========================================================
+   RENDER CONNECTIONS
+========================================================= */
+
+function renderConnections(){
+
+    const svg =
+        document.getElementById(
+            "connections"
+        );
+
+    svg.innerHTML = "";
+
+    connections.forEach(connection => {
+
+        const from =
+            findNode(
+                connection["From ID"]
+            );
+
+        const to =
+            findNode(
+                connection["To ID"]
+            );
+
+        if(!from || !to)
+            return;
+
+        const p1 =
+            getNodePositionForConnection(
+                from
+            );
+
+        const p2 =
+            getNodePositionForConnection(
+                to
+            );
+
+        const line =
+            document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "line"
+            );
+
+        line.setAttribute(
+            "x1",
+            p1.x
+        );
+
+        line.setAttribute(
+            "y1",
+            p1.y
+        );
+
+        line.setAttribute(
+            "x2",
+            p2.x
+        );
+
+        line.setAttribute(
+            "y2",
+            p2.y
+        );
+
+        line.classList.add(
+            "connection"
+        );
+
+        if(
+            String(
+                connection.Status
+            ).toUpperCase()
+            === "ONLINE"
+        ){
+
+            line.classList.add(
+                "online-line"
+            );
+
+        }else{
+
+            line.classList.add(
+                "offline-line"
             );
 
         }
+
+        svg.appendChild(line);
 
     });
 
-
-    /*
-       Frontends are connected to the
-       backend that owns their row.
-    */
-
-    nodes
-        .filter(
-            node =>
-                node.type === "frontend"
-        )
-        .forEach(frontend => {
-
-            const backendName =
-                clean(
-                    frontend.item.backend
-                );
-
-
-            const backend =
-                nodes.find(
-                    node =>
-                        node.type === "backend" &&
-                        clean(node.item.name) ===
-                        backendName
-                );
-
-
-            if(backend){
-
-                drawLine(
-                    backend.x,
-                    backend.y,
-                    frontend.x,
-                    frontend.y,
-                    "frontend"
-                );
-
-            }else{
-
-                drawLine(
-                    0,
-                    0,
-                    frontend.x,
-                    frontend.y,
-                    "frontend"
-                );
-
-            }
-
-        });
-
-
-    /*
-       External connections belong to
-       their corresponding backend row.
-    */
-
-    nodes
-        .filter(
-            node =>
-                node.type === "external"
-        )
-        .forEach(external => {
-
-            const backendName =
-                clean(
-                    external.item[
-                        "Backends Sheet"
-                    ]
-                );
-
-
-            const backend =
-                nodes.find(
-                    node =>
-                        node.type === "backend" &&
-                        clean(node.item.name) ===
-                        backendName
-                );
-
-
-            if(backend){
-
-                drawLine(
-                    backend.x,
-                    backend.y,
-                    external.x,
-                    external.y,
-                    "external"
-                );
-
-            }else{
-
-                drawLine(
-                    0,
-                    0,
-                    external.x,
-                    external.y,
-                    "external"
-                );
-
-            }
-
-        });
-
 }
 
 
-function drawLine(
-    x1,
-    y1,
-    x2,
-    y2,
-    type
-){
+/* =========================================================
+   CONNECTION POSITION
+========================================================= */
 
-    const path =
-        document.createElementNS(
-            "http://www.w3.org/2000/svg",
-            "path"
-        );
+function getNodePositionForConnection(node){
 
+    const x =
+        Number(node["Position X"]);
 
-    const bend =
-        Math.max(
-            80,
-            Math.abs(x2-x1) * .25
-        );
+    const y =
+        Number(node["Position Y"]);
 
-
-    const d =
-        `
-        M ${50000+x1} ${50000+y1}
-        C
-        ${50000+x1} ${50000+y1+bend}
-        ${50000+x2} ${50000+y2-bend}
-        ${50000+x2} ${50000+y2}
-        `;
-
-
-    path.setAttribute(
-        "d",
-        d
-    );
-
-    path.classList.add(
-        "connection",
-        type
-    );
-
-
-    connections.appendChild(
-        path
+    return getPosition(
+        node,
+        x,
+        y
     );
 
 }
 
 
-/* ============================================================
-   NODE DETAILS
-============================================================ */
+/* =========================================================
+   NODE LIST
+========================================================= */
 
-function selectNode(node){
+function renderNodeList(){
 
-    document
-        .querySelectorAll(".node.selected")
-        .forEach(
-            el =>
-                el.classList.remove("selected")
+    const list =
+        document.getElementById(
+            "nodeList"
         );
 
+    list.innerHTML = "";
 
-    node.element.classList.add(
-        "selected"
-    );
+    getVisibleNodes()
+        .forEach(node => {
 
+            const item =
+                document.createElement("div");
 
-    const row =
-        node.item.data || {};
+            item.className =
+                "node-item";
 
+            if(
+                selectedNode &&
+                nodeKey(selectedNode)
+                === nodeKey(
+                    node["Node ID"]
+                )
+            ){
 
-    let html = `
+                item.classList.add(
+                    "selected"
+                );
 
-        <div class="details-title">
-            ${escapeHtml(
-                node.item.name || "Unnamed"
-            )}
-        </div>
+            }
 
-        <div class="details-type">
-            ${escapeHtml(node.type)}
-        </div>
+            const color =
+                getNodeColor(node);
 
-    `;
+            const status =
+                getNodeStatus(node);
 
+            item.innerHTML = `
 
-    const entries =
-        Object.entries(row);
+                <span
+                    class="node-dot"
+                    style="background:${color}"
+                ></span>
 
+                <div>
 
-    entries.forEach(
-        ([key,value]) => {
-
-            value =
-                clean(value);
-
-            if(!value) return;
-
-            let rendered =
-                escapeHtml(value);
-
-
-            if(isUrl(value)){
-
-                rendered =
-                    `
-                    <a
-                        href="${escapeAttribute(value)}"
-                        target="_blank"
-                        rel="noopener"
-                    >
-                        ${escapeHtml(
-                            shorten(value,120)
+                    <div class="node-name">
+                        ${escapeHTML(
+                            node.Name
                         )}
-                    </a>
-                    `;
-
-            }
-
-
-            html += `
-
-                <div class="detail-row">
-
-                    <div class="detail-label">
-                        ${escapeHtml(key)}
                     </div>
 
-                    <div class="detail-value">
-                        ${rendered}
+                    <div class="node-meta">
+
+                        ${escapeHTML(
+                            node.Group || ""
+                        )}
+                        ·
+                        ${escapeHTML(
+                            status
+                        )}
+
                     </div>
 
                 </div>
 
             `;
 
-        }
+            item.onclick =
+                () => {
+
+                    selectNode(
+                        node["Node ID"]
+                    );
+
+                };
+
+            list.appendChild(item);
+
+        });
+
+}
+
+
+/* =========================================================
+   SELECT NODE
+========================================================= */
+
+function selectNode(id){
+
+    selectedNode = id;
+
+    const node =
+        findNode(id);
+
+    if(!node)
+        return;
+
+    const details =
+        document.getElementById(
+            "details"
+        );
+
+    details.classList.add(
+        "open"
     );
 
+    const color =
+        getNodeColor(node);
 
-    if(node.item.url){
+    document.getElementById(
+        "detailIcon"
+    ).style.setProperty(
+        "--node-color",
+        color
+    );
 
-        html += `
+    document.getElementById(
+        "detailIcon"
+    ).textContent =
+        getNodeIcon(node);
 
-            <div class="detail-row">
+    document.getElementById(
+        "detailName"
+    ).textContent =
+        node.Name || "Unnamed";
 
-                <div class="detail-label">
-                    Open Resource
-                </div>
+    document.getElementById(
+        "detailDescription"
+    ).textContent =
+        node.Description || "";
 
-                <div class="detail-value">
+    document.getElementById(
+        "detailType"
+    ).textContent =
+        node["Node Type"] || "";
 
-                    <a
-                        href="${escapeAttribute(node.item.url)}"
-                        target="_blank"
-                        rel="noopener"
-                    >
-                        Open
-                    </a>
+    document.getElementById(
+        "detailGroup"
+    ).textContent =
+        node.Group || "";
 
-                </div>
+    document.getElementById(
+        "detailStatus"
+    ).textContent =
+        getNodeStatus(node);
 
+    document.getElementById(
+        "detailNodeId"
+    ).textContent =
+        node["Node ID"];
+
+    renderDetailConnections(
+        node
+    );
+
+    renderDetailUrls(
+        node
+    );
+
+    render();
+
+}
+
+
+/* =========================================================
+   DETAIL CONNECTIONS
+========================================================= */
+
+function renderDetailConnections(node){
+
+    const box =
+        document.getElementById(
+            "detailConnections"
+        );
+
+    box.innerHTML = "";
+
+    const id =
+        nodeKey(
+            node["Node ID"]
+        );
+
+    const related =
+        connections.filter(
+            c =>
+                nodeKey(c["From ID"]) === id
+                ||
+                nodeKey(c["To ID"]) === id
+        );
+
+    if(!related.length){
+
+        box.innerHTML =
+            `<div class="detail-desc">
+                No connections found.
+            </div>`;
+
+        return;
+
+    }
+
+    related.forEach(c => {
+
+        const from =
+            nodeKey(c["From ID"]) === id
+                ? "THIS"
+                : getNodeName(c["From ID"]);
+
+        const to =
+            nodeKey(c["To ID"]) === id
+                ? "THIS"
+                : getNodeName(c["To ID"]);
+
+        const item =
+            document.createElement("div");
+
+        item.className =
+            "url-item";
+
+        item.innerHTML = `
+
+            <div class="url-label">
+                ${escapeHTML(from)}
+                →
+                ${escapeHTML(to)}
+            </div>
+
+            <div class="url-type">
+                ${escapeHTML(
+                    c["Connection Type"] || ""
+                )}
+                ·
+                ${escapeHTML(
+                    c.Status || ""
+                )}
             </div>
 
         `;
 
+        box.appendChild(item);
+
+    });
+
+}
+
+
+/* =========================================================
+   DETAIL URLS
+========================================================= */
+
+function renderDetailUrls(node){
+
+    const box =
+        document.getElementById(
+            "detailUrls"
+        );
+
+    box.innerHTML = "";
+
+    const id =
+        nodeKey(
+            node["Node ID"]
+        );
+
+    const related =
+        urls.filter(
+            u =>
+                nodeKey(
+                    u["System ID"]
+                ) === id
+        );
+
+    if(!related.length){
+
+        box.innerHTML =
+            `<div class="detail-desc">
+                No URLs registered.
+            </div>`;
+
+        return;
+
     }
 
+    related.forEach(u => {
 
-    detailsContent.innerHTML =
-        html;
+        const item =
+            document.createElement("div");
 
-    details.classList.add(
-        "show"
+        item.className =
+            "url-item";
+
+        const url =
+            cleanUrl(
+                u.URL || ""
+            );
+
+        item.innerHTML = `
+
+            <div class="url-label">
+                ${escapeHTML(
+                    u.Label || "URL"
+                )}
+            </div>
+
+            <div class="url-type">
+                ${escapeHTML(
+                    u["URL Type"] || ""
+                )}
+            </div>
+
+            ${
+                url
+                ?
+                `
+                <a
+                    class="url-link"
+                    href="${escapeAttribute(url)}"
+                    target="_blank"
+                    rel="noopener"
+                >
+                    ${escapeHTML(url)}
+                </a>
+                `
+                :
+                ""
+            }
+
+        `;
+
+        box.appendChild(item);
+
+    });
+
+}
+
+
+/* =========================================================
+   GET NODE NAME
+========================================================= */
+
+function getNodeName(id){
+
+    const node =
+        findNode(id);
+
+    if(node){
+
+        return node.Name
+            || String(id);
+
+    }
+
+    return String(id);
+
+}
+
+
+/* =========================================================
+   CLOSE DETAILS
+========================================================= */
+
+function closeDetails(){
+
+    selectedNode = null;
+
+    document.getElementById(
+        "details"
+    ).classList.remove(
+        "open"
+    );
+
+    render();
+
+}
+
+
+/* =========================================================
+   AUTO LAYOUT
+========================================================= */
+
+function autoLayout(){
+
+    nodes.forEach(node => {
+
+        const type =
+            String(
+                node["Node Type"] || ""
+            ).toUpperCase();
+
+        const id =
+            nodeKey(
+                node["Node ID"]
+            );
+
+        if(id === "HUB"){
+
+            node["Position X"] = 0;
+            node["Position Y"] = 0;
+
+            return;
+
+        }
+
+        const sameType =
+            nodes.filter(
+                n =>
+                    String(
+                        n["Node Type"] || ""
+                    ).toUpperCase()
+                    === type
+                    &&
+                    nodeKey(
+                        n["Node ID"]
+                    ) !== "HUB"
+            );
+
+        const index =
+            sameType.findIndex(
+                n =>
+                    nodeKey(
+                        n["Node ID"]
+                    ) === id
+            );
+
+        const count =
+            Math.max(
+                sameType.length,
+                1
+            );
+
+        const angle =
+            (index / count) *
+            Math.PI * 2
+            -
+            Math.PI / 2;
+
+        let radius = 420;
+
+        if(type === "BACKEND")
+            radius = 400;
+
+        if(type === "FRONTEND")
+            radius = 720;
+
+        if(type === "EXTERNAL")
+            radius = 1000;
+
+        node["Position X"] =
+            Math.cos(angle) * radius;
+
+        node["Position Y"] =
+            Math.sin(angle) * radius;
+
+    });
+
+    render();
+
+}
+
+
+/* =========================================================
+   VIEW
+========================================================= */
+
+function applyTransform(){
+
+    const world =
+        document.getElementById(
+            "world"
+        );
+
+    world.style.transform =
+        `translate(
+            calc(-50% + ${panX}px),
+            calc(-50% + ${panY}px)
+        )
+        scale(${zoom})`;
+
+}
+
+
+/* =========================================================
+   ZOOM
+========================================================= */
+
+function zoomIn(){
+
+    zoom =
+        Math.min(
+            zoom + .1,
+            2.5
+        );
+
+    applyTransform();
+
+}
+
+
+function zoomOut(){
+
+    zoom =
+        Math.max(
+            zoom - .1,
+            .35
+        );
+
+    applyTransform();
+
+}
+
+
+function resetView(){
+
+    zoom = 1;
+
+    panX = 0;
+    panY = 0;
+
+    applyTransform();
+
+}
+
+
+/* =========================================================
+   PAN
+========================================================= */
+
+function startPan(event){
+
+    if(
+        event.target.closest(".node")
+    ){
+
+        return;
+
+    }
+
+    dragging = true;
+
+    dragStartX =
+        event.clientX;
+
+    dragStartY =
+        event.clientY;
+
+    originalPanX =
+        panX;
+
+    originalPanY =
+        panY;
+
+    document
+        .getElementById("map")
+        .classList.add(
+            "dragging"
+        );
+
+    document.addEventListener(
+        "mousemove",
+        movePan
+    );
+
+    document.addEventListener(
+        "mouseup",
+        stopPan
     );
 
 }
 
 
-/* ============================================================
-   SEARCH
-============================================================ */
+function movePan(event){
 
-document
-.getElementById("search")
-.addEventListener(
-    "input",
-    function(){
+    if(!dragging)
+        return;
 
-        const term =
-            this.value
-                .trim()
-                .toLowerCase();
-
-
-        nodes.forEach(node => {
-
-            const text =
-                JSON.stringify(
-                    node.item
-                ).toLowerCase();
-
-
-            const match =
-                !term ||
-                text.includes(term);
-
-
-            node.element.style.opacity =
-                match ? "1" : ".12";
-
-
-            node.element.style.pointerEvents =
-                match ? "auto" : "none";
-
-        });
-
-    }
-);
-
-
-/* ============================================================
-   ZOOM
-============================================================ */
-
-function zoomAt(
-    factor,
-    clientX,
-    clientY
-){
-
-    const rect =
-        viewport.getBoundingClientRect();
-
-
-    const mx =
-        clientX - rect.left -
-        rect.width / 2;
-
-    const my =
-        clientY - rect.top -
-        rect.height / 2;
-
-
-    const oldScale =
-        scale;
-
-
-    const newScale =
-        Math.min(
-            20,
-            Math.max(
-                .08,
-                scale * factor
-            )
-        );
-
-
-    const worldX =
-        (mx - offsetX) /
-        oldScale;
-
-    const worldY =
-        (my - offsetY) /
-        oldScale;
-
-
-    scale =
-        newScale;
-
-
-    offsetX =
-        mx -
-        worldX * scale;
-
-
-    offsetY =
-        my -
-        worldY * scale;
-
-
-    applyTransform();
-
-    saveView();
-
-}
-
-
-document
-.getElementById("zoomIn")
-.addEventListener(
-    "click",
-    () =>
-        zoomAt(
-            1.25,
-            viewport.clientWidth/2,
-            viewport.clientHeight/2
-        )
-);
-
-
-document
-.getElementById("zoomOut")
-.addEventListener(
-    "click",
-    () =>
-        zoomAt(
-            .8,
-            viewport.clientWidth/2,
-            viewport.clientHeight/2
-        )
-);
-
-
-document
-.getElementById("zoomReset")
-.addEventListener(
-    "click",
-    () => {
-
-        scale = 1;
-
-        applyTransform();
-
-        saveView();
-
-    }
-);
-
-
-/* ============================================================
-   MOUSE WHEEL ZOOM
-============================================================ */
-
-viewport.addEventListener(
-    "wheel",
-    event => {
-
-        event.preventDefault();
-
-        zoomAt(
-            event.deltaY < 0
-                ? 1.12
-                : .89,
-            event.clientX,
-            event.clientY
-        );
-
-    },
-    {
-        passive:false
-    }
-);
-
-
-/* ============================================================
-   PAN
-============================================================ */
-
-viewport.addEventListener(
-    "pointerdown",
-    event => {
-
-        if(
-            event.target.closest(".node") ||
-            event.target.closest("button") ||
-            event.target.closest("#details")
-        ){
-            return;
-        }
-
-
-        draggingWorld = true;
-
-        panStartX =
-            event.clientX;
-
-        panStartY =
-            event.clientY;
-
-        startOffsetX =
-            offsetX;
-
-        startOffsetY =
-            offsetY;
-
-
-        viewport.setPointerCapture(
-            event.pointerId
-        );
-
-    }
-);
-
-
-viewport.addEventListener(
-    "pointermove",
-    event => {
-
-        if(!draggingWorld) return;
-
-
-        offsetX =
-            startOffsetX +
+    panX =
+        originalPanX +
+        (
             event.clientX -
-            panStartX;
+            dragStartX
+        );
 
-
-        offsetY =
-            startOffsetY +
+    panY =
+        originalPanY +
+        (
             event.clientY -
-            panStartY;
-
-
-        applyTransform();
-
-    }
-);
-
-
-viewport.addEventListener(
-    "pointerup",
-    () => {
-
-        if(!draggingWorld) return;
-
-        draggingWorld = false;
-
-        saveView();
-
-    }
-);
-
-
-/* ============================================================
-   BUTTONS
-============================================================ */
-
-document
-.getElementById("resetBtn")
-.addEventListener(
-    "click",
-    () => {
-
-        centerView();
-
-    }
-);
-
-
-document
-.getElementById("fitBtn")
-.addEventListener(
-    "click",
-    fitMap
-);
-
-
-document
-.getElementById("reloadBtn")
-.addEventListener(
-    "click",
-    loadMap
-);
-
-
-document
-.getElementById("closeDetails")
-.addEventListener(
-    "click",
-    () => {
-
-        details.classList.remove(
-            "show"
+            dragStartY
         );
-
-        document
-            .querySelectorAll(".node.selected")
-            .forEach(
-                el =>
-                    el.classList.remove(
-                        "selected"
-                    )
-            );
-
-    }
-);
-
-
-/* ============================================================
-   FIT MAP
-============================================================ */
-
-function fitMap(){
-
-    if(!nodes.length) return;
-
-
-    let minX = 0;
-    let maxX = 0;
-    let minY = 0;
-    let maxY = 0;
-
-
-    nodes.forEach(node => {
-
-        minX =
-            Math.min(
-                minX,
-                node.x
-            );
-
-        maxX =
-            Math.max(
-                maxX,
-                node.x
-            );
-
-        minY =
-            Math.min(
-                minY,
-                node.y
-            );
-
-        maxY =
-            Math.max(
-                maxY,
-                node.y
-            );
-
-    });
-
-
-    const width =
-        maxX - minX + 500;
-
-    const height =
-        maxY - minY + 500;
-
-
-    const vw =
-        viewport.clientWidth;
-
-    const vh =
-        viewport.clientHeight;
-
-
-    scale =
-        Math.min(
-            1,
-            Math.min(
-                vw / width,
-                vh / height
-            )
-        );
-
-
-    offsetX =
-        -(minX + maxX) / 2 * scale;
-
-
-    offsetY =
-        -(minY + maxY) / 2 * scale;
-
 
     applyTransform();
 
-    saveView();
+}
+
+
+function stopPan(){
+
+    dragging = false;
+
+    document
+        .getElementById("map")
+        .classList.remove(
+            "dragging"
+        );
+
+    document.removeEventListener(
+        "mousemove",
+        movePan
+    );
+
+    document.removeEventListener(
+        "mouseup",
+        stopPan
+    );
 
 }
 
 
-/* ============================================================
-   HELPERS
-============================================================ */
+/* =========================================================
+   SEARCH / FILTER EVENTS
+========================================================= */
 
-function clean(value){
+document
+    .getElementById("search")
+    .addEventListener(
+        "input",
+        render
+    );
 
-    if(
-        value === null ||
-        value === undefined
-    ){
-        return "";
-    }
 
-    return String(value).trim();
+document
+    .getElementById("groupFilter")
+    .addEventListener(
+        "change",
+        render
+    );
+
+
+document
+    .getElementById("statusFilter")
+    .addEventListener(
+        "change",
+        render
+    );
+
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+function toggleSidebar(){
+
+    document
+        .getElementById("sidebar")
+        .classList.toggle(
+            "open"
+        );
 
 }
 
 
-function escapeHtml(value){
+/* =========================================================
+   LOADING
+========================================================= */
 
-    return String(value)
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
+function showLoading(show){
+
+    document
+        .getElementById("loading")
+        .style.display =
+        show
+            ? "flex"
+            : "none";
+
+}
+
+
+/* =========================================================
+   HTML SAFETY
+========================================================= */
+
+function escapeHTML(value){
+
+    return String(
+        value ?? ""
+    )
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+    .replace(
+        /</g,
+        "&lt;"
+    )
+    .replace(
+        />/g,
+        "&gt;"
+    )
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+    .replace(
+        /'/g,
+        "&#039;"
+    );
 
 }
 
 
 function escapeAttribute(value){
 
-    return escapeHtml(value);
-
-}
-
-
-function isUrl(value){
-
-    return /^https?:\/\//i.test(
-        String(value)
+    return String(
+        value ?? ""
+    )
+    .replace(
+        /"/g,
+        "&quot;"
     );
 
 }
 
 
-function shorten(
-    value,
-    length
-){
+/* =========================================================
+   CLEAN BACKEND URL DATA
+========================================================= */
 
-    value =
-        String(value);
+function cleanUrl(url){
 
-    if(
-        value.length <= length
-    ){
-        return value;
-    }
-
-    return (
-        value.substring(
-            0,
-            length - 3
-        ) + "..."
+    return String(
+        url || ""
+    )
+    .replace(
+        /\\_/g,
+        "_"
+    )
+    .replace(
+        /\\:/g,
+        ":"
+    )
+    .replace(
+        /\\\//g,
+        "/"
     );
 
 }
 
 
-function getPageName(url){
+/* =========================================================
+   INITIALIZE
+========================================================= */
 
-    try{
+resetView();
 
-        const parsed =
-            new URL(url);
-
-        let name =
-            parsed.pathname
-                .split("/")
-                .filter(Boolean)
-                .pop();
+loadData();
 
 
-        if(!name){
-            return parsed.hostname;
-        }
+/* =========================================================
+   OPTIONAL AUTO REFRESH
+========================================================= */
 
+setInterval(
+    () => {
 
-        return decodeURIComponent(
-            name
-        );
+        loadData();
 
-    }catch(e){
-
-        return shorten(
-            url,
-            35
-        );
-
-    }
-
-}
-
-
-/* ============================================================
-   START
-============================================================ */
-
-loadView();
-
-loadMap();
+    },
+    60000
+);
 
 </script>
 
