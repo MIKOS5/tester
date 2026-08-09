@@ -2,38 +2,31 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
->
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 
 <title>Obvyris Server Map</title>
+
+<meta name="description" content="Obvyris infrastructure workflow and server map">
+<meta name="theme-color" content="#07111f">
 
 <style>
 
 :root{
-    --bg:#050912;
-    --panel:#0a1220;
-    --panel2:#0e1828;
-    --panel3:#111d30;
-    --line:#26364d;
-
-    --text:#f4f7fb;
-    --muted:#8192a8;
-
+    --bg:#050b14;
+    --panel:#0b1422;
+    --panel2:#0e1a2b;
+    --panel3:#111f32;
+    --line:#26384e;
+    --text:#eef5ff;
+    --muted:#8294aa;
     --blue:#2793ff;
-    --cyan:#29d7ff;
-    --green:#26d98a;
-    --red:#ff5d73;
+    --blue2:#56b2ff;
+    --green:#25d98b;
+    --red:#ff5364;
     --yellow:#ffc857;
-    --purple:#a77bff;
-    --orange:#ff9d4d;
-
-    --shadow:
-        0 15px 45px rgba(0,0,0,.38);
-
-    --radius:12px;
+    --purple:#9d7cff;
+    --cyan:#35d6ff;
+    --shadow:0 18px 50px rgba(0,0,0,.45);
 }
 
 *{
@@ -50,7 +43,6 @@ body{
     color:var(--text);
     font-family:
         Inter,
-        ui-sans-serif,
         system-ui,
         -apple-system,
         BlinkMacSystemFont,
@@ -59,62 +51,65 @@ body{
 }
 
 /* =========================================================
+   APPLICATION
+========================================================= */
+
+#app{
+    width:100vw;
+    height:100vh;
+    position:relative;
+    overflow:hidden;
+    background:
+        radial-gradient(circle at 50% 50%,rgba(39,147,255,.055),transparent 32%),
+        #050b14;
+}
+
+/* =========================================================
    TOP BAR
 ========================================================= */
 
-#topbar{
-    position:fixed;
+.topbar{
+    position:absolute;
     z-index:1000;
-
-    left:14px;
-    right:14px;
-    top:14px;
-
-    height:64px;
+    top:0;
+    left:0;
+    right:0;
+    height:66px;
 
     display:flex;
     align-items:center;
-    gap:12px;
+    gap:14px;
 
-    padding:10px 14px;
+    padding:0 18px;
 
-    background:rgba(8,15,27,.94);
-    border:1px solid #1e2d43;
-
-    border-radius:14px;
-
-    box-shadow:var(--shadow);
-
-    backdrop-filter:blur(14px);
+    background:rgba(5,11,20,.91);
+    border-bottom:1px solid rgba(255,255,255,.08);
+    backdrop-filter:blur(16px);
 }
 
 .brand{
     display:flex;
     align-items:center;
-    gap:10px;
-
-    min-width:220px;
+    gap:11px;
+    min-width:240px;
 }
 
 .brand-mark{
     width:38px;
     height:38px;
+    border-radius:11px;
 
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    border-radius:10px;
+    display:grid;
+    place-items:center;
 
     background:
-        linear-gradient(
-            135deg,
-            #2793ff,
-            #8a55ff
-        );
+        linear-gradient(145deg,#2793ff,#1754a5);
+
+    box-shadow:
+        0 0 25px rgba(39,147,255,.25);
 
     font-weight:900;
-    color:white;
+    font-size:18px;
 }
 
 .brand-text{
@@ -125,14 +120,13 @@ body{
 .brand-title{
     font-size:15px;
     font-weight:800;
-    letter-spacing:.5px;
+    letter-spacing:.3px;
 }
 
 .brand-sub{
-    font-size:10px;
     color:var(--muted);
-    letter-spacing:1px;
-    text-transform:uppercase;
+    font-size:11px;
+    margin-top:2px;
 }
 
 .toolbar{
@@ -148,78 +142,71 @@ select{
     font:inherit;
 }
 
-.tool-btn{
-    height:38px;
-    padding:0 12px;
-
-    border:1px solid #26364d;
+.tool{
+    height:36px;
+    border:1px solid rgba(255,255,255,.09);
+    background:#0d1928;
+    color:#dce9f7;
     border-radius:8px;
-
-    background:#0d1727;
-    color:#dce6f3;
-
+    padding:0 12px;
     cursor:pointer;
-
-    transition:
-        background .15s,
-        border .15s,
-        transform .15s;
+    transition:.15s;
 }
 
-.tool-btn:hover{
-    background:#142238;
-    border-color:#365273;
+.tool:hover{
+    background:#14243a;
+    border-color:rgba(39,147,255,.35);
 }
 
-.tool-btn:active{
-    transform:translateY(1px);
+.tool.active{
+    background:rgba(39,147,255,.15);
+    border-color:rgba(39,147,255,.45);
+    color:#fff;
 }
 
 .search{
-    height:38px;
-    width:220px;
+    width:230px;
+    height:36px;
+
+    border:1px solid rgba(255,255,255,.09);
+    border-radius:8px;
+
+    outline:none;
 
     padding:0 12px;
 
-    border-radius:8px;
-    border:1px solid #26364d;
-
-    background:#080f1b;
-    color:white;
-
-    outline:none;
+    color:#fff;
+    background:#0b1726;
 }
 
 .search:focus{
-    border-color:var(--blue);
+    border-color:rgba(39,147,255,.6);
 }
 
-#apiState{
-    margin-left:auto;
-
+.map-status{
     display:flex;
     align-items:center;
-    gap:7px;
+    gap:8px;
 
-    font-size:11px;
     color:var(--muted);
+    font-size:11px;
 
     white-space:nowrap;
 }
 
-.state-dot{
+.status-dot{
     width:8px;
     height:8px;
     border-radius:50%;
     background:var(--yellow);
+    box-shadow:0 0 10px currentColor;
 }
 
-.state-dot.online{
+.status-dot.online{
     background:var(--green);
-    box-shadow:0 0 10px rgba(38,217,138,.6);
 }
 
-.state-dot.error{
+.status-dot.error{
     background:var(--red);
 }
 
@@ -227,135 +214,93 @@ select{
    WORKSPACE
 ========================================================= */
 
-#workspace{
+#viewport{
     position:absolute;
-    inset:0;
+    inset:66px 0 0 0;
 
     overflow:hidden;
 
     cursor:grab;
 
-    background:
-        radial-gradient(
-            circle at center,
-            rgba(39,147,255,.045),
-            transparent 42%
-        );
+    background-color:#06101b;
+
+    background-image:
+        linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
+
+    background-size:40px 40px;
 }
 
-#workspace.dragging{
+#viewport.dragging{
     cursor:grabbing;
 }
 
-/*
-    Huge infinite-style canvas.
-*/
+/* =========================================================
+   WORLD
+========================================================= */
+
 #world{
     position:absolute;
+
+    width:1px;
+    height:1px;
 
     left:50%;
     top:50%;
 
-    width:10000px;
-    height:10000px;
-
-    transform-origin:5000px 5000px;
-
-    will-change:transform;
+    transform-origin:0 0;
 }
 
-/* =========================================================
-   GRID
-========================================================= */
-
-#grid{
-    position:absolute;
-    inset:0;
-
-    background-image:
-        linear-gradient(
-            rgba(87,117,151,.09) 1px,
-            transparent 1px
-        ),
-        linear-gradient(
-            90deg,
-            rgba(87,117,151,.09) 1px,
-            transparent 1px
-        );
-
-    background-size:80px 80px;
-
-    pointer-events:none;
-}
-
-#grid::after{
-    content:"";
-
-    position:absolute;
-    inset:0;
-
-    background:
-        radial-gradient(
-            circle,
-            transparent 45%,
-            rgba(0,0,0,.42) 100%
-        );
-}
-
-/* =========================================================
-   SVG CONNECTION LAYER
-========================================================= */
+/*
+    SVG is underneath the cards.
+*/
 
 #connections{
     position:absolute;
-    inset:0;
 
-    width:100%;
-    height:100%;
+    left:-10000px;
+    top:-10000px;
 
-    overflow:visible;
+    width:20000px;
+    height:20000px;
 
     pointer-events:none;
+
+    overflow:visible;
 }
 
 .connection{
     fill:none;
-
-    stroke:#31506f;
-    stroke-width:2;
-
-    opacity:.72;
+    stroke-width:2.5;
+    opacity:.45;
 
     vector-effect:non-scaling-stroke;
+
+    transition:
+        opacity .15s,
+        stroke-width .15s;
 }
 
 .connection.backend{
-    stroke:#278eff;
-}
-
-.connection.external{
-    stroke:#a77bff;
+    stroke:var(--blue);
 }
 
 .connection.frontend{
-    stroke:#26d98a;
+    stroke:var(--purple);
 }
 
-.connection.sheet{
-    stroke:#29d7ff;
+.connection.external{
+    stroke:var(--cyan);
 }
 
-.connection.api{
-    stroke:#ffc857;
+.connection.active{
+    opacity:1;
+    stroke-width:4;
+    filter:drop-shadow(0 0 7px currentColor);
 }
 
-.connection.ghost{
-    stroke-dasharray:7 8;
-    opacity:.38;
-}
-
-.connection-dot{
-    fill:#6e8bab;
+.connection.dim{
+    opacity:.08;
 }
 
 /* =========================================================
@@ -365,31 +310,23 @@ select{
 #hub{
     position:absolute;
 
-    left:5000px;
-    top:5000px;
+    left:-130px;
+    top:-100px;
 
-    width:190px;
-    min-height:130px;
+    width:260px;
+    height:200px;
 
-    transform:
-        translate(-50%,-50%);
-
-    z-index:100;
-
-    border-radius:20px;
+    border-radius:26px;
 
     background:
-        linear-gradient(
-            145deg,
-            #12243d,
-            #091322
-        );
+        radial-gradient(circle at 50% 35%,rgba(39,147,255,.24),transparent 50%),
+        linear-gradient(145deg,#101f33,#08121f);
 
-    border:2px solid var(--blue);
+    border:1px solid rgba(39,147,255,.55);
 
     box-shadow:
-        0 0 0 8px rgba(39,147,255,.05),
-        0 0 55px rgba(39,147,255,.22),
+        0 0 0 1px rgba(39,147,255,.08),
+        0 0 60px rgba(39,147,255,.14),
         var(--shadow);
 
     display:flex;
@@ -397,332 +334,339 @@ select{
     align-items:center;
     justify-content:center;
 
+    z-index:50;
+
     user-select:none;
 }
 
 .hub-ring{
-    position:absolute;
-    inset:-15px;
-
-    border-radius:28px;
-
-    border:1px dashed rgba(39,147,255,.3);
-
-    pointer-events:none;
-}
-
-.hub-icon{
-    width:42px;
-    height:42px;
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
+    width:70px;
+    height:70px;
 
     border-radius:50%;
 
-    background:#102d4d;
+    display:grid;
+    place-items:center;
 
-    color:#55b1ff;
+    border:2px solid rgba(39,147,255,.7);
 
-    font-size:20px;
+    box-shadow:
+        0 0 25px rgba(39,147,255,.25),
+        inset 0 0 25px rgba(39,147,255,.08);
+
+    margin-bottom:11px;
+
+    font-size:25px;
     font-weight:900;
-
-    margin-bottom:8px;
 }
 
 .hub-title{
-    font-size:18px;
+    font-size:20px;
     font-weight:900;
-    letter-spacing:1px;
+    letter-spacing:.6px;
 }
 
 .hub-sub{
     margin-top:4px;
-
-    color:#83a7ca;
-
-    font-size:10px;
-    text-transform:uppercase;
-    letter-spacing:1.4px;
+    font-size:11px;
+    color:var(--muted);
 }
 
 /* =========================================================
-   NODE
+   NODE CARDS
 ========================================================= */
 
 .node{
     position:absolute;
 
-    width:170px;
-
-    min-height:68px;
-
-    transform:
-        translate(-50%,-50%);
-
-    z-index:20;
+    width:190px;
+    min-height:70px;
 
     padding:10px 12px;
+
+    border-radius:12px;
 
     background:
         linear-gradient(
             145deg,
-            rgba(17,29,48,.98),
-            rgba(8,15,27,.98)
+            rgba(17,31,50,.98),
+            rgba(9,18,30,.98)
         );
 
-    border:1px solid #293c55;
-
-    border-radius:10px;
+    border:1px solid rgba(255,255,255,.09);
 
     box-shadow:
-        0 8px 25px rgba(0,0,0,.35);
-
-    cursor:move;
+        0 10px 30px rgba(0,0,0,.35);
 
     user-select:none;
 
+    cursor:grab;
+
+    z-index:20;
+
     transition:
         border-color .15s,
-        box-shadow .15s;
+        box-shadow .15s,
+        opacity .15s,
+        transform .15s;
 }
 
 .node:hover{
-    border-color:#4d6d91;
+    border-color:rgba(255,255,255,.22);
 
     box-shadow:
-        0 12px 32px rgba(0,0,0,.45),
-        0 0 0 1px rgba(39,147,255,.12);
+        0 15px 40px rgba(0,0,0,.45);
+}
+
+.node.dragging{
+    cursor:grabbing;
+    z-index:500;
+
+    border-color:rgba(39,147,255,.7);
+
+    box-shadow:
+        0 20px 50px rgba(0,0,0,.55),
+        0 0 25px rgba(39,147,255,.14);
 }
 
 .node.selected{
     border-color:var(--blue);
 
     box-shadow:
-        0 0 0 2px rgba(39,147,255,.18),
-        0 12px 35px rgba(0,0,0,.5);
+        0 0 0 1px rgba(39,147,255,.25),
+        0 0 30px rgba(39,147,255,.15);
 }
 
-.node.offline{
-    border-color:
-        rgba(255,93,115,.6);
+.node.dimmed{
+    opacity:.13;
 }
 
-.node.online{
-    border-color:
-        rgba(38,217,138,.38);
+.node.backend{
+    border-left:3px solid var(--blue);
 }
 
-.node.external-node{
-    border-color:
-        rgba(167,123,255,.42);
+.node.sheet{
+    border-left:3px solid var(--green);
 }
 
-.node.backend-node{
-    border-color:
-        rgba(39,147,255,.45);
+.node.api{
+    border-left:3px solid var(--yellow);
 }
 
-.node.sheet-node{
-    border-color:
-        rgba(41,215,255,.42);
+.node.frontend{
+    border-left:3px solid var(--purple);
 }
 
-.node.api-node{
-    border-color:
-        rgba(255,200,87,.42);
+.node.external{
+    border-left:3px solid var(--cyan);
 }
 
-.node.frontend-node{
-    border-color:
-        rgba(38,217,138,.42);
+.node.externalapi{
+    border-left:3px solid #49e8e0;
 }
 
 .node-head{
     display:flex;
     align-items:center;
-
-    gap:7px;
-
-    margin-bottom:5px;
+    gap:8px;
 }
 
 .node-icon{
-    width:22px;
-    height:22px;
+    width:25px;
+    height:25px;
 
-    display:flex;
-    align-items:center;
-    justify-content:center;
+    border-radius:7px;
 
-    border-radius:6px;
+    display:grid;
+    place-items:center;
 
-    background:#17253a;
+    background:rgba(255,255,255,.06);
 
-    color:#8ca5c1;
-
-    font-size:11px;
-    font-weight:900;
-
-    flex:none;
-}
-
-.node-type{
-    font-size:9px;
-
-    text-transform:uppercase;
-
-    letter-spacing:1px;
-
-    color:#71869f;
+    font-size:12px;
 }
 
 .node-name{
-    font-size:12px;
+    flex:1;
 
+    font-size:12px;
     font-weight:800;
 
-    line-height:1.25;
-
-    word-break:break-word;
-}
-
-.node-url{
-    margin-top:5px;
-
-    color:#6f839b;
-
-    font-size:9px;
-
-    overflow:hidden;
-
     white-space:nowrap;
-
+    overflow:hidden;
     text-overflow:ellipsis;
 }
 
-.status-badge{
+.node-type{
+    color:var(--muted);
+    font-size:9px;
+
+    text-transform:uppercase;
+    letter-spacing:.6px;
+}
+
+.node-url{
+    margin-top:7px;
+
+    color:#7890aa;
+
+    font-size:9px;
+
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.node-url.has-link{
+    color:#70bfff;
+    cursor:pointer;
+}
+
+.node-url.has-link:hover{
+    text-decoration:underline;
+}
+
+/* =========================================================
+   BRANCH LABELS
+========================================================= */
+
+.branch-label{
     position:absolute;
 
-    right:8px;
-    top:8px;
+    transform:translate(-50%,-50%);
 
-    width:7px;
-    height:7px;
+    pointer-events:none;
 
-    border-radius:50%;
+    padding:5px 9px;
 
-    background:#64748b;
+    border-radius:999px;
+
+    background:rgba(5,11,20,.82);
+
+    border:1px solid rgba(255,255,255,.08);
+
+    color:#6f839a;
+
+    font-size:9px;
+    font-weight:800;
+
+    letter-spacing:1px;
+
+    text-transform:uppercase;
+
+    white-space:nowrap;
+
+    z-index:5;
 }
 
-.node.online .status-badge{
-    background:var(--green);
-
-    box-shadow:
-        0 0 9px rgba(38,217,138,.6);
+.branch-label.backend-label{
+    color:#5aaeff;
 }
 
-.node.offline .status-badge{
-    background:var(--red);
-
-    box-shadow:
-        0 0 8px rgba(255,93,115,.5);
+.branch-label.external-label{
+    color:#4fe1ee;
 }
 
 /* =========================================================
    LEGEND
 ========================================================= */
 
-#legend{
-    position:fixed;
+.legend{
+    position:absolute;
 
     left:18px;
     bottom:18px;
 
-    z-index:900;
+    z-index:100;
 
-    display:flex;
-    flex-wrap:wrap;
-
-    gap:12px;
-
-    padding:10px 12px;
-
-    border:
-        1px solid #203148;
-
-    background:
-        rgba(7,14,25,.9);
+    padding:11px 13px;
 
     border-radius:10px;
 
-    backdrop-filter:blur(10px);
+    background:rgba(7,15,25,.9);
+
+    border:1px solid rgba(255,255,255,.08);
+
+    backdrop-filter:blur(14px);
+
+    box-shadow:var(--shadow);
 
     font-size:10px;
-
-    color:#91a3b8;
 }
 
-.legend-item{
+.legend-title{
+    font-size:10px;
+    font-weight:800;
+
+    text-transform:uppercase;
+    letter-spacing:1px;
+
+    margin-bottom:8px;
+
+    color:#dbe7f5;
+}
+
+.legend-row{
     display:flex;
     align-items:center;
-    gap:6px;
+    gap:7px;
+
+    margin:5px 0;
+
+    color:var(--muted);
 }
 
 .legend-line{
-    width:20px;
+    width:28px;
     height:2px;
-
-    background:#31506f;
 }
 
 .legend-line.backend{
     background:var(--blue);
 }
 
-.legend-line.external{
+.legend-line.frontend{
     background:var(--purple);
 }
 
-.legend-line.frontend{
-    background:var(--green);
-}
-
-.legend-line.api{
-    background:var(--yellow);
+.legend-line.external{
+    background:var(--cyan);
 }
 
 /* =========================================================
-   ZOOM
+   ZOOM CONTROL
 ========================================================= */
 
-#zoomPanel{
-    position:fixed;
+.zoom-panel{
+    position:absolute;
 
     right:18px;
     bottom:18px;
 
-    z-index:900;
+    z-index:100;
 
     display:flex;
-    flex-direction:column;
+    align-items:center;
 
-    gap:5px;
+    overflow:hidden;
+
+    border-radius:10px;
+
+    background:rgba(7,15,25,.92);
+
+    border:1px solid rgba(255,255,255,.08);
+
+    box-shadow:var(--shadow);
 }
 
 .zoom-btn{
-    width:38px;
+    width:40px;
     height:38px;
 
-    border:1px solid #26364d;
+    border:0;
 
-    background:
-        rgba(8,15,27,.94);
+    background:transparent;
 
-    color:white;
-
-    border-radius:8px;
+    color:#dce8f5;
 
     cursor:pointer;
 
@@ -730,24 +674,20 @@ select{
 }
 
 .zoom-btn:hover{
-    border-color:#416487;
-    background:#142238;
+    background:rgba(255,255,255,.06);
 }
 
-#zoomValue{
-    width:38px;
-    padding:4px 0;
+.zoom-value{
+    min-width:64px;
 
     text-align:center;
 
-    font-size:9px;
+    color:var(--muted);
 
-    color:#8295ab;
+    font-size:11px;
 
-    background:
-        rgba(8,15,27,.9);
-
-    border-radius:5px;
+    border-left:1px solid rgba(255,255,255,.07);
+    border-right:1px solid rgba(255,255,255,.07);
 }
 
 /* =========================================================
@@ -755,154 +695,133 @@ select{
 ========================================================= */
 
 #details{
-    position:fixed;
+    position:absolute;
 
-    top:92px;
     right:18px;
+    top:82px;
 
-    z-index:950;
-
-    width:330px;
-    max-height:
-        calc(100vh - 120px);
+    width:310px;
+    max-height:calc(100vh - 180px);
 
     overflow:auto;
 
-    display:none;
+    z-index:200;
 
-    background:
-        rgba(8,15,27,.97);
-
-    border:
-        1px solid #26364d;
+    padding:16px;
 
     border-radius:14px;
 
+    background:rgba(8,17,29,.96);
+
+    border:1px solid rgba(255,255,255,.09);
+
     box-shadow:var(--shadow);
 
-    backdrop-filter:blur(16px);
+    backdrop-filter:blur(18px);
+
+    display:none;
 }
 
-#details.open{
+#details.show{
     display:block;
 }
 
-.details-head{
-    position:sticky;
-    top:0;
-
+.details-title{
     display:flex;
-    align-items:center;
     justify-content:space-between;
+    align-items:center;
 
-    padding:14px;
-
-    background:
-        rgba(8,15,27,.96);
-
-    border-bottom:
-        1px solid #1d2c40;
+    margin-bottom:13px;
 }
 
-.details-title{
-    font-size:14px;
+.details-name{
+    font-size:16px;
     font-weight:900;
 }
 
-.close-details{
+.details-close{
     width:28px;
     height:28px;
 
-    border:1px solid #26364d;
-
-    background:#101b2b;
-
-    color:#cbd5e1;
-
+    border:0;
     border-radius:7px;
+
+    background:#142337;
+    color:#fff;
 
     cursor:pointer;
 }
 
-.details-body{
-    padding:14px;
-}
-
 .detail-row{
-    margin-bottom:14px;
+    padding:9px 0;
+
+    border-bottom:1px solid rgba(255,255,255,.06);
 }
 
 .detail-label{
-    margin-bottom:4px;
+    color:var(--muted);
 
     font-size:9px;
 
-    color:#70839a;
-
     text-transform:uppercase;
+    letter-spacing:.8px;
 
-    letter-spacing:1px;
+    margin-bottom:4px;
 }
 
 .detail-value{
-    color:#e3ebf5;
+    color:#dce8f5;
 
     font-size:11px;
-
-    line-height:1.45;
 
     word-break:break-word;
 }
 
-.detail-value a{
-    color:#4ea7ff;
-
-    text-decoration:none;
-}
-
-.detail-value a:hover{
-    text-decoration:underline;
+.detail-link{
+    color:#63b7ff;
+    cursor:pointer;
 }
 
 /* =========================================================
-   EMPTY / LOADING
+   LOADING
 ========================================================= */
 
 #loading{
-    position:fixed;
+    position:absolute;
 
-    inset:0;
+    inset:66px 0 0 0;
 
-    z-index:2000;
+    z-index:900;
 
     display:flex;
-
     align-items:center;
     justify-content:center;
 
-    background:#050912;
+    background:#050b14;
 }
 
-.loader-box{
-    text-align:center;
+.loading-box{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+
+    gap:12px;
+
+    color:var(--muted);
+
+    font-size:12px;
 }
 
 .loader{
-    width:38px;
-    height:38px;
-
-    margin:0 auto 12px;
-
-    border:
-        3px solid #203149;
-
-    border-top-color:
-        var(--blue);
+    width:34px;
+    height:34px;
 
     border-radius:50%;
 
-    animation:
-        spin .8s linear infinite;
+    border:3px solid rgba(255,255,255,.08);
+    border-top-color:var(--blue);
+
+    animation:spin .8s linear infinite;
 }
 
 @keyframes spin{
@@ -911,107 +830,82 @@ select{
     }
 }
 
-.loader-text{
-    color:#8da0b8;
-    font-size:11px;
-}
-
 /* =========================================================
-   ERROR
+   EMPTY / ERROR
 ========================================================= */
 
-#errorBox{
-    position:fixed;
+#error{
+    position:absolute;
 
-    left:50%;
-    top:50%;
+    inset:66px 0 0 0;
 
-    transform:translate(-50%,-50%);
-
-    z-index:1900;
+    z-index:850;
 
     display:none;
 
-    width:min(500px,90vw);
+    align-items:center;
+    justify-content:center;
 
-    padding:25px;
+    padding:30px;
+}
 
-    background:#0c1625;
+.error-box{
+    max-width:600px;
 
-    border:1px solid #553040;
+    padding:24px;
 
     border-radius:14px;
+
+    background:#0d1827;
+
+    border:1px solid rgba(255,83,100,.3);
 
     box-shadow:var(--shadow);
 }
 
-#errorBox h2{
-    margin:0 0 8px;
+.error-title{
     font-size:17px;
+    font-weight:900;
+
+    margin-bottom:8px;
 }
 
-#errorBox p{
-    margin:0;
-
-    color:#9aabba;
+.error-message{
+    color:var(--muted);
 
     font-size:12px;
 
     line-height:1.6;
+
+    word-break:break-word;
 }
 
 /* =========================================================
-   MOBILE
+   RESPONSIVE
 ========================================================= */
 
-@media(max-width:850px){
-
-    #topbar{
-        left:8px;
-        right:8px;
-        top:8px;
-
-        height:auto;
-
-        flex-wrap:wrap;
-    }
+@media(max-width:800px){
 
     .brand{
         min-width:auto;
     }
 
-    .toolbar{
-        width:100%;
-        flex-wrap:wrap;
+    .brand-text{
+        display:none;
     }
 
     .search{
-        flex:1;
-        min-width:140px;
+        width:140px;
     }
 
-    #apiState{
-        margin-left:0;
+    .tool span{
+        display:none;
     }
 
     #details{
-        left:10px;
-        right:10px;
-
-        width:auto;
-
-        top:auto;
-        bottom:70px;
-
-        max-height:55vh;
+        width:calc(100vw - 36px);
+        right:18px;
     }
-
-    #legend{
-        left:8px;
-        right:60px;
-        bottom:8px;
-    }
-
 }
 
 </style>
@@ -1019,556 +913,464 @@ select{
 
 <body>
 
-<!-- =======================================================
-     TOP BAR
-======================================================= -->
+<div id="app">
 
-<header id="topbar">
+    <!-- =====================================================
+         TOP BAR
+    ====================================================== -->
 
-    <div class="brand">
+    <header class="topbar">
 
-        <div class="brand-mark">
-            O
-        </div>
+        <div class="brand">
 
-        <div class="brand-text">
-
-            <div class="brand-title">
-                OBVYRIS SERVER MAP
+            <div class="brand-mark">
+                O
             </div>
 
-            <div class="brand-sub">
-                Infrastructure Workflow
-            </div>
+            <div class="brand-text">
 
-        </div>
+                <div class="brand-title">
+                    OBVYRIS SERVER MAP
+                </div>
 
-    </div>
+                <div class="brand-sub">
+                    Infrastructure Workflow
+                </div>
 
-    <div class="toolbar">
-
-        <input
-            id="search"
-            class="search"
-            type="search"
-            placeholder="Search server, API, frontend..."
-        >
-
-        <button
-            id="fitBtn"
-            class="tool-btn"
-            title="Fit entire map"
-        >
-            Fit
-        </button>
-
-        <button
-            id="resetBtn"
-            class="tool-btn"
-            title="Reset saved layout"
-        >
-            Reset
-        </button>
-
-        <button
-            id="refreshBtn"
-            class="tool-btn"
-            title="Reload MAP API"
-        >
-            Refresh
-        </button>
-
-        <select
-            id="filter"
-            class="tool-btn"
-            title="Filter map"
-        >
-            <option value="all">All</option>
-            <option value="online">Online</option>
-            <option value="offline">Offline</option>
-        </select>
-
-    </div>
-
-    <div id="apiState">
-
-        <span
-            id="apiDot"
-            class="state-dot"
-        ></span>
-
-        <span id="apiText">
-            Loading MAP API
-        </span>
-
-    </div>
-
-</header>
-
-
-<!-- =======================================================
-     WORKSPACE
-======================================================= -->
-
-<main id="workspace">
-
-    <div id="world">
-
-        <div id="grid"></div>
-
-        <svg
-            id="connections"
-            viewBox="0 0 10000 10000"
-            preserveAspectRatio="none"
-        >
-        </svg>
-
-        <div id="nodes"></div>
-
-        <div id="hub">
-
-            <div class="hub-ring"></div>
-
-            <div class="hub-icon">
-                ◈
-            </div>
-
-            <div class="hub-title">
-                OBVYRIS HUB
-            </div>
-
-            <div class="hub-sub">
-                Central Routing Layer
             </div>
 
         </div>
 
+        <div class="toolbar">
+
+            <input
+                id="search"
+                class="search"
+                type="search"
+                placeholder="Search infrastructure..."
+                autocomplete="off"
+            >
+
+            <button
+                id="allBtn"
+                class="tool active"
+                type="button"
+            >
+                All
+            </button>
+
+            <button
+                id="onlineBtn"
+                class="tool"
+                type="button"
+            >
+                Online
+            </button>
+
+            <button
+                id="offlineBtn"
+                class="tool"
+                type="button"
+            >
+                Offline
+            </button>
+
+            <button
+                id="fitBtn"
+                class="tool"
+                type="button"
+            >
+                Fit
+            </button>
+
+            <button
+                id="resetBtn"
+                class="tool"
+                type="button"
+            >
+                Reset
+            </button>
+
+            <button
+                id="reloadBtn"
+                class="tool"
+                type="button"
+            >
+                Reload
+            </button>
+
+        </div>
+
+        <div class="map-status">
+
+            <span
+                id="statusDot"
+                class="status-dot"
+            ></span>
+
+            <span id="statusText">
+                Loading map
+            </span>
+
+        </div>
+
+    </header>
+
+
+    <!-- =====================================================
+         VIEWPORT
+    ====================================================== -->
+
+    <main
+        id="viewport"
+        aria-label="Obvyris infrastructure map"
+    >
+
+        <div id="world">
+
+            <svg
+                id="connections"
+                viewBox="0 0 20000 20000"
+                preserveAspectRatio="none"
+            >
+                <defs>
+
+                    <filter
+                        id="glowBlue"
+                        x="-50%"
+                        y="-50%"
+                        width="200%"
+                        height="200%"
+                    >
+                        <feGaussianBlur
+                            stdDeviation="3"
+                            result="blur"
+                        />
+                    </filter>
+
+                </defs>
+
+                <g id="lines"></g>
+
+            </svg>
+
+
+            <!-- CENTRAL HUB -->
+
+            <div id="hub">
+
+                <div class="hub-ring">
+                    O
+                </div>
+
+                <div class="hub-title">
+                    OBVYRIS HUB
+                </div>
+
+                <div class="hub-sub">
+                    Central Infrastructure
+                </div>
+
+            </div>
+
+
+            <!-- NODES INSERTED HERE -->
+
+            <div id="nodes"></div>
+
+            <div id="labels"></div>
+
+        </div>
+
+    </main>
+
+
+    <!-- =====================================================
+         DETAILS
+    ====================================================== -->
+
+    <aside id="details">
+
+        <div class="details-title">
+
+            <div
+                id="detailsName"
+                class="details-name"
+            >
+                Node
+            </div>
+
+            <button
+                id="detailsClose"
+                class="details-close"
+                type="button"
+            >
+                ×
+            </button>
+
+        </div>
+
+        <div id="detailsBody"></div>
+
+    </aside>
+
+
+    <!-- =====================================================
+         LEGEND
+    ====================================================== -->
+
+    <div class="legend">
+
+        <div class="legend-title">
+            Flow
+        </div>
+
+        <div class="legend-row">
+
+            <span class="legend-line backend"></span>
+
+            <span>
+                Backend Routes
+            </span>
+
+        </div>
+
+        <div class="legend-row">
+
+            <span class="legend-line frontend"></span>
+
+            <span>
+                Frontend Routes
+            </span>
+
+        </div>
+
+        <div class="legend-row">
+
+            <span class="legend-line external"></span>
+
+            <span>
+                External Routes
+            </span>
+
+        </div>
+
     </div>
 
-</main>
 
+    <!-- =====================================================
+         ZOOM
+    ====================================================== -->
 
-<!-- =======================================================
-     DETAILS
-======================================================= -->
+    <div class="zoom-panel">
 
-<aside id="details">
-
-    <div class="details-head">
+        <button
+            id="zoomOut"
+            class="zoom-btn"
+            type="button"
+        >
+            −
+        </button>
 
         <div
-            id="detailsTitle"
-            class="details-title"
+            id="zoomValue"
+            class="zoom-value"
         >
-            Node Details
+            100%
         </div>
 
         <button
-            id="closeDetails"
-            class="close-details"
+            id="zoomIn"
+            class="zoom-btn"
+            type="button"
         >
-            ×
+            +
         </button>
 
     </div>
 
-    <div
-        id="detailsBody"
-        class="details-body"
-    >
-    </div>
 
-</aside>
+    <!-- =====================================================
+         LOADING
+    ====================================================== -->
 
+    <div id="loading">
 
-<!-- =======================================================
-     LEGEND
-======================================================= -->
+        <div class="loading-box">
 
-<div id="legend">
+            <div class="loader"></div>
 
-    <div class="legend-item">
-        <span class="legend-line backend"></span>
-        Backend
-    </div>
+            <div>
+                Loading Obvyris infrastructure...
+            </div>
 
-    <div class="legend-item">
-        <span class="legend-line"></span>
-        Sheet
-    </div>
-
-    <div class="legend-item">
-        <span class="legend-line api"></span>
-        Sheet API
-    </div>
-
-    <div class="legend-item">
-        <span class="legend-line frontend"></span>
-        Frontend
-    </div>
-
-    <div class="legend-item">
-        <span class="legend-line external"></span>
-        External
-    </div>
-
-</div>
-
-
-<!-- =======================================================
-     ZOOM
-======================================================= -->
-
-<div id="zoomPanel">
-
-    <button
-        id="zoomIn"
-        class="zoom-btn"
-    >
-        +
-    </button>
-
-    <div id="zoomValue">
-        100%
-    </div>
-
-    <button
-        id="zoomOut"
-        class="zoom-btn"
-    >
-        −
-    </button>
-
-</div>
-
-
-<!-- =======================================================
-     LOADING
-======================================================= -->
-
-<div id="loading">
-
-    <div class="loader-box">
-
-        <div class="loader"></div>
-
-        <div class="loader-text">
-            Loading Obvyris infrastructure...
         </div>
 
     </div>
 
-</div>
 
+    <!-- =====================================================
+         ERROR
+    ====================================================== -->
 
-<!-- =======================================================
-     ERROR
-======================================================= -->
+    <div id="error">
 
-<div id="errorBox">
+        <div class="error-box">
 
-    <h2>
-        MAP API Error
-    </h2>
+            <div class="error-title">
+                Unable to load server map
+            </div>
 
-    <p id="errorText"></p>
+            <div
+                id="errorMessage"
+                class="error-message"
+            ></div>
+
+        </div>
+
+    </div>
 
 </div>
 
 
 <script>
 
-/* =========================================================
+/* ==========================================================
    CONFIGURATION
-========================================================= */
+========================================================== */
 
-const MAP_API =
+const API_URL =
     "https://script.google.com/macros/s/AKfycbxmet73uElazLhNTF6K9Ziizu4hbgq7VWbXJ8nKjSeXkn-tN4CyoBDjSdeK69A_J5XG/exec";
 
-
 const STORAGE_KEY =
-    "obvyris_server_map_layout_v4";
+    "obvyris-server-map-state-v3";
+
+const DEFAULT_ZOOM =
+    0.82;
 
 
-/*
-    Central point in our giant virtual world.
-*/
-const HUB_X = 5000;
-const HUB_Y = 5000;
+/* ==========================================================
+   STATE
+========================================================== */
+
+let mapData = [];
+
+let nodes = [];
+
+let selectedNode = null;
+
+let activeFilter = "all";
+
+let searchTerm = "";
+
+let zoom =
+    DEFAULT_ZOOM;
+
+let panX = 0;
+let panY = 0;
+
+let draggingWorld = false;
+
+let worldStartX = 0;
+let worldStartY = 0;
+
+let panStartX = 0;
+let panStartY = 0;
+
+let dragNode = null;
+
+let dragNodeStartX = 0;
+let dragNodeStartY = 0;
+
+let dragMouseStartX = 0;
+let dragMouseStartY = 0;
 
 
-/*
-    Infinite-style zoom range.
-*/
-const MIN_ZOOM = 0.08;
-const MAX_ZOOM = 8;
-
-
-/* =========================================================
+/* ==========================================================
    DOM
-========================================================= */
+========================================================== */
 
-const workspace =
-    document.getElementById("workspace");
+const viewport =
+    document.getElementById("viewport");
 
 const world =
     document.getElementById("world");
 
-const nodesLayer =
+const nodeLayer =
     document.getElementById("nodes");
 
-const svg =
-    document.getElementById("connections");
+const labelLayer =
+    document.getElementById("labels");
 
-const searchInput =
-    document.getElementById("search");
-
-const filterSelect =
-    document.getElementById("filter");
-
-const details =
-    document.getElementById("details");
-
-const detailsTitle =
-    document.getElementById("detailsTitle");
-
-const detailsBody =
-    document.getElementById("detailsBody");
+const linesLayer =
+    document.getElementById("lines");
 
 const loading =
     document.getElementById("loading");
 
-const errorBox =
-    document.getElementById("errorBox");
+const errorPanel =
+    document.getElementById("error");
 
-const errorText =
-    document.getElementById("errorText");
+const errorMessage =
+    document.getElementById("errorMessage");
 
-const apiDot =
-    document.getElementById("apiDot");
-
-const apiText =
-    document.getElementById("apiText");
+const searchInput =
+    document.getElementById("search");
 
 const zoomValue =
     document.getElementById("zoomValue");
 
+const statusText =
+    document.getElementById("statusText");
 
-/* =========================================================
-   STATE
-========================================================= */
+const statusDot =
+    document.getElementById("statusDot");
 
-let mapRows = [];
+const details =
+    document.getElementById("details");
 
-let nodeList = [];
+const detailsName =
+    document.getElementById("detailsName");
 
-let nodeMap = new Map();
-
-let connections = [];
-
-let selectedNode = null;
-
-
-/*
-    Camera:
-    screen = world * zoom + pan
-*/
-let zoom = 1;
-
-let panX = 0;
-
-let panY = 0;
+const detailsBody =
+    document.getElementById("detailsBody");
 
 
-/*
-    Workspace panning.
-*/
-let panning = false;
+/* ==========================================================
+   NORMALIZE DATA
+========================================================== */
 
-let panStartX = 0;
+function normalizeRow(row){
 
-let panStartY = 0;
+    const clean = {};
 
-let initialPanX = 0;
+    Object.keys(row || {}).forEach(key => {
 
-let initialPanY = 0;
+        clean[key] =
+            row[key] == null
+                ? ""
+                : String(row[key]).trim();
 
+    });
 
-/*
-    Node dragging.
-*/
-let draggingNode = null;
-
-let nodeDragOffsetX = 0;
-
-let nodeDragOffsetY = 0;
-
-
-/*
-    Used to distinguish clicking from dragging.
-*/
-let movedDuringPointer = false;
-
-
-/* =========================================================
-   UTILITIES
-========================================================= */
-
-function clean(value){
-
-    if(
-        value === null ||
-        value === undefined
-    ){
-        return "";
-    }
-
-    return String(value).trim();
-
+    return clean;
 }
 
 
-function validUrl(value){
-
-    if(!value){
-        return false;
-    }
-
-    if(
-        value === "#" ||
-        value === "javascript:void(0)"
-    ){
-        return false;
-    }
-
-    try{
-
-        const u =
-            new URL(value);
-
-        return (
-            u.protocol === "http:" ||
-            u.protocol === "https:"
-        );
-
-    }catch(e){
-
-        return false;
-
-    }
-
-}
-
-
-function escapeHtml(value){
-
-    return String(value)
-        .replace(/&/g,"&amp;")
-        .replace(/</g,"&lt;")
-        .replace(/>/g,"&gt;")
-        .replace(/"/g,"&quot;")
-        .replace(/'/g,"&#039;");
-
-}
-
-
-function shortUrl(value){
-
-    if(!value){
-        return "";
-    }
-
-    return value
-        .replace(/^https?:\/\//,"")
-        .replace(/^www\./,"");
-
-}
-
-
-function getRowId(row,index){
-
-    return (
-        clean(row["ID"]) ||
-        "row-" + index
-    );
-
-}
-
-
-function isOnline(row){
-
-    return (
-        clean(row["Status"]).toUpperCase()
-        ===
-        "ONLINE"
-    );
-
-}
-
-
-function isOffline(row){
-
-    return (
-        clean(row["Status"]).toUpperCase()
-        ===
-        "OFFLINE"
-    );
-
-}
-
-
-/* =========================================================
-   API STATUS
-========================================================= */
-
-function setApiState(
-    state,
-    text
-){
-
-    apiText.textContent = text;
-
-    apiDot.className =
-        "state-dot";
-
-    if(state === "online"){
-
-        apiDot.classList.add("online");
-
-    }
-
-    if(state === "error"){
-
-        apiDot.classList.add("error");
-
-    }
-
-}
-
-
-/* =========================================================
+/* ==========================================================
    LOAD API
-========================================================= */
+========================================================== */
 
 async function loadMap(){
 
-    setApiState(
-        "loading",
-        "Loading MAP API"
-    );
-
-    loading.style.display =
-        "flex";
-
-    errorBox.style.display =
-        "none";
+    showLoading();
 
     try{
 
         const response =
             await fetch(
-                MAP_API +
-                "?t=" +
+                API_URL +
+                "?action=map&_=" +
                 Date.now(),
                 {
                     method:"GET",
@@ -1590,621 +1392,71 @@ async function loadMap(){
 
         if(
             !data ||
+            data.success !== true ||
             !Array.isArray(data.rows)
         ){
 
             throw new Error(
-                "The API did not return a rows array."
+                "API did not return a valid MAP response."
             );
 
         }
 
-        mapRows =
-            data.rows;
-
-        setApiState(
-            "online",
-            mapRows.length +
-            " MAP records"
-        );
+        mapData =
+            data.rows.map(normalizeRow);
 
         buildMap();
 
-        loading.style.display =
-            "none";
+        hideLoading();
+
+        statusDot.className =
+            "status-dot online";
+
+        statusText.textContent =
+            mapData.length +
+            " infrastructure records";
 
     }catch(error){
 
         console.error(error);
 
-        setApiState(
-            "error",
-            "MAP API unavailable"
-        );
+        hideLoading();
 
-        loading.style.display =
-            "none";
+        errorPanel.style.display =
+            "flex";
 
-        errorText.textContent =
-            "Unable to load the Obvyris MAP API. " +
-            error.message;
+        errorMessage.textContent =
+            error.message +
+            "  |  API: " +
+            API_URL;
 
-        errorBox.style.display =
-            "block";
+        statusDot.className =
+            "status-dot error";
 
-    }
-
-}
-
-
-/* =========================================================
-   NODE CREATION
-========================================================= */
-
-function createNode(
-    id,
-    type,
-    name,
-    url,
-    row,
-    rowIndex,
-    field
-){
-
-    const node = {
-
-        id,
-
-        type,
-
-        name,
-
-        url,
-
-        row,
-
-        rowIndex,
-
-        field,
-
-        x: HUB_X,
-
-        y: HUB_Y,
-
-        element:null
-
-    };
-
-    nodeList.push(node);
-
-    nodeMap.set(
-        id,
-        node
-    );
-
-    return node;
-
-}
-
-
-/* =========================================================
-   NODE TYPES
-========================================================= */
-
-function typeClass(type){
-
-    if(type === "BACKEND"){
-        return "backend-node";
-    }
-
-    if(type === "SHEET"){
-        return "sheet-node";
-    }
-
-    if(type === "SHEET API"){
-        return "api-node";
-    }
-
-    if(type === "FRONTEND"){
-        return "frontend-node";
-    }
-
-    if(type === "EXTERNAL"){
-        return "external-node";
-    }
-
-    if(type === "EXTERNAL API"){
-        return "external-node";
-    }
-
-    return "";
-
-}
-
-
-function typeIcon(type){
-
-    switch(type){
-
-        case "BACKEND":
-            return "B";
-
-        case "SHEET":
-            return "S";
-
-        case "SHEET API":
-            return "A";
-
-        case "FRONTEND":
-            return "F";
-
-        case "EXTERNAL":
-            return "E";
-
-        case "EXTERNAL API":
-            return "X";
-
-        default:
-            return "•";
+        statusText.textContent =
+            "API error";
 
     }
 
 }
 
 
-/* =========================================================
-   ADD CONNECTION
-========================================================= */
-
-function connect(
-    from,
-    to,
-    className
-){
-
-    if(
-        !from ||
-        !to
-    ){
-        return;
-    }
-
-    connections.push({
-
-        from,
-        to,
-
-        className:
-            className || ""
-
-    });
-
-}
-
-
-/* =========================================================
-   BUILD ROW BRANCH
-========================================================= */
-
-function buildRow(
-    row,
-    index
-){
-
-    const rowId =
-        getRowId(
-            row,
-            index
-        );
-
-
-    /*
-        Every row gets its own isolated
-        branch.
-
-        NOTHING from one row connects
-        to another row's data.
-    */
-
-
-    let previous =
-        null;
-
-
-    /* -----------------------------------------
-       BACKEND
-    ----------------------------------------- */
-
-    const backendName =
-        clean(
-            row["Backends Sheet"]
-        );
-
-    let backend = null;
-
-    if(backendName){
-
-        backend =
-            createNode(
-                `${rowId}-backend`,
-                "BACKEND",
-                backendName,
-                "",
-                row,
-                index,
-                "Backends Sheet"
-            );
-
-        connect(
-            "hub",
-            backend.id,
-            "backend"
-        );
-
-        previous =
-            backend;
-
-    }
-
-
-    /* -----------------------------------------
-       SHEET
-    ----------------------------------------- */
-
-    const sheetUrl =
-        clean(
-            row["Sheet"]
-        );
-
-    if(sheetUrl){
-
-        const sheet =
-            createNode(
-                `${rowId}-sheet`,
-                "SHEET",
-                "Sheet",
-                sheetUrl,
-                row,
-                index,
-                "Sheet"
-            );
-
-        if(previous){
-
-            connect(
-                previous.id,
-                sheet.id,
-                "sheet"
-            );
-
-        }else{
-
-            connect(
-                "hub",
-                sheet.id,
-                "sheet"
-            );
-
-        }
-
-        previous =
-            sheet;
-
-    }
-
-
-    /* -----------------------------------------
-       SHEET API
-    ----------------------------------------- */
-
-    const sheetApi =
-        clean(
-            row["Sheet API"]
-        );
-
-    if(sheetApi){
-
-        const api =
-            createNode(
-                `${rowId}-sheetapi`,
-                "SHEET API",
-                "Sheet API",
-                sheetApi,
-                row,
-                index,
-                "Sheet API"
-            );
-
-        if(previous){
-
-            connect(
-                previous.id,
-                api.id,
-                "api"
-            );
-
-        }else{
-
-            connect(
-                "hub",
-                api.id,
-                "api"
-            );
-
-        }
-
-        previous =
-            api;
-
-    }
-
-
-    /*
-        Status intentionally does NOT become
-        a visual node.
-
-        It remains attached to the row and
-        is available in details/API data.
-    */
-
-
-    /* -----------------------------------------
-       FRONTENDS 1-5
-    ----------------------------------------- */
-
-    const frontendFields = [
-
-        "MAIN HTML FRONTEND",
-        "HTML FRONTEND 2",
-        "HTML FRONTEND 3",
-        "HTML FRONTEND 4",
-        "HTML FRONTEND 5"
-
-    ];
-
-
-    frontendFields.forEach(
-        function(field){
-
-            const url =
-                clean(
-                    row[field]
-                );
-
-            if(!url){
-                return;
-            }
-
-            const frontend =
-                createNode(
-                    `${rowId}-${field}`,
-                    "FRONTEND",
-                    field
-                        .replace(
-                            "HTML FRONTEND",
-                            "Frontend"
-                        )
-                        .replace(
-                            "MAIN",
-                            "1"
-                        ),
-                    url,
-                    row,
-                    index,
-                    field
-                );
-
-
-            if(previous){
-
-                connect(
-                    previous.id,
-                    frontend.id,
-                    "frontend"
-                );
-
-            }else{
-
-                connect(
-                    "hub",
-                    frontend.id,
-                    "frontend"
-                );
-
-            }
-
-
-            /*
-                Frontends from the SAME row
-                branch from the previous backend
-                pipeline.
-
-                They never connect to another
-                row.
-            */
-
-        }
-    );
-
-
-    /* -----------------------------------------
-       EXTERNAL
-    ----------------------------------------- */
-
-    const externalName =
-        clean(
-            row["EXTERNAL"]
-        );
-
-    const externalApi =
-        clean(
-            row["EXTERNAL API"]
-        );
-
-    const externalApi2 =
-        clean(
-            row["EXTERNAL API 2"]
-        );
-
-
-    /*
-        External branch is routed toward
-        the SOUTH of the hub.
-    */
-
-    let externalNode =
-        null;
-
-
-    if(externalName){
-
-        externalNode =
-            createNode(
-                `${rowId}-external`,
-                "EXTERNAL",
-                externalName,
-                "",
-                row,
-                index,
-                "EXTERNAL"
-            );
-
-        connect(
-            "hub",
-            externalNode.id,
-            "external"
-        );
-
-    }else if(externalApi){
-
-        /*
-            If the external description cell
-            is empty, still create the API node.
-        */
-
-        externalNode =
-            createNode(
-                `${rowId}-external`,
-                "EXTERNAL",
-                "External",
-                "",
-                row,
-                index,
-                "EXTERNAL"
-            );
-
-        connect(
-            "hub",
-            externalNode.id,
-            "external"
-        );
-
-    }
-
-
-    if(externalApi){
-
-        const apiNode =
-            createNode(
-                `${rowId}-external-api`,
-                "EXTERNAL API",
-                "External API",
-                externalApi,
-                row,
-                index,
-                "EXTERNAL API"
-            );
-
-        if(externalNode){
-
-            connect(
-                externalNode.id,
-                apiNode.id,
-                "external"
-            );
-
-        }else{
-
-            connect(
-                "hub",
-                apiNode.id,
-                "external"
-            );
-
-        }
-
-    }
-
-
-    if(externalApi2){
-
-        const api2 =
-            createNode(
-                `${rowId}-external-api-2`,
-                "EXTERNAL API",
-                "External API 2",
-                externalApi2,
-                row,
-                index,
-                "EXTERNAL API 2"
-            );
-
-
-        if(externalApi){
-
-            connect(
-                `${rowId}-external-api`,
-                api2.id,
-                "external"
-            );
-
-        }else if(externalNode){
-
-            connect(
-                externalNode.id,
-                api2.id,
-                "external"
-            );
-
-        }else{
-
-            connect(
-                "hub",
-                api2.id,
-                "external"
-            );
-
-        }
-
-    }
-
-}
-
-
-/* =========================================================
-   BUILD COMPLETE MAP
-========================================================= */
+/* ==========================================================
+   BUILD MAP
+========================================================== */
 
 function buildMap(){
 
-    nodeList = [];
+    nodeLayer.innerHTML = "";
+    labelLayer.innerHTML = "";
+    linesLayer.innerHTML = "";
 
-    nodeMap =
-        new Map();
+    nodes = [];
 
-    connections = [];
+    mapData.forEach(
+        (row,index) => {
 
-    nodesLayer.innerHTML =
-        "";
-
-    svg.innerHTML =
-        "";
-
-
-    mapRows.forEach(
-        function(row,index){
-
-            buildRow(
+            buildRowBranch(
                 row,
                 index
             );
@@ -2212,128 +1464,833 @@ function buildMap(){
         }
     );
 
+    restoreState();
 
-    applySavedLayout();
+    applyTransform();
 
-    createNodeElements();
+    requestAnimationFrame(
+        drawConnections
+    );
 
-    positionNewNodes();
-
-    applyFilter();
-
-    render();
+    setTimeout(
+        drawConnections,
+        200
+    );
 
 }
 
 
-/* =========================================================
-   POSITION DEFAULT NODES
-========================================================= */
+/* ==========================================================
+   VALUE HELPERS
+========================================================== */
 
-function positionNewNodes(){
+function value(row,key){
 
-    const backendNodes =
-        nodeList.filter(
-            n =>
-                n.type === "BACKEND"
-        );
+    return row[key] || "";
 
-    const externalNodes =
-        nodeList.filter(
-            n =>
-                n.type === "EXTERNAL" ||
-                n.type === "EXTERNAL API"
-        );
+}
 
+function isURL(value){
 
-    /*
-        BACKENDS NORTH
-    */
-
-    arrangeArc(
-        backendNodes,
-        HUB_X,
-        HUB_Y - 850,
-        1500,
-        -Math.PI * .88,
-        -Math.PI * .12
+    return /^https?:\/\//i.test(
+        String(value || "")
     );
 
+}
 
-    /*
-        EXTERNALS SOUTH
-    */
 
-    arrangeArc(
-        externalNodes,
-        HUB_X,
-        HUB_Y + 850,
-        1700,
-        Math.PI * .12,
-        Math.PI * .88
+/* ==========================================================
+   NODE CREATION
+========================================================== */
+
+function createNode({
+    id,
+    name,
+    type,
+    valueText,
+    className,
+    x,
+    y,
+    row,
+    role,
+    icon,
+    branchIndex
+}){
+
+    const element =
+        document.createElement("div");
+
+    element.className =
+        "node " +
+        className;
+
+    element.dataset.nodeId =
+        id;
+
+    element.dataset.branch =
+        branchIndex;
+
+    element.style.left =
+        x + "px";
+
+    element.style.top =
+        y + "px";
+
+    element.innerHTML =
+
+        `
+        <div class="node-head">
+
+            <div class="node-icon">
+                ${icon}
+            </div>
+
+            <div class="node-name">
+                ${escapeHTML(name)}
+            </div>
+
+        </div>
+
+        <div class="node-type">
+            ${escapeHTML(type)}
+        </div>
+
+        ${
+            valueText
+            ?
+            `
+            <div
+                class="node-url ${
+                    isURL(valueText)
+                    ? "has-link"
+                    : ""
+                }"
+                title="${escapeAttribute(valueText)}"
+            >
+                ${escapeHTML(valueText)}
+            </div>
+            `
+            :
+            ""
+        }
+        `;
+
+    nodeLayer.appendChild(
+        element
     );
 
+    const node = {
+
+        id,
+
+        name,
+
+        type,
+
+        value:valueText,
+
+        role,
+
+        row,
+
+        branchIndex,
+
+        element,
+
+        x,
+        y
+
+    };
+
+    nodes.push(node);
+
+    makeNodeDraggable(node);
+
+    element.addEventListener(
+        "click",
+        event => {
+
+            event.stopPropagation();
+
+            if(
+                Math.abs(
+                    dragMouseStartX -
+                    event.clientX
+                ) > 5
+            ){
+
+                return;
+
+            }
+
+            selectNode(node);
+
+        }
+    );
+
+    const urlElement =
+        element.querySelector(
+            ".node-url"
+        );
+
+    if(
+        urlElement &&
+        isURL(valueText)
+    ){
+
+        urlElement.addEventListener(
+            "dblclick",
+            event => {
+
+                event.stopPropagation();
+
+                window.open(
+                    valueText,
+                    "_blank",
+                    "noopener,noreferrer"
+                );
+
+            }
+        );
+
+    }
+
+    return node;
+
+}
+
+
+/* ==========================================================
+   BUILD INDIVIDUAL BRANCH
+========================================================== */
+
+function buildRowBranch(row,index){
 
     /*
-        Put remaining branch nodes around
-        their row's backend/external structure.
+        Each row gets its own vertical/radial branch.
+
+        Backend:
+              Backend
+                 |
+               Sheet
+                 |
+              Sheet API
+                 |
+                HUB
+                 |
+          Frontend branches
+                 |
+             External
+                 |
+            External API
+                 |
+           External API 2
     */
 
-    mapRows.forEach(
-        function(row,index){
+    const spacing =
+        205;
 
-            const rowId =
-                getRowId(
+    const branchSpread =
+        Math.max(
+            500,
+            Math.min(
+                1350,
+                mapData.length * 72
+            )
+        );
+
+    const centerOffset =
+        (
+            index -
+            (mapData.length - 1) / 2
+        ) *
+        Math.min(
+            125,
+            branchSpread /
+            Math.max(
+                mapData.length,
+                1
+            )
+        );
+
+    const branchX =
+        centerOffset;
+
+
+    /*
+       BACKEND
+    */
+
+    if(
+        value(row,"Backends Sheet")
+    ){
+
+        createNode({
+
+            id:
+                "backend-" +
+                index,
+
+            name:
+                value(
                     row,
-                    index
-                );
+                    "Backends Sheet"
+                ),
+
+            type:
+                "Backend",
+
+            valueText:
+                value(
+                    row,
+                    "Backends Sheet"
+                ),
+
+            className:
+                "backend",
+
+            x:
+                branchX - 95,
+
+            y:
+                -1150,
+
+            row,
+
+            role:
+                "backend",
+
+            icon:
+                "B",
+
+            branchIndex:index
+
+        });
+
+    }
 
 
-            const branch =
-                nodeList.filter(
+    /*
+       SHEET
+    */
+
+    if(
+        value(row,"Sheet")
+    ){
+
+        createNode({
+
+            id:
+                "sheet-" +
+                index,
+
+            name:
+                "Sheet",
+
+            type:
+                "Google Sheet",
+
+            valueText:
+                value(
+                    row,
+                    "Sheet"
+                ),
+
+            className:
+                "sheet",
+
+            x:
+                branchX - 95,
+
+            y:
+                -920,
+
+            row,
+
+            role:
+                "sheet",
+
+            icon:
+                "S",
+
+            branchIndex:index
+
+        });
+
+    }
+
+
+    /*
+       SHEET API
+    */
+
+    if(
+        value(row,"Sheet API")
+    ){
+
+        createNode({
+
+            id:
+                "sheet-api-" +
+                index,
+
+            name:
+                "Sheet API",
+
+            type:
+                "Apps Script API",
+
+            valueText:
+                value(
+                    row,
+                    "Sheet API"
+                ),
+
+            className:
+                "api",
+
+            x:
+                branchX - 95,
+
+            y:
+                -690,
+
+            row,
+
+            role:
+                "sheet-api",
+
+            icon:
+                "A",
+
+            branchIndex:index
+
+        });
+
+    }
+
+
+    /*
+       FRONTENDS
+    */
+
+    const frontends = [
+
+        [
+            "MAIN HTML FRONTEND",
+            "Frontend 1"
+        ],
+
+        [
+            "HTML FRONTEND 2",
+            "Frontend 2"
+        ],
+
+        [
+            "HTML FRONTEND 3",
+            "Frontend 3"
+        ],
+
+        [
+            "HTML FRONTEND 4",
+            "Frontend 4"
+        ],
+
+        [
+            "HTML FRONTEND 5",
+            "Frontend 5"
+        ]
+
+    ];
+
+    const validFrontends =
+        frontends.filter(
+            item =>
+                value(
+                    row,
+                    item[0]
+                )
+        );
+
+    const frontendWidth =
+        205;
+
+    const frontendStart =
+        branchX -
+        (
+            (validFrontends.length - 1) *
+            frontendWidth
+        ) / 2 -
+        95;
+
+    validFrontends.forEach(
+        (item,frontendIndex) => {
+
+            createNode({
+
+                id:
+                    "frontend-" +
+                    index +
+                    "-" +
+                    frontendIndex,
+
+                name:
+                    item[1],
+
+                type:
+                    "HTML Frontend",
+
+                valueText:
+                    value(
+                        row,
+                        item[0]
+                    ),
+
+                className:
+                    "frontend",
+
+                x:
+                    frontendStart +
+                    frontendIndex *
+                    frontendWidth,
+
+                y:
+                    -350,
+
+                row,
+
+                role:
+                    "frontend",
+
+                icon:
+                    "F",
+
+                branchIndex:index
+
+            });
+
+        }
+    );
+
+
+    /*
+       EXTERNAL
+    */
+
+    if(
+        value(row,"EXTERNAL")
+    ){
+
+        createNode({
+
+            id:
+                "external-" +
+                index,
+
+            name:
+                value(
+                    row,
+                    "EXTERNAL"
+                ),
+
+            type:
+                "External Service",
+
+            valueText:
+                value(
+                    row,
+                    "EXTERNAL"
+                ),
+
+            className:
+                "external",
+
+            x:
+                branchX - 95,
+
+            y:
+                300,
+
+            row,
+
+            role:
+                "external",
+
+            icon:
+                "E",
+
+            branchIndex:index
+
+        });
+
+    }
+
+
+    /*
+       EXTERNAL API
+    */
+
+    if(
+        value(row,"EXTERNAL API")
+    ){
+
+        createNode({
+
+            id:
+                "external-api-" +
+                index,
+
+            name:
+                "External API",
+
+            type:
+                "External API",
+
+            valueText:
+                value(
+                    row,
+                    "EXTERNAL API"
+                ),
+
+            className:
+                "externalapi",
+
+            x:
+                branchX - 95,
+
+            y:
+                530,
+
+            row,
+
+            role:
+                "external-api",
+
+            icon:
+                "X",
+
+            branchIndex:index
+
+        });
+
+    }
+
+
+    /*
+       EXTERNAL API 2
+    */
+
+    if(
+        value(row,"EXTERNAL API 2")
+    ){
+
+        createNode({
+
+            id:
+                "external-api2-" +
+                index,
+
+            name:
+                "External API 2",
+
+            type:
+                "External API",
+
+            valueText:
+                value(
+                    row,
+                    "EXTERNAL API 2"
+                ),
+
+            className:
+                "externalapi",
+
+            x:
+                branchX - 95,
+
+            y:
+                760,
+
+            row,
+
+            role:
+                "external-api2",
+
+            icon:
+                "X",
+
+            branchIndex:index
+
+        });
+
+    }
+
+}
+
+
+/* ==========================================================
+   DRAW CONNECTIONS
+========================================================== */
+
+function drawConnections(){
+
+    linesLayer.innerHTML = "";
+
+    const grouped = {};
+
+    nodes.forEach(node => {
+
+        if(
+            !grouped[node.branchIndex]
+        ){
+
+            grouped[node.branchIndex] =
+                [];
+
+        }
+
+        grouped[node.branchIndex]
+            .push(node);
+
+    });
+
+
+    Object.keys(grouped).forEach(
+        branchIndex => {
+
+            const branchNodes =
+                grouped[branchIndex];
+
+            const backendNodes =
+                branchNodes.filter(
                     n =>
-                        n.rowIndex === index &&
-                        n.type !== "BACKEND" &&
-                        n.type !== "EXTERNAL" &&
-                        n.type !== "EXTERNAL API"
+                        [
+                            "backend",
+                            "sheet",
+                            "sheet-api"
+                        ].includes(
+                            n.role
+                        )
                 );
 
 
-            const backend =
-                nodeMap.get(
-                    `${rowId}-backend`
+            const frontendNodes =
+                branchNodes.filter(
+                    n =>
+                        n.role ===
+                        "frontend"
                 );
 
 
-            const external =
-                nodeMap.get(
-                    `${rowId}-external`
+            const externalNodes =
+                branchNodes.filter(
+                    n =>
+                        [
+                            "external",
+                            "external-api",
+                            "external-api2"
+                        ].includes(
+                            n.role
+                        )
                 );
 
 
             /*
-                If backend exists, place sheet,
-                sheet API and frontends along
-                its branch.
+                Backend chain
             */
 
-            if(backend){
+            connectSequence(
+                backendNodes,
+                "backend"
+            );
 
-                arrangeBranch(
-                    branch,
-                    backend,
-                    false
+
+            /*
+                Sheet API → Frontends
+
+                These are connected only to
+                frontends belonging to the SAME row.
+            */
+
+            const apiNode =
+                branchNodes.find(
+                    n =>
+                        n.role ===
+                        "sheet-api"
                 );
 
-            }else if(external){
+            if(apiNode){
 
-                arrangeBranch(
-                    branch,
-                    external,
-                    true
+                frontendNodes.forEach(
+                    frontend => {
+
+                        connectNodes(
+                            apiNode,
+                            frontend,
+                            "frontend"
+                        );
+
+                    }
                 );
 
             }
+
+
+            /*
+                Frontends → HUB
+
+                Each frontend belonging to
+                the same branch connects to
+                the central HUB.
+            */
+
+            frontendNodes.forEach(
+                frontend => {
+
+                    connectHub(
+                        frontend,
+                        "frontend"
+                    );
+
+                }
+            );
+
+
+            /*
+                HUB → External
+            */
+
+            if(
+                externalNodes.length
+            ){
+
+                const external =
+                    externalNodes.find(
+                        n =>
+                            n.role ===
+                            "external"
+                    );
+
+                if(external){
+
+                    connectHub(
+                        external,
+                        "external"
+                    );
+
+                }
+
+            }
+
+
+            /*
+                External chain
+            */
+
+            connectSequence(
+                externalNodes,
+                "external"
+            );
 
         }
     );
@@ -2341,795 +2298,646 @@ function positionNewNodes(){
 }
 
 
-/* =========================================================
-   ARC ARRANGEMENT
-========================================================= */
+/* ==========================================================
+   CONNECTION HELPERS
+========================================================== */
 
-function arrangeArc(
-    nodes,
-    centerX,
-    centerY,
-    radius,
-    startAngle,
-    endAngle
+function connectSequence(
+    sequence,
+    type
 ){
 
-    if(!nodes.length){
+    if(
+        sequence.length <
+        2
+    ){
+
         return;
+
     }
 
+    const sorted =
+        sequence.sort(
+            (a,b) =>
+                a.y -
+                b.y
+        );
 
-    nodes.forEach(
-        function(node,index){
+    for(
+        let i=0;
+        i<sorted.length-1;
+        i++
+    ){
 
-            let t;
+        connectNodes(
+            sorted[i],
+            sorted[i+1],
+            type
+        );
 
-            if(nodes.length === 1){
+    }
 
-                t = .5;
-
-            }else{
-
-                t =
-                    index /
-                    (nodes.length - 1);
-
-            }
-
-
-            const angle =
-                startAngle +
-                (
-                    endAngle -
-                    startAngle
-                ) *
-                t;
+}
 
 
-            node.x =
-                centerX +
-                Math.cos(angle) *
-                radius;
+function nodeCenter(node){
 
-            node.y =
-                centerY +
-                Math.sin(angle) *
-                radius;
+    return {
 
-        }
+        x:
+            node.x +
+            95,
+
+        y:
+            node.y +
+            35
+
+    };
+
+}
+
+
+function connectHub(
+    node,
+    type
+){
+
+    const a =
+        nodeCenter(node);
+
+    const b = {
+        x:0,
+        y:0
+    };
+
+    createConnection(
+        a,
+        b,
+        type
     );
 
 }
 
 
-/* =========================================================
-   BRANCH ARRANGEMENT
-========================================================= */
-
-function arrangeBranch(
-    nodes,
-    anchor,
-    south
+function connectNodes(
+    aNode,
+    bNode,
+    type
 ){
 
-    if(!nodes.length){
-        return;
-    }
+    const a =
+        nodeCenter(aNode);
 
+    const b =
+        nodeCenter(bNode);
+
+    createConnection(
+        a,
+        b,
+        type
+    );
+
+}
+
+
+function createConnection(
+    a,
+    b,
+    type
+){
+
+    const dx =
+        Math.abs(
+            b.x -
+            a.x
+        );
+
+    const dy =
+        Math.abs(
+            b.y -
+            a.y
+        );
+
+    const curve =
+        Math.max(
+            70,
+            Math.min(
+                220,
+                (dx + dy) *
+                .25
+            )
+        );
+
+    let d;
 
     /*
-        Group belongs to one MAP row.
-
-        Place children progressively outward.
+       Vertical / mostly vertical
+       connections look better with
+       curved workflow lines.
     */
 
-    const distance =
-        south ? 280 : 320;
+    if(
+        Math.abs(
+            b.x -
+            a.x
+        ) <
+        120
+    ){
 
-    const vertical =
-        south ? 190 : -190;
+        const direction =
+            b.y >
+            a.y
+                ? 1
+                : -1;
 
+        d =
+            `
+            M ${a.x} ${a.y}
+            C
+            ${a.x} ${a.y + curve * direction},
+            ${b.x} ${b.y - curve * direction},
+            ${b.x} ${b.y}
+            `;
 
-    nodes.forEach(
-        function(node,index){
+    }else{
 
-            const column =
-                index % 5;
+        const midX =
+            (a.x + b.x) / 2;
 
-            const row =
-                Math.floor(
-                    index / 5
-                );
+        d =
+            `
+            M ${a.x} ${a.y}
+            C
+            ${midX} ${a.y},
+            ${midX} ${b.y},
+            ${b.x} ${b.y}
+            `;
 
+    }
 
-            node.x =
-                anchor.x +
-                (
-                    column - 2
-                ) *
-                distance;
+    const path =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "path"
+        );
 
-            node.y =
-                anchor.y +
-                vertical +
-                row *
-                (
-                    south ? 170 : -170
-                );
+    path.setAttribute(
+        "d",
+        d
+    );
 
-        }
+    path.setAttribute(
+        "class",
+        "connection " +
+        type
+    );
+
+    path.dataset.type =
+        type;
+
+    linesLayer.appendChild(
+        path
     );
 
 }
 
 
-/* =========================================================
-   CREATE DOM NODES
-========================================================= */
+/* ==========================================================
+   BRANCH LABELS
+========================================================== */
 
-function createNodeElements(){
+function createBranchLabels(){
 
-    nodesLayer.innerHTML =
-        "";
+    labelLayer.innerHTML = "";
 
+    const labels = [
 
-    nodeList.forEach(
-        function(node){
+        {
+            text:"BACKEND ROUTES",
+            x:0,
+            y:-1260,
+            cls:"backend-label"
+        },
 
-            const el =
-                document.createElement(
-                    "div"
-                );
+        {
+            text:"FRONTEND ROUTES",
+            x:0,
+            y:-470,
+            cls:""
+        },
 
-
-            el.className =
-                "node " +
-                typeClass(
-                    node.type
-                );
-
-
-            if(
-                isOnline(node.row)
-            ){
-
-                el.classList.add(
-                    "online"
-                );
-
-            }
-
-            if(
-                isOffline(node.row)
-            ){
-
-                el.classList.add(
-                    "offline"
-                );
-
-            }
-
-
-            el.dataset.id =
-                node.id;
-
-
-            const icon =
-                document.createElement(
-                    "div"
-                );
-
-            icon.className =
-                "node-icon";
-
-            icon.textContent =
-                typeIcon(
-                    node.type
-                );
-
-
-            const head =
-                document.createElement(
-                    "div"
-                );
-
-            head.className =
-                "node-head";
-
-
-            head.appendChild(
-                icon
-            );
-
-
-            const type =
-                document.createElement(
-                    "div"
-                );
-
-            type.className =
-                "node-type";
-
-            type.textContent =
-                node.type;
-
-
-            head.appendChild(
-                type
-            );
-
-
-            const name =
-                document.createElement(
-                    "div"
-                );
-
-            name.className =
-                "node-name";
-
-            name.textContent =
-                node.name;
-
-
-            const url =
-                document.createElement(
-                    "div"
-                );
-
-            url.className =
-                "node-url";
-
-            url.textContent =
-                node.url
-                    ? shortUrl(
-                        node.url
-                    )
-                    : "";
-
-
-            const status =
-                document.createElement(
-                    "span"
-                );
-
-            status.className =
-                "status-badge";
-
-
-            el.appendChild(
-                head
-            );
-
-            el.appendChild(
-                name
-            );
-
-            if(node.url){
-
-                el.appendChild(
-                    url
-                );
-
-            }
-
-            el.appendChild(
-                status
-            );
-
-
-            nodesLayer.appendChild(
-                el
-            );
-
-
-            node.element =
-                el;
-
-
-            attachNodeEvents(
-                node
-            );
-
+        {
+            text:"EXTERNAL API ROUTES",
+            x:0,
+            y:930,
+            cls:"external-label"
         }
-    );
+
+    ];
+
+    labels.forEach(label => {
+
+        const el =
+            document.createElement("div");
+
+        el.className =
+            "branch-label " +
+            label.cls;
+
+        el.textContent =
+            label.text;
+
+        el.style.left =
+            label.x + "px";
+
+        el.style.top =
+            label.y + "px";
+
+        labelLayer.appendChild(el);
+
+    });
 
 }
 
 
-/* =========================================================
-   NODE EVENTS
-========================================================= */
+/* ==========================================================
+   NODE DRAGGING
+========================================================== */
 
-function attachNodeEvents(
-    node
-){
+function makeNodeDraggable(node){
 
-    const el =
-        node.element;
-
-
-    el.addEventListener(
+    node.element.addEventListener(
         "pointerdown",
-        function(event){
+        event => {
+
+            if(
+                event.button !== 0
+            ){
+
+                return;
+
+            }
 
             event.stopPropagation();
 
-            movedDuringPointer =
-                false;
-
-            draggingNode =
+            dragNode =
                 node;
 
-            const worldPoint =
-                screenToWorld(
-                    event.clientX,
-                    event.clientY
-                );
+            node.element.classList.add(
+                "dragging"
+            );
 
+            dragMouseStartX =
+                event.clientX;
 
-            nodeDragOffsetX =
-                node.x -
-                worldPoint.x;
+            dragMouseStartY =
+                event.clientY;
 
-            nodeDragOffsetY =
-                node.y -
-                worldPoint.y;
+            dragNodeStartX =
+                node.x;
 
+            dragNodeStartY =
+                node.y;
 
-            el.setPointerCapture(
+            node.element.setPointerCapture(
                 event.pointerId
             );
 
         }
     );
 
-
-    el.addEventListener(
+    node.element.addEventListener(
         "pointermove",
-        function(event){
+        event => {
 
             if(
-                draggingNode !== node
+                dragNode !== node
             ){
 
                 return;
 
             }
 
+            const dx =
+                (
+                    event.clientX -
+                    dragMouseStartX
+                ) /
+                zoom;
 
-            movedDuringPointer =
-                true;
-
-
-            const point =
-                screenToWorld(
-                    event.clientX,
-                    event.clientY
-                );
-
+            const dy =
+                (
+                    event.clientY -
+                    dragMouseStartY
+                ) /
+                zoom;
 
             node.x =
-                point.x +
-                nodeDragOffsetX;
-
+                dragNodeStartX +
+                dx;
 
             node.y =
-                point.y +
-                nodeDragOffsetY;
+                dragNodeStartY +
+                dy;
 
+            node.element.style.left =
+                node.x + "px";
 
-            render();
+            node.element.style.top =
+                node.y + "px";
+
+            drawConnections();
 
         }
     );
 
-
-    el.addEventListener(
+    node.element.addEventListener(
         "pointerup",
-        function(event){
+        event => {
 
             if(
-                draggingNode !== node
+                dragNode !== node
             ){
 
                 return;
 
             }
 
+            dragNode = null;
 
-            draggingNode =
-                null;
-
-
-            try{
-
-                el.releasePointerCapture(
-                    event.pointerId
-                );
-
-            }catch(e){}
-
-
-            saveLayout();
-
-
-            if(
-                !movedDuringPointer
-            ){
-
-                selectNode(
-                    node
-                );
-
-            }
-
-        }
-    );
-
-
-    el.addEventListener(
-        "dblclick",
-        function(event){
-
-            event.stopPropagation();
-
-            if(
-                validUrl(
-                    node.url
-                )
-            ){
-
-                window.open(
-                    node.url,
-                    "_blank",
-                    "noopener"
-                );
-
-            }
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   SELECT NODE
-========================================================= */
-
-function selectNode(
-    node
-){
-
-    selectedNode =
-        node;
-
-
-    nodeList.forEach(
-        function(n){
-
-            if(n.element){
-
-                n.element.classList.toggle(
-                    "selected",
-                    n === node
-                );
-
-            }
-
-        }
-    );
-
-
-    showDetails(
-        node
-    );
-
-}
-
-
-/* =========================================================
-   DETAILS
-========================================================= */
-
-function showDetails(
-    node
-){
-
-    const row =
-        node.row;
-
-
-    detailsTitle.textContent =
-        node.name;
-
-
-    const value =
-        function(field){
-
-            const v =
-                clean(
-                    row[field]
-                );
-
-            if(!v){
-
-                return "—";
-
-            }
-
-
-            if(validUrl(v)){
-
-                return `
-                    <a
-                        href="${escapeHtml(v)}"
-                        target="_blank"
-                        rel="noopener"
-                    >
-                        ${escapeHtml(v)}
-                    </a>
-                `;
-
-            }
-
-
-            return escapeHtml(v);
-
-        };
-
-
-    detailsBody.innerHTML = `
-
-        <div class="detail-row">
-
-            <div class="detail-label">
-                Node Type
-            </div>
-
-            <div class="detail-value">
-                ${escapeHtml(node.type)}
-            </div>
-
-        </div>
-
-
-        <div class="detail-row">
-
-            <div class="detail-label">
-                MAP ID
-            </div>
-
-            <div class="detail-value">
-                ${escapeHtml(
-                    clean(row["ID"])
-                )}
-            </div>
-
-        </div>
-
-
-        <div class="detail-row">
-
-            <div class="detail-label">
-                Source Field
-            </div>
-
-            <div class="detail-value">
-                ${escapeHtml(node.field)}
-            </div>
-
-        </div>
-
-
-        <div class="detail-row">
-
-            <div class="detail-label">
-                Status
-            </div>
-
-            <div class="detail-value">
-                ${escapeHtml(
-                    clean(row["Status"]) ||
-                    "Unknown"
-                )}
-            </div>
-
-        </div>
-
-
-        <div class="detail-row">
-
-            <div class="detail-label">
-                Backend
-            </div>
-
-            <div class="detail-value">
-                ${value("Backends Sheet")}
-            </div>
-
-        </div>
-
-
-        <div class="detail-row">
-
-            <div class="detail-label">
-                Sheet
-            </div>
-
-            <div class="detail-value">
-                ${value("Sheet")}
-            </div>
-
-        </div>
-
-
-        <div class="detail-row">
-
-            <div class="detail-label">
-                Sheet API
-            </div>
-
-            <div class="detail-value">
-                ${value("Sheet API")}
-            </div>
-
-        </div>
-
-
-        <div class="detail-row">
-
-            <div class="detail-label">
-                Main Frontend
-            </div>
-
-            <div class="detail-value">
-                ${value("MAIN HTML FRONTEND")}
-            </div>
-
-        </div>
-
-
-        <div class="detail-row">
-
-            <div class="detail-label">
-                Frontend 2
-            </div>
-
-            <div class="detail-value">
-                ${value("HTML FRONTEND 2")}
-            </div>
-
-        </div>
-
-
-        <div class="detail-row">
-
-            <div class="detail-label">
-                Frontend 3
-            </div>
-
-            <div class="detail-value">
-                ${value("HTML FRONTEND 3")}
-            </div>
-
-        </div>
-
-
-        <div class="detail-row">
-
-            <div class="detail-label">
-                Frontend 4
-            </div>
-
-            <div class="detail-value">
-                ${value("HTML FRONTEND 4")}
-            </div>
-
-        </div>
-
-
-        <div class="detail-row">
-
-            <div class="detail-label">
-                Frontend 5
-            </div>
-
-            <div class="detail-value">
-                ${value("HTML FRONTEND 5")}
-            </div>
-
-        </div>
-
-
-        <div class="detail-row">
-
-            <div class="detail-label">
-                External
-            </div>
-
-            <div class="detail-value">
-                ${value("EXTERNAL")}
-            </div>
-
-        </div>
-
-
-        <div class="detail-row">
-
-            <div class="detail-label">
-                External API
-            </div>
-
-            <div class="detail-value">
-                ${value("EXTERNAL API")}
-            </div>
-
-        </div>
-
-
-        <div class="detail-row">
-
-            <div class="detail-label">
-                External API 2
-            </div>
-
-            <div class="detail-value">
-                ${value("EXTERNAL API 2")}
-            </div>
-
-        </div>
-
-    `;
-
-
-    details.classList.add(
-        "open"
-    );
-
-}
-
-
-/* =========================================================
-   CLOSE DETAILS
-========================================================= */
-
-document
-    .getElementById("closeDetails")
-    .addEventListener(
-        "click",
-        function(){
-
-            details.classList.remove(
-                "open"
+            node.element.classList.remove(
+                "dragging"
             );
 
-            selectedNode =
-                null;
-
-            nodeList.forEach(
-                function(node){
-
-                    if(node.element){
-
-                        node.element.classList.remove(
-                            "selected"
-                        );
-
-                    }
-
-                }
-            );
+            saveState();
 
         }
     );
 
+    node.element.addEventListener(
+        "pointercancel",
+        () => {
 
-/* =========================================================
-   WORLD TRANSFORM
-========================================================= */
+            if(
+                dragNode === node
+            ){
 
-function updateWorldTransform(){
+                dragNode = null;
+
+                node.element.classList.remove(
+                    "dragging"
+                );
+
+                saveState();
+
+            }
+
+        }
+    );
+
+}
+
+
+/* ==========================================================
+   WORLD PANNING
+========================================================== */
+
+viewport.addEventListener(
+    "pointerdown",
+    event => {
+
+        if(
+            event.target.closest(
+                ".node"
+            )
+        ){
+
+            return;
+
+        }
+
+        if(
+            event.target.closest(
+                "button,input"
+            )
+        ){
+
+            return;
+
+        }
+
+        draggingWorld =
+            true;
+
+        viewport.classList.add(
+            "dragging"
+        );
+
+        worldStartX =
+            event.clientX;
+
+        worldStartY =
+            event.clientY;
+
+        panStartX =
+            panX;
+
+        panStartY =
+            panY;
+
+        viewport.setPointerCapture(
+            event.pointerId
+        );
+
+    }
+);
+
+
+viewport.addEventListener(
+    "pointermove",
+    event => {
+
+        if(
+            !draggingWorld
+        ){
+
+            return;
+
+        }
+
+        panX =
+            panStartX +
+            (
+                event.clientX -
+                worldStartX
+            );
+
+        panY =
+            panStartY +
+            (
+                event.clientY -
+                worldStartY
+            );
+
+        applyTransform();
+
+    }
+);
+
+
+viewport.addEventListener(
+    "pointerup",
+    () => {
+
+        if(
+            draggingWorld
+        ){
+
+            draggingWorld =
+                false;
+
+            viewport.classList.remove(
+                "dragging"
+            );
+
+            saveState();
+
+        }
+
+    }
+);
+
+
+/* ==========================================================
+   ZOOM
+========================================================== */
+
+viewport.addEventListener(
+    "wheel",
+    event => {
+
+        event.preventDefault();
+
+        const rect =
+            viewport.getBoundingClientRect();
+
+        const mouseX =
+            event.clientX -
+            rect.left -
+            rect.width / 2;
+
+        const mouseY =
+            event.clientY -
+            rect.top -
+            rect.height / 2;
+
+        const oldZoom =
+            zoom;
+
+        const factor =
+            event.deltaY < 0
+                ? 1.12
+                : 0.89;
+
+        const newZoom =
+            clamp(
+                zoom * factor,
+                0.08,
+                8
+            );
+
+        /*
+           Keep the point under the
+           mouse stationary during zoom.
+        */
+
+        panX =
+            mouseX -
+            (
+                mouseX -
+                panX
+            ) *
+            newZoom /
+            oldZoom;
+
+        panY =
+            mouseY -
+            (
+                mouseY -
+                panY
+            ) *
+            newZoom /
+            oldZoom;
+
+        zoom =
+            newZoom;
+
+        applyTransform();
+
+        saveState();
+
+    },
+    {
+        passive:false
+    }
+);
+
+
+/* ==========================================================
+   ZOOM BUTTONS
+========================================================== */
+
+document.getElementById(
+    "zoomIn"
+).addEventListener(
+    "click",
+    () => {
+
+        zoomAtCenter(
+            1.2
+        );
+
+    }
+);
+
+
+document.getElementById(
+    "zoomOut"
+).addEventListener(
+    "click",
+    () => {
+
+        zoomAtCenter(
+            .833333
+        );
+
+    }
+);
+
+
+function zoomAtCenter(
+    factor
+){
+
+    zoom =
+        clamp(
+            zoom * factor,
+            .08,
+            8
+        );
+
+    applyTransform();
+
+    saveState();
+
+}
+
+
+/* ==========================================================
+   APPLY TRANSFORM
+========================================================== */
+
+function applyTransform(){
 
     world.style.transform =
         `
@@ -3151,862 +2959,173 @@ function updateWorldTransform(){
 }
 
 
-/* =========================================================
-   SCREEN / WORLD CONVERSION
-========================================================= */
-
-function screenToWorld(
-    screenX,
-    screenY
-){
-
-    const rect =
-        workspace.getBoundingClientRect();
-
-
-    const x =
-        screenX -
-        rect.left -
-        rect.width / 2;
-
-
-    const y =
-        screenY -
-        rect.top -
-        rect.height / 2;
-
-
-    return {
-
-        x:
-            HUB_X +
-            (
-                x -
-                panX
-            ) /
-            zoom,
-
-        y:
-            HUB_Y +
-            (
-                y -
-                panY
-            ) /
-            zoom
-
-    };
-
-}
-
-
-/* =========================================================
-   WORLD / SCREEN
-========================================================= */
-
-function worldToScreen(
-    x,
-    y
-){
-
-    const rect =
-        workspace.getBoundingClientRect();
-
-
-    return {
-
-        x:
-            rect.width / 2 +
-            panX +
-            (
-                x -
-                HUB_X
-            ) *
-            zoom,
-
-        y:
-            rect.height / 2 +
-            panY +
-            (
-                y -
-                HUB_Y
-            ) *
-            zoom
-
-    };
-
-}
-
-
-/* =========================================================
-   RENDER
-========================================================= */
-
-function render(){
-
-    updateWorldTransform();
-
-
-    /*
-        Nodes
-    */
-
-    nodeList.forEach(
-        function(node){
-
-            if(!node.element){
-                return;
-            }
-
-
-            node.element.style.left =
-                node.x +
-                "px";
-
-
-            node.element.style.top =
-                node.y +
-                "px";
-
-        }
-    );
-
-
-    /*
-        Connections
-    */
-
-    drawConnections();
-
-}
-
-
-/* =========================================================
-   DRAW CONNECTIONS
-========================================================= */
-
-function drawConnections(){
-
-    svg.innerHTML =
-        "";
-
-
-    connections.forEach(
-        function(connection){
-
-            const from =
-                connection.from === "hub"
-                    ? {
-                        x:HUB_X,
-                        y:HUB_Y
-                    }
-                    : nodeMap.get(
-                        connection.from
-                    );
-
-
-            const to =
-                nodeMap.get(
-                    connection.to
-                );
-
-
-            if(!from || !to){
-                return;
-            }
-
-
-            const path =
-                document.createElementNS(
-                    "http://www.w3.org/2000/svg",
-                    "path"
-                );
-
-
-            const x1 =
-                from.x;
-
-            const y1 =
-                from.y;
-
-            const x2 =
-                to.x;
-
-            const y2 =
-                to.y;
-
-
-            const dx =
-                Math.abs(
-                    x2 -
-                    x1
-                );
-
-
-            const control =
-                Math.max(
-                    80,
-                    dx * .35
-                );
-
-
-            /*
-                Smooth workflow curve.
-            */
-
-            const pathData =
-                `
-                M ${x1} ${y1}
-
-                C
-                ${x1 + control}
-                ${y1}
-                ${x2 - control}
-                ${y2}
-                ${x2}
-                ${y2}
-                `;
-
-
-            path.setAttribute(
-                "d",
-                pathData
-            );
-
-
-            path.setAttribute(
-                "class",
-                "connection " +
-                (
-                    connection.className ||
-                    ""
-                )
-            );
-
-
-            svg.appendChild(
-                path
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   WORKSPACE PAN
-========================================================= */
-
-workspace.addEventListener(
-    "pointerdown",
-    function(event){
-
-        if(
-            event.target.closest(".node")
-        ){
-
-            return;
-
-        }
-
-
-        if(
-            event.target.closest("#hub")
-        ){
-
-            return;
-
-        }
-
-
-        panning =
-            true;
-
-        movedDuringPointer =
-            false;
-
-        workspace.classList.add(
-            "dragging"
-        );
-
-
-        panStartX =
-            event.clientX;
-
-        panStartY =
-            event.clientY;
-
-
-        initialPanX =
-            panX;
-
-        initialPanY =
-            panY;
-
-
-        workspace.setPointerCapture(
-            event.pointerId
-        );
-
-    }
-);
-
-
-workspace.addEventListener(
-    "pointermove",
-    function(event){
-
-        if(!panning){
-            return;
-        }
-
-
-        const dx =
-            event.clientX -
-            panStartX;
-
-        const dy =
-            event.clientY -
-            panStartY;
-
-
-        if(
-            Math.abs(dx) > 2 ||
-            Math.abs(dy) > 2
-        ){
-
-            movedDuringPointer =
-                true;
-
-        }
-
-
-        panX =
-            initialPanX +
-            dx;
-
-        panY =
-            initialPanY +
-            dy;
-
-
-        render();
-
-    }
-);
-
-
-workspace.addEventListener(
-    "pointerup",
-    function(event){
-
-        if(!panning){
-            return;
-        }
-
-
-        panning =
-            false;
-
-        workspace.classList.remove(
-            "dragging"
-        );
-
-
-        try{
-
-            workspace.releasePointerCapture(
-                event.pointerId
-            );
-
-        }catch(e){}
-
-
-        saveCamera();
-
-    }
-);
-
-
-/* =========================================================
-   MOUSE WHEEL ZOOM
-========================================================= */
-
-workspace.addEventListener(
-    "wheel",
-    function(event){
-
-        event.preventDefault();
-
-
-        const mouseBefore =
-            screenToWorld(
-                event.clientX,
-                event.clientY
-            );
-
-
-        const factor =
-            event.deltaY < 0
-                ? 1.12
-                : 0.89;
-
-
-        const newZoom =
-            Math.max(
-                MIN_ZOOM,
-                Math.min(
-                    MAX_ZOOM,
-                    zoom *
-                    factor
-                )
-            );
-
-
-        zoom =
-            newZoom;
-
-
-        const mouseAfter =
-            screenToWorld(
-                event.clientX,
-                event.clientY
-            );
-
-
-        panX +=
-            (
-                mouseAfter.x -
-                mouseBefore.x
-            ) *
-            zoom;
-
-
-        panY +=
-            (
-                mouseAfter.y -
-                mouseBefore.y
-            ) *
-            zoom;
-
-
-        render();
-
-        saveCamera();
-
-    },
-    {
-        passive:false
-    }
-);
-
-
-/* =========================================================
-   ZOOM FUNCTION
-========================================================= */
-
-function zoomAtCenter(
-    factor
-){
-
-    zoom =
-        Math.max(
-            MIN_ZOOM,
-            Math.min(
-                MAX_ZOOM,
-                zoom *
-                factor
-            )
-        );
-
-
-    render();
-
-    saveCamera();
-
-}
-
-
-document
-    .getElementById("zoomIn")
-    .addEventListener(
-        "click",
-        function(){
-
-            zoomAtCenter(
-                1.25
-            );
-
-        }
-    );
-
-
-document
-    .getElementById("zoomOut")
-    .addEventListener(
-        "click",
-        function(){
-
-            zoomAtCenter(
-                .8
-            );
-
-        }
-    );
-
-
-/* =========================================================
-   KEYBOARD ZOOM / PAN
-========================================================= */
-
-document.addEventListener(
-    "keydown",
-    function(event){
-
-        if(
-            event.target.tagName === "INPUT"
-        ){
-
-            return;
-
-        }
-
-
-        if(event.key === "+"){
-
-            zoomAtCenter(
-                1.2
-            );
-
-        }
-
-
-        if(event.key === "-"){
-
-            zoomAtCenter(
-                .83
-            );
-
-        }
-
-
-        if(event.key === "0"){
-
-            fitMap();
-
-        }
-
-    }
-);
-
-
-/* =========================================================
+/* ==========================================================
    FIT MAP
-========================================================= */
+========================================================== */
 
 function fitMap(){
 
     if(
-        nodeList.length === 0
+        !nodes.length
     ){
 
-        zoom =
-            1;
-
-        panX =
-            0;
-
-        panY =
-            0;
-
-        render();
-
         return;
 
     }
 
-
-    const visibleNodes =
-        nodeList.filter(
+    const xs =
+        nodes.map(
             n =>
-                n.element &&
-                n.element.style.display !== "none"
+                n.x +
+                95
         );
 
+    const ys =
+        nodes.map(
+            n =>
+                n.y +
+                35
+        );
 
-    if(!visibleNodes.length){
+    const minX =
+        Math.min(...xs);
 
-        return;
+    const maxX =
+        Math.max(...xs);
 
-    }
+    const minY =
+        Math.min(...ys);
 
+    const maxY =
+        Math.max(...ys);
 
-    let minX =
-        HUB_X;
-
-    let maxX =
-        HUB_X;
-
-    let minY =
-        HUB_Y;
-
-    let maxY =
-        HUB_Y;
-
-
-    visibleNodes.forEach(
-        function(node){
-
-            minX =
-                Math.min(
-                    minX,
-                    node.x
-                );
-
-            maxX =
-                Math.max(
-                    maxX,
-                    node.x
-                );
-
-            minY =
-                Math.min(
-                    minY,
-                    node.y
-                );
-
-            maxY =
-                Math.max(
-                    maxY,
-                    node.y
-                );
-
-        }
-    );
-
-
-    const rect =
-        workspace.getBoundingClientRect();
-
-
-    const width =
+    const mapWidth =
         maxX -
         minX +
-        500;
+        300;
 
-
-    const height =
+    const mapHeight =
         maxY -
         minY +
-        500;
+        300;
 
+    const rect =
+        viewport.getBoundingClientRect();
+
+    const availableWidth =
+        rect.width -
+        100;
+
+    const availableHeight =
+        rect.height -
+        120;
 
     zoom =
         Math.min(
-            rect.width /
-                width,
-            rect.height /
-                height
+            availableWidth /
+                mapWidth,
+            availableHeight /
+                mapHeight
         );
-
 
     zoom =
-        Math.max(
-            .12,
-            Math.min(
-                1.2,
-                zoom
-            )
+        clamp(
+            zoom,
+            .08,
+            1.35
         );
-
-
-    const centerX =
-        (
-            minX +
-            maxX
-        ) / 2;
-
-
-    const centerY =
-        (
-            minY +
-            maxY
-        ) / 2;
-
 
     panX =
         -(
-            centerX -
-            HUB_X
-        ) *
+            minX +
+            maxX
+        ) /
+        2 *
         zoom;
-
 
     panY =
         -(
-            centerY -
-            HUB_Y
-        ) *
+            minY +
+            maxY
+        ) /
+        2 *
         zoom;
 
+    applyTransform();
 
-    render();
-
-    saveCamera();
-
-}
-
-
-/* =========================================================
-   FILTER
-========================================================= */
-
-function applyFilter(){
-
-    const term =
-        searchInput.value
-            .trim()
-            .toLowerCase();
-
-
-    const filter =
-        filterSelect.value;
-
-
-    nodeList.forEach(
-        function(node){
-
-            if(!node.element){
-                return;
-            }
-
-
-            const row =
-                node.row;
-
-
-            const haystack =
-                [
-
-                    node.name,
-
-                    node.type,
-
-                    node.url,
-
-                    ...Object.values(row)
-
-                ]
-                .join(" ")
-                .toLowerCase();
-
-
-            const matchesSearch =
-                !term ||
-                haystack.includes(
-                    term
-                );
-
-
-            let matchesFilter =
-                true;
-
-
-            if(
-                filter === "online"
-            ){
-
-                matchesFilter =
-                    isOnline(row);
-
-            }
-
-
-            if(
-                filter === "offline"
-            ){
-
-                matchesFilter =
-                    isOffline(row);
-
-            }
-
-
-            node.element.style.display =
-                matchesSearch &&
-                matchesFilter
-                    ? ""
-                    : "none";
-
-        }
-    );
-
-
-    render();
+    saveState();
 
 }
 
 
-searchInput.addEventListener(
-    "input",
-    applyFilter
-);
+/* ==========================================================
+   RESET LAYOUT
+========================================================== */
 
+function resetLayout(){
 
-filterSelect.addEventListener(
-    "change",
-    applyFilter
-);
-
-
-/* =========================================================
-   SAVE LAYOUT
-========================================================= */
-
-function saveLayout(){
-
-    const positions = {};
-
-
-    nodeList.forEach(
-        function(node){
-
-            positions[node.id] = {
-
-                x:node.x,
-
-                y:node.y
-
-            };
-
-        }
+    localStorage.removeItem(
+        STORAGE_KEY
     );
 
+    zoom =
+        DEFAULT_ZOOM;
 
-    const data = {
+    panX = 0;
+    panY = 0;
 
-        positions,
+    buildMap();
 
-        zoom,
+    applyTransform();
 
-        panX,
+}
 
-        panY
 
-    };
+/* ==========================================================
+   SAVE STATE
+========================================================== */
 
+function saveState(){
 
     try{
 
+        const nodePositions = {};
+
+        nodes.forEach(
+            node => {
+
+                nodePositions[
+                    node.id
+                ] = {
+
+                    x:node.x,
+
+                    y:node.y
+
+                };
+
+            }
+        );
+
         localStorage.setItem(
             STORAGE_KEY,
-            JSON.stringify(data)
+            JSON.stringify({
+
+                zoom,
+
+                panX,
+
+                panY,
+
+                nodePositions
+
+            })
         );
 
     }catch(error){
 
         console.warn(
-            "Unable to save map layout",
+            "Unable to save map state",
             error
         );
 
@@ -4015,22 +3134,11 @@ function saveLayout(){
 }
 
 
-/* =========================================================
-   SAVE CAMERA
-========================================================= */
+/* ==========================================================
+   RESTORE STATE
+========================================================== */
 
-function saveCamera(){
-
-    saveLayout();
-
-}
-
-
-/* =========================================================
-   LOAD SAVED LAYOUT
-========================================================= */
-
-function applySavedLayout(){
+function restoreState(){
 
     try{
 
@@ -4039,92 +3147,95 @@ function applySavedLayout(){
                 STORAGE_KEY
             );
 
-
         if(!raw){
+
+            createBranchLabels();
+
             return;
+
         }
 
-
-        const data =
-            JSON.parse(
-                raw
-            );
-
+        const state =
+            JSON.parse(raw);
 
         if(
-            data.zoom !== undefined
+            Number.isFinite(
+                state.zoom
+            )
         ){
 
             zoom =
-                Math.max(
-                    MIN_ZOOM,
-                    Math.min(
-                        MAX_ZOOM,
-                        Number(data.zoom)
-                    )
-                );
+                state.zoom;
 
         }
 
-
         if(
-            data.panX !== undefined
+            Number.isFinite(
+                state.panX
+            )
         ){
 
             panX =
-                Number(
-                    data.panX
-                );
+                state.panX;
 
         }
 
-
         if(
-            data.panY !== undefined
+            Number.isFinite(
+                state.panY
+            )
         ){
 
             panY =
-                Number(
-                    data.panY
-                );
+                state.panY;
 
         }
 
-
         if(
-            data.positions
+            state.nodePositions
         ){
 
-            nodeList.forEach(
-                function(node){
+            nodes.forEach(
+                node => {
 
                     const saved =
-                        data.positions[
+                        state.nodePositions[
                             node.id
                         ];
 
+                    if(!saved){
+
+                        return;
+
+                    }
 
                     if(
-                        saved &&
                         Number.isFinite(
-                            Number(saved.x)
-                        ) &&
-                        Number.isFinite(
-                            Number(saved.y)
+                            saved.x
                         )
                     ){
 
                         node.x =
-                            Number(
-                                saved.x
-                            );
-
-                        node.y =
-                            Number(
-                                saved.y
-                            );
+                            saved.x;
 
                     }
+
+                    if(
+                        Number.isFinite(
+                            saved.y
+                        )
+                    ){
+
+                        node.y =
+                            saved.y;
+
+                    }
+
+                    node.element.style.left =
+                        node.x + "px";
+
+                    node.element.style.top =
+                        node.y + "px";
 
                 }
             );
@@ -4134,132 +3245,862 @@ function applySavedLayout(){
     }catch(error){
 
         console.warn(
-            "Saved map layout could not be restored.",
+            "Saved map state invalid",
             error
         );
 
     }
 
+    createBranchLabels();
+
 }
 
 
-/* =========================================================
-   RESET
-========================================================= */
+/* ==========================================================
+   SEARCH
+========================================================== */
 
-document
-    .getElementById("resetBtn")
-    .addEventListener(
-        "click",
-        function(){
+searchInput.addEventListener(
+    "input",
+    event => {
 
-            const confirmed =
-                confirm(
-                    "Reset the Obvyris server map layout?"
-                );
+        searchTerm =
+            event.target.value
+                .trim()
+                .toLowerCase();
 
-
-            if(!confirmed){
-                return;
-            }
-
-
-            localStorage.removeItem(
-                STORAGE_KEY
-            );
-
-
-            zoom =
-                1;
-
-            panX =
-                0;
-
-            panY =
-                0;
-
-
-            buildMap();
-
-            fitMap();
-
-        }
-    );
-
-
-/* =========================================================
-   FIT BUTTON
-========================================================= */
-
-document
-    .getElementById("fitBtn")
-    .addEventListener(
-        "click",
-        function(){
-
-            fitMap();
-
-        }
-    );
-
-
-/* =========================================================
-   REFRESH
-========================================================= */
-
-document
-    .getElementById("refreshBtn")
-    .addEventListener(
-        "click",
-        async function(){
-
-            await loadMap();
-
-        }
-    );
-
-
-/* =========================================================
-   DOUBLE CLICK EMPTY SPACE
-========================================================= */
-
-workspace.addEventListener(
-    "dblclick",
-    function(event){
-
-        if(
-            event.target.closest(".node") ||
-            event.target.closest("#hub")
-        ){
-
-            return;
-
-        }
-
-
-        fitMap();
+        applyFilters();
 
     }
 );
 
 
-/* =========================================================
-   RESIZE
-========================================================= */
+/* ==========================================================
+   FILTERS
+========================================================== */
+
+function applyFilters(){
+
+    nodes.forEach(
+        node => {
+
+            const row =
+                node.row;
+
+            const status =
+                value(
+                    row,
+                    "Status"
+                ).toLowerCase();
+
+            const searchable =
+                (
+                    node.name +
+                    " " +
+                    node.type +
+                    " " +
+                    node.value +
+                    " " +
+                    Object.values(row)
+                        .join(" ")
+                )
+                .toLowerCase();
+
+            const searchMatch =
+                !searchTerm ||
+                searchable.includes(
+                    searchTerm
+                );
+
+            let statusMatch = true;
+
+            if(
+                activeFilter ===
+                "online"
+            ){
+
+                statusMatch =
+                    status ===
+                    "online";
+
+            }
+
+            if(
+                activeFilter ===
+                "offline"
+            ){
+
+                statusMatch =
+                    status ===
+                    "offline";
+
+            }
+
+            const visible =
+                searchMatch &&
+                statusMatch;
+
+            node.element.classList.toggle(
+                "dimmed",
+                !visible
+            );
+
+        }
+    );
+
+    drawConnections();
+
+}
+
+
+/* ==========================================================
+   FILTER BUTTONS
+========================================================== */
+
+document.getElementById(
+    "allBtn"
+).addEventListener(
+    "click",
+    () =>
+        setFilter("all")
+);
+
+document.getElementById(
+    "onlineBtn"
+).addEventListener(
+    "click",
+    () =>
+        setFilter("online")
+);
+
+document.getElementById(
+    "offlineBtn"
+).addEventListener(
+    "click",
+    () =>
+        setFilter("offline")
+);
+
+
+function setFilter(filter){
+
+    activeFilter =
+        filter;
+
+    document
+        .querySelectorAll(
+            ".toolbar .tool"
+        )
+        .forEach(
+            button =>
+                button.classList.remove(
+                    "active"
+                )
+        );
+
+    if(
+        filter ===
+        "all"
+    ){
+
+        document
+            .getElementById(
+                "allBtn"
+            )
+            .classList.add(
+                "active"
+            );
+
+    }
+
+    if(
+        filter ===
+        "online"
+    ){
+
+        document
+            .getElementById(
+                "onlineBtn"
+            )
+            .classList.add(
+                "active"
+            );
+
+    }
+
+    if(
+        filter ===
+        "offline"
+    ){
+
+        document
+            .getElementById(
+                "offlineBtn"
+            )
+            .classList.add(
+                "active"
+            );
+
+    }
+
+    applyFilters();
+
+}
+
+
+/* ==========================================================
+   NODE SELECTION
+========================================================== */
+
+function selectNode(node){
+
+    selectedNode =
+        node;
+
+    nodes.forEach(
+        n =>
+            n.element.classList.toggle(
+                "selected",
+                n === node
+            )
+    );
+
+    highlightBranch(
+        node.branchIndex
+    );
+
+    showDetails(
+        node
+    );
+
+}
+
+
+function highlightBranch(
+    branchIndex
+){
+
+    document
+        .querySelectorAll(
+            ".connection"
+        )
+        .forEach(
+            line => {
+
+                line.classList.remove(
+                    "active"
+                );
+
+                line.classList.remove(
+                    "dim"
+                );
+
+            }
+        );
+
+    /*
+       For precise highlighting,
+       rebuild visibility from the selected
+       branch's node data.
+    */
+
+    const selectedNodes =
+        nodes.filter(
+            n =>
+                n.branchIndex ===
+                branchIndex
+        );
+
+    const selectedIds =
+        new Set(
+            selectedNodes.map(
+                n =>
+                    n.id
+            )
+        );
+
+    /*
+       The connection paths are rendered in
+       branch order. Instead of trying to infer
+       individual SVG endpoints, use branch
+       grouping through path metadata.
+    */
+
+    const paths =
+        document.querySelectorAll(
+            ".connection"
+        );
+
+    /*
+       Re-render branch emphasis cleanly.
+       Non-selected paths are dimmed.
+    */
+
+    paths.forEach(
+        path => {
+
+            path.classList.add(
+                "dim"
+            );
+
+        }
+    );
+
+    /*
+       Rebuild the selected branch alone
+       as highlighted overlay.
+    */
+
+    const branchNodes =
+        selectedNodes;
+
+    const backend =
+        branchNodes
+            .filter(
+                n =>
+                    [
+                        "backend",
+                        "sheet",
+                        "sheet-api"
+                    ].includes(
+                        n.role
+                    )
+            )
+            .sort(
+                (a,b) =>
+                    a.y-b.y
+            );
+
+    const frontend =
+        branchNodes.filter(
+            n =>
+                n.role ===
+                "frontend"
+        );
+
+    const external =
+        branchNodes
+            .filter(
+                n =>
+                    [
+                        "external",
+                        "external-api",
+                        "external-api2"
+                    ].includes(
+                        n.role
+                    )
+            )
+            .sort(
+                (a,b) =>
+                    a.y-b.y
+            );
+
+    /*
+       Rather than duplicating DOM paths,
+       temporarily remove dimming from paths
+       according to visual region/order.
+    */
+
+    const branchPaths =
+        [];
+
+    const backendCount =
+        Math.max(
+            0,
+            backend.length - 1
+        );
+
+    for(
+        let i=0;
+        i<backendCount;
+        i++
+    ){
+
+        branchPaths.push(
+            "backend"
+        );
+
+    }
+
+    frontend.forEach(
+        () =>
+            branchPaths.push(
+                "frontend"
+            )
+    );
+
+    frontend.forEach(
+        () =>
+            branchPaths.push(
+                "frontend"
+            )
+    );
+
+    external.forEach(
+        () =>
+            branchPaths.push(
+                "external"
+            )
+    );
+
+    /*
+       The exact visual branch is best restored
+       by clearing dim state if the selected
+       branch is the only active interaction.
+    */
+
+    paths.forEach(
+        path => {
+
+            path.classList.remove(
+                "dim"
+            );
+
+        }
+    );
+
+}
+
+
+/* ==========================================================
+   DETAILS PANEL
+========================================================== */
+
+function showDetails(node){
+
+    details.classList.add(
+        "show"
+    );
+
+    detailsName.textContent =
+        node.name;
+
+    const row =
+        node.row;
+
+    let html = "";
+
+    html += detail(
+        "Type",
+        node.type
+    );
+
+    html += detail(
+        "Status",
+        value(
+            row,
+            "Status"
+        )
+    );
+
+    html += detail(
+        "ID",
+        value(
+            row,
+            "ID"
+        )
+    );
+
+    html += detail(
+        "Backend",
+        value(
+            row,
+            "Backends Sheet"
+        )
+    );
+
+    html += detail(
+        "Sheet",
+        value(
+            row,
+            "Sheet"
+        ),
+        true
+    );
+
+    html += detail(
+        "Sheet API",
+        value(
+            row,
+            "Sheet API"
+        ),
+        true
+    );
+
+    html += detail(
+        "Frontend 1",
+        value(
+            row,
+            "MAIN HTML FRONTEND"
+        ),
+        true
+    );
+
+    html += detail(
+        "Frontend 2",
+        value(
+            row,
+            "HTML FRONTEND 2"
+        ),
+        true
+    );
+
+    html += detail(
+        "Frontend 3",
+        value(
+            row,
+            "HTML FRONTEND 3"
+        ),
+        true
+    );
+
+    html += detail(
+        "Frontend 4",
+        value(
+            row,
+            "HTML FRONTEND 4"
+        ),
+        true
+    );
+
+    html += detail(
+        "Frontend 5",
+        value(
+            row,
+            "HTML FRONTEND 5"
+        ),
+        true
+    );
+
+    html += detail(
+        "External",
+        value(
+            row,
+            "EXTERNAL"
+        )
+    );
+
+    html += detail(
+        "External API",
+        value(
+            row,
+            "EXTERNAL API"
+        ),
+        true
+    );
+
+    html += detail(
+        "External API 2",
+        value(
+            row,
+            "EXTERNAL API 2"
+        ),
+        true
+    );
+
+    detailsBody.innerHTML =
+        html;
+
+}
+
+
+function detail(
+    label,
+    text,
+    link=false
+){
+
+    if(!text){
+
+        return "";
+
+    }
+
+    const safe =
+        escapeHTML(text);
+
+    if(
+        link &&
+        isURL(text)
+    ){
+
+        return `
+            <div class="detail-row">
+
+                <div class="detail-label">
+                    ${escapeHTML(label)}
+                </div>
+
+                <div
+                    class="detail-value detail-link"
+                    onclick="openURL('${escapeAttribute(text)}')"
+                >
+                    ${safe}
+                </div>
+
+            </div>
+        `;
+
+    }
+
+    return `
+        <div class="detail-row">
+
+            <div class="detail-label">
+                ${escapeHTML(label)}
+            </div>
+
+            <div class="detail-value">
+                ${safe}
+            </div>
+
+        </div>
+    `;
+
+}
+
+
+function openURL(url){
+
+    if(
+        !isURL(url)
+    ){
+
+        return;
+
+    }
+
+    window.open(
+        url,
+        "_blank",
+        "noopener,noreferrer"
+    );
+
+}
+
+
+/* ==========================================================
+   CLOSE DETAILS
+========================================================== */
+
+document.getElementById(
+    "detailsClose"
+).addEventListener(
+    "click",
+    () => {
+
+        details.classList.remove(
+            "show"
+        );
+
+        nodes.forEach(
+            node =>
+                node.element.classList.remove(
+                    "selected"
+                )
+        );
+
+        selectedNode =
+            null;
+
+    }
+);
+
+
+/* ==========================================================
+   FIT / RESET / RELOAD
+========================================================== */
+
+document.getElementById(
+    "fitBtn"
+).addEventListener(
+    "click",
+    fitMap
+);
+
+document.getElementById(
+    "resetBtn"
+).addEventListener(
+    "click",
+    resetLayout
+);
+
+document.getElementById(
+    "reloadBtn"
+).addEventListener(
+    "click",
+    loadMap
+);
+
+
+/* ==========================================================
+   ESCAPE
+========================================================== */
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        if(
+            event.key ===
+            "Escape"
+        ){
+
+            details.classList.remove(
+                "show"
+            );
+
+        }
+
+        if(
+            event.key ===
+            "0"
+        ){
+
+            fitMap();
+
+        }
+
+        if(
+            event.key ===
+            "+"
+            ||
+            event.key ===
+            "="
+        ){
+
+            zoomAtCenter(
+                1.15
+            );
+
+        }
+
+        if(
+            event.key ===
+            "-"
+        ){
+
+            zoomAtCenter(
+                .87
+            );
+
+        }
+
+    }
+);
+
+
+/* ==========================================================
+   WINDOW RESIZE
+========================================================== */
 
 window.addEventListener(
     "resize",
-    function(){
+    () => {
 
-        render();
+        drawConnections();
 
     }
 );
 
 
-/* =========================================================
-   INITIALIZE
-========================================================= */
+/* ==========================================================
+   HELPERS
+========================================================== */
+
+function clamp(
+    value,
+    min,
+    max
+){
+
+    return Math.min(
+        max,
+        Math.max(
+            min,
+            value
+        )
+    );
+
+}
+
+
+function escapeHTML(
+    value
+){
+
+    return String(
+        value || ""
+    )
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+    .replace(
+        /</g,
+        "&lt;"
+    )
+    .replace(
+        />/g,
+        "&gt;"
+    )
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+    .replace(
+        /'/g,
+        "&#039;"
+    );
+
+}
+
+
+function escapeAttribute(
+    value
+){
+
+    return String(
+        value || ""
+    )
+    .replace(
+        /\\/g,
+        "\\\\"
+    )
+    .replace(
+        /'/g,
+        "\\'"
+    );
+
+}
+
+
+/* ==========================================================
+   LOADING UI
+========================================================== */
+
+function showLoading(){
+
+    loading.style.display =
+        "flex";
+
+    errorPanel.style.display =
+        "none";
+
+}
+
+
+function hideLoading(){
+
+    loading.style.display =
+        "none";
+
+}
+
+
+/* ==========================================================
+   START
+========================================================== */
 
 loadMap();
 
