@@ -2,24 +2,27 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Obvyris Server Architecture Map</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Obvyris Server Map — Data Explorer</title>
 
 <style>
 :root{
-    --bg:#050912;
-    --panel:#0b1220;
-    --panel2:#101a2b;
-    --line:#26364f;
-    --text:#f4f7fb;
-    --muted:#91a0b7;
+    --bg:#07101c;
+    --panel:#0d1826;
+    --panel2:#101f30;
+    --panel3:#13263a;
+    --border:#263b51;
+    --text:#eaf2fb;
+    --muted:#8fa5bb;
     --blue:#2793ff;
-    --cyan:#36d9ff;
-    --green:#38d996;
-    --orange:#ffae42;
+    --blue2:#176fd1;
+    --green:#28d17c;
     --red:#ff5268;
-    --purple:#a87cff;
-    --shadow:0 14px 40px rgba(0,0,0,.45);
+    --yellow:#f4c95d;
+    --purple:#9b7cff;
+    --cyan:#37d9ff;
+    --shadow:0 15px 45px rgba(0,0,0,.35);
 }
 
 *{
@@ -28,83 +31,75 @@
 
 html,
 body{
+    margin:0;
     width:100%;
     height:100%;
-    margin:0;
-    overflow:hidden;
     background:var(--bg);
     color:var(--text);
-    font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    font-family:Inter,Segoe UI,Arial,sans-serif;
+}
+
+body{
+    overflow:hidden;
 }
 
 button,
-input{
+input,
+select,
+textarea{
     font:inherit;
 }
 
-/* =========================================================
-   APP
-========================================================= */
+button{
+    cursor:pointer;
+}
 
-#app{
+.app{
+    display:grid;
+    grid-template-rows:auto auto 1fr;
     width:100%;
-    height:100%;
-    position:relative;
-    overflow:hidden;
+    height:100vh;
 }
 
 /* =========================================================
-   TOP BAR
+   HEADER
 ========================================================= */
 
-#topbar{
-    position:absolute;
-    z-index:1000;
-    top:16px;
-    left:16px;
-    right:16px;
-    height:62px;
-
+.header{
     display:flex;
     align-items:center;
-    gap:14px;
-
-    padding:10px 14px;
-
-    background:rgba(9,16,29,.94);
-    border:1px solid #24334a;
-    border-radius:16px;
-
-    box-shadow:var(--shadow);
-    backdrop-filter:blur(14px);
+    justify-content:space-between;
+    gap:20px;
+    padding:14px 18px;
+    background:#091522;
+    border-bottom:1px solid var(--border);
+    box-shadow:0 5px 25px rgba(0,0,0,.25);
+    z-index:20;
 }
 
 .brand{
     display:flex;
     align-items:center;
-    gap:11px;
-    min-width:230px;
+    gap:12px;
+    min-width:250px;
 }
 
-.brandMark{
-    width:38px;
-    height:38px;
-    border-radius:11px;
-
+.logo{
+    width:42px;
+    height:42px;
+    border-radius:12px;
     display:grid;
     place-items:center;
-
-    background:linear-gradient(145deg,#2793ff,#1454b8);
-    box-shadow:0 0 24px rgba(39,147,255,.35);
-
+    background:linear-gradient(135deg,#2793ff,#7a55ff);
+    color:white;
     font-weight:900;
-    font-size:17px;
+    box-shadow:0 0 25px rgba(39,147,255,.25);
 }
 
-.brandText strong{
-    display:block;
-    font-size:15px;
-    letter-spacing:.7px;
+.brandText h1{
+    margin:0;
+    font-size:17px;
+    letter-spacing:.5px;
 }
 
 .brandText span{
@@ -114,600 +109,415 @@ input{
     font-size:11px;
 }
 
-.toolbar{
-    display:flex;
-    align-items:center;
-    gap:7px;
-    flex:1;
-}
-
-.tool{
-    height:38px;
-    padding:0 12px;
-
-    color:#dce8f8;
-    background:#101b2d;
-
-    border:1px solid #293a53;
-    border-radius:9px;
-
-    cursor:pointer;
-    transition:.15s;
-}
-
-.tool:hover{
-    background:#17253b;
-    border-color:#3d5a7e;
-}
-
-.tool.active{
-    border-color:var(--blue);
-    color:white;
-    box-shadow:0 0 14px rgba(39,147,255,.18);
-}
-
-#search{
-    width:220px;
-    height:38px;
-
-    padding:0 12px;
-
-    color:white;
-    background:#07101d;
-
-    border:1px solid #293a53;
-    border-radius:9px;
-
-    outline:none;
-}
-
-#search:focus{
-    border-color:var(--blue);
-}
-
-#stats{
-    white-space:nowrap;
-    color:var(--muted);
-    font-size:12px;
-}
-
-/* =========================================================
-   MAP
-========================================================= */
-
-#viewport{
-    position:absolute;
-    inset:0;
-
-    overflow:hidden;
-
-    cursor:grab;
-
-    background:
-        radial-gradient(circle at center,rgba(39,147,255,.055),transparent 34%),
-        #050912;
-}
-
-#viewport.dragging{
-    cursor:grabbing;
-}
-
-#world{
-    position:absolute;
-    left:0;
-    top:0;
-
-    width:10000px;
-    height:10000px;
-
-    transform-origin:0 0;
-}
-
-/* grid */
-
-#grid{
-    position:absolute;
-    inset:0;
-
-    width:100%;
-    height:100%;
-
-    background-image:
-        linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),
-        linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
-
-    background-size:80px 80px;
-}
-
-/* =========================================================
-   CONNECTION SVG
-========================================================= */
-
-#connections{
-    position:absolute;
-    left:0;
-    top:0;
-
-    width:10000px;
-    height:10000px;
-
-    overflow:visible;
-
-    pointer-events:none;
-}
-
-.connection{
-    fill:none;
-    stroke-width:2;
-    opacity:.65;
-    vector-effect:non-scaling-stroke;
-}
-
-.connection.backend{
-    stroke:var(--blue);
-}
-
-.connection.frontend{
-    stroke:var(--cyan);
-    stroke-width:2.5;
-}
-
-.connection.external{
-    stroke:var(--orange);
-}
-
-.connection.api{
-    stroke:var(--purple);
-}
-
-.connection.highlight{
-    stroke:white;
-    stroke-width:4;
-    opacity:1;
-}
-
-/* =========================================================
-   NODE SYSTEM
-========================================================= */
-
-.node{
-    position:absolute;
-
-    width:190px;
-    min-height:64px;
-
-    padding:10px 12px;
-
-    border-radius:12px;
-
-    background:rgba(12,21,36,.97);
-    border:1px solid #2b3d58;
-
-    box-shadow:
-        0 10px 28px rgba(0,0,0,.38),
-        inset 0 1px rgba(255,255,255,.035);
-
-    user-select:none;
-
-    cursor:move;
-
-    transition:
-        border-color .15s,
-        box-shadow .15s,
-        opacity .15s;
-}
-
-.node:hover{
-    border-color:#54739b;
-    box-shadow:
-        0 12px 32px rgba(0,0,0,.5),
-        0 0 20px rgba(39,147,255,.08);
-}
-
-.node.selected{
-    border-color:white;
-    box-shadow:
-        0 0 0 1px rgba(255,255,255,.15),
-        0 0 25px rgba(39,147,255,.22);
-}
-
-.node.hidden{
-    opacity:.12;
-}
-
-.nodeTitle{
+.headerActions{
     display:flex;
     align-items:center;
     gap:8px;
-
-    font-size:12px;
-    font-weight:800;
-
-    line-height:1.3;
+    flex-wrap:wrap;
+    justify-content:flex-end;
 }
 
-.nodeIcon{
-    width:24px;
-    height:24px;
-    flex:none;
+.btn{
+    border:1px solid var(--border);
+    background:var(--panel2);
+    color:var(--text);
+    padding:8px 12px;
+    border-radius:8px;
+    transition:.15s;
+}
 
-    display:grid;
-    place-items:center;
+.btn:hover{
+    border-color:#3b6388;
+    background:#152a40;
+}
 
-    border-radius:7px;
+.btn.primary{
+    background:var(--blue);
+    border-color:var(--blue);
+    color:white;
+}
 
+.btn.primary:hover{
+    background:var(--blue2);
+}
+
+.btn.danger{
+    color:#ff8795;
+}
+
+.btn.small{
+    padding:5px 8px;
     font-size:11px;
-    font-weight:900;
-
-    background:#17263c;
-}
-
-.nodeMeta{
-    margin-top:5px;
-
-    color:var(--muted);
-
-    font-size:10px;
-    line-height:1.35;
-
-    word-break:break-word;
-}
-
-.nodeType{
-    position:absolute;
-    right:8px;
-    top:8px;
-
-    font-size:8px;
-    text-transform:uppercase;
-    letter-spacing:.7px;
-
-    color:#6f819b;
-}
-
-/* node types */
-
-.node.hub{
-    width:230px;
-    min-height:110px;
-
-    border-radius:50%;
-
-    padding:22px;
-
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-
-    text-align:center;
-
-    background:
-        radial-gradient(circle at center,#143966,#09182c 68%);
-
-    border:2px solid var(--blue);
-
-    box-shadow:
-        0 0 0 8px rgba(39,147,255,.035),
-        0 0 45px rgba(39,147,255,.22),
-        0 18px 50px rgba(0,0,0,.5);
-
-    cursor:default;
-}
-
-.hub .nodeIcon{
-    width:42px;
-    height:42px;
-
-    border-radius:50%;
-
-    background:#2793ff;
-
-    box-shadow:0 0 24px rgba(39,147,255,.5);
-
-    font-size:15px;
-}
-
-.hub .nodeTitle{
-    margin-top:8px;
-    font-size:16px;
-}
-
-.hub .nodeMeta{
-    color:#9ebce0;
-}
-
-.frontend{
-    border-color:var(--cyan);
-    background:
-        linear-gradient(145deg,rgba(16,39,56,.98),rgba(9,20,34,.98));
-}
-
-.frontend .nodeIcon{
-    background:#0e6178;
-    color:#6fe9ff;
-}
-
-.backend{
-    border-color:#356eb4;
-}
-
-.backend .nodeIcon{
-    background:#12345d;
-    color:#66adff;
-}
-
-.sheet{
-    border-color:#39664e;
-}
-
-.sheet .nodeIcon{
-    background:#123d2a;
-    color:#59e09c;
-}
-
-.apiNode{
-    border-color:#664f98;
-}
-
-.apiNode .nodeIcon{
-    background:#322451;
-    color:#c19dff;
-}
-
-.external{
-    border-color:#876233;
-}
-
-.external .nodeIcon{
-    background:#493316;
-    color:#ffc36b;
 }
 
 /* =========================================================
-   DETAILS PANEL
+   TOOLBAR
 ========================================================= */
 
-#details{
-    position:absolute;
-    z-index:900;
-
-    top:94px;
-    right:16px;
-
-    width:330px;
-    max-height:calc(100vh - 110px);
-
-    overflow:auto;
-
-    padding:16px;
-
-    background:rgba(8,15,27,.96);
-    border:1px solid #263850;
-    border-radius:16px;
-
-    box-shadow:var(--shadow);
-    backdrop-filter:blur(16px);
-
-    transform:translateX(calc(100% + 30px));
-
-    transition:.22s;
-}
-
-#details.open{
-    transform:translateX(0);
-}
-
-.detailsHeader{
+.toolbar{
     display:flex;
-    justify-content:space-between;
+    align-items:center;
     gap:10px;
-
-    margin-bottom:14px;
+    padding:10px 14px;
+    background:#0a1623;
+    border-bottom:1px solid var(--border);
+    z-index:15;
+    flex-wrap:wrap;
 }
 
-.detailsHeader strong{
+.searchBox{
+    position:relative;
+    flex:1;
+    min-width:220px;
+}
+
+.searchBox input{
+    width:100%;
+    height:36px;
+    padding:0 12px 0 34px;
+    background:#08131f;
+    color:var(--text);
+    border:1px solid var(--border);
+    border-radius:8px;
+    outline:none;
+}
+
+.searchBox input:focus{
+    border-color:var(--blue);
+}
+
+.searchIcon{
+    position:absolute;
+    left:11px;
+    top:9px;
+    color:var(--muted);
+}
+
+select{
+    height:36px;
+    padding:0 10px;
+    color:var(--text);
+    background:#08131f;
+    border:1px solid var(--border);
+    border-radius:8px;
+    outline:none;
+}
+
+.stats{
+    display:flex;
+    gap:7px;
+    margin-left:auto;
+}
+
+.stat{
+    min-width:70px;
+    padding:6px 9px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:#0b1928;
+    text-align:center;
+}
+
+.stat strong{
+    display:block;
     font-size:15px;
 }
 
-.close{
-    width:28px;
-    height:28px;
-
-    border:1px solid #30435e;
-    border-radius:7px;
-
-    color:#b9c9dd;
-    background:#101b2c;
-
-    cursor:pointer;
-}
-
-.detailSection{
-    margin-top:13px;
-}
-
-.detailLabel{
-    color:#70839d;
+.stat span{
+    color:var(--muted);
     font-size:9px;
     text-transform:uppercase;
-    letter-spacing:1px;
-    margin-bottom:5px;
+    letter-spacing:.5px;
 }
 
-.detailValue{
-    color:#dce8f7;
+/* =========================================================
+   WORKSPACE
+========================================================= */
+
+.workspace{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 360px;
+    min-height:0;
+}
+
+.tableArea{
+    min-width:0;
+    min-height:0;
+    overflow:auto;
+    position:relative;
+}
+
+.tableWrap{
+    min-width:max-content;
+}
+
+table{
+    border-collapse:separate;
+    border-spacing:0;
+    width:max-content;
+    min-width:100%;
+}
+
+thead{
+    position:sticky;
+    top:0;
+    z-index:10;
+}
+
+th{
+    position:sticky;
+    top:0;
+    padding:10px 12px;
+    background:#102235;
+    border-right:1px solid var(--border);
+    border-bottom:1px solid #38506a;
+    color:#bcd0e3;
     font-size:11px;
-    line-height:1.45;
+    text-align:left;
+    white-space:nowrap;
+    user-select:none;
+}
+
+th:first-child{
+    position:sticky;
+    left:0;
+    z-index:12;
+}
+
+td{
+    min-width:145px;
+    max-width:320px;
+    padding:9px 11px;
+    background:#0b1724;
+    border-right:1px solid #1d3043;
+    border-bottom:1px solid #1d3043;
+    vertical-align:top;
+    font-size:12px;
+}
+
+tbody tr:hover td{
+    background:#102235;
+}
+
+tbody tr.selected td{
+    background:#132c43;
+    border-bottom-color:#2e638d;
+}
+
+td:first-child{
+    position:sticky;
+    left:0;
+    z-index:5;
+    min-width:58px;
+    width:58px;
+    background:#0e1c2b;
+    font-weight:700;
+}
+
+.cell{
+    min-height:22px;
+    line-height:1.35;
+    cursor:text;
+    outline:none;
+    border-radius:4px;
+    padding:2px;
     word-break:break-word;
 }
 
-.detailLink{
-    display:block;
-    margin-top:5px;
-
-    color:#63c7ff;
-    text-decoration:none;
-
-    font-size:10px;
+.cell:hover{
+    background:rgba(39,147,255,.07);
 }
 
-.detailLink:hover{
+.cell:focus{
+    background:#08131f;
+    box-shadow:0 0 0 1px var(--blue);
+}
+
+.empty{
+    color:#52687d;
+    font-style:italic;
+}
+
+.url{
+    color:#55b5ff;
+    cursor:pointer;
+    text-decoration:none;
+}
+
+.url:hover{
     text-decoration:underline;
 }
 
-/* =========================================================
-   LEGEND
-========================================================= */
-
-#legend{
-    position:absolute;
-    z-index:800;
-
-    left:16px;
-    bottom:16px;
-
-    display:flex;
-    flex-wrap:wrap;
-    gap:7px;
-
-    padding:9px 11px;
-
-    background:rgba(8,15,27,.92);
-    border:1px solid #263850;
-    border-radius:11px;
-
-    box-shadow:var(--shadow);
-}
-
-.legendItem{
-    display:flex;
+.status{
+    display:inline-flex;
     align-items:center;
     gap:6px;
-
-    color:#a9b9cc;
+    padding:4px 7px;
+    border-radius:999px;
     font-size:10px;
+    font-weight:800;
 }
 
-.legendDot{
-    width:8px;
-    height:8px;
+.status::before{
+    content:"";
+    width:6px;
+    height:6px;
     border-radius:50%;
 }
 
-.legendDot.hub{
-    background:var(--blue);
+.status.online{
+    color:#5ce69a;
+    background:rgba(40,209,124,.09);
 }
 
-.legendDot.frontend{
-    background:var(--cyan);
-}
-
-.legendDot.backend{
-    background:var(--blue);
-}
-
-.legendDot.sheet{
+.status.online::before{
     background:var(--green);
+    box-shadow:0 0 8px var(--green);
 }
 
-.legendDot.api{
-    background:var(--purple);
+.status.offline{
+    color:#ff7d8c;
+    background:rgba(255,82,104,.09);
 }
 
-.legendDot.external{
-    background:var(--orange);
+.status.offline::before{
+    background:var(--red);
+}
+
+.status.unknown{
+    color:#f5d36b;
+    background:rgba(244,201,93,.08);
+}
+
+.status.unknown::before{
+    background:var(--yellow);
 }
 
 /* =========================================================
-   ZOOM
+   INSPECTOR
 ========================================================= */
 
-#zoomControls{
-    position:absolute;
-    z-index:800;
+.inspector{
+    min-width:0;
+    min-height:0;
+    overflow:auto;
+    border-left:1px solid var(--border);
+    background:#091522;
+    box-shadow:-10px 0 30px rgba(0,0,0,.15);
+}
 
-    right:16px;
-    bottom:16px;
+.inspectorHeader{
+    position:sticky;
+    top:0;
+    z-index:5;
+    padding:15px;
+    background:#0c1927;
+    border-bottom:1px solid var(--border);
+}
 
+.inspectorTitle{
     display:flex;
-    flex-direction:column;
-    gap:5px;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
 }
 
-.zoomBtn{
-    width:40px;
-    height:40px;
-
-    border:1px solid #293b55;
-    border-radius:9px;
-
-    color:#d9e7f8;
-    background:rgba(10,19,33,.95);
-
-    cursor:pointer;
-
-    font-size:17px;
+.inspectorTitle h2{
+    margin:0;
+    font-size:16px;
 }
 
-.zoomBtn:hover{
-    border-color:#4b6c94;
+.inspectorSub{
+    color:var(--muted);
+    font-size:11px;
+    margin-top:4px;
 }
 
-#zoomValue{
-    width:40px;
-    text-align:center;
+.detailBody{
+    padding:12px;
+}
 
-    color:#7f91a9;
+.detailGroup{
+    margin-bottom:14px;
+}
 
+.detailGroup h3{
+    margin:0 0 7px;
+    color:#9eb4c9;
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+}
+
+.detailCard{
+    padding:10px;
+    margin-bottom:6px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:#0d1b2a;
+}
+
+.detailLabel{
+    color:#7890a7;
     font-size:9px;
+    text-transform:uppercase;
+    letter-spacing:.7px;
+    margin-bottom:4px;
+}
+
+.detailValue{
+    font-size:12px;
+    line-height:1.4;
+    word-break:break-word;
+}
+
+.detailValue a{
+    color:#55b5ff;
+}
+
+.detailActions{
+    display:flex;
+    gap:5px;
+    margin-top:7px;
+    flex-wrap:wrap;
 }
 
 /* =========================================================
    LOADING
 ========================================================= */
 
-#loading{
-    position:absolute;
-    z-index:2000;
+.loading{
+    position:fixed;
     inset:0;
-
-    display:flex;
+    display:none;
     align-items:center;
     justify-content:center;
-
-    background:#050912;
+    background:rgba(3,9,16,.78);
+    backdrop-filter:blur(5px);
+    z-index:100;
 }
 
-.loadingBox{
+.loading.show{
+    display:flex;
+}
+
+.loaderBox{
+    padding:22px 28px;
+    background:#0d1b2a;
+    border:1px solid var(--border);
+    border-radius:12px;
+    box-shadow:var(--shadow);
     text-align:center;
 }
 
 .spinner{
-    width:42px;
-    height:42px;
-
-    margin:0 auto 14px;
-
-    border:3px solid #1c2b40;
+    width:30px;
+    height:30px;
+    margin:0 auto 10px;
+    border:3px solid #20384f;
     border-top-color:var(--blue);
-
     border-radius:50%;
-
     animation:spin .8s linear infinite;
-}
-
-.loadingBox strong{
-    display:block;
-    font-size:14px;
-}
-
-.loadingBox span{
-    display:block;
-    margin-top:5px;
-
-    color:var(--muted);
-    font-size:11px;
 }
 
 @keyframes spin{
@@ -717,86 +527,89 @@ input{
 }
 
 /* =========================================================
-   ERROR
+   TOAST
 ========================================================= */
 
-#error{
-    position:absolute;
-    z-index:2100;
-
-    left:50%;
-    top:50%;
-
-    transform:translate(-50%,-50%);
-
-    width:min(520px,calc(100% - 30px));
-
-    display:none;
-
-    padding:22px;
-
-    background:#101827;
-    border:1px solid #663244;
-    border-radius:15px;
-
+.toast{
+    position:fixed;
+    right:20px;
+    bottom:20px;
+    z-index:200;
+    padding:11px 14px;
+    border:1px solid var(--border);
+    border-radius:9px;
+    background:#102235;
     box-shadow:var(--shadow);
-}
-
-#error strong{
-    display:block;
-    color:#ff8798;
-    margin-bottom:8px;
-}
-
-#error span{
-    color:#aebbd0;
-    font-size:12px;
-    line-height:1.5;
-}
-
-#error button{
-    margin-top:15px;
-
-    padding:8px 12px;
-
     color:white;
-    background:#17263b;
+    font-size:12px;
+    transform:translateY(20px);
+    opacity:0;
+    pointer-events:none;
+    transition:.2s;
+}
 
-    border:1px solid #344c6d;
-    border-radius:8px;
-
-    cursor:pointer;
+.toast.show{
+    transform:translateY(0);
+    opacity:1;
 }
 
 /* =========================================================
-   RESPONSIVE
+   EMPTY
 ========================================================= */
 
-@media(max-width:800px){
+.emptyState{
+    padding:50px;
+    text-align:center;
+    color:var(--muted);
+}
 
-    #topbar{
+.emptyState strong{
+    display:block;
+    color:white;
+    margin-bottom:5px;
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media(max-width:900px){
+
+    body{
+        overflow:auto;
+    }
+
+    .app{
         height:auto;
-        flex-wrap:wrap;
+        min-height:100vh;
     }
 
-    .brand{
-        min-width:auto;
+    .workspace{
+        grid-template-columns:1fr;
     }
 
-    #search{
-        width:150px;
+    .inspector{
+        border-left:0;
+        border-top:1px solid var(--border);
+        max-height:500px;
     }
 
-    #stats{
-        display:none;
+    .stats{
+        width:100%;
+        margin-left:0;
     }
 
-    #details{
-        width:calc(100% - 32px);
+    .stat{
+        flex:1;
     }
 
-    #legend{
-        max-width:calc(100% - 90px);
+    .header{
+        align-items:flex-start;
+        flex-direction:column;
+    }
+
+    .headerActions{
+        justify-content:flex-start;
     }
 }
 </style>
@@ -804,45 +617,129 @@ input{
 
 <body>
 
-<div id="app">
+<div class="app">
 
-    <div id="topbar">
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
+    <header class="header">
 
         <div class="brand">
-            <div class="brandMark">O</div>
+
+            <div class="logo">
+                O
+            </div>
 
             <div class="brandText">
-                <strong>OBVYRIS SERVER MAP</strong>
-                <span>Frontend Architecture & Connection Graph</span>
+
+                <h1>Obvyris Server Map</h1>
+
+                <span>
+                    MAP Sheet • Infrastructure Data Explorer
+                </span>
+
             </div>
+
         </div>
 
-        <div class="toolbar">
+        <div class="headerActions">
 
-            <button class="tool" id="resetView">
-                Reset View
+            <button class="btn primary" onclick="loadData()">
+                ↻ Refresh API
             </button>
 
-            <button class="tool" id="fitMap">
-                Fit Map
+            <button class="btn" onclick="exportJSON()">
+                Export JSON
             </button>
 
-            <button class="tool" id="centerHub">
-                Center Hub
+            <button class="btn" onclick="exportCSV()">
+                Export CSV
             </button>
 
-            <button class="tool" id="toggleGrid">
-                Grid
+            <button class="btn" onclick="clearLocalEdits()">
+                Clear Local Edits
             </button>
+
+        </div>
+
+    </header>
+
+
+    <!-- =====================================================
+         TOOLBAR
+    ====================================================== -->
+
+    <div class="toolbar">
+
+        <div class="searchBox">
+
+            <span class="searchIcon">⌕</span>
 
             <input
                 id="search"
                 type="search"
-                placeholder="Search server, frontend, API..."
+                placeholder="Search backend, frontend, API, sheet, URL..."
+                oninput="renderTable()"
             >
 
-            <div id="stats">
-                Loading architecture...
+        </div>
+
+        <select id="statusFilter" onchange="renderTable()">
+
+            <option value="ALL">
+                All Status
+            </option>
+
+            <option value="ONLINE">
+                Online
+            </option>
+
+            <option value="OFFLINE">
+                Offline
+            </option>
+
+            <option value="UNKNOWN">
+                Unknown
+            </option>
+
+        </select>
+
+
+        <select id="backendFilter" onchange="renderTable()">
+
+            <option value="ALL">
+                All Backends
+            </option>
+
+        </select>
+
+
+        <button class="btn small" onclick="resetFilters()">
+            Reset
+        </button>
+
+
+        <div class="stats">
+
+            <div class="stat">
+                <strong id="rowCount">0</strong>
+                <span>Rows</span>
+            </div>
+
+            <div class="stat">
+                <strong id="onlineCount">0</strong>
+                <span>Online</span>
+            </div>
+
+            <div class="stat">
+                <strong id="offlineCount">0</strong>
+                <span>Offline</span>
+            </div>
+
+            <div class="stat">
+                <strong id="urlCount">0</strong>
+                <span>Links</span>
             </div>
 
         </div>
@@ -850,271 +747,179 @@ input{
     </div>
 
 
-    <div id="viewport">
+    <!-- =====================================================
+         WORKSPACE
+    ====================================================== -->
 
-        <div id="world">
+    <main class="workspace">
 
-            <div id="grid"></div>
+        <section class="tableArea">
 
-            <svg id="connections"></svg>
+            <div class="tableWrap">
 
+                <table id="dataTable">
+
+                    <thead id="tableHead"></thead>
+
+                    <tbody id="tableBody"></tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             INSPECTOR
+        ================================================== -->
+
+        <aside class="inspector">
+
+            <div class="inspectorHeader">
+
+                <div class="inspectorTitle">
+
+                    <h2 id="inspectorTitle">
+                        Select a row
+                    </h2>
+
+                    <button
+                        class="btn small"
+                        onclick="closeInspector()"
+                    >
+                        ×
+                    </button>
+
+                </div>
+
+                <div
+                    class="inspectorSub"
+                    id="inspectorSub"
+                >
+                    Click any row to inspect the complete infrastructure record.
+                </div>
+
+            </div>
+
+            <div
+                class="detailBody"
+                id="detailBody"
+            >
+
+                <div class="emptyState">
+
+                    <strong>
+                        No record selected
+                    </strong>
+
+                    Select a row from the MAP table.
+
+                </div>
+
+            </div>
+
+        </aside>
+
+    </main>
+
+</div>
+
+
+<!-- =========================================================
+     LOADING
+========================================================= -->
+
+<div
+    class="loading"
+    id="loading"
+>
+
+    <div class="loaderBox">
+
+        <div class="spinner"></div>
+
+        <div>
+            Loading MAP API...
         </div>
-
-    </div>
-
-
-    <div id="details">
-
-        <div class="detailsHeader">
-            <strong id="detailTitle">Node Details</strong>
-            <button class="close" id="closeDetails">×</button>
-        </div>
-
-        <div id="detailContent"></div>
-
-    </div>
-
-
-    <div id="legend">
-
-        <div class="legendItem">
-            <i class="legendDot hub"></i>
-            Hub
-        </div>
-
-        <div class="legendItem">
-            <i class="legendDot frontend"></i>
-            Frontend
-        </div>
-
-        <div class="legendItem">
-            <i class="legendDot backend"></i>
-            Backend
-        </div>
-
-        <div class="legendItem">
-            <i class="legendDot sheet"></i>
-            Sheet
-        </div>
-
-        <div class="legendItem">
-            <i class="legendDot api"></i>
-            API
-        </div>
-
-        <div class="legendItem">
-            <i class="legendDot external"></i>
-            External
-        </div>
-
-    </div>
-
-
-    <div id="zoomControls">
-
-        <button class="zoomBtn" id="zoomIn">+</button>
-        <button class="zoomBtn" id="zoomOut">−</button>
-        <button class="zoomBtn" id="zoomFit">⌂</button>
-
-        <div id="zoomValue">100%</div>
-
-    </div>
-
-
-    <div id="loading">
-
-        <div class="loadingBox">
-
-            <div class="spinner"></div>
-
-            <strong>Loading Obvyris Architecture</strong>
-
-            <span>Building frontend branches and connections...</span>
-
-        </div>
-
-    </div>
-
-
-    <div id="error">
-
-        <strong>Unable to load server map</strong>
-
-        <span id="errorText"></span>
-
-        <br>
-
-        <button onclick="location.reload()">
-            Retry
-        </button>
 
     </div>
 
 </div>
 
 
+<!-- =========================================================
+     TOAST
+========================================================= -->
+
+<div
+    class="toast"
+    id="toast"
+></div>
+
+
 <script>
 
 /* =========================================================
-   OBVYRIS MAP CONFIGURATION
+   CONFIGURATION
 ========================================================= */
 
-const MAP_API =
+const API_URL =
 "https://script.google.com/macros/s/AKfycbxmet73uElazLhNTF6K9Ziizu4hbgq7VWbXJ8nKjSeXkn-tN4CyoBDjSdeK69A_J5XG/exec";
 
 
-/* =========================================================
-   GLOBAL STATE
-========================================================= */
+/*
+    Local browser storage.
 
-const state = {
+    This allows you to make changes while working with
+    the map without pretending the API supports writes.
+*/
 
-    rows: [],
-
-    nodes: new Map(),
-
-    links: [],
-
-    zoom: 1,
-
-    panX: 0,
-
-    panY: 0,
-
-    draggingWorld: false,
-
-    gridVisible: true,
-
-    selectedNode: null,
-
-    dragNode: null,
-
-    dragOffsetX: 0,
-
-    dragOffsetY: 0,
-
-    worldWidth:10000,
-
-    worldHeight:10000,
-
-    hubX:5000,
-
-    hubY:5000
-
-};
+const STORAGE_KEY =
+"obvyris_map_local_edits_v1";
 
 
 /* =========================================================
-   DOM
+   STATE
 ========================================================= */
 
-const viewport =
-document.getElementById("viewport");
+let mapData = [];
 
-const world =
-document.getElementById("world");
+let columns = [];
 
-const grid =
-document.getElementById("grid");
+let selectedIndex = null;
 
-const svg =
-document.getElementById("connections");
-
-const loading =
-document.getElementById("loading");
-
-const errorBox =
-document.getElementById("error");
-
-const errorText =
-document.getElementById("errorText");
-
-const stats =
-document.getElementById("stats");
-
-const search =
-document.getElementById("search");
-
-const details =
-document.getElementById("details");
-
-const detailTitle =
-document.getElementById("detailTitle");
-
-const detailContent =
-document.getElementById("detailContent");
+let localEdits =
+    loadLocalEdits();
 
 
 /* =========================================================
-   NORMALIZATION
+   START
 ========================================================= */
 
-function clean(value){
+document.addEventListener(
+    "DOMContentLoaded",
+    function(){
 
-    if(value === null || value === undefined)
-        return "";
+        loadData();
 
-    return String(value).trim();
-
-}
-
-
-function validURL(value){
-
-    if(!value)
-        return false;
-
-    if(value === "#")
-        return false;
-
-    return /^https?:\/\//i.test(value);
-
-}
-
-
-function normalizeURL(value){
-
-    return clean(value)
-        .replace(/\/+$/,"")
-        .toLowerCase();
-
-}
-
-
-function unique(values){
-
-    const seen = new Set();
-
-    return values.filter(value => {
-
-        const key = normalizeURL(value);
-
-        if(!key)
-            return false;
-
-        if(seen.has(key))
-            return false;
-
-        seen.add(key);
-
-        return true;
-
-    });
-
-}
+    }
+);
 
 
 /* =========================================================
-   API LOAD
+   LOAD API
 ========================================================= */
 
-async function loadMap(){
+async function loadData(){
+
+    showLoading(true);
 
     try{
 
         const response =
             await fetch(
-                MAP_API +
+                API_URL +
                 "?t=" +
                 Date.now(),
                 {
@@ -1123,45 +928,105 @@ async function loadMap(){
                 }
             );
 
+
         if(!response.ok){
 
             throw new Error(
-                "API returned HTTP " +
+                "HTTP " +
                 response.status
             );
 
         }
 
+
         const data =
             await response.json();
 
-        if(!data || !Array.isArray(data.rows)){
+
+        if(!data){
 
             throw new Error(
-                "The MAP API did not return a rows array."
+                "API returned no data."
             );
 
         }
 
-        state.rows =
-            data.rows;
 
-        buildArchitecture();
+        if(
+            !Array.isArray(data.rows)
+        ){
 
-        loading.style.display="none";
+            throw new Error(
+                "API response does not contain a rows array."
+            );
+
+        }
+
+
+        mapData =
+            data.rows.map(
+                row => {
+
+                    return {
+                        ...row
+                    };
+
+                }
+            );
+
+
+        buildColumns();
+
+        applyLocalEdits();
+
+        buildBackendFilter();
+
+        renderTable();
+
+        updateStats();
+
+        showToast(
+            "MAP data loaded successfully."
+        );
+
 
     }
     catch(error){
 
         console.error(error);
 
-        loading.style.display="none";
+        showToast(
+            "Unable to load MAP API: " +
+            error.message
+        );
 
-        errorBox.style.display="block";
 
-        errorText.textContent =
-            error.message +
-            " Check that the Google Apps Script deployment is accessible to anyone with the link.";
+        document.getElementById(
+            "tableBody"
+        ).innerHTML = `
+
+            <tr>
+                <td colspan="20">
+
+                    <div class="emptyState">
+
+                        <strong>
+                            MAP API could not be loaded
+                        </strong>
+
+                        ${escapeHTML(error.message)}
+
+                    </div>
+
+                </td>
+            </tr>
+
+        `;
+
+    }
+    finally{
+
+        showLoading(false);
 
     }
 
@@ -1169,724 +1034,752 @@ async function loadMap(){
 
 
 /* =========================================================
-   ARCHITECTURE BUILDER
+   BUILD COLUMN LIST
 ========================================================= */
 
-function buildArchitecture(){
+function buildColumns(){
 
-    state.nodes.clear();
-    state.links=[];
+    const set =
+        new Set();
 
-    createHub();
+
+    mapData.forEach(
+        row => {
+
+            Object.keys(row)
+                .forEach(
+                    key => set.add(key)
+                );
+
+        }
+    );
+
+
+    columns =
+        Array.from(set);
+
+}
+
+
+/* =========================================================
+   BACKEND FILTER
+========================================================= */
+
+function buildBackendFilter(){
+
+    const select =
+        document.getElementById(
+            "backendFilter"
+        );
+
+
+    const current =
+        select.value;
+
+
+    const names =
+        [
+            ...new Set(
+                mapData
+                    .map(
+                        row =>
+                            row["Backends Sheet"]
+                    )
+                    .filter(Boolean)
+            )
+        ]
+        .sort(
+            (a,b) =>
+                a.localeCompare(b)
+        );
+
+
+    select.innerHTML =
+        `<option value="ALL">
+            All Backends
+        </option>`;
+
+
+    names.forEach(
+        name => {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+            option.value =
+                name;
+
+            option.textContent =
+                name;
+
+            select.appendChild(
+                option
+            );
+
+        }
+    );
+
+
+    if(
+        names.includes(current)
+    ){
+
+        select.value =
+            current;
+
+    }
+
+}
+
+
+/* =========================================================
+   RENDER TABLE
+========================================================= */
+
+function renderTable(){
+
+    const head =
+        document.getElementById(
+            "tableHead"
+        );
+
+    const body =
+        document.getElementById(
+            "tableBody"
+        );
+
+
+    const search =
+        document.getElementById(
+            "search"
+        )
+        .value
+        .trim()
+        .toLowerCase();
+
+
+    const statusFilter =
+        document.getElementById(
+            "statusFilter"
+        )
+        .value;
+
+
+    const backendFilter =
+        document.getElementById(
+            "backendFilter"
+        )
+        .value;
+
+
+    head.innerHTML = "";
+
+    body.innerHTML = "";
+
 
     /*
-       FRONTENDS ARE THE PRIMARY BRANCHES.
-
-       Every unique MAIN HTML FRONTEND through
-       HTML FRONTEND 5 becomes one frontend node.
+        Header
     */
 
-    const frontendMap =
-        new Map();
+    const trHead =
+        document.createElement(
+            "tr"
+        );
 
 
-    state.rows.forEach(row => {
+    columns.forEach(
+        column => {
 
-        const frontendFields = [
+            const th =
+                document.createElement(
+                    "th"
+                );
 
+            th.textContent =
+                column;
+
+            th.title =
+                column;
+
+            trHead.appendChild(
+                th
+            );
+
+        }
+    );
+
+
+    head.appendChild(
+        trHead
+    );
+
+
+    /*
+        Filter records
+    */
+
+    const filtered =
+        mapData
+            .map(
+                (row,index) => ({
+                    row,
+                    index
+                })
+            )
+            .filter(
+                item => {
+
+                    const row =
+                        item.row;
+
+
+                    if(
+                        statusFilter !== "ALL"
+                    ){
+
+                        const status =
+                            String(
+                                row.Status ||
+                                "UNKNOWN"
+                            )
+                            .toUpperCase();
+
+
+                        if(
+                            status !==
+                            statusFilter
+                        ){
+
+                            return false;
+
+                        }
+
+                    }
+
+
+                    if(
+                        backendFilter !==
+                        "ALL"
+                    ){
+
+                        if(
+                            String(
+                                row["Backends Sheet"] ||
+                                ""
+                            ) !==
+                            backendFilter
+                        ){
+
+                            return false;
+
+                        }
+
+                    }
+
+
+                    if(search){
+
+                        const searchable =
+                            Object.values(row)
+                                .join(" ")
+                                .toLowerCase();
+
+
+                        if(
+                            !searchable.includes(
+                                search
+                            )
+                        ){
+
+                            return false;
+
+                        }
+
+                    }
+
+
+                    return true;
+
+                }
+            );
+
+
+    /*
+        Rows
+    */
+
+    filtered.forEach(
+        item => {
+
+            const row =
+                item.row;
+
+            const originalIndex =
+                item.index;
+
+
+            const tr =
+                document.createElement(
+                    "tr"
+                );
+
+
+            if(
+                selectedIndex ===
+                originalIndex
+            ){
+
+                tr.classList.add(
+                    "selected"
+                );
+
+            }
+
+
+            tr.onclick =
+                function(){
+
+                    selectRow(
+                        originalIndex
+                    );
+
+                };
+
+
+            columns.forEach(
+                column => {
+
+                    const td =
+                        document.createElement(
+                            "td"
+                        );
+
+
+                    const cell =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    cell.className =
+                        "cell";
+
+
+                    cell.contentEditable =
+                        "true";
+
+
+                    cell.spellcheck =
+                        false;
+
+
+                    const value =
+                        row[column] ?? "";
+
+
+                    cell.innerHTML =
+                        formatCell(
+                            value,
+                            column
+                        );
+
+
+                    /*
+                        Save edits when leaving cell.
+                    */
+
+                    cell.addEventListener(
+                        "blur",
+                        function(){
+
+                            const newValue =
+                                cell.innerText.trim();
+
+
+                            if(
+                                String(
+                                    mapData[
+                                        originalIndex
+                                    ][column] ??
+                                    ""
+                                ) !==
+                                newValue
+                            ){
+
+                                mapData[
+                                    originalIndex
+                                ][column] =
+                                    newValue;
+
+
+                                saveLocalEdit(
+                                    originalIndex,
+                                    column,
+                                    newValue
+                                );
+
+
+                                updateStats();
+
+                                if(
+                                    selectedIndex ===
+                                    originalIndex
+                                ){
+
+                                    renderInspector(
+                                        originalIndex
+                                    );
+
+                                }
+
+                                showToast(
+                                    "Local edit saved."
+                                );
+
+                            }
+
+                        }
+                    );
+
+
+                    /*
+                        Enter finishes editing.
+                    */
+
+                    cell.addEventListener(
+                        "keydown",
+                        function(event){
+
+                            if(
+                                event.key ===
+                                "Enter"
+                            ){
+
+                                event.preventDefault();
+
+                                cell.blur();
+
+                            }
+
+                        }
+                    );
+
+
+                    /*
+                        Prevent row selection
+                        when editing.
+                    */
+
+                    cell.addEventListener(
+                        "click",
+                        function(event){
+
+                            event.stopPropagation();
+
+                        }
+                    );
+
+
+                    td.appendChild(
+                        cell
+                    );
+
+
+                    tr.appendChild(
+                        td
+                    );
+
+                }
+            );
+
+
+            body.appendChild(
+                tr
+            );
+
+        }
+    );
+
+
+    if(
+        filtered.length === 0
+    ){
+
+        body.innerHTML = `
+
+            <tr>
+
+                <td colspan="${columns.length}">
+
+                    <div class="emptyState">
+
+                        <strong>
+                            No matching records
+                        </strong>
+
+                        Change your filters or search.
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+        `;
+
+    }
+
+}
+
+
+/* =========================================================
+   CELL FORMAT
+========================================================= */
+
+function formatCell(
+    value,
+    column
+){
+
+    const text =
+        String(
+            value ?? ""
+        );
+
+
+    if(!text){
+
+        return `<span class="empty">empty</span>`;
+
+    }
+
+
+    /*
+        Status
+    */
+
+    if(
+        column === "Status"
+    ){
+
+        const status =
+            text.toUpperCase();
+
+
+        if(
+            status === "ONLINE"
+        ){
+
+            return `
+                <span class="status online">
+                    ONLINE
+                </span>
+            `;
+
+        }
+
+
+        if(
+            status === "OFFLINE"
+        ){
+
+            return `
+                <span class="status offline">
+                    OFFLINE
+                </span>
+            `;
+
+        }
+
+
+        return `
+            <span class="status unknown">
+                ${escapeHTML(text)}
+            </span>
+        `;
+
+    }
+
+
+    /*
+        URLs
+    */
+
+    if(
+        isURL(text)
+    ){
+
+        return `
+            <a
+                class="url"
+                href="${escapeAttribute(text)}"
+                target="_blank"
+                rel="noopener noreferrer"
+                onclick="event.stopPropagation()"
+            >
+                ${escapeHTML(shortURL(text))}
+            </a>
+        `;
+
+    }
+
+
+    return escapeHTML(text);
+
+}
+
+
+/* =========================================================
+   SELECT ROW
+========================================================= */
+
+function selectRow(index){
+
+    selectedIndex =
+        index;
+
+
+    renderTable();
+
+    renderInspector(
+        index
+    );
+
+}
+
+
+/* =========================================================
+   INSPECTOR
+========================================================= */
+
+function renderInspector(index){
+
+    const row =
+        mapData[index];
+
+
+    if(!row){
+
+        return;
+
+    }
+
+
+    document.getElementById(
+        "inspectorTitle"
+    ).textContent =
+        row["Backends Sheet"] ||
+        row["MAIN HTML FRONTEND"] ||
+        "MAP Record";
+
+
+    document.getElementById(
+        "inspectorSub"
+    ).textContent =
+        "Record ID: " +
+        (
+            row.ID ||
+            index + 1
+        );
+
+
+    const body =
+        document.getElementById(
+            "detailBody"
+        );
+
+
+    body.innerHTML = "";
+
+
+    /*
+        Organize columns into useful groups.
+    */
+
+    const backendColumns =
+        [
+            "ID",
+            "Backends Sheet",
+            "Sheet",
+            "Sheet API",
+            "Status"
+        ];
+
+
+    const frontendColumns =
+        [
             "MAIN HTML FRONTEND",
             "HTML FRONTEND 2",
             "HTML FRONTEND 3",
             "HTML FRONTEND 4",
             "HTML FRONTEND 5"
-
         ];
 
 
-        frontendFields.forEach(field => {
-
-            const url =
-                clean(row[field]);
-
-            if(!validURL(url))
-                return;
-
-            const key =
-                normalizeURL(url);
+    const externalColumns =
+        [
+            "EXTERNAL",
+            "EXTERNAL API",
+            "EXTERNAL API 2"
+        ];
 
 
-            if(!frontendMap.has(key)){
-
-                frontendMap.set(
-                    key,
-                    {
-                        url:url,
-                        rows:[]
-                    }
-                );
-
-            }
+    createInspectorGroup(
+        body,
+        "Backend",
+        backendColumns,
+        row
+    );
 
 
-            frontendMap
-                .get(key)
-                .rows
-                .push(row);
-
-        });
-
-    });
+    createInspectorGroup(
+        body,
+        "Frontend",
+        frontendColumns,
+        row
+    );
 
 
-    const frontends =
-        [...frontendMap.values()];
-
-
-    /*
-       Create frontend branches around hub.
-    */
-
-    frontends.forEach(
-        (frontend,index) => {
-
-            const node =
-                createFrontendNode(
-                    frontend,
-                    index,
-                    frontends.length
-                );
-
-            frontend.nodeId =
-                node.id;
-
-        }
+    createInspectorGroup(
+        body,
+        "External Connections",
+        externalColumns,
+        row
     );
 
 
     /*
-       For each frontend, attach the backend
-       rows that actually reference it.
+        Any unexpected columns.
     */
 
-    frontendMap.forEach(
-        (frontend) => {
-
-            const frontendNode =
-                state.nodes.get(
-                    frontend.nodeId
-                );
-
-            if(!frontendNode)
-                return;
-
-
-            const connectedRows =
-                uniqueRows(
-                    frontend.rows
-                );
-
-
-            connectedRows.forEach(
-                (row,rowIndex) => {
-
-                    buildBackendBranch(
-                        row,
-                        frontendNode,
-                        rowIndex,
-                        connectedRows.length
-                    );
-
-                }
-            );
-
-        }
-    );
-
-
-    /*
-       External APIs are attached to the
-       appropriate backend/frontend branch.
-    */
-
-    buildExternalConnections();
-
-
-    renderAll();
-
-    updateStats();
-
-}
-
-
-/* =========================================================
-   HUB
-========================================================= */
-
-function createHub(){
-
-    const node = {
-
-        id:"hub",
-
-        type:"hub",
-
-        title:"OBVYRIS HUB",
-
-        subtitle:"Central Architecture",
-
-        x:state.hubX - 115,
-
-        y:state.hubY - 55,
-
-        width:230,
-
-        height:110,
-
-        data:null,
-
-        element:null
-
-    };
-
-
-    state.nodes.set(
-        node.id,
-        node
-    );
-
-}
-
-
-/* =========================================================
-   FRONTEND NODES
-========================================================= */
-
-function createFrontendNode(
-    frontend,
-    index,
-    total
-){
-
-    const angle =
-        (-Math.PI / 2) +
-        (
-            index /
-            Math.max(total,1)
-        ) *
-        Math.PI *
-        2;
-
-
-    /*
-       Large radius gives every frontend
-       its own clearly visible branch.
-    */
-
-    const radius =
-        Math.max(
-            700,
-            total * 80
+    const known =
+        new Set(
+            [
+                ...backendColumns,
+                ...frontendColumns,
+                ...externalColumns
+            ]
         );
 
 
-    const centerX =
-        state.hubX +
-        Math.cos(angle) * radius;
-
-
-    const centerY =
-        state.hubY +
-        Math.sin(angle) * radius;
-
-
-    const id =
-        "frontend_" +
-        index;
-
-
-    const title =
-        getFilename(
-            frontend.url
+    const otherColumns =
+        columns.filter(
+            column =>
+                !known.has(column)
         );
-
-
-    const node = {
-
-        id,
-
-        type:"frontend",
-
-        title,
-
-        subtitle:frontend.url,
-
-        x:centerX - 95,
-
-        y:centerY - 40,
-
-        width:190,
-
-        height:80,
-
-        data:{
-
-            url:frontend.url,
-
-            rows:frontend.rows
-
-        },
-
-        element:null
-
-    };
-
-
-    state.nodes.set(
-        id,
-        node
-    );
-
-
-    state.links.push({
-
-        from:"hub",
-
-        to:id,
-
-        class:"frontend"
-
-    });
-
-
-    return node;
-
-}
-
-
-/* =========================================================
-   BACKEND BRANCH
-========================================================= */
-
-function buildBackendBranch(
-    row,
-    frontendNode,
-    rowIndex,
-    rowCount
-){
-
-    const backendName =
-        clean(row["Backends Sheet"]);
-
-
-    /*
-       Rows without a backend still remain
-       attached to the frontend.
-    */
-
-    if(!backendName){
-
-        buildExternalForRow(
-            row,
-            frontendNode
-        );
-
-        return;
-
-    }
-
-
-    const backendKey =
-        "backend|" +
-        backendName.toLowerCase();
-
-
-    let backend =
-        state.nodes.get(
-            backendKey
-        );
-
-
-    if(!backend){
-
-        const angle =
-            angleFromFrontend(
-                frontendNode,
-                rowIndex,
-                rowCount
-            );
-
-
-        const pos =
-            pointFromNode(
-                frontendNode,
-                angle,
-                280
-            );
-
-
-        backend = {
-
-            id:backendKey,
-
-            type:"backend",
-
-            title:backendName,
-
-            subtitle:"Backend",
-
-            x:pos.x - 95,
-
-            y:pos.y - 35,
-
-            width:190,
-
-            height:70,
-
-            data:row,
-
-            element:null
-
-        };
-
-
-        state.nodes.set(
-            backendKey,
-            backend
-        );
-
-    }
 
 
     if(
-        !state.links.some(
-            link =>
-                link.from === frontendNode.id &&
-                link.to === backend.id
-        )
+        otherColumns.length
     ){
 
-        state.links.push({
-
-            from:frontendNode.id,
-
-            to:backend.id,
-
-            class:"backend"
-
-        });
-
-    }
-
-
-    /*
-       Sheet
-    */
-
-    const sheetURL =
-        clean(row["Sheet"]);
-
-
-    if(validURL(sheetURL)){
-
-        const sheetId =
-            backend.id +
-            "|sheet";
-
-
-        if(!state.nodes.has(sheetId)){
-
-            const pos =
-                pointFromNode(
-                    backend,
-                    0,
-                    260
-                );
-
-
-            state.nodes.set(
-                sheetId,
-                {
-
-                    id:sheetId,
-
-                    type:"sheet",
-
-                    title:"Google Sheet",
-
-                    subtitle:shortURL(sheetURL),
-
-                    x:pos.x - 95,
-
-                    y:pos.y - 32,
-
-                    width:190,
-
-                    height:64,
-
-                    data:{
-                        url:sheetURL,
-                        row
-                    },
-
-                    element:null
-
-                }
-
-            );
-
-        }
-
-
-        state.links.push({
-
-            from:backend.id,
-
-            to:sheetId,
-
-            class:"backend"
-
-        });
-
-    }
-
-
-    /*
-       Sheet API
-    */
-
-    const sheetAPI =
-        clean(row["Sheet API"]);
-
-
-    if(validURL(sheetAPI)){
-
-        const apiId =
-            backend.id +
-            "|sheetapi";
-
-
-        if(!state.nodes.has(apiId)){
-
-            const pos =
-                pointFromNode(
-                    backend,
-                    Math.PI / 2,
-                    260
-                );
-
-
-            state.nodes.set(
-                apiId,
-                {
-
-                    id:apiId,
-
-                    type:"apiNode",
-
-                    title:"Sheet API",
-
-                    subtitle:shortURL(sheetAPI),
-
-                    x:pos.x - 95,
-
-                    y:pos.y - 32,
-
-                    width:190,
-
-                    height:64,
-
-                    data:{
-                        url:sheetAPI,
-                        row
-                    },
-
-                    element:null
-
-                }
-
-            );
-
-        }
-
-
-        state.links.push({
-
-            from:backend.id,
-
-            to:apiId,
-
-            class:"api"
-
-        });
-
-    }
-
-
-    buildExternalForRow(
-        row,
-        backend
-    );
-
-}
-
-
-/* =========================================================
-   EXTERNAL CONNECTIONS
-========================================================= */
-
-function buildExternalConnections(){
-
-    /*
-       External connections are already built
-       per row above.
-
-       This function exists intentionally so
-       external processing can be expanded later.
-    */
-
-}
-
-
-/* =========================================================
-   EXTERNAL ROW DATA
-========================================================= */
-
-function buildExternalForRow(
-    row,
-    parent
-){
-
-    const external =
-        clean(row["EXTERNAL"]);
-
-    const api1 =
-        clean(row["EXTERNAL API"]);
-
-    const api2 =
-        clean(row["EXTERNAL API 2"]);
-
-
-    if(
-        external &&
-        external !== "#"
-    ){
-
-        const externalId =
-            parent.id +
-            "|external|" +
-            hash(external);
-
-
-        if(!state.nodes.has(externalId)){
-
-            const pos =
-                pointFromNode(
-                    parent,
-                    Math.PI / 2,
-                    310
-                );
-
-
-            state.nodes.set(
-                externalId,
-                {
-
-                    id:externalId,
-
-                    type:"external",
-
-                    title:external,
-
-                    subtitle:"External Service",
-
-                    x:pos.x - 95,
-
-                    y:pos.y - 35,
-
-                    width:190,
-
-                    height:70,
-
-                    data:{
-                        name:external,
-                        row
-                    },
-
-                    element:null
-
-                }
-
-            );
-
-
-            state.links.push({
-
-                from:parent.id,
-
-                to:externalId,
-
-                class:"external"
-
-            });
-
-        }
-
-
-        const externalNode =
-            state.nodes.get(
-                externalId
-            );
-
-
-        if(validURL(api1)){
-
-            createExternalAPI(
-                externalNode,
-                api1,
-                1
-            );
-
-        }
-
-
-        if(validURL(api2)){
-
-            createExternalAPI(
-                externalNode,
-                api2,
-                2
-            );
-
-        }
-
-        return;
-
-    }
-
-
-    /*
-       If there is no EXTERNAL label but
-       an external API exists, attach it
-       directly to the parent.
-    */
-
-    if(validURL(api1)){
-
-        createExternalAPI(
-            parent,
-            api1,
-            1
-        );
-
-    }
-
-
-    if(validURL(api2)){
-
-        createExternalAPI(
-            parent,
-            api2,
-            2
+        createInspectorGroup(
+            body,
+            "Other Data",
+            otherColumns,
+            row
         );
 
     }
@@ -1895,1706 +1788,497 @@ function buildExternalForRow(
 
 
 /* =========================================================
-   EXTERNAL API NODE
+   INSPECTOR GROUP
 ========================================================= */
 
-function createExternalAPI(
+function createInspectorGroup(
     parent,
-    url,
-    number
+    title,
+    groupColumns,
+    row
 ){
 
-    const id =
-        parent.id +
-        "|externalapi|" +
-        hash(url);
-
-
-    if(state.nodes.has(id))
-        return;
-
-
-    const angle =
-        number === 1
-        ? Math.PI / 3
-        : 2 * Math.PI / 3;
-
-
-    const pos =
-        pointFromNode(
-            parent,
-            angle,
-            260
+    const existing =
+        groupColumns.filter(
+            column =>
+                columns.includes(column)
         );
-
-
-    const node = {
-
-        id,
-
-        type:"apiNode",
-
-        title:
-            "External API " +
-            number,
-
-        subtitle:
-            shortURL(url),
-
-        x:pos.x - 95,
-
-        y:pos.y - 32,
-
-        width:190,
-
-        height:64,
-
-        data:{
-            url,
-            external:true
-        },
-
-        element:null
-
-    };
-
-
-    state.nodes.set(
-        id,
-        node
-    );
-
-
-    state.links.push({
-
-        from:parent.id,
-
-        to:id,
-
-        class:"api"
-
-    });
-
-}
-
-
-/* =========================================================
-   POSITION HELPERS
-========================================================= */
-
-function angleFromFrontend(
-    node,
-    index,
-    total
-){
-
-    if(total <= 1)
-        return Math.PI / 2;
-
-
-    const spread =
-        Math.PI * .9;
-
-
-    return (
-        Math.PI / 2 -
-        spread / 2 +
-        (index /
-        (total - 1)) *
-        spread
-    );
-
-}
-
-
-function pointFromNode(
-    node,
-    angle,
-    distance
-){
-
-    const cx =
-        node.x +
-        node.width / 2;
-
-    const cy =
-        node.y +
-        node.height / 2;
-
-
-    return {
-
-        x:
-            cx +
-            Math.cos(angle) *
-            distance,
-
-        y:
-            cy +
-            Math.sin(angle) *
-            distance
-
-    };
-
-}
-
-
-/* =========================================================
-   RENDER NODES
-========================================================= */
-
-function renderAll(){
-
-    renderNodes();
-
-    renderConnections();
-
-    applyTransform();
-
-}
-
-
-/* =========================================================
-   NODE RENDER
-========================================================= */
-
-function renderNodes(){
-
-    /*
-       Remove old nodes except grid/SVG.
-    */
-
-    world
-        .querySelectorAll(".node")
-        .forEach(
-            element =>
-                element.remove()
-        );
-
-
-    state.nodes.forEach(
-        node => {
-
-            const element =
-                document.createElement("div");
-
-
-            element.className =
-                "node " +
-                node.type;
-
-
-            element.dataset.id =
-                node.id;
-
-
-            element.style.left =
-                node.x + "px";
-
-
-            element.style.top =
-                node.y + "px";
-
-
-            element.style.width =
-                node.width + "px";
-
-
-            element.style.minHeight =
-                node.height + "px";
-
-
-            element.innerHTML =
-                nodeHTML(node);
-
-
-            node.element =
-                element;
-
-
-            world.appendChild(
-                element
-            );
-
-
-            attachNodeEvents(
-                element,
-                node
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   NODE HTML
-========================================================= */
-
-function nodeHTML(node){
-
-    if(node.type === "hub"){
-
-        return `
-
-            <div class="nodeIcon">O</div>
-
-            <div class="nodeTitle">
-                OBVYRIS HUB
-            </div>
-
-            <div class="nodeMeta">
-                Central Architecture
-            </div>
-
-        `;
-
-    }
-
-
-    let icon = "•";
-
-    if(node.type === "frontend")
-        icon = "WEB";
-
-    if(node.type === "backend")
-        icon = "DB";
-
-    if(node.type === "sheet")
-        icon = "S";
-
-    if(node.type === "apiNode")
-        icon = "API";
-
-    if(node.type === "external")
-        icon = "EXT";
-
-
-    return `
-
-        <div class="nodeType">
-            ${node.type === "frontend"
-                ? "FRONTEND"
-                : node.type === "backend"
-                ? "BACKEND"
-                : node.type === "sheet"
-                ? "SHEET"
-                : node.type === "external"
-                ? "EXTERNAL"
-                : "API"}
-        </div>
-
-        <div class="nodeTitle">
-
-            <div class="nodeIcon">
-                ${escapeHTML(icon)}
-            </div>
-
-            <span>
-                ${escapeHTML(node.title)}
-            </span>
-
-        </div>
-
-        <div class="nodeMeta">
-            ${escapeHTML(node.subtitle || "")}
-        </div>
-
-    `;
-
-}
-
-
-/* =========================================================
-   NODE EVENTS
-========================================================= */
-
-function attachNodeEvents(
-    element,
-    node
-){
-
-    element.addEventListener(
-        "mousedown",
-        event => {
-
-            if(node.type === "hub")
-                return;
-
-
-            event.stopPropagation();
-
-            state.dragNode =
-                node;
-
-
-            const rect =
-                viewport.getBoundingClientRect();
-
-
-            const worldPoint =
-                screenToWorld(
-                    event.clientX,
-                    event.clientY
-                );
-
-
-            state.dragOffsetX =
-                worldPoint.x -
-                node.x;
-
-
-            state.dragOffsetY =
-                worldPoint.y -
-                node.y;
-
-
-            element.classList.add(
-                "selected"
-            );
-
-
-            selectNode(node);
-
-        }
-    );
-
-
-    element.addEventListener(
-        "click",
-        event => {
-
-            event.stopPropagation();
-
-            selectNode(node);
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   CONNECTION RENDER
-========================================================= */
-
-function renderConnections(){
-
-    svg.innerHTML="";
-
-
-    state.links.forEach(
-        link => {
-
-            const from =
-                state.nodes.get(
-                    link.from
-                );
-
-            const to =
-                state.nodes.get(
-                    link.to
-                );
-
-
-            if(!from || !to)
-                return;
-
-
-            const a =
-                getConnectionPoint(
-                    from,
-                    to
-                );
-
-
-            const b =
-                getConnectionPoint(
-                    to,
-                    from
-                );
-
-
-            const dx =
-                b.x - a.x;
-
-            const dy =
-                b.y - a.y;
-
-
-            const distance =
-                Math.sqrt(
-                    dx*dx +
-                    dy*dy
-                );
-
-
-            const curve =
-                Math.min(
-                    distance * .38,
-                    180
-                );
-
-
-            const angle =
-                Math.atan2(
-                    dy,
-                    dx
-                );
-
-
-            const c1 = {
-
-                x:
-                    a.x +
-                    Math.cos(angle) *
-                    curve,
-
-                y:
-                    a.y +
-                    Math.sin(angle) *
-                    curve
-
-            };
-
-
-            const c2 = {
-
-                x:
-                    b.x -
-                    Math.cos(angle) *
-                    curve,
-
-                y:
-                    b.y -
-                    Math.sin(angle) *
-                    curve
-
-            };
-
-
-            const path =
-                document.createElementNS(
-                    "http://www.w3.org/2000/svg",
-                    "path"
-                );
-
-
-            path.setAttribute(
-                "d",
-                `
-                M ${a.x} ${a.y}
-                C ${c1.x} ${c1.y},
-                  ${c2.x} ${c2.y},
-                  ${b.x} ${b.y}
-                `
-            );
-
-
-            path.setAttribute(
-                "class",
-                "connection " +
-                link.class
-            );
-
-
-            svg.appendChild(
-                path
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   CONNECTION POINT
-========================================================= */
-
-function getConnectionPoint(
-    from,
-    to
-){
-
-    const fromX =
-        from.x +
-        from.width / 2;
-
-    const fromY =
-        from.y +
-        from.height / 2;
-
-    const toX =
-        to.x +
-        to.width / 2;
-
-    const toY =
-        to.y +
-        to.height / 2;
-
-
-    const dx =
-        toX - fromX;
-
-    const dy =
-        toY - fromY;
-
-
-    const halfW =
-        from.width / 2;
-
-    const halfH =
-        from.height / 2;
 
 
     if(
-        Math.abs(dx) *
-        halfH >
-        Math.abs(dy) *
-        halfW
+        existing.length === 0
     ){
 
-        return {
-
-            x:
-                fromX +
-                (dx > 0
-                    ? halfW
-                    : -halfW),
-
-            y:
-                fromY +
-                dy *
-                (halfW /
-                Math.abs(dx || 1))
-
-        };
+        return;
 
     }
 
 
-    return {
-
-        x:
-            fromX +
-            dx *
-            (halfH /
-            Math.abs(dy || 1)),
-
-        y:
-            fromY +
-            (dy > 0
-                ? halfH
-                : -halfH)
-
-    };
-
-}
-
-
-/* =========================================================
-   NODE SELECTION
-========================================================= */
-
-function selectNode(node){
-
-    state.selectedNode =
-        node;
-
-
-    world
-        .querySelectorAll(
-            ".node.selected"
-        )
-        .forEach(
-            element =>
-                element.classList.remove(
-                    "selected"
-                )
+    const group =
+        document.createElement(
+            "div"
         );
 
 
-    if(node.element){
+    group.className =
+        "detailGroup";
 
-        node.element.classList.add(
-            "selected"
+
+    const heading =
+        document.createElement(
+            "h3"
         );
 
-    }
+
+    heading.textContent =
+        title;
 
 
-    showDetails(node);
-
-    highlightConnections(
-        node
-    );
-
-}
-
-
-/* =========================================================
-   DETAILS
-========================================================= */
-
-function showDetails(node){
-
-    details.classList.add(
-        "open"
+    group.appendChild(
+        heading
     );
 
 
-    detailTitle.textContent =
-        node.title;
+    existing.forEach(
+        column => {
 
-
-    let html = "";
-
-
-    html += detailBlock(
-        "TYPE",
-        readableType(
-            node.type
-        )
-    );
-
-
-    if(node.subtitle){
-
-        html += detailBlock(
-            "REFERENCE",
-            node.subtitle
-        );
-
-    }
-
-
-    if(node.data){
-
-        if(node.data.url){
-
-            html +=
-                linkBlock(
-                    "URL",
-                    node.data.url
+            const card =
+                document.createElement(
+                    "div"
                 );
 
-        }
+
+            card.className =
+                "detailCard";
 
 
-        if(node.data.row){
-
-            const row =
-                node.data.row;
-
-
-            const fields = [
-
-                "Backends Sheet",
-                "Status",
-                "Sheet",
-                "Sheet API",
-                "MAIN HTML FRONTEND",
-                "HTML FRONTEND 2",
-                "HTML FRONTEND 3",
-                "HTML FRONTEND 4",
-                "HTML FRONTEND 5",
-                "EXTERNAL",
-                "EXTERNAL API",
-                "EXTERNAL API 2"
-
-            ];
+            const label =
+                document.createElement(
+                    "div"
+                );
 
 
-            fields.forEach(
-                field => {
-
-                    const value =
-                        clean(row[field]);
+            label.className =
+                "detailLabel";
 
 
-                    if(!value)
-                        return;
+            label.textContent =
+                column;
 
 
-                    if(validURL(value)){
-
-                        html +=
-                            linkBlock(
-                                field,
-                                value
-                            );
-
-                    }
-                    else{
-
-                        html +=
-                            detailBlock(
-                                field,
-                                value
-                            );
-
-                    }
-
-                }
+            card.appendChild(
+                label
             );
 
-        }
 
-    }
-
-
-    detailContent.innerHTML =
-        html;
-
-}
-
-
-function detailBlock(
-    label,
-    value
-){
-
-    return `
-
-        <div class="detailSection">
-
-            <div class="detailLabel">
-                ${escapeHTML(label)}
-            </div>
-
-            <div class="detailValue">
-                ${escapeHTML(value)}
-            </div>
-
-        </div>
-
-    `;
-
-}
-
-
-function linkBlock(
-    label,
-    url
-){
-
-    return `
-
-        <div class="detailSection">
-
-            <div class="detailLabel">
-                ${escapeHTML(label)}
-            </div>
-
-            <a
-                class="detailLink"
-                href="${escapeAttribute(url)}"
-                target="_blank"
-                rel="noopener"
-            >
-                ${escapeHTML(url)}
-            </a>
-
-        </div>
-
-    `;
-
-}
-
-
-function readableType(type){
-
-    return {
-
-        hub:"Obvyris Hub",
-
-        frontend:"Frontend",
-
-        backend:"Backend",
-
-        sheet:"Google Sheet",
-
-        apiNode:"API",
-
-        external:"External Service"
-
-    }[type] || type;
-
-}
-
-
-/* =========================================================
-   HIGHLIGHT CONNECTIONS
-========================================================= */
-
-function highlightConnections(node){
-
-    const connected =
-        new Set([
-            node.id
-        ]);
-
-
-    state.links.forEach(
-        link => {
-
-            if(
-                link.from === node.id
-            )
-                connected.add(
-                    link.to
+            const value =
+                document.createElement(
+                    "div"
                 );
 
-            if(
-                link.to === node.id
-            )
-                connected.add(
-                    link.from
+
+            value.className =
+                "detailValue";
+
+
+            const raw =
+                String(
+                    row[column] ??
+                    ""
                 );
 
-        }
-    );
-
-
-    state.nodes.forEach(
-        n => {
-
-            if(!n.element)
-                return;
-
 
             if(
-                connected.has(n.id)
+                isURL(raw)
             ){
 
-                n.element.classList.remove(
-                    "hidden"
-                );
+                value.innerHTML = `
+
+                    <a
+                        href="${escapeAttribute(raw)}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        ${escapeHTML(raw)}
+                    </a>
+
+                `;
 
             }
             else{
 
-                n.element.classList.add(
-                    "hidden"
-                );
+                value.textContent =
+                    raw ||
+                    "empty";
 
             }
 
-        }
-    );
 
-
-    /*
-       Redraw highlighted connection
-       using the same graph geometry.
-    */
-
-    svg
-        .querySelectorAll(
-            ".connection"
-        )
-        .forEach(
-            line => {
-
-                line.classList.remove(
-                    "highlight"
-                );
-
-            }
-        );
-
-}
-
-
-/* =========================================================
-   WORLD DRAG
-========================================================= */
-
-viewport.addEventListener(
-    "mousedown",
-    event => {
-
-        if(
-            event.target.closest(
-                ".node"
-            )
-        )
-            return;
-
-
-        state.draggingWorld =
-            true;
-
-
-        viewport.classList.add(
-            "dragging"
-        );
-
-
-        state.dragStartX =
-            event.clientX -
-            state.panX;
-
-
-        state.dragStartY =
-            event.clientY -
-            state.panY;
-
-    }
-);
-
-
-window.addEventListener(
-    "mousemove",
-    event => {
-
-        if(
-            state.dragNode
-        ){
-
-            const point =
-                screenToWorld(
-                    event.clientX,
-                    event.clientY
-                );
-
-
-            state.dragNode.x =
-                point.x -
-                state.dragOffsetX;
-
-
-            state.dragNode.y =
-                point.y -
-                state.dragOffsetY;
-
-
-            updateNodePosition(
-                state.dragNode
+            card.appendChild(
+                value
             );
 
 
-            renderConnections();
+            /*
+                Actions for useful cells.
+            */
 
-            return;
+            if(raw){
 
-        }
+                const actions =
+                    document.createElement(
+                        "div"
+                    );
 
 
-        if(
-            !state.draggingWorld
-        )
-            return;
+                actions.className =
+                    "detailActions";
 
 
-        state.panX =
-            event.clientX -
-            state.dragStartX;
+                const copy =
+                    document.createElement(
+                        "button"
+                    );
 
 
-        state.panY =
-            event.clientY -
-            state.dragStartY;
+                copy.className =
+                    "btn small";
 
 
-        applyTransform();
+                copy.textContent =
+                    "Copy";
 
-    }
-);
 
+                copy.onclick =
+                    function(){
 
-window.addEventListener(
-    "mouseup",
-    () => {
+                        copyText(
+                            raw
+                        );
 
-        state.draggingWorld =
-            false;
+                    };
 
-        state.dragNode =
-            null;
 
-        viewport.classList.remove(
-            "dragging"
-        );
-
-    }
-);
-
-
-/* =========================================================
-   TOUCH SUPPORT
-========================================================= */
-
-viewport.addEventListener(
-    "touchstart",
-    event => {
-
-        if(
-            event.touches.length !== 1
-        )
-            return;
-
-
-        const touch =
-            event.touches[0];
-
-
-        state.draggingWorld =
-            true;
-
-
-        state.dragStartX =
-            touch.clientX -
-            state.panX;
-
-
-        state.dragStartY =
-            touch.clientY -
-            state.panY;
-
-    },
-    {
-        passive:true
-    }
-);
-
-
-viewport.addEventListener(
-    "touchmove",
-    event => {
-
-        if(
-            !state.draggingWorld ||
-            event.touches.length !== 1
-        )
-            return;
-
-
-        const touch =
-            event.touches[0];
-
-
-        state.panX =
-            touch.clientX -
-            state.dragStartX;
-
-
-        state.panY =
-            touch.clientY -
-            state.dragStartY;
-
-
-        applyTransform();
-
-    },
-    {
-        passive:true
-    }
-);
-
-
-viewport.addEventListener(
-    "touchend",
-    () => {
-
-        state.draggingWorld =
-            false;
-
-    }
-);
-
-
-/* =========================================================
-   NODE MOVE
-========================================================= */
-
-function updateNodePosition(node){
-
-    if(!node.element)
-        return;
-
-
-    node.element.style.left =
-        node.x + "px";
-
-
-    node.element.style.top =
-        node.y + "px";
-
-}
-
-
-/* =========================================================
-   SCREEN / WORLD COORDINATES
-========================================================= */
-
-function screenToWorld(
-    screenX,
-    screenY
-){
-
-    const rect =
-        viewport.getBoundingClientRect();
-
-
-    return {
-
-        x:
-            (
-                screenX -
-                rect.left -
-                state.panX
-            ) /
-            state.zoom,
-
-        y:
-            (
-                screenY -
-                rect.top -
-                state.panY
-            ) /
-            state.zoom
-
-    };
-
-}
-
-
-/* =========================================================
-   TRANSFORM
-========================================================= */
-
-function applyTransform(){
-
-    world.style.transform =
-        `
-        translate(
-            ${state.panX}px,
-            ${state.panY}px
-        )
-        scale(
-            ${state.zoom}
-        )
-        `;
-
-
-    document.getElementById(
-        "zoomValue"
-    ).textContent =
-        Math.round(
-            state.zoom * 100
-        ) +
-        "%";
-
-}
-
-
-/* =========================================================
-   ZOOM
-========================================================= */
-
-function zoomAt(
-    factor,
-    clientX,
-    clientY
-){
-
-    const rect =
-        viewport.getBoundingClientRect();
-
-
-    const mouseX =
-        clientX -
-        rect.left;
-
-    const mouseY =
-        clientY -
-        rect.top;
-
-
-    const worldX =
-        (
-            mouseX -
-            state.panX
-        ) /
-        state.zoom;
-
-
-    const worldY =
-        (
-            mouseY -
-            state.panY
-        ) /
-        state.zoom;
-
-
-    const newZoom =
-        Math.max(
-            .05,
-            Math.min(
-                8,
-                state.zoom *
-                factor
-            )
-        );
-
-
-    state.zoom =
-        newZoom;
-
-
-    state.panX =
-        mouseX -
-        worldX *
-        newZoom;
-
-
-    state.panY =
-        mouseY -
-        worldY *
-        newZoom;
-
-
-    applyTransform();
-
-}
-
-
-viewport.addEventListener(
-    "wheel",
-    event => {
-
-        event.preventDefault();
-
-
-        zoomAt(
-            event.deltaY < 0
-                ? 1.12
-                : .89,
-
-            event.clientX,
-
-            event.clientY
-
-        );
-
-    },
-    {
-        passive:false
-    }
-);
-
-
-document
-    .getElementById("zoomIn")
-    .onclick =
-    () => {
-
-        const rect =
-            viewport.getBoundingClientRect();
-
-
-        zoomAt(
-            1.25,
-            rect.left +
-            rect.width / 2,
-            rect.top +
-            rect.height / 2
-        );
-
-    };
-
-
-document
-    .getElementById("zoomOut")
-    .onclick =
-    () => {
-
-        const rect =
-            viewport.getBoundingClientRect();
-
-
-        zoomAt(
-            .8,
-            rect.left +
-            rect.width / 2,
-            rect.top +
-            rect.height / 2
-        );
-
-    };
-
-
-/* =========================================================
-   CENTER HUB
-========================================================= */
-
-function centerHubView(){
-
-    state.panX =
-        viewport.clientWidth / 2 -
-        state.hubX *
-        state.zoom;
-
-
-    state.panY =
-        viewport.clientHeight / 2 -
-        state.hubY *
-        state.zoom;
-
-
-    applyTransform();
-
-}
-
-
-/* =========================================================
-   FIT MAP
-========================================================= */
-
-function fitMap(){
-
-    if(
-        state.nodes.size === 0
-    )
-        return;
-
-
-    let minX=Infinity;
-    let minY=Infinity;
-    let maxX=-Infinity;
-    let maxY=-Infinity;
-
-
-    state.nodes.forEach(
-        node => {
-
-            minX =
-                Math.min(
-                    minX,
-                    node.x
+                actions.appendChild(
+                    copy
                 );
 
-            minY =
-                Math.min(
-                    minY,
-                    node.y
+
+                if(
+                    isURL(raw)
+                ){
+
+                    const open =
+                        document.createElement(
+                            "button"
+                        );
+
+
+                    open.className =
+                        "btn small";
+
+
+                    open.textContent =
+                        "Open";
+
+
+                    open.onclick =
+                        function(){
+
+                            window.open(
+                                raw,
+                                "_blank",
+                                "noopener"
+                            );
+
+                        };
+
+
+                    actions.appendChild(
+                        open
+                    );
+
+                }
+
+
+                card.appendChild(
+                    actions
                 );
 
-            maxX =
-                Math.max(
-                    maxX,
-                    node.x +
-                    node.width
-                );
+            }
 
-            maxY =
-                Math.max(
-                    maxY,
-                    node.y +
-                    node.height
-                );
+
+            group.appendChild(
+                card
+            );
 
         }
     );
 
 
-    const padding =
-        250;
-
-
-    const width =
-        maxX -
-        minX +
-        padding * 2;
-
-
-    const height =
-        maxY -
-        minY +
-        padding * 2;
-
-
-    const zoomX =
-        viewport.clientWidth /
-        width;
-
-
-    const zoomY =
-        viewport.clientHeight /
-        height;
-
-
-    state.zoom =
-        Math.max(
-            .05,
-            Math.min(
-                1.3,
-                Math.min(
-                    zoomX,
-                    zoomY
-                )
-            )
-        );
-
-
-    state.panX =
-        viewport.clientWidth / 2 -
-        (
-            minX +
-            maxX
-        ) /
-        2 *
-        state.zoom;
-
-
-    state.panY =
-        viewport.clientHeight / 2 -
-        (
-            minY +
-            maxY
-        ) /
-        2 *
-        state.zoom;
-
-
-    applyTransform();
+    parent.appendChild(
+        group
+    );
 
 }
 
 
 /* =========================================================
-   RESET
+   CLOSE INSPECTOR
 ========================================================= */
 
-function resetView(){
+function closeInspector(){
 
-    state.zoom=1;
+    selectedIndex =
+        null;
 
-    state.panX =
-        viewport.clientWidth / 2 -
-        state.hubX;
 
-    state.panY =
-        viewport.clientHeight / 2 -
-        state.hubY;
+    document.getElementById(
+        "inspectorTitle"
+    ).textContent =
+        "Select a row";
 
-    applyTransform();
+
+    document.getElementById(
+        "inspectorSub"
+    ).textContent =
+        "Click any row to inspect the complete infrastructure record.";
+
+
+    document.getElementById(
+        "detailBody"
+    ).innerHTML = `
+
+        <div class="emptyState">
+
+            <strong>
+                No record selected
+            </strong>
+
+            Select a row from the MAP table.
+
+        </div>
+
+    `;
+
+
+    renderTable();
 
 }
 
 
 /* =========================================================
-   GRID
-========================================================= */
-
-document
-    .getElementById("toggleGrid")
-    .onclick =
-    () => {
-
-        state.gridVisible =
-            !state.gridVisible;
-
-
-        grid.style.display =
-            state.gridVisible
-                ? "block"
-                : "none";
-
-    };
-
-
-/* =========================================================
-   BUTTONS
-========================================================= */
-
-document
-    .getElementById("centerHub")
-    .onclick =
-    centerHubView;
-
-
-document
-    .getElementById("fitMap")
-    .onclick =
-    fitMap;
-
-
-document
-    .getElementById("resetView")
-    .onclick =
-    resetView;
-
-
-document
-    .getElementById("zoomFit")
-    .onclick =
-    fitMap;
-
-
-document
-    .getElementById("closeDetails")
-    .onclick =
-    () => {
-
-        details.classList.remove(
-            "open"
-        );
-
-        state.nodes.forEach(
-            node => {
-
-                if(node.element){
-
-                    node.element.classList.remove(
-                        "hidden",
-                        "selected"
-                    );
-
-                }
-
-            }
-        );
-
-    };
-
-
-/* =========================================================
-   SEARCH
-========================================================= */
-
-search.addEventListener(
-    "input",
-    () => {
-
-        const term =
-            search.value
-                .trim()
-                .toLowerCase();
-
-
-        state.nodes.forEach(
-            node => {
-
-                if(!node.element)
-                    return;
-
-
-                if(!term){
-
-                    node.element.classList.remove(
-                        "hidden"
-                    );
-
-                    return;
-
-                }
-
-
-                const text =
-                    [
-                        node.title,
-                        node.subtitle,
-                        node.data?.url
-                    ]
-                    .filter(Boolean)
-                    .join(" ")
-                    .toLowerCase();
-
-
-                node.element.classList.toggle(
-                    "hidden",
-                    !text.includes(term)
-                );
-
-            }
-        );
-
-    }
-);
-
-
-/* =========================================================
-   STATS
+   STATISTICS
 ========================================================= */
 
 function updateStats(){
 
-    let frontend=0;
-    let backend=0;
-    let sheets=0;
-    let apis=0;
-    let external=0;
+    const rows =
+        mapData;
 
 
-    state.nodes.forEach(
-        node => {
+    let online =
+        0;
 
-            if(node.type==="frontend")
-                frontend++;
+    let offline =
+        0;
 
-            if(node.type==="backend")
-                backend++;
+    let urls =
+        0;
 
-            if(node.type==="sheet")
-                sheets++;
 
-            if(node.type==="apiNode")
-                apis++;
+    rows.forEach(
+        row => {
 
-            if(node.type==="external")
-                external++;
+            const status =
+                String(
+                    row.Status ||
+                    ""
+                ).toUpperCase();
+
+
+            if(
+                status === "ONLINE"
+            ){
+
+                online++;
+
+            }
+
+
+            if(
+                status === "OFFLINE"
+            ){
+
+                offline++;
+
+            }
+
+
+            Object.values(row)
+                .forEach(
+                    value => {
+
+                        if(
+                            isURL(
+                                String(
+                                    value ??
+                                    ""
+                                )
+                            )
+                        ){
+
+                            urls++;
+
+                        }
+
+                    }
+                );
 
         }
     );
 
 
-    stats.textContent =
-        frontend +
-        " frontends • " +
-        backend +
-        " backends • " +
-        sheets +
-        " sheets • " +
-        apis +
-        " APIs • " +
-        external +
-        " external";
+    document.getElementById(
+        "rowCount"
+    ).textContent =
+        rows.length;
+
+
+    document.getElementById(
+        "onlineCount"
+    ).textContent =
+        online;
+
+
+    document.getElementById(
+        "offlineCount"
+    ).textContent =
+        offline;
+
+
+    document.getElementById(
+        "urlCount"
+    ).textContent =
+        urls;
 
 }
 
 
 /* =========================================================
-   UTILITIES
+   SEARCH / FILTER RESET
 ========================================================= */
 
-function uniqueRows(rows){
+function resetFilters(){
 
-    const seen =
-        new Set();
-
-
-    return rows.filter(
-        row => {
-
-            const id =
-                clean(row.ID) +
-                "|" +
-                clean(row["Backends Sheet"]) +
-                "|" +
-                clean(row["Sheet API"]);
+    document.getElementById(
+        "search"
+    ).value = "";
 
 
-            if(seen.has(id))
-                return false;
+    document.getElementById(
+        "statusFilter"
+    ).value =
+        "ALL";
 
 
-            seen.add(id);
+    document.getElementById(
+        "backendFilter"
+    ).value =
+        "ALL";
 
-            return true;
+
+    renderTable();
+
+}
+
+
+/* =========================================================
+   LOCAL EDIT STORAGE
+========================================================= */
+
+function loadLocalEdits(){
+
+    try{
+
+        return JSON.parse(
+            localStorage.getItem(
+                STORAGE_KEY
+            ) || "{}"
+        );
+
+    }
+    catch{
+
+        return {};
+
+    }
+
+}
+
+
+function saveLocalEdit(
+    rowIndex,
+    column,
+    value
+){
+
+    if(
+        !localEdits[rowIndex]
+    ){
+
+        localEdits[rowIndex] =
+            {};
+
+    }
+
+
+    localEdits[rowIndex][column] =
+        value;
+
+
+    localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(
+            localEdits
+        )
+    );
+
+}
+
+
+function applyLocalEdits(){
+
+    Object.keys(
+        localEdits
+    ).forEach(
+        rowIndex => {
+
+            const index =
+                Number(
+                    rowIndex
+                );
+
+
+            if(
+                !mapData[index]
+            ){
+
+                return;
+
+            }
+
+
+            Object.entries(
+                localEdits[rowIndex]
+            ).forEach(
+                ([column,value]) => {
+
+                    mapData[index][column] =
+                        value;
+
+                }
+            );
 
         }
     );
@@ -3602,54 +2286,279 @@ function uniqueRows(rows){
 }
 
 
-function getFilename(url){
+function clearLocalEdits(){
 
-    try{
-
-        const parsed =
-            new URL(url);
-
-
-        let path =
-            parsed.pathname;
+    const confirmed =
+        confirm(
+            "Clear all locally saved MAP edits?"
+        );
 
 
-        path =
-            path
-                .split("/")
-                .filter(Boolean)
-                .pop() ||
-            parsed.hostname;
+    if(!confirmed){
 
-
-        return path;
+        return;
 
     }
-    catch{
 
-        return url;
+
+    localStorage.removeItem(
+        STORAGE_KEY
+    );
+
+
+    localEdits =
+        {};
+
+
+    loadData();
+
+}
+
+
+/* =========================================================
+   EXPORT JSON
+========================================================= */
+
+function exportJSON(){
+
+    const output = {
+
+        success:true,
+
+        sheet:"MAP",
+
+        generated:
+            new Date().toISOString(),
+
+        count:
+            mapData.length,
+
+        rows:
+            mapData
+
+    };
+
+
+    downloadFile(
+        JSON.stringify(
+            output,
+            null,
+            2
+        ),
+        "obvyris-map-export.json",
+        "application/json"
+    );
+
+
+    showToast(
+        "JSON exported."
+    );
+
+}
+
+
+/* =========================================================
+   EXPORT CSV
+========================================================= */
+
+function exportCSV(){
+
+    if(
+        !mapData.length
+    ){
+
+        return;
 
     }
+
+
+    const header =
+        columns
+            .map(
+                csvEscape
+            )
+            .join(",");
+
+
+    const rows =
+        mapData.map(
+            row => {
+
+                return columns
+                    .map(
+                        column =>
+                            csvEscape(
+                                row[column] ??
+                                ""
+                            )
+                    )
+                    .join(",");
+
+            }
+        );
+
+
+    const csv =
+        [
+            header,
+            ...rows
+        ]
+        .join("\n");
+
+
+    downloadFile(
+        csv,
+        "obvyris-map-export.csv",
+        "text/csv"
+    );
+
+
+    showToast(
+        "CSV exported."
+    );
+
+}
+
+
+/* =========================================================
+   DOWNLOAD
+========================================================= */
+
+function downloadFile(
+    content,
+    filename,
+    type
+){
+
+    const blob =
+        new Blob(
+            [content],
+            {
+                type
+            }
+        );
+
+
+    const url =
+        URL.createObjectURL(
+            blob
+        );
+
+
+    const link =
+        document.createElement(
+            "a"
+        );
+
+
+    link.href =
+        url;
+
+
+    link.download =
+        filename;
+
+
+    document.body.appendChild(
+        link
+    );
+
+
+    link.click();
+
+
+    link.remove();
+
+
+    URL.revokeObjectURL(
+        url
+    );
+
+}
+
+
+/* =========================================================
+   CSV ESCAPE
+========================================================= */
+
+function csvEscape(value){
+
+    const text =
+        String(
+            value ?? ""
+        );
+
+
+    if(
+        /[",\n]/.test(text)
+    ){
+
+        return '"' +
+            text.replace(
+                /"/g,
+                '""'
+            ) +
+            '"';
+
+    }
+
+
+    return text;
+
+}
+
+
+/* =========================================================
+   URL HELPERS
+========================================================= */
+
+function isURL(value){
+
+    return /^https?:\/\/\S+$/i.test(
+        value.trim()
+    );
 
 }
 
 
 function shortURL(url){
 
-    if(!url)
-        return "";
-
-
     try{
 
         const parsed =
             new URL(url);
 
 
-        return (
-            parsed.hostname +
-            parsed.pathname
-        );
+        let result =
+            parsed.hostname;
+
+
+        if(
+            parsed.pathname &&
+            parsed.pathname !== "/"
+        ){
+
+            result +=
+                parsed.pathname;
+
+        }
+
+
+        if(
+            result.length > 55
+        ){
+
+            result =
+                result.substring(
+                    0,
+                    52
+                ) +
+                "...";
+
+        }
+
+
+        return result;
 
     }
     catch{
@@ -3661,91 +2570,187 @@ function shortURL(url){
 }
 
 
-function hash(value){
-
-    let h=0;
-
-
-    for(
-        let i=0;
-        i<value.length;
-        i++
-    ){
-
-        h =
-            (
-                (
-                    h << 5
-                ) -
-                h +
-                value.charCodeAt(i)
-            ) |
-            0;
-
-    }
-
-
-    return Math.abs(h)
-        .toString(36);
-
-}
-
+/* =========================================================
+   ESCAPE
+========================================================= */
 
 function escapeHTML(value){
 
-    return String(value)
-        .replace(
-            /[&<>"']/g,
-            character => ({
-
-                "&":"&amp;",
-                "<":"&lt;",
-                ">":"&gt;",
-                '"':"&quot;",
-                "'":"&#039;"
-
-            })[character]
-        );
+    return String(
+        value ?? ""
+    )
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+    .replace(
+        /</g,
+        "&lt;"
+    )
+    .replace(
+        />/g,
+        "&gt;"
+    )
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+    .replace(
+        /'/g,
+        "&#039;"
+    );
 
 }
 
 
 function escapeAttribute(value){
 
-    return escapeHTML(value);
+    return escapeHTML(
+        value
+    );
 
 }
 
 
 /* =========================================================
-   INITIAL VIEW
+   COPY
 ========================================================= */
 
-function initializeView(){
+async function copyText(
+    text
+){
 
-    state.zoom=1;
+    try{
 
-    state.panX =
-        viewport.clientWidth / 2 -
-        state.hubX;
-
-    state.panY =
-        viewport.clientHeight / 2 -
-        state.hubY;
+        await navigator.clipboard.writeText(
+            text
+        );
 
 
-    applyTransform();
+        showToast(
+            "Copied to clipboard."
+        );
+
+    }
+    catch{
+
+        showToast(
+            "Clipboard access unavailable."
+        );
+
+    }
 
 }
 
 
 /* =========================================================
-   START
+   LOADING
 ========================================================= */
 
-initializeView();
+function showLoading(
+    visible
+){
 
-loadMap();
+    const element =
+        document.getElementById(
+            "loading"
+        );
+
+
+    element.classList.toggle(
+        "show",
+        visible
+    );
+
+}
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+let toastTimer;
+
+
+function showToast(
+    message
+){
+
+    const toast =
+        document.getElementById(
+            "toast"
+        );
+
+
+    toast.textContent =
+        message;
+
+
+    toast.classList.add(
+        "show"
+    );
+
+
+    clearTimeout(
+        toastTimer
+    );
+
+
+    toastTimer =
+        setTimeout(
+            function(){
+
+                toast.classList.remove(
+                    "show"
+                );
+
+            },
+            2500
+        );
+
+}
+
+
+/* =========================================================
+   KEYBOARD SHORTCUTS
+========================================================= */
+
+document.addEventListener(
+    "keydown",
+    function(event){
+
+        /*
+            CTRL + F focuses search.
+        */
+
+        if(
+            event.ctrlKey &&
+            event.key.toLowerCase() === "f"
+        ){
+
+            event.preventDefault();
+
+            document.getElementById(
+                "search"
+            ).focus();
+
+        }
+
+
+        /*
+            ESC closes inspector.
+        */
+
+        if(
+            event.key === "Escape"
+        ){
+
+            closeInspector();
+
+        }
+
+    }
+);
 
 </script>
 
