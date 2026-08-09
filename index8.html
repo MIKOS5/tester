@@ -1,28 +1,25 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Obvyris Server Map — Data Explorer</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Obvyris Server Map</title>
 
 <style>
 :root{
     --bg:#07101c;
-    --panel:#0d1826;
-    --panel2:#101f30;
-    --panel3:#13263a;
-    --border:#263b51;
-    --text:#eaf2fb;
-    --muted:#8fa5bb;
+    --panel:#0d1827;
+    --panel2:#111f31;
+    --line:#263a52;
+    --text:#f4f7fb;
+    --muted:#8fa4bd;
     --blue:#2793ff;
-    --blue2:#176fd1;
-    --green:#28d17c;
-    --red:#ff5268;
-    --yellow:#f4c95d;
-    --purple:#9b7cff;
-    --cyan:#37d9ff;
-    --shadow:0 15px 45px rgba(0,0,0,.35);
+    --green:#20c997;
+    --red:#ff5d6c;
+    --orange:#ffad42;
+    --purple:#9b7bff;
+    --cyan:#32d7ff;
 }
 
 *{
@@ -31,1685 +28,853 @@
 
 html,
 body{
-    margin:0;
     width:100%;
     height:100%;
+    margin:0;
+    overflow:hidden;
     background:var(--bg);
     color:var(--text);
-    font-family:Inter,Segoe UI,Arial,sans-serif;
+    font-family:Inter,Arial,sans-serif;
 }
 
 body{
-    overflow:hidden;
+    display:flex;
+    flex-direction:column;
 }
 
-button,
-input,
-select,
-textarea{
-    font:inherit;
-}
+/* =========================
+   TOP BAR
+========================= */
 
-button{
-    cursor:pointer;
-}
-
-.app{
-    display:grid;
-    grid-template-rows:auto auto 1fr;
-    width:100%;
-    height:100vh;
-}
-
-/* =========================================================
-   HEADER
-========================================================= */
-
-.header{
+.topbar{
+    height:64px;
+    min-height:64px;
     display:flex;
     align-items:center;
-    justify-content:space-between;
-    gap:20px;
-    padding:14px 18px;
+    gap:12px;
+    padding:10px 16px;
     background:#091522;
-    border-bottom:1px solid var(--border);
-    box-shadow:0 5px 25px rgba(0,0,0,.25);
+    border-bottom:1px solid var(--line);
     z-index:20;
 }
 
 .brand{
-    display:flex;
-    align-items:center;
-    gap:12px;
-    min-width:250px;
+    font-size:20px;
+    font-weight:800;
+    letter-spacing:.4px;
+    white-space:nowrap;
 }
 
-.logo{
-    width:42px;
-    height:42px;
-    border-radius:12px;
-    display:grid;
-    place-items:center;
-    background:linear-gradient(135deg,#2793ff,#7a55ff);
+.brand span{
+    color:var(--blue);
+}
+
+.search{
+    width:300px;
+    max-width:35vw;
+    height:40px;
+    border:1px solid var(--line);
+    border-radius:9px;
+    background:#0a1421;
     color:white;
-    font-weight:900;
-    box-shadow:0 0 25px rgba(39,147,255,.25);
+    padding:0 13px;
+    outline:none;
 }
 
-.brandText h1{
-    margin:0;
-    font-size:17px;
-    letter-spacing:.5px;
-}
-
-.brandText span{
-    display:block;
-    margin-top:2px;
-    color:var(--muted);
-    font-size:11px;
-}
-
-.headerActions{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    flex-wrap:wrap;
-    justify-content:flex-end;
-}
-
-.btn{
-    border:1px solid var(--border);
-    background:var(--panel2);
-    color:var(--text);
-    padding:8px 12px;
-    border-radius:8px;
-    transition:.15s;
-}
-
-.btn:hover{
-    border-color:#3b6388;
-    background:#152a40;
-}
-
-.btn.primary{
-    background:var(--blue);
+.search:focus{
     border-color:var(--blue);
-    color:white;
 }
-
-.btn.primary:hover{
-    background:var(--blue2);
-}
-
-.btn.danger{
-    color:#ff8795;
-}
-
-.btn.small{
-    padding:5px 8px;
-    font-size:11px;
-}
-
-/* =========================================================
-   TOOLBAR
-========================================================= */
 
 .toolbar{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    padding:10px 14px;
-    background:#0a1623;
-    border-bottom:1px solid var(--border);
-    z-index:15;
-    flex-wrap:wrap;
-}
-
-.searchBox{
-    position:relative;
-    flex:1;
-    min-width:220px;
-}
-
-.searchBox input{
-    width:100%;
-    height:36px;
-    padding:0 12px 0 34px;
-    background:#08131f;
-    color:var(--text);
-    border:1px solid var(--border);
-    border-radius:8px;
-    outline:none;
-}
-
-.searchBox input:focus{
-    border-color:var(--blue);
-}
-
-.searchIcon{
-    position:absolute;
-    left:11px;
-    top:9px;
-    color:var(--muted);
-}
-
-select{
-    height:36px;
-    padding:0 10px;
-    color:var(--text);
-    background:#08131f;
-    border:1px solid var(--border);
-    border-radius:8px;
-    outline:none;
-}
-
-.stats{
+    margin-left:auto;
     display:flex;
     gap:7px;
-    margin-left:auto;
 }
 
-.stat{
-    min-width:70px;
-    padding:6px 9px;
-    border:1px solid var(--border);
+button{
+    border:1px solid var(--line);
+    background:var(--panel);
+    color:white;
     border-radius:8px;
-    background:#0b1928;
-    text-align:center;
-}
-
-.stat strong{
-    display:block;
-    font-size:15px;
-}
-
-.stat span{
-    color:var(--muted);
-    font-size:9px;
-    text-transform:uppercase;
-    letter-spacing:.5px;
-}
-
-/* =========================================================
-   WORKSPACE
-========================================================= */
-
-.workspace{
-    display:grid;
-    grid-template-columns:minmax(0,1fr) 360px;
-    min-height:0;
-}
-
-.tableArea{
-    min-width:0;
-    min-height:0;
-    overflow:auto;
-    position:relative;
-}
-
-.tableWrap{
-    min-width:max-content;
-}
-
-table{
-    border-collapse:separate;
-    border-spacing:0;
-    width:max-content;
-    min-width:100%;
-}
-
-thead{
-    position:sticky;
-    top:0;
-    z-index:10;
-}
-
-th{
-    position:sticky;
-    top:0;
-    padding:10px 12px;
-    background:#102235;
-    border-right:1px solid var(--border);
-    border-bottom:1px solid #38506a;
-    color:#bcd0e3;
-    font-size:11px;
-    text-align:left;
-    white-space:nowrap;
-    user-select:none;
-}
-
-th:first-child{
-    position:sticky;
-    left:0;
-    z-index:12;
-}
-
-td{
-    min-width:145px;
-    max-width:320px;
-    padding:9px 11px;
-    background:#0b1724;
-    border-right:1px solid #1d3043;
-    border-bottom:1px solid #1d3043;
-    vertical-align:top;
-    font-size:12px;
-}
-
-tbody tr:hover td{
-    background:#102235;
-}
-
-tbody tr.selected td{
-    background:#132c43;
-    border-bottom-color:#2e638d;
-}
-
-td:first-child{
-    position:sticky;
-    left:0;
-    z-index:5;
-    min-width:58px;
-    width:58px;
-    background:#0e1c2b;
-    font-weight:700;
-}
-
-.cell{
-    min-height:22px;
-    line-height:1.35;
-    cursor:text;
-    outline:none;
-    border-radius:4px;
-    padding:2px;
-    word-break:break-word;
-}
-
-.cell:hover{
-    background:rgba(39,147,255,.07);
-}
-
-.cell:focus{
-    background:#08131f;
-    box-shadow:0 0 0 1px var(--blue);
-}
-
-.empty{
-    color:#52687d;
-    font-style:italic;
-}
-
-.url{
-    color:#55b5ff;
+    padding:9px 12px;
     cursor:pointer;
-    text-decoration:none;
 }
 
-.url:hover{
-    text-decoration:underline;
+button:hover{
+    background:var(--panel2);
+    border-color:#3c5674;
 }
 
 .status{
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-    padding:4px 7px;
-    border-radius:999px;
-    font-size:10px;
-    font-weight:800;
+    font-size:12px;
+    color:var(--muted);
+    white-space:nowrap;
 }
 
-.status::before{
-    content:"";
-    width:6px;
-    height:6px;
-    border-radius:50%;
+/* =========================
+   MAP
+========================= */
+
+#viewport{
+    position:relative;
+    flex:1;
+    overflow:hidden;
+    background:
+        radial-gradient(circle at center,#112238 0%,#07101c 48%,#050b13 100%);
 }
 
-.status.online{
-    color:#5ce69a;
-    background:rgba(40,209,124,.09);
+#world{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:1px;
+    height:1px;
+    transform-origin:0 0;
 }
 
-.status.online::before{
-    background:var(--green);
-    box-shadow:0 0 8px var(--green);
+/* =========================
+   GRID
+========================= */
+
+.grid{
+    position:absolute;
+    width:100000px;
+    height:100000px;
+    left:-50000px;
+    top:-50000px;
+
+    background-image:
+        linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+
+    background-size:50px 50px;
+    pointer-events:none;
 }
 
-.status.offline{
-    color:#ff7d8c;
-    background:rgba(255,82,104,.09);
+/* =========================
+   CONNECTIONS
+========================= */
+
+#connections{
+    position:absolute;
+    left:-50000px;
+    top:-50000px;
+    width:100000px;
+    height:100000px;
+    pointer-events:none;
+    overflow:visible;
 }
 
-.status.offline::before{
-    background:var(--red);
+.connection{
+    fill:none;
+    stroke:#314964;
+    stroke-width:2;
+    opacity:.75;
 }
 
-.status.unknown{
-    color:#f5d36b;
-    background:rgba(244,201,93,.08);
+.connection.backend{
+    stroke:var(--blue);
 }
 
-.status.unknown::before{
-    background:var(--yellow);
+.connection.frontend{
+    stroke:var(--green);
 }
 
-/* =========================================================
-   INSPECTOR
-========================================================= */
-
-.inspector{
-    min-width:0;
-    min-height:0;
-    overflow:auto;
-    border-left:1px solid var(--border);
-    background:#091522;
-    box-shadow:-10px 0 30px rgba(0,0,0,.15);
+.connection.external{
+    stroke:var(--orange);
 }
 
-.inspectorHeader{
-    position:sticky;
-    top:0;
+/* =========================
+   NODES
+========================= */
+
+.node{
+    position:absolute;
+    width:180px;
+    min-height:72px;
+    transform:translate(-50%,-50%);
+    border:1px solid var(--line);
+    border-radius:12px;
+    background:rgba(13,24,39,.97);
+    box-shadow:0 12px 35px rgba(0,0,0,.35);
+    cursor:grab;
+    user-select:none;
     z-index:5;
-    padding:15px;
-    background:#0c1927;
-    border-bottom:1px solid var(--border);
 }
 
-.inspectorTitle{
+.node:active{
+    cursor:grabbing;
+}
+
+.node:hover{
+    border-color:#55708e;
+    box-shadow:0 15px 45px rgba(0,0,0,.55);
+}
+
+.node.selected{
+    border-color:white;
+    box-shadow:0 0 0 2px rgba(39,147,255,.35),
+               0 18px 50px rgba(0,0,0,.6);
+}
+
+.node-head{
     display:flex;
     align-items:center;
-    justify-content:space-between;
-    gap:10px;
+    gap:8px;
+    padding:10px 11px 5px;
 }
 
-.inspectorTitle h2{
-    margin:0;
-    font-size:16px;
+.dot{
+    width:9px;
+    height:9px;
+    border-radius:50%;
+    flex:none;
 }
 
-.inspectorSub{
+.dot.backend{
+    background:var(--blue);
+}
+
+.dot.frontend{
+    background:var(--green);
+}
+
+.dot.external{
+    background:var(--orange);
+}
+
+.dot.hub{
+    background:var(--purple);
+}
+
+.node-title{
+    font-size:13px;
+    font-weight:750;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+
+.node-body{
+    padding:2px 11px 10px;
     color:var(--muted);
-    font-size:11px;
-    margin-top:4px;
-}
-
-.detailBody{
-    padding:12px;
-}
-
-.detailGroup{
-    margin-bottom:14px;
-}
-
-.detailGroup h3{
-    margin:0 0 7px;
-    color:#9eb4c9;
     font-size:10px;
+    line-height:1.4;
+}
+
+.node-type{
+    font-size:9px;
     text-transform:uppercase;
+    letter-spacing:1px;
+    color:#66819d;
+}
+
+/* =========================
+   HUB
+========================= */
+
+#hub{
+    position:absolute;
+    width:190px;
+    height:190px;
+    left:0;
+    top:0;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+    background:
+        radial-gradient(circle,#162d48 0%,#0c1c2f 55%,#081321 100%);
+    border:2px solid var(--purple);
+    box-shadow:
+        0 0 0 10px rgba(155,123,255,.06),
+        0 0 60px rgba(155,123,255,.25),
+        0 25px 80px rgba(0,0,0,.6);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    z-index:10;
+    pointer-events:none;
+}
+
+.hub-title{
+    font-size:24px;
+    font-weight:900;
     letter-spacing:1px;
 }
 
-.detailCard{
-    padding:10px;
-    margin-bottom:6px;
-    border:1px solid var(--border);
-    border-radius:8px;
-    background:#0d1b2a;
+.hub-sub{
+    margin-top:5px;
+    color:var(--muted);
+    font-size:11px;
+    letter-spacing:2px;
+    text-transform:uppercase;
 }
 
-.detailLabel{
-    color:#7890a7;
-    font-size:9px;
-    text-transform:uppercase;
-    letter-spacing:.7px;
+/* =========================
+   SIDE PANEL
+========================= */
+
+#details{
+    position:absolute;
+    right:16px;
+    top:80px;
+    width:330px;
+    max-height:calc(100vh - 100px);
+    overflow:auto;
+    background:rgba(9,19,31,.96);
+    border:1px solid var(--line);
+    border-radius:12px;
+    box-shadow:0 20px 70px rgba(0,0,0,.5);
+    padding:16px;
+    z-index:30;
+    display:none;
+}
+
+#details.show{
+    display:block;
+}
+
+.details-title{
+    font-size:18px;
+    font-weight:800;
     margin-bottom:4px;
 }
 
-.detailValue{
+.details-type{
+    color:var(--muted);
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    margin-bottom:16px;
+}
+
+.detail-row{
+    border-top:1px solid #1d2d41;
+    padding:10px 0;
+}
+
+.detail-label{
+    color:#728aa4;
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:.8px;
+    margin-bottom:4px;
+}
+
+.detail-value{
     font-size:12px;
-    line-height:1.4;
+    line-height:1.45;
     word-break:break-word;
 }
 
-.detailValue a{
-    color:#55b5ff;
+.detail-value a{
+    color:var(--cyan);
+    text-decoration:none;
 }
 
-.detailActions{
+.detail-value a:hover{
+    text-decoration:underline;
+}
+
+.close{
+    float:right;
+    border:0;
+    background:transparent;
+    padding:2px 6px;
+    font-size:20px;
+}
+
+/* =========================
+   LEGEND
+========================= */
+
+.legend{
+    position:absolute;
+    left:16px;
+    bottom:16px;
+    background:rgba(9,19,31,.9);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:10px 12px;
+    z-index:20;
+    font-size:11px;
+}
+
+.legend-row{
     display:flex;
-    gap:5px;
-    margin-top:7px;
-    flex-wrap:wrap;
+    align-items:center;
+    gap:7px;
+    margin:5px 0;
 }
 
-/* =========================================================
-   LOADING
-========================================================= */
+/* =========================
+   ZOOM
+========================= */
 
-.loading{
-    position:fixed;
+.zoom{
+    position:absolute;
+    left:16px;
+    top:80px;
+    display:flex;
+    flex-direction:column;
+    gap:5px;
+    z-index:20;
+}
+
+.zoom button{
+    width:40px;
+    height:40px;
+    padding:0;
+    font-size:20px;
+}
+
+/* =========================
+   LOADING
+========================= */
+
+#loading{
+    position:absolute;
     inset:0;
-    display:none;
+    display:flex;
     align-items:center;
     justify-content:center;
-    background:rgba(3,9,16,.78);
-    backdrop-filter:blur(5px);
+    background:#07101c;
     z-index:100;
 }
 
-.loading.show{
-    display:flex;
-}
-
-.loaderBox{
-    padding:22px 28px;
-    background:#0d1b2a;
-    border:1px solid var(--border);
-    border-radius:12px;
-    box-shadow:var(--shadow);
+.loader{
     text-align:center;
 }
 
-.spinner{
-    width:30px;
-    height:30px;
-    margin:0 auto 10px;
-    border:3px solid #20384f;
-    border-top-color:var(--blue);
-    border-radius:50%;
-    animation:spin .8s linear infinite;
-}
-
-@keyframes spin{
-    to{
-        transform:rotate(360deg);
-    }
-}
-
-/* =========================================================
-   TOAST
-========================================================= */
-
-.toast{
-    position:fixed;
-    right:20px;
-    bottom:20px;
-    z-index:200;
-    padding:11px 14px;
-    border:1px solid var(--border);
-    border-radius:9px;
-    background:#102235;
-    box-shadow:var(--shadow);
-    color:white;
-    font-size:12px;
-    transform:translateY(20px);
-    opacity:0;
-    pointer-events:none;
-    transition:.2s;
-}
-
-.toast.show{
-    transform:translateY(0);
-    opacity:1;
-}
-
-/* =========================================================
-   EMPTY
-========================================================= */
-
-.emptyState{
-    padding:50px;
-    text-align:center;
-    color:var(--muted);
-}
-
-.emptyState strong{
+.loader strong{
     display:block;
-    color:white;
-    margin-bottom:5px;
+    font-size:22px;
+    margin-bottom:8px;
 }
 
-/* =========================================================
+.loader span{
+    color:var(--muted);
+    font-size:12px;
+}
+
+/* =========================
    MOBILE
-========================================================= */
+========================= */
 
-@media(max-width:900px){
+@media(max-width:800px){
 
-    body{
-        overflow:auto;
+    .search{
+        width:170px;
     }
 
-    .app{
-        height:auto;
-        min-height:100vh;
+    .status{
+        display:none;
     }
 
-    .workspace{
-        grid-template-columns:1fr;
+    #details{
+        width:calc(100vw - 32px);
     }
 
-    .inspector{
-        border-left:0;
-        border-top:1px solid var(--border);
-        max-height:500px;
+    .node{
+        width:160px;
     }
 
-    .stats{
-        width:100%;
-        margin-left:0;
-    }
-
-    .stat{
-        flex:1;
-    }
-
-    .header{
-        align-items:flex-start;
-        flex-direction:column;
-    }
-
-    .headerActions{
-        justify-content:flex-start;
-    }
 }
 </style>
+
 </head>
 
 <body>
 
-<div class="app">
-
-    <!-- =====================================================
-         HEADER
-    ====================================================== -->
-
-    <header class="header">
-
-        <div class="brand">
-
-            <div class="logo">
-                O
-            </div>
-
-            <div class="brandText">
-
-                <h1>Obvyris Server Map</h1>
-
-                <span>
-                    MAP Sheet • Infrastructure Data Explorer
-                </span>
-
-            </div>
-
-        </div>
-
-        <div class="headerActions">
-
-            <button class="btn primary" onclick="loadData()">
-                ↻ Refresh API
-            </button>
-
-            <button class="btn" onclick="exportJSON()">
-                Export JSON
-            </button>
-
-            <button class="btn" onclick="exportCSV()">
-                Export CSV
-            </button>
-
-            <button class="btn" onclick="clearLocalEdits()">
-                Clear Local Edits
-            </button>
-
-        </div>
-
-    </header>
-
-
-    <!-- =====================================================
-         TOOLBAR
-    ====================================================== -->
-
-    <div class="toolbar">
-
-        <div class="searchBox">
-
-            <span class="searchIcon">⌕</span>
-
-            <input
-                id="search"
-                type="search"
-                placeholder="Search backend, frontend, API, sheet, URL..."
-                oninput="renderTable()"
-            >
-
-        </div>
-
-        <select id="statusFilter" onchange="renderTable()">
-
-            <option value="ALL">
-                All Status
-            </option>
-
-            <option value="ONLINE">
-                Online
-            </option>
-
-            <option value="OFFLINE">
-                Offline
-            </option>
-
-            <option value="UNKNOWN">
-                Unknown
-            </option>
-
-        </select>
-
-
-        <select id="backendFilter" onchange="renderTable()">
-
-            <option value="ALL">
-                All Backends
-            </option>
-
-        </select>
-
-
-        <button class="btn small" onclick="resetFilters()">
-            Reset
-        </button>
-
-
-        <div class="stats">
-
-            <div class="stat">
-                <strong id="rowCount">0</strong>
-                <span>Rows</span>
-            </div>
-
-            <div class="stat">
-                <strong id="onlineCount">0</strong>
-                <span>Online</span>
-            </div>
-
-            <div class="stat">
-                <strong id="offlineCount">0</strong>
-                <span>Offline</span>
-            </div>
-
-            <div class="stat">
-                <strong id="urlCount">0</strong>
-                <span>Links</span>
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- =====================================================
-         WORKSPACE
-    ====================================================== -->
-
-    <main class="workspace">
-
-        <section class="tableArea">
-
-            <div class="tableWrap">
-
-                <table id="dataTable">
-
-                    <thead id="tableHead"></thead>
-
-                    <tbody id="tableBody"></tbody>
-
-                </table>
-
-            </div>
-
-        </section>
-
-
-        <!-- =================================================
-             INSPECTOR
-        ================================================== -->
-
-        <aside class="inspector">
-
-            <div class="inspectorHeader">
-
-                <div class="inspectorTitle">
-
-                    <h2 id="inspectorTitle">
-                        Select a row
-                    </h2>
-
-                    <button
-                        class="btn small"
-                        onclick="closeInspector()"
-                    >
-                        ×
-                    </button>
-
-                </div>
-
-                <div
-                    class="inspectorSub"
-                    id="inspectorSub"
-                >
-                    Click any row to inspect the complete infrastructure record.
-                </div>
-
-            </div>
-
-            <div
-                class="detailBody"
-                id="detailBody"
-            >
-
-                <div class="emptyState">
-
-                    <strong>
-                        No record selected
-                    </strong>
-
-                    Select a row from the MAP table.
-
-                </div>
-
-            </div>
-
-        </aside>
-
-    </main>
-
+<header class="topbar">
+
+```
+<div class="brand">
+    <span>OBVYRIS</span> SERVER MAP
 </div>
 
-
-<!-- =========================================================
-     LOADING
-========================================================= -->
-
-<div
-    class="loading"
-    id="loading"
+<input
+    id="search"
+    class="search"
+    type="search"
+    placeholder="Search backend, frontend, API..."
 >
 
-    <div class="loaderBox">
+<div class="toolbar">
+    <button id="resetBtn">Reset View</button>
+    <button id="fitBtn">Fit Map</button>
+    <button id="reloadBtn">Reload</button>
+</div>
 
-        <div class="spinner"></div>
+<div id="statusText" class="status">
+    Connecting...
+</div>
+```
 
-        <div>
-            Loading MAP API...
-        </div>
+</header>
 
+<main id="viewport">
+
+```
+<div id="loading">
+    <div class="loader">
+        <strong>Obvyris Server Map</strong>
+        <span>Loading architecture...</span>
+    </div>
+</div>
+
+<div id="world">
+
+    <div class="grid"></div>
+
+    <svg id="connections"
+         viewBox="0 0 100000 100000"
+         preserveAspectRatio="none">
+    </svg>
+
+    <div id="hub">
+        <div class="hub-title">OBVYRIS</div>
+        <div class="hub-sub">Central Hub</div>
+    </div>
+
+    <div id="nodes"></div>
+
+</div>
+
+<div class="zoom">
+    <button id="zoomIn">+</button>
+    <button id="zoomOut">−</button>
+    <button id="zoomReset">1×</button>
+</div>
+
+<div class="legend">
+
+    <div class="legend-row">
+        <span class="dot backend"></span>
+        Backend
+    </div>
+
+    <div class="legend-row">
+        <span class="dot frontend"></span>
+        Frontend
+    </div>
+
+    <div class="legend-row">
+        <span class="dot external"></span>
+        External API
+    </div>
+
+    <div class="legend-row">
+        <span class="dot hub"></span>
+        Obvyris Hub
     </div>
 
 </div>
 
+<aside id="details">
 
-<!-- =========================================================
-     TOAST
-========================================================= -->
+    <button
+        class="close"
+        id="closeDetails">
+        ×
+    </button>
 
-<div
-    class="toast"
-    id="toast"
-></div>
+    <div id="detailsContent"></div>
 
+</aside>
+```
+
+</main>
 
 <script>
 
-/* =========================================================
+/* ============================================================
    CONFIGURATION
-========================================================= */
+============================================================ */
 
-const API_URL =
+const MAP_API =
 "https://script.google.com/macros/s/AKfycbxmet73uElazLhNTF6K9Ziizu4hbgq7VWbXJ8nKjSeXkn-tN4CyoBDjSdeK69A_J5XG/exec";
 
 
-/*
-    Local browser storage.
+/* ============================================================
+   STATE
+============================================================ */
 
-    This allows you to make changes while working with
-    the map without pretending the API supports writes.
-*/
+let data = {
+    backends:[],
+    frontends:[],
+    externals:[],
+    links:[]
+};
+
+let nodes = [];
+
+let scale = 1;
+
+let offsetX = 0;
+let offsetY = 0;
+
+let draggingWorld = false;
+
+let panStartX = 0;
+let panStartY = 0;
+
+let startOffsetX = 0;
+let startOffsetY = 0;
 
 const STORAGE_KEY =
-"obvyris_map_local_edits_v1";
+"obvyris-server-map-view";
 
 
-/* =========================================================
-   STATE
-========================================================= */
+/* ============================================================
+   ELEMENTS
+============================================================ */
 
-let mapData = [];
+const viewport =
+document.getElementById("viewport");
 
-let columns = [];
+const world =
+document.getElementById("world");
 
-let selectedIndex = null;
+const nodesContainer =
+document.getElementById("nodes");
 
-let localEdits =
-    loadLocalEdits();
+const connections =
+document.getElementById("connections");
+
+const loading =
+document.getElementById("loading");
+
+const statusText =
+document.getElementById("statusText");
+
+const details =
+document.getElementById("details");
+
+const detailsContent =
+document.getElementById("detailsContent");
 
 
-/* =========================================================
-   START
-========================================================= */
+/* ============================================================
+   INITIAL VIEW
+============================================================ */
 
-document.addEventListener(
-    "DOMContentLoaded",
-    function(){
+function loadView(){
 
-        loadData();
+    try{
 
-    }
-);
+        const saved =
+            JSON.parse(
+                localStorage.getItem(STORAGE_KEY)
+            );
+
+        if(saved){
+
+            scale =
+                Number(saved.scale) || 1;
+
+            offsetX =
+                Number(saved.offsetX) || 0;
+
+            offsetY =
+                Number(saved.offsetY) || 0;
+
+            applyTransform();
+
+            return;
+        }
+
+    }catch(e){}
+
+    centerView();
+
+}
 
 
-/* =========================================================
-   LOAD API
-========================================================= */
+function saveView(){
 
-async function loadData(){
+    localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+            scale,
+            offsetX,
+            offsetY
+        })
+    );
 
-    showLoading(true);
+}
+
+
+function centerView(){
+
+    scale = 1;
+
+    offsetX = 0;
+
+    offsetY = 0;
+
+    applyTransform();
+
+    saveView();
+
+}
+
+
+function applyTransform(){
+
+    world.style.transform =
+        `translate(${offsetX}px,${offsetY}px) scale(${scale})`;
+
+}
+
+
+/* ============================================================
+   FETCH MAP
+============================================================ */
+
+async function loadMap(){
+
+    loading.style.display = "flex";
+
+    statusText.textContent =
+        "Loading map...";
 
     try{
 
         const response =
             await fetch(
-                API_URL +
-                "?t=" +
+                MAP_API +
+                "?action=map&_=" +
                 Date.now(),
                 {
-                    method:"GET",
                     cache:"no-store"
                 }
             );
 
-
         if(!response.ok){
-
             throw new Error(
-                "HTTP " +
-                response.status
+                "HTTP " + response.status
             );
-
         }
 
-
-        const data =
+        const json =
             await response.json();
 
+        normalizeData(json);
 
-        if(!data){
+        renderMap();
 
-            throw new Error(
-                "API returned no data."
-            );
+        loading.style.display = "none";
 
-        }
+        statusText.textContent =
+            `${nodes.length} nodes loaded`;
 
-
-        if(
-            !Array.isArray(data.rows)
-        ){
-
-            throw new Error(
-                "API response does not contain a rows array."
-            );
-
-        }
-
-
-        mapData =
-            data.rows.map(
-                row => {
-
-                    return {
-                        ...row
-                    };
-
-                }
-            );
-
-
-        buildColumns();
-
-        applyLocalEdits();
-
-        buildBackendFilter();
-
-        renderTable();
-
-        updateStats();
-
-        showToast(
-            "MAP data loaded successfully."
-        );
-
-
-    }
-    catch(error){
+    }catch(error){
 
         console.error(error);
 
-        showToast(
-            "Unable to load MAP API: " +
-            error.message
-        );
+        statusText.textContent =
+            "Map API error";
 
-
-        document.getElementById(
-            "tableBody"
-        ).innerHTML = `
-
-            <tr>
-                <td colspan="20">
-
-                    <div class="emptyState">
-
-                        <strong>
-                            MAP API could not be loaded
-                        </strong>
-
-                        ${escapeHTML(error.message)}
-
-                    </div>
-
-                </td>
-            </tr>
-
+        loading.innerHTML = `
+            <div class="loader">
+                <strong>Unable to load map</strong>
+                <span>${escapeHtml(error.message)}</span>
+                <br><br>
+                <button onclick="loadMap()">
+                    Try Again
+                </button>
+            </div>
         `;
 
     }
-    finally{
-
-        showLoading(false);
-
-    }
 
 }
 
 
-/* =========================================================
-   BUILD COLUMN LIST
-========================================================= */
+/* ============================================================
+   NORMALIZE API DATA
+============================================================ */
 
-function buildColumns(){
+function normalizeData(json){
 
-    const set =
-        new Set();
+    /*
+       Supports either:
 
+       {
+          backends:[],
+          frontends:[],
+          externals:[],
+          links:[]
+       }
 
-    mapData.forEach(
-        row => {
+       OR a generic:
 
-            Object.keys(row)
-                .forEach(
-                    key => set.add(key)
-                );
-
-        }
-    );
-
-
-    columns =
-        Array.from(set);
-
-}
-
-
-/* =========================================================
-   BACKEND FILTER
-========================================================= */
-
-function buildBackendFilter(){
-
-    const select =
-        document.getElementById(
-            "backendFilter"
-        );
-
-
-    const current =
-        select.value;
-
-
-    const names =
-        [
-            ...new Set(
-                mapData
-                    .map(
-                        row =>
-                            row["Backends Sheet"]
-                    )
-                    .filter(Boolean)
-            )
-        ]
-        .sort(
-            (a,b) =>
-                a.localeCompare(b)
-        );
-
-
-    select.innerHTML =
-        `<option value="ALL">
-            All Backends
-        </option>`;
-
-
-    names.forEach(
-        name => {
-
-            const option =
-                document.createElement(
-                    "option"
-                );
-
-            option.value =
-                name;
-
-            option.textContent =
-                name;
-
-            select.appendChild(
-                option
-            );
-
-        }
-    );
-
+       {
+          rows:[]
+       }
+    */
 
     if(
-        names.includes(current)
-    ){
-
-        select.value =
-            current;
-
-    }
-
-}
-
-
-/* =========================================================
-   RENDER TABLE
-========================================================= */
-
-function renderTable(){
-
-    const head =
-        document.getElementById(
-            "tableHead"
-        );
-
-    const body =
-        document.getElementById(
-            "tableBody"
-        );
-
-
-    const search =
-        document.getElementById(
-            "search"
+        json &&
+        (
+            json.backends ||
+            json.frontends ||
+            json.externals
         )
-        .value
-        .trim()
-        .toLowerCase();
-
-
-    const statusFilter =
-        document.getElementById(
-            "statusFilter"
-        )
-        .value;
-
-
-    const backendFilter =
-        document.getElementById(
-            "backendFilter"
-        )
-        .value;
-
-
-    head.innerHTML = "";
-
-    body.innerHTML = "";
-
-
-    /*
-        Header
-    */
-
-    const trHead =
-        document.createElement(
-            "tr"
-        );
-
-
-    columns.forEach(
-        column => {
-
-            const th =
-                document.createElement(
-                    "th"
-                );
-
-            th.textContent =
-                column;
-
-            th.title =
-                column;
-
-            trHead.appendChild(
-                th
-            );
-
-        }
-    );
-
-
-    head.appendChild(
-        trHead
-    );
-
-
-    /*
-        Filter records
-    */
-
-    const filtered =
-        mapData
-            .map(
-                (row,index) => ({
-                    row,
-                    index
-                })
-            )
-            .filter(
-                item => {
-
-                    const row =
-                        item.row;
-
-
-                    if(
-                        statusFilter !== "ALL"
-                    ){
-
-                        const status =
-                            String(
-                                row.Status ||
-                                "UNKNOWN"
-                            )
-                            .toUpperCase();
-
-
-                        if(
-                            status !==
-                            statusFilter
-                        ){
-
-                            return false;
-
-                        }
-
-                    }
-
-
-                    if(
-                        backendFilter !==
-                        "ALL"
-                    ){
-
-                        if(
-                            String(
-                                row["Backends Sheet"] ||
-                                ""
-                            ) !==
-                            backendFilter
-                        ){
-
-                            return false;
-
-                        }
-
-                    }
-
-
-                    if(search){
-
-                        const searchable =
-                            Object.values(row)
-                                .join(" ")
-                                .toLowerCase();
-
-
-                        if(
-                            !searchable.includes(
-                                search
-                            )
-                        ){
-
-                            return false;
-
-                        }
-
-                    }
-
-
-                    return true;
-
-                }
-            );
-
-
-    /*
-        Rows
-    */
-
-    filtered.forEach(
-        item => {
-
-            const row =
-                item.row;
-
-            const originalIndex =
-                item.index;
-
-
-            const tr =
-                document.createElement(
-                    "tr"
-                );
-
-
-            if(
-                selectedIndex ===
-                originalIndex
-            ){
-
-                tr.classList.add(
-                    "selected"
-                );
-
-            }
-
-
-            tr.onclick =
-                function(){
-
-                    selectRow(
-                        originalIndex
-                    );
-
-                };
-
-
-            columns.forEach(
-                column => {
-
-                    const td =
-                        document.createElement(
-                            "td"
-                        );
-
-
-                    const cell =
-                        document.createElement(
-                            "div"
-                        );
-
-
-                    cell.className =
-                        "cell";
-
-
-                    cell.contentEditable =
-                        "true";
-
-
-                    cell.spellcheck =
-                        false;
-
-
-                    const value =
-                        row[column] ?? "";
-
-
-                    cell.innerHTML =
-                        formatCell(
-                            value,
-                            column
-                        );
-
-
-                    /*
-                        Save edits when leaving cell.
-                    */
-
-                    cell.addEventListener(
-                        "blur",
-                        function(){
-
-                            const newValue =
-                                cell.innerText.trim();
-
-
-                            if(
-                                String(
-                                    mapData[
-                                        originalIndex
-                                    ][column] ??
-                                    ""
-                                ) !==
-                                newValue
-                            ){
-
-                                mapData[
-                                    originalIndex
-                                ][column] =
-                                    newValue;
-
-
-                                saveLocalEdit(
-                                    originalIndex,
-                                    column,
-                                    newValue
-                                );
-
-
-                                updateStats();
-
-                                if(
-                                    selectedIndex ===
-                                    originalIndex
-                                ){
-
-                                    renderInspector(
-                                        originalIndex
-                                    );
-
-                                }
-
-                                showToast(
-                                    "Local edit saved."
-                                );
-
-                            }
-
-                        }
-                    );
-
-
-                    /*
-                        Enter finishes editing.
-                    */
-
-                    cell.addEventListener(
-                        "keydown",
-                        function(event){
-
-                            if(
-                                event.key ===
-                                "Enter"
-                            ){
-
-                                event.preventDefault();
-
-                                cell.blur();
-
-                            }
-
-                        }
-                    );
-
-
-                    /*
-                        Prevent row selection
-                        when editing.
-                    */
-
-                    cell.addEventListener(
-                        "click",
-                        function(event){
-
-                            event.stopPropagation();
-
-                        }
-                    );
-
-
-                    td.appendChild(
-                        cell
-                    );
-
-
-                    tr.appendChild(
-                        td
-                    );
-
-                }
-            );
-
-
-            body.appendChild(
-                tr
-            );
-
-        }
-    );
-
-
-    if(
-        filtered.length === 0
     ){
 
-        body.innerHTML = `
+        data.backends =
+            json.backends || [];
 
-            <tr>
+        data.frontends =
+            json.frontends || [];
 
-                <td colspan="${columns.length}">
+        data.externals =
+            json.externals || [];
 
-                    <div class="emptyState">
-
-                        <strong>
-                            No matching records
-                        </strong>
-
-                        Change your filters or search.
-
-                    </div>
-
-                </td>
-
-            </tr>
-
-        `;
-
-    }
-
-}
-
-
-/* =========================================================
-   CELL FORMAT
-========================================================= */
-
-function formatCell(
-    value,
-    column
-){
-
-    const text =
-        String(
-            value ?? ""
-        );
-
-
-    if(!text){
-
-        return `<span class="empty">empty</span>`;
-
-    }
-
-
-    /*
-        Status
-    */
-
-    if(
-        column === "Status"
-    ){
-
-        const status =
-            text.toUpperCase();
-
-
-        if(
-            status === "ONLINE"
-        ){
-
-            return `
-                <span class="status online">
-                    ONLINE
-                </span>
-            `;
-
-        }
-
-
-        if(
-            status === "OFFLINE"
-        ){
-
-            return `
-                <span class="status offline">
-                    OFFLINE
-                </span>
-            `;
-
-        }
-
-
-        return `
-            <span class="status unknown">
-                ${escapeHTML(text)}
-            </span>
-        `;
-
-    }
-
-
-    /*
-        URLs
-    */
-
-    if(
-        isURL(text)
-    ){
-
-        return `
-            <a
-                class="url"
-                href="${escapeAttribute(text)}"
-                target="_blank"
-                rel="noopener noreferrer"
-                onclick="event.stopPropagation()"
-            >
-                ${escapeHTML(shortURL(text))}
-            </a>
-        `;
-
-    }
-
-
-    return escapeHTML(text);
-
-}
-
-
-/* =========================================================
-   SELECT ROW
-========================================================= */
-
-function selectRow(index){
-
-    selectedIndex =
-        index;
-
-
-    renderTable();
-
-    renderInspector(
-        index
-    );
-
-}
-
-
-/* =========================================================
-   INSPECTOR
-========================================================= */
-
-function renderInspector(index){
-
-    const row =
-        mapData[index];
-
-
-    if(!row){
+        data.links =
+            json.links || [];
 
         return;
-
     }
 
 
-    document.getElementById(
-        "inspectorTitle"
-    ).textContent =
-        row["Backends Sheet"] ||
-        row["MAIN HTML FRONTEND"] ||
-        "MAP Record";
+    const rows =
+        Array.isArray(json.rows)
+            ? json.rows
+            : Array.isArray(json)
+                ? json
+                : [];
 
 
-    document.getElementById(
-        "inspectorSub"
-    ).textContent =
-        "Record ID: " +
-        (
-            row.ID ||
-            index + 1
-        );
+    data.backends = [];
+
+    data.frontends = [];
+
+    data.externals = [];
+
+    data.links = [];
 
 
-    const body =
-        document.getElementById(
-            "detailBody"
-        );
+    rows.forEach(row => {
+
+        const backend =
+            clean(row["Backends Sheet"]);
+
+        if(backend){
+
+            data.backends.push({
+                id:"backend-" + clean(row.ID),
+                name:backend,
+                type:"backend",
+                data:row
+            });
+
+        }
 
 
-    body.innerHTML = "";
-
-
-    /*
-        Organize columns into useful groups.
-    */
-
-    const backendColumns =
-        [
-            "ID",
-            "Backends Sheet",
-            "Sheet",
-            "Sheet API",
-            "Status"
-        ];
-
-
-    const frontendColumns =
-        [
+        const frontendFields = [
             "MAIN HTML FRONTEND",
             "HTML FRONTEND 2",
             "HTML FRONTEND 3",
@@ -1718,1039 +883,1297 @@ function renderInspector(index){
         ];
 
 
-    const externalColumns =
-        [
-            "EXTERNAL",
-            "EXTERNAL API",
-            "EXTERNAL API 2"
-        ];
+        frontendFields.forEach(
+            (field,index) => {
 
+                const url =
+                    clean(row[field]);
 
-    createInspectorGroup(
-        body,
-        "Backend",
-        backendColumns,
-        row
-    );
+                if(!url) return;
 
+                data.frontends.push({
 
-    createInspectorGroup(
-        body,
-        "Frontend",
-        frontendColumns,
-        row
-    );
+                    id:
+                        "frontend-" +
+                        clean(row.ID) +
+                        "-" +
+                        index,
 
+                    name:
+                        getPageName(url),
 
-    createInspectorGroup(
-        body,
-        "External Connections",
-        externalColumns,
-        row
-    );
+                    url,
 
+                    type:"frontend",
 
-    /*
-        Any unexpected columns.
-    */
+                    backend:
+                        backend,
 
-    const known =
-        new Set(
-            [
-                ...backendColumns,
-                ...frontendColumns,
-                ...externalColumns
-            ]
+                    data:row
+
+                });
+
+            }
         );
 
 
-    const otherColumns =
-        columns.filter(
-            column =>
-                !known.has(column)
-        );
+        const external =
+            clean(row.EXTERNAL);
+
+        const api =
+            clean(row["EXTERNAL API"]);
+
+        const api2 =
+            clean(row["EXTERNAL API 2"]);
 
 
-    if(
-        otherColumns.length
-    ){
+        if(external || api || api2){
 
-        createInspectorGroup(
-            body,
-            "Other Data",
-            otherColumns,
-            row
-        );
+            if(external){
 
-    }
+                data.externals.push({
+                    id:
+                        "external-" +
+                        clean(row.ID),
+
+                    name:external,
+
+                    type:"external",
+
+                    url:api,
+
+                    data:row
+
+                });
+
+            }
+
+            if(api && !external){
+
+                data.externals.push({
+                    id:
+                        "external-api-" +
+                        clean(row.ID),
+
+                    name:
+                        getPageName(api),
+
+                    type:"external",
+
+                    url:api,
+
+                    data:row
+
+                });
+
+            }
+
+            if(api2){
+
+                data.externals.push({
+                    id:
+                        "external-api2-" +
+                        clean(row.ID),
+
+                    name:
+                        getPageName(api2),
+
+                    type:"external",
+
+                    url:api2,
+
+                    data:row
+
+                });
+
+            }
+
+        }
+
+    });
 
 }
 
 
-/* =========================================================
-   INSPECTOR GROUP
-========================================================= */
+/* ============================================================
+   RENDER
+============================================================ */
 
-function createInspectorGroup(
-    parent,
-    title,
-    groupColumns,
-    row
-){
+function renderMap(){
 
-    const existing =
-        groupColumns.filter(
-            column =>
-                columns.includes(column)
-        );
+    nodesContainer.innerHTML = "";
 
-
-    if(
-        existing.length === 0
+    while(
+        connections.firstChild
     ){
-
-        return;
-
+        connections.removeChild(
+            connections.firstChild
+        );
     }
 
 
-    const group =
-        document.createElement(
-            "div"
-        );
+    nodes = [];
 
 
-    group.className =
-        "detailGroup";
+    /*
+       BACKENDS
+       North / upper arc
+    */
 
+    data.backends.forEach(
+        (item,index) => {
 
-    const heading =
-        document.createElement(
-            "h3"
-        );
-
-
-    heading.textContent =
-        title;
-
-
-    group.appendChild(
-        heading
-    );
-
-
-    existing.forEach(
-        column => {
-
-            const card =
-                document.createElement(
-                    "div"
+            const pos =
+                radialPosition(
+                    index,
+                    data.backends.length,
+                    520,
+                    Math.PI * 1.15,
+                    Math.PI * 1.85
                 );
 
-
-            card.className =
-                "detailCard";
-
-
-            const label =
-                document.createElement(
-                    "div"
-                );
-
-
-            label.className =
-                "detailLabel";
-
-
-            label.textContent =
-                column;
-
-
-            card.appendChild(
-                label
-            );
-
-
-            const value =
-                document.createElement(
-                    "div"
-                );
-
-
-            value.className =
-                "detailValue";
-
-
-            const raw =
-                String(
-                    row[column] ??
-                    ""
-                );
-
-
-            if(
-                isURL(raw)
-            ){
-
-                value.innerHTML = `
-
-                    <a
-                        href="${escapeAttribute(raw)}"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        ${escapeHTML(raw)}
-                    </a>
-
-                `;
-
-            }
-            else{
-
-                value.textContent =
-                    raw ||
-                    "empty";
-
-            }
-
-
-            card.appendChild(
-                value
-            );
-
-
-            /*
-                Actions for useful cells.
-            */
-
-            if(raw){
-
-                const actions =
-                    document.createElement(
-                        "div"
-                    );
-
-
-                actions.className =
-                    "detailActions";
-
-
-                const copy =
-                    document.createElement(
-                        "button"
-                    );
-
-
-                copy.className =
-                    "btn small";
-
-
-                copy.textContent =
-                    "Copy";
-
-
-                copy.onclick =
-                    function(){
-
-                        copyText(
-                            raw
-                        );
-
-                    };
-
-
-                actions.appendChild(
-                    copy
-                );
-
-
-                if(
-                    isURL(raw)
-                ){
-
-                    const open =
-                        document.createElement(
-                            "button"
-                        );
-
-
-                    open.className =
-                        "btn small";
-
-
-                    open.textContent =
-                        "Open";
-
-
-                    open.onclick =
-                        function(){
-
-                            window.open(
-                                raw,
-                                "_blank",
-                                "noopener"
-                            );
-
-                        };
-
-
-                    actions.appendChild(
-                        open
-                    );
-
-                }
-
-
-                card.appendChild(
-                    actions
-                );
-
-            }
-
-
-            group.appendChild(
-                card
+            createNode(
+                item,
+                pos.x,
+                pos.y
             );
 
         }
     );
 
 
-    parent.appendChild(
-        group
+    /*
+       FRONTENDS
+       Middle / outer branches
+    */
+
+    data.frontends.forEach(
+        (item,index) => {
+
+            const pos =
+                radialPosition(
+                    index,
+                    data.frontends.length,
+                    850,
+                    Math.PI * .15,
+                    Math.PI * .85
+                );
+
+            createNode(
+                item,
+                pos.x,
+                pos.y
+            );
+
+        }
     );
+
+
+    /*
+       EXTERNALS
+       South arc
+    */
+
+    data.externals.forEach(
+        (item,index) => {
+
+            const pos =
+                radialPosition(
+                    index,
+                    data.externals.length,
+                    850,
+                    Math.PI * 1.15,
+                    Math.PI * 1.85
+                );
+
+            createNode(
+                item,
+                pos.x,
+                pos.y
+            );
+
+        }
+    );
+
+
+    /*
+       Draw connections only AFTER
+       every node has been created.
+    */
+
+    drawConnections();
 
 }
 
 
-/* =========================================================
-   CLOSE INSPECTOR
-========================================================= */
+/* ============================================================
+   RADIAL POSITION
+============================================================ */
 
-function closeInspector(){
+function radialPosition(
+    index,
+    total,
+    radius,
+    startAngle,
+    endAngle
+){
 
-    selectedIndex =
-        null;
+    if(total <= 1){
+
+        const angle =
+            (startAngle + endAngle) / 2;
+
+        return {
+            x:Math.cos(angle) * radius,
+            y:Math.sin(angle) * radius
+        };
+
+    }
+
+    const angle =
+        startAngle +
+        (endAngle - startAngle) *
+        (index / (total - 1));
+
+    return {
+        x:
+            Math.cos(angle) *
+            radius,
+
+        y:
+            Math.sin(angle) *
+            radius
+    };
+
+}
 
 
-    document.getElementById(
-        "inspectorTitle"
-    ).textContent =
-        "Select a row";
+/* ============================================================
+   CREATE NODE
+============================================================ */
+
+function createNode(
+    item,
+    x,
+    y
+){
+
+    const element =
+        document.createElement("div");
+
+    element.className =
+        "node";
+
+    element.dataset.id =
+        item.id;
+
+    element.dataset.type =
+        item.type;
 
 
-    document.getElementById(
-        "inspectorSub"
-    ).textContent =
-        "Click any row to inspect the complete infrastructure record.";
+    element.style.left =
+        x + "px";
+
+    element.style.top =
+        y + "px";
 
 
-    document.getElementById(
-        "detailBody"
-    ).innerHTML = `
+    element.innerHTML = `
 
-        <div class="emptyState">
+        <div class="node-head">
 
-            <strong>
-                No record selected
-            </strong>
+            <span class="dot ${item.type}"></span>
 
-            Select a row from the MAP table.
+            <div class="node-title">
+                ${escapeHtml(item.name || "Unnamed")}
+            </div>
+
+        </div>
+
+        <div class="node-body">
+
+            <div class="node-type">
+                ${escapeHtml(item.type)}
+            </div>
+
+            ${
+                item.url
+                ?
+                escapeHtml(
+                    shorten(item.url,55)
+                )
+                :
+                ""
+            }
 
         </div>
 
     `;
 
 
-    renderTable();
-
-}
-
-
-/* =========================================================
-   STATISTICS
-========================================================= */
-
-function updateStats(){
-
-    const rows =
-        mapData;
-
-
-    let online =
-        0;
-
-    let offline =
-        0;
-
-    let urls =
-        0;
-
-
-    rows.forEach(
-        row => {
-
-            const status =
-                String(
-                    row.Status ||
-                    ""
-                ).toUpperCase();
-
-
-            if(
-                status === "ONLINE"
-            ){
-
-                online++;
-
-            }
-
-
-            if(
-                status === "OFFLINE"
-            ){
-
-                offline++;
-
-            }
-
-
-            Object.values(row)
-                .forEach(
-                    value => {
-
-                        if(
-                            isURL(
-                                String(
-                                    value ??
-                                    ""
-                                )
-                            )
-                        ){
-
-                            urls++;
-
-                        }
-
-                    }
-                );
-
-        }
+    nodesContainer.appendChild(
+        element
     );
 
 
-    document.getElementById(
-        "rowCount"
-    ).textContent =
-        rows.length;
+    const node = {
 
+        id:item.id,
 
-    document.getElementById(
-        "onlineCount"
-    ).textContent =
-        online;
+        type:item.type,
 
+        item,
 
-    document.getElementById(
-        "offlineCount"
-    ).textContent =
-        offline;
+        element,
 
+        x,
 
-    document.getElementById(
-        "urlCount"
-    ).textContent =
-        urls;
-
-}
-
-
-/* =========================================================
-   SEARCH / FILTER RESET
-========================================================= */
-
-function resetFilters(){
-
-    document.getElementById(
-        "search"
-    ).value = "";
-
-
-    document.getElementById(
-        "statusFilter"
-    ).value =
-        "ALL";
-
-
-    document.getElementById(
-        "backendFilter"
-    ).value =
-        "ALL";
-
-
-    renderTable();
-
-}
-
-
-/* =========================================================
-   LOCAL EDIT STORAGE
-========================================================= */
-
-function loadLocalEdits(){
-
-    try{
-
-        return JSON.parse(
-            localStorage.getItem(
-                STORAGE_KEY
-            ) || "{}"
-        );
-
-    }
-    catch{
-
-        return {};
-
-    }
-
-}
-
-
-function saveLocalEdit(
-    rowIndex,
-    column,
-    value
-){
-
-    if(
-        !localEdits[rowIndex]
-    ){
-
-        localEdits[rowIndex] =
-            {};
-
-    }
-
-
-    localEdits[rowIndex][column] =
-        value;
-
-
-    localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(
-            localEdits
-        )
-    );
-
-}
-
-
-function applyLocalEdits(){
-
-    Object.keys(
-        localEdits
-    ).forEach(
-        rowIndex => {
-
-            const index =
-                Number(
-                    rowIndex
-                );
-
-
-            if(
-                !mapData[index]
-            ){
-
-                return;
-
-            }
-
-
-            Object.entries(
-                localEdits[rowIndex]
-            ).forEach(
-                ([column,value]) => {
-
-                    mapData[index][column] =
-                        value;
-
-                }
-            );
-
-        }
-    );
-
-}
-
-
-function clearLocalEdits(){
-
-    const confirmed =
-        confirm(
-            "Clear all locally saved MAP edits?"
-        );
-
-
-    if(!confirmed){
-
-        return;
-
-    }
-
-
-    localStorage.removeItem(
-        STORAGE_KEY
-    );
-
-
-    localEdits =
-        {};
-
-
-    loadData();
-
-}
-
-
-/* =========================================================
-   EXPORT JSON
-========================================================= */
-
-function exportJSON(){
-
-    const output = {
-
-        success:true,
-
-        sheet:"MAP",
-
-        generated:
-            new Date().toISOString(),
-
-        count:
-            mapData.length,
-
-        rows:
-            mapData
+        y
 
     };
 
 
-    downloadFile(
-        JSON.stringify(
-            output,
-            null,
-            2
-        ),
-        "obvyris-map-export.json",
-        "application/json"
-    );
+    nodes.push(node);
 
 
-    showToast(
-        "JSON exported."
+    makeDraggable(node);
+
+
+    element.addEventListener(
+        "click",
+        event => {
+
+            event.stopPropagation();
+
+            selectNode(node);
+
+        }
     );
 
 }
 
 
-/* =========================================================
-   EXPORT CSV
-========================================================= */
+/* ============================================================
+   DRAG NODES
+============================================================ */
 
-function exportCSV(){
+function makeDraggable(node){
 
-    if(
-        !mapData.length
+    let dragging = false;
+
+    let startX = 0;
+
+    let startY = 0;
+
+    let originalX = 0;
+
+    let originalY = 0;
+
+
+    node.element.addEventListener(
+        "pointerdown",
+        event => {
+
+            dragging = true;
+
+            node.element.setPointerCapture(
+                event.pointerId
+            );
+
+            startX =
+                event.clientX;
+
+            startY =
+                event.clientY;
+
+            originalX =
+                node.x;
+
+            originalY =
+                node.y;
+
+            node.element.style.cursor =
+                "grabbing";
+
+        }
+    );
+
+
+    node.element.addEventListener(
+        "pointermove",
+        event => {
+
+            if(!dragging) return;
+
+            const dx =
+                (event.clientX - startX) /
+                scale;
+
+            const dy =
+                (event.clientY - startY) /
+                scale;
+
+            node.x =
+                originalX + dx;
+
+            node.y =
+                originalY + dy;
+
+
+            node.element.style.left =
+                node.x + "px";
+
+            node.element.style.top =
+                node.y + "px";
+
+
+            drawConnections();
+
+        }
+    );
+
+
+    node.element.addEventListener(
+        "pointerup",
+        () => {
+
+            dragging = false;
+
+            node.element.style.cursor =
+                "grab";
+
+        }
+    );
+
+}
+
+
+/* ============================================================
+   CONNECTIONS
+============================================================ */
+
+function drawConnections(){
+
+    while(
+        connections.firstChild
     ){
-
-        return;
-
+        connections.removeChild(
+            connections.firstChild
+        );
     }
 
 
-    const header =
-        columns
-            .map(
-                csvEscape
-            )
-            .join(",");
+    nodes.forEach(node => {
+
+        if(node.type === "backend"){
+
+            drawLine(
+                0,
+                0,
+                node.x,
+                node.y,
+                "backend"
+            );
+
+        }
+
+    });
 
 
-    const rows =
-        mapData.map(
-            row => {
+    /*
+       Frontends are connected to the
+       backend that owns their row.
+    */
 
-                return columns
-                    .map(
-                        column =>
-                            csvEscape(
-                                row[column] ??
-                                ""
-                            )
-                    )
-                    .join(",");
+    nodes
+        .filter(
+            node =>
+                node.type === "frontend"
+        )
+        .forEach(frontend => {
+
+            const backendName =
+                clean(
+                    frontend.item.backend
+                );
+
+
+            const backend =
+                nodes.find(
+                    node =>
+                        node.type === "backend" &&
+                        clean(node.item.name) ===
+                        backendName
+                );
+
+
+            if(backend){
+
+                drawLine(
+                    backend.x,
+                    backend.y,
+                    frontend.x,
+                    frontend.y,
+                    "frontend"
+                );
+
+            }else{
+
+                drawLine(
+                    0,
+                    0,
+                    frontend.x,
+                    frontend.y,
+                    "frontend"
+                );
 
             }
-        );
+
+        });
 
 
-    const csv =
-        [
-            header,
-            ...rows
-        ]
-        .join("\n");
+    /*
+       External connections belong to
+       their corresponding backend row.
+    */
+
+    nodes
+        .filter(
+            node =>
+                node.type === "external"
+        )
+        .forEach(external => {
+
+            const backendName =
+                clean(
+                    external.item[
+                        "Backends Sheet"
+                    ]
+                );
 
 
-    downloadFile(
-        csv,
-        "obvyris-map-export.csv",
-        "text/csv"
-    );
+            const backend =
+                nodes.find(
+                    node =>
+                        node.type === "backend" &&
+                        clean(node.item.name) ===
+                        backendName
+                );
 
 
-    showToast(
-        "CSV exported."
-    );
+            if(backend){
+
+                drawLine(
+                    backend.x,
+                    backend.y,
+                    external.x,
+                    external.y,
+                    "external"
+                );
+
+            }else{
+
+                drawLine(
+                    0,
+                    0,
+                    external.x,
+                    external.y,
+                    "external"
+                );
+
+            }
+
+        });
 
 }
 
 
-/* =========================================================
-   DOWNLOAD
-========================================================= */
-
-function downloadFile(
-    content,
-    filename,
+function drawLine(
+    x1,
+    y1,
+    x2,
+    y2,
     type
 ){
 
-    const blob =
-        new Blob(
-            [content],
-            {
-                type
-            }
+    const path =
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "path"
         );
 
 
-    const url =
-        URL.createObjectURL(
-            blob
+    const bend =
+        Math.max(
+            80,
+            Math.abs(x2-x1) * .25
         );
 
 
-    const link =
-        document.createElement(
-            "a"
-        );
+    const d =
+        `
+        M ${50000+x1} ${50000+y1}
+        C
+        ${50000+x1} ${50000+y1+bend}
+        ${50000+x2} ${50000+y2-bend}
+        ${50000+x2} ${50000+y2}
+        `;
 
 
-    link.href =
-        url;
+    path.setAttribute(
+        "d",
+        d
+    );
 
-
-    link.download =
-        filename;
-
-
-    document.body.appendChild(
-        link
+    path.classList.add(
+        "connection",
+        type
     );
 
 
-    link.click();
-
-
-    link.remove();
-
-
-    URL.revokeObjectURL(
-        url
+    connections.appendChild(
+        path
     );
 
 }
 
 
-/* =========================================================
-   CSV ESCAPE
-========================================================= */
+/* ============================================================
+   NODE DETAILS
+============================================================ */
 
-function csvEscape(value){
+function selectNode(node){
 
-    const text =
-        String(
-            value ?? ""
+    document
+        .querySelectorAll(".node.selected")
+        .forEach(
+            el =>
+                el.classList.remove("selected")
         );
 
+
+    node.element.classList.add(
+        "selected"
+    );
+
+
+    const row =
+        node.item.data || {};
+
+
+    let html = `
+
+        <div class="details-title">
+            ${escapeHtml(
+                node.item.name || "Unnamed"
+            )}
+        </div>
+
+        <div class="details-type">
+            ${escapeHtml(node.type)}
+        </div>
+
+    `;
+
+
+    const entries =
+        Object.entries(row);
+
+
+    entries.forEach(
+        ([key,value]) => {
+
+            value =
+                clean(value);
+
+            if(!value) return;
+
+            let rendered =
+                escapeHtml(value);
+
+
+            if(isUrl(value)){
+
+                rendered =
+                    `
+                    <a
+                        href="${escapeAttribute(value)}"
+                        target="_blank"
+                        rel="noopener"
+                    >
+                        ${escapeHtml(
+                            shorten(value,120)
+                        )}
+                    </a>
+                    `;
+
+            }
+
+
+            html += `
+
+                <div class="detail-row">
+
+                    <div class="detail-label">
+                        ${escapeHtml(key)}
+                    </div>
+
+                    <div class="detail-value">
+                        ${rendered}
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+    );
+
+
+    if(node.item.url){
+
+        html += `
+
+            <div class="detail-row">
+
+                <div class="detail-label">
+                    Open Resource
+                </div>
+
+                <div class="detail-value">
+
+                    <a
+                        href="${escapeAttribute(node.item.url)}"
+                        target="_blank"
+                        rel="noopener"
+                    >
+                        Open
+                    </a>
+
+                </div>
+
+            </div>
+
+        `;
+
+    }
+
+
+    detailsContent.innerHTML =
+        html;
+
+    details.classList.add(
+        "show"
+    );
+
+}
+
+
+/* ============================================================
+   SEARCH
+============================================================ */
+
+document
+.getElementById("search")
+.addEventListener(
+    "input",
+    function(){
+
+        const term =
+            this.value
+                .trim()
+                .toLowerCase();
+
+
+        nodes.forEach(node => {
+
+            const text =
+                JSON.stringify(
+                    node.item
+                ).toLowerCase();
+
+
+            const match =
+                !term ||
+                text.includes(term);
+
+
+            node.element.style.opacity =
+                match ? "1" : ".12";
+
+
+            node.element.style.pointerEvents =
+                match ? "auto" : "none";
+
+        });
+
+    }
+);
+
+
+/* ============================================================
+   ZOOM
+============================================================ */
+
+function zoomAt(
+    factor,
+    clientX,
+    clientY
+){
+
+    const rect =
+        viewport.getBoundingClientRect();
+
+
+    const mx =
+        clientX - rect.left -
+        rect.width / 2;
+
+    const my =
+        clientY - rect.top -
+        rect.height / 2;
+
+
+    const oldScale =
+        scale;
+
+
+    const newScale =
+        Math.min(
+            20,
+            Math.max(
+                .08,
+                scale * factor
+            )
+        );
+
+
+    const worldX =
+        (mx - offsetX) /
+        oldScale;
+
+    const worldY =
+        (my - offsetY) /
+        oldScale;
+
+
+    scale =
+        newScale;
+
+
+    offsetX =
+        mx -
+        worldX * scale;
+
+
+    offsetY =
+        my -
+        worldY * scale;
+
+
+    applyTransform();
+
+    saveView();
+
+}
+
+
+document
+.getElementById("zoomIn")
+.addEventListener(
+    "click",
+    () =>
+        zoomAt(
+            1.25,
+            viewport.clientWidth/2,
+            viewport.clientHeight/2
+        )
+);
+
+
+document
+.getElementById("zoomOut")
+.addEventListener(
+    "click",
+    () =>
+        zoomAt(
+            .8,
+            viewport.clientWidth/2,
+            viewport.clientHeight/2
+        )
+);
+
+
+document
+.getElementById("zoomReset")
+.addEventListener(
+    "click",
+    () => {
+
+        scale = 1;
+
+        applyTransform();
+
+        saveView();
+
+    }
+);
+
+
+/* ============================================================
+   MOUSE WHEEL ZOOM
+============================================================ */
+
+viewport.addEventListener(
+    "wheel",
+    event => {
+
+        event.preventDefault();
+
+        zoomAt(
+            event.deltaY < 0
+                ? 1.12
+                : .89,
+            event.clientX,
+            event.clientY
+        );
+
+    },
+    {
+        passive:false
+    }
+);
+
+
+/* ============================================================
+   PAN
+============================================================ */
+
+viewport.addEventListener(
+    "pointerdown",
+    event => {
+
+        if(
+            event.target.closest(".node") ||
+            event.target.closest("button") ||
+            event.target.closest("#details")
+        ){
+            return;
+        }
+
+
+        draggingWorld = true;
+
+        panStartX =
+            event.clientX;
+
+        panStartY =
+            event.clientY;
+
+        startOffsetX =
+            offsetX;
+
+        startOffsetY =
+            offsetY;
+
+
+        viewport.setPointerCapture(
+            event.pointerId
+        );
+
+    }
+);
+
+
+viewport.addEventListener(
+    "pointermove",
+    event => {
+
+        if(!draggingWorld) return;
+
+
+        offsetX =
+            startOffsetX +
+            event.clientX -
+            panStartX;
+
+
+        offsetY =
+            startOffsetY +
+            event.clientY -
+            panStartY;
+
+
+        applyTransform();
+
+    }
+);
+
+
+viewport.addEventListener(
+    "pointerup",
+    () => {
+
+        if(!draggingWorld) return;
+
+        draggingWorld = false;
+
+        saveView();
+
+    }
+);
+
+
+/* ============================================================
+   BUTTONS
+============================================================ */
+
+document
+.getElementById("resetBtn")
+.addEventListener(
+    "click",
+    () => {
+
+        centerView();
+
+    }
+);
+
+
+document
+.getElementById("fitBtn")
+.addEventListener(
+    "click",
+    fitMap
+);
+
+
+document
+.getElementById("reloadBtn")
+.addEventListener(
+    "click",
+    loadMap
+);
+
+
+document
+.getElementById("closeDetails")
+.addEventListener(
+    "click",
+    () => {
+
+        details.classList.remove(
+            "show"
+        );
+
+        document
+            .querySelectorAll(".node.selected")
+            .forEach(
+                el =>
+                    el.classList.remove(
+                        "selected"
+                    )
+            );
+
+    }
+);
+
+
+/* ============================================================
+   FIT MAP
+============================================================ */
+
+function fitMap(){
+
+    if(!nodes.length) return;
+
+
+    let minX = 0;
+    let maxX = 0;
+    let minY = 0;
+    let maxY = 0;
+
+
+    nodes.forEach(node => {
+
+        minX =
+            Math.min(
+                minX,
+                node.x
+            );
+
+        maxX =
+            Math.max(
+                maxX,
+                node.x
+            );
+
+        minY =
+            Math.min(
+                minY,
+                node.y
+            );
+
+        maxY =
+            Math.max(
+                maxY,
+                node.y
+            );
+
+    });
+
+
+    const width =
+        maxX - minX + 500;
+
+    const height =
+        maxY - minY + 500;
+
+
+    const vw =
+        viewport.clientWidth;
+
+    const vh =
+        viewport.clientHeight;
+
+
+    scale =
+        Math.min(
+            1,
+            Math.min(
+                vw / width,
+                vh / height
+            )
+        );
+
+
+    offsetX =
+        -(minX + maxX) / 2 * scale;
+
+
+    offsetY =
+        -(minY + maxY) / 2 * scale;
+
+
+    applyTransform();
+
+    saveView();
+
+}
+
+
+/* ============================================================
+   HELPERS
+============================================================ */
+
+function clean(value){
 
     if(
-        /[",\n]/.test(text)
+        value === null ||
+        value === undefined
     ){
-
-        return '"' +
-            text.replace(
-                /"/g,
-                '""'
-            ) +
-            '"';
-
+        return "";
     }
 
-
-    return text;
+    return String(value).trim();
 
 }
 
 
-/* =========================================================
-   URL HELPERS
-========================================================= */
+function escapeHtml(value){
 
-function isURL(value){
-
-    return /^https?:\/\/\S+$/i.test(
-        value.trim()
-    );
-
-}
-
-
-function shortURL(url){
-
-    try{
-
-        const parsed =
-            new URL(url);
-
-
-        let result =
-            parsed.hostname;
-
-
-        if(
-            parsed.pathname &&
-            parsed.pathname !== "/"
-        ){
-
-            result +=
-                parsed.pathname;
-
-        }
-
-
-        if(
-            result.length > 55
-        ){
-
-            result =
-                result.substring(
-                    0,
-                    52
-                ) +
-                "...";
-
-        }
-
-
-        return result;
-
-    }
-    catch{
-
-        return url;
-
-    }
-
-}
-
-
-/* =========================================================
-   ESCAPE
-========================================================= */
-
-function escapeHTML(value){
-
-    return String(
-        value ?? ""
-    )
-    .replace(
-        /&/g,
-        "&amp;"
-    )
-    .replace(
-        /</g,
-        "&lt;"
-    )
-    .replace(
-        />/g,
-        "&gt;"
-    )
-    .replace(
-        /"/g,
-        "&quot;"
-    )
-    .replace(
-        /'/g,
-        "&#039;"
-    );
+    return String(value)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
 
 }
 
 
 function escapeAttribute(value){
 
-    return escapeHTML(
-        value
+    return escapeHtml(value);
+
+}
+
+
+function isUrl(value){
+
+    return /^https?:\/\//i.test(
+        String(value)
     );
 
 }
 
 
-/* =========================================================
-   COPY
-========================================================= */
-
-async function copyText(
-    text
+function shorten(
+    value,
+    length
 ){
+
+    value =
+        String(value);
+
+    if(
+        value.length <= length
+    ){
+        return value;
+    }
+
+    return (
+        value.substring(
+            0,
+            length - 3
+        ) + "..."
+    );
+
+}
+
+
+function getPageName(url){
 
     try{
 
-        await navigator.clipboard.writeText(
-            text
-        );
+        const parsed =
+            new URL(url);
+
+        let name =
+            parsed.pathname
+                .split("/")
+                .filter(Boolean)
+                .pop();
 
 
-        showToast(
-            "Copied to clipboard."
-        );
-
-    }
-    catch{
-
-        showToast(
-            "Clipboard access unavailable."
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   LOADING
-========================================================= */
-
-function showLoading(
-    visible
-){
-
-    const element =
-        document.getElementById(
-            "loading"
-        );
-
-
-    element.classList.toggle(
-        "show",
-        visible
-    );
-
-}
-
-
-/* =========================================================
-   TOAST
-========================================================= */
-
-let toastTimer;
-
-
-function showToast(
-    message
-){
-
-    const toast =
-        document.getElementById(
-            "toast"
-        );
-
-
-    toast.textContent =
-        message;
-
-
-    toast.classList.add(
-        "show"
-    );
-
-
-    clearTimeout(
-        toastTimer
-    );
-
-
-    toastTimer =
-        setTimeout(
-            function(){
-
-                toast.classList.remove(
-                    "show"
-                );
-
-            },
-            2500
-        );
-
-}
-
-
-/* =========================================================
-   KEYBOARD SHORTCUTS
-========================================================= */
-
-document.addEventListener(
-    "keydown",
-    function(event){
-
-        /*
-            CTRL + F focuses search.
-        */
-
-        if(
-            event.ctrlKey &&
-            event.key.toLowerCase() === "f"
-        ){
-
-            event.preventDefault();
-
-            document.getElementById(
-                "search"
-            ).focus();
-
+        if(!name){
+            return parsed.hostname;
         }
 
 
-        /*
-            ESC closes inspector.
-        */
+        return decodeURIComponent(
+            name
+        );
 
-        if(
-            event.key === "Escape"
-        ){
+    }catch(e){
 
-            closeInspector();
-
-        }
+        return shorten(
+            url,
+            35
+        );
 
     }
-);
+
+}
+
+
+/* ============================================================
+   START
+============================================================ */
+
+loadView();
+
+loadMap();
 
 </script>
 
