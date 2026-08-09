@@ -795,6 +795,164 @@ display:inline;
 
 }
 
+#playlistManager{
+
+```
+position:absolute;
+
+left:10px;
+right:10px;
+top:50px;
+bottom:10px;
+
+background:rgba(7,13,22,.97);
+
+border:1px solid #2793ff;
+
+border-radius:10px;
+
+display:none;
+
+flex-direction:column;
+
+z-index:1000;
+
+box-shadow:
+    0 0 25px rgba(0,0,0,.8);
+```
+
+}
+
+#playlistManagerHeader{
+
+```
+height:45px;
+
+flex-shrink:0;
+
+padding:8px 10px;
+
+display:flex;
+
+align-items:center;
+
+justify-content:space-between;
+
+background:#142338;
+
+color:#55b8ff;
+
+font-weight:bold;
+```
+
+}
+
+#playlistManagerHeader button{
+
+```
+width:28px;
+height:28px;
+
+padding:0;
+
+background:#7f2020;
+```
+
+}
+
+#playlistManagerBody{
+
+```
+display:flex;
+
+flex-direction:column;
+
+flex:1;
+
+min-height:0;
+
+padding:10px;
+
+gap:10px;
+```
+
+}
+
+.playlistManagerControls{
+
+```
+display:flex;
+
+gap:6px;
+
+flex-wrap:wrap;
+```
+
+}
+
+.playlistManagerControls button{
+
+```
+flex:1;
+
+min-width:80px;
+
+padding:8px;
+
+font-size:12px;
+```
+
+}
+
+#playerPlaylistSelect{
+
+```
+width:100%;
+
+flex:1;
+
+min-height:0;
+
+background:#101923;
+
+color:#d8e1ec;
+
+border:1px solid #26384f;
+
+border-radius:6px;
+
+padding:5px;
+```
+
+}
+
+#playerPlaylistSelect option{
+
+```
+padding:8px;
+```
+
+}
+
+#playerPlaylistSelect option:checked{
+
+```
+background:#2793ff;
+
+color:white;
+```
+
+}
+
+#playlistManagerStatus{
+
+```
+color:#9aaabd;
+
+font-size:12px;
+```
+
+}
 
 
 /* =====================
@@ -1372,10 +1530,62 @@ data-tip="Load .m3u Playlist">
 📂
 
 </button>
- 
+<button onclick="openPlaylistManager()" data-tip="Manage Playlists">
+☰
+</button>
+</div>
+
+<div id="playlistManager">
+
+```
+<div id="playlistManagerHeader">
+
+    <span>Obvyris Playlists</span>
+
+    <button
+        onclick="closePlaylistManager()">
+        ×
+    </button>
+
+</div>
+
+<div id="playlistManagerBody">
+
+    <div class="playlistManagerControls">
+
+        <button
+            onclick="loadPlaylistList()">
+            🔄 Refresh
+        </button>
+
+        <button
+            onclick="loadSelectedPlayerPlaylist()">
+            ▶ Load
+        </button>
+
+        <button
+            onclick="replacePlayerPlaylist()">
+            🔄 Replace
+        </button>
+
+    </div>
+
+    <select
+        id="playerPlaylistSelect"
+        size="10">
+    </select>
+
+    <div id="playlistManagerStatus">
+        Select a playlist
+    </div>
+
+</div>
+```
+
 </div>
 
 
+ 
 
 <div id="playlistWindow">
 
@@ -2574,7 +2784,355 @@ function exportM3U(){
 
 }
 
+function openPlaylistManager(){
 
+```
+const manager =
+    document.getElementById(
+        "playlistManager"
+    );
+
+manager.style.display =
+    "flex";
+
+loadPlaylistList();
+```
+
+}
+
+function closePlaylistManager(){
+
+```
+document.getElementById(
+    "playlistManager"
+).style.display =
+    "none";
+```
+
+}
+
+async function loadPlaylistList(){
+
+```
+const select =
+    document.getElementById(
+        "playerPlaylistSelect"
+    );
+
+const status =
+    document.getElementById(
+        "playlistManagerStatus"
+    );
+
+status.innerHTML =
+    "Loading playlists...";
+
+try{
+
+    const response =
+        await fetch(
+            PLAYLIST_API +
+            "?action=playlists"
+        );
+
+    const data =
+        await response.json();
+
+    if(!data.success){
+
+        throw new Error(
+            data.error ||
+            "Playlist API failed"
+        );
+
+    }
+
+    select.innerHTML = "";
+
+    data.playlists.forEach(
+        function(playlist){
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+            option.value =
+                playlist.id;
+
+            option.textContent =
+                playlist.name;
+
+            select.appendChild(
+                option
+            );
+
+        }
+    );
+
+    status.innerHTML =
+        data.playlists.length +
+        " playlists available";
+
+}catch(error){
+
+    console.error(
+        "Playlist loading error:",
+        error
+    );
+
+    status.innerHTML =
+        "Playlist loading failed: " +
+        error.message;
+
+}
+```
+
+}
+
+async function getSelectedPlayerPlaylist(){
+
+```
+const select =
+    document.getElementById(
+        "playerPlaylistSelect"
+    );
+
+const playlistID =
+    select.value.trim();
+
+if(!playlistID){
+
+    throw new Error(
+        "Select a playlist first"
+    );
+
+}
+
+const response =
+    await fetch(
+        PLAYLIST_API +
+        "?action=playlist&id=" +
+        encodeURIComponent(
+            playlistID
+        )
+    );
+
+const data =
+    await response.json();
+
+if(!data.success){
+
+    throw new Error(
+        data.error ||
+        "Unable to load playlist"
+    );
+
+}
+
+const playlistName =
+    select.options[
+        select.selectedIndex
+    ].textContent.trim();
+
+return {
+
+    id:
+        playlistID,
+
+    name:
+        playlistName,
+
+    tracks:
+        data.tracks.map(
+            function(track){
+
+                return {
+
+                    name:
+                        track.song ||
+                        "Unknown Track",
+
+                    artist:
+                        track.artist ||
+                        "Unknown Artist",
+
+                    album:
+                        track.album ||
+                        "Unknown Album",
+
+                    size:
+                        "--",
+
+                    url:
+                        track.url ||
+                        "",
+
+                    playlistID:
+                        track.playlistID ||
+                        playlistID,
+
+                    position:
+                        track.position,
+
+                    source:
+                        "Obvyris Playlist"
+
+                };
+
+            }
+        )
+
+};
+```
+
+}
+
+async function loadSelectedPlayerPlaylist(){
+
+```
+const status =
+    document.getElementById(
+        "playlistManagerStatus"
+    );
+
+status.innerHTML =
+    "Loading playlist...";
+
+try{
+
+    const playlist =
+        await getSelectedPlayerPlaylist();
+
+    if(playlist.tracks.length === 0){
+
+        status.innerHTML =
+            "Playlist is empty";
+
+        return;
+
+    }
+
+    queue =
+        [...playlist.tracks];
+
+    queueIndex = 0;
+
+    currentPlayingIndex = -1;
+
+    saveQueue();
+
+    renderQueue();
+
+    showWinamp();
+
+    status.innerHTML =
+        'Loaded "' +
+        playlist.name +
+        '" — ' +
+        playlist.tracks.length +
+        ' tracks';
+
+}catch(error){
+
+    console.error(error);
+
+    status.innerHTML =
+        error.message;
+
+}
+```
+
+}
+
+async function replacePlayerPlaylist(){
+
+```
+const select =
+    document.getElementById(
+        "playerPlaylistSelect"
+    );
+
+const status =
+    document.getElementById(
+        "playlistManagerStatus"
+    );
+
+if(!select.value){
+
+    status.innerHTML =
+        "Select a playlist first";
+
+    return;
+
+}
+
+const playlistName =
+    select.options[
+        select.selectedIndex
+    ].textContent.trim();
+
+const confirmed =
+    confirm(
+        'Replace the current playlist with "' +
+        playlistName +
+        '"?'
+    );
+
+if(!confirmed)
+    return;
+
+status.innerHTML =
+    "Replacing playlist...";
+
+try{
+
+    const playlist =
+        await getSelectedPlayerPlaylist();
+
+    if(playlist.tracks.length === 0){
+
+        status.innerHTML =
+            "Playlist is empty";
+
+        return;
+
+    }
+
+    queue =
+        [...playlist.tracks];
+
+    queueIndex = 0;
+
+    currentPlayingIndex = -1;
+
+    saveQueue();
+
+    renderQueue();
+
+    showWinamp();
+
+    status.innerHTML =
+        'Replaced playlist with "' +
+        playlist.name +
+        '" — ' +
+        playlist.tracks.length +
+        ' tracks';
+
+}catch(error){
+
+    console.error(error);
+
+    status.innerHTML =
+        "Playlist replacement failed: " +
+        error.message;
+
+}
+```
+
+}
+
+ 
 // ======================================
 // SAVE PLAYLIST TO OBVYRIS BACKEND
 // ======================================
