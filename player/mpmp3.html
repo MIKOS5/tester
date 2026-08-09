@@ -2442,162 +2442,286 @@ tracks[index]
 
 
 
-
 function playTrackURL(track){
 
-
-audio.src = track.url;
-
-
-audio.play();
+    if(!track)
+        return;
 
 
-
-document.getElementById(
-"winampSong"
-).innerHTML =
-""+escapeHTML(track.name);
+    audio.src = track.url;
 
 
+    audio.play().catch(function(error){
 
-document.getElementById(
-"winampArtist"
-).innerHTML =
-escapeHTML(track.artist)
-+
-"<br>"
-+
-escapeHTML(track.album);
+        console.log(
+            "Playback waiting for user interaction:",
+            error
+        );
 
+    });
 
 
-showWinamp();
+    // ==================================
+    // UPDATE WINAMP DISPLAY
+    // ==================================
 
-document.getElementById("miniStatus").innerHTML =
-"▶ " + track.name;
+    document.getElementById(
+        "winampSong"
+    ).innerHTML =
+        escapeHTML(
+            track.name || "Unknown Track"
+        );
 
-currentPlayingIndex = queueIndex;
 
-renderQueue();
-     
+    document.getElementById(
+        "winampArtist"
+    ).innerHTML =
+        escapeHTML(
+            track.artist || "Unknown Artist"
+        )
+        +
+        "<br>"
+        +
+        escapeHTML(
+            track.album || "Obvyris Archive"
+        );
+
+
+    // ==================================
+    // UPDATE MINI PLAYER
+    // ==================================
+
+    document.getElementById(
+        "miniStatus"
+    ).innerHTML =
+        "▶ " +
+        escapeHTML(
+            track.name || "Playing"
+        );
+
+
+    // ==================================
+    // UPDATE ANDROID / CAR / BLUETOOTH
+    // ==================================
+
+    updateMediaSession(track);
+
+
+    // ==================================
+    // SHOW PLAYER
+    // ==================================
+
+    showWinamp();
+
+
+    // ==================================
+    // UPDATE PLAYLIST
+    // ==================================
+
+    renderQueue();
+
 }
 
+// ======================================
+// MEDIA SESSION METADATA
+// ======================================
+
+function updateMediaSession(track){
+
+    if(!("mediaSession" in navigator))
+        return;
 
 
+    navigator.mediaSession.metadata =
+        new MediaMetadata({
+
+            title:
+                track.name ||
+                "Unknown Track",
+
+            artist:
+                track.artist ||
+                "Unknown Artist",
+
+            album:
+                track.album ||
+                "Obvyris Archive",
+
+            artwork: [
+
+                {
+                    src:
+                        "https://mikos5.github.io/tester/navicon.png",
+
+                    sizes:
+                        "512x512",
+
+                    type:
+                        "image/png"
+                }
+
+            ]
+
+        });
+
+}
 
 // ======================================
 // PLAYER CONTROLS
 // ======================================
 
-
-
 function togglePlay(){
 
+    if(audio.paused){
 
-if(audio.paused){
+        audio.play();
 
+    }else{
 
-audio.play();
+        audio.pause();
 
-
-}
-
-else{
-
-
-audio.pause();
-
+    }
 
 }
 
 
-}
-
-
-
-
-
-
+// ======================================
+// NEXT TRACK
+// ======================================
 
 function nextTrack(){
 
+    if(queue.length === 0)
+        return;
 
+    queueIndex++;
 
-if(queue.length===0)
+    if(queueIndex >= queue.length)
+        queueIndex = 0;
 
-return;
-
-
-
-queueIndex++;
-
-
-
-if(queueIndex >= queue.length)
-
-
-queueIndex=0;
-
-
-
-
-playQueue(queueIndex);
-
-
+    playQueue(queueIndex);
 
 }
 
 
-
-
-
-
+// ======================================
+// PREVIOUS TRACK
+// ======================================
 
 function previousTrack(){
 
+    if(queue.length === 0)
+        return;
 
-if(queue.length===0)
+    queueIndex--;
 
-return;
+    if(queueIndex < 0)
+        queueIndex = queue.length - 1;
 
-
-
-queueIndex--;
-
-
-
-if(queueIndex<0)
-
-
-queueIndex =
-queue.length-1;
-
-
-
-
-playQueue(queueIndex);
-
-
+    playQueue(queueIndex);
 
 }
 
 
+// ======================================
+// AUTOMATICALLY PLAY NEXT SONG
+// ======================================
 
+audio.onended = function(){
 
-
-
-
-
-audio.onended=function(){
-
-
-nextTrack();
-
+    nextTrack();
 
 };
 
 
+// ======================================
+// ANDROID / CAR / BLUETOOTH / PC CONTROLS
+// ======================================
 
+if("mediaSession" in navigator){
+
+    navigator.mediaSession.setActionHandler(
+        "play",
+        function(){
+
+            audio.play();
+
+        }
+    );
+
+
+    navigator.mediaSession.setActionHandler(
+        "pause",
+        function(){
+
+            audio.pause();
+
+        }
+    );
+
+
+    navigator.mediaSession.setActionHandler(
+        "nexttrack",
+        function(){
+
+            nextTrack();
+
+        }
+    );
+
+
+    navigator.mediaSession.setActionHandler(
+        "previoustrack",
+        function(){
+
+            previousTrack();
+
+        }
+    );
+
+
+    try{
+
+        navigator.mediaSession.setActionHandler(
+            "seekbackward",
+            function(details){
+
+                const skip =
+                    details.seekOffset || 10;
+
+                audio.currentTime =
+                    Math.max(
+                        0,
+                        audio.currentTime - skip
+                    );
+
+            }
+        );
+
+    }catch(e){}
+
+
+    try{
+
+        navigator.mediaSession.setActionHandler(
+            "seekforward",
+            function(details){
+
+                const skip =
+                    details.seekOffset || 10;
+
+                audio.currentTime =
+                    Math.min(
+                        audio.duration || Infinity,
+                        audio.currentTime + skip
+                    );
+
+            }
+        );
+
+    }catch(e){}
+
+}
 
 
 
