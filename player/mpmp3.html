@@ -1054,10 +1054,7 @@ cursor:pointer;
 Obvyris Archive MP3 Engine
 </h1>
 
-
-
 <div class="controls">
-
 
 <input 
 id="creator"
@@ -1067,36 +1064,47 @@ placeholder="Search artist / band / creator">
 id="search"
 placeholder="Filter songs...">
 
-
 <select id="sort">
-
 
 <option value="downloads desc">
 Most Popular
 </option>
 
-
 <option value="date desc">
 Newest
 </option>
-
 
 <option value="titleSorter asc">
 Title A-Z
 </option>
 
+</select>
+
+<select id="playlistSelect">
+
+<option value="">
+Select Playlist
+</option>
 
 </select>
 
+<button
+onclick="loadSelectedPlaylist()"
+data-tip="Load Playlist">
+🎵 LOAD PLAYLIST
+</button>
 
+<button
+onclick="loadPlaylistList()"
+data-tip="Refresh Playlists">
+🔄 PLAYLISTS
+</button>
 
 <button 
 onclick="searchArchive(0)"
 data-tip="Search Archive Audio">
 🔎 SEARCH
 </button>
-
-
 
 </div>
 <button id="restorePlayer"
@@ -1411,6 +1419,208 @@ let currentCollection = "";
 
 let currentPlayingIndex = -1;
 
+
+// ======================================
+// OBVYRIS PLAYLIST API
+// ======================================
+
+const PLAYLIST_API =
+    "https://script.google.com/macros/s/AKfycbzmpHIXlzgUSe3VXqL2LjZMnNgas3ELjhrUjC1NMGvPciwx25jf6zLoR5pyoXTHnljN/exec";
+
+
+// ======================================
+// LOAD PLAYLIST LIST
+// ======================================
+
+async function loadPlaylistList(){
+
+    const select =
+        document.getElementById("playlistSelect");
+
+    const status =
+        document.getElementById("status");
+
+    status.innerHTML =
+        "Loading playlists...";
+
+    try{
+
+        const response =
+            await fetch(
+                PLAYLIST_API +
+                "?action=playlists"
+            );
+
+        const data =
+            await response.json();
+
+        if(!data.success){
+
+            throw new Error(
+                data.error ||
+                "Playlist API failed"
+            );
+
+        }
+
+        select.innerHTML =
+            '<option value="">Select Playlist</option>';
+
+        data.playlists.forEach(function(id){
+
+            const option =
+                document.createElement("option");
+
+            option.value = id;
+
+            option.textContent =
+                "Playlist " + id;
+
+            select.appendChild(option);
+
+        });
+
+        status.innerHTML =
+            "Found " +
+            data.playlists.length +
+            " playlists";
+
+    }catch(error){
+
+        console.error(
+            "Playlist API error:",
+            error
+        );
+
+        status.innerHTML =
+            "Playlist loading failed: " +
+            error.message;
+
+    }
+
+}
+
+
+// ======================================
+// LOAD SELECTED PLAYLIST
+// ======================================
+
+async function loadSelectedPlaylist(){
+
+    const select =
+        document.getElementById("playlistSelect");
+
+    const playlistID =
+        select.value.trim();
+
+    const status =
+        document.getElementById("status");
+
+    if(!playlistID){
+
+        status.innerHTML =
+            "Select a playlist first";
+
+        return;
+
+    }
+
+    status.innerHTML =
+        "Loading Playlist " +
+        playlistID +
+        "...";
+
+    try{
+
+        const response =
+            await fetch(
+                PLAYLIST_API +
+                "?action=playlist&id=" +
+                encodeURIComponent(playlistID)
+            );
+
+        const data =
+            await response.json();
+
+        if(!data.success){
+
+            throw new Error(
+                data.error ||
+                "Unable to load playlist"
+            );
+
+        }
+
+        const playlistTracks =
+            data.tracks.map(function(track){
+
+                return {
+
+                    name:
+                        track.song ||
+                        "Unknown Track",
+
+                    artist:
+                        track.artist ||
+                        "Unknown Artist",
+
+                    album:
+                        track.album ||
+                        "Unknown Album",
+
+                    size:
+                        "--",
+
+                    url:
+                        track.url ||
+                        "",
+
+                    playlistID:
+                        track.playlistID,
+
+                    position:
+                        track.position,
+
+                    source:
+                        "Obvyris Playlist"
+
+                };
+
+            });
+
+        allTracks =
+            playlistTracks;
+
+        tracks =
+            [...playlistTracks];
+
+        currentPlayingIndex = -1;
+
+        queueIndex = 0;
+
+        renderTracks();
+
+        status.innerHTML =
+            "Loaded Playlist " +
+            playlistID +
+            " — " +
+            playlistTracks.length +
+            " tracks";
+
+    }catch(error){
+
+        console.error(
+            "Playlist load error:",
+            error
+        );
+
+        status.innerHTML =
+            "Playlist failed: " +
+            error.message;
+
+    }
+
+}
 
 async function searchArchive(page){
 
@@ -2433,6 +2643,8 @@ renderQueue();
 
 
 }
+
+    loadPlaylistList();
 
 
 }
