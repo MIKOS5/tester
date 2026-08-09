@@ -1088,21 +1088,19 @@ Select Playlist
 
 </select>
 
-<button
-onclick="loadSelectedPlaylist()"
-data-tip="Load Playlist">
+<button onclick="loadSelectedPlaylist()" data-tip="Load Playlist">
 🎵 LOAD PLAYLIST
 </button>
 
-<button
-onclick="loadPlaylistList()"
-data-tip="Refresh Playlists">
+<button onclick="replaceCurrentPlaylist()" data-tip="Replace Current Playlist">
+🔄 REPLACE PLAYLIST
+</button>
+
+<button onclick="loadPlaylistList()" data-tip="Refresh Playlists">
 🔄 PLAYLISTS
 </button>
 
-<button 
-onclick="searchArchive(0)"
-data-tip="Search Archive Audio">
+<button onclick="searchArchive(0)" data-tip="Search Archive Audio">
 🔎 SEARCH
 </button>
 
@@ -1629,6 +1627,148 @@ async function loadSelectedPlaylist(){
 
 }
 
+
+
+async function replaceCurrentPlaylist(){
+
+```
+const select =
+    document.getElementById("playlistSelect");
+
+const playlistID =
+    select.value.trim();
+
+const status =
+    document.getElementById("status");
+
+if(!playlistID){
+
+    status.innerHTML =
+        "Select a playlist first";
+
+    return;
+
+}
+
+const confirmed =
+    confirm(
+        "Replace the current playlist with Playlist " +
+        playlistID +
+        "?"
+    );
+
+if(!confirmed)
+    return;
+
+status.innerHTML =
+    "Replacing playlist...";
+
+try{
+
+    const response =
+        await fetch(
+            PLAYLIST_API +
+            "?action=playlist&id=" +
+            encodeURIComponent(playlistID)
+        );
+
+    const data =
+        await response.json();
+
+    if(!data.success){
+
+        throw new Error(
+            data.error ||
+            "Unable to load playlist"
+        );
+
+    }
+
+    const newPlaylist =
+        data.tracks.map(function(track){
+
+            return {
+
+                name:
+                    track.song ||
+                    "Unknown Track",
+
+                artist:
+                    track.artist ||
+                    "Unknown Artist",
+
+                album:
+                    track.album ||
+                    "Unknown Album",
+
+                size:
+                    "--",
+
+                url:
+                    track.url ||
+                    "",
+
+                playlistID:
+                    track.playlistID,
+
+                position:
+                    track.position,
+
+                source:
+                    "Obvyris Playlist"
+
+            };
+
+        });
+
+    if(newPlaylist.length === 0){
+
+        status.innerHTML =
+            "Playlist is empty";
+
+        return;
+
+    }
+
+    queue =
+        [...newPlaylist];
+
+    queueIndex = 0;
+
+    currentPlayingIndex = -1;
+
+    saveQueue();
+
+    renderQueue();
+
+    showWinamp();
+
+    status.innerHTML =
+        "Replaced current playlist with Playlist " +
+        playlistID +
+        " — " +
+        newPlaylist.length +
+        " tracks";
+
+}catch(error){
+
+    console.error(
+        "Replace playlist error:",
+        error
+    );
+
+    status.innerHTML =
+        "Playlist replacement failed: " +
+        error.message;
+
+}
+```
+
+}
+
+
+
+ 
 async function searchArchive(page){
 
     currentPage = page;
