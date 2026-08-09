@@ -1,461 +1,580 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>xx📻 RadioWave Pro</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Obvyris Game Keyboard Test</title>
 
 <style>
-:root{
-  --bg:#09111d;
-  --panel:#111827;
-  --line:#253347;
-  --muted:#93a4bb;
-  --blue:#2793ff;
-  --blue2:#1869d9;
+
+*{
+box-sizing:border-box;
 }
 
-*{box-sizing:border-box}
-
-body{
-  margin:0;
-  font-family:Inter,sans-serif;
-  background:radial-gradient(circle at top,#17263f,#09111d 45%);
-  color:#fff;
-  display:flex;
-  height:100vh;
-  overflow:hidden;
+html,body{
+margin:0;
+width:100%;
+height:100%;
+background:#080d14;
+color:#fff;
+font-family:Arial,sans-serif;
+overflow:hidden;
 }
 
-/* SIDEBAR */
-.sidebar{
-  width:340px;
-  background:rgba(17,24,39,.92);
-  backdrop-filter:blur(16px);
-  border-right:1px solid var(--line);
-  padding:20px;
-  overflow:auto;
+#app{
+width:100%;
+height:100%;
+display:flex;
+flex-direction:column;
 }
 
-.logo{font-size:30px;font-weight:800}
-.logo span{color:var(--blue)}
-
-.search{
-  width:100%;
-  margin-top:12px;
-  padding:12px;
-  border-radius:14px;
-  border:1px solid #1e293b;
-  background:#0e1725;
-  color:#fff;
+#header{
+height:50px;
+background:#111827;
+border-bottom:1px solid #253347;
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:0 12px;
+flex-shrink:0;
 }
 
-button{
-  border:none;
-  border-radius:12px;
-  padding:10px 12px;
-  cursor:pointer;
-  font-weight:700;
-  color:#fff;
-  background:linear-gradient(180deg,var(--blue),var(--blue2));
+#title{
+font-weight:bold;
 }
 
-.grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
-  margin-top:10px;
+#status{
+font-size:12px;
+color:#6ee7b7;
 }
 
-/* PLAYER */
-.player{
-  margin-top:18px;
-  padding:16px;
-  border-radius:20px;
-  background:linear-gradient(180deg,#182233,#121926);
-  border:1px solid #263246;
+#gameLayer{
+position:relative;
+flex:1;
+min-height:0;
+background:#000;
 }
 
-#npName{font-weight:700}
-#npMeta{font-size:12px;color:var(--muted)}
-
-.controls{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:8px;
-  margin-top:12px;
+#gameWrapper{
+position:absolute;
+inset:0;
+background:#000;
 }
 
-/* MAIN */
-.main{
-  flex:1;
-  padding:20px;
-  overflow:auto;
+#gameFrame{
+width:100%;
+height:100%;
+border:0;
+display:block;
 }
 
-.topbar{
-  display:flex;
-  justify-content:space-between;
+#keyboard{
+display:none;
+position:absolute;
+left:0;
+right:0;
+bottom:0;
+padding:8px;
+background:rgba(17,24,39,.97);
+border-top:2px solid #2793ff;
+z-index:50;
 }
 
-.title{font-size:28px;font-weight:800}
-
-.pagebox{
-  padding:10px 14px;
-  border:1px solid var(--line);
-  border-radius:14px;
-  color:var(--muted);
+#keyboard.open{
+display:block;
 }
 
-/* TABLE */
-.table{
-  margin-top:20px;
-  border-radius:20px;
-  overflow:visible;
-  border:1px solid var(--line);
+.row{
+display:flex;
+justify-content:center;
+gap:4px;
+margin-bottom:4px;
 }
 
-table{
-  width:100%;
-  border-collapse:collapse;
-  background:rgba(17,24,39,.92);
+.key{
+width:42px;
+height:38px;
+border:1px solid #34445a;
+border-radius:6px;
+background:#1b2738;
+color:#fff;
+font-weight:bold;
+font-size:13px;
+cursor:pointer;
+touch-action:manipulation;
+user-select:none;
 }
 
-th{
-  text-align:left;
-  padding:14px;
-  background:#0f1725;
-  color:#8eb5ff;
-  font-size:12px;
+.key:active{
+background:#2793ff;
+transform:scale(.95);
 }
 
-td{
-  padding:14px;
-  border-top:1px solid #1d2938;
+.wide{
+width:180px;
 }
 
-tr:hover{background:#182233}
-
-/* GENRE */
-.genre-wrap{position:relative;display:inline-block}
-
-.genre-btn{
-  padding:7px 10px;
-  font-size:12px;
-  border-radius:10px;
-  background:#182233;
-  border:1px solid #263246;
+.control{
+width:auto;
+padding:0 12px;
 }
 
-.genre-popup{
-  display:none;
-  position:absolute;
-  top:35px;
-  left:0;
-  width:240px;
-  background:#0f1725;
-  border:1px solid #263246;
-  padding:10px;
-  border-radius:12px;
-  font-size:12px;
-  color:#93a4bb;
-  z-index:9999;
-  box-shadow:0 10px 30px rgba(0,0,0,.5);
+#bottom{
+height:45px;
+background:#111827;
+border-top:1px solid #253347;
+display:flex;
+align-items:center;
+gap:6px;
+padding:6px;
+flex-shrink:0;
 }
 
-.genre-wrap.active .genre-popup{
-  display:block;
+#bottom button{
+height:32px;
+background:#1b2738;
+border:1px solid #34445a;
+border-radius:6px;
+color:#fff;
+padding:0 12px;
+font-weight:bold;
+cursor:pointer;
 }
+
+#bottom button:hover{
+background:#2793ff;
+}
+
 </style>
+
 </head>
 
 <body>
 
-<div class="sidebar">
+<div id="app">
 
-  <div class="logo">📻 Radio<span>Wave</span></div>
+<div id="header">
 
-  <input id="genre" class="search" placeholder="Search genre..."/>
-  <button onclick="applyFilter()">Search</button>
-
-  <div class="grid">
-    <button onclick="prevPage()">Prev</button>
-    <button onclick="nextPage()">Next</button>
-    <button onclick="loadStations()">Refresh</button>
-    <button onclick="loadFavorites()">Favs</button>
-  </div>
-
-  <div class="player">
-    <div id="npName">Not Playing</div>
-    <div id="npMeta">Select station</div>
-
-    <audio id="player"></audio>
-
-    <div class="controls">
-      <button onclick="prevStation()">⏮</button>
-      <button onclick="togglePlay()" id="playBtn">▶</button>
-      <button onclick="nextStation()">⏭</button>
-      <button onclick="toggleFavCurrent()">⭐</button>
-    </div>
-  </div>
-
-  <div id="status" style="margin-top:10px;color:#93a4bb">Loading...</div>
+<div id="title">
+Keyboard Layer Test
 </div>
 
-<div class="main">
+<div id="status">
+READY
+</div>
 
-  <div class="topbar">
-    <div>
-      <div class="title">US Radio</div>
-      <div id="count"></div>
-    </div>
-    <div class="pagebox" id="pageInfo"></div>
-  </div>
+</div>
 
-  <div class="table">
-    <table>
-      <thead>
-        <tr>
-          <th>Station</th>
-          <th>Genre</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
+<div id="gameLayer">
+
+<div id="gameWrapper">
+
+<iframe
+id="gameFrame"
+src="https://html5.gamemonetize.co/4hqykjny6c6fa490so5o2sds4zghv7wx/"
+allowfullscreen>
+</iframe>
+
+</div>
+
+<div id="keyboard">
+
+<div class="row">
+
+<button class="key" data-key="1">1</button> <button class="key" data-key="2">2</button> <button class="key" data-key="3">3</button> <button class="key" data-key="4">4</button> <button class="key" data-key="5">5</button> <button class="key" data-key="6">6</button> <button class="key" data-key="7">7</button> <button class="key" data-key="8">8</button> <button class="key" data-key="9">9</button> <button class="key" data-key="0">0</button>
+
+</div>
+
+<div class="row">
+
+<button class="key" data-key="q">Q</button> <button class="key" data-key="w">W</button> <button class="key" data-key="e">E</button> <button class="key" data-key="r">R</button> <button class="key" data-key="t">T</button> <button class="key" data-key="y">Y</button> <button class="key" data-key="u">U</button> <button class="key" data-key="i">I</button> <button class="key" data-key="o">O</button> <button class="key" data-key="p">P</button>
+
+</div>
+
+<div class="row">
+
+<button class="key" data-key="a">A</button> <button class="key" data-key="s">S</button> <button class="key" data-key="d">D</button> <button class="key" data-key="f">F</button> <button class="key" data-key="g">G</button> <button class="key" data-key="h">H</button> <button class="key" data-key="j">J</button> <button class="key" data-key="k">K</button> <button class="key" data-key="l">L</button>
+
+</div>
+
+<div class="row">
+
+<button class="key" data-key="z">Z</button> <button class="key" data-key="x">X</button> <button class="key" data-key="c">C</button> <button class="key" data-key="v">V</button> <button class="key" data-key="b">B</button> <button class="key" data-key="n">N</button> <button class="key" data-key="m">M</button>
+
+</div>
+
+<div class="row">
+
+<button class="key wide" data-key=" ">SPACE</button>
+
+<button class="key" data-key="Backspace">⌫</button>
+
+<button class="key" data-key="Enter">ENTER</button>
+
+</div>
+
+<div class="row">
+
+<button class="key" data-key="ArrowLeft">←</button> <button class="key" data-key="ArrowUp">↑</button> <button class="key" data-key="ArrowDown">↓</button> <button class="key" data-key="ArrowRight">→</button>
+
+</div>
+
+</div>
+
+</div>
+
+<div id="bottom">
+
+<button onclick="toggleKeyboard()">
+⌨ Keyboard
+</button>
+
+<button onclick="focusGame()">
+Focus Game
+</button>
+
+<button onclick="reloadGame()">
+Reload
+</button>
+
+</div>
 
 </div>
 
 <script>
 
-const API="https://all.api.radio-browser.info/json/stations/search";
+const frame =
+document.getElementById("gameFrame");
 
-let stations=[],allStations=[],currentList=[];
-let filteredList=[];
-let isFiltered=false;
+const keyboard =
+document.getElementById("keyboard");
 
-let favorites=[],favoriteIds=new Set();
-let page=0,currentIndex=-1;
-const limit=50;
-let isPlaying=false;
+const status =
+document.getElementById("status");
 
-/* FAVORITES */
-function saveFav(){
-  localStorage.setItem("radioFav",JSON.stringify(favorites));
+
+/* =========================
+   KEYBOARD TOGGLE
+========================= */
+
+function toggleKeyboard(){
+
+keyboard.classList.toggle("open");
+
 }
 
-function loadFav(){
-  const d=localStorage.getItem("radioFav");
-  favorites=d?JSON.parse(d):[];
-  favoriteIds=new Set(favorites.map(f=>f.stationuuid));
+
+/* =========================
+   FOCUS GAME
+========================= */
+
+function focusGame(){
+
+try{
+
+frame.focus();
+
+frame.contentWindow.focus();
+
+status.textContent="GAME FOCUSED";
+
+}catch(e){
+
+status.textContent="FOCUS FAILED";
+
 }
 
-/* LOAD */
-async function loadStations(){
-  setStatus("Loading...");
-
-  const res=await fetch(`${API}?countrycode=US&limit=${limit}&offset=${page*limit}&hidebroken=true`);
-  const data=await res.json();
-
-  stations=data;
-  allStations=[...data];
-
-  if(!isFiltered){
-    currentList=stations;
-  }
-
-  render();
-  setStatus("Loaded "+stations.length);
 }
 
-/* FAVORITE TOGGLE */
-function toggleFavorite(s){
 
-  const id=s.stationuuid;
-  const exists=favoriteIds.has(id);
+/* =========================
+   RELOAD
+========================= */
 
-  if(exists){
-    favorites=favorites.filter(f=>f.stationuuid!==id);
-    favoriteIds.delete(id);
-    setStatus("Removed ⭐");
-  }else{
-    favorites.push(s);
-    favoriteIds.add(id);
-    setStatus("Saved ⭐");
-  }
+function reloadGame(){
 
-  saveFav();
-  render();
+frame.src=frame.src;
+
+status.textContent="GAME RELOADED";
+
 }
 
-/* CURRENT FAVORITE */
-function toggleFavCurrent(){
 
-  const p=document.getElementById("player");
-  if(!p.src) return;
+/* =========================
+   SEND KEY
+========================= */
 
-  const item=currentList.find(s =>
-    (s.url_resolved||s.url) === p.src
-  );
+function sendKey(key){
 
-  if(!item) return;
+status.textContent="KEY: "+key;
 
-  toggleFavorite(item);
+
+/*
+    METHOD 1
+
+    Tell the wrapper/game
+    that a key was requested.
+*/
+
+try{
+
+frame.contentWindow.postMessage({
+
+type:"gameKeyboard",
+
+action:"keydown",
+
+key:key
+
+},"*");
+
+}catch(e){}
+
+
+/*
+    METHOD 2
+
+    Send a normal keyboard
+    event to THIS page.
+
+    This lets us test the
+    keyboard layer independently.
+*/
+
+const code =
+getCode(key);
+
+const event =
+new KeyboardEvent(
+"keydown",
+{
+key:key,
+code:code,
+keyCode:keyCode(key),
+which:keyCode(key),
+bubbles:true,
+cancelable:true
+}
+);
+
+document.dispatchEvent(event);
+
+
+/*
+    Send keyup shortly after.
+*/
+
+setTimeout(function(){
+
+try{
+
+frame.contentWindow.postMessage({
+
+type:"gameKeyboard",
+
+action:"keyup",
+
+key:key
+
+},"*");
+
+}catch(e){}
+
+const upEvent =
+new KeyboardEvent(
+"keyup",
+{
+key:key,
+code:code,
+keyCode:keyCode(key),
+which:keyCode(key),
+bubbles:true,
+cancelable:true
+}
+);
+
+document.dispatchEvent(upEvent);
+
+},80);
+
 }
 
-/* FAVORITES VIEW */
-function loadFavorites(){
-  currentList=[...favorites];
-  isFiltered=true;
-  page=0;
-  render();
+
+/* =========================
+   KEY CODES
+========================= */
+
+function getCode(key){
+
+if(key===" ") return "Space";
+
+if(key==="ArrowLeft") return "ArrowLeft";
+if(key==="ArrowRight") return "ArrowRight";
+if(key==="ArrowUp") return "ArrowUp";
+if(key==="ArrowDown") return "ArrowDown";
+
+if(key==="Enter") return "Enter";
+
+if(key==="Backspace") return "Backspace";
+
+if(/^[a-z]$/i.test(key)){
+return "Key"+key.toUpperCase();
 }
 
-/* PLAY */
-function playStation(id){
-
-  const item=currentList.find(s=>s.stationuuid===id);
-  if(!item)return;
-
-  currentIndex=currentList.findIndex(s=>s.stationuuid===id);
-
-  const p=document.getElementById("player");
-  p.src=item.url_resolved||item.url;
-  p.play();
-
-  isPlaying=true;
-  document.getElementById("playBtn").textContent="⏸";
-
-  document.getElementById("npName").textContent=item.name;
-  document.getElementById("npMeta").textContent=item.tags||"Radio";
+if(/^[0-9]$/.test(key)){
+return "Digit"+key;
 }
 
-/* NEXT / PREV */
-function nextStation(){
-  if(!currentList.length)return;
-  if(currentIndex<0)currentIndex=0;
-  currentIndex=(currentIndex+1)%currentList.length;
-  playStation(currentList[currentIndex].stationuuid);
+return key;
+
 }
 
-function prevStation(){
-  if(!currentList.length)return;
-  if(currentIndex<0)currentIndex=0;
-  currentIndex=(currentIndex-1+currentList.length)%currentList.length;
-  playStation(currentList[currentIndex].stationuuid);
+
+function keyCode(key){
+
+const codes={
+
+"ArrowLeft":37,
+"ArrowUp":38,
+"ArrowRight":39,
+"ArrowDown":40,
+
+"Enter":13,
+"Backspace":8,
+" ":32
+
+};
+
+if(codes[key]){
+return codes[key];
 }
 
-/* PLAY TOGGLE */
-function togglePlay(){
-  const p=document.getElementById("player");
-  if(!p.src)return;
-
-  if(isPlaying){
-    p.pause();
-    isPlaying=false;
-    document.getElementById("playBtn").textContent="▶";
-  }else{
-    p.play();
-    isPlaying=true;
-    document.getElementById("playBtn").textContent="⏸";
-  }
+if(/^[a-z]$/i.test(key)){
+return key.toUpperCase().charCodeAt(0);
 }
 
-/* FILTER (FIXED) */
-function applyFilter(){
-  const v=document.getElementById("genre").value.toLowerCase();
-
-  filteredList = allStations.filter(s =>
-    (s.tags||"").toLowerCase().includes(v)
-  );
-
-  isFiltered = v.length > 0;
-  page = 0;
-
-  render();
+if(/^[0-9]$/.test(key)){
+return key.charCodeAt(0);
 }
 
-/* PAGINATION FIXED */
-function nextPage(){
-  if(isFiltered){
-    page++;
-    render();
-  } else {
-    page++;
-    loadStations();
-  }
+return 0;
+
 }
 
-function prevPage(){
-  if(page>0) page--;
 
-  if(isFiltered){
-    render();
-  } else {
-    loadStations();
-  }
+/* =========================
+   VIRTUAL BUTTONS
+========================= */
+
+document
+.querySelectorAll(".key")
+.forEach(function(button){
+
+button.addEventListener(
+"pointerdown",
+function(event){
+
+event.preventDefault();
+
+const key =
+button.dataset.key;
+
+sendKey(key);
+
 }
+);
 
-/* GENRE POPUP */
-function toggleGenre(el){
-  document.querySelectorAll(".genre-wrap").forEach(g=>{
-    if(g!==el.parentElement)g.classList.remove("active");
-  });
-  el.parentElement.classList.toggle("active");
-}
-
-document.addEventListener("click",e=>{
-  if(!e.target.closest(".genre-wrap")){
-    document.querySelectorAll(".genre-wrap").forEach(g=>g.classList.remove("active"));
-  }
 });
 
-/* RENDER */
-function render(){
 
-  const tbody=document.querySelector("tbody");
-  tbody.innerHTML="";
+/* =========================
+   PHYSICAL KEYBOARD
+========================= */
 
-  const list = isFiltered ? filteredList : currentList;
+document.addEventListener(
+"keydown",
+function(event){
 
-  list.forEach(s=>{
+/*
+    Don't intercept browser
+    shortcuts unnecessarily.
+*/
 
-    const fav=favoriteIds.has(s.stationuuid);
+if(
+event.ctrlKey ||
+event.altKey ||
+event.metaKey
+){
 
-    tbody.innerHTML+=`
-      <tr>
-        <td>${s.name}</td>
-        <td>
-          <div class="genre-wrap">
-            <button class="genre-btn" onclick="toggleGenre(this)">Genre ▾</button>
-            <div class="genre-popup">${s.tags||"No data"}</div>
-          </div>
-        </td>
-        <td>
-          <button onclick="playStation('${s.stationuuid}')">Play</button>
-          <button onclick='toggleFavorite(${JSON.stringify(s)})'>
-            ${fav?"⭐":"☆"}
-          </button>
-        </td>
-      </tr>
-    `;
-  });
+return;
 
-  document.getElementById("count").innerText=list.length+" stations";
-  document.getElementById("pageInfo").innerText="Page "+(page+1);
 }
 
-/* STATUS */
-function setStatus(t){
-  document.getElementById("status").innerText=t;
+status.textContent =
+"PHYSICAL: "+event.key;
+
+
+/*
+    Forward physical keyboard
+    input through the same
+    wrapper bridge.
+*/
+
+try{
+
+frame.contentWindow.postMessage({
+
+type:"gameKeyboard",
+
+action:"keydown",
+
+key:event.key
+
+},"*");
+
+}catch(e){}
+
+}
+);
+
+
+/* =========================
+   MESSAGE MONITOR
+========================= */
+
+window.addEventListener(
+"message",
+function(event){
+
+if(!event.data) return;
+
+if(
+event.data.type === "gameKeyboard"
+){
+
+status.textContent =
+"GAME MESSAGE: "+
+event.data.key;
+
 }
 
-/* INIT */
-loadFav();
-loadStations();
+}
+);
+
+
+/* =========================
+   FRAME LOAD
+========================= */
+
+frame.addEventListener(
+"load",
+function(){
+
+status.textContent="GAME LOADED";
+
+}
+);
 
 </script>
 
