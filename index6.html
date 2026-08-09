@@ -10,11 +10,13 @@
 name="viewport"
 content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 
-<meta
-name="mobile-web-app-capable"
-content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 
-<title>Obvyris Android Game Input Test</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<meta name="theme-color" content="#09111d">
+
+<title>Obvyris Universal Android Game Keyboard Test</title>
 
 <style>
 
@@ -31,9 +33,13 @@ margin:0;
 width:100%;
 height:100%;
 
-overflow:hidden;
+background:#070d16;
 
-background:#000;
+color:#fff;
+
+font-family:Arial,Helvetica,sans-serif;
+
+overflow:hidden;
 
 touch-action:none;
 
@@ -41,17 +47,82 @@ touch-action:none;
 
 body{
 
-font-family:Arial,Helvetica,sans-serif;
+display:flex;
+
+flex-direction:column;
 
 }
 
-#game{
 
-position:fixed;
+/* =========================
+   HEADER
+========================= */
+
+#header{
+
+height:46px;
+
+background:#111827;
+
+border-bottom:1px solid #253347;
+
+display:flex;
+
+align-items:center;
+
+justify-content:space-between;
+
+padding:0 10px;
+
+flex-shrink:0;
+
+}
+
+#title{
+
+font-weight:bold;
+
+font-size:14px;
+
+}
+
+#status{
+
+font-family:monospace;
+
+font-size:10px;
+
+color:#55e6a5;
+
+}
+
+
+/* =========================
+   GAME
+========================= */
+
+#gameArea{
+
+position:relative;
+
+flex:1;
+
+min-height:0;
+
+background:#000;
+
+overflow:hidden;
+
+}
+
+#gameFrame{
+
+position:absolute;
 
 inset:0;
 
 width:100%;
+
 height:100%;
 
 border:0;
@@ -60,139 +131,151 @@ background:#000;
 
 }
 
-#top{
-
-position:fixed;
-
-top:env(safe-area-inset-top);
-
-left:0;
-
-right:0;
-
-height:46px;
-
-z-index:20;
-
-display:flex;
-
-align-items:center;
-
-justify-content:space-between;
-
-padding:6px 10px;
-
-background:rgba(9,17,29,.88);
-
-border-bottom:1px solid #253347;
-
-color:#fff;
-
-font-size:12px;
-
-pointer-events:none;
-
-}
-
-#title{
-
-font-weight:bold;
-
-}
-
-#status{
-
-font-family:monospace;
-
-color:#55e6a5;
-
-}
-
 
 /* =========================
-   INPUT TEST
+   DIAGNOSTICS
 ========================= */
 
-#testPanel{
+#diagnostics{
 
-position:fixed;
+position:absolute;
 
-top:55px;
+top:6px;
 
-right:8px;
+left:6px;
 
-z-index:30;
+z-index:100;
 
-background:rgba(0,0,0,.78);
+width:255px;
+
+max-height:180px;
+
+overflow:auto;
+
+padding:7px;
+
+background:rgba(0,0,0,.82);
 
 border:1px solid #2793ff;
 
 border-radius:8px;
 
-padding:7px;
+font-family:monospace;
 
-color:#fff;
+font-size:9px;
 
-font:10px monospace;
+line-height:1.45;
 
 pointer-events:none;
+
+}
+
+.diagTitle{
+
+color:#2793ff;
+
+font-weight:bold;
+
+}
+
+.good{
+
+color:#55e6a5;
+
+}
+
+.warn{
+
+color:#ffd34d;
+
+}
+
+.bad{
+
+color:#ff6868;
 
 }
 
 
 /* =========================
-   CONTROLS
+   KEYBOARD
 ========================= */
 
-#controls{
+#keyboard{
 
-position:fixed;
+position:absolute;
 
 left:0;
 
 right:0;
 
-bottom:env(safe-area-inset-bottom);
+bottom:0;
 
-height:145px;
+z-index:200;
 
-z-index:50;
+background:rgba(9,17,29,.97);
 
-pointer-events:none;
+border-top:2px solid #2793ff;
 
-}
-
-.key{
-
-position:absolute;
+padding:5px 4px 8px;
 
 display:flex;
 
-align-items:center;
+flex-direction:column;
+
+gap:4px;
+
+}
+
+
+/* =========================
+   ROW
+========================= */
+
+.keyRow{
+
+display:flex;
 
 justify-content:center;
 
-background:rgba(25,39,56,.82);
+gap:3px;
 
-border:2px solid rgba(255,255,255,.45);
+width:100%;
 
-border-radius:12px;
+}
+
+
+/* =========================
+   KEYS
+========================= */
+
+.key{
+
+flex:1;
+
+min-width:0;
+
+height:38px;
+
+padding:0 2px;
+
+border:1px solid #34445a;
+
+border-radius:6px;
+
+background:#1b2738;
 
 color:#fff;
 
-font-size:20px;
+font-size:13px;
 
-font-weight:bold;
+font-weight:800;
+
+touch-action:none;
 
 user-select:none;
 
 -webkit-user-select:none;
-
-touch-action:none;
-
-pointer-events:auto;
-
-box-shadow:0 3px 8px rgba(0,0,0,.4);
 
 }
 
@@ -202,165 +285,120 @@ background:#2793ff;
 
 border-color:#fff;
 
-transform:scale(.94);
-
-}
-
-
-/* D-PAD */
-
-#left{
-
-left:18px;
-
-bottom:58px;
-
-width:58px;
-
-height:58px;
-
-}
-
-#right{
-
-left:138px;
-
-bottom:58px;
-
-width:58px;
-
-height:58px;
-
-}
-
-#up{
-
-left:78px;
-
-bottom:118px;
-
-width:58px;
-
-height:58px;
-
-}
-
-#down{
-
-left:78px;
-
-bottom:0;
-
-width:58px;
-
-height:58px;
-
-}
-
-
-/* WASD */
-
-#wa{
-
-right:150px;
-
-bottom:58px;
-
-width:58px;
-
-height:58px;
-
-}
-
-#ww{
-
-right:90px;
-
-bottom:118px;
-
-width:58px;
-
-height:58px;
-
-}
-
-#ws{
-
-right:90px;
-
-bottom:0;
-
-width:58px;
-
-height:58px;
-
-}
-
-#wd{
-
-right:30px;
-
-bottom:58px;
-
-width:58px;
-
-height:58px;
-
-}
-
-
-/* SPACE */
-
-#space{
-
-right:30px;
-
-bottom:125px;
-
-width:150px;
-
-height:42px;
-
-font-size:14px;
+transform:scale(.96);
 
 }
 
 
 /* =========================
-   TOP BUTTONS
+   SPECIAL KEYS
 ========================= */
 
-#buttons{
+.keyWide{
 
-position:fixed;
-
-top:55px;
-
-left:8px;
-
-z-index:40;
-
-display:flex;
-
-gap:5px;
+flex:2;
 
 }
 
-#buttons button{
+.keyExtraWide{
 
-height:34px;
+flex:4;
 
-padding:0 10px;
+}
+
+.keyShift{
+
+flex:1.6;
+
+}
+
+.keySpace{
+
+flex:5;
+
+}
+
+.keySmall{
+
+flex:1.2;
+
+}
+
+
+/* =========================
+   TOOLBAR
+========================= */
+
+#toolbar{
+
+height:42px;
+
+display:flex;
+
+gap:4px;
+
+align-items:center;
+
+padding:4px;
+
+background:#111827;
+
+border-top:1px solid #253347;
+
+flex-shrink:0;
+
+overflow-x:auto;
+
+}
+
+#toolbar button{
+
+height:32px;
+
+white-space:nowrap;
+
+padding:0 9px;
 
 border:1px solid #34445a;
 
-border-radius:7px;
+border-radius:6px;
 
-background:rgba(17,24,39,.9);
+background:#1b2738;
 
 color:#fff;
 
 font-weight:bold;
+
+font-size:11px;
+
+}
+
+#toolbar button:active{
+
+background:#2793ff;
+
+}
+
+
+/* =========================
+   NATIVE ANDROID INPUT
+========================= */
+
+#nativeInput{
+
+position:fixed;
+
+left:-1000px;
+
+top:-1000px;
+
+width:1px;
+
+height:1px;
+
+opacity:.01;
+
+font-size:16px;
 
 }
 
@@ -370,22 +408,10 @@ font-weight:bold;
 
 <body>
 
-<iframe
-
-id="game"
-
-src="https://html5.gamemonetize.co/7o8qtn59e5ejushl2s6bp52nbcgiu44x/"
-
-allow="autoplay; fullscreen; pointer-lock"
-
-allowfullscreen>
-
-</iframe>
-
-<div id="top">
+<div id="header">
 
 <div id="title">
-OBVYRIS INPUT TEST
+OBVYRIS UNIVERSAL KEYBOARD TEST
 </div>
 
 <div id="status">
@@ -394,185 +420,309 @@ READY
 
 </div>
 
-<div id="buttons">
+<div id="gameArea">
+
+<iframe
+id="gameFrame"
+src="https://html5.gamemonetize.co/7o8qtn59e5ejushl2s6bp52nbcgiu44x/"
+allow="autoplay; fullscreen; pointer-lock"
+allowfullscreen>
+</iframe>
+
+<div id="diagnostics">
+
+<div class="diagTitle">
+INPUT DIAGNOSTICS
+</div>
+
+Physical / Virtual:
+
+<span id="diagKey">---</span>
+
+<br>
+
+Held:
+
+<span id="diagHeld">---</span>
+
+<br><br>
+
+METHODS
+
+<br>
+
+postMessage: <span id="diagPost">---</span>
+
+<br>
+
+Parent KeyboardEvent: <span id="diagParent">---</span>
+
+<br>
+
+Iframe Event: <span id="diagIframe">---</span>
+
+<br>
+
+Iframe Focus: <span id="diagFocus">---</span>
+
+<br>
+
+Native Android: <span id="diagNative">---</span>
+
+<br>
+
+Text:
+
+<span id="diagText">---</span>
+
+</div>
+
+</div>
+
+<div id="keyboard">
+
+<!-- NUMBER ROW -->
+
+<div class="keyRow">
+
+<button class="key" data-key="1">1</button>
+
+<button class="key" data-key="2">2</button>
+
+<button class="key" data-key="3">3</button>
+
+<button class="key" data-key="4">4</button>
+
+<button class="key" data-key="5">5</button>
+
+<button class="key" data-key="6">6</button>
+
+<button class="key" data-key="7">7</button>
+
+<button class="key" data-key="8">8</button>
+
+<button class="key" data-key="9">9</button>
+
+<button class="key" data-key="0">0</button>
+
+</div>
+
+<!-- QWERTY -->
+
+<div class="keyRow">
+
+<button class="key" data-key="q">Q</button>
+
+<button class="key" data-key="w">W</button>
+
+<button class="key" data-key="e">E</button>
+
+<button class="key" data-key="r">R</button>
+
+<button class="key" data-key="t">T</button>
+
+<button class="key" data-key="y">Y</button>
+
+<button class="key" data-key="u">U</button>
+
+<button class="key" data-key="i">I</button>
+
+<button class="key" data-key="o">O</button>
+
+<button class="key" data-key="p">P</button>
+
+</div>
+
+<!-- ASDF -->
+
+<div class="keyRow">
+
+<button class="key keySmall" data-key="a">A</button>
+
+<button class="key" data-key="s">S</button>
+
+<button class="key" data-key="d">D</button>
+
+<button class="key" data-key="f">F</button>
+
+<button class="key" data-key="g">G</button>
+
+<button class="key" data-key="h">H</button>
+
+<button class="key" data-key="j">J</button>
+
+<button class="key" data-key="k">K</button>
+
+<button class="key" data-key="l">L</button>
+
+</div>
+
+<!-- ZXCV -->
+
+<div class="keyRow">
+
+<button
+class="key keyShift"
+data-key="Shift">
+SHIFT </button>
+
+<button class="key" data-key="z">Z</button>
+
+<button class="key" data-key="x">X</button>
+
+<button class="key" data-key="c">C</button>
+
+<button class="key" data-key="v">V</button>
+
+<button class="key" data-key="b">B</button>
+
+<button class="key" data-key="n">N</button>
+
+<button class="key" data-key="m">M</button>
+
+<button
+class="key keySmall"
+data-key="Backspace">
+⌫ </button>
+
+</div>
+
+<!-- SPACE / ENTER -->
+
+<div class="keyRow">
+
+<button
+class="key keySpace"
+data-key=" ">
+SPACE </button>
+
+<button
+class="key keyWide"
+data-key="Enter">
+ENTER </button>
+
+</div>
+
+<!-- ARROWS -->
+
+<div class="keyRow">
+
+<button
+class="key"
+data-key="ArrowLeft">
+← </button>
+
+<button
+class="key"
+data-key="ArrowUp">
+↑ </button>
+
+<button
+class="key"
+data-key="ArrowDown">
+↓ </button>
+
+<button
+class="key"
+data-key="ArrowRight">
+→ </button>
+
+</div>
+
+</div>
+
+<div id="toolbar">
 
 <button onclick="focusGame()">
 FOCUS
+</button>
+
+<button onclick="nativeKeyboard()">
+ANDROID INPUT
+</button>
+
+<button onclick="sendTestText()">
+TEST TEXT
+</button>
+
+<button onclick="clearNative()">
+CLEAR
 </button>
 
 <button onclick="reloadGame()">
 RELOAD
 </button>
 
-<button onclick="hideControls()">
-HIDE
-</button>
-
 </div>
 
-<div id="testPanel">
-
-W <span id="tw">UP</span><br>
-A <span id="ta">UP</span><br>
-S <span id="ts">UP</span><br>
-D <span id="td">UP</span><br>
-SPACE <span id="tspace">UP</span><br>
-LAST <span id="last">---</span>
-
-</div>
-
-<div id="controls">
-
-<button
-id="left"
-class="key"
-data-key="ArrowLeft">
-← </button>
-
-<button
-id="right"
-class="key"
-data-key="ArrowRight">
-→ </button>
-
-<button
-id="up"
-class="key"
-data-key="ArrowUp">
-↑ </button>
-
-<button
-id="down"
-class="key"
-data-key="ArrowDown">
-↓ </button>
-
-<button
-id="wa"
-class="key"
-data-key="a">
-A </button>
-
-<button
-id="ww"
-class="key"
-data-key="w">
-W </button>
-
-<button
-id="ws"
-class="key"
-data-key="s">
-S </button>
-
-<button
-id="wd"
-class="key"
-data-key="d">
-D </button>
-
-<button
-id="space"
-class="key"
-data-key=" ">
-SPACE </button>
-
-</div>
+<input
+id="nativeInput"
+type="text"
+autocomplete="off"
+autocorrect="off"
+autocapitalize="none"
+spellcheck="false">
 
 <script>
 
 
-const game =
-document.getElementById("game");
+/* =========================
+   REFERENCES
+========================= */
 
+const frame =
+document.getElementById("gameFrame");
 
-const controls =
-document.getElementById("controls");
-
-
-const status =
-document.getElementById("status");
-
+const nativeInput =
+document.getElementById("nativeInput");
 
 const held =
 new Set();
 
+let shiftDown=false;
+
 
 /* =========================
-   FOCUS
+   STATUS
 ========================= */
 
-function focusGame(){
+function setStatus(text){
 
-game.focus();
-
-try{
-
-game.contentWindow.focus();
-
-}catch(e){}
-
-status.textContent =
-"FOCUS";
+document.getElementById(
+"status"
+).textContent=text;
 
 }
 
 
 /* =========================
-   RELOAD
+   DIAGNOSTICS
 ========================= */
 
-function reloadGame(){
+function diag(id,text){
 
-game.src =
-game.src;
-
-held.clear();
-
-update();
-
-status.textContent =
-"RELOAD";
+document.getElementById(
+id
+).textContent=text;
 
 }
 
 
 /* =========================
-   HIDE
+   LOG KEY
 ========================= */
 
-function hideControls(){
+function showKey(key){
 
-controls.style.display =
-"none";
-
-}
-
-
-/* =========================
-   SEND MESSAGE
-========================= */
-
-function sendMessage(
-action,
+diag(
+"diagKey",
 key
-){
+);
 
-try{
-
-game.contentWindow.postMessage({
-
-type:"OBVYRIS_KEY",
-
-action:action,
-
-key:key,
-
-code:getCode(key)
-
-},"*");
-
-}catch(e){}
+diag(
+"diagHeld",
+Array.from(held).join(" ") || "---"
+);
 
 }
 
@@ -588,14 +738,26 @@ return "Space";
 }
 
 if(
-key==="ArrowUp" ||
-key==="ArrowDown" ||
 key==="ArrowLeft" ||
-key==="ArrowRight"
+key==="ArrowRight" ||
+key==="ArrowUp" ||
+key==="ArrowDown"
 ){
 
 return key;
 
+}
+
+if(key==="Shift"){
+return "ShiftLeft";
+}
+
+if(key==="Backspace"){
+return "Backspace";
+}
+
+if(key==="Enter"){
+return "Enter";
 }
 
 if(
@@ -608,59 +770,385 @@ key.toUpperCase();
 
 }
 
+if(
+key.length===1 &&
+/[0-9]/.test(key)
+){
+
+return "Digit"+key;
+
+}
+
 return key;
 
 }
 
 
 /* =========================
-   PRESS
+   KEYCODE
 ========================= */
 
-function press(key){
+function getKeyCode(key){
 
-if(held.has(key)){
+const map={
+
+Backspace:8,
+
+Enter:13,
+
+Shift:16,
+
+" ":32,
+
+ArrowLeft:37,
+
+ArrowUp:38,
+
+ArrowRight:39,
+
+ArrowDown:40
+
+};
+
+if(map[key]){
+return map[key];
+}
+
+if(
+key.length===1 &&
+/[a-z]/i.test(key)
+){
+
+return key.toUpperCase()
+.charCodeAt(0);
+
+}
+
+if(
+key.length===1 &&
+/[0-9]/.test(key)
+){
+
+return key.charCodeAt(0);
+
+}
+
+return 0;
+
+}
+
+
+/* =========================
+   POSTMESSAGE TEST
+========================= */
+
+function sendPostMessage(
+action,
+key
+){
+
+try{
+
+frame.contentWindow.postMessage({
+
+type:"OBVYRIS_KEY",
+
+action:action,
+
+key:key,
+
+code:getCode(key),
+
+keyCode:getKeyCode(key)
+
+},"*");
+
+diag(
+"diagPost",
+"FIRED"
+);
+
+}catch(error){
+
+diag(
+"diagPost",
+"ERROR"
+);
+
+}
+
+}
+
+
+/* =========================
+   PARENT EVENT TEST
+========================= */
+
+function sendParentEvent(
+action,
+key
+){
+
+const event =
+new KeyboardEvent(
+action,
+{
+
+key:key,
+
+code:getCode(key),
+
+keyCode:getKeyCode(key),
+
+which:getKeyCode(key),
+
+bubbles:true,
+
+cancelable:true
+
+}
+);
+
+document.dispatchEvent(
+event
+);
+
+diag(
+"diagParent",
+"FIRED"
+);
+
+}
+
+
+/* =========================
+   IFRAME ELEMENT TEST
+========================= */
+
+function sendIframeEvent(
+action,
+key
+){
+
+try{
+
+const event =
+new KeyboardEvent(
+action,
+{
+
+key:key,
+
+code:getCode(key),
+
+keyCode:getKeyCode(key),
+
+which:getKeyCode(key),
+
+bubbles:true,
+
+cancelable:true
+
+}
+);
+
+frame.dispatchEvent(
+event
+);
+
+diag(
+"diagIframe",
+"FIRED"
+);
+
+}catch(error){
+
+diag(
+"diagIframe",
+"BLOCKED"
+);
+
+}
+
+}
+
+
+/* =========================
+   FOCUS TEST
+========================= */
+
+function focusGame(){
+
+try{
+
+frame.focus();
+
+diag(
+"diagFocus",
+"FRAME FOCUS"
+);
+
+}catch(error){
+
+diag(
+"diagFocus",
+"ERROR"
+);
+
+}
+
+try{
+
+frame.contentWindow.focus();
+
+diag(
+"diagFocus",
+"WINDOW FOCUS"
+
+);
+
+}catch(error){}
+
+setStatus(
+"GAME FOCUSED"
+);
+
+}
+
+
+/* =========================
+   UNIVERSAL KEY DOWN
+========================= */
+
+function keyDown(key){
+
+if(
+held.has(key)
+){
+
 return;
+
 }
 
 held.add(key);
 
-sendMessage(
+if(key==="Shift"){
+
+shiftDown=true;
+
+}
+
+showKey(key);
+
+setStatus(
+"DOWN "+key
+);
+
+
+/*
+    Method 1
+*/
+
+sendPostMessage(
 "keydown",
 key
 );
 
-update();
 
-status.textContent =
-"DOWN "+key;
+/*
+    Method 2
+*/
+
+sendParentEvent(
+"keydown",
+key
+);
+
+
+/*
+    Method 3
+*/
+
+sendIframeEvent(
+"keydown",
+key
+);
+
+
+/*
+    Method 4
+*/
+
+focusGame();
+
+
+/*
+    Native Android
+    input synchronization.
+*/
+
+syncNativeKey(
+key
+);
 
 }
 
 
 /* =========================
-   RELEASE
+   UNIVERSAL KEY UP
 ========================= */
 
-function release(key){
+function keyUp(key){
 
 held.delete(key);
 
-sendMessage(
+if(key==="Shift"){
+
+shiftDown=false;
+
+}
+
+showKey(key);
+
+setStatus(
+"UP "+key
+);
+
+
+/*
+    Method 1
+*/
+
+sendPostMessage(
 "keyup",
 key
 );
 
-update();
 
-status.textContent =
-"UP "+key;
+/*
+    Method 2
+*/
+
+sendParentEvent(
+"keyup",
+key
+);
+
+
+/*
+    Method 3
+*/
+
+sendIframeEvent(
+"keyup",
+key
+);
 
 }
 
 
 /* =========================
-   VIRTUAL TOUCH
+   VIRTUAL KEYBOARD
 ========================= */
 
 document
@@ -685,7 +1173,7 @@ button.classList.add(
 "down"
 );
 
-press(key);
+keyDown(key);
 
 }
 );
@@ -701,7 +1189,7 @@ button.classList.remove(
 "down"
 );
 
-release(key);
+keyUp(key);
 
 }
 );
@@ -715,7 +1203,7 @@ button.classList.remove(
 "down"
 );
 
-release(key);
+keyUp(key);
 
 }
 );
@@ -729,7 +1217,7 @@ button.classList.remove(
 "down"
 );
 
-release(key);
+keyUp(key);
 
 }
 );
@@ -745,14 +1233,28 @@ document.addEventListener(
 "keydown",
 function(event){
 
+if(
+event.ctrlKey ||
+event.altKey ||
+event.metaKey
+){
+
+return;
+
+}
+
 const key =
-normalize(event.key);
+normalizeKey(
+event.key
+);
 
 if(!key){
 return;
 }
 
-press(key);
+event.preventDefault();
+
+keyDown(key);
 
 }
 );
@@ -763,55 +1265,46 @@ document.addEventListener(
 function(event){
 
 const key =
-normalize(event.key);
+normalizeKey(
+event.key
+);
 
 if(!key){
 return;
 }
 
-release(key);
+keyUp(key);
 
 }
 );
 
 
-function normalize(key){
+/* =========================
+   NORMALIZE
+========================= */
+
+function normalizeKey(key){
 
 if(
-key==="w" ||
-key==="W"
+key.length===1
 ){
-return "w";
+
+if(
+/[a-z]/i.test(key)
+){
+
+return key.toLowerCase();
+
+}
+
+return key;
+
 }
 
 if(
-key==="a" ||
-key==="A"
-){
-return "a";
-}
-
-if(
-key==="s" ||
-key==="S"
-){
-return "s";
-}
-
-if(
-key==="d" ||
-key==="D"
-){
-return "d";
-}
-
-if(
-key===" "
-){
-return " ";
-}
-
-if(
+key==="Shift" ||
+key==="Backspace" ||
+key==="Enter" ||
 key==="ArrowUp" ||
 key==="ArrowDown" ||
 key==="ArrowLeft" ||
@@ -828,51 +1321,177 @@ return null;
 
 
 /* =========================
-   STATUS
+   ANDROID NATIVE INPUT
 ========================= */
 
-function update(){
+function nativeKeyboard(){
 
-document.getElementById(
-"tw"
-).textContent =
-held.has("w")
-?"DOWN"
-:"UP";
+nativeInput.focus();
 
-document.getElementById(
-"ta"
-).textContent =
-held.has("a")
-?"DOWN"
-:"UP";
+try{
 
-document.getElementById(
-"ts"
-).textContent =
-held.has("s")
-?"DOWN"
-:"UP";
+nativeInput.click();
 
-document.getElementById(
-"td"
-).textContent =
-held.has("d")
-?"DOWN"
-:"UP";
+}catch(error){}
 
-document.getElementById(
-"tspace"
-).textContent =
-held.has(" ")
-?"DOWN"
-:"UP";
+diag(
+"diagNative",
+"FOCUSED"
+);
 
-document.getElementById(
-"last"
-).textContent =
-Array.from(held).join(",") ||
-"---";
+setStatus(
+"ANDROID INPUT ACTIVE"
+);
+
+}
+
+
+/* =========================
+   INPUT EVENT
+========================= */
+
+nativeInput.addEventListener(
+"input",
+function(){
+
+const value =
+nativeInput.value;
+
+diag(
+"diagNative",
+"INPUT"
+);
+
+diag(
+"diagText",
+value
+);
+
+
+/*
+    Send the text through
+    every available bridge.
+*/
+
+try{
+
+frame.contentWindow.postMessage({
+
+type:"OBVYRIS_TEXT",
+
+text:value,
+
+value:value
+
+},"*");
+
+}catch(error){}
+
+});
+
+
+/* =========================
+   BEFORE INPUT
+========================= */
+
+nativeInput.addEventListener(
+"beforeinput",
+function(event){
+
+diag(
+"diagNative",
+"BEFOREINPUT"
+);
+
+if(event.data){
+
+try{
+
+frame.contentWindow.postMessage({
+
+type:"OBVYRIS_TEXT_INPUT",
+
+text:event.data,
+
+inputType:event.inputType
+
+},"*");
+
+}catch(error){}
+
+}
+
+});
+
+
+/* =========================
+   TEST TEXT
+========================= */
+
+function sendTestText(){
+
+nativeInput.value =
+"OBVYRIS";
+
+nativeInput.dispatchEvent(
+new Event(
+"input",
+{
+bubbles:true
+}
+)
+);
+
+diag(
+"diagText",
+"OBVYRIS"
+);
+
+setStatus(
+"TEST TEXT SENT"
+);
+
+}
+
+
+/* =========================
+   CLEAR
+========================= */
+
+function clearNative(){
+
+nativeInput.value="";
+
+diag(
+"diagText",
+"---"
+);
+
+}
+
+
+/* =========================
+   NATIVE KEY SYNC
+========================= */
+
+function syncNativeKey(key){
+
+if(
+key.length!==1
+){
+
+return;
+
+}
+
+if(
+document.activeElement ===
+nativeInput
+){
+
+return;
+
+}
 
 }
 
@@ -881,21 +1500,21 @@ Array.from(held).join(",") ||
    GAME LOAD
 ========================= */
 
-game.addEventListener(
+frame.addEventListener(
 "load",
 function(){
 
-status.textContent =
-"GAME LOADED";
+setStatus(
+"GAME LOADED"
+);
 
 focusGame();
 
-}
-);
+});
 
 
 /* =========================
-   GAME RESPONSE
+   GAME MESSAGE
 ========================= */
 
 window.addEventListener(
@@ -908,39 +1527,45 @@ return;
 
 if(
 event.data.type ===
-"OBVYRIS_KEY"
+"OBVYRIS_KEY_ACK"
 ){
 
-status.textContent =
-"ACK "+event.data.key;
-
-}
-
-}
+diag(
+"diagPost",
+"GAME ACK"
 );
+
+}
+
+if(
+event.data.type ===
+"OBVYRIS_TEXT_ACK"
+){
+
+diag(
+"diagText",
+"GAME ACK"
+);
+
+}
+
+});
 
 
 /* =========================
-   CLEAR KEYS
+   RELEASE ALL
 ========================= */
 
 window.addEventListener(
 "blur",
 function(){
 
-held.forEach(
-function(key){
+Array.from(held)
+.forEach(function(key){
 
-sendMessage(
-"keyup",
-key
-);
+keyUp(key);
 
 });
-
-held.clear();
-
-update();
 
 });
 
