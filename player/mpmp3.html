@@ -1205,396 +1205,179 @@ cursor:pointer;
 </head>
 
 
-<body>
+<body> <h1> Obvyris Archive MP3 Engine </h1> <div class="controls">
 
+<input id="creator" placeholder="Search artist / band / creator">
 
-<h1>
-Obvyris Archive MP3 Engine
-</h1>
+<input id="search" placeholder="Filter songs...">
 
-<div class="controls">
-
-<input 
-id="creator"
-placeholder="Search artist / band / creator">
-
-<input 
-id="search"
-placeholder="Filter songs...">
-
-<select id="sort">
-
-<option value="downloads desc">
-Most Popular
-</option>
-
-<option value="date desc">
-Newest
-</option>
-
-<option value="titleSorter asc">
-Title A-Z
-</option>
-
-</select>
-
-<select id="playlistSelect">
-
-<option value="">
-Select Playlist
-</option>
-
-</select>
+<select id="sort"> <option value="downloads desc"> Most Popular </option> <option value="date desc"> Newest </option> <option value="titleSorter asc"> Title A-Z </option> </select>
 
 <button onclick="searchArchive(0)" data-tip="Search Archive Audio">
-🔎 SEARCH
-</button>
 
-</div>
-<button id="restorePlayer"
-onclick="showWinamp()"
-style="
-position:fixed;
-bottom:20px;
-right:20px;
-display:none;
-z-index:99999;
-padding:8px 12px;
-font-size:12px;
-">
+🔎 SEARCH
+
+</button> </div>
+
+<button id="restorePlayer" onclick="showWinamp()" style=" position:fixed; bottom:20px; right:20px; display:none; z-index:99999; padding:8px 12px; font-size:12px; ">
+
 🎛️ Player
-</button>
-     
-<div id="status">
+
+</button> <div id="status">
 
 Ready
 
-</div>
+</div> <h2>
 
-
-
-
-
-
-<h2>
 MP3 Tracks
-</h2>
 
+</h2> <div class="musicTable"> <div class="tableHeader"> <div> ▶ </div> <div> Song </div> <div> Artist </div> <div> Album </div> <div> Size </div> <div> Queue </div> <div> Download </div> </div>
 
+<input type="file" id="m3uLoader" accept=".m3u,.m3u8" style="display:none" onchange="loadM3U(event)">
 
-<div class="musicTable">
-
-
-<div class="tableHeader">
-
-
-<div>
-▶
-</div>
-
-
-<div>
-Song
-</div>
-
-
-<div>
-Artist
-</div>
-
-
-<div>
-Album
-</div>
-
-
-<div>
-Size
-</div>
-
-
-<div>
-Queue
-</div>
-
-
-<div>
-Download
-</div>
-
-
-
-</div>
-
-<input 
-type="file"
-id="m3uLoader"
-accept=".m3u,.m3u8"
-style="display:none"
-onchange="loadM3U(event)">
-
-<div id="tracks">
-
-</div>
-
-
-
-</div>
-
-
-
-
-
-<!-- QUEUE -->
-
-
-<div id="queuePanel">
-
-
-<div class="queueTitle">
+<div id="tracks"> </div> </div> <!-- QUEUE PANEL --> <div id="queuePanel"> <div class="queueTitle">
 
 Playback Queue
 
-</div>
+</div> <div id="queueList"> </div>
 
-
-<div id="queueList">
-
-</div>
-
-
-<button 
-onclick="clearQueue()"
-data-tip="Clear Playlist">
+<button onclick="clearQueue()" data-tip="Clear Playlist">
 
 🗑 Clear Playlist
 
-</button>
+</button> </div> <!-- OBVYRIS WINAMP PLAYER --> <div id="winampPlayer"> <div id="winampHeader"> <span>
 
-
-</div>
-
-
-
-
-
-<!-- PLAYER -->
-
-<!-- ===========================
-     OBVYRIS WINAMP PLAYER
-=========================== -->
-
-<div id="winampPlayer">
-
-
-<div id="winampHeader">
-
-<span>
 Obvyris Player
+
 <span id="miniStatus">
+
 ▶ Playing
-</span>
-</span>
 
+</span> </span> <div class="windowButtons">
 
-<div class="windowButtons">
+<button onclick="minimizeWinamp()" data-tip="Minimize Player">
 
-<button 
-onclick="minimizeWinamp()" 
-data-tip="Minimize Player">
 −
+
 </button>
 
-<button 
-id="fullscreenButton"
-onclick="togglePlayerFullscreen()" 
-data-tip="Fullscreen Player">
+<button id="fullscreenButton" onclick="togglePlayerFullscreen()" data-tip="Fullscreen Player">
+
 ⛶
+
 </button>
 
-<button 
-onclick="hideWinamp()" 
-data-tip="Hide Player">
+<button onclick="hideWinamp()" data-tip="Hide Player">
+
 ×
-</button>
 
-</div>
-
-</div>
-
-
-
-<div id="winampDisplay">
-
-
-<div id="winampSong">
+</button> </div> </div> <div id="winampDisplay"> <div id="winampSong">
 
 No Track Playing
 
-</div>
-
-
-<div id="winampArtist">
+</div> <div id="winampArtist">
 
 Archive Audio
 
-</div>
-
-
-</div>
-
-
-
+</div> </div>
 
 <audio id="audio"></audio>
 
-<div id="progressBox">
+<div id="progressBox"> <div id="timeDisplay"> <span id="currentTime">
 
-<div id="timeDisplay">
-
-<span id="currentTime">
 0:00
-</span>
 
+</span> <span id="durationTime">
 
-<span id="durationTime">
 0:00
-</span>
 
-</div>
+</span> </div>
 
+<input type="range" id="seekBar" value="0" min="0" max="100">
 
-<input 
-type="range"
-id="seekBar"
-value="0"
-min="0"
-max="100">
+</div> <div id="winampButtons">
 
-</div>
+<button onclick="previousTrack()" data-tip="Previous Track">
 
-<div id="winampButtons">
-
-
-<button 
-onclick="previousTrack()"
-data-tip="Previous Track">
 ◀
+
 </button>
 
+<button onclick="togglePlay()" data-tip="Play / Pause">
 
-<button 
-onclick="togglePlay()"
-data-tip="Play / Pause">
 ▶⏸
+
 </button>
 
+<button onclick="nextTrack()" data-tip="Next Track">
 
-<button 
-onclick="nextTrack()"
-data-tip="Next Track">
 ▶▶
+
 </button>
 
-
-<button 
-onclick="exportM3U()"
-data-tip="Export .m3u Playlist">
+<button onclick="exportM3U()" data-tip="Export .m3u Playlist">
 
 📻
 
 </button>
 
-<button
-onclick="saveCurrentPlaylist()"
-data-tip="Save Playlist to Obvyris">
+<button onclick="saveCurrentPlaylist()" data-tip="Save Playlist to Obvyris">
+
 💾
+
 </button>
- 
-<button 
-onclick="document.getElementById('m3uLoader').click()"
-data-tip="Load .m3u Playlist">
+
+<button onclick="document.getElementById('m3uLoader').click()" data-tip="Load .m3u Playlist">
 
 📂
 
 </button>
+
 <button onclick="openPlaylistManager()" data-tip="Manage Playlists">
+
 ☰
+
+</button> </div> <!-- PLAYER PLAYLIST MANAGER --> <div id="playlistManager"> <div id="playlistManagerHeader"> <span>
+
+Obvyris Playlists
+
+</span>
+
+<button onclick="closePlaylistManager()">
+
+×
+
+</button> </div> <div id="playlistManagerBody"> <div class="playlistManagerControls">
+
+<button onclick="loadPlayerPlaylistList()">
+
+🔄 Refresh
+
 </button>
-</div>
 
-<div id="playlistManager">
+<button onclick="loadSelectedPlayerPlaylist()">
 
-    <div id="playlistManagerHeader">
+▶ Load
 
-        <span>Obvyris Playlists</span>
+</button>
 
-        <button
-            onclick="closePlaylistManager()">
-            ×
-        </button>
+<button onclick="replacePlayerPlaylist()">
 
-    </div>
+🔄 Replace
 
-    <div id="playlistManagerBody">
+</button> </div>
 
-        <div class="playlistManagerControls">
+<select id="playerPlaylistSelect" size="10">
 
-            <button
-                onclick="loadPlayerPlaylistList()">
-                🔄 Refresh
-            </button>
+</select> <div id="playlistManagerStatus">
 
-            <button
-                onclick="loadSelectedPlayerPlaylist()">
-                ▶ Load
-            </button>
+Select a playlist
 
-            <button
-                onclick="replacePlayerPlaylist()">
-                🔄 Replace
-            </button>
+</div> </div> </div> <div id="playlistWindow"> <h3>
 
-        </div>
-
-        <select
-            id="playerPlaylistSelect"
-            size="10">
-        </select>
-
-        <div id="playlistManagerStatus">
-            Select a playlist
-        </div>
-
-    </div>
-
-</div>
-
-</div>
-
-
- 
-
-<div id="playlistWindow">
-
-
-<h3>
 Playlist
-</h3>
 
-
-<div id="winampQueue">
-
-</div>
-
-
-</div>
-
-
-
-</div>
-
-<div id="tooltipBubble"></div>
+</h3> <div id="winampQueue"> </div> </div> </div> <div id="tooltipBubble"></div>
  
 <script>
 
