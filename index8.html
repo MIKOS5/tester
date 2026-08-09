@@ -1,28 +1,39 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+>
 
 <title>Obvyris Server Map</title>
 
 <style>
 
 :root{
-    --bg:#050914;
-    --panel:#0b1220;
-    --panel2:#101a2c;
-    --line:#26354d;
-    --text:#eef5ff;
-    --muted:#8494ad;
+    --bg:#050912;
+    --panel:#0a1220;
+    --panel2:#0e1828;
+    --panel3:#111d30;
+    --line:#26364d;
+
+    --text:#f4f7fb;
+    --muted:#8192a8;
+
     --blue:#2793ff;
-    --blue2:#58b1ff;
-    --green:#28d17c;
-    --red:#ff5364;
-    --orange:#ffad42;
-    --purple:#a978ff;
-    --shadow:0 12px 35px rgba(0,0,0,.45);
+    --cyan:#29d7ff;
+    --green:#26d98a;
+    --red:#ff5d73;
+    --yellow:#ffc857;
+    --purple:#a77bff;
+    --orange:#ff9d4d;
+
+    --shadow:
+        0 15px 45px rgba(0,0,0,.38);
+
+    --radius:12px;
 }
 
 *{
@@ -39,6 +50,7 @@ body{
     color:var(--text);
     font-family:
         Inter,
+        ui-sans-serif,
         system-ui,
         -apple-system,
         BlinkMacSystemFont,
@@ -47,210 +59,303 @@ body{
 }
 
 /* =========================================================
-   HEADER
+   TOP BAR
 ========================================================= */
 
-.topbar{
+#topbar{
     position:fixed;
-    top:0;
-    left:0;
-    right:0;
-    height:64px;
     z-index:1000;
+
+    left:14px;
+    right:14px;
+    top:14px;
+
+    height:64px;
 
     display:flex;
     align-items:center;
-    justify-content:space-between;
+    gap:12px;
 
-    padding:0 18px;
+    padding:10px 14px;
 
-    background:rgba(5,9,20,.92);
-    border-bottom:1px solid var(--line);
-    backdrop-filter:blur(12px);
+    background:rgba(8,15,27,.94);
+    border:1px solid #1e2d43;
+
+    border-radius:14px;
+
+    box-shadow:var(--shadow);
+
+    backdrop-filter:blur(14px);
 }
 
 .brand{
     display:flex;
     align-items:center;
-    gap:12px;
+    gap:10px;
+
+    min-width:220px;
 }
 
-.brandMark{
+.brand-mark{
     width:38px;
     height:38px;
-    border-radius:11px;
 
-    display:grid;
-    place-items:center;
+    display:flex;
+    align-items:center;
+    justify-content:center;
 
-    background:linear-gradient(
-        135deg,
-        #2793ff,
-        #735cff
-    );
+    border-radius:10px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #2793ff,
+            #8a55ff
+        );
 
     font-weight:900;
-    box-shadow:
-        0 0 20px rgba(39,147,255,.3);
+    color:white;
 }
 
-.brandText{
-    line-height:1.05;
+.brand-text{
+    display:flex;
+    flex-direction:column;
 }
 
-.brandTitle{
-    font-size:16px;
+.brand-title{
+    font-size:15px;
     font-weight:800;
+    letter-spacing:.5px;
 }
 
-.brandSub{
+.brand-sub{
+    font-size:10px;
     color:var(--muted);
-    font-size:11px;
-    margin-top:4px;
+    letter-spacing:1px;
+    text-transform:uppercase;
 }
 
 .toolbar{
     display:flex;
     align-items:center;
     gap:7px;
+    flex:1;
 }
 
-.tool{
-    height:34px;
-    min-width:34px;
+button,
+input,
+select{
+    font:inherit;
+}
 
-    border:1px solid var(--line);
+.tool-btn{
+    height:38px;
+    padding:0 12px;
+
+    border:1px solid #26364d;
     border-radius:8px;
 
-    background:#0d1728;
-    color:var(--text);
+    background:#0d1727;
+    color:#dce6f3;
 
     cursor:pointer;
-    font-weight:700;
 
-    transition:.15s;
+    transition:
+        background .15s,
+        border .15s,
+        transform .15s;
 }
 
-.tool:hover{
-    background:#15243a;
-    border-color:#3a5273;
+.tool-btn:hover{
+    background:#142238;
+    border-color:#365273;
 }
 
-.zoomValue{
-    min-width:68px;
-    text-align:center;
-    color:var(--muted);
-    font-size:12px;
+.tool-btn:active{
+    transform:translateY(1px);
 }
 
-.apiState{
+.search{
+    height:38px;
+    width:220px;
+
+    padding:0 12px;
+
+    border-radius:8px;
+    border:1px solid #26364d;
+
+    background:#080f1b;
+    color:white;
+
+    outline:none;
+}
+
+.search:focus{
+    border-color:var(--blue);
+}
+
+#apiState{
+    margin-left:auto;
+
     display:flex;
     align-items:center;
     gap:7px;
 
-    margin-left:10px;
-
+    font-size:11px;
     color:var(--muted);
-    font-size:12px;
+
+    white-space:nowrap;
 }
 
-.apiDot{
+.state-dot{
     width:8px;
     height:8px;
     border-radius:50%;
-    background:var(--orange);
+    background:var(--yellow);
 }
 
-.apiDot.online{
+.state-dot.online{
     background:var(--green);
-    box-shadow:0 0 10px rgba(40,209,124,.6);
+    box-shadow:0 0 10px rgba(38,217,138,.6);
 }
 
-.apiDot.error{
+.state-dot.error{
     background:var(--red);
 }
 
 /* =========================================================
-   MAP
+   WORKSPACE
 ========================================================= */
 
-#viewport{
-    position:fixed;
-    inset:64px 0 0 0;
+#workspace{
+    position:absolute;
+    inset:0;
+
     overflow:hidden;
 
     cursor:grab;
 
-    background-color:#050914;
-
-    background-image:
-        linear-gradient(
-            rgba(255,255,255,.025) 1px,
-            transparent 1px
-        ),
-        linear-gradient(
-            90deg,
-            rgba(255,255,255,.025) 1px,
-            transparent 1px
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(39,147,255,.045),
+            transparent 42%
         );
-
-    background-size:40px 40px;
 }
 
-#viewport.dragging{
+#workspace.dragging{
     cursor:grabbing;
 }
 
+/*
+    Huge infinite-style canvas.
+*/
 #world{
     position:absolute;
-
-    width:1px;
-    height:1px;
 
     left:50%;
     top:50%;
 
-    transform-origin:0 0;
+    width:10000px;
+    height:10000px;
+
+    transform-origin:5000px 5000px;
+
+    will-change:transform;
 }
 
 /* =========================================================
-   CONNECTION SVG
+   GRID
+========================================================= */
+
+#grid{
+    position:absolute;
+    inset:0;
+
+    background-image:
+        linear-gradient(
+            rgba(87,117,151,.09) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(87,117,151,.09) 1px,
+            transparent 1px
+        );
+
+    background-size:80px 80px;
+
+    pointer-events:none;
+}
+
+#grid::after{
+    content:"";
+
+    position:absolute;
+    inset:0;
+
+    background:
+        radial-gradient(
+            circle,
+            transparent 45%,
+            rgba(0,0,0,.42) 100%
+        );
+}
+
+/* =========================================================
+   SVG CONNECTION LAYER
 ========================================================= */
 
 #connections{
     position:absolute;
+    inset:0;
 
-    left:-100000px;
-    top:-100000px;
-
-    width:200000px;
-    height:200000px;
-
-    pointer-events:none;
+    width:100%;
+    height:100%;
 
     overflow:visible;
+
+    pointer-events:none;
 }
 
 .connection{
     fill:none;
 
-    stroke-width:1.5;
+    stroke:#31506f;
+    stroke-width:2;
 
-    opacity:.52;
+    opacity:.72;
 
     vector-effect:non-scaling-stroke;
 }
 
 .connection.backend{
-    stroke:#2793ff;
+    stroke:#278eff;
 }
 
 .connection.external{
-    stroke:#a978ff;
+    stroke:#a77bff;
 }
 
 .connection.frontend{
-    stroke:#28d17c;
+    stroke:#26d98a;
+}
+
+.connection.sheet{
+    stroke:#29d7ff;
+}
+
+.connection.api{
+    stroke:#ffc857;
+}
+
+.connection.ghost{
+    stroke-dasharray:7 8;
+    opacity:.38;
+}
+
+.connection-dot{
+    fill:#6e8bab;
 }
 
 /* =========================================================
@@ -260,31 +365,31 @@ body{
 #hub{
     position:absolute;
 
-    left:0;
-    top:0;
+    left:5000px;
+    top:5000px;
 
     width:190px;
-    height:110px;
+    min-height:130px;
 
     transform:
         translate(-50%,-50%);
 
-    z-index:500;
+    z-index:100;
 
-    border:1px solid #397dc2;
-    border-radius:18px;
+    border-radius:20px;
 
     background:
-        radial-gradient(
-            circle at 50% 20%,
-            rgba(39,147,255,.28),
-            transparent 65%
-        ),
-        #0b1728;
+        linear-gradient(
+            145deg,
+            #12243d,
+            #091322
+        );
+
+    border:2px solid var(--blue);
 
     box-shadow:
-        0 0 0 1px rgba(39,147,255,.08),
-        0 0 50px rgba(39,147,255,.22),
+        0 0 0 8px rgba(39,147,255,.05),
+        0 0 55px rgba(39,147,255,.22),
         var(--shadow);
 
     display:flex;
@@ -292,491 +397,952 @@ body{
     align-items:center;
     justify-content:center;
 
+    user-select:none;
+}
+
+.hub-ring{
+    position:absolute;
+    inset:-15px;
+
+    border-radius:28px;
+
+    border:1px dashed rgba(39,147,255,.3);
+
     pointer-events:none;
 }
 
-.hubRing{
-    position:absolute;
+.hub-icon{
+    width:42px;
+    height:42px;
 
-    width:220px;
-    height:140px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
 
-    border:1px solid rgba(39,147,255,.15);
     border-radius:50%;
 
-    animation:pulse 3s infinite;
+    background:#102d4d;
+
+    color:#55b1ff;
+
+    font-size:20px;
+    font-weight:900;
+
+    margin-bottom:8px;
 }
 
-@keyframes pulse{
-    0%,100%{
-        transform:scale(.96);
-        opacity:.5;
-    }
-    50%{
-        transform:scale(1.05);
-        opacity:1;
-    }
-}
-
-.hubIcon{
-    font-size:25px;
-    margin-bottom:5px;
-}
-
-.hubTitle{
+.hub-title{
     font-size:18px;
     font-weight:900;
-    letter-spacing:.5px;
+    letter-spacing:1px;
 }
 
-.hubSub{
-    color:var(--blue2);
+.hub-sub{
+    margin-top:4px;
+
+    color:#83a7ca;
+
     font-size:10px;
-    letter-spacing:2px;
-    margin-top:5px;
+    text-transform:uppercase;
+    letter-spacing:1.4px;
 }
 
 /* =========================================================
-   CARDS
+   NODE
 ========================================================= */
 
 .node{
     position:absolute;
 
-    width:205px;
+    width:170px;
 
-    transform:translate(-50%,-50%);
+    min-height:68px;
 
-    z-index:200;
+    transform:
+        translate(-50%,-50%);
 
-    cursor:grab;
+    z-index:20;
 
-    user-select:none;
-
-    transition:
-        box-shadow .15s,
-        border-color .15s;
-}
-
-.node:active{
-    cursor:grabbing;
-}
-
-.node:hover{
-    z-index:600;
-}
-
-.card{
-    min-height:76px;
-
-    padding:11px 13px;
-
-    border-radius:12px;
+    padding:10px 12px;
 
     background:
         linear-gradient(
             145deg,
-            rgba(16,26,44,.98),
+            rgba(17,29,48,.98),
             rgba(8,15,27,.98)
         );
 
-    border:1px solid var(--line);
+    border:1px solid #293c55;
+
+    border-radius:10px;
 
     box-shadow:
-        0 8px 22px rgba(0,0,0,.32);
+        0 8px 25px rgba(0,0,0,.35);
+
+    cursor:move;
+
+    user-select:none;
+
+    transition:
+        border-color .15s,
+        box-shadow .15s;
 }
 
-.node:hover .card{
-    border-color:#3e5b7e;
+.node:hover{
+    border-color:#4d6d91;
 
     box-shadow:
-        0 12px 30px rgba(0,0,0,.5),
-        0 0 20px rgba(39,147,255,.08);
+        0 12px 32px rgba(0,0,0,.45),
+        0 0 0 1px rgba(39,147,255,.12);
 }
 
-.node.backend .card{
-    border-left:3px solid var(--blue);
+.node.selected{
+    border-color:var(--blue);
+
+    box-shadow:
+        0 0 0 2px rgba(39,147,255,.18),
+        0 12px 35px rgba(0,0,0,.5);
 }
 
-.node.sheet .card{
-    border-left:3px solid #45a9ff;
+.node.offline{
+    border-color:
+        rgba(255,93,115,.6);
 }
 
-.node.api .card{
-    border-left:3px solid var(--green);
+.node.online{
+    border-color:
+        rgba(38,217,138,.38);
 }
 
-.node.frontend .card{
-    border-left:3px solid var(--green);
+.node.external-node{
+    border-color:
+        rgba(167,123,255,.42);
 }
 
-.node.external .card{
-    border-left:3px solid var(--purple);
+.node.backend-node{
+    border-color:
+        rgba(39,147,255,.45);
 }
 
-.node.externalApi .card{
-    border-left:3px solid #c49cff;
+.node.sheet-node{
+    border-color:
+        rgba(41,215,255,.42);
 }
 
-.nodeTitle{
+.node.api-node{
+    border-color:
+        rgba(255,200,87,.42);
+}
+
+.node.frontend-node{
+    border-color:
+        rgba(38,217,138,.42);
+}
+
+.node-head{
+    display:flex;
+    align-items:center;
+
+    gap:7px;
+
+    margin-bottom:5px;
+}
+
+.node-icon{
+    width:22px;
+    height:22px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:6px;
+
+    background:#17253a;
+
+    color:#8ca5c1;
+
+    font-size:11px;
+    font-weight:900;
+
+    flex:none;
+}
+
+.node-type{
+    font-size:9px;
+
+    text-transform:uppercase;
+
+    letter-spacing:1px;
+
+    color:#71869f;
+}
+
+.node-name{
     font-size:12px;
+
     font-weight:800;
 
-    white-space:nowrap;
+    line-height:1.25;
+
+    word-break:break-word;
+}
+
+.node-url{
+    margin-top:5px;
+
+    color:#6f839b;
+
+    font-size:9px;
+
     overflow:hidden;
+
+    white-space:nowrap;
+
     text-overflow:ellipsis;
 }
 
-.nodeValue{
-    margin-top:6px;
+.status-badge{
+    position:absolute;
 
-    color:var(--muted);
+    right:8px;
+    top:8px;
 
-    font-size:10px;
-    line-height:1.35;
+    width:7px;
+    height:7px;
 
-    word-break:break-all;
+    border-radius:50%;
 
-    max-height:29px;
-    overflow:hidden;
+    background:#64748b;
 }
 
-.nodeType{
-    display:inline-block;
+.node.online .status-badge{
+    background:var(--green);
 
-    margin-top:7px;
+    box-shadow:
+        0 0 9px rgba(38,217,138,.6);
+}
 
-    padding:2px 6px;
+.node.offline .status-badge{
+    background:var(--red);
 
-    border-radius:5px;
-
-    background:#111d30;
-
-    color:#7f94b1;
-
-    font-size:8px;
-    font-weight:800;
-
-    text-transform:uppercase;
-    letter-spacing:.7px;
+    box-shadow:
+        0 0 8px rgba(255,93,115,.5);
 }
 
 /* =========================================================
    LEGEND
 ========================================================= */
 
-.legend{
+#legend{
     position:fixed;
 
-    left:16px;
-    bottom:16px;
-
-    z-index:1000;
-
-    padding:10px 12px;
-
-    border:1px solid var(--line);
-    border-radius:10px;
-
-    background:rgba(8,14,25,.9);
-
-    backdrop-filter:blur(10px);
-
-    display:flex;
-    gap:13px;
-
-    font-size:10px;
-    color:var(--muted);
-}
-
-.legendItem{
-    display:flex;
-    align-items:center;
-    gap:5px;
-}
-
-.legendDot{
-    width:7px;
-    height:7px;
-    border-radius:50%;
-}
-
-.legendBackend{
-    background:var(--blue);
-}
-
-.legendFrontend{
-    background:var(--green);
-}
-
-.legendExternal{
-    background:var(--purple);
-}
-
-/* =========================================================
-   INFO PANEL
-========================================================= */
-
-.info{
-    position:fixed;
-
-    right:16px;
-    bottom:16px;
-
-    z-index:1000;
-
-    padding:10px 12px;
-
-    border:1px solid var(--line);
-    border-radius:10px;
-
-    background:rgba(8,14,25,.9);
-
-    backdrop-filter:blur(10px);
-
-    color:var(--muted);
-
-    font-size:10px;
-
-    text-align:right;
-
-    line-height:1.6;
-}
-
-/* =========================================================
-   LOADING
-========================================================= */
-
-.loading{
-    position:fixed;
-
-    inset:64px 0 0 0;
+    left:18px;
+    bottom:18px;
 
     z-index:900;
 
     display:flex;
-    align-items:center;
-    justify-content:center;
+    flex-wrap:wrap;
 
-    pointer-events:none;
+    gap:12px;
+
+    padding:10px 12px;
+
+    border:
+        1px solid #203148;
+
+    background:
+        rgba(7,14,25,.9);
+
+    border-radius:10px;
+
+    backdrop-filter:blur(10px);
+
+    font-size:10px;
+
+    color:#91a3b8;
 }
 
-.loadingBox{
-    padding:16px 20px;
+.legend-item{
+    display:flex;
+    align-items:center;
+    gap:6px;
+}
 
-    border:1px solid var(--line);
-    border-radius:12px;
+.legend-line{
+    width:20px;
+    height:2px;
 
-    background:#0b1220;
+    background:#31506f;
+}
+
+.legend-line.backend{
+    background:var(--blue);
+}
+
+.legend-line.external{
+    background:var(--purple);
+}
+
+.legend-line.frontend{
+    background:var(--green);
+}
+
+.legend-line.api{
+    background:var(--yellow);
+}
+
+/* =========================================================
+   ZOOM
+========================================================= */
+
+#zoomPanel{
+    position:fixed;
+
+    right:18px;
+    bottom:18px;
+
+    z-index:900;
+
+    display:flex;
+    flex-direction:column;
+
+    gap:5px;
+}
+
+.zoom-btn{
+    width:38px;
+    height:38px;
+
+    border:1px solid #26364d;
+
+    background:
+        rgba(8,15,27,.94);
+
+    color:white;
+
+    border-radius:8px;
+
+    cursor:pointer;
+
+    font-size:18px;
+}
+
+.zoom-btn:hover{
+    border-color:#416487;
+    background:#142238;
+}
+
+#zoomValue{
+    width:38px;
+    padding:4px 0;
+
+    text-align:center;
+
+    font-size:9px;
+
+    color:#8295ab;
+
+    background:
+        rgba(8,15,27,.9);
+
+    border-radius:5px;
+}
+
+/* =========================================================
+   DETAILS PANEL
+========================================================= */
+
+#details{
+    position:fixed;
+
+    top:92px;
+    right:18px;
+
+    z-index:950;
+
+    width:330px;
+    max-height:
+        calc(100vh - 120px);
+
+    overflow:auto;
+
+    display:none;
+
+    background:
+        rgba(8,15,27,.97);
+
+    border:
+        1px solid #26364d;
+
+    border-radius:14px;
 
     box-shadow:var(--shadow);
 
-    color:var(--muted);
-
-    font-size:12px;
+    backdrop-filter:blur(16px);
 }
 
-.hidden{
+#details.open{
+    display:block;
+}
+
+.details-head{
+    position:sticky;
+    top:0;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    padding:14px;
+
+    background:
+        rgba(8,15,27,.96);
+
+    border-bottom:
+        1px solid #1d2c40;
+}
+
+.details-title{
+    font-size:14px;
+    font-weight:900;
+}
+
+.close-details{
+    width:28px;
+    height:28px;
+
+    border:1px solid #26364d;
+
+    background:#101b2b;
+
+    color:#cbd5e1;
+
+    border-radius:7px;
+
+    cursor:pointer;
+}
+
+.details-body{
+    padding:14px;
+}
+
+.detail-row{
+    margin-bottom:14px;
+}
+
+.detail-label{
+    margin-bottom:4px;
+
+    font-size:9px;
+
+    color:#70839a;
+
+    text-transform:uppercase;
+
+    letter-spacing:1px;
+}
+
+.detail-value{
+    color:#e3ebf5;
+
+    font-size:11px;
+
+    line-height:1.45;
+
+    word-break:break-word;
+}
+
+.detail-value a{
+    color:#4ea7ff;
+
+    text-decoration:none;
+}
+
+.detail-value a:hover{
+    text-decoration:underline;
+}
+
+/* =========================================================
+   EMPTY / LOADING
+========================================================= */
+
+#loading{
+    position:fixed;
+
+    inset:0;
+
+    z-index:2000;
+
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
+    background:#050912;
+}
+
+.loader-box{
+    text-align:center;
+}
+
+.loader{
+    width:38px;
+    height:38px;
+
+    margin:0 auto 12px;
+
+    border:
+        3px solid #203149;
+
+    border-top-color:
+        var(--blue);
+
+    border-radius:50%;
+
+    animation:
+        spin .8s linear infinite;
+}
+
+@keyframes spin{
+    to{
+        transform:rotate(360deg);
+    }
+}
+
+.loader-text{
+    color:#8da0b8;
+    font-size:11px;
+}
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+#errorBox{
+    position:fixed;
+
+    left:50%;
+    top:50%;
+
+    transform:translate(-50%,-50%);
+
+    z-index:1900;
+
     display:none;
+
+    width:min(500px,90vw);
+
+    padding:25px;
+
+    background:#0c1625;
+
+    border:1px solid #553040;
+
+    border-radius:14px;
+
+    box-shadow:var(--shadow);
+}
+
+#errorBox h2{
+    margin:0 0 8px;
+    font-size:17px;
+}
+
+#errorBox p{
+    margin:0;
+
+    color:#9aabba;
+
+    font-size:12px;
+
+    line-height:1.6;
 }
 
 /* =========================================================
    MOBILE
 ========================================================= */
 
-@media(max-width:700px){
+@media(max-width:850px){
 
-    .brandSub{
-        display:none;
+    #topbar{
+        left:8px;
+        right:8px;
+        top:8px;
+
+        height:auto;
+
+        flex-wrap:wrap;
     }
 
-    .apiState{
-        display:none;
-    }
-
-    .legend{
-        display:none;
-    }
-
-    .info{
-        display:none;
-    }
-
-    .node{
-        width:175px;
+    .brand{
+        min-width:auto;
     }
 
     .toolbar{
-        gap:4px;
+        width:100%;
+        flex-wrap:wrap;
+    }
+
+    .search{
+        flex:1;
+        min-width:140px;
+    }
+
+    #apiState{
+        margin-left:0;
+    }
+
+    #details{
+        left:10px;
+        right:10px;
+
+        width:auto;
+
+        top:auto;
+        bottom:70px;
+
+        max-height:55vh;
+    }
+
+    #legend{
+        left:8px;
+        right:60px;
+        bottom:8px;
     }
 
 }
 
 </style>
-
 </head>
 
 <body>
 
-<header class="topbar">
+<!-- =======================================================
+     TOP BAR
+======================================================= -->
 
-```
-<div class="brand">
+<header id="topbar">
 
-    <div class="brandMark">
-        O
-    </div>
+    <div class="brand">
 
-    <div class="brandText">
-
-        <div class="brandTitle">
-            Obvyris Server Map
+        <div class="brand-mark">
+            O
         </div>
 
-        <div class="brandSub">
-            BACKEND • FRONTEND • EXTERNAL DATA ARCHITECTURE
+        <div class="brand-text">
+
+            <div class="brand-title">
+                OBVYRIS SERVER MAP
+            </div>
+
+            <div class="brand-sub">
+                Infrastructure Workflow
+            </div>
+
         </div>
 
     </div>
 
-</div>
+    <div class="toolbar">
 
-<div class="toolbar">
+        <input
+            id="search"
+            class="search"
+            type="search"
+            placeholder="Search server, API, frontend..."
+        >
 
-    <button class="tool" id="zoomOut">
-        −
-    </button>
+        <button
+            id="fitBtn"
+            class="tool-btn"
+            title="Fit entire map"
+        >
+            Fit
+        </button>
 
-    <div class="zoomValue" id="zoomValue">
-        100%
+        <button
+            id="resetBtn"
+            class="tool-btn"
+            title="Reset saved layout"
+        >
+            Reset
+        </button>
+
+        <button
+            id="refreshBtn"
+            class="tool-btn"
+            title="Reload MAP API"
+        >
+            Refresh
+        </button>
+
+        <select
+            id="filter"
+            class="tool-btn"
+            title="Filter map"
+        >
+            <option value="all">All</option>
+            <option value="online">Online</option>
+            <option value="offline">Offline</option>
+        </select>
+
     </div>
 
-    <button class="tool" id="zoomIn">
-        +
-    </button>
-
-    <button class="tool" id="resetMap">
-        ⟳
-    </button>
-
-    <div class="apiState">
+    <div id="apiState">
 
         <span
             id="apiDot"
-            class="apiDot">
-        </span>
+            class="state-dot"
+        ></span>
 
         <span id="apiText">
-            Loading
+            Loading MAP API
         </span>
 
     </div>
-
-</div>
-```
 
 </header>
 
-<div id="viewport">
 
-```
-<div id="world">
+<!-- =======================================================
+     WORKSPACE
+======================================================= -->
 
-    <svg id="connections"></svg>
+<main id="workspace">
 
-    <div id="hub">
+    <div id="world">
 
-        <div class="hubRing"></div>
+        <div id="grid"></div>
 
-        <div class="hubIcon">
-            ◉
+        <svg
+            id="connections"
+            viewBox="0 0 10000 10000"
+            preserveAspectRatio="none"
+        >
+        </svg>
+
+        <div id="nodes"></div>
+
+        <div id="hub">
+
+            <div class="hub-ring"></div>
+
+            <div class="hub-icon">
+                ◈
+            </div>
+
+            <div class="hub-title">
+                OBVYRIS HUB
+            </div>
+
+            <div class="hub-sub">
+                Central Routing Layer
+            </div>
+
         </div>
 
-        <div class="hubTitle">
-            OBVYRIS HUB
+    </div>
+
+</main>
+
+
+<!-- =======================================================
+     DETAILS
+======================================================= -->
+
+<aside id="details">
+
+    <div class="details-head">
+
+        <div
+            id="detailsTitle"
+            class="details-title"
+        >
+            Node Details
         </div>
 
-        <div class="hubSub">
-            CENTRAL ROUTER
+        <button
+            id="closeDetails"
+            class="close-details"
+        >
+            ×
+        </button>
+
+    </div>
+
+    <div
+        id="detailsBody"
+        class="details-body"
+    >
+    </div>
+
+</aside>
+
+
+<!-- =======================================================
+     LEGEND
+======================================================= -->
+
+<div id="legend">
+
+    <div class="legend-item">
+        <span class="legend-line backend"></span>
+        Backend
+    </div>
+
+    <div class="legend-item">
+        <span class="legend-line"></span>
+        Sheet
+    </div>
+
+    <div class="legend-item">
+        <span class="legend-line api"></span>
+        Sheet API
+    </div>
+
+    <div class="legend-item">
+        <span class="legend-line frontend"></span>
+        Frontend
+    </div>
+
+    <div class="legend-item">
+        <span class="legend-line external"></span>
+        External
+    </div>
+
+</div>
+
+
+<!-- =======================================================
+     ZOOM
+======================================================= -->
+
+<div id="zoomPanel">
+
+    <button
+        id="zoomIn"
+        class="zoom-btn"
+    >
+        +
+    </button>
+
+    <div id="zoomValue">
+        100%
+    </div>
+
+    <button
+        id="zoomOut"
+        class="zoom-btn"
+    >
+        −
+    </button>
+
+</div>
+
+
+<!-- =======================================================
+     LOADING
+======================================================= -->
+
+<div id="loading">
+
+    <div class="loader-box">
+
+        <div class="loader"></div>
+
+        <div class="loader-text">
+            Loading Obvyris infrastructure...
         </div>
 
     </div>
 
 </div>
-```
+
+
+<!-- =======================================================
+     ERROR
+======================================================= -->
+
+<div id="errorBox">
+
+    <h2>
+        MAP API Error
+    </h2>
+
+    <p id="errorText"></p>
 
 </div>
 
-<div class="loading" id="loading">
-
-```
-<div class="loadingBox">
-    Loading Obvyris server map…
-</div>
-```
-
-</div>
-
-<div class="legend">
-
-```
-<div class="legendItem">
-    <span class="legendDot legendBackend"></span>
-    Backend
-</div>
-
-<div class="legendItem">
-    <span class="legendDot legendFrontend"></span>
-    Frontend
-</div>
-
-<div class="legendItem">
-    <span class="legendDot legendExternal"></span>
-    External API
-</div>
-```
-
-</div>
-
-<div class="info">
-
-```
-Mouse wheel: Zoom<br>
-Drag background: Pan<br>
-Drag cards: Move branch<br>
-Reset: Restore saved map
-```
-
-</div>
 
 <script>
 
 /* =========================================================
-   OBVYRIS MAP API
+   CONFIGURATION
 ========================================================= */
 
-const API_URL =
-"https://script.google.com/macros/s/AKfycbxmet73uElazLhNTF6K9Ziizu4hbgq7VWbXJ8nKjSeXkn-tN4CyoBDjSdeK69A_J5XG/exec";
+const MAP_API =
+    "https://script.google.com/macros/s/AKfycbxmet73uElazLhNTF6K9Ziizu4hbgq7VWbXJ8nKjSeXkn-tN4CyoBDjSdeK69A_J5XG/exec";
+
+
+const STORAGE_KEY =
+    "obvyris_server_map_layout_v4";
+
+
+/*
+    Central point in our giant virtual world.
+*/
+const HUB_X = 5000;
+const HUB_Y = 5000;
+
+
+/*
+    Infinite-style zoom range.
+*/
+const MIN_ZOOM = 0.08;
+const MAX_ZOOM = 8;
 
 
 /* =========================================================
-   MAP STATE
+   DOM
 ========================================================= */
 
-const viewport =
-    document.getElementById("viewport");
+const workspace =
+    document.getElementById("workspace");
 
 const world =
     document.getElementById("world");
 
+const nodesLayer =
+    document.getElementById("nodes");
+
 const svg =
     document.getElementById("connections");
 
-const zoomValue =
-    document.getElementById("zoomValue");
+const searchInput =
+    document.getElementById("search");
+
+const filterSelect =
+    document.getElementById("filter");
+
+const details =
+    document.getElementById("details");
+
+const detailsTitle =
+    document.getElementById("detailsTitle");
+
+const detailsBody =
+    document.getElementById("detailsBody");
 
 const loading =
     document.getElementById("loading");
+
+const errorBox =
+    document.getElementById("errorBox");
+
+const errorText =
+    document.getElementById("errorText");
 
 const apiDot =
     document.getElementById("apiDot");
@@ -784,390 +1350,231 @@ const apiDot =
 const apiText =
     document.getElementById("apiText");
 
-
-const STORAGE_KEY =
-    "obvyris_server_map_v4";
-
-
-let state = {
-
-    scale:1,
-
-    panX:0,
-
-    panY:0,
-
-    nodes:{}
-
-};
-
-
-let rows = [];
+const zoomValue =
+    document.getElementById("zoomValue");
 
 
 /* =========================================================
-   LOAD SAVED STATE
+   STATE
 ========================================================= */
 
-function loadState(){
+let mapRows = [];
+
+let nodeList = [];
+
+let nodeMap = new Map();
+
+let connections = [];
+
+let selectedNode = null;
+
+
+/*
+    Camera:
+    screen = world * zoom + pan
+*/
+let zoom = 1;
+
+let panX = 0;
+
+let panY = 0;
+
+
+/*
+    Workspace panning.
+*/
+let panning = false;
+
+let panStartX = 0;
+
+let panStartY = 0;
+
+let initialPanX = 0;
+
+let initialPanY = 0;
+
+
+/*
+    Node dragging.
+*/
+let draggingNode = null;
+
+let nodeDragOffsetX = 0;
+
+let nodeDragOffsetY = 0;
+
+
+/*
+    Used to distinguish clicking from dragging.
+*/
+let movedDuringPointer = false;
+
+
+/* =========================================================
+   UTILITIES
+========================================================= */
+
+function clean(value){
+
+    if(
+        value === null ||
+        value === undefined
+    ){
+        return "";
+    }
+
+    return String(value).trim();
+
+}
+
+
+function validUrl(value){
+
+    if(!value){
+        return false;
+    }
+
+    if(
+        value === "#" ||
+        value === "javascript:void(0)"
+    ){
+        return false;
+    }
 
     try{
 
-        const saved =
-            localStorage.getItem(STORAGE_KEY);
+        const u =
+            new URL(value);
 
-        if(saved){
-
-            const parsed =
-                JSON.parse(saved);
-
-            state = {
-                ...state,
-                ...parsed,
-                nodes:{
-                    ...(parsed.nodes || {})
-                }
-            };
-
-        }
-
-    }catch(error){
-
-        console.warn(
-            "Could not load saved map state",
-            error
+        return (
+            u.protocol === "http:" ||
+            u.protocol === "https:"
         );
+
+    }catch(e){
+
+        return false;
 
     }
 
 }
 
 
-/* =========================================================
-   SAVE STATE
-========================================================= */
+function escapeHtml(value){
 
-let saveTimer = null;
-
-function saveState(){
-
-    clearTimeout(saveTimer);
-
-    saveTimer =
-        setTimeout(() => {
-
-            try{
-
-                localStorage.setItem(
-                    STORAGE_KEY,
-                    JSON.stringify(state)
-                );
-
-            }catch(error){
-
-                console.warn(
-                    "Could not save map",
-                    error
-                );
-
-            }
-
-        },100);
+    return String(value)
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
 
 }
 
 
-/* =========================================================
-   WORLD TRANSFORM
-========================================================= */
+function shortUrl(value){
 
-function updateTransform(){
+    if(!value){
+        return "";
+    }
 
-    world.style.transform =
-        `translate(${state.panX}px,${state.panY}px) scale(${state.scale})`;
+    return value
+        .replace(/^https?:\/\//,"")
+        .replace(/^www\./,"");
 
-    zoomValue.textContent =
-        Math.round(state.scale * 100) + "%";
+}
 
-    saveState();
 
-    requestAnimationFrame(
-        drawConnections
+function getRowId(row,index){
+
+    return (
+        clean(row["ID"]) ||
+        "row-" + index
+    );
+
+}
+
+
+function isOnline(row){
+
+    return (
+        clean(row["Status"]).toUpperCase()
+        ===
+        "ONLINE"
+    );
+
+}
+
+
+function isOffline(row){
+
+    return (
+        clean(row["Status"]).toUpperCase()
+        ===
+        "OFFLINE"
     );
 
 }
 
 
 /* =========================================================
-   ZOOM
+   API STATUS
 ========================================================= */
 
-function setZoom(newScale, mouseX, mouseY){
+function setApiState(
+    state,
+    text
+){
 
-    const oldScale =
-        state.scale;
+    apiText.textContent = text;
 
-    newScale =
-        Math.max(
-            .08,
-            Math.min(
-                8,
-                newScale
-            )
-        );
+    apiDot.className =
+        "state-dot";
 
-    if(mouseX === undefined){
+    if(state === "online"){
 
-        mouseX =
-            viewport.clientWidth / 2;
+        apiDot.classList.add("online");
 
     }
 
-    if(mouseY === undefined){
+    if(state === "error"){
 
-        mouseY =
-            viewport.clientHeight / 2;
+        apiDot.classList.add("error");
 
     }
-
-    const rect =
-        viewport.getBoundingClientRect();
-
-    const x =
-        mouseX - rect.left;
-
-    const y =
-        mouseY - rect.top;
-
-
-    /*
-       Keep the point beneath the
-       mouse stationary while zooming.
-    */
-
-    state.panX =
-        x - (x - state.panX) *
-        (newScale / oldScale);
-
-    state.panY =
-        y - (y - state.panY) *
-        (newScale / oldScale);
-
-
-    state.scale =
-        newScale;
-
-    updateTransform();
 
 }
 
 
 /* =========================================================
-   MOUSE WHEEL
-========================================================= */
-
-viewport.addEventListener(
-    "wheel",
-    function(event){
-
-        event.preventDefault();
-
-        const direction =
-            event.deltaY < 0
-                ? 1.12
-                : 0.89;
-
-        setZoom(
-            state.scale * direction,
-            event.clientX,
-            event.clientY
-        );
-
-    },
-    {passive:false}
-);
-
-
-/* =========================================================
-   BUTTONS
-========================================================= */
-
-document
-.getElementById("zoomIn")
-.addEventListener(
-    "click",
-    () => {
-
-        setZoom(
-            state.scale * 1.2
-        );
-
-    }
-);
-
-
-document
-.getElementById("zoomOut")
-.addEventListener(
-    "click",
-    () => {
-
-        setZoom(
-            state.scale * .833333
-        );
-
-    }
-);
-
-
-document
-.getElementById("resetMap")
-.addEventListener(
-    "click",
-    () => {
-
-        state.scale = 1;
-
-        state.panX = 0;
-
-        state.panY = 0;
-
-        state.nodes = {};
-
-        saveState();
-
-        render();
-
-    }
-);
-
-
-/* =========================================================
-   PAN
-========================================================= */
-
-let panning = false;
-
-let panStartX = 0;
-let panStartY = 0;
-
-let originalPanX = 0;
-let originalPanY = 0;
-
-
-viewport.addEventListener(
-    "pointerdown",
-    function(event){
-
-        if(
-            event.target.closest(".node")
-        ){
-            return;
-        }
-
-        panning = true;
-
-        viewport.classList.add(
-            "dragging"
-        );
-
-        panStartX =
-            event.clientX;
-
-        panStartY =
-            event.clientY;
-
-        originalPanX =
-            state.panX;
-
-        originalPanY =
-            state.panY;
-
-        viewport.setPointerCapture(
-            event.pointerId
-        );
-
-    }
-);
-
-
-viewport.addEventListener(
-    "pointermove",
-    function(event){
-
-        if(!panning){
-            return;
-        }
-
-        state.panX =
-            originalPanX +
-            (event.clientX - panStartX);
-
-        state.panY =
-            originalPanY +
-            (event.clientY - panStartY);
-
-        updateTransform();
-
-    }
-);
-
-
-viewport.addEventListener(
-    "pointerup",
-    function(){
-
-        panning = false;
-
-        viewport.classList.remove(
-            "dragging"
-        );
-
-    }
-);
-
-
-viewport.addEventListener(
-    "pointercancel",
-    function(){
-
-        panning = false;
-
-        viewport.classList.remove(
-            "dragging"
-        );
-
-    }
-);
-
-
-/* =========================================================
-   FETCH API
+   LOAD API
 ========================================================= */
 
 async function loadMap(){
 
-    loading.classList.remove(
-        "hidden"
+    setApiState(
+        "loading",
+        "Loading MAP API"
     );
 
-    apiText.textContent =
-        "Loading";
+    loading.style.display =
+        "flex";
 
-    apiDot.className =
-        "apiDot";
-
+    errorBox.style.display =
+        "none";
 
     try{
 
         const response =
             await fetch(
-                API_URL + "?action=map",
+                MAP_API +
+                "?t=" +
+                Date.now(),
                 {
+                    method:"GET",
                     cache:"no-store"
                 }
             );
-
 
         if(!response.ok){
 
@@ -1178,10 +1585,8 @@ async function loadMap(){
 
         }
 
-
         const data =
             await response.json();
-
 
         if(
             !data ||
@@ -1189,186 +1594,45 @@ async function loadMap(){
         ){
 
             throw new Error(
-                "Invalid API response"
+                "The API did not return a rows array."
             );
 
         }
 
-
-        rows =
+        mapRows =
             data.rows;
 
+        setApiState(
+            "online",
+            mapRows.length +
+            " MAP records"
+        );
 
-        apiDot.className =
-            "apiDot online";
+        buildMap();
 
-        apiText.textContent =
-            rows.length +
-            " systems";
-
-
-        render();
-
+        loading.style.display =
+            "none";
 
     }catch(error){
 
-        console.error(
-            "Server map API error:",
-            error
+        console.error(error);
+
+        setApiState(
+            "error",
+            "MAP API unavailable"
         );
 
+        loading.style.display =
+            "none";
 
-        apiDot.className =
-            "apiDot error";
+        errorText.textContent =
+            "Unable to load the Obvyris MAP API. " +
+            error.message;
 
-        apiText.textContent =
-            "API Error";
-
-
-        showApiError(
-            error.message
-        );
-
-    }finally{
-
-        loading.classList.add(
-            "hidden"
-        );
+        errorBox.style.display =
+            "block";
 
     }
-
-}
-
-
-/* =========================================================
-   API ERROR NODE
-========================================================= */
-
-function showApiError(message){
-
-    const hub =
-        document.getElementById("hub");
-
-    const existing =
-        document.getElementById(
-            "apiError"
-        );
-
-    if(existing){
-        existing.remove();
-    }
-
-    const error =
-        document.createElement("div");
-
-    error.id =
-        "apiError";
-
-    error.className =
-        "node";
-
-    error.style.left =
-        "0px";
-
-    error.style.top =
-        "-190px";
-
-    error.innerHTML = `
-
-        <div class="card"
-             style="
-             border-left:3px solid var(--red);
-             ">
-
-            <div class="nodeTitle">
-                MAP API ERROR
-            </div>
-
-            <div class="nodeValue">
-                ${escapeHtml(message)}
-            </div>
-
-        </div>
-
-    `;
-
-    world.appendChild(
-        error
-    );
-
-}
-
-
-/* =========================================================
-   NORMALIZE ROW
-========================================================= */
-
-function normalizeRow(row,index){
-
-    return {
-
-        id:
-            String(
-                row.ID ??
-                index + 1
-            ),
-
-        backend:
-            String(
-                row["Backends Sheet"] ??
-                ""
-            ).trim(),
-
-        sheet:
-            String(
-                row["Sheet"] ??
-                ""
-            ).trim(),
-
-        sheetApi:
-            String(
-                row["Sheet API"] ??
-                ""
-            ).trim(),
-
-        status:
-            String(
-                row["Status"] ??
-                ""
-            ).trim(),
-
-        frontends:[
-            row["MAIN HTML FRONTEND"],
-            row["HTML FRONTEND 2"],
-            row["HTML FRONTEND 3"],
-            row["HTML FRONTEND 4"],
-            row["HTML FRONTEND 5"]
-        ]
-        .map(
-            value =>
-                String(value || "").trim()
-        )
-        .filter(Boolean),
-
-        external:
-            String(
-                row["EXTERNAL"] ??
-                ""
-            ).trim(),
-
-        externalApi:
-            String(
-                row["EXTERNAL API"] ??
-                ""
-            ).trim(),
-
-        externalApi2:
-            String(
-                row["EXTERNAL API 2"] ??
-                ""
-            ).trim()
-
-    };
 
 }
 
@@ -1377,74 +1641,46 @@ function normalizeRow(row,index){
    NODE CREATION
 ========================================================= */
 
-const nodeElements =
-    new Map();
-
-
-function makeNode(
-    key,
+function createNode(
+    id,
     type,
-    title,
-    value,
-    x,
-    y
+    name,
+    url,
+    row,
+    rowIndex,
+    field
 ){
 
-    const node =
-        document.createElement("div");
+    const node = {
 
-    node.className =
-        "node " + type;
+        id,
 
-    node.dataset.key =
-        key;
+        type,
 
-    node.style.left =
-        x + "px";
+        name,
 
-    node.style.top =
-        y + "px";
+        url,
 
+        row,
 
-    node.innerHTML = `
+        rowIndex,
 
-        <div class="card">
+        field,
 
-            <div class="nodeTitle">
-                ${escapeHtml(title)}
-            </div>
+        x: HUB_X,
 
-            <div class="nodeValue">
-                ${escapeHtml(
-                    value || "No data"
-                )}
-            </div>
+        y: HUB_Y,
 
-            <div class="nodeType">
-                ${escapeHtml(type)}
-            </div>
+        element:null
 
-        </div>
+    };
 
-    `;
+    nodeList.push(node);
 
-
-    world.appendChild(
+    nodeMap.set(
+        id,
         node
     );
-
-
-    nodeElements.set(
-        key,
-        node
-    );
-
-
-    enableNodeDragging(
-        node,
-        key
-    );
-
 
     return node;
 
@@ -1452,955 +1688,1511 @@ function makeNode(
 
 
 /* =========================================================
-   DEFAULT POSITIONS
+   NODE TYPES
 ========================================================= */
 
-function defaultPosition(
-    type,
-    index,
-    total
-){
+function typeClass(type){
 
-    const radiusBackend =
-        440 +
-        Math.floor(index / 6) * 230;
+    if(type === "BACKEND"){
+        return "backend-node";
+    }
 
-    const radiusExternal =
-        440 +
-        Math.floor(index / 6) * 230;
+    if(type === "SHEET"){
+        return "sheet-node";
+    }
+
+    if(type === "SHEET API"){
+        return "api-node";
+    }
+
+    if(type === "FRONTEND"){
+        return "frontend-node";
+    }
+
+    if(type === "EXTERNAL"){
+        return "external-node";
+    }
+
+    if(type === "EXTERNAL API"){
+        return "external-node";
+    }
+
+    return "";
+
+}
 
 
-    const angle =
-        total > 1
-            ? (
-                -Math.PI * .92 +
-                (
-                    index /
-                    Math.max(1,total-1)
-                ) *
-                Math.PI * .84
-            )
-            : -Math.PI / 2;
+function typeIcon(type){
 
+    switch(type){
 
-    if(type === "backend"){
+        case "BACKEND":
+            return "B";
 
-        return {
+        case "SHEET":
+            return "S";
 
-            x:
-                Math.cos(angle) *
-                radiusBackend,
+        case "SHEET API":
+            return "A";
 
-            y:
-                Math.sin(angle) *
-                radiusBackend
+        case "FRONTEND":
+            return "F";
 
-        };
+        case "EXTERNAL":
+            return "E";
+
+        case "EXTERNAL API":
+            return "X";
+
+        default:
+            return "•";
 
     }
 
-
-    return {
-
-        x:
-            Math.cos(angle) *
-            radiusExternal,
-
-        y:
-            Math.sin(angle) *
-            radiusExternal
-
-    };
-
 }
 
 
 /* =========================================================
-   SAVED POSITION
-========================================================= */
-
-function getNodePosition(
-    key,
-    type,
-    index,
-    total
-){
-
-    if(
-        state.nodes &&
-        state.nodes[key] &&
-        Number.isFinite(
-            state.nodes[key].x
-        ) &&
-        Number.isFinite(
-            state.nodes[key].y
-        )
-    ){
-
-        return state.nodes[key];
-
-    }
-
-
-    return defaultPosition(
-        type,
-        index,
-        total
-    );
-
-}
-
-
-/* =========================================================
-   RENDER MAP
-========================================================= */
-
-function render(){
-
-    /*
-       Remove all existing nodes
-       except the Hub.
-    */
-
-    document
-    .querySelectorAll(
-        ".node"
-    )
-    .forEach(
-        element =>
-            element.remove()
-    );
-
-
-    nodeElements.clear();
-
-
-    const normalized =
-        rows.map(
-            normalizeRow
-        );
-
-
-    /*
-       Backend count determines
-       north branch spacing.
-    */
-
-    const backendRows =
-        normalized.filter(
-            row =>
-                row.backend
-        );
-
-
-    /*
-       External rows determine
-       south branch spacing.
-    */
-
-    const externalRows =
-        normalized.filter(
-            row =>
-                row.external ||
-                row.externalApi ||
-                row.externalApi2
-        );
-
-
-    normalized.forEach(
-        (row,index) => {
-
-            const rowPrefix =
-                "row-" +
-                row.id;
-
-
-            /*
-               ==================================================
-               BACKEND
-               ==================================================
-            */
-
-            if(row.backend){
-
-                const pos =
-                    getNodePosition(
-                        rowPrefix +
-                        "-backend",
-
-                        "backend",
-
-                        backendRows.indexOf(
-                            row
-                        ),
-
-                        backendRows.length
-                    );
-
-
-                makeNode(
-
-                    rowPrefix +
-                    "-backend",
-
-                    "backend",
-
-                    row.backend,
-
-                    "Backend service",
-
-                    pos.x,
-
-                    pos.y
-
-                );
-
-            }
-
-
-            /*
-               ==================================================
-               SHEET
-               ==================================================
-            */
-
-            if(row.sheet){
-
-                const pos =
-                    getNodePosition(
-                        rowPrefix +
-                        "-sheet",
-
-                        "sheet",
-
-                        index,
-
-                        normalized.length
-                    );
-
-
-                makeNode(
-
-                    rowPrefix +
-                    "-sheet",
-
-                    "sheet",
-
-                    "Google Sheet",
-
-                    row.sheet,
-
-                    pos.x,
-
-                    pos.y
-
-                );
-
-            }
-
-
-            /*
-               ==================================================
-               SHEET API
-               ==================================================
-            */
-
-            if(row.sheetApi){
-
-                const pos =
-                    getNodePosition(
-                        rowPrefix +
-                        "-sheetapi",
-
-                        "api",
-
-                        index,
-
-                        normalized.length
-                    );
-
-
-                makeNode(
-
-                    rowPrefix +
-                    "-sheetapi",
-
-                    "api",
-
-                    "Sheet API",
-
-                    row.sheetApi,
-
-                    pos.x,
-
-                    pos.y
-
-                );
-
-            }
-
-
-            /*
-               ==================================================
-               FRONTENDS
-               ==================================================
-            */
-
-            row.frontends.forEach(
-                (
-                    frontend,
-                    frontendIndex
-                ) => {
-
-                    const pos =
-                        getNodePosition(
-
-                            rowPrefix +
-                            "-frontend-" +
-                            frontendIndex,
-
-                            "frontend",
-
-                            frontendIndex,
-
-                            row.frontends.length
-
-                        );
-
-
-                    makeNode(
-
-                        rowPrefix +
-                        "-frontend-" +
-                        frontendIndex,
-
-                        "frontend",
-
-                        frontendIndex === 0
-                            ? "Main Frontend"
-                            : "Frontend " +
-                              (
-                                  frontendIndex + 1
-                              ),
-
-                        frontend,
-
-                        pos.x,
-
-                        pos.y
-
-                    );
-
-                }
-            );
-
-
-            /*
-               ==================================================
-               EXTERNAL
-               ==================================================
-            */
-
-            if(row.external){
-
-                const pos =
-                    getNodePosition(
-
-                        rowPrefix +
-                        "-external",
-
-                        "external",
-
-                        externalRows.indexOf(
-                            row
-                        ),
-
-                        externalRows.length
-
-                    );
-
-
-                makeNode(
-
-                    rowPrefix +
-                    "-external",
-
-                    "external",
-
-                    "External",
-
-                    row.external,
-
-                    pos.x,
-
-                    pos.y
-
-                );
-
-            }
-
-
-            /*
-               ==================================================
-               EXTERNAL API
-               ==================================================
-            */
-
-            if(row.externalApi){
-
-                const pos =
-                    getNodePosition(
-
-                        rowPrefix +
-                        "-external-api",
-
-                        "externalApi",
-
-                        externalRows.indexOf(
-                            row
-                        ),
-
-                        externalRows.length
-
-                    );
-
-
-                makeNode(
-
-                    rowPrefix +
-                    "-external-api",
-
-                    "externalApi",
-
-                    "External API",
-
-                    row.externalApi,
-
-                    pos.x,
-
-                    pos.y
-
-                );
-
-            }
-
-
-            /*
-               ==================================================
-               EXTERNAL API 2
-               ==================================================
-            */
-
-            if(row.externalApi2){
-
-                const pos =
-                    getNodePosition(
-
-                        rowPrefix +
-                        "-external-api-2",
-
-                        "externalApi",
-
-                        externalRows.indexOf(
-                            row
-                        ),
-
-                        externalRows.length
-
-                    );
-
-
-                makeNode(
-
-                    rowPrefix +
-                    "-external-api-2",
-
-                    "externalApi",
-
-                    "External API 2",
-
-                    row.externalApi2,
-
-                    pos.x,
-
-                    pos.y
-
-                );
-
-            }
-
-        }
-    );
-
-
-    updateTransform();
-
-
-    requestAnimationFrame(
-        drawConnections
-    );
-
-}
-
-
-/* =========================================================
-   NODE DRAGGING
-========================================================= */
-
-function enableNodeDragging(
-    node,
-    key
-){
-
-    let dragging = false;
-
-    let startX = 0;
-    let startY = 0;
-
-    let originalX = 0;
-    let originalY = 0;
-
-
-    node.addEventListener(
-        "pointerdown",
-        function(event){
-
-            event.stopPropagation();
-
-            dragging = true;
-
-            node.setPointerCapture(
-                event.pointerId
-            );
-
-
-            const rect =
-                node.getBoundingClientRect();
-
-
-            /*
-               Convert screen position
-               back into world coordinates.
-            */
-
-            const worldX =
-                (
-                    rect.left +
-                    rect.width / 2 -
-                    viewport.getBoundingClientRect().left -
-                    state.panX
-                ) /
-                state.scale;
-
-
-            const worldY =
-                (
-                    rect.top +
-                    rect.height / 2 -
-                    viewport.getBoundingClientRect().top -
-                    state.panY
-                ) /
-                state.scale;
-
-
-            originalX =
-                worldX;
-
-            originalY =
-                worldY;
-
-
-            startX =
-                event.clientX;
-
-            startY =
-                event.clientY;
-
-        }
-    );
-
-
-    node.addEventListener(
-        "pointermove",
-        function(event){
-
-            if(!dragging){
-                return;
-            }
-
-
-            const dx =
-                (
-                    event.clientX -
-                    startX
-                ) /
-                state.scale;
-
-
-            const dy =
-                (
-                    event.clientY -
-                    startY
-                ) /
-                state.scale;
-
-
-            const x =
-                originalX + dx;
-
-            const y =
-                originalY + dy;
-
-
-            node.style.left =
-                x + "px";
-
-            node.style.top =
-                y + "px";
-
-
-            state.nodes[key] = {
-
-                x:x,
-
-                y:y
-
-            };
-
-
-            requestAnimationFrame(
-                drawConnections
-            );
-
-        }
-    );
-
-
-    node.addEventListener(
-        "pointerup",
-        function(){
-
-            dragging = false;
-
-            saveState();
-
-        }
-    );
-
-
-    node.addEventListener(
-        "pointercancel",
-        function(){
-
-            dragging = false;
-
-            saveState();
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   CONNECTION SYSTEM
-========================================================= */
-
-function drawConnections(){
-
-    svg.innerHTML = "";
-
-
-    /*
-       SVG uses world coordinates.
-       Hub is always 0,0.
-    */
-
-
-    rows.forEach(
-        (rawRow) => {
-
-            const row =
-                normalizeRow(
-                    rawRow
-                );
-
-
-            const prefix =
-                "row-" +
-                row.id;
-
-
-            /*
-               BACKEND → HUB
-            */
-
-            connect(
-                prefix + "-backend",
-                "hub",
-                "backend"
-            );
-
-
-            /*
-               HUB → SHEET
-            */
-
-            connect(
-                "hub",
-                prefix + "-sheet",
-                "backend"
-            );
-
-
-            /*
-               SHEET → SHEET API
-            */
-
-            connect(
-                prefix + "-sheet",
-                prefix + "-sheetapi",
-                "backend"
-            );
-
-
-            /*
-               SHEET API → FRONTENDS
-            */
-
-            row.frontends.forEach(
-                (
-                    frontend,
-                    frontendIndex
-                ) => {
-
-                    connect(
-
-                        prefix +
-                        "-sheetapi",
-
-                        prefix +
-                        "-frontend-" +
-                        frontendIndex,
-
-                        "frontend"
-
-                    );
-
-                }
-            );
-
-
-            /*
-               FRONTENDS → EXTERNAL
-            */
-
-            if(row.external){
-
-                row.frontends.forEach(
-                    (
-                        frontend,
-                        frontendIndex
-                    ) => {
-
-                        connect(
-
-                            prefix +
-                            "-frontend-" +
-                            frontendIndex,
-
-                            prefix +
-                            "-external",
-
-                            "external"
-
-                        );
-
-                    }
-                );
-
-            }
-
-
-            /*
-               EXTERNAL → EXTERNAL API
-            */
-
-            connect(
-                prefix + "-external",
-                prefix + "-external-api",
-                "external"
-            );
-
-
-            /*
-               EXTERNAL API → EXTERNAL API 2
-            */
-
-            connect(
-                prefix + "-external-api",
-                prefix + "-external-api-2",
-                "external"
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   CONNECT TWO NODES
+   ADD CONNECTION
 ========================================================= */
 
 function connect(
-    fromKey,
-    toKey,
-    type
+    from,
+    to,
+    className
 ){
 
-    let from;
+    if(
+        !from ||
+        !to
+    ){
+        return;
+    }
 
-    let to;
+    connections.push({
+
+        from,
+        to,
+
+        className:
+            className || ""
+
+    });
+
+}
 
 
-    if(fromKey === "hub"){
+/* =========================================================
+   BUILD ROW BRANCH
+========================================================= */
 
-        from = {
-            x:0,
-            y:0
-        };
+function buildRow(
+    row,
+    index
+){
 
-    }else{
+    const rowId =
+        getRowId(
+            row,
+            index
+        );
 
-        from =
-            getElementWorldCenter(
-                fromKey
+
+    /*
+        Every row gets its own isolated
+        branch.
+
+        NOTHING from one row connects
+        to another row's data.
+    */
+
+
+    let previous =
+        null;
+
+
+    /* -----------------------------------------
+       BACKEND
+    ----------------------------------------- */
+
+    const backendName =
+        clean(
+            row["Backends Sheet"]
+        );
+
+    let backend = null;
+
+    if(backendName){
+
+        backend =
+            createNode(
+                `${rowId}-backend`,
+                "BACKEND",
+                backendName,
+                "",
+                row,
+                index,
+                "Backends Sheet"
             );
+
+        connect(
+            "hub",
+            backend.id,
+            "backend"
+        );
+
+        previous =
+            backend;
 
     }
 
 
-    if(toKey === "hub"){
+    /* -----------------------------------------
+       SHEET
+    ----------------------------------------- */
 
-        to = {
-            x:0,
-            y:0
-        };
+    const sheetUrl =
+        clean(
+            row["Sheet"]
+        );
 
-    }else{
+    if(sheetUrl){
 
-        to =
-            getElementWorldCenter(
-                toKey
+        const sheet =
+            createNode(
+                `${rowId}-sheet`,
+                "SHEET",
+                "Sheet",
+                sheetUrl,
+                row,
+                index,
+                "Sheet"
             );
+
+        if(previous){
+
+            connect(
+                previous.id,
+                sheet.id,
+                "sheet"
+            );
+
+        }else{
+
+            connect(
+                "hub",
+                sheet.id,
+                "sheet"
+            );
+
+        }
+
+        previous =
+            sheet;
 
     }
 
 
-    if(!from || !to){
+    /* -----------------------------------------
+       SHEET API
+    ----------------------------------------- */
+
+    const sheetApi =
+        clean(
+            row["Sheet API"]
+        );
+
+    if(sheetApi){
+
+        const api =
+            createNode(
+                `${rowId}-sheetapi`,
+                "SHEET API",
+                "Sheet API",
+                sheetApi,
+                row,
+                index,
+                "Sheet API"
+            );
+
+        if(previous){
+
+            connect(
+                previous.id,
+                api.id,
+                "api"
+            );
+
+        }else{
+
+            connect(
+                "hub",
+                api.id,
+                "api"
+            );
+
+        }
+
+        previous =
+            api;
+
+    }
+
+
+    /*
+        Status intentionally does NOT become
+        a visual node.
+
+        It remains attached to the row and
+        is available in details/API data.
+    */
+
+
+    /* -----------------------------------------
+       FRONTENDS 1-5
+    ----------------------------------------- */
+
+    const frontendFields = [
+
+        "MAIN HTML FRONTEND",
+        "HTML FRONTEND 2",
+        "HTML FRONTEND 3",
+        "HTML FRONTEND 4",
+        "HTML FRONTEND 5"
+
+    ];
+
+
+    frontendFields.forEach(
+        function(field){
+
+            const url =
+                clean(
+                    row[field]
+                );
+
+            if(!url){
+                return;
+            }
+
+            const frontend =
+                createNode(
+                    `${rowId}-${field}`,
+                    "FRONTEND",
+                    field
+                        .replace(
+                            "HTML FRONTEND",
+                            "Frontend"
+                        )
+                        .replace(
+                            "MAIN",
+                            "1"
+                        ),
+                    url,
+                    row,
+                    index,
+                    field
+                );
+
+
+            if(previous){
+
+                connect(
+                    previous.id,
+                    frontend.id,
+                    "frontend"
+                );
+
+            }else{
+
+                connect(
+                    "hub",
+                    frontend.id,
+                    "frontend"
+                );
+
+            }
+
+
+            /*
+                Frontends from the SAME row
+                branch from the previous backend
+                pipeline.
+
+                They never connect to another
+                row.
+            */
+
+        }
+    );
+
+
+    /* -----------------------------------------
+       EXTERNAL
+    ----------------------------------------- */
+
+    const externalName =
+        clean(
+            row["EXTERNAL"]
+        );
+
+    const externalApi =
+        clean(
+            row["EXTERNAL API"]
+        );
+
+    const externalApi2 =
+        clean(
+            row["EXTERNAL API 2"]
+        );
+
+
+    /*
+        External branch is routed toward
+        the SOUTH of the hub.
+    */
+
+    let externalNode =
+        null;
+
+
+    if(externalName){
+
+        externalNode =
+            createNode(
+                `${rowId}-external`,
+                "EXTERNAL",
+                externalName,
+                "",
+                row,
+                index,
+                "EXTERNAL"
+            );
+
+        connect(
+            "hub",
+            externalNode.id,
+            "external"
+        );
+
+    }else if(externalApi){
+
+        /*
+            If the external description cell
+            is empty, still create the API node.
+        */
+
+        externalNode =
+            createNode(
+                `${rowId}-external`,
+                "EXTERNAL",
+                "External",
+                "",
+                row,
+                index,
+                "EXTERNAL"
+            );
+
+        connect(
+            "hub",
+            externalNode.id,
+            "external"
+        );
+
+    }
+
+
+    if(externalApi){
+
+        const apiNode =
+            createNode(
+                `${rowId}-external-api`,
+                "EXTERNAL API",
+                "External API",
+                externalApi,
+                row,
+                index,
+                "EXTERNAL API"
+            );
+
+        if(externalNode){
+
+            connect(
+                externalNode.id,
+                apiNode.id,
+                "external"
+            );
+
+        }else{
+
+            connect(
+                "hub",
+                apiNode.id,
+                "external"
+            );
+
+        }
+
+    }
+
+
+    if(externalApi2){
+
+        const api2 =
+            createNode(
+                `${rowId}-external-api-2`,
+                "EXTERNAL API",
+                "External API 2",
+                externalApi2,
+                row,
+                index,
+                "EXTERNAL API 2"
+            );
+
+
+        if(externalApi){
+
+            connect(
+                `${rowId}-external-api`,
+                api2.id,
+                "external"
+            );
+
+        }else if(externalNode){
+
+            connect(
+                externalNode.id,
+                api2.id,
+                "external"
+            );
+
+        }else{
+
+            connect(
+                "hub",
+                api2.id,
+                "external"
+            );
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   BUILD COMPLETE MAP
+========================================================= */
+
+function buildMap(){
+
+    nodeList = [];
+
+    nodeMap =
+        new Map();
+
+    connections = [];
+
+    nodesLayer.innerHTML =
+        "";
+
+    svg.innerHTML =
+        "";
+
+
+    mapRows.forEach(
+        function(row,index){
+
+            buildRow(
+                row,
+                index
+            );
+
+        }
+    );
+
+
+    applySavedLayout();
+
+    createNodeElements();
+
+    positionNewNodes();
+
+    applyFilter();
+
+    render();
+
+}
+
+
+/* =========================================================
+   POSITION DEFAULT NODES
+========================================================= */
+
+function positionNewNodes(){
+
+    const backendNodes =
+        nodeList.filter(
+            n =>
+                n.type === "BACKEND"
+        );
+
+    const externalNodes =
+        nodeList.filter(
+            n =>
+                n.type === "EXTERNAL" ||
+                n.type === "EXTERNAL API"
+        );
+
+
+    /*
+        BACKENDS NORTH
+    */
+
+    arrangeArc(
+        backendNodes,
+        HUB_X,
+        HUB_Y - 850,
+        1500,
+        -Math.PI * .88,
+        -Math.PI * .12
+    );
+
+
+    /*
+        EXTERNALS SOUTH
+    */
+
+    arrangeArc(
+        externalNodes,
+        HUB_X,
+        HUB_Y + 850,
+        1700,
+        Math.PI * .12,
+        Math.PI * .88
+    );
+
+
+    /*
+        Put remaining branch nodes around
+        their row's backend/external structure.
+    */
+
+    mapRows.forEach(
+        function(row,index){
+
+            const rowId =
+                getRowId(
+                    row,
+                    index
+                );
+
+
+            const branch =
+                nodeList.filter(
+                    n =>
+                        n.rowIndex === index &&
+                        n.type !== "BACKEND" &&
+                        n.type !== "EXTERNAL" &&
+                        n.type !== "EXTERNAL API"
+                );
+
+
+            const backend =
+                nodeMap.get(
+                    `${rowId}-backend`
+                );
+
+
+            const external =
+                nodeMap.get(
+                    `${rowId}-external`
+                );
+
+
+            /*
+                If backend exists, place sheet,
+                sheet API and frontends along
+                its branch.
+            */
+
+            if(backend){
+
+                arrangeBranch(
+                    branch,
+                    backend,
+                    false
+                );
+
+            }else if(external){
+
+                arrangeBranch(
+                    branch,
+                    external,
+                    true
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   ARC ARRANGEMENT
+========================================================= */
+
+function arrangeArc(
+    nodes,
+    centerX,
+    centerY,
+    radius,
+    startAngle,
+    endAngle
+){
+
+    if(!nodes.length){
+        return;
+    }
+
+
+    nodes.forEach(
+        function(node,index){
+
+            let t;
+
+            if(nodes.length === 1){
+
+                t = .5;
+
+            }else{
+
+                t =
+                    index /
+                    (nodes.length - 1);
+
+            }
+
+
+            const angle =
+                startAngle +
+                (
+                    endAngle -
+                    startAngle
+                ) *
+                t;
+
+
+            node.x =
+                centerX +
+                Math.cos(angle) *
+                radius;
+
+            node.y =
+                centerY +
+                Math.sin(angle) *
+                radius;
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   BRANCH ARRANGEMENT
+========================================================= */
+
+function arrangeBranch(
+    nodes,
+    anchor,
+    south
+){
+
+    if(!nodes.length){
         return;
     }
 
 
     /*
-       Curved Bezier line.
+        Group belongs to one MAP row.
+
+        Place children progressively outward.
     */
 
     const distance =
-        Math.hypot(
-            to.x - from.x,
-            to.y - from.y
-        );
+        south ? 280 : 320;
+
+    const vertical =
+        south ? 190 : -190;
 
 
-    const curve =
-        Math.min(
-            160,
-            Math.max(
-                40,
-                distance * .22
-            )
-        );
+    nodes.forEach(
+        function(node,index){
+
+            const column =
+                index % 5;
+
+            const row =
+                Math.floor(
+                    index / 5
+                );
 
 
-    const direction =
-        to.y >= from.y
-            ? 1
-            : -1;
+            node.x =
+                anchor.x +
+                (
+                    column - 2
+                ) *
+                distance;
 
+            node.y =
+                anchor.y +
+                vertical +
+                row *
+                (
+                    south ? 170 : -170
+                );
 
-    const path =
-        document.createElementNS(
-            "http://www.w3.org/2000/svg",
-            "path"
-        );
-
-
-    path.setAttribute(
-        "d",
-
-        `
-        M ${from.x} ${from.y}
-
-        C
-        ${from.x}
-        ${from.y + curve * direction},
-
-        ${to.x}
-        ${to.y - curve * direction},
-
-        ${to.x}
-        ${to.y}
-        `
-    );
-
-
-    path.setAttribute(
-        "class",
-        "connection " + type
-    );
-
-
-    svg.appendChild(
-        path
+        }
     );
 
 }
 
 
 /* =========================================================
-   GET WORLD CENTER
+   CREATE DOM NODES
 ========================================================= */
 
-function getElementWorldCenter(
-    key
+function createNodeElements(){
+
+    nodesLayer.innerHTML =
+        "";
+
+
+    nodeList.forEach(
+        function(node){
+
+            const el =
+                document.createElement(
+                    "div"
+                );
+
+
+            el.className =
+                "node " +
+                typeClass(
+                    node.type
+                );
+
+
+            if(
+                isOnline(node.row)
+            ){
+
+                el.classList.add(
+                    "online"
+                );
+
+            }
+
+            if(
+                isOffline(node.row)
+            ){
+
+                el.classList.add(
+                    "offline"
+                );
+
+            }
+
+
+            el.dataset.id =
+                node.id;
+
+
+            const icon =
+                document.createElement(
+                    "div"
+                );
+
+            icon.className =
+                "node-icon";
+
+            icon.textContent =
+                typeIcon(
+                    node.type
+                );
+
+
+            const head =
+                document.createElement(
+                    "div"
+                );
+
+            head.className =
+                "node-head";
+
+
+            head.appendChild(
+                icon
+            );
+
+
+            const type =
+                document.createElement(
+                    "div"
+                );
+
+            type.className =
+                "node-type";
+
+            type.textContent =
+                node.type;
+
+
+            head.appendChild(
+                type
+            );
+
+
+            const name =
+                document.createElement(
+                    "div"
+                );
+
+            name.className =
+                "node-name";
+
+            name.textContent =
+                node.name;
+
+
+            const url =
+                document.createElement(
+                    "div"
+                );
+
+            url.className =
+                "node-url";
+
+            url.textContent =
+                node.url
+                    ? shortUrl(
+                        node.url
+                    )
+                    : "";
+
+
+            const status =
+                document.createElement(
+                    "span"
+                );
+
+            status.className =
+                "status-badge";
+
+
+            el.appendChild(
+                head
+            );
+
+            el.appendChild(
+                name
+            );
+
+            if(node.url){
+
+                el.appendChild(
+                    url
+                );
+
+            }
+
+            el.appendChild(
+                status
+            );
+
+
+            nodesLayer.appendChild(
+                el
+            );
+
+
+            node.element =
+                el;
+
+
+            attachNodeEvents(
+                node
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   NODE EVENTS
+========================================================= */
+
+function attachNodeEvents(
+    node
 ){
 
-    const element =
-        nodeElements.get(
-            key
-        );
+    const el =
+        node.element;
 
 
-    if(!element){
+    el.addEventListener(
+        "pointerdown",
+        function(event){
 
-        return null;
+            event.stopPropagation();
 
-    }
+            movedDuringPointer =
+                false;
+
+            draggingNode =
+                node;
+
+            const worldPoint =
+                screenToWorld(
+                    event.clientX,
+                    event.clientY
+                );
+
+
+            nodeDragOffsetX =
+                node.x -
+                worldPoint.x;
+
+            nodeDragOffsetY =
+                node.y -
+                worldPoint.y;
+
+
+            el.setPointerCapture(
+                event.pointerId
+            );
+
+        }
+    );
+
+
+    el.addEventListener(
+        "pointermove",
+        function(event){
+
+            if(
+                draggingNode !== node
+            ){
+
+                return;
+
+            }
+
+
+            movedDuringPointer =
+                true;
+
+
+            const point =
+                screenToWorld(
+                    event.clientX,
+                    event.clientY
+                );
+
+
+            node.x =
+                point.x +
+                nodeDragOffsetX;
+
+
+            node.y =
+                point.y +
+                nodeDragOffsetY;
+
+
+            render();
+
+        }
+    );
+
+
+    el.addEventListener(
+        "pointerup",
+        function(event){
+
+            if(
+                draggingNode !== node
+            ){
+
+                return;
+
+            }
+
+
+            draggingNode =
+                null;
+
+
+            try{
+
+                el.releasePointerCapture(
+                    event.pointerId
+                );
+
+            }catch(e){}
+
+
+            saveLayout();
+
+
+            if(
+                !movedDuringPointer
+            ){
+
+                selectNode(
+                    node
+                );
+
+            }
+
+        }
+    );
+
+
+    el.addEventListener(
+        "dblclick",
+        function(event){
+
+            event.stopPropagation();
+
+            if(
+                validUrl(
+                    node.url
+                )
+            ){
+
+                window.open(
+                    node.url,
+                    "_blank",
+                    "noopener"
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   SELECT NODE
+========================================================= */
+
+function selectNode(
+    node
+){
+
+    selectedNode =
+        node;
+
+
+    nodeList.forEach(
+        function(n){
+
+            if(n.element){
+
+                n.element.classList.toggle(
+                    "selected",
+                    n === node
+                );
+
+            }
+
+        }
+    );
+
+
+    showDetails(
+        node
+    );
+
+}
+
+
+/* =========================================================
+   DETAILS
+========================================================= */
+
+function showDetails(
+    node
+){
+
+    const row =
+        node.row;
+
+
+    detailsTitle.textContent =
+        node.name;
+
+
+    const value =
+        function(field){
+
+            const v =
+                clean(
+                    row[field]
+                );
+
+            if(!v){
+
+                return "—";
+
+            }
+
+
+            if(validUrl(v)){
+
+                return `
+                    <a
+                        href="${escapeHtml(v)}"
+                        target="_blank"
+                        rel="noopener"
+                    >
+                        ${escapeHtml(v)}
+                    </a>
+                `;
+
+            }
+
+
+            return escapeHtml(v);
+
+        };
+
+
+    detailsBody.innerHTML = `
+
+        <div class="detail-row">
+
+            <div class="detail-label">
+                Node Type
+            </div>
+
+            <div class="detail-value">
+                ${escapeHtml(node.type)}
+            </div>
+
+        </div>
+
+
+        <div class="detail-row">
+
+            <div class="detail-label">
+                MAP ID
+            </div>
+
+            <div class="detail-value">
+                ${escapeHtml(
+                    clean(row["ID"])
+                )}
+            </div>
+
+        </div>
+
+
+        <div class="detail-row">
+
+            <div class="detail-label">
+                Source Field
+            </div>
+
+            <div class="detail-value">
+                ${escapeHtml(node.field)}
+            </div>
+
+        </div>
+
+
+        <div class="detail-row">
+
+            <div class="detail-label">
+                Status
+            </div>
+
+            <div class="detail-value">
+                ${escapeHtml(
+                    clean(row["Status"]) ||
+                    "Unknown"
+                )}
+            </div>
+
+        </div>
+
+
+        <div class="detail-row">
+
+            <div class="detail-label">
+                Backend
+            </div>
+
+            <div class="detail-value">
+                ${value("Backends Sheet")}
+            </div>
+
+        </div>
+
+
+        <div class="detail-row">
+
+            <div class="detail-label">
+                Sheet
+            </div>
+
+            <div class="detail-value">
+                ${value("Sheet")}
+            </div>
+
+        </div>
+
+
+        <div class="detail-row">
+
+            <div class="detail-label">
+                Sheet API
+            </div>
+
+            <div class="detail-value">
+                ${value("Sheet API")}
+            </div>
+
+        </div>
+
+
+        <div class="detail-row">
+
+            <div class="detail-label">
+                Main Frontend
+            </div>
+
+            <div class="detail-value">
+                ${value("MAIN HTML FRONTEND")}
+            </div>
+
+        </div>
+
+
+        <div class="detail-row">
+
+            <div class="detail-label">
+                Frontend 2
+            </div>
+
+            <div class="detail-value">
+                ${value("HTML FRONTEND 2")}
+            </div>
+
+        </div>
+
+
+        <div class="detail-row">
+
+            <div class="detail-label">
+                Frontend 3
+            </div>
+
+            <div class="detail-value">
+                ${value("HTML FRONTEND 3")}
+            </div>
+
+        </div>
+
+
+        <div class="detail-row">
+
+            <div class="detail-label">
+                Frontend 4
+            </div>
+
+            <div class="detail-value">
+                ${value("HTML FRONTEND 4")}
+            </div>
+
+        </div>
+
+
+        <div class="detail-row">
+
+            <div class="detail-label">
+                Frontend 5
+            </div>
+
+            <div class="detail-value">
+                ${value("HTML FRONTEND 5")}
+            </div>
+
+        </div>
+
+
+        <div class="detail-row">
+
+            <div class="detail-label">
+                External
+            </div>
+
+            <div class="detail-value">
+                ${value("EXTERNAL")}
+            </div>
+
+        </div>
+
+
+        <div class="detail-row">
+
+            <div class="detail-label">
+                External API
+            </div>
+
+            <div class="detail-value">
+                ${value("EXTERNAL API")}
+            </div>
+
+        </div>
+
+
+        <div class="detail-row">
+
+            <div class="detail-label">
+                External API 2
+            </div>
+
+            <div class="detail-value">
+                ${value("EXTERNAL API 2")}
+            </div>
+
+        </div>
+
+    `;
+
+
+    details.classList.add(
+        "open"
+    );
+
+}
+
+
+/* =========================================================
+   CLOSE DETAILS
+========================================================= */
+
+document
+    .getElementById("closeDetails")
+    .addEventListener(
+        "click",
+        function(){
+
+            details.classList.remove(
+                "open"
+            );
+
+            selectedNode =
+                null;
+
+            nodeList.forEach(
+                function(node){
+
+                    if(node.element){
+
+                        node.element.classList.remove(
+                            "selected"
+                        );
+
+                    }
+
+                }
+            );
+
+        }
+    );
+
+
+/* =========================================================
+   WORLD TRANSFORM
+========================================================= */
+
+function updateWorldTransform(){
+
+    world.style.transform =
+        `
+        translate(
+            ${panX}px,
+            ${panY}px
+        )
+        scale(
+            ${zoom}
+        )
+        `;
+
+    zoomValue.textContent =
+        Math.round(
+            zoom * 100
+        ) +
+        "%";
+
+}
+
+
+/* =========================================================
+   SCREEN / WORLD CONVERSION
+========================================================= */
+
+function screenToWorld(
+    screenX,
+    screenY
+){
+
+    const rect =
+        workspace.getBoundingClientRect();
+
+
+    const x =
+        screenX -
+        rect.left -
+        rect.width / 2;
+
+
+    const y =
+        screenY -
+        rect.top -
+        rect.height / 2;
 
 
     return {
 
         x:
-            parseFloat(
-                element.style.left
-            ),
+            HUB_X +
+            (
+                x -
+                panX
+            ) /
+            zoom,
 
         y:
-            parseFloat(
-                element.style.top
-            )
+            HUB_Y +
+            (
+                y -
+                panY
+            ) /
+            zoom
 
     };
 
@@ -2408,51 +3200,1058 @@ function getElementWorldCenter(
 
 
 /* =========================================================
-   ESCAPE HTML
+   WORLD / SCREEN
 ========================================================= */
 
-function escapeHtml(
-    value
+function worldToScreen(
+    x,
+    y
 ){
 
-    return String(
-        value ?? ""
-    )
-    .replace(
-        /&/g,
-        "&amp;"
-    )
-    .replace(
-        /</g,
-        "&lt;"
-    )
-    .replace(
-        />/g,
-        "&gt;"
-    )
-    .replace(
-        /"/g,
-        "&quot;"
-    )
-    .replace(
-        /'/g,
-        "&#039;"
+    const rect =
+        workspace.getBoundingClientRect();
+
+
+    return {
+
+        x:
+            rect.width / 2 +
+            panX +
+            (
+                x -
+                HUB_X
+            ) *
+            zoom,
+
+        y:
+            rect.height / 2 +
+            panY +
+            (
+                y -
+                HUB_Y
+            ) *
+            zoom
+
+    };
+
+}
+
+
+/* =========================================================
+   RENDER
+========================================================= */
+
+function render(){
+
+    updateWorldTransform();
+
+
+    /*
+        Nodes
+    */
+
+    nodeList.forEach(
+        function(node){
+
+            if(!node.element){
+                return;
+            }
+
+
+            node.element.style.left =
+                node.x +
+                "px";
+
+
+            node.element.style.top =
+                node.y +
+                "px";
+
+        }
+    );
+
+
+    /*
+        Connections
+    */
+
+    drawConnections();
+
+}
+
+
+/* =========================================================
+   DRAW CONNECTIONS
+========================================================= */
+
+function drawConnections(){
+
+    svg.innerHTML =
+        "";
+
+
+    connections.forEach(
+        function(connection){
+
+            const from =
+                connection.from === "hub"
+                    ? {
+                        x:HUB_X,
+                        y:HUB_Y
+                    }
+                    : nodeMap.get(
+                        connection.from
+                    );
+
+
+            const to =
+                nodeMap.get(
+                    connection.to
+                );
+
+
+            if(!from || !to){
+                return;
+            }
+
+
+            const path =
+                document.createElementNS(
+                    "http://www.w3.org/2000/svg",
+                    "path"
+                );
+
+
+            const x1 =
+                from.x;
+
+            const y1 =
+                from.y;
+
+            const x2 =
+                to.x;
+
+            const y2 =
+                to.y;
+
+
+            const dx =
+                Math.abs(
+                    x2 -
+                    x1
+                );
+
+
+            const control =
+                Math.max(
+                    80,
+                    dx * .35
+                );
+
+
+            /*
+                Smooth workflow curve.
+            */
+
+            const pathData =
+                `
+                M ${x1} ${y1}
+
+                C
+                ${x1 + control}
+                ${y1}
+                ${x2 - control}
+                ${y2}
+                ${x2}
+                ${y2}
+                `;
+
+
+            path.setAttribute(
+                "d",
+                pathData
+            );
+
+
+            path.setAttribute(
+                "class",
+                "connection " +
+                (
+                    connection.className ||
+                    ""
+                )
+            );
+
+
+            svg.appendChild(
+                path
+            );
+
+        }
     );
 
 }
 
 
 /* =========================================================
-   WINDOW RESIZE
+   WORKSPACE PAN
+========================================================= */
+
+workspace.addEventListener(
+    "pointerdown",
+    function(event){
+
+        if(
+            event.target.closest(".node")
+        ){
+
+            return;
+
+        }
+
+
+        if(
+            event.target.closest("#hub")
+        ){
+
+            return;
+
+        }
+
+
+        panning =
+            true;
+
+        movedDuringPointer =
+            false;
+
+        workspace.classList.add(
+            "dragging"
+        );
+
+
+        panStartX =
+            event.clientX;
+
+        panStartY =
+            event.clientY;
+
+
+        initialPanX =
+            panX;
+
+        initialPanY =
+            panY;
+
+
+        workspace.setPointerCapture(
+            event.pointerId
+        );
+
+    }
+);
+
+
+workspace.addEventListener(
+    "pointermove",
+    function(event){
+
+        if(!panning){
+            return;
+        }
+
+
+        const dx =
+            event.clientX -
+            panStartX;
+
+        const dy =
+            event.clientY -
+            panStartY;
+
+
+        if(
+            Math.abs(dx) > 2 ||
+            Math.abs(dy) > 2
+        ){
+
+            movedDuringPointer =
+                true;
+
+        }
+
+
+        panX =
+            initialPanX +
+            dx;
+
+        panY =
+            initialPanY +
+            dy;
+
+
+        render();
+
+    }
+);
+
+
+workspace.addEventListener(
+    "pointerup",
+    function(event){
+
+        if(!panning){
+            return;
+        }
+
+
+        panning =
+            false;
+
+        workspace.classList.remove(
+            "dragging"
+        );
+
+
+        try{
+
+            workspace.releasePointerCapture(
+                event.pointerId
+            );
+
+        }catch(e){}
+
+
+        saveCamera();
+
+    }
+);
+
+
+/* =========================================================
+   MOUSE WHEEL ZOOM
+========================================================= */
+
+workspace.addEventListener(
+    "wheel",
+    function(event){
+
+        event.preventDefault();
+
+
+        const mouseBefore =
+            screenToWorld(
+                event.clientX,
+                event.clientY
+            );
+
+
+        const factor =
+            event.deltaY < 0
+                ? 1.12
+                : 0.89;
+
+
+        const newZoom =
+            Math.max(
+                MIN_ZOOM,
+                Math.min(
+                    MAX_ZOOM,
+                    zoom *
+                    factor
+                )
+            );
+
+
+        zoom =
+            newZoom;
+
+
+        const mouseAfter =
+            screenToWorld(
+                event.clientX,
+                event.clientY
+            );
+
+
+        panX +=
+            (
+                mouseAfter.x -
+                mouseBefore.x
+            ) *
+            zoom;
+
+
+        panY +=
+            (
+                mouseAfter.y -
+                mouseBefore.y
+            ) *
+            zoom;
+
+
+        render();
+
+        saveCamera();
+
+    },
+    {
+        passive:false
+    }
+);
+
+
+/* =========================================================
+   ZOOM FUNCTION
+========================================================= */
+
+function zoomAtCenter(
+    factor
+){
+
+    zoom =
+        Math.max(
+            MIN_ZOOM,
+            Math.min(
+                MAX_ZOOM,
+                zoom *
+                factor
+            )
+        );
+
+
+    render();
+
+    saveCamera();
+
+}
+
+
+document
+    .getElementById("zoomIn")
+    .addEventListener(
+        "click",
+        function(){
+
+            zoomAtCenter(
+                1.25
+            );
+
+        }
+    );
+
+
+document
+    .getElementById("zoomOut")
+    .addEventListener(
+        "click",
+        function(){
+
+            zoomAtCenter(
+                .8
+            );
+
+        }
+    );
+
+
+/* =========================================================
+   KEYBOARD ZOOM / PAN
+========================================================= */
+
+document.addEventListener(
+    "keydown",
+    function(event){
+
+        if(
+            event.target.tagName === "INPUT"
+        ){
+
+            return;
+
+        }
+
+
+        if(event.key === "+"){
+
+            zoomAtCenter(
+                1.2
+            );
+
+        }
+
+
+        if(event.key === "-"){
+
+            zoomAtCenter(
+                .83
+            );
+
+        }
+
+
+        if(event.key === "0"){
+
+            fitMap();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   FIT MAP
+========================================================= */
+
+function fitMap(){
+
+    if(
+        nodeList.length === 0
+    ){
+
+        zoom =
+            1;
+
+        panX =
+            0;
+
+        panY =
+            0;
+
+        render();
+
+        return;
+
+    }
+
+
+    const visibleNodes =
+        nodeList.filter(
+            n =>
+                n.element &&
+                n.element.style.display !== "none"
+        );
+
+
+    if(!visibleNodes.length){
+
+        return;
+
+    }
+
+
+    let minX =
+        HUB_X;
+
+    let maxX =
+        HUB_X;
+
+    let minY =
+        HUB_Y;
+
+    let maxY =
+        HUB_Y;
+
+
+    visibleNodes.forEach(
+        function(node){
+
+            minX =
+                Math.min(
+                    minX,
+                    node.x
+                );
+
+            maxX =
+                Math.max(
+                    maxX,
+                    node.x
+                );
+
+            minY =
+                Math.min(
+                    minY,
+                    node.y
+                );
+
+            maxY =
+                Math.max(
+                    maxY,
+                    node.y
+                );
+
+        }
+    );
+
+
+    const rect =
+        workspace.getBoundingClientRect();
+
+
+    const width =
+        maxX -
+        minX +
+        500;
+
+
+    const height =
+        maxY -
+        minY +
+        500;
+
+
+    zoom =
+        Math.min(
+            rect.width /
+                width,
+            rect.height /
+                height
+        );
+
+
+    zoom =
+        Math.max(
+            .12,
+            Math.min(
+                1.2,
+                zoom
+            )
+        );
+
+
+    const centerX =
+        (
+            minX +
+            maxX
+        ) / 2;
+
+
+    const centerY =
+        (
+            minY +
+            maxY
+        ) / 2;
+
+
+    panX =
+        -(
+            centerX -
+            HUB_X
+        ) *
+        zoom;
+
+
+    panY =
+        -(
+            centerY -
+            HUB_Y
+        ) *
+        zoom;
+
+
+    render();
+
+    saveCamera();
+
+}
+
+
+/* =========================================================
+   FILTER
+========================================================= */
+
+function applyFilter(){
+
+    const term =
+        searchInput.value
+            .trim()
+            .toLowerCase();
+
+
+    const filter =
+        filterSelect.value;
+
+
+    nodeList.forEach(
+        function(node){
+
+            if(!node.element){
+                return;
+            }
+
+
+            const row =
+                node.row;
+
+
+            const haystack =
+                [
+
+                    node.name,
+
+                    node.type,
+
+                    node.url,
+
+                    ...Object.values(row)
+
+                ]
+                .join(" ")
+                .toLowerCase();
+
+
+            const matchesSearch =
+                !term ||
+                haystack.includes(
+                    term
+                );
+
+
+            let matchesFilter =
+                true;
+
+
+            if(
+                filter === "online"
+            ){
+
+                matchesFilter =
+                    isOnline(row);
+
+            }
+
+
+            if(
+                filter === "offline"
+            ){
+
+                matchesFilter =
+                    isOffline(row);
+
+            }
+
+
+            node.element.style.display =
+                matchesSearch &&
+                matchesFilter
+                    ? ""
+                    : "none";
+
+        }
+    );
+
+
+    render();
+
+}
+
+
+searchInput.addEventListener(
+    "input",
+    applyFilter
+);
+
+
+filterSelect.addEventListener(
+    "change",
+    applyFilter
+);
+
+
+/* =========================================================
+   SAVE LAYOUT
+========================================================= */
+
+function saveLayout(){
+
+    const positions = {};
+
+
+    nodeList.forEach(
+        function(node){
+
+            positions[node.id] = {
+
+                x:node.x,
+
+                y:node.y
+
+            };
+
+        }
+    );
+
+
+    const data = {
+
+        positions,
+
+        zoom,
+
+        panX,
+
+        panY
+
+    };
+
+
+    try{
+
+        localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify(data)
+        );
+
+    }catch(error){
+
+        console.warn(
+            "Unable to save map layout",
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   SAVE CAMERA
+========================================================= */
+
+function saveCamera(){
+
+    saveLayout();
+
+}
+
+
+/* =========================================================
+   LOAD SAVED LAYOUT
+========================================================= */
+
+function applySavedLayout(){
+
+    try{
+
+        const raw =
+            localStorage.getItem(
+                STORAGE_KEY
+            );
+
+
+        if(!raw){
+            return;
+        }
+
+
+        const data =
+            JSON.parse(
+                raw
+            );
+
+
+        if(
+            data.zoom !== undefined
+        ){
+
+            zoom =
+                Math.max(
+                    MIN_ZOOM,
+                    Math.min(
+                        MAX_ZOOM,
+                        Number(data.zoom)
+                    )
+                );
+
+        }
+
+
+        if(
+            data.panX !== undefined
+        ){
+
+            panX =
+                Number(
+                    data.panX
+                );
+
+        }
+
+
+        if(
+            data.panY !== undefined
+        ){
+
+            panY =
+                Number(
+                    data.panY
+                );
+
+        }
+
+
+        if(
+            data.positions
+        ){
+
+            nodeList.forEach(
+                function(node){
+
+                    const saved =
+                        data.positions[
+                            node.id
+                        ];
+
+
+                    if(
+                        saved &&
+                        Number.isFinite(
+                            Number(saved.x)
+                        ) &&
+                        Number.isFinite(
+                            Number(saved.y)
+                        )
+                    ){
+
+                        node.x =
+                            Number(
+                                saved.x
+                            );
+
+                        node.y =
+                            Number(
+                                saved.y
+                            );
+
+                    }
+
+                }
+            );
+
+        }
+
+    }catch(error){
+
+        console.warn(
+            "Saved map layout could not be restored.",
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   RESET
+========================================================= */
+
+document
+    .getElementById("resetBtn")
+    .addEventListener(
+        "click",
+        function(){
+
+            const confirmed =
+                confirm(
+                    "Reset the Obvyris server map layout?"
+                );
+
+
+            if(!confirmed){
+                return;
+            }
+
+
+            localStorage.removeItem(
+                STORAGE_KEY
+            );
+
+
+            zoom =
+                1;
+
+            panX =
+                0;
+
+            panY =
+                0;
+
+
+            buildMap();
+
+            fitMap();
+
+        }
+    );
+
+
+/* =========================================================
+   FIT BUTTON
+========================================================= */
+
+document
+    .getElementById("fitBtn")
+    .addEventListener(
+        "click",
+        function(){
+
+            fitMap();
+
+        }
+    );
+
+
+/* =========================================================
+   REFRESH
+========================================================= */
+
+document
+    .getElementById("refreshBtn")
+    .addEventListener(
+        "click",
+        async function(){
+
+            await loadMap();
+
+        }
+    );
+
+
+/* =========================================================
+   DOUBLE CLICK EMPTY SPACE
+========================================================= */
+
+workspace.addEventListener(
+    "dblclick",
+    function(event){
+
+        if(
+            event.target.closest(".node") ||
+            event.target.closest("#hub")
+        ){
+
+            return;
+
+        }
+
+
+        fitMap();
+
+    }
+);
+
+
+/* =========================================================
+   RESIZE
 ========================================================= */
 
 window.addEventListener(
     "resize",
-    () => {
+    function(){
 
-        requestAnimationFrame(
-            drawConnections
-        );
+        render();
 
     }
 );
@@ -2462,21 +4261,7 @@ window.addEventListener(
    INITIALIZE
 ========================================================= */
 
-loadState();
-
-updateTransform();
-
 loadMap();
-
-
-/* =========================================================
-   AUTO REFRESH
-========================================================= */
-
-setInterval(
-    loadMap,
-    60000
-);
 
 </script>
 
