@@ -10,7 +10,7 @@
 name="viewport"
 content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 
-<title>Obvyris Game Wrapper Test</title>
+<title>Obvyris Game Controller Test</title>
 
 <style>
 
@@ -23,21 +23,19 @@ body{
 margin:0;
 width:100%;
 height:100%;
-background:#070d16;
+background:#080d14;
 color:#fff;
 font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+display:flex;
+flex-direction:column;
 overflow:hidden;
 }
 
-#app{
-width:100%;
-height:100%;
-display:flex;
-flex-direction:column;
-}
-
-#top{
-height:48px;
+#header{
+height:52px;
 background:#111827;
 border-bottom:1px solid #253347;
 display:flex;
@@ -52,70 +50,35 @@ font-weight:bold;
 }
 
 #status{
+font-family:monospace;
 font-size:12px;
 color:#55e6a5;
 }
 
-#gameArea{
-position:relative;
+#gameWindow{
 flex:1;
-min-height:0;
-background:#000;
-overflow:hidden;
+display:flex;
+align-items:center;
+justify-content:center;
+padding:20px;
+text-align:center;
 }
 
-#gameWrapper{
-position:absolute;
-inset:0;
-background:#000;
+#message{
+max-width:600px;
+color:#93a4bb;
+line-height:1.6;
 }
 
-#gameFrame{
-width:100%;
-height:100%;
-border:0;
-display:block;
-}
-
-#diagnostics{
-position:absolute;
-top:8px;
-left:8px;
-z-index:100;
-
-background:rgba(0,0,0,.8);
-
-border:1px solid #2793ff;
-
-border-radius:8px;
-
-padding:8px;
-
-font-family:monospace;
-
-font-size:11px;
-
-line-height:1.5;
-
-pointer-events:none;
+#message strong{
+color:#fff;
 }
 
 #keyboard{
-position:absolute;
-
-left:0;
-right:0;
-bottom:0;
-
-display:none;
-
-padding:8px;
-
-background:rgba(17,24,39,.97);
-
+background:#111827;
 border-top:2px solid #2793ff;
-
-z-index:200;
+padding:8px;
+display:none;
 }
 
 #keyboard.open{
@@ -125,42 +88,27 @@ display:block;
 .row{
 display:flex;
 justify-content:center;
-gap:4px;
-margin-bottom:4px;
+gap:5px;
+margin-bottom:5px;
 }
 
 .key{
-
-height:38px;
-
-min-width:40px;
-
-padding:0 10px;
-
+width:46px;
+height:40px;
 border:1px solid #34445a;
-
-border-radius:6px;
-
+border-radius:7px;
 background:#1b2738;
-
 color:#fff;
-
 font-weight:bold;
-
 font-size:13px;
-
 touch-action:none;
-
 user-select:none;
 }
 
+.key:active,
 .key.down{
-
 background:#2793ff;
-
 border-color:#fff;
-
-transform:scale(.96);
 }
 
 .space{
@@ -168,47 +116,45 @@ width:180px;
 }
 
 #controls{
-
-height:46px;
-
-display:flex;
-
-align-items:center;
-
-gap:6px;
-
-padding:6px;
-
+height:48px;
 background:#111827;
-
 border-top:1px solid #253347;
-
+display:flex;
+align-items:center;
+gap:6px;
+padding:6px;
 flex-shrink:0;
 }
 
 #controls button{
-
 height:34px;
-
 background:#1b2738;
-
 border:1px solid #34445a;
-
 border-radius:6px;
-
 color:#fff;
-
-padding:0 12px;
-
 font-weight:bold;
-
+padding:0 12px;
 cursor:pointer;
 }
 
 #controls button:hover{
-
 background:#2793ff;
+}
 
+#log{
+position:fixed;
+top:62px;
+right:10px;
+width:220px;
+max-height:180px;
+overflow:auto;
+background:rgba(0,0,0,.8);
+border:1px solid #253347;
+border-radius:8px;
+padding:8px;
+font-family:monospace;
+font-size:10px;
+color:#93a4bb;
 }
 
 </style>
@@ -217,82 +163,97 @@ background:#2793ff;
 
 <body>
 
-<div id="app">
-
-<div id="top">
+<div id="header">
 
 <div id="title">
-Obvyris Game Wrapper Test
+Obvyris Game Controller
 </div>
 
 <div id="status">
-LOADING
+CONTROLLER READY
 </div>
 
 </div>
 
-<div id="gameArea">
+<div id="gameWindow">
 
-<div id="gameWrapper">
+<div id="message">
 
-<iframe
-id="gameFrame"
-src="https://html5.gamemonetize.co/7o8qtn59e5ejushl2s6bp52nbcgiu44x/"
-allow="autoplay; fullscreen; pointer-lock"
-allowfullscreen>
-</iframe>
+<strong>Game Controller Test</strong>
+
+<br><br>
+
+Click <strong>OPEN GAME</strong>.
+
+<br><br>
+
+The actual GameMonetize game will open
+in its own browser window.
+
+<br><br>
+
+Keep this controller window open.
+
+Use the physical keyboard or the
+virtual keyboard below.
+
+</div>
 
 </div>
 
-<div id="diagnostics">
-
-INPUT LAYER<br>
-
-W: <span id="wState">UP</span><br>
-A: <span id="aState">UP</span><br>
-S: <span id="sState">UP</span><br>
-D: <span id="dState">UP</span><br>
-SPACE: <span id="spaceState">UP</span><br>
-
-Last: <span id="lastKey">---</span>
-
-</div>
+<div id="log"></div>
 
 <div id="keyboard">
 
 <div class="row">
 
-<button class="key" data-key="w">W</button>
+<button class="key"
+data-key="w">
+W </button>
 
 </div>
 
 <div class="row">
 
-<button class="key" data-key="a">A</button>
+<button class="key"
+data-key="a">
+A </button>
 
-<button class="key" data-key="s">S</button>
+<button class="key"
+data-key="s">
+S </button>
 
-<button class="key" data-key="d">D</button>
+<button class="key"
+data-key="d">
+D </button>
 
 </div>
 
 <div class="row">
 
-<button class="key" data-key=" ">SPACE</button>
+<button class="key space"
+data-key=" ">
+SPACE </button>
 
 </div>
 
 <div class="row">
 
-<button class="key" data-key="ArrowLeft">←</button>
+<button class="key"
+data-key="ArrowLeft">
+← </button>
 
-<button class="key" data-key="ArrowUp">↑</button>
+<button class="key"
+data-key="ArrowUp">
+↑ </button>
 
-<button class="key" data-key="ArrowDown">↓</button>
+<button class="key"
+data-key="ArrowDown">
+↓ </button>
 
-<button class="key" data-key="ArrowRight">→</button>
-
-</div>
+<button class="key"
+data-key="ArrowRight">
+→ </button>
 
 </div>
 
@@ -300,400 +261,186 @@ Last: <span id="lastKey">---</span>
 
 <div id="controls">
 
+<button onclick="openGame()">
+OPEN GAME
+</button>
+
 <button onclick="toggleKeyboard()">
-⌨ Keyboard
+⌨ KEYBOARD
 </button>
 
 <button onclick="focusGame()">
-Focus
+FOCUS GAME
 </button>
 
-<button onclick="fullscreenGame()">
-Fullscreen
+<button onclick="closeGame()">
+CLOSE GAME
 </button>
-
-<button onclick="reloadGame()">
-Reload
-</button>
-
-</div>
 
 </div>
 
 <script>
 
 
-const frame =
-document.getElementById("gameFrame");
-
-const keyboard =
-document.getElementById("keyboard");
-
-const status =
-document.getElementById("status");
+const GAME_URL =
+"https://html5.gamemonetize.co/7o8qtn59e5ejushl2s6bp52nbcgiu44x/";
 
 
-const keysDown =
+let gameWindow =
+null;
+
+
+const heldKeys =
 new Set();
 
 
 /* =========================
-   KEYBOARD TOGGLE
+   LOG
 ========================= */
 
-function toggleKeyboard(){
+function log(text){
 
-keyboard.classList.toggle("open");
+const box =
+document.getElementById("log");
+
+const line =
+document.createElement("div");
+
+line.textContent =
+new Date().toLocaleTimeString()+
+"  "+
+text;
+
+box.prepend(line);
+
+while(box.children.length>20){
+
+box.removeChild(
+box.lastChild
+);
+
+}
 
 }
 
 
 /* =========================
-   GAME FOCUS
+   STATUS
+========================= */
+
+function status(text){
+
+document.getElementById(
+"status"
+).textContent=text;
+
+}
+
+
+/* =========================
+   OPEN GAME
+========================= */
+
+function openGame(){
+
+gameWindow =
+window.open(
+GAME_URL,
+"ObvyrisGame",
+"width=1280,height=720,resizable=yes"
+);
+
+if(!gameWindow){
+
+status("POPUP BLOCKED");
+
+log(
+"Browser blocked popup"
+);
+
+return;
+
+}
+
+status(
+"GAME WINDOW OPEN"
+);
+
+log(
+"Game window opened"
+);
+
+}
+
+
+/* =========================
+   CLOSE GAME
+========================= */
+
+function closeGame(){
+
+if(
+gameWindow &&
+!gameWindow.closed
+){
+
+gameWindow.close();
+
+}
+
+gameWindow=null;
+
+status(
+"GAME CLOSED"
+);
+
+}
+
+
+/* =========================
+   FOCUS
 ========================= */
 
 function focusGame(){
 
-try{
-
-frame.focus();
-
-frame.contentWindow.focus();
-
-status.textContent =
-"FOCUS REQUESTED";
-
-}catch(error){
-
-status.textContent =
-"FOCUS ERROR";
-
-}
-
-}
-
-
-/* =========================
-   FULLSCREEN
-========================= */
-
-function fullscreenGame(){
-
-const gameArea =
-document.getElementById("gameArea");
-
-if(gameArea.requestFullscreen){
-
-gameArea.requestFullscreen();
-
-}
-
-else if(gameArea.webkitRequestFullscreen){
-
-gameArea.webkitRequestFullscreen();
-
-}
-
-}
-
-
-/* =========================
-   RELOAD
-========================= */
-
-function reloadGame(){
-
-frame.src =
-frame.src;
-
-status.textContent =
-"RELOADING";
-
-keysDown.clear();
-
-updateDiagnostics();
-
-}
-
-
-/* =========================
-   KEY DOWN
-========================= */
-
-function pressKey(key){
-
-if(keysDown.has(key)){
-
-return;
-
-}
-
-keysDown.add(key);
-
-updateDiagnostics();
-
-sendToGame(
-"keydown",
-key
-);
-
-}
-
-
-/* =========================
-   KEY UP
-========================= */
-
-function releaseKey(key){
-
-if(!keysDown.has(key)){
-
-return;
-
-}
-
-keysDown.delete(key);
-
-updateDiagnostics();
-
-sendToGame(
-"keyup",
-key
-);
-
-}
-
-
-/* =========================
-   SEND TO GAME
-========================= */
-
-function sendToGame(
-action,
-key
-){
-
-status.textContent =
-action.toUpperCase()+" "+key;
-
-
-/*
-    Primary bridge.
-*/
-
-try{
-
-frame.contentWindow.postMessage({
-
-type:"OBVYRIS_KEY",
-
-action:action,
-
-key:key,
-
-code:getCode(key),
-
-timestamp:Date.now()
-
-},"*");
-
-}catch(error){}
-
-
-/*
-    Secondary bridge.
-
-    Send the same information
-    using a second message name
-    so a future wrapper can
-    listen to either protocol.
-*/
-
-try{
-
-frame.contentWindow.postMessage({
-
-type:"gameKeyboard",
-
-action:action,
-
-key:key,
-
-code:getCode(key)
-
-},"*");
-
-}catch(error){}
-
-}
-
-
-/* =========================
-   KEY CODE
-========================= */
-
-function getCode(key){
-
-if(key===" "){
-return "Space";
-}
-
 if(
-key==="ArrowUp" ||
-key==="ArrowDown" ||
-key==="ArrowLeft" ||
-key==="ArrowRight"
+gameWindow &&
+!gameWindow.closed
 ){
 
-return key;
+gameWindow.focus();
+
+status(
+"GAME FOCUSED"
+);
+
+log(
+"Focus requested"
+);
+
+}else{
+
+status(
+"GAME NOT OPEN"
+);
 
 }
-
-if(key.length===1){
-
-if(/[a-z]/i.test(key)){
-
-return "Key"+key.toUpperCase();
-
-}
-
-if(/[0-9]/.test(key)){
-
-return "Digit"+key;
-
-}
-
-}
-
-return key;
 
 }
 
 
 /* =========================
-   VIRTUAL KEYBOARD
+   KEYBOARD
 ========================= */
+
+function toggleKeyboard(){
 
 document
-.querySelectorAll(".key")
-.forEach(function(button){
-
-const key =
-button.dataset.key;
-
-
-button.addEventListener(
-"pointerdown",
-function(event){
-
-event.preventDefault();
-
-button.classList.add("down");
-
-pressKey(key);
+.getElementById("keyboard")
+.classList
+.toggle("open");
 
 }
-);
-
-
-button.addEventListener(
-"pointerup",
-function(event){
-
-event.preventDefault();
-
-button.classList.remove("down");
-
-releaseKey(key);
-
-}
-);
-
-
-button.addEventListener(
-"pointercancel",
-function(){
-
-button.classList.remove("down");
-
-releaseKey(key);
-
-}
-);
-
-
-button.addEventListener(
-"pointerleave",
-function(event){
-
-if(event.buttons){
-
-return;
-
-}
-
-button.classList.remove("down");
-
-releaseKey(key);
-
-}
-);
-
-});
-
-
-/* =========================
-   PHYSICAL KEYBOARD
-========================= */
-
-document.addEventListener(
-"keydown",
-function(event){
-
-if(
-event.ctrlKey ||
-event.altKey ||
-event.metaKey
-){
-
-return;
-
-}
-
-if(
-event.key==="w" ||
-event.key==="W" ||
-event.key==="a" ||
-event.key==="A" ||
-event.key==="s" ||
-event.key==="S" ||
-event.key==="d" ||
-event.key==="D" ||
-event.key===" "
-){
-
-event.preventDefault();
-
-}
-
-pressKey(
-normalizeKey(event.key)
-);
-
-}
-);
-
-
-document.addEventListener(
-"keyup",
-function(event){
-
-releaseKey(
-normalizeKey(event.key)
-);
-
-}
-);
 
 
 /* =========================
@@ -719,131 +466,254 @@ return key;
 
 
 /* =========================
-   DIAGNOSTICS
+   KEY DOWN
 ========================= */
 
-function updateDiagnostics(){
+function keyDown(key){
 
-const states={
+key=
+normalizeKey(key);
 
-w:document.getElementById("wState"),
-
-a:document.getElementById("aState"),
-
-s:document.getElementById("sState"),
-
-d:document.getElementById("dState"),
-
-" ":document.getElementById("spaceState")
-
-};
-
-
-Object.keys(states)
-.forEach(function(key){
-
-const down =
-keysDown.has(key);
-
-states[key].textContent =
-down ? "DOWN" : "UP";
-
-});
-
-
-const last =
-Array.from(keysDown);
-
-document.getElementById(
-"lastKey"
-).textContent =
-last.length
-?last.join(", ")
-:"---";
-
-}
-
-
-/* =========================
-   GAME LOAD
-========================= */
-
-frame.addEventListener(
-"load",
-function(){
-
-status.textContent =
-"GAME LOADED";
-
-});
-
-
-/* =========================
-   POINTER LOCK
-========================= */
-
-document.addEventListener(
-"pointerlockchange",
-function(){
-
-if(document.pointerLockElement){
-
-status.textContent =
-"POINTER LOCK ACTIVE";
-
-}
-
-});
-
-
-/* =========================
-   MESSAGE MONITOR
-========================= */
-
-window.addEventListener(
-"message",
-function(event){
-
-if(!event.data){
+if(
+heldKeys.has(key)
+){
 
 return;
 
 }
 
+heldKeys.add(key);
+
+status(
+"KEY DOWN: "+key
+);
+
+log(
+"keydown "+key
+);
+
+
+/*
+    Focus the game window.
+
+    This is the closest ordinary
+    web-page JavaScript can get
+    to browser-level keyboard input.
+*/
+
 if(
-event.data.type ===
-"OBVYRIS_KEY"
+gameWindow &&
+!gameWindow.closed
 ){
 
-status.textContent =
-"GAME ACK: "+
-event.data.key;
+gameWindow.focus();
+
+}
+
+}
+
+
+/* =========================
+   KEY UP
+========================= */
+
+function keyUp(key){
+
+key=
+normalizeKey(key);
+
+heldKeys.delete(key);
+
+status(
+"KEY UP: "+key
+);
+
+log(
+"keyup "+key
+);
+
+}
+
+
+/* =========================
+   VIRTUAL BUTTONS
+========================= */
+
+document
+.querySelectorAll(".key")
+.forEach(function(button){
+
+const key =
+button.dataset.key;
+
+
+button.addEventListener(
+"pointerdown",
+function(event){
+
+event.preventDefault();
+
+button.classList.add(
+"down"
+);
+
+keyDown(key);
+
+}
+);
+
+
+button.addEventListener(
+"pointerup",
+function(event){
+
+event.preventDefault();
+
+button.classList.remove(
+"down"
+);
+
+keyUp(key);
+
+}
+);
+
+
+button.addEventListener(
+"pointercancel",
+function(){
+
+button.classList.remove(
+"down"
+);
+
+keyUp(key);
+
+}
+);
+
+
+button.addEventListener(
+"pointerleave",
+function(){
+
+if(
+!button.matches(":active")
+){
+
+button.classList.remove(
+"down"
+);
+
+keyUp(key);
+
+}
+
+}
+);
+
+});
+
+
+/* =========================
+   PHYSICAL KEYBOARD
+========================= */
+
+document.addEventListener(
+"keydown",
+function(event){
+
+if(
+event.ctrlKey ||
+event.altKey ||
+event.metaKey
+){
+
+return;
+
+}
+
+
+const allowed=[
+
+"w",
+"a",
+"s",
+"d",
+"W",
+"A",
+"S",
+"D",
+" ",
+"ArrowUp",
+"ArrowDown",
+"ArrowLeft",
+"ArrowRight"
+
+];
+
+
+if(
+allowed.includes(event.key)
+){
+
+event.preventDefault();
+
+keyDown(
+event.key
+);
 
 }
 
 });
 
 
+document.addEventListener(
+"keyup",
+function(event){
+
+keyUp(
+event.key
+);
+
+});
+
+
 /* =========================
-   RELEASE ALL KEYS
+   CLEAR HELD KEYS
 ========================= */
 
 window.addEventListener(
 "blur",
 function(){
 
-keysDown.forEach(function(key){
+heldKeys.forEach(
+function(key){
 
-sendToGame(
-"keyup",
-key
-);
+keyUp(key);
 
 });
 
-keysDown.clear();
+});
 
-updateDiagnostics();
+
+/* =========================
+   PAGE VISIBILITY
+========================= */
+
+document.addEventListener(
+"visibilitychange",
+function(){
+
+if(
+document.visibilityState==="visible"
+){
+
+status(
+"CONTROLLER ACTIVE"
+);
+
+}
 
 });
 
