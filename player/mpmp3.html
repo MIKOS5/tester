@@ -1626,12 +1626,14 @@ async function loadSelectedPlaylist(){
 
 async function replaceCurrentPlaylist(){
 
-
 const select =
     document.getElementById("playlistSelect");
 
 const playlistID =
     select.value.trim();
+
+const playlistName =
+    select.options[select.selectedIndex].textContent.trim();
 
 const status =
     document.getElementById("status");
@@ -1647,16 +1649,18 @@ if(!playlistID){
 
 const confirmed =
     confirm(
-        "Replace the current playlist with Playlist " +
-        playlistID +
-        "?"
+        'Replace the current playlist with "' +
+        playlistName +
+        '"?'
     );
 
 if(!confirmed)
     return;
 
 status.innerHTML =
-    "Replacing playlist...";
+    "Replacing playlist: " +
+    playlistName +
+    "...";
 
 try{
 
@@ -1704,7 +1708,8 @@ try{
                     "",
 
                 playlistID:
-                    track.playlistID,
+                    track.playlistID ||
+                    playlistID,
 
                 position:
                     track.position,
@@ -1739,11 +1744,11 @@ try{
     showWinamp();
 
     status.innerHTML =
-        "Replaced current playlist with Playlist " +
-        playlistID +
-        " — " +
+        'Replaced current playlist with "' +
+        playlistName +
+        '" — ' +
         newPlaylist.length +
-        " tracks";
+        ' tracks';
 
 }catch(error){
 
@@ -1758,9 +1763,7 @@ try{
 
 }
 
-
 }
-
 
 
  
