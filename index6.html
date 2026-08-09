@@ -1,10 +1,16 @@
 <!DOCTYPE html>
 
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Obvyris Game Keyboard Test</title>
+
+<meta
+name="viewport"
+content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+
+<title>Obvyris Game Wrapper Test</title>
 
 <style>
 
@@ -12,13 +18,14 @@
 box-sizing:border-box;
 }
 
-html,body{
+html,
+body{
 margin:0;
 width:100%;
 height:100%;
-background:#080d14;
+background:#070d16;
 color:#fff;
-font-family:Arial,sans-serif;
+font-family:Arial,Helvetica,sans-serif;
 overflow:hidden;
 }
 
@@ -29,8 +36,8 @@ display:flex;
 flex-direction:column;
 }
 
-#header{
-height:50px;
+#top{
+height:48px;
 background:#111827;
 border-bottom:1px solid #253347;
 display:flex;
@@ -46,14 +53,15 @@ font-weight:bold;
 
 #status{
 font-size:12px;
-color:#6ee7b7;
+color:#55e6a5;
 }
 
-#gameLayer{
+#gameArea{
 position:relative;
 flex:1;
 min-height:0;
 background:#000;
+overflow:hidden;
 }
 
 #gameWrapper{
@@ -69,16 +77,45 @@ border:0;
 display:block;
 }
 
-#keyboard{
-display:none;
+#diagnostics{
 position:absolute;
+top:8px;
+left:8px;
+z-index:100;
+
+background:rgba(0,0,0,.8);
+
+border:1px solid #2793ff;
+
+border-radius:8px;
+
+padding:8px;
+
+font-family:monospace;
+
+font-size:11px;
+
+line-height:1.5;
+
+pointer-events:none;
+}
+
+#keyboard{
+position:absolute;
+
 left:0;
 right:0;
 bottom:0;
+
+display:none;
+
 padding:8px;
+
 background:rgba(17,24,39,.97);
+
 border-top:2px solid #2793ff;
-z-index:50;
+
+z-index:200;
 }
 
 #keyboard.open{
@@ -93,57 +130,85 @@ margin-bottom:4px;
 }
 
 .key{
-width:42px;
+
 height:38px;
+
+min-width:40px;
+
+padding:0 10px;
+
 border:1px solid #34445a;
+
 border-radius:6px;
+
 background:#1b2738;
+
 color:#fff;
+
 font-weight:bold;
+
 font-size:13px;
-cursor:pointer;
-touch-action:manipulation;
+
+touch-action:none;
+
 user-select:none;
 }
 
-.key:active{
+.key.down{
+
 background:#2793ff;
-transform:scale(.95);
+
+border-color:#fff;
+
+transform:scale(.96);
 }
 
-.wide{
+.space{
 width:180px;
 }
 
-.control{
-width:auto;
-padding:0 12px;
-}
+#controls{
 
-#bottom{
-height:45px;
-background:#111827;
-border-top:1px solid #253347;
+height:46px;
+
 display:flex;
+
 align-items:center;
+
 gap:6px;
+
 padding:6px;
+
+background:#111827;
+
+border-top:1px solid #253347;
+
 flex-shrink:0;
 }
 
-#bottom button{
-height:32px;
+#controls button{
+
+height:34px;
+
 background:#1b2738;
+
 border:1px solid #34445a;
+
 border-radius:6px;
+
 color:#fff;
+
 padding:0 12px;
+
 font-weight:bold;
+
 cursor:pointer;
 }
 
-#bottom button:hover{
+#controls button:hover{
+
 background:#2793ff;
+
 }
 
 </style>
@@ -154,27 +219,42 @@ background:#2793ff;
 
 <div id="app">
 
-<div id="header">
+<div id="top">
 
 <div id="title">
-Keyboard Layer Test
+Obvyris Game Wrapper Test
 </div>
 
 <div id="status">
-READY
+LOADING
 </div>
 
 </div>
 
-<div id="gameLayer">
+<div id="gameArea">
 
 <div id="gameWrapper">
 
 <iframe
 id="gameFrame"
 src="https://html5.gamemonetize.co/7o8qtn59e5ejushl2s6bp52nbcgiu44x/"
+allow="autoplay; fullscreen; pointer-lock"
 allowfullscreen>
 </iframe>
+
+</div>
+
+<div id="diagnostics">
+
+INPUT LAYER<br>
+
+W: <span id="wState">UP</span><br>
+A: <span id="aState">UP</span><br>
+S: <span id="sState">UP</span><br>
+D: <span id="dState">UP</span><br>
+SPACE: <span id="spaceState">UP</span><br>
+
+Last: <span id="lastKey">---</span>
 
 </div>
 
@@ -182,41 +262,35 @@ allowfullscreen>
 
 <div class="row">
 
-<button class="key" data-key="1">1</button> <button class="key" data-key="2">2</button> <button class="key" data-key="3">3</button> <button class="key" data-key="4">4</button> <button class="key" data-key="5">5</button> <button class="key" data-key="6">6</button> <button class="key" data-key="7">7</button> <button class="key" data-key="8">8</button> <button class="key" data-key="9">9</button> <button class="key" data-key="0">0</button>
+<button class="key" data-key="w">W</button>
 
 </div>
 
 <div class="row">
 
-<button class="key" data-key="q">Q</button> <button class="key" data-key="w">W</button> <button class="key" data-key="e">E</button> <button class="key" data-key="r">R</button> <button class="key" data-key="t">T</button> <button class="key" data-key="y">Y</button> <button class="key" data-key="u">U</button> <button class="key" data-key="i">I</button> <button class="key" data-key="o">O</button> <button class="key" data-key="p">P</button>
+<button class="key" data-key="a">A</button>
+
+<button class="key" data-key="s">S</button>
+
+<button class="key" data-key="d">D</button>
 
 </div>
 
 <div class="row">
 
-<button class="key" data-key="a">A</button> <button class="key" data-key="s">S</button> <button class="key" data-key="d">D</button> <button class="key" data-key="f">F</button> <button class="key" data-key="g">G</button> <button class="key" data-key="h">H</button> <button class="key" data-key="j">J</button> <button class="key" data-key="k">K</button> <button class="key" data-key="l">L</button>
+<button class="key" data-key=" ">SPACE</button>
 
 </div>
 
 <div class="row">
 
-<button class="key" data-key="z">Z</button> <button class="key" data-key="x">X</button> <button class="key" data-key="c">C</button> <button class="key" data-key="v">V</button> <button class="key" data-key="b">B</button> <button class="key" data-key="n">N</button> <button class="key" data-key="m">M</button>
+<button class="key" data-key="ArrowLeft">←</button>
 
-</div>
+<button class="key" data-key="ArrowUp">↑</button>
 
-<div class="row">
+<button class="key" data-key="ArrowDown">↓</button>
 
-<button class="key wide" data-key=" ">SPACE</button>
-
-<button class="key" data-key="Backspace">⌫</button>
-
-<button class="key" data-key="Enter">ENTER</button>
-
-</div>
-
-<div class="row">
-
-<button class="key" data-key="ArrowLeft">←</button> <button class="key" data-key="ArrowUp">↑</button> <button class="key" data-key="ArrowDown">↓</button> <button class="key" data-key="ArrowRight">→</button>
+<button class="key" data-key="ArrowRight">→</button>
 
 </div>
 
@@ -224,14 +298,18 @@ allowfullscreen>
 
 </div>
 
-<div id="bottom">
+<div id="controls">
 
 <button onclick="toggleKeyboard()">
 ⌨ Keyboard
 </button>
 
 <button onclick="focusGame()">
-Focus Game
+Focus
+</button>
+
+<button onclick="fullscreenGame()">
+Fullscreen
 </button>
 
 <button onclick="reloadGame()">
@@ -244,6 +322,7 @@ Reload
 
 <script>
 
+
 const frame =
 document.getElementById("gameFrame");
 
@@ -252,6 +331,10 @@ document.getElementById("keyboard");
 
 const status =
 document.getElementById("status");
+
+
+const keysDown =
+new Set();
 
 
 /* =========================
@@ -266,7 +349,7 @@ keyboard.classList.toggle("open");
 
 
 /* =========================
-   FOCUS GAME
+   GAME FOCUS
 ========================= */
 
 function focusGame(){
@@ -277,11 +360,37 @@ frame.focus();
 
 frame.contentWindow.focus();
 
-status.textContent="GAME FOCUSED";
+status.textContent =
+"FOCUS REQUESTED";
 
-}catch(e){
+}catch(error){
 
-status.textContent="FOCUS FAILED";
+status.textContent =
+"FOCUS ERROR";
+
+}
+
+}
+
+
+/* =========================
+   FULLSCREEN
+========================= */
+
+function fullscreenGame(){
+
+const gameArea =
+document.getElementById("gameArea");
+
+if(gameArea.requestFullscreen){
+
+gameArea.requestFullscreen();
+
+}
+
+else if(gameArea.webkitRequestFullscreen){
+
+gameArea.webkitRequestFullscreen();
 
 }
 
@@ -294,136 +403,166 @@ status.textContent="FOCUS FAILED";
 
 function reloadGame(){
 
-frame.src=frame.src;
+frame.src =
+frame.src;
 
-status.textContent="GAME RELOADED";
+status.textContent =
+"RELOADING";
+
+keysDown.clear();
+
+updateDiagnostics();
 
 }
 
 
 /* =========================
-   SEND KEY
+   KEY DOWN
 ========================= */
 
-function sendKey(key){
+function pressKey(key){
 
-status.textContent="KEY: "+key;
+if(keysDown.has(key)){
 
+return;
 
-/*
-    METHOD 1
+}
 
-    Tell the wrapper/game
-    that a key was requested.
-*/
+keysDown.add(key);
 
-try{
+updateDiagnostics();
 
-frame.contentWindow.postMessage({
-
-type:"gameKeyboard",
-
-action:"keydown",
-
-key:key
-
-},"*");
-
-}catch(e){}
-
-
-/*
-    METHOD 2
-
-    Send a normal keyboard
-    event to THIS page.
-
-    This lets us test the
-    keyboard layer independently.
-*/
-
-const code =
-getCode(key);
-
-const event =
-new KeyboardEvent(
+sendToGame(
 "keydown",
-{
-key:key,
-code:code,
-keyCode:keyCode(key),
-which:keyCode(key),
-bubbles:true,
-cancelable:true
-}
+key
 );
-
-document.dispatchEvent(event);
-
-
-/*
-    Send keyup shortly after.
-*/
-
-setTimeout(function(){
-
-try{
-
-frame.contentWindow.postMessage({
-
-type:"gameKeyboard",
-
-action:"keyup",
-
-key:key
-
-},"*");
-
-}catch(e){}
-
-const upEvent =
-new KeyboardEvent(
-"keyup",
-{
-key:key,
-code:code,
-keyCode:keyCode(key),
-which:keyCode(key),
-bubbles:true,
-cancelable:true
-}
-);
-
-document.dispatchEvent(upEvent);
-
-},80);
 
 }
 
 
 /* =========================
-   KEY CODES
+   KEY UP
+========================= */
+
+function releaseKey(key){
+
+if(!keysDown.has(key)){
+
+return;
+
+}
+
+keysDown.delete(key);
+
+updateDiagnostics();
+
+sendToGame(
+"keyup",
+key
+);
+
+}
+
+
+/* =========================
+   SEND TO GAME
+========================= */
+
+function sendToGame(
+action,
+key
+){
+
+status.textContent =
+action.toUpperCase()+" "+key;
+
+
+/*
+    Primary bridge.
+*/
+
+try{
+
+frame.contentWindow.postMessage({
+
+type:"OBVYRIS_KEY",
+
+action:action,
+
+key:key,
+
+code:getCode(key),
+
+timestamp:Date.now()
+
+},"*");
+
+}catch(error){}
+
+
+/*
+    Secondary bridge.
+
+    Send the same information
+    using a second message name
+    so a future wrapper can
+    listen to either protocol.
+*/
+
+try{
+
+frame.contentWindow.postMessage({
+
+type:"gameKeyboard",
+
+action:action,
+
+key:key,
+
+code:getCode(key)
+
+},"*");
+
+}catch(error){}
+
+}
+
+
+/* =========================
+   KEY CODE
 ========================= */
 
 function getCode(key){
 
-if(key===" ") return "Space";
-
-if(key==="ArrowLeft") return "ArrowLeft";
-if(key==="ArrowRight") return "ArrowRight";
-if(key==="ArrowUp") return "ArrowUp";
-if(key==="ArrowDown") return "ArrowDown";
-
-if(key==="Enter") return "Enter";
-
-if(key==="Backspace") return "Backspace";
-
-if(/^[a-z]$/i.test(key)){
-return "Key"+key.toUpperCase();
+if(key===" "){
+return "Space";
 }
 
-if(/^[0-9]$/.test(key)){
+if(
+key==="ArrowUp" ||
+key==="ArrowDown" ||
+key==="ArrowLeft" ||
+key==="ArrowRight"
+){
+
+return key;
+
+}
+
+if(key.length===1){
+
+if(/[a-z]/i.test(key)){
+
+return "Key"+key.toUpperCase();
+
+}
+
+if(/[0-9]/.test(key)){
+
 return "Digit"+key;
+
+}
+
 }
 
 return key;
@@ -431,45 +570,17 @@ return key;
 }
 
 
-function keyCode(key){
-
-const codes={
-
-"ArrowLeft":37,
-"ArrowUp":38,
-"ArrowRight":39,
-"ArrowDown":40,
-
-"Enter":13,
-"Backspace":8,
-" ":32
-
-};
-
-if(codes[key]){
-return codes[key];
-}
-
-if(/^[a-z]$/i.test(key)){
-return key.toUpperCase().charCodeAt(0);
-}
-
-if(/^[0-9]$/.test(key)){
-return key.charCodeAt(0);
-}
-
-return 0;
-
-}
-
-
 /* =========================
-   VIRTUAL BUTTONS
+   VIRTUAL KEYBOARD
 ========================= */
 
 document
 .querySelectorAll(".key")
 .forEach(function(button){
+
+const key =
+button.dataset.key;
+
 
 button.addEventListener(
 "pointerdown",
@@ -477,10 +588,53 @@ function(event){
 
 event.preventDefault();
 
-const key =
-button.dataset.key;
+button.classList.add("down");
 
-sendKey(key);
+pressKey(key);
+
+}
+);
+
+
+button.addEventListener(
+"pointerup",
+function(event){
+
+event.preventDefault();
+
+button.classList.remove("down");
+
+releaseKey(key);
+
+}
+);
+
+
+button.addEventListener(
+"pointercancel",
+function(){
+
+button.classList.remove("down");
+
+releaseKey(key);
+
+}
+);
+
+
+button.addEventListener(
+"pointerleave",
+function(event){
+
+if(event.buttons){
+
+return;
+
+}
+
+button.classList.remove("down");
+
+releaseKey(key);
 
 }
 );
@@ -496,11 +650,6 @@ document.addEventListener(
 "keydown",
 function(event){
 
-/*
-    Don't intercept browser
-    shortcuts unnecessarily.
-*/
-
 if(
 event.ctrlKey ||
 event.altKey ||
@@ -511,32 +660,140 @@ return;
 
 }
 
-status.textContent =
-"PHYSICAL: "+event.key;
+if(
+event.key==="w" ||
+event.key==="W" ||
+event.key==="a" ||
+event.key==="A" ||
+event.key==="s" ||
+event.key==="S" ||
+event.key==="d" ||
+event.key==="D" ||
+event.key===" "
+){
 
+event.preventDefault();
 
-/*
-    Forward physical keyboard
-    input through the same
-    wrapper bridge.
-*/
+}
 
-try{
-
-frame.contentWindow.postMessage({
-
-type:"gameKeyboard",
-
-action:"keydown",
-
-key:event.key
-
-},"*");
-
-}catch(e){}
+pressKey(
+normalizeKey(event.key)
+);
 
 }
 );
+
+
+document.addEventListener(
+"keyup",
+function(event){
+
+releaseKey(
+normalizeKey(event.key)
+);
+
+}
+);
+
+
+/* =========================
+   NORMALIZE
+========================= */
+
+function normalizeKey(key){
+
+if(
+key==="W" ||
+key==="A" ||
+key==="S" ||
+key==="D"
+){
+
+return key.toLowerCase();
+
+}
+
+return key;
+
+}
+
+
+/* =========================
+   DIAGNOSTICS
+========================= */
+
+function updateDiagnostics(){
+
+const states={
+
+w:document.getElementById("wState"),
+
+a:document.getElementById("aState"),
+
+s:document.getElementById("sState"),
+
+d:document.getElementById("dState"),
+
+" ":document.getElementById("spaceState")
+
+};
+
+
+Object.keys(states)
+.forEach(function(key){
+
+const down =
+keysDown.has(key);
+
+states[key].textContent =
+down ? "DOWN" : "UP";
+
+});
+
+
+const last =
+Array.from(keysDown);
+
+document.getElementById(
+"lastKey"
+).textContent =
+last.length
+?last.join(", ")
+:"---";
+
+}
+
+
+/* =========================
+   GAME LOAD
+========================= */
+
+frame.addEventListener(
+"load",
+function(){
+
+status.textContent =
+"GAME LOADED";
+
+});
+
+
+/* =========================
+   POINTER LOCK
+========================= */
+
+document.addEventListener(
+"pointerlockchange",
+function(){
+
+if(document.pointerLockElement){
+
+status.textContent =
+"POINTER LOCK ACTIVE";
+
+}
+
+});
 
 
 /* =========================
@@ -547,36 +804,52 @@ window.addEventListener(
 "message",
 function(event){
 
-if(!event.data) return;
+if(!event.data){
+
+return;
+
+}
 
 if(
-event.data.type === "gameKeyboard"
+event.data.type ===
+"OBVYRIS_KEY"
 ){
 
 status.textContent =
-"GAME MESSAGE: "+
+"GAME ACK: "+
 event.data.key;
 
 }
 
-}
-);
+});
 
 
 /* =========================
-   FRAME LOAD
+   RELEASE ALL KEYS
 ========================= */
 
-frame.addEventListener(
-"load",
+window.addEventListener(
+"blur",
 function(){
 
-status.textContent="GAME LOADED";
+keysDown.forEach(function(key){
 
-}
+sendToGame(
+"keyup",
+key
 );
+
+});
+
+keysDown.clear();
+
+updateDiagnostics();
+
+});
+
 
 </script>
 
 </body>
+
 </html>
