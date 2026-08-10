@@ -2592,11 +2592,8 @@ id="videoOpenButton">
 
 <p>
     Latest Obvyris news reports.
-</p>
 
-<div id="newsStoryList">
-    Loading...
-</div>
+<div id="latestObvyrisNews">Loading...</div>
 </div>
 
 
@@ -5352,6 +5349,10 @@ return String(value ?? "")
 
 }
 
+/* ================================= 
+LATEST OBVYRIS NEWS 
+================================= */ 
+async function loadLatestObvyrisNews(){ const box = document.getElementById( "latestObvyrisNews" ); if(!box){ console.error( "latestObvyrisNews element not found" ); return; } box.innerHTML = "Loading..."; try{ const response = await fetch( NEWS_STORY_API + "&t=" + Date.now() ); const data = await response.json(); console.log( "Latest Obvyris stories:", data ); if( !data || data.status !== "success" || !Array.isArray(data.stories) ){ throw new Error( "Invalid stories response" ); } const stories = data.stories .filter( story => story.status === "Published" ) .sort( (a,b) => new Date(b.timestamp) - new Date(a.timestamp) ) .slice(0,5); if(!stories.length){ box.innerHTML = "No published stories."; return; } box.innerHTML = stories.map( story => ` <div class="latestNewsStory" onclick="openChapter('${escapeChapterId(story.storyId)}')"> <div class="latestNewsTitle"> ${escapeHTML( story.title )} </div> <div class="latestNewsMeta"> Chapter ${story.chapter} </div> </div> ` ).join(""); } catch(error){ console.error( "LATEST NEWS ERROR:", error ); box.innerHTML = "Unable to load Obvyris news."; } }
 /* =================================
 OPEN CHAPTER
 ================================= */
@@ -6668,6 +6669,8 @@ else{
     loadLocalWeather();
 
 }
+
+loadLatestObvyrisNews();
 </script>
 
 
