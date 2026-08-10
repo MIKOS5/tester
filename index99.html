@@ -5563,124 +5563,223 @@ catch(error){
 }
 
 /* =================================
-RENDER CHAPTER
+OBVYRIS NEWS CHAPTER PLAYER
+MATCH ORIGINAL ARCHIVE PLAYER
 ================================= */
 
-function renderChapter(chapter){
+let currentChapter = null;
+
+let chapterLines = [];
+
+let chapterSpeaking = false;
+
+let chapterPaused = false;
+
+let chapterVoices = {};
+
+let chapterSettings = {
+    speed: 1
+};
 
 
-const title =
-    chapter.title ||
-    chapter.name ||
-    chapter.storyId ||
-    "Chapter";
+/* =================================
+ESCAPE HTML
+================================= */
+
+function escapeHTML(value){
+
+    return String(value ?? "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+
+}
 
 
-document.getElementById(
-    "chapterModalTitle"
-).innerText =
-    "📖 " + title;
+/* =================================
+ESCAPE CHAPTER ID
+================================= */
+
+function escapeChapterId(value){
+
+    return String(value ?? "")
+        .replace(/\\/g,"\\\\")
+        .replace(/'/g,"\\'");
+
+}
 
 
-const story =
-    String(
-        chapter.story ||
-        chapter.text ||
-        chapter.content ||
-        ""
-    );
+/* =================================
+OPEN CHAPTER
+================================= */
+
+async function openChapter(storyId){
+
+    const modal =
+        document.getElementById("chapterModal");
+
+    const content =
+        document.getElementById("chapterModalContent");
+
+    const title =
+        document.getElementById("chapterModalTitle");
 
 
-/*
-Parse the same
-[Character] format
-used by the storyteller.
-*/
-
-chapterLines =
-    parseChapterLines(
-        story
-    );
+    stopChapterSpeech();
 
 
-chapterLineIndex =
-    0;
+    modal.style.display = "flex";
 
 
-const content =
-    document.getElementById(
-        "chapterModalContent"
-    );
+    title.innerText =
+        "📖 " + storyId;
 
 
-let html = `
+    content.innerHTML = `
 
-    <div class="chapterPlayback">
+        <div style="
+            padding:30px;
+            text-align:center;
+            color:#93a4bb;
+        ">
 
-
-        <div class="chapterMeta">
-
-            <div style="
-                font-size:18px;
-                font-weight:900;
-                color:white;
-            ">
-
-                ${escapeHTML(title)}
-
-            </div>
-
-
-            ${
-                chapter.storyId
-                ?
-                `<div style="
-                    margin-top:5px;
-                    color:#6ec2ff;
-                    font-size:12px;
-                ">
-                    ${escapeHTML(
-                        chapter.storyId
-                    )}
-                </div>`
-                :
-                ""
-            }
+            Loading chapter...
 
         </div>
 
-
-        <div class="chapterStory"
-             id="chapterStory">
-
-`;
+    `;
 
 
-chapterLines.forEach(
-    (line,index) => {
+    try{
 
-        html += `
+        const response =
+            await fetch(
+                STORY_API +
+                "&id=" +
+                encodeURIComponent(storyId) +
+                "&t=" +
+                Date.now()
+            );
 
-            <div
-                class="chapterLine"
-                id="chapterLine-${index}">
 
-                ${
-                    line.character
-                    ?
-                    `<span class="chapterCharacter">
-                        [${escapeHTML(
-                            line.character
-                        )}]
-                    </span>`
-                    :
-                    ""
-                }
+        const data =
+            await response.json();
 
-                <span class="chapterText">
+
+        console.log(
+            "Chapter:",
+            data
+        );
+
+
+        if(
+            !data ||
+            data.status !== "success"
+        ){
+
+            throw new Error(
+                "Chapter unavailable"
+            );
+
+        }
+
+
+        /*
+        ORIGINAL API FORMAT:
+
+        data.story
+
+        */
+
+        let chapter =
+            data.story || null;
+
+
+        /*
+        Compatibility with older
+        API response.
+        */
+
+        if(
+            !chapter &&
+            Array.isArray(data.chapters)
+        ){
+
+            chapter =
+                data.chapters.find(
+                    item =>
+                        String(
+                            item.storyId ||
+                            item.id ||
+                            ""
+                        ) ===
+                        String(storyId)
+                );
+
+
+            if(
+                !chapter &&
+                data.chapters.length === 1
+            ){
+
+                chapter =
+                    data.chapters[0];
+
+            }
+
+        }
+
+
+        if(!chapter){
+
+            throw new Error(
+                "Chapter not found"
+            );
+
+        }
+
+
+        currentChapter =
+            chapter;
+
+
+        renderChapter(
+            chapter
+        );
+
+
+        await loadChapterVoices();
+
+
+    }
+    catch(error){
+
+        console.error(
+            "CHAPTER ERROR:",
+            error
+        );
+
+
+        content.innerHTML = `
+
+            <div style="
+                padding:30px;
+                text-align:center;
+            ">
+
+                ❌ Unable to load chapter.
+
+                <br><br>
+
+                <span style="
+                    color:#93a4bb;
+                    font-size:12px;
+                ">
 
                     ${escapeHTML(
-                        line.text
+                        error.message
                     )}
 
                 </span>
@@ -5690,93 +5789,287 @@ chapterLines.forEach(
         `;
 
     }
-);
+
+}
 
 
-html += `
+/* =================================
+RENDER CHAPTER
+================================= */
 
-        </div>
+function renderChapter(chapter){
 
-
-        <div class="chapterStatus"
-             id="chapterStatus">
-
-            Ready
-
-        </div>
-
-
-        <div class="chapterControls">
-
-            <button
-                type="button"
-                onclick="speakChapter()">
-
-                ▶ Play
-
-            </button>
+    const title =
+        chapter.title ||
+        chapter.name ||
+        chapter.storyId ||
+        "Chapter";
 
 
-            <button
-                type="button"
-                onclick="pauseChapter()">
-
-                ⏸ Pause
-
-            </button>
+    document.getElementById(
+        "chapterModalTitle"
+    ).innerText =
+        "📖 " + title;
 
 
-            <button
-                type="button"
-                onclick="resumeChapter()">
-
-                ▶ Resume
-
-            </button>
-
-
-            <button
-                type="button"
-                onclick="stopChapterSpeech()">
-
-                ■ Stop
-
-            </button>
-
-        </div>
+    const story =
+        String(
+            chapter.story ||
+            chapter.text ||
+            chapter.content ||
+            ""
+        );
 
 
-        <div class="chapterVoice">
+    /*
+    Keep the ORIGINAL raw lines.
 
-            <div>
+    This is important.
+
+    The original player determines
+    the active character while reading
+    instead of assigning "Narrator"
+    to every line.
+    */
+
+    chapterLines =
+        story
+        .replace(/\r/g,"")
+        .split("\n");
+
+
+    const content =
+        document.getElementById(
+            "chapterModalContent"
+        );
+
+
+    let html = `
+
+        <div class="chapterPlayback">
+
+            <div class="chapterMeta">
+
+                <div style="
+                    font-size:18px;
+                    font-weight:900;
+                    color:white;
+                ">
+
+                    ${escapeHTML(title)}
+
+                </div>
+
+
+                ${
+                    chapter.storyId
+                    ?
+
+                    `<div style="
+                        margin-top:5px;
+                        color:#6ec2ff;
+                        font-size:12px;
+                    ">
+
+                        ${escapeHTML(
+                            chapter.storyId
+                        )}
+
+                    </div>`
+
+                    :
+
+                    ""
+                }
+
+            </div>
+
+
+            <div
+                class="chapterStory"
+                id="chapterStory"
+            >
+
+    `;
+
+
+    /*
+    Render exactly like original:
+
+    [Character]
+
+    Speech line
+
+    Speech line
+
+    [Another Character]
+
+    Speech line
+    */
+
+    let speechCounter = 0;
+
+
+    chapterLines.forEach(
+        rawLine => {
+
+            const line =
+                rawLine.trim();
+
+
+            if(!line){
+
+                html += `
+                    <div style="
+                        height:15px;
+                    "></div>
+                `;
+
+                return;
+
+            }
+
+
+            const tag =
+                line.match(
+                    /^\[(.*?)\]/
+                );
+
+
+            if(tag){
+
+                html += `
+
+                    <div class="chapterCharacter">
+
+                        ${escapeHTML(line)}
+
+                    </div>
+
+                `;
+
+                return;
+
+            }
+
+
+            speechCounter++;
+
+
+            html += `
+
+                <div
+                    class="chapterLine speech-line"
+                    id="chapterLine-${speechCounter}"
+                >
+
+                    ${escapeHTML(line)}
+
+                </div>
+
+            `;
+
+        }
+    );
+
+
+    html += `
+
+            </div>
+
+
+            <div
+                class="chapterStatus"
+                id="chapterStatus"
+            >
+
+                Ready
+
+            </div>
+
+
+            <div
+                id="chapterProgress"
+                style="
+                    height:8px;
+                    background:#222;
+                    border-radius:20px;
+                    margin:15px 0;
+                    overflow:hidden;
+                "
+            >
+
+                <div
+                    id="chapterProgressBar"
+                    style="
+                        width:0%;
+                        height:100%;
+                        background:#27b7ff;
+                        transition:.3s;
+                    "
+                ></div>
+
+            </div>
+
+
+            <div class="chapterControls">
+
+                <button
+                    type="button"
+                    onclick="speakChapter()"
+                >
+
+                    ▶ Play
+
+                </button>
+
+
+                <button
+                    type="button"
+                    onclick="pauseChapter()"
+                >
+
+                    ⏸ Pause / Resume
+
+                </button>
+
+
+                <button
+                    type="button"
+                    onclick="stopChapterSpeech()"
+                >
+
+                    ■ Stop
+
+                </button>
+
+            </div>
+
+
+            <div class="chapterVoice">
 
                 <label>
                     Speech Speed
                 </label>
+
 
                 <input
                     id="chapterSpeed"
                     type="range"
                     min=".5"
                     max="2"
-                    step=".05"
+                    step=".1"
                     value="1"
                     oninput="
                         chapterSettings.speed =
-                        parseFloat(this.value)
-                    ">
+                        Number(this.value)
+                    "
+                >
 
-            </div>
-
-
-            <div>
-
-                <label>
-                    Voice
-                </label>
 
                 <select
-                    id="chapterVoiceSelect">
+                    id="chapterVoiceSelect"
+                >
 
                     <option value="">
                         Automatic voice
@@ -5788,221 +6081,182 @@ html += `
 
         </div>
 
-    </div>
-
-`;
+    `;
 
 
-content.innerHTML =
-    html;
-
+    content.innerHTML =
+        html;
 
 }
 
-/* =================================
-PARSE CHAPTER
-================================= */
-
-function parseChapterLines(story){
-
-
-const rawLines =
-    story
-    .replace(/\r/g,"")
-    .split("\n");
-
-
-const lines = [];
-
-
-rawLines.forEach(
-    raw => {
-
-        const text =
-            raw.trim();
-
-
-        if(!text){
-            return;
-        }
-
-
-        const match =
-            text.match(
-                /^\[([^\]]+)\]\s*(.*)$/
-            );
-
-
-        if(match){
-
-            lines.push({
-
-                character:
-                    match[1].trim(),
-
-                text:
-                    match[2].trim()
-
-            });
-
-        }
-        else{
-
-            lines.push({
-
-                character:
-                    "Narrator",
-
-                text:
-                    text
-
-            });
-
-        }
-
-    }
-);
-
-
-return lines;
-
-
-}
 
 /* =================================
-LOAD VOICES
+LOAD VOICE SETTINGS
 ================================= */
 
 async function loadChapterVoices(){
 
-
-const select =
-    document.getElementById(
-        "chapterVoiceSelect"
-    );
-
-
-if(!select){
-    return;
-}
-
-
-try{
-
-    const response =
-        await fetch(
-            VOICE_API +
-            "&t=" +
-            Date.now()
+    const select =
+        document.getElementById(
+            "chapterVoiceSelect"
         );
 
 
-    const data =
-        await response.json();
+    try{
+
+        const response =
+            await fetch(
+                VOICE_API +
+                "&t=" +
+                Date.now()
+            );
 
 
-    console.log(
-        "Chapter voices:",
-        data
-    );
+        const data =
+            await response.json();
 
 
-    let voices =
-        [];
+        console.log(
+            "Chapter voices:",
+            data
+        );
 
 
-    if(
-        Array.isArray(data)
-    ){
+        /*
+        ORIGINAL API FORMAT:
 
-        voices =
-            data;
+        data.voices
 
-    }
-    else if(
-        Array.isArray(data.voices)
-    ){
+        Usually an object:
 
-        voices =
-            data.voices;
+        {
+            "Narrator": {...},
+            "Pip-Squeak": {...}
+        }
+        */
 
-    }
+        if(
+            data &&
+            data.status === "success"
+        ){
 
+            chapterVoices =
+                data.voices || {};
 
-    chapterVoices =
-        voices;
+        }
+        else if(
+            data &&
+            data.voices
+        ){
 
+            chapterVoices =
+                data.voices;
 
-    select.innerHTML = `
+        }
+        else{
 
-        <option value="">
-            Automatic voice
-        </option>
+            chapterVoices =
+                {};
 
-    `;
-
-
-    voices.forEach(
-        voice => {
-
-            const option =
-                document.createElement(
-                    "option"
-                );
-
-
-            const name =
-                voice.name ||
-                voice.voice ||
-                voice.id ||
-                "";
+        }
 
 
-            option.value =
-                name;
+        if(!select){
+            return;
+        }
 
 
-            option.textContent =
-                name;
+        select.innerHTML = `
+
+            <option value="">
+                Automatic voice
+            </option>
+
+        `;
 
 
-            select.appendChild(
-                option
+        /*
+        Populate the manual selector
+        using configured character voices.
+        */
+
+        if(
+            !Array.isArray(chapterVoices)
+        ){
+
+            Object.keys(
+                chapterVoices
+            ).forEach(
+                character => {
+
+                    const settings =
+                        chapterVoices[
+                            character
+                        ];
+
+
+                    const option =
+                        document.createElement(
+                            "option"
+                        );
+
+
+                    option.value =
+                        character;
+
+
+                    option.textContent =
+                        character +
+                        (
+                            settings &&
+                            settings.voice
+                            ?
+                            " — " +
+                            settings.voice
+                            :
+                            ""
+                        );
+
+
+                    select.appendChild(
+                        option
+                    );
+
+                }
             );
 
         }
-    );
 
+
+    }
+    catch(error){
+
+        console.error(
+            "VOICE API ERROR:",
+            error
+        );
+
+        chapterVoices =
+            {};
+
+    }
 
 }
-catch(error){
 
-    console.error(
-        "VOICE API ERROR:",
-        error
-    );
-
-}
-
-
-}
 
 /* =================================
-FIND BROWSER VOICES
+BROWSER VOICES
 ================================= */
 
 function getBrowserVoices(){
 
-
-return speechSynthesis
-    .getVoices();
-
+    return speechSynthesis.getVoices();
 
 }
 
+
 speechSynthesis.onvoiceschanged =
 function(){
-
 
     getBrowserVoices();
 
@@ -6010,242 +6264,128 @@ function(){
 
 
 /* =================================
-FIND VOICE
+SELECT VOICE
+MATCH ORIGINAL
 ================================= */
 
-function findChapterVoice(
-character
-){
+function selectChapterVoice(character){
+
+    const browserVoices =
+        getBrowserVoices();
 
 
-const selected =
-    document.getElementById(
-        "chapterVoiceSelect"
-    );
+    /*
+    Manual selection
+    */
 
-
-const selectedName =
-    selected
-    ? selected.value
-    : "";
-
-
-const browserVoices =
-    getBrowserVoices();
-
-
-/*
-Manual voice selection
-*/
-
-if(selectedName){
-
-    const exact =
-        browserVoices.find(
-            voice =>
-                voice.name ===
-                selectedName
+    const select =
+        document.getElementById(
+            "chapterVoiceSelect"
         );
 
 
-    if(exact){
+    const selectedCharacter =
+        select
+        ? select.value
+        : "";
 
-        return exact;
+
+    let settings = null;
+
+
+    if(selectedCharacter){
+
+        settings =
+            chapterVoices[
+                selectedCharacter
+            ];
+
+    }
+    else{
+
+        settings =
+            chapterVoices[
+                character
+            ];
 
     }
 
-}
+
+    console.log(
+        "VOICE REQUEST",
+        character,
+        settings
+    );
 
 
-/*
-Match configured
-character voice.
-*/
+    /*
+    Match configured voice
+    exactly like original.
+    */
 
-const configured =
-    chapterVoices.find(
-        voice => {
+    if(
+        settings &&
+        settings.voice
+    ){
 
-            const voiceCharacter =
-                voice.character ||
-                voice.name ||
-                voice.voice ||
-                "";
+        const found =
+            browserVoices.find(
+                voice =>
+                    voice.name
+                    .toLowerCase()
+                    .includes(
+                        String(
+                            settings.voice
+                        ).toLowerCase()
+                    )
+            );
 
 
-            return String(
-                voiceCharacter
-            ).toLowerCase() ===
-            String(
-                character || ""
-            ).toLowerCase();
+        if(found){
+
+            return found;
 
         }
-    );
-
-
-if(configured){
-
-    const configuredName =
-        configured.voice ||
-        configured.name ||
-        "";
-
-
-    const exact =
-        browserVoices.find(
-            voice =>
-                voice.name ===
-                configuredName
-        );
-
-
-    if(exact){
-
-        return exact;
 
     }
 
 
-    const partial =
-        browserVoices.find(
-            voice =>
-                voice.name
-                .toLowerCase()
-                .includes(
-                    String(
-                        configuredName
-                    ).toLowerCase()
-                )
-        );
+    /*
+    Browser fallback
+    */
 
-
-    if(partial){
-
-        return partial;
-
-    }
+    return browserVoices.find(
+        voice =>
+            voice.lang &&
+            voice.lang.startsWith("en")
+    )
+    ||
+    browserVoices[0]
+    ||
+    null;
 
 }
 
-
-/*
-Character/type fallback.
-*/
-
-const lower =
-    String(
-        character || ""
-    ).toLowerCase();
-
-
-if(
-    lower.includes("female") ||
-    lower.includes("woman")
-){
-
-    const female =
-        browserVoices.find(
-            voice =>
-                /female|samantha|zira|karen|susan|aria/i
-                .test(
-                    voice.name
-                )
-        );
-
-
-    if(female){
-        return female;
-    }
-
-}
-
-
-if(
-    lower.includes("male") ||
-    lower.includes("man")
-){
-
-    const male =
-        browserVoices.find(
-            voice =>
-                /male|david|daniel|alex/i
-                .test(
-                    voice.name
-                )
-        );
-
-
-    if(male){
-        return male;
-    }
-
-}
-
-
-return browserVoices.find(
-    voice =>
-        voice.lang &&
-        voice.lang.startsWith("en")
-) ||
-browserVoices[0] ||
-null;
-
-
-}
 
 /* =================================
 SPEAK CHAPTER
+MATCH ORIGINAL
 ================================= */
 
 function speakChapter(){
 
+    if(!currentChapter){
 
-if(!currentChapter){
-    return;
-}
+        return;
 
-
-speechSynthesis.cancel();
+    }
 
 
-chapterLineIndex =
-    0;
+    speechSynthesis.cancel();
 
-
-chapterSpeaking =
-    true;
-
-
-chapterPaused =
-    false;
-
-
-updateChapterStatus(
-    "Playing"
-);
-
-
-speakChapterLine();
-
-
-}
-
-/* =================================
-SPEAK CURRENT LINE
-================================= */
-
-function speakChapterLine(){
-
-
-if(
-    !chapterSpeaking ||
-    chapterLineIndex >=
-    chapterLines.length
-){
 
     chapterSpeaking =
-        false;
+        true;
 
 
     chapterPaused =
@@ -6253,92 +6393,256 @@ if(
 
 
     updateChapterStatus(
-        "Finished"
+        "Playing"
     );
 
 
-    return;
+    /*
+    Start at beginning,
+    exactly like original.
+    */
+
+    speakChapterLines(
+        0,
+        "Narrator"
+    );
 
 }
 
 
-const line =
-    chapterLines[
-        chapterLineIndex
-    ];
+/* =================================
+READ LINES
+MATCH ORIGINAL CHARACTER LOGIC
+================================= */
+
+function speakChapterLines(
+    index,
+    character
+){
+
+    if(
+        !chapterSpeaking ||
+        index >= chapterLines.length
+    ){
+
+        chapterSpeaking =
+            false;
 
 
-highlightChapterLine(
-    chapterLineIndex
-);
+        chapterPaused =
+            false;
 
 
-const utterance =
-    new SpeechSynthesisUtterance(
-        line.text
+        updateChapterStatus(
+            "Finished"
+        );
+
+
+        updateChapterProgress(
+            chapterLines.length,
+            chapterLines.length
+        );
+
+
+        return;
+
+    }
+
+
+    const rawLine =
+        chapterLines[index];
+
+
+    const line =
+        rawLine.trim();
+
+
+    /*
+    Blank lines do not create speech.
+    */
+
+    if(!line){
+
+        speakChapterLines(
+            index + 1,
+            character
+        );
+
+        return;
+
+    }
+
+
+    /*
+    CHARACTER TAG
+
+    This changes the active voice
+    but DOES NOT speak the tag.
+
+    This is the key behavior from
+    the original Archive page.
+    */
+
+    const tag =
+        line.match(
+            /^\[(.*?)\]/
+        );
+
+
+    if(tag){
+
+        character =
+            tag[1].trim();
+
+
+        speakChapterLines(
+            index + 1,
+            character
+        );
+
+
+        return;
+
+    }
+
+
+    /*
+    Highlight current line.
+    */
+
+    highlightChapterLine(
+        index
     );
 
 
-const voice =
-    findChapterVoice(
-        line.character
+    /*
+    Progress bar
+    */
+
+    updateChapterProgress(
+        index,
+        chapterLines.length
     );
 
 
-if(voice){
+    /*
+    Create speech.
+    */
 
-    utterance.voice =
-        voice;
-
-}
-
-
-utterance.pitch =
-    chapterSettings.pitch;
+    const utterance =
+        new SpeechSynthesisUtterance(
+            line
+        );
 
 
-utterance.rate =
-    chapterSettings.rate *
-    chapterSettings.speed;
+    const voice =
+        selectChapterVoice(
+            character
+        );
 
 
-utterance.volume =
-    chapterSettings.volume;
+    if(voice){
+
+        utterance.voice =
+            voice;
+
+    }
 
 
-utterance.onstart =
+    /*
+    Get voice settings exactly
+    like original Archive page.
+    */
+
+    let settings =
+        chapterVoices[
+            character
+        ];
+
+
+    /*
+    If API uses an array,
+    find matching character.
+    */
+
+    if(
+        Array.isArray(
+            chapterVoices
+        )
+    ){
+
+        settings =
+            chapterVoices.find(
+                item =>
+                    String(
+                        item.character ||
+                        item.name ||
+                        ""
+                    ).toLowerCase()
+                    ===
+                    String(
+                        character
+                    ).toLowerCase()
+            );
+
+    }
+
+
+    const configured =
+        settings?.settings || {};
+
+
+    utterance.pitch =
+        configured.pitch || 1;
+
+
+    utterance.rate =
+        (configured.rate || 1) *
+        Number(
+            chapterSettings.speed || 1
+        );
+
+
+    utterance.volume =
+        configured.volume || 1;
+
+
+    updateChapterStatus(
+        "Speaking: " +
+        character
+    );
+
+
+    utterance.onstart =
     function(){
 
         updateChapterStatus(
-
             "Speaking: " +
-            (
-                line.character ||
-                "Narrator"
-            )
-
+            character
         );
 
     };
 
 
-utterance.onend =
+    utterance.onend =
     function(){
 
         if(!chapterSpeaking){
+
             return;
+
         }
 
 
-        chapterLineIndex++;
-
-
-        speakChapterLine();
+        speakChapterLines(
+            index + 1,
+            character
+        );
 
     };
 
 
-utterance.onerror =
+    utterance.onerror =
     function(error){
 
         console.error(
@@ -6351,82 +6655,68 @@ utterance.onerror =
             chapterSpeaking
         ){
 
-            chapterLineIndex++;
-
-
-            speakChapterLine();
+            speakChapterLines(
+                index + 1,
+                character
+            );
 
         }
 
     };
 
 
-speechSynthesis.speak(
-    utterance
-);
-
+    speechSynthesis.speak(
+        utterance
+    );
 
 }
 
+
 /* =================================
-PAUSE
+PAUSE / RESUME
+MATCH ORIGINAL
 ================================= */
 
 function pauseChapter(){
 
+    if(
+        speechSynthesis.paused
+    ){
 
-if(
-    speechSynthesis.speaking
-){
-
-    speechSynthesis.pause();
-
-    chapterPaused =
-        true;
-
-    updateChapterStatus(
-        "Paused"
-    );
-
-}
+        speechSynthesis.resume();
 
 
-}
-
-/* =================================
-RESUME
-================================= */
-
-function resumeChapter(){
+        chapterPaused =
+            false;
 
 
-if(
-    chapterPaused
-){
+        chapterSpeaking =
+            true;
 
-    speechSynthesis.resume();
 
-    chapterPaused =
-        false;
+        updateChapterStatus(
+            "Playing"
+        );
 
-    chapterSpeaking =
-        true;
 
-    updateChapterStatus(
-        "Playing"
-    );
+    }
+    else{
 
-}
-else if(
-    !speechSynthesis.speaking
-){
+        speechSynthesis.pause();
 
-    speakChapter();
+
+        chapterPaused =
+            true;
+
+
+        updateChapterStatus(
+            "Paused"
+        );
+
+    }
 
 }
 
-
-}
 
 /* =================================
 STOP
@@ -6434,31 +6724,26 @@ STOP
 
 function stopChapterSpeech(){
 
-
-speechSynthesis.cancel();
-
-
-chapterSpeaking =
-    false;
+    speechSynthesis.cancel();
 
 
-chapterPaused =
-    false;
+    chapterSpeaking =
+        false;
 
 
-chapterLineIndex =
-    0;
+    chapterPaused =
+        false;
 
 
-clearChapterHighlight();
+    clearChapterHighlight();
 
 
-updateChapterStatus(
-    "Stopped"
-);
-
+    updateChapterStatus(
+        "Stopped"
+    );
 
 }
+
 
 /* =================================
 HIGHLIGHT
@@ -6466,37 +6751,38 @@ HIGHLIGHT
 
 function highlightChapterLine(index){
 
+    clearChapterHighlight();
 
-clearChapterHighlight();
+
+    const element =
+        document.getElementById(
+            "chapterLine-" +
+            index
+        );
 
 
-const element =
-    document.getElementById(
-        "chapterLine-" +
-        index
+    if(!element){
+
+        return;
+
+    }
+
+
+    element.classList.add(
+        "active"
     );
 
 
-if(!element){
-    return;
-}
+    element.scrollIntoView({
 
+        behavior:"smooth",
 
-element.classList.add(
-    "active"
-);
+        block:"center"
 
-
-element.scrollIntoView({
-
-    behavior:"smooth",
-
-    block:"center"
-
-});
-
+    });
 
 }
+
 
 /* =================================
 CLEAR HIGHLIGHT
@@ -6504,45 +6790,97 @@ CLEAR HIGHLIGHT
 
 function clearChapterHighlight(){
 
-
-document
-    .querySelectorAll(
-        ".chapterLine.active"
-    )
-    .forEach(
-        element =>
-            element.classList.remove(
-                "active"
-            )
-    );
-
+    document
+        .querySelectorAll(
+            ".chapterLine.active"
+        )
+        .forEach(
+            element =>
+                element.classList.remove(
+                    "active"
+                )
+        );
 
 }
+
+
+/* =================================
+PROGRESS
+================================= */
+
+function updateChapterProgress(
+    index,
+    total
+){
+
+    const bar =
+        document.getElementById(
+            "chapterProgressBar"
+        );
+
+
+    if(!bar){
+
+        return;
+
+    }
+
+
+    if(!total){
+
+        bar.style.width =
+            "0%";
+
+        return;
+
+    }
+
+
+    const percent =
+        Math.min(
+            100,
+            Math.max(
+                0,
+                (
+                    index /
+                    Math.max(
+                        1,
+                        total - 1
+                    )
+                ) * 100
+            )
+        );
+
+
+    bar.style.width =
+        percent + "%";
+
+}
+
 
 /* =================================
 STATUS
 ================================= */
 
 function updateChapterStatus(
-text
+    text
 ){
 
+    const status =
+        document.getElementById(
+            "chapterStatus"
+        );
 
-const status =
-    document.getElementById(
-        "chapterStatus"
-    );
 
+    if(status){
 
-if(status){
+        status.innerText =
+            text;
 
-    status.innerText =
-        text;
-
-}
-
+    }
 
 }
+
 
 /* =================================
 CLOSE CHAPTER
@@ -6550,64 +6888,29 @@ CLOSE CHAPTER
 
 function closeChapter(){
 
+    stopChapterSpeech();
 
-stopChapterSpeech();
 
-
-document.getElementById(
-    "chapterModal"
-).style.display =
-    "none";
-
+    document.getElementById(
+        "chapterModal"
+    ).style.display =
+        "none";
 
 }
+
 
 /* =================================
 CLICK OUTSIDE
 ================================= */
 
 document.getElementById(
-"chapterModal"
+    "chapterModal"
 ).addEventListener(
-"click",
-function(e){
-
-
-    if(
-        e.target === this
-    ){
-
-        closeChapter();
-
-    }
-
-}
-
-
-);
-
-/* =================================
-ESC KEY
-================================= */
-
-document.addEventListener(
-"keydown",
-function(e){
-
-
-    if(
-        e.key === "Escape"
-    ){
-
-        const modal =
-            document.getElementById(
-                "chapterModal"
-            );
-
+    "click",
+    function(e){
 
         if(
-            modal.style.display ===
-            "flex"
+            e.target === this
         ){
 
             closeChapter();
@@ -6615,10 +6918,39 @@ function(e){
         }
 
     }
+);
 
-}
+
+/* =================================
+ESC KEY
+================================= */
+
+document.addEventListener(
+    "keydown",
+    function(e){
+
+        if(
+            e.key === "Escape"
+        ){
+
+            const modal =
+                document.getElementById(
+                    "chapterModal"
+                );
 
 
+            if(
+                modal.style.display ===
+                "flex"
+            ){
+
+                closeChapter();
+
+            }
+
+        }
+
+    }
 );
 
  
