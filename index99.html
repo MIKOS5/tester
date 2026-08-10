@@ -2814,7 +2814,6 @@ display:none;
 
     </div>
 
-
     <div id="chapterModalContent">
 
         Loading chapter...
@@ -2825,6 +2824,7 @@ display:none;
 
 
 </div>
+
 
 
  
@@ -2963,70 +2963,175 @@ const container =
     document.getElementById("newsStoryList");
 
 if(!container){
+    console.error("newsStoryList element not found");
     return;
 }
 
+container.innerHTML =
+    '<div class="newsStoryEmpty">Loading news...</div>';
 
 try{
 
+    const url =
+        NEWS_STORY_API +
+        "&t=" +
+        Date.now();
+
+    console.log("Loading News API:", url);
+
     const response =
-        await fetch(
-            NEWS_STORY_API
+        await fetch(url);
+
+    console.log(
+        "News API HTTP status:",
+        response.status
+    );
+
+    if(!response.ok){
+
+        throw new Error(
+            "HTTP " + response.status
         );
-
-    const data =
-        await response.json();
-
-
-    if(
-        data.status !== "success" ||
-        !Array.isArray(data.stories)
-    ){
-
-        container.innerHTML =
-            '<div class="newsStoryEmpty">No news stories</div>';
-
-        return;
 
     }
 
+    const text =
+        await response.text();
+
+    console.log(
+        "News API response:",
+        text
+    );
+
+    let data;
+
+    try{
+
+        data =
+            JSON.parse(text);
+
+    }
+    catch(jsonError){
+
+        console.error(
+            "News API did not return JSON:",
+            text
+        );
+
+        throw new Error(
+            "News API returned invalid JSON"
+        );
+
+    }
+
+    console.log(
+        "Parsed News API:",
+        data
+    );
+
+    /*
+    =================================
+    FIND STORIES
+    =================================
+    */
+
+    let stories = [];
+
+    if(Array.isArray(data.stories)){
+
+        stories =
+            data.stories;
+
+    }
+    else if(
+        data.data &&
+        Array.isArray(data.data.stories)
+    ){
+
+        stories =
+            data.data.stories;
+
+    }
+    else if(Array.isArray(data)){
+
+        stories =
+            data;
+
+    }
+
+    /*
+    =================================
+    FILTER NEWS STORIES
+    =================================
+    */
 
     const newsStories =
-        data.stories.filter(story => {
+        stories.filter(story => {
 
-            return String(
-                story.storyId || ""
-            ).startsWith("News-");
+            const id =
+                String(
+                    story.storyId ||
+                    story.id ||
+                    story.ID ||
+                    ""
+                );
+
+            return id.startsWith("News-");
 
         });
 
+    console.log(
+        "News stories found:",
+        newsStories.length
+    );
 
-    if(newsStories.length === 0){
+    /*
+    =================================
+    NOTHING FOUND
+    =================================
+    */
 
-        container.innerHTML =
-            '<div class="newsStoryEmpty">No news stories</div>';
+    if(!newsStories.length){
+
+        container.innerHTML = `
+            <div class="newsStoryEmpty">
+                No news stories found.
+            </div>
+        `;
 
         return;
 
     }
 
+    /*
+    =================================
+    DISPLAY STORIES
+    =================================
+    */
 
     container.innerHTML =
         newsStories.map(story => {
 
-            const id =
+            const storyId =
                 String(
-                    story.storyId || ""
+                    story.storyId ||
+                    story.id ||
+                    story.ID ||
+                    ""
                 );
-
 
             return `
 
                 <div
                     class="newsStoryItem"
-                    onclick="openChapter('${escapeChapterId(id)}')">
+                    onclick="openChapter('${storyId.replace(/'/g,"\\'")}')"
+                    style="cursor:pointer;"
+                >
 
-                    📖 ${escapeHTML(id)}
+                    📖
+                    <span>
+                        ${storyId}
+                    </span>
 
                 </div>
 
@@ -3034,23 +3139,25 @@ try{
 
         }).join("");
 
-
 }
 catch(error){
 
     console.error(
-        "NEWS STORY ERROR",
+        "NEWS STORY ERROR:",
         error
     );
 
-
-    container.innerHTML =
-        '<div class="newsStoryEmpty">News unavailable</div>';
+    container.innerHTML = `
+        <div class="newsStoryEmpty">
+            News unavailable
+        </div>
+    `;
 
 }
 
 
 }
+
 
  
 async function loadGuide() {
