@@ -5173,7 +5173,1346 @@ function loadZipWeather(){
 
 }
 
+/* =================================
+OBVYRIS NEWS CHAPTER PLAYER
+================================= */
 
+const STORY_API_BASE =
+NEWS_STORY_API.replace(
+"?action=stories",
+""
+);
+
+const STORY_API =
+STORY_API_BASE +
+"?action=story";
+
+const VOICE_API =
+STORY_API_BASE +
+"?action=voices";
+
+let currentChapter = null;
+
+let chapterLines = [];
+
+let chapterLineIndex = 0;
+
+let chapterSpeaking = false;
+
+let chapterPaused = false;
+
+let chapterVoices = [];
+
+let chapterSettings = {
+
+
+pitch:1,
+
+rate:1,
+
+volume:1,
+
+speed:1
+
+
+};
+
+/* =================================
+ESCAPE HTML
+================================= */
+
+function escapeHTML(value){
+
+
+return String(value ?? "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+
+
+}
+
+function escapeChapterId(value){
+
+
+return String(value ?? "")
+    .replace(/\\/g,"\\\\")
+    .replace(/'/g,"\\'");
+
+
+}
+
+/* =================================
+OPEN CHAPTER
+================================= */
+
+async function openChapter(storyId){
+
+
+const modal =
+    document.getElementById(
+        "chapterModal"
+    );
+
+const content =
+    document.getElementById(
+        "chapterModalContent"
+    );
+
+const title =
+    document.getElementById(
+        "chapterModalTitle"
+    );
+
+
+stopChapterSpeech();
+
+
+modal.style.display =
+    "flex";
+
+
+title.innerText =
+    "📖 " + storyId;
+
+
+content.innerHTML = `
+
+    <div style="
+        padding:30px;
+        text-align:center;
+        color:#93a4bb;
+    ">
+
+        Loading chapter...
+
+    </div>
+
+`;
+
+
+try{
+
+    const response =
+        await fetch(
+
+            STORY_API +
+            "&id=" +
+            encodeURIComponent(storyId) +
+            "&t=" +
+            Date.now()
+
+        );
+
+
+    const data =
+        await response.json();
+
+
+    console.log(
+        "Chapter:",
+        data
+    );
+
+
+    if(
+        !data ||
+        data.status !== "success"
+    ){
+
+        throw new Error(
+            "Chapter unavailable"
+        );
+
+    }
+
+
+    /*
+    Existing storyteller API
+    returns chapters.
+    */
+
+    let chapter =
+        null;
+
+
+    if(
+        Array.isArray(data.chapters)
+    ){
+
+        chapter =
+            data.chapters.find(
+                item =>
+                    String(
+                        item.storyId ||
+                        item.id ||
+                        ""
+                    ) ===
+                    String(storyId)
+            );
+
+
+        /*
+        If the API returns a
+        single chapter as the
+        first item.
+        */
+
+        if(
+            !chapter &&
+            data.chapters.length === 1
+        ){
+
+            chapter =
+                data.chapters[0];
+
+        }
+
+    }
+
+
+    /*
+    Some API versions return
+    the chapter directly.
+    */
+
+    if(!chapter){
+
+        if(
+            data.story ||
+            data.title
+        ){
+
+            chapter = data;
+
+        }
+
+    }
+
+
+    if(!chapter){
+
+        throw new Error(
+            "Chapter not found"
+        );
+
+    }
+
+
+    currentChapter =
+        chapter;
+
+
+    renderChapter(
+        chapter
+    );
+
+
+    loadChapterVoices();
+
+
+}
+catch(error){
+
+    console.error(
+        "CHAPTER ERROR:",
+        error
+    );
+
+
+    content.innerHTML = `
+
+        <div style="
+            padding:30px;
+            text-align:center;
+        ">
+
+            ❌ Unable to load chapter.
+
+            <br><br>
+
+            <span style="
+                color:#93a4bb;
+                font-size:12px;
+            ">
+
+                ${escapeHTML(
+                    error.message
+                )}
+
+            </span>
+
+        </div>
+
+    `;
+
+}
+
+
+}
+
+/* =================================
+RENDER CHAPTER
+================================= */
+
+function renderChapter(chapter){
+
+
+const title =
+    chapter.title ||
+    chapter.name ||
+    chapter.storyId ||
+    "Chapter";
+
+
+document.getElementById(
+    "chapterModalTitle"
+).innerText =
+    "📖 " + title;
+
+
+const story =
+    String(
+        chapter.story ||
+        chapter.text ||
+        chapter.content ||
+        ""
+    );
+
+
+/*
+Parse the same
+[Character] format
+used by the storyteller.
+*/
+
+chapterLines =
+    parseChapterLines(
+        story
+    );
+
+
+chapterLineIndex =
+    0;
+
+
+const content =
+    document.getElementById(
+        "chapterModalContent"
+    );
+
+
+let html = `
+
+    <div class="chapterPlayback">
+
+
+        <div class="chapterMeta">
+
+            <div style="
+                font-size:18px;
+                font-weight:900;
+                color:white;
+            ">
+
+                ${escapeHTML(title)}
+
+            </div>
+
+
+            ${
+                chapter.storyId
+                ?
+                `<div style="
+                    margin-top:5px;
+                    color:#6ec2ff;
+                    font-size:12px;
+                ">
+                    ${escapeHTML(
+                        chapter.storyId
+                    )}
+                </div>`
+                :
+                ""
+            }
+
+        </div>
+
+
+        <div class="chapterStory"
+             id="chapterStory">
+
+`;
+
+
+chapterLines.forEach(
+    (line,index) => {
+
+        html += `
+
+            <div
+                class="chapterLine"
+                id="chapterLine-${index}">
+
+                ${
+                    line.character
+                    ?
+                    `<span class="chapterCharacter">
+                        [${escapeHTML(
+                            line.character
+                        )}]
+                    </span>`
+                    :
+                    ""
+                }
+
+                <span class="chapterText">
+
+                    ${escapeHTML(
+                        line.text
+                    )}
+
+                </span>
+
+            </div>
+
+        `;
+
+    }
+);
+
+
+html += `
+
+        </div>
+
+
+        <div class="chapterStatus"
+             id="chapterStatus">
+
+            Ready
+
+        </div>
+
+
+        <div class="chapterControls">
+
+            <button
+                type="button"
+                onclick="speakChapter()">
+
+                ▶ Play
+
+            </button>
+
+
+            <button
+                type="button"
+                onclick="pauseChapter()">
+
+                ⏸ Pause
+
+            </button>
+
+
+            <button
+                type="button"
+                onclick="resumeChapter()">
+
+                ▶ Resume
+
+            </button>
+
+
+            <button
+                type="button"
+                onclick="stopChapterSpeech()">
+
+                ■ Stop
+
+            </button>
+
+        </div>
+
+
+        <div class="chapterVoice">
+
+            <div>
+
+                <label>
+                    Speech Speed
+                </label>
+
+                <input
+                    id="chapterSpeed"
+                    type="range"
+                    min=".5"
+                    max="2"
+                    step=".05"
+                    value="1"
+                    oninput="
+                        chapterSettings.speed =
+                        parseFloat(this.value)
+                    ">
+
+            </div>
+
+
+            <div>
+
+                <label>
+                    Voice
+                </label>
+
+                <select
+                    id="chapterVoiceSelect">
+
+                    <option value="">
+                        Automatic voice
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+    </div>
+
+`;
+
+
+content.innerHTML =
+    html;
+
+
+}
+
+/* =================================
+PARSE CHAPTER
+================================= */
+
+function parseChapterLines(story){
+
+
+const rawLines =
+    story
+    .replace(/\r/g,"")
+    .split("\n");
+
+
+const lines = [];
+
+
+rawLines.forEach(
+    raw => {
+
+        const text =
+            raw.trim();
+
+
+        if(!text){
+            return;
+        }
+
+
+        const match =
+            text.match(
+                /^\[([^\]]+)\]\s*(.*)$/
+            );
+
+
+        if(match){
+
+            lines.push({
+
+                character:
+                    match[1].trim(),
+
+                text:
+                    match[2].trim()
+
+            });
+
+        }
+        else{
+
+            lines.push({
+
+                character:
+                    "Narrator",
+
+                text:
+                    text
+
+            });
+
+        }
+
+    }
+);
+
+
+return lines;
+
+
+}
+
+/* =================================
+LOAD VOICES
+================================= */
+
+async function loadChapterVoices(){
+
+
+const select =
+    document.getElementById(
+        "chapterVoiceSelect"
+    );
+
+
+if(!select){
+    return;
+}
+
+
+try{
+
+    const response =
+        await fetch(
+            VOICE_API +
+            "&t=" +
+            Date.now()
+        );
+
+
+    const data =
+        await response.json();
+
+
+    console.log(
+        "Chapter voices:",
+        data
+    );
+
+
+    let voices =
+        [];
+
+
+    if(
+        Array.isArray(data)
+    ){
+
+        voices =
+            data;
+
+    }
+    else if(
+        Array.isArray(data.voices)
+    ){
+
+        voices =
+            data.voices;
+
+    }
+
+
+    chapterVoices =
+        voices;
+
+
+    select.innerHTML = `
+
+        <option value="">
+            Automatic voice
+        </option>
+
+    `;
+
+
+    voices.forEach(
+        voice => {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+
+            const name =
+                voice.name ||
+                voice.voice ||
+                voice.id ||
+                "";
+
+
+            option.value =
+                name;
+
+
+            option.textContent =
+                name;
+
+
+            select.appendChild(
+                option
+            );
+
+        }
+    );
+
+
+}
+catch(error){
+
+    console.error(
+        "VOICE API ERROR:",
+        error
+    );
+
+}
+
+
+}
+
+/* =================================
+FIND BROWSER VOICES
+================================= */
+
+function getBrowserVoices(){
+
+
+return speechSynthesis
+    .getVoices();
+
+
+}
+
+speechSynthesis.onvoiceschanged =
+function(){
+
+
+    getBrowserVoices();
+
+};
+
+
+/* =================================
+FIND VOICE
+================================= */
+
+function findChapterVoice(
+character
+){
+
+
+const selected =
+    document.getElementById(
+        "chapterVoiceSelect"
+    );
+
+
+const selectedName =
+    selected
+    ? selected.value
+    : "";
+
+
+const browserVoices =
+    getBrowserVoices();
+
+
+/*
+Manual voice selection
+*/
+
+if(selectedName){
+
+    const exact =
+        browserVoices.find(
+            voice =>
+                voice.name ===
+                selectedName
+        );
+
+
+    if(exact){
+
+        return exact;
+
+    }
+
+}
+
+
+/*
+Match configured
+character voice.
+*/
+
+const configured =
+    chapterVoices.find(
+        voice => {
+
+            const voiceCharacter =
+                voice.character ||
+                voice.name ||
+                voice.voice ||
+                "";
+
+
+            return String(
+                voiceCharacter
+            ).toLowerCase() ===
+            String(
+                character || ""
+            ).toLowerCase();
+
+        }
+    );
+
+
+if(configured){
+
+    const configuredName =
+        configured.voice ||
+        configured.name ||
+        "";
+
+
+    const exact =
+        browserVoices.find(
+            voice =>
+                voice.name ===
+                configuredName
+        );
+
+
+    if(exact){
+
+        return exact;
+
+    }
+
+
+    const partial =
+        browserVoices.find(
+            voice =>
+                voice.name
+                .toLowerCase()
+                .includes(
+                    String(
+                        configuredName
+                    ).toLowerCase()
+                )
+        );
+
+
+    if(partial){
+
+        return partial;
+
+    }
+
+}
+
+
+/*
+Character/type fallback.
+*/
+
+const lower =
+    String(
+        character || ""
+    ).toLowerCase();
+
+
+if(
+    lower.includes("female") ||
+    lower.includes("woman")
+){
+
+    const female =
+        browserVoices.find(
+            voice =>
+                /female|samantha|zira|karen|susan|aria/i
+                .test(
+                    voice.name
+                )
+        );
+
+
+    if(female){
+        return female;
+    }
+
+}
+
+
+if(
+    lower.includes("male") ||
+    lower.includes("man")
+){
+
+    const male =
+        browserVoices.find(
+            voice =>
+                /male|david|daniel|alex/i
+                .test(
+                    voice.name
+                )
+        );
+
+
+    if(male){
+        return male;
+    }
+
+}
+
+
+return browserVoices.find(
+    voice =>
+        voice.lang &&
+        voice.lang.startsWith("en")
+) ||
+browserVoices[0] ||
+null;
+
+
+}
+
+/* =================================
+SPEAK CHAPTER
+================================= */
+
+function speakChapter(){
+
+
+if(!currentChapter){
+    return;
+}
+
+
+speechSynthesis.cancel();
+
+
+chapterLineIndex =
+    0;
+
+
+chapterSpeaking =
+    true;
+
+
+chapterPaused =
+    false;
+
+
+updateChapterStatus(
+    "Playing"
+);
+
+
+speakChapterLine();
+
+
+}
+
+/* =================================
+SPEAK CURRENT LINE
+================================= */
+
+function speakChapterLine(){
+
+
+if(
+    !chapterSpeaking ||
+    chapterLineIndex >=
+    chapterLines.length
+){
+
+    chapterSpeaking =
+        false;
+
+
+    chapterPaused =
+        false;
+
+
+    updateChapterStatus(
+        "Finished"
+    );
+
+
+    return;
+
+}
+
+
+const line =
+    chapterLines[
+        chapterLineIndex
+    ];
+
+
+highlightChapterLine(
+    chapterLineIndex
+);
+
+
+const utterance =
+    new SpeechSynthesisUtterance(
+        line.text
+    );
+
+
+const voice =
+    findChapterVoice(
+        line.character
+    );
+
+
+if(voice){
+
+    utterance.voice =
+        voice;
+
+}
+
+
+utterance.pitch =
+    chapterSettings.pitch;
+
+
+utterance.rate =
+    chapterSettings.rate *
+    chapterSettings.speed;
+
+
+utterance.volume =
+    chapterSettings.volume;
+
+
+utterance.onstart =
+    function(){
+
+        updateChapterStatus(
+
+            "Speaking: " +
+            (
+                line.character ||
+                "Narrator"
+            )
+
+        );
+
+    };
+
+
+utterance.onend =
+    function(){
+
+        if(!chapterSpeaking){
+            return;
+        }
+
+
+        chapterLineIndex++;
+
+
+        speakChapterLine();
+
+    };
+
+
+utterance.onerror =
+    function(error){
+
+        console.error(
+            "TTS error:",
+            error
+        );
+
+
+        if(
+            chapterSpeaking
+        ){
+
+            chapterLineIndex++;
+
+
+            speakChapterLine();
+
+        }
+
+    };
+
+
+speechSynthesis.speak(
+    utterance
+);
+
+
+}
+
+/* =================================
+PAUSE
+================================= */
+
+function pauseChapter(){
+
+
+if(
+    speechSynthesis.speaking
+){
+
+    speechSynthesis.pause();
+
+    chapterPaused =
+        true;
+
+    updateChapterStatus(
+        "Paused"
+    );
+
+}
+
+
+}
+
+/* =================================
+RESUME
+================================= */
+
+function resumeChapter(){
+
+
+if(
+    chapterPaused
+){
+
+    speechSynthesis.resume();
+
+    chapterPaused =
+        false;
+
+    chapterSpeaking =
+        true;
+
+    updateChapterStatus(
+        "Playing"
+    );
+
+}
+else if(
+    !speechSynthesis.speaking
+){
+
+    speakChapter();
+
+}
+
+
+}
+
+/* =================================
+STOP
+================================= */
+
+function stopChapterSpeech(){
+
+
+speechSynthesis.cancel();
+
+
+chapterSpeaking =
+    false;
+
+
+chapterPaused =
+    false;
+
+
+chapterLineIndex =
+    0;
+
+
+clearChapterHighlight();
+
+
+updateChapterStatus(
+    "Stopped"
+);
+
+
+}
+
+/* =================================
+HIGHLIGHT
+================================= */
+
+function highlightChapterLine(index){
+
+
+clearChapterHighlight();
+
+
+const element =
+    document.getElementById(
+        "chapterLine-" +
+        index
+    );
+
+
+if(!element){
+    return;
+}
+
+
+element.classList.add(
+    "active"
+);
+
+
+element.scrollIntoView({
+
+    behavior:"smooth",
+
+    block:"center"
+
+});
+
+
+}
+
+/* =================================
+CLEAR HIGHLIGHT
+================================= */
+
+function clearChapterHighlight(){
+
+
+document
+    .querySelectorAll(
+        ".chapterLine.active"
+    )
+    .forEach(
+        element =>
+            element.classList.remove(
+                "active"
+            )
+    );
+
+
+}
+
+/* =================================
+STATUS
+================================= */
+
+function updateChapterStatus(
+text
+){
+
+
+const status =
+    document.getElementById(
+        "chapterStatus"
+    );
+
+
+if(status){
+
+    status.innerText =
+        text;
+
+}
+
+
+}
+
+/* =================================
+CLOSE CHAPTER
+================================= */
+
+function closeChapter(){
+
+
+stopChapterSpeech();
+
+
+document.getElementById(
+    "chapterModal"
+).style.display =
+    "none";
+
+
+}
+
+/* =================================
+CLICK OUTSIDE
+================================= */
+
+document.getElementById(
+"chapterModal"
+).addEventListener(
+"click",
+function(e){
+
+
+    if(
+        e.target === this
+    ){
+
+        closeChapter();
+
+    }
+
+}
+
+
+);
+
+/* =================================
+ESC KEY
+================================= */
+
+document.addEventListener(
+"keydown",
+function(e){
+
+
+    if(
+        e.key === "Escape"
+    ){
+
+        const modal =
+            document.getElementById(
+                "chapterModal"
+            );
+
+
+        if(
+            modal.style.display ===
+            "flex"
+        ){
+
+            closeChapter();
+
+        }
+
+    }
+
+}
+
+
+);
+
+ 
 /* =================================
    USE GPS LOCATION
 ================================= */
