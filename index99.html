@@ -1973,6 +1973,32 @@ repeat(auto-fit,minmax(360px,1fr));
 
 }
 
+.newsStoryList{
+margin-top:15px;
+display:flex;
+flex-direction:column;
+gap:6px;
+}
+
+.newsStoryItem{
+padding:8px 10px;
+background:rgba(255,255,255,.06);
+border:1px solid rgba(255,255,255,.12);
+border-radius:6px;
+color:#9fd0ff;
+font-family:Arial,sans-serif;
+font-size:13px;
+}
+
+.newsStoryItem:hover{
+border-color:#2793ff;
+background:rgba(39,147,255,.12);
+}
+
+.newsStoryEmpty{
+color:#777;
+font-size:13px;
+}
 </style>
 
 </head>
@@ -2296,9 +2322,23 @@ id="videoOpenButton">
 </div>
 
 
+<div class="hubCard newsCard">
+<div class="hubCardIcon">
+    📰
+</div>
+
 <h2>
-News & Chat Obvyris
+    News Obvyris
 </h2>
+
+<p>
+    Latest Obvyris news reports.
+</p>
+
+<div id="newsStoryList">
+    Loading...
+</div>
+</div>
 
 
 <div class="description">
@@ -2649,7 +2689,84 @@ const GAMES_API =
 let featuredGames = [];
 let gameIndex = 0;
 let gameTimer = null;
-    
+
+
+const NEWS_STORY_API =
+"https://script.google.com/macros/s/AKfycbwR9_-IIcd6yiJuQsrF9uDexBLTbYLw6sw2NlnFEGIlj83a6mY-K3x_F1czdIw3SEjX/exec?action=stories";
+
+async function loadHubNewsStories(){
+
+const container =
+    document.getElementById("newsStoryList");
+
+if(!container){
+    return;
+}
+
+try{
+
+    const response =
+        await fetch(NEWS_STORY_API);
+
+    const data =
+        await response.json();
+
+    if(
+        data.status !== "success" ||
+        !Array.isArray(data.stories)
+    ){
+
+        container.innerHTML =
+            '<div class="newsStoryEmpty">No news stories</div>';
+
+        return;
+    }
+
+    const newsStories =
+        data.stories.filter(story => {
+
+            return String(
+                story.storyId || ""
+            ).startsWith("News-");
+
+        });
+
+    if(newsStories.length === 0){
+
+        container.innerHTML =
+            '<div class="newsStoryEmpty">No news stories</div>';
+
+        return;
+    }
+
+    container.innerHTML =
+        newsStories.map(story => {
+
+            return `
+                <div class="newsStoryItem">
+                    ${story.storyId}
+                </div>
+            `;
+
+        }).join("");
+
+}
+catch(error){
+
+    console.error(
+        "NEWS STORY ERROR",
+        error
+    );
+
+    container.innerHTML =
+        '<div class="newsStoryEmpty">News unavailable</div>';
+
+}
+
+}
+
+loadHubNewsStories();
+ 
 async function loadGuide() {
 
     // ==========================
