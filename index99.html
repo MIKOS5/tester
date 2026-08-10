@@ -1999,6 +1999,230 @@ background:rgba(39,147,255,.12);
 color:#777;
 font-size:13px;
 }
+
+.newsStoryItem{
+margin-top:6px;
+padding:10px 12px;
+background:rgba(255,255,255,.06);
+border:1px solid rgba(255,255,255,.12);
+border-radius:8px;
+color:#9fd0ff;
+font-family:Arial,sans-serif;
+font-size:13px;
+font-weight:700;
+cursor:pointer;
+transition:.2s;
+}
+
+.newsStoryItem:hover{
+border-color:#2793ff;
+background:rgba(39,147,255,.15);
+color:white;
+transform:translateX(3px);
+}
+
+.newsStoryItem:active{
+transform:scale(.98);
+}
+
+.newsStoryEmpty{
+color:#777;
+font-size:13px;
+padding:8px;
+}
+
+/* =================================
+NEWS CHAPTER PLAYBACK
+================================= */
+
+.chapterPlayback{
+
+display:flex;
+
+flex-direction:column;
+
+gap:15px;
+
+}
+
+.chapterMeta{
+
+padding:14px;
+
+background:#0b1220;
+
+border:1px solid var(--line);
+
+border-radius:14px;
+
+}
+
+.chapterStory{
+
+padding:18px;
+
+background:#080f1a;
+
+border:1px solid var(--line);
+
+border-radius:14px;
+
+font-size:15px;
+
+line-height:1.8;
+
+color:#dbeafe;
+
+max-height:48vh;
+
+overflow-y:auto;
+
+white-space:normal;
+
+}
+
+.chapterLine{
+
+padding:6px 10px;
+
+margin:2px 0;
+
+border-radius:8px;
+
+transition:.2s;
+
+}
+
+.chapterLine.active{
+
+background:rgba(39,147,255,.22);
+
+border-left:3px solid var(--blue);
+
+color:white;
+
+box-shadow:0 0 15px rgba(39,147,255,.12);
+
+}
+
+.chapterCharacter{
+
+display:block;
+
+font-size:11px;
+
+font-weight:900;
+
+color:#6ec2ff;
+
+letter-spacing:.5px;
+
+margin-bottom:2px;
+
+}
+
+.chapterText{
+
+display:block;
+
+}
+
+.chapterControls{
+
+display:flex;
+
+flex-wrap:wrap;
+
+gap:8px;
+
+}
+
+.chapterControls button{
+
+width:auto;
+
+margin:0;
+
+}
+
+.chapterStatus{
+
+font-size:12px;
+
+color:#93a4bb;
+
+padding:4px 2px;
+
+}
+
+.chapterVoice{
+
+display:grid;
+
+grid-template-columns:
+repeat(2,minmax(0,1fr));
+
+gap:10px;
+
+}
+
+.chapterVoice label{
+
+font-size:11px;
+
+font-weight:800;
+
+color:#93a4bb;
+
+}
+
+.chapterVoice select,
+.chapterVoice input{
+
+width:100%;
+
+margin-top:5px;
+
+padding:9px;
+
+border-radius:9px;
+
+border:1px solid var(--line);
+
+background:#0b1220;
+
+color:white;
+
+}
+
+@media(max-width:700px){
+
+.chapterVoice{
+
+grid-template-columns:1fr;
+
+}
+
+.chapterStory{
+
+max-height:52vh;
+
+font-size:14px;
+
+}
+
+.chapterControls button{
+
+flex:1;
+
+min-width:100px;
+
+}
+
+}
+
+
+ 
 </style>
 
 </head>
@@ -2566,6 +2790,44 @@ display:none;
 
 </div> <!-- CLOSE CONTAINER -->
 
+
+<!-- NEWS CHAPTER PLAYBACK POPUP -->
+
+<div id="chapterModal" class="modalOverlay">
+
+
+<div class="modalBox">
+
+    <div class="modalHeader">
+
+        <h2 id="chapterModalTitle">
+            📖 Chapter
+        </h2>
+
+        <button
+            class="closeModal"
+            onclick="closeChapter()">
+
+            ×
+
+        </button>
+
+    </div>
+
+
+    <div id="chapterModalContent">
+
+        Loading chapter...
+
+    </div>
+
+</div>
+
+
+</div>
+
+
+ 
 <!-- INFO POPUP -->
 
 <div id="platformModal" class="modalOverlay">
@@ -2696,6 +2958,7 @@ const NEWS_STORY_API =
 
 async function loadHubNewsStories(){
 
+
 const container =
     document.getElementById("newsStoryList");
 
@@ -2703,13 +2966,17 @@ if(!container){
     return;
 }
 
+
 try{
 
     const response =
-        await fetch(NEWS_STORY_API);
+        await fetch(
+            NEWS_STORY_API
+        );
 
     const data =
         await response.json();
+
 
     if(
         data.status !== "success" ||
@@ -2720,7 +2987,9 @@ try{
             '<div class="newsStoryEmpty">No news stories</div>';
 
         return;
+
     }
+
 
     const newsStories =
         data.stories.filter(story => {
@@ -2731,24 +3000,40 @@ try{
 
         });
 
+
     if(newsStories.length === 0){
 
         container.innerHTML =
             '<div class="newsStoryEmpty">No news stories</div>';
 
         return;
+
     }
+
 
     container.innerHTML =
         newsStories.map(story => {
 
+            const id =
+                String(
+                    story.storyId || ""
+                );
+
+
             return `
-                <div class="newsStoryItem">
-                    ${story.storyId}
+
+                <div
+                    class="newsStoryItem"
+                    onclick="openChapter('${escapeChapterId(id)}')">
+
+                    📖 ${escapeHTML(id)}
+
                 </div>
+
             `;
 
         }).join("");
+
 
 }
 catch(error){
@@ -2758,14 +3043,15 @@ catch(error){
         error
     );
 
+
     container.innerHTML =
         '<div class="newsStoryEmpty">News unavailable</div>';
 
 }
 
+
 }
 
-loadHubNewsStories();
  
 async function loadGuide() {
 
