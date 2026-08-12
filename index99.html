@@ -5377,7 +5377,112 @@ return String(value ?? "")
 /* ================================= 
 LATEST OBVYRIS NEWS 
 ================================= */ 
-async function loadLatestObvyrisNews(){ const box = document.getElementById( "latestObvyrisNews" ); if(!box){ console.error( "latestObvyrisNews element not found" ); return; } box.innerHTML = "Loading..."; try{ const response = await fetch( NEWS_STORY_API + "&t=" + Date.now() ); const data = await response.json(); console.log( "Latest Obvyris stories:", data ); if( !data || data.status !== "success" || !Array.isArray(data.stories) ){ throw new Error( "Invalid stories response" ); } const stories = data.stories .filter( story => story.status === "Published" ) .sort( (a,b) => new Date(b.timestamp) - new Date(a.timestamp) ) .slice(0,5); if(!stories.length){ box.innerHTML = "No published stories."; return; } box.innerHTML = stories.map( story => ` <div class="latestNewsStory" onclick="openChapter('${escapeChapterId(story.storyId)}')"> <div class="latestNewsTitle"> ${escapeHTML( story.title )} </div> <div class="latestNewsMeta">  ${story.chapter} </div> </div> ` ).join(""); } catch(error){
+async function loadLatestObvyrisNews() {
+
+const box = document.getElementById("latestObvyrisNews");
+
+if (!box) {
+    console.error("latestObvyrisNews element not found");
+    return;
+}
+
+box.innerHTML = "Loading...";
+
+try {
+
+    const response = await fetch(
+        NEWS_STORY_API + "&t=" + Date.now(),
+        {
+            cache: "no-store"
+        }
+    );
+
+    if (!response.ok) {
+        throw new Error(
+            "HTTP " + response.status
+        );
+    }
+
+    const data = await response.json();
+
+    console.log(
+        "Latest Obvyris stories:",
+        data
+    );
+
+    if (
+        !data ||
+        data.status !== "success" ||
+        !Array.isArray(data.stories)
+    ) {
+        throw new Error(
+            "Invalid stories response"
+        );
+    }
+
+    const stories = data.stories
+        .filter(function(story) {
+            return story &&
+                story.status === "Published";
+        })
+        .sort(function(a, b) {
+            return (
+                new Date(b.timestamp) -
+                new Date(a.timestamp)
+            );
+        })
+        .slice(0, 5);
+
+    if (!stories.length) {
+
+        box.innerHTML = `
+            <div style="
+                text-align:center;
+                padding:12px;
+                color:#93a4bb;
+            ">
+                No published stories.
+            </div>
+        `;
+
+        return;
+    }
+
+    box.innerHTML = stories.map(function(story) {
+
+        const storyId =
+            escapeChapterId(
+                story.storyId || ""
+            );
+
+        const title =
+            escapeHTML(
+                story.title || "Untitled Story"
+            );
+
+        const chapter =
+            escapeHTML(
+                story.chapter || ""
+            );
+
+        return `
+            <div
+                class="latestNewsStory"
+                onclick="openChapter('${storyId}')"
+            >
+                <div class="latestNewsTitle">
+                    ${title}
+                </div>
+
+                <div class="latestNewsMeta">
+                    ${chapter}
+                </div>
+            </div>
+        `;
+
+    }).join("");
+
+} catch (error) {
 
     console.error(
         "LATEST NEWS ERROR:",
@@ -5390,14 +5495,36 @@ async function loadLatestObvyrisNews(){ const box = document.getElementById( "la
             padding:12px;
             color:#93a4bb;
         ">
-            ⚠️ Obvyris News unavailable
+            <div style="
+                margin-bottom:10px;
+                color:#ff9b9b;
+            ">
+                ⚠️ Obvyris News unavailable
+            </div>
 
-            ${retryButton(
-                "loadLatestObvyrisNews",
-                "Retry News"
-            )}
+            ${typeof retryButton === "function"
+                ? retryButton(
+                    "loadLatestObvyrisNews",
+                    "Retry News"
+                )
+                : `
+                    <button
+                        type="button"
+                        onclick="loadLatestObvyrisNews()"
+                        style="
+                            padding:8px 14px;
+                            border:0;
+                            border-radius:8px;
+                            cursor:pointer;
+                        "
+                    >
+                        Retry News
+                    </button>
+                `
+            }
         </div>
     `;
+}
 
 }
 /* =================================
