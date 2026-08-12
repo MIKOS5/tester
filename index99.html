@@ -619,7 +619,47 @@ min-height:auto;
 
 }
 
+.retryButton{
 
+    width:auto;
+
+    margin:10px auto 0;
+
+    padding:9px 16px;
+
+    border-radius:10px;
+
+    border:1px solid rgba(39,147,255,.45);
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(39,147,255,.2),
+            rgba(24,105,217,.4)
+        );
+
+    color:white;
+
+    font-size:12px;
+
+    font-weight:800;
+
+    cursor:pointer;
+
+}
+
+.retryButton:hover{
+
+    border-color:var(--blue);
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(39,147,255,.3),
+            rgba(24,105,217,.55)
+        );
+
+}
 
 /* TAGS */
 
@@ -3275,6 +3315,19 @@ async function loadGuide() {
 
 }
 
+function retryButton(functionName, label = "Retry") {
+
+    return `
+        <button
+            type="button"
+            class="retryButton"
+            onclick="${functionName}()"
+        >
+            🔄 ${label}
+        </button>
+    `;
+}
+ 
 function showNextVideoStation() {
 
     if (!videoStations.length) return;
@@ -3451,8 +3504,16 @@ async function loadSports(){
 
         console.error(e);
 
-        sportsDiv.innerHTML =
-        "Unable to load sports.";
+        sportsDiv.innerHTML = `
+    <div style="
+        text-align:center;
+        padding:15px;
+        color:#93a4bb;
+    ">
+        ⚠️ Sports data unavailable
+        ${retryButton("loadSports", "Retry Sports")}
+    </div>
+`;
 
     }
 
@@ -3547,13 +3608,20 @@ async function loadGames(){
 
     script.onerror=function(){
 
-        console.error(
-            "Featured games API failed"
-        );
+    console.error(
+        "Featured games API failed"
+    );
 
-        script.remove();
+    document.getElementById(
+        "featuredGame"
+    ).innerHTML = `
+        ⚠️ Games unavailable
+        ${retryButton("loadGames", "Retry Games")}
+    `;
 
-    };
+    script.remove();
+
+};
 
 
 
@@ -5309,8 +5377,29 @@ return String(value ?? "")
 /* ================================= 
 LATEST OBVYRIS NEWS 
 ================================= */ 
-async function loadLatestObvyrisNews(){ const box = document.getElementById( "latestObvyrisNews" ); if(!box){ console.error( "latestObvyrisNews element not found" ); return; } box.innerHTML = "Loading..."; try{ const response = await fetch( NEWS_STORY_API + "&t=" + Date.now() ); const data = await response.json(); console.log( "Latest Obvyris stories:", data ); if( !data || data.status !== "success" || !Array.isArray(data.stories) ){ throw new Error( "Invalid stories response" ); } const stories = data.stories .filter( story => story.status === "Published" ) .sort( (a,b) => new Date(b.timestamp) - new Date(a.timestamp) ) .slice(0,5); if(!stories.length){ box.innerHTML = "No published stories."; return; } box.innerHTML = stories.map( story => ` <div class="latestNewsStory" onclick="openChapter('${escapeChapterId(story.storyId)}')"> <div class="latestNewsTitle"> ${escapeHTML( story.title )} </div> <div class="latestNewsMeta">  ${story.chapter} </div> </div> ` ).join(""); } catch(error){ console.error( "LATEST NEWS ERROR:", error ); box.innerHTML = "Unable to load Obvyris news."; } }
+async function loadLatestObvyrisNews(){ const box = document.getElementById( "latestObvyrisNews" ); if(!box){ console.error( "latestObvyrisNews element not found" ); return; } box.innerHTML = "Loading..."; try{ const response = await fetch( NEWS_STORY_API + "&t=" + Date.now() ); const data = await response.json(); console.log( "Latest Obvyris stories:", data ); if( !data || data.status !== "success" || !Array.isArray(data.stories) ){ throw new Error( "Invalid stories response" ); } const stories = data.stories .filter( story => story.status === "Published" ) .sort( (a,b) => new Date(b.timestamp) - new Date(a.timestamp) ) .slice(0,5); if(!stories.length){ box.innerHTML = "No published stories."; return; } box.innerHTML = stories.map( story => ` <div class="latestNewsStory" onclick="openChapter('${escapeChapterId(story.storyId)}')"> <div class="latestNewsTitle"> ${escapeHTML( story.title )} </div> <div class="latestNewsMeta">  ${story.chapter} </div> </div> ` ).join(""); } catch(error){
 
+    console.error(
+        "LATEST NEWS ERROR:",
+        error
+    );
+
+    box.innerHTML = `
+        <div style="
+            text-align:center;
+            padding:12px;
+            color:#93a4bb;
+        ">
+            ⚠️ Obvyris News unavailable
+
+            ${retryButton(
+                "loadLatestObvyrisNews",
+                "Retry News"
+            )}
+        </div>
+    `;
+
+}
 /* =================================
 OBVYRIS NEWS CHAPTER PLAYER
 MATCH ORIGINAL ARCHIVE PLAYER
