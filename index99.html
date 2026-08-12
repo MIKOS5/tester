@@ -5538,169 +5538,171 @@ RENDER CHAPTER
 
 function renderChapter(chapter){
 
-    const title =
-        chapter.title ||
-        chapter.name ||
-        chapter.storyId ||
-        "Chapter";
+
+const title =
+    chapter.title ||
+    chapter.name ||
+    chapter.storyId ||
+    "Chapter";
 
 
+document.getElementById(
+    "chapterModalTitle"
+).innerText =
+    "📖 " + title;
+
+
+const story =
+    String(
+        chapter.story ||
+        chapter.text ||
+        chapter.content ||
+        ""
+    );
+
+
+/*
+Keep the ORIGINAL raw lines.
+
+The TTS system uses the actual
+chapterLines array index, so the
+rendered speech line IDs MUST use
+that same index.
+*/
+
+chapterLines =
+    story
+    .replace(/\r/g,"")
+    .split("\n");
+
+
+const content =
     document.getElementById(
-        "chapterModalTitle"
-    ).innerText =
-        "📖 " + title;
+        "chapterModalContent"
+    );
 
 
-    const story =
-        String(
-            chapter.story ||
-            chapter.text ||
-            chapter.content ||
-            ""
-        );
+let html = `
 
+    <div class="chapterPlayback">
 
-    /*
-    Keep the ORIGINAL raw lines.
+        <div class="chapterMeta">
 
-    This is important.
+            <div style="
+                font-size:18px;
+                font-weight:900;
+                color:white;
+            ">
 
-    The original player determines
-    the active character while reading
-    instead of assigning "Narrator"
-    to every line.
-    */
-
-    chapterLines =
-        story
-        .replace(/\r/g,"")
-        .split("\n");
-
-
-    const content =
-        document.getElementById(
-            "chapterModalContent"
-        );
-
-
-    let html = `
-
-        <div class="chapterPlayback">
-
-            <div class="chapterMeta">
-
-                <div style="
-                    font-size:18px;
-                    font-weight:900;
-                    color:white;
-                ">
-
-                    ${escapeHTML(title)}
-
-                </div>
-
-
-                ${
-                    chapter.storyId
-                    ?
-
-                    `<div style="
-                        margin-top:5px;
-                        color:#6ec2ff;
-                        font-size:12px;
-                    ">
-
-                        ${escapeHTML(
-                            chapter.storyId
-                        )}
-
-                    </div>`
-
-                    :
-
-                    ""
-                }
+                ${escapeHTML(title)}
 
             </div>
 
 
-            <div
-                class="chapterStory"
-                id="chapterStory"
-            >
+            ${
+                chapter.storyId
+                ?
 
-    `;
+                `<div style="
+                    margin-top:5px;
+                    color:#6ec2ff;
+                    font-size:12px;
+                ">
 
+                    ${escapeHTML(
+                        chapter.storyId
+                    )}
 
-    /*
-    Render exactly like original:
+                </div>`
 
-    [Character]
+                :
 
-    Speech line
-
-    Speech line
-
-    [Another Character]
-
-    Speech line
-    */
-
-    let speechCounter = 0;
-
-
-    chapterLines.forEach(
-        rawLine => {
-
-            const line =
-                rawLine.trim();
-
-
-            if(!line){
-
-                html += `
-                    <div style="
-                        height:15px;
-                    "></div>
-                `;
-
-                return;
-
+                ""
             }
 
-
-            const tag =
-                line.match(
-                    /^\[(.*?)\]/
-                );
+        </div>
 
 
-            if(tag){
+        <div
+            class="chapterStory"
+            id="chapterStory"
+        >
 
-                html += `
-
-                    <div class="chapterCharacter">
-
-                        ${escapeHTML(line)}
-
-                    </div>
-
-                `;
-
-                return;
-
-            }
+`;
 
 
-            speechCounter++;
+/*
+IMPORTANT:
 
+Use the REAL chapterLines index
+for the element ID.
+
+TTS calls:
+
+    highlightChapterLine(index)
+
+Therefore the DOM must contain:
+
+    chapterLine-0
+    chapterLine-1
+    chapterLine-2
+    etc.
+
+Character tags and blank lines still
+occupy their original indexes.
+*/
+
+
+chapterLines.forEach(
+    (rawLine, index) => {
+
+        const line =
+            rawLine.trim();
+
+
+        /*
+        Blank line
+        */
+
+        if(!line){
 
             html += `
 
-                <div
-                    class="chapterLine speech-line"
-                    id="chapterLine-${speechCounter}"
-                >
+                <div style="
+                    height:15px;
+                "></div>
+
+            `;
+
+            return;
+
+        }
+
+
+        /*
+        CHARACTER TAG
+
+        Example:
+
+        [Narrator]
+        [Obvyris]
+        [Pip-Squeak]
+
+        These are displayed but
+        are NOT spoken.
+        */
+
+        const tag =
+            line.match(
+                /^\[(.*?)\]/
+            );
+
+
+        if(tag){
+
+            html += `
+
+                <div class="chapterCharacter">
 
                     ${escapeHTML(line)}
 
@@ -5708,123 +5710,150 @@ function renderChapter(chapter){
 
             `;
 
+            return;
+
         }
-    );
 
 
-    html += `
+        /*
+        SPEECH LINE
 
-            </div>
+        The ID now uses the SAME
+        index used by TTS.
+        */
 
-
-            <div
-                class="chapterStatus"
-                id="chapterStatus"
-            >
-
-                Ready
-
-            </div>
-
+        html += `
 
             <div
-                id="chapterProgress"
-                style="
-                    height:8px;
-                    background:#222;
-                    border-radius:20px;
-                    margin:15px 0;
-                    overflow:hidden;
-                "
+                class="chapterLine speech-line"
+                id="chapterLine-${index}"
+                data-line-index="${index}"
             >
 
-                <div
-                    id="chapterProgressBar"
-                    style="
-                        width:0%;
-                        height:100%;
-                        background:#27b7ff;
-                        transition:.3s;
-                    "
-                ></div>
+                ${escapeHTML(line)}
 
             </div>
 
+        `;
 
-            <div class="chapterControls">
-
-                <button
-                    type="button"
-                    onclick="speakChapter()"
-                >
-
-                    ▶ Play
-
-                </button>
+    }
+);
 
 
-                <button
-                    type="button"
-                    onclick="pauseChapter()"
-                >
-
-                    ⏸ Pause / Resume
-
-                </button>
-
-
-                <button
-                    type="button"
-                    onclick="stopChapterSpeech()"
-                >
-
-                    ■ Stop
-
-                </button>
-
-            </div>
-
-
-            <div class="chapterVoice">
-
-                <label>
-                    Speech Speed
-                </label>
-
-
-                <input
-                    id="chapterSpeed"
-                    type="range"
-                    min=".5"
-                    max="2"
-                    step=".1"
-                    value="1"
-                    oninput="
-                        chapterSettings.speed =
-                        Number(this.value)
-                    "
-                >
-
-
-                <select
-                    id="chapterVoiceSelect"
-                >
-
-                    <option value="">
-                        Automatic voice
-                    </option>
-
-                </select>
-
-            </div>
+html += `
 
         </div>
 
-    `;
+
+        <div
+            class="chapterStatus"
+            id="chapterStatus"
+        >
+
+            Ready
+
+        </div>
 
 
-    content.innerHTML =
-        html;
+        <div
+            id="chapterProgress"
+            style="
+                height:8px;
+                background:#222;
+                border-radius:20px;
+                margin:15px 0;
+                overflow:hidden;
+            "
+        >
+
+            <div
+                id="chapterProgressBar"
+                style="
+                    width:0%;
+                    height:100%;
+                    background:#27b7ff;
+                    transition:.3s;
+                "
+            ></div>
+
+        </div>
+
+
+        <div class="chapterControls">
+
+            <button
+                type="button"
+                onclick="speakChapter()"
+            >
+
+                ▶ Play
+
+            </button>
+
+
+            <button
+                type="button"
+                onclick="pauseChapter()"
+            >
+
+                ⏸ Pause / Resume
+
+            </button>
+
+
+            <button
+                type="button"
+                onclick="stopChapterSpeech()"
+            >
+
+                ■ Stop
+
+            </button>
+
+        </div>
+
+
+        <div class="chapterVoice">
+
+            <label>
+                Speech Speed
+            </label>
+
+
+            <input
+                id="chapterSpeed"
+                type="range"
+                min=".5"
+                max="2"
+                step=".1"
+                value="1"
+                oninput="
+                    chapterSettings.speed =
+                    Number(this.value)
+                "
+            >
+
+
+            <select
+                id="chapterVoiceSelect"
+            >
+
+                <option value="">
+                    Automatic voice
+                </option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+`;
+
+
+content.innerHTML =
+    html;
+
 
 }
 
@@ -6490,35 +6519,36 @@ HIGHLIGHT
 
 function highlightChapterLine(index){
 
-    clearChapterHighlight();
+```
+clearChapterHighlight();
 
 
-    const element =
-        document.getElementById(
-            "chapterLine-" +
-            index
-        );
-
-
-    if(!element){
-
-        return;
-
-    }
-
-
-    element.classList.add(
-        "active"
+const element =
+    document.querySelector(
+        `.chapterLine[data-line-index="${index}"]`
     );
 
 
-    element.scrollIntoView({
+if(!element){
 
-        behavior:"smooth",
+    return;
 
-        block:"center"
+}
 
-    });
+
+element.classList.add(
+    "active"
+);
+
+
+element.scrollIntoView({
+
+    behavior:"smooth",
+
+    block:"center"
+
+});
+```
 
 }
 
