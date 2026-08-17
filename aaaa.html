@@ -1,488 +1,824 @@
 <!DOCTYPE html>
 
 <html lang="en">
+
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 
-<title>OBVYRIS ARCHIVE // DIGITAL LIBRARY</title>
+<title>
+OBVYRIS ARCHIVE // DIGITAL LIBRARY
+</title>
 
 <style>
 
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+@import url(
+'https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap'
+);
 
 *{
 box-sizing:border-box;
 }
 
 body{
+
 margin:0;
+
 padding-top:34px;
+
 background:
-radial-gradient(circle at top,#38215f,#05060b 65%);
+radial-gradient(
+circle at top,
+#38215f,
+#05060b 65%
+);
+
 color:#d9eaff;
-font-family:'Orbitron',sans-serif;
-min-height:100vh;
+
+font-family:
+'Orbitron',
+sans-serif;
+
 }
 
-/* DEBUG BAR */
+/* DEBUG */
 
 #debug{
+
 position:fixed;
+
 top:0;
 left:0;
 right:0;
+
 z-index:100000;
+
 height:34px;
+
 display:flex;
+
 align-items:center;
 justify-content:center;
+
 padding:0 15px;
-background:rgba(0,0,0,.92);
-border-bottom:1px solid #651fff;
+
+background:
+rgba(0,0,0,.94);
+
+border-bottom:
+1px solid #651fff;
+
 color:#7cff7c;
+
 font-size:12px;
-box-shadow:0 2px 12px black;
+
 white-space:nowrap;
+
 overflow:hidden;
+
 text-overflow:ellipsis;
+
+box-shadow:
+0 2px 12px black;
+
 }
 
 /* HEADER */
 
 .header{
-padding:55px 20px 40px;
+
+padding:
+50px 20px 40px;
+
 text-align:center;
-background:rgba(0,0,0,.55);
-border-bottom:1px solid #555;
+
+background:
+rgba(0,0,0,.55);
+
+border-bottom:
+1px solid #555;
+
 }
 
 .logo{
+
 font-size:45px;
+
 font-weight:900;
+
 color:white;
+
 text-shadow:
+
 0 0 10px #8a2be2,
 0 0 40px #8a2be2;
+
 }
 
 .subtitle{
+
 margin-top:15px;
+
 color:#9aa;
-font-size:13px;
+
+font-size:12px;
+
 letter-spacing:1px;
+
 }
 
-/* CONTROLS */
+/* SEARCH */
 
 .controls{
+
 position:sticky;
+
 top:34px;
+
 z-index:5000;
-background:rgba(5,6,11,.96);
+
+background:
+rgba(5,6,11,.96);
+
 padding:15px;
+
 display:flex;
+
 justify-content:center;
+
 gap:10px;
+
 flex-wrap:wrap;
-box-shadow:0 5px 20px black;
-border-bottom:1px solid #32105f;
+
+box-shadow:
+0 5px 20px black;
+
+border-bottom:
+1px solid #32105f;
+
 }
 
 input,
 select{
+
 background:#100b1d;
-border:1px solid #6941a5;
+
+border:
+1px solid #6941a5;
+
 border-radius:9px;
+
 padding:12px;
+
 color:white;
+
 font-family:inherit;
+
 outline:none;
+
 }
 
 #search{
-width:min(500px,90vw);
+
+width:
+min(500px,90vw);
+
 }
 
 button{
+
 background:#651fff;
+
 border:none;
+
 padding:12px 20px;
+
 border-radius:10px;
+
 color:white;
+
 cursor:pointer;
+
 font-family:inherit;
+
 font-weight:bold;
+
 }
 
 button:hover{
+
 background:#a855ff;
+
 }
 
-button.secondary{
+.secondary{
+
 background:#211532;
-border:1px solid #814cff;
-}
 
-button.secondary:hover{
-background:#352052;
+border:
+1px solid #814cff;
+
 }
 
 /* ARCHIVE */
 
 .archive{
+
 max-width:1450px;
+
 margin:auto;
+
 padding:40px 25px 80px;
+
 }
 
-.archive-status{
+.status{
+
 display:flex;
+
 justify-content:space-between;
-align-items:center;
+
 flex-wrap:wrap;
+
 gap:10px;
+
 margin-bottom:25px;
-color:#aaa;
-font-size:12px;
+
+font-size:11px;
+
+color:#888;
+
 }
 
-.source-count{
+#count{
+
 color:#7cff7c;
+
 }
 
-/* GRID */
+/* BOOK GRID */
 
 .grid{
+
 display:grid;
+
 grid-template-columns:
-repeat(auto-fit,minmax(290px,1fr));
+repeat(
+auto-fit,
+minmax(290px,1fr)
+);
+
 gap:25px;
+
 }
 
-/* BOOK CARD */
+/* CARD */
 
 .card{
+
 background:
+
 linear-gradient(
 145deg,
 rgba(255,255,255,.12),
 rgba(0,0,0,.85)
 );
-border:1px solid #566;
+
+border:
+1px solid #566;
+
 border-radius:18px;
+
 padding:20px;
+
 position:relative;
+
 overflow:hidden;
+
 transition:.3s;
-min-height:410px;
+
+min-height:440px;
+
 display:flex;
+
 flex-direction:column;
+
 }
 
 .card:hover{
-transform:translateY(-8px);
+
+transform:
+translateY(-8px);
+
 border-color:#b26cff;
-box-shadow:0 0 30px #7b2cff;
+
+box-shadow:
+0 0 30px #7b2cff;
+
 }
 
 .card:before{
+
 content:"";
+
 position:absolute;
+
 right:-50px;
 top:-50px;
+
 width:150px;
 height:150px;
+
 background:#8a2be2;
+
 filter:blur(60px);
+
 opacity:.45;
+
 pointer-events:none;
+
 }
 
 /* COVER */
 
 .cover{
+
 width:145px;
 height:210px;
-margin:0 auto 20px;
-border-radius:7px;
-overflow:hidden;
+
+margin:
+0 auto 20px;
+
 background:
-linear-gradient(145deg,#21133b,#08080d);
-border:1px solid #6941a5;
-box-shadow:0 0 20px rgba(138,43,226,.4);
+#100b1d;
+
+border:
+1px solid #6941a5;
+
+border-radius:7px;
+
+overflow:hidden;
+
 display:flex;
+
 align-items:center;
 justify-content:center;
-position:relative;
-z-index:2;
+
+box-shadow:
+0 0 20px
+rgba(138,43,226,.4);
+
 }
 
 .cover img{
+
 width:100%;
 height:100%;
-object-fit:cover;
-}
 
-.no-cover{
-font-size:11px;
-text-align:center;
-color:#777;
-padding:15px;
+object-fit:cover;
+
 }
 
 /* CARD TEXT */
 
 .source{
+
 font-size:10px;
+
 color:#8fff8f;
+
 letter-spacing:1px;
+
 }
 
 .title{
+
 font-size:19px;
+
 font-weight:bold;
+
 color:white;
+
 margin:10px 0;
+
 line-height:1.35;
+
 }
 
 .author{
-font-size:12px;
-color:#a8a8ff;
-margin-bottom:10px;
-}
 
-.meta{
-font-family:Arial,sans-serif;
 font-size:12px;
-color:#999;
-line-height:1.5;
+
+color:#a8a8ff;
+
+margin-bottom:10px;
+
 }
 
 .description{
+
 font-family:Arial,sans-serif;
+
 font-size:13px;
+
 line-height:1.5;
-color:#bbb;
-margin-top:10px;
-display:-webkit-box;
+
+color:#aaa;
+
+display:
+-webkit-box;
+
 -webkit-line-clamp:4;
+
 -webkit-box-orient:vertical;
+
 overflow:hidden;
+
 }
 
-.tags{
+.meta{
+
 margin-top:auto;
+
 padding-top:15px;
-}
 
-.tag{
-display:inline-block;
-background:#24153f;
-border:1px solid #814cff;
-padding:5px 10px;
-border-radius:20px;
-font-size:9px;
-margin:3px;
-}
+font-size:10px;
 
-.book-button{
-margin-top:15px;
-width:100%;
-position:relative;
-z-index:2;
-}
-
-/* LOADING */
-
-.loading{
-grid-column:1/-1;
-text-align:center;
-padding:80px 20px;
-color:#7cff7c;
-}
-
-.spinner{
-width:40px;
-height:40px;
-border:3px solid #32105f;
-border-top:3px solid #a855ff;
-border-radius:50%;
-animation:spin 1s linear infinite;
-margin:0 auto 20px;
-}
-
-@keyframes spin{
-to{transform:rotate(360deg);}
-}
-
-/* EMPTY */
-
-.empty{
-grid-column:1/-1;
-text-align:center;
-padding:70px;
 color:#777;
+
+}
+
+.card button{
+
+margin-top:15px;
+
+width:100%;
+
+position:relative;
+
+z-index:2;
+
 }
 
 /* READER */
 
 #reader{
+
 display:none;
-max-width:1050px;
-margin:40px auto 80px;
+
+max-width:1200px;
+
+margin:
+40px auto 80px;
+
 padding:45px;
+
 background:
+
 linear-gradient(
 180deg,
-rgba(20,20,35,.96),
-rgba(8,8,15,.98)
+rgba(20,20,35,.98),
+rgba(8,8,15,.99)
 );
+
 border-radius:24px;
-border:1px solid #555;
+
+border:
+1px solid #555;
+
 box-shadow:
+
 0 0 40px black,
 0 0 30px #32105f;
+
 }
 
-.reader-top{
-display:flex;
-gap:25px;
-align-items:flex-start;
-margin-bottom:35px;
+.readerHeader{
+
+border-bottom:
+1px solid #27384d;
+
+padding-bottom:30px;
+
+margin-bottom:30px;
+
 }
 
-.reader-cover{
-width:150px;
-min-width:150px;
-height:220px;
-border-radius:8px;
-overflow:hidden;
-border:1px solid #814cff;
-background:#100b1d;
-}
+.readerSource{
 
-.reader-cover img{
-width:100%;
-height:100%;
-object-fit:cover;
-}
-
-.reader-info h1{
-margin:0 0 15px;
-color:white;
-font-size:30px;
-}
-
-.reader-info p{
-font-family:Arial,sans-serif;
-color:#aaa;
-line-height:1.6;
-}
-
-.reader-source{
-color:#7cff7c;
 font-size:11px;
+
+color:#7cff7c;
+
 margin-bottom:10px;
+
 }
 
-.reader-actions{
+.readerTitle{
+
+font-size:34px;
+
+color:white;
+
+margin-bottom:10px;
+
+}
+
+.readerAuthor{
+
+color:#a8a8ff;
+
+font-size:13px;
+
+}
+
+.readerControls{
+
 display:flex;
+
 gap:10px;
+
 flex-wrap:wrap;
-margin-top:20px;
+
+margin-top:25px;
+
 }
 
-.reader-content{
-border-top:1px solid #27384d;
-padding-top:30px;
+/* BOOK LAYOUT */
+
+.bookLayout{
+
+display:grid;
+
+grid-template-columns:
+230px 1fr;
+
+gap:30px;
+
 }
 
-.reader-content h2{
+/* CHAPTERS */
+
+.chapterMenu{
+
+background:
+rgba(0,0,0,.45);
+
+border:
+1px solid #32105f;
+
+border-radius:15px;
+
+padding:20px;
+
+height:max-content;
+
+position:sticky;
+
+top:100px;
+
+}
+
+.chapterMenu h3{
+
+font-size:13px;
+
 color:#2793ff;
+
 }
 
-.reader-content p{
-font-family:Georgia,serif;
+.chapterButton{
+
+display:block;
+
+width:100%;
+
+margin:6px 0;
+
+padding:10px;
+
+background:
+#160d2b;
+
+border:
+1px solid #32105f;
+
+border-radius:8px;
+
+color:#aaa;
+
+font-family:inherit;
+
+font-size:10px;
+
+text-align:left;
+
+cursor:pointer;
+
+}
+
+.chapterButton:hover{
+
+background:#32105f;
+
+color:white;
+
+border-color:#814cff;
+
+}
+
+/* BOOK */
+
+.bookContent{
+
+background:
+rgba(255,255,255,.025);
+
+border-radius:15px;
+
+padding:
+35px 45px;
+
+min-height:500px;
+
+}
+
+.bookContent h1,
+.bookContent h2,
+.bookContent h3{
+
+color:#2793ff;
+
+}
+
+.bookContent p{
+
+font-family:
+Georgia,
+'Times New Roman',
+serif;
+
 font-size:19px;
+
 line-height:1.9;
+
 color:#ddd;
+
+margin:
+0 0 1.4em;
+
 }
 
-/* TOP BUTTON */
+.bookContent img{
+
+max-width:100%;
+
+height:auto;
+
+}
+
+.bookContent a{
+
+color:#8d72ff;
+
+}
+
+/* LOADING */
+
+.loading{
+
+grid-column:
+1/-1;
+
+text-align:center;
+
+padding:80px 20px;
+
+color:#7cff7c;
+
+}
+
+.spinner{
+
+width:40px;
+
+height:40px;
+
+border:
+3px solid #32105f;
+
+border-top:
+3px solid #a855ff;
+
+border-radius:50%;
+
+animation:
+spin 1s linear infinite;
+
+margin:
+0 auto 20px;
+
+}
+
+@keyframes spin{
+
+to{
+transform:rotate(360deg);
+}
+
+}
+
+/* TOP */
 
 #topButton{
+
 position:fixed;
+
 right:25px;
+
 bottom:25px;
+
 z-index:9999;
+
 width:55px;
 height:55px;
+
 border-radius:50%;
+
 background:#651fff;
+
 color:white;
+
 font-size:24px;
-font-weight:bold;
+
 display:none;
+
 align-items:center;
 justify-content:center;
-cursor:pointer;
-box-shadow:0 0 20px #8a2be2;
-border:1px solid #b26cff;
-}
 
-#topButton:hover{
-background:#a855ff;
-transform:translateY(-5px);
+cursor:pointer;
+
+box-shadow:
+0 0 20px #8a2be2;
+
 }
 
 /* FOOTER */
 
 .footer{
+
 text-align:center;
+
 padding:40px;
+
 color:#666;
-font-size:11px;
-letter-spacing:1px;
+
+font-size:10px;
+
 }
 
 /* MOBILE */
 
-@media(max-width:700px){
+@media(max-width:800px){
 
 .logo{
 font-size:30px;
 }
 
-.header{
-padding:40px 15px 30px;
+.bookLayout{
+
+grid-template-columns:1fr;
+
 }
 
-.archive{
-padding:25px 15px 60px;
+.chapterMenu{
+
+position:relative;
+
+top:auto;
+
 }
 
-.reader-top{
-flex-direction:column;
+.bookContent{
+
+padding:25px 20px;
+
 }
 
-.reader-cover{
-margin:auto;
+.bookContent p{
+
+font-size:17px;
+
 }
 
 #reader{
-margin:20px 10px 50px;
+
+margin:
+20px 10px 60px;
+
 padding:25px;
-}
 
-.reader-info{
-text-align:center;
-}
-
-.reader-actions{
-justify-content:center;
 }
 
 }
@@ -497,7 +833,7 @@ justify-content:center;
 LIBRARY SYSTEM INITIALIZING...
 </div>
 
-<header class="header">
+<div class="header">
 
 <div class="logo">
 OBVYRIS ARCHIVE
@@ -507,15 +843,17 @@ OBVYRIS ARCHIVE
 DIGITAL LIBRARY // OPEN KNOWLEDGE MEMORY DATABASE
 </div>
 
-</header>
+</div>
 
 <div class="controls">
 
 <input
 id="search"
-type="search"
 placeholder="Search books, authors, subjects..."
-onkeydown="if(event.key==='Enter') searchBooks()">
+onkeydown="
+if(event.key==='Enter')
+searchBooks();
+">
 
 <button onclick="searchBooks()">
 SEARCH
@@ -523,32 +861,39 @@ SEARCH
 
 <button
 class="secondary"
-onclick="randomBooks()">
+onclick="randomSearch()">
 RANDOM </button>
 
-<select id="sourceFilter" onchange="renderBooks()">
-<option value="all">ALL SOURCES</option>
-<option value="openlibrary">OPEN LIBRARY</option>
-<option value="gutenberg">PROJECT GUTENBERG</option>
+<select
+id="source"
+onchange="renderBooks()">
+
+<option value="all">
+ALL SOURCES
+</option>
+
+<option value="openlibrary">
+OPEN LIBRARY
+</option>
+
+<option value="gutenberg">
+PROJECT GUTENBERG
+</option>
+
 </select>
 
 </div>
 
-<main class="archive">
+<div class="archive">
 
-<div class="archive-status">
+<div class="status">
 
 <div>
-ARCHIVE RESULTS:
-<span
-id="resultCount"
-class="source-count">
-0
-</span>
+ARCHIVE RECORDS:
+<span id="count">0</span>
 </div>
 
 <div>
-SOURCES:
 OPEN LIBRARY + PROJECT GUTENBERG
 </div>
 
@@ -558,156 +903,213 @@ OPEN LIBRARY + PROJECT GUTENBERG
 id="books"
 class="grid">
 
-<div class="loading">
-<div class="spinner"></div>
-CONNECTING TO DIGITAL ARCHIVES...
 </div>
 
 </div>
 
-</main>
+<!-- READER -->
 
 <section id="reader">
 
-<div class="reader-top">
-
-<div class="reader-cover">
-<img id="readerCover" alt="">
-</div>
-
-<div class="reader-info">
+<div class="readerHeader">
 
 <div
 id="readerSource"
-class="reader-source">
+class="readerSource">
 </div>
 
-<h1 id="readerTitle">
-</h1>
+<div
+id="readerTitle"
+class="readerTitle">
+</div>
 
-<p id="readerAuthor">
-</p>
+<div
+id="readerAuthor"
+class="readerAuthor">
+</div>
 
-<p id="readerDescription">
-</p>
+<div class="readerControls">
 
-<div class="reader-actions">
-
-<button id="readerOpen">
-OPEN SOURCE
+<button onclick="closeReader()">
+CLOSE READER
 </button>
 
 <button
 class="secondary"
-onclick="closeReader()">
-CLOSE </button>
+onclick="window.open(currentLanding,'_blank')">
+GUTENBERG SOURCE </button>
 
 </div>
 
 </div>
 
+<div class="bookLayout">
+
+<div
+id="chapterMenu"
+class="chapterMenu">
+
+<h3>
+BOOK NAVIGATION
+</h3>
+
+<div id="chapters">
+Loading...
 </div>
 
-<div class="reader-content">
+</div>
 
-<h2>
-ARCHIVE RECORD
-</h2>
+<div
+id="bookContent"
+class="bookContent">
 
-<p id="readerMeta">
-</p>
+<div class="loading">
+
+<div class="spinner"></div>
+
+LOADING BOOK...
+
+</div>
+
+</div>
 
 </div>
 
 </section>
 
-<footer class="footer">
+<div class="footer">
 
-OBVYRIS ARCHIVE // DIGITAL LIBRARY ACCESS<br>
+OBVYRIS ARCHIVE // DIGITAL LIBRARY<br>
 OPEN LIBRARY + PROJECT GUTENBERG
 
-</footer>
+</div>
 
 <button
 id="topButton"
-onclick="scrollTopArchive()">
+onclick="window.scrollTo({top:0,behavior:'smooth'})">
 ⬆ </button>
 
 <script>
 
 /*
-=================================================
-OBVYRIS DIGITAL LIBRARY
-OPEN LIBRARY + PROJECT GUTENBERG
-=================================================
+================================================
+OBVYRIS HYBRID LIBRARY
+================================================
 */
 
-const OPEN_LIBRARY_API =
+const OPEN_LIBRARY =
 "https://openlibrary.org/search.json";
 
-const GUTENBERG_API =
+const GUTENDEX =
 "https://gutendex.com/books/";
 
-let books = [];
+let books=[];
+
+let currentLanding="";
+
+let currentBook=null;
 
 
 /*
-=================================================
+================================================
 DEBUG
-=================================================
+================================================
 */
 
-function debug(message){
+function debug(text){
 
-document.getElementById("debug").innerHTML =
-message;
+document
+.getElementById("debug")
+.innerText=text;
 
 }
 
 
 /*
-=================================================
-OPEN LIBRARY
-=================================================
+================================================
+SEARCH
+================================================
+*/
+
+async function searchBooks(){
+
+const query=
+document
+.getElementById("search")
+.value
+.trim();
+
+if(!query){
+
+randomSearch();
+
+return;
+
+}
+
+debug(
+"SEARCHING OPEN LIBRARY + GUTENBERG..."
+);
+
+showLoading();
+
+const results=
+await Promise.all([
+
+searchOpenLibrary(query),
+
+searchGutenberg(query)
+
+]);
+
+books=[
+...results[0],
+...results[1]
+];
+
+renderBooks();
+
+debug(
+"ARCHIVE ONLINE // "
++
+books.length+
+" RECORDS"
+);
+
+}
+
+
+/*
+================================================
+OPEN LIBRARY SEARCH
+================================================
 */
 
 async function searchOpenLibrary(query){
 
 try{
 
-const url =
-OPEN_LIBRARY_API +
-"?q=" +
-encodeURIComponent(query) +
-"&limit=20";
+const response=
+await fetch(
 
-const response =
-await fetch(url);
+OPEN_LIBRARY+
+"?q="+
+encodeURIComponent(query)+
+"&limit=20"
 
-if(!response.ok)
-throw new Error("Open Library HTTP error");
+);
 
-const data =
+const data=
 await response.json();
 
-return data.docs.map(book => {
+return data.docs.map(book=>({
 
-let cover =
-book.cover_i
-?
-"https://covers.openlibrary.org/b/id/"
-+
-book.cover_i
-+
-"-M.jpg"
-:
-null;
+source:
+"openlibrary",
 
-return {
-
-source:"openlibrary",
-
-title:book.title || "Unknown Title",
+title:
+book.title ||
+"Unknown Title",
 
 author:
 book.author_name
@@ -717,9 +1119,17 @@ book.author_name.join(", ")
 "Unknown Author",
 
 year:
-book.first_publish_year || "Unknown",
+book.first_publish_year ||
+"Unknown",
 
-cover:cover,
+cover:
+book.cover_i
+?
+"https://covers.openlibrary.org/b/id/"+
+book.cover_i+
+"-M.jpg"
+:
+null,
 
 description:
 book.first_sentence
@@ -732,37 +1142,25 @@ book.first_sentence
 :
 "",
 
-subjects:
-book.subject
-?
-book.subject.slice(0,5)
-:
-[],
-
-id:book.key,
-
 url:
 book.key
 ?
-"https://openlibrary.org"
-+
+"https://openlibrary.org"+
 book.key
 :
-"https://openlibrary.org/"
+"https://openlibrary.org/",
 
-};
+id:
+book.key
 
-});
+}));
 
 }
-catch(error){
+catch(e){
 
-console.error(
-"OPEN LIBRARY ERROR",
-error
-);
+console.error(e);
 
-return [];
+return[];
 
 }
 
@@ -770,108 +1168,123 @@ return [];
 
 
 /*
-=================================================
-PROJECT GUTENBERG
-=================================================
+================================================
+GUTENBERG SEARCH
+================================================
 */
 
 async function searchGutenberg(query){
 
 try{
 
-const url =
-GUTENBERG_API +
-"?search=" +
-encodeURIComponent(query) +
-"&page=1";
+const response=
+await fetch(
 
-const response =
-await fetch(url);
+GUTENDEX+
+"?search="+
+encodeURIComponent(query)
 
-if(!response.ok)
-throw new Error("Gutendex HTTP error");
-
-const data =
-await response.json();
-
-return data.results.map(book => {
-
-let cover =
-book.formats &&
-book.formats["image/jpeg"]
-?
-book.formats["image/jpeg"]
-:
-null;
-
-let readUrl =
-book.formats &&
-(
-book.formats["text/html"]
-||
-book.formats["text/html; charset=utf-8"]
 );
 
-let epub =
-book.formats &&
-book.formats["application/epub+zip"];
+const data=
+await response.json();
 
-let author =
+return data.results.map(book=>{
+
+const formats=
+book.formats||
+{};
+
+const html=
+findFormat(
+formats,
+[
+"text/html; charset=utf-8",
+"text/html"
+]
+);
+
+const text=
+findFormat(
+formats,
+[
+"text/plain; charset=utf-8",
+"text/plain; charset=us-ascii",
+"text/plain"
+]
+);
+
+const epub=
+findFormat(
+formats,
+[
+"application/epub+zip"
+]
+);
+
+return{
+
+source:
+"gutenberg",
+
+title:
+book.title,
+
+author:
 book.authors &&
 book.authors.length
 ?
 book.authors
-.map(a => a.name)
+.map(a=>a.name)
 .join(", ")
 :
-"Unknown Author";
-
-return {
-
-source:"gutenberg",
-
-title:book.title || "Unknown Title",
-
-author:author,
+"Unknown Author",
 
 year:
-book.copyright === false
+book.copyright===false
 ?
-"Public Domain"
+"PUBLIC DOMAIN"
 :
-"Unknown",
+"SEE LICENSE",
 
-cover:cover,
+cover:
+formats["image/jpeg"]||
+null,
 
-description:"Project Gutenberg public-domain ebook.",
+description:
+book.summaries &&
+book.summaries.length
+?
+book.summaries[0]
+:
+"Project Gutenberg ebook.",
+
+id:
+book.id,
+
+landing:
+"https://www.gutenberg.org/ebooks/"+
+book.id,
+
+html:html,
+
+text:text,
+
+epub:epub,
 
 subjects:
-book.subjects
-?
-book.subjects.slice(0,5)
-:
-[],
-
-id:book.id,
-
-url:
-readUrl ||
-epub ||
-"https://www.gutenberg.org/"
+book.subjects||[]
 
 };
 
 });
 
 }
-catch(error){
+catch(e){
 
-console.error(
-"GUTENBERG ERROR",
-error
-);
+console.error(e);
 
-return [];
+return[];
 
 }
 
@@ -879,220 +1292,110 @@ return [];
 
 
 /*
-=================================================
-SEARCH BOTH
-=================================================
+================================================
+FIND FORMAT
+================================================
 */
 
-async function searchBooks(){
+function findFormat(formats,types){
 
-const query =
-document.getElementById("search").value.trim();
+for(const type of types){
 
-if(!query){
-
-randomBooks();
-
-return;
+if(formats[type])
+return formats[type];
 
 }
 
-debug(
-"SEARCHING OPEN LIBRARY + PROJECT GUTENBERG..."
-);
-
-showLoading();
-
-const [
-openLibraryResults,
-gutenbergResults
-] =
-await Promise.all([
-
-searchOpenLibrary(query),
-
-searchGutenberg(query)
-
-]);
-
-books = mergeBooks(
-openLibraryResults,
-gutenbergResults
-);
-
-renderBooks();
-
-debug(
-"ARCHIVE ONLINE // "
-+
-books.length
-+
-" RECORDS LOADED"
-);
+return null;
 
 }
 
 
 /*
-=================================================
-MERGE
-=================================================
-*/
-
-function mergeBooks(openLibrary,gutenberg){
-
-return [
-...openLibrary,
-...gutenberg
-];
-
-}
-
-
-/*
-=================================================
-RANDOM
-=================================================
-*/
-
-async function randomBooks(){
-
-debug(
-"GENERATING RANDOM ARCHIVE QUERY..."
-);
-
-const subjects = [
-
-"science fiction",
-"horror",
-"mystery",
-"adventure",
-"history",
-"fantasy",
-"philosophy",
-"poetry",
-"ghost",
-"western",
-"romance",
-"technology"
-
-];
-
-const subject =
-subjects[
-Math.floor(
-Math.random()*subjects.length
-)
-];
-
-document.getElementById("search").value =
-subject;
-
-await searchBooks();
-
-}
-
-
-/*
-=================================================
+================================================
 RENDER
-=================================================
+================================================
 */
 
 function renderBooks(){
 
-const container =
+const container=
 document.getElementById("books");
 
-const filter =
-document.getElementById("sourceFilter").value;
+const source=
+document.getElementById("source")
+.value;
 
-let filtered =
-books.filter(book => {
+const filtered=
+books.filter(book=>{
 
-if(filter==="all")
+if(source==="all")
 return true;
 
-return book.source===filter;
+return book.source===source;
 
 });
 
-document.getElementById("resultCount")
-.innerHTML =
+document
+.getElementById("count")
+.innerText=
 filtered.length;
 
 if(!filtered.length){
 
-container.innerHTML = `
-<div class="empty">
+container.innerHTML=`
+
+<div class="loading">
 
 NO ARCHIVE RECORDS FOUND
 
 </div>
+
 `;
 
 return;
 
 }
 
-container.innerHTML =
+container.innerHTML=
 filtered
-.map((book,index) =>
-createCard(book,index)
-)
+.map((book,index)=>card(book,index))
 .join("");
 
 }
 
 
 /*
-=================================================
+================================================
 CARD
-=================================================
+================================================
 */
 
-function createCard(book,index){
+function card(book,index){
 
-const sourceName =
-book.source==="openlibrary"
+const source=
+book.source===
+"gutenberg"
 ?
-"OPEN LIBRARY"
+"PROJECT GUTENBERG"
 :
-"PROJECT GUTENBERG";
+"OPEN LIBRARY";
 
-const sourceClass =
-book.source;
-
-const cover =
+const cover=
 book.cover
 ?
 `
 <img
 src="${escapeHTML(book.cover)}"
-alt="Book cover"
 loading="lazy"
-onerror="this.parentElement.innerHTML='<div class=&quot;no-cover&quot;>NO COVER AVAILABLE</div>'">
+onerror="
+this.style.display='none'
+">
 `
 :
-`
-<div class="no-cover">
-NO COVER AVAILABLE
-</div>
-`;
+"";
 
-const subjects =
-(book.subjects || [])
-.slice(0,4)
-.map(subject =>
-`
-<span class="tag">
-${escapeHTML(subject)}
-</span>
-`
-)
-.join("");
-
-return `
+return`
 
 <article class="card">
 
@@ -1100,49 +1403,45 @@ return `
 
 ${cover}
 
+${!book.cover
+?
+"<span>NO COVER</span>"
+:
+""}
+
 </div>
 
 <div class="source">
-
-${sourceName}
-
+${source}
 </div>
 
 <div class="title">
-
 ${escapeHTML(book.title)}
-
 </div>
 
 <div class="author">
-
 ${escapeHTML(book.author)}
+</div>
 
+<div class="description">
+${escapeHTML(book.description||"")}
 </div>
 
 <div class="meta">
 
-YEAR: ${escapeHTML(String(book.year))}
-
-</div>
-
-<div class="description">
-
-${escapeHTML(book.description || "No description available.")}
-
-</div>
-
-<div class="tags">
-
-${subjects}
+YEAR:
+${escapeHTML(book.year)}
 
 </div>
 
 <button
-class="book-button"
 onclick="openBook(${index})">
 
-VIEW ARCHIVE RECORD
+${book.source==="gutenberg"
+?
+"READ BOOK"
+:
+"VIEW RECORD"}
 
 </button>
 
@@ -1154,153 +1453,516 @@ VIEW ARCHIVE RECORD
 
 
 /*
-=================================================
-OPEN RECORD
-=================================================
+================================================
+OPEN BOOK
+================================================
 */
 
 function openBook(index){
 
-const filter =
-document.getElementById("sourceFilter").value;
+const source=
+document
+.getElementById("source")
+.value;
 
-const filtered =
-books.filter(book => {
+const filtered=
+books.filter(book=>{
 
-if(filter==="all")
+if(source==="all")
 return true;
 
-return book.source===filter;
+return book.source===source;
 
 });
 
-const book =
+const book=
 filtered[index];
 
 if(!book)
 return;
 
-document.getElementById("reader")
+currentBook=book;
+
+document
+.getElementById("reader")
 .style.display="block";
 
-document.getElementById("readerTitle")
-.innerHTML =
-escapeHTML(book.title);
+document
+.getElementById("reader")
+.scrollIntoView({
+behavior:"smooth"
+});
 
-document.getElementById("readerAuthor")
-innerHTML =
-"<strong>AUTHOR:</strong> "
-+
-escapeHTML(book.author);
+document
+.getElementById("readerTitle")
+.innerText=
+book.title;
 
-document.getElementById("readerDescription")
-.innerHTML =
-escapeHTML(
-book.description ||
-"No description available."
-);
+document
+.getElementById("readerAuthor")
+.innerText=
+"AUTHOR // "+book.author;
 
-document.getElementById("readerSource")
-.innerHTML =
-book.source==="openlibrary"
-?
-"OPEN LIBRARY // ARCHIVE RECORD"
-:
-"PROJECT GUTENBERG // PUBLIC DOMAIN RECORD";
+if(book.source==="gutenberg"){
 
-document.getElementById("readerMeta")
-.innerHTML =
-"PUBLICATION: "
-+
-escapeHTML(String(book.year))
-+
-"<br><br>"
-+
-"SOURCE ID: "
-+
-escapeHTML(String(book.id))
-+
-"<br><br>"
-+
-"SUBJECTS: "
-+
-escapeHTML(
-(book.subjects || []).join(" // ")
-);
+currentLanding=
+book.landing;
 
-const cover =
-document.getElementById("readerCover");
+document
+.getElementById("readerSource")
+.innerText=
+"GUTENBERG // BOOK "+
+book.id;
 
-if(book.cover){
-
-cover.src =
-book.cover;
-
-cover.style.display =
-"block";
+loadGutenbergBook(book);
 
 }
 else{
 
-cover.style.display =
-"none";
+currentLanding=
+book.url;
+
+document
+.getElementById("readerSource")
+.innerText=
+"OPEN LIBRARY // ARCHIVE RECORD";
+
+document
+.getElementById("bookContent")
+innerHTML=`
+
+<h2>
+OPEN LIBRARY RECORD
+</h2>
+
+<p>
+This record is catalog information from Open Library.
+</p>
+
+<p>
+Use the source link to access available editions,
+borrow information, and Internet Archive availability.
+</p>
+
+`;
+
+document
+.getElementById("chapters")
+innerHTML=
+"<div style='color:#777'>NO CHAPTER DATA</div>";
 
 }
 
-document.getElementById("readerOpen")
-onclick =
-function(){
+}
 
-window.open(
-book.url,
-"_blank"
+
+/*
+================================================
+LOAD GUTENBERG BOOK
+================================================
+*/
+
+async function loadGutenbergBook(book){
+
+debug(
+"ACCESSING GUTENBERG BOOK "+
+book.id+
+"..."
 );
 
-};
+document
+.getElementById("bookContent")
+.innerHTML=`
 
-document.getElementById("reader")
+<div class="loading">
+
+<div class="spinner"></div>
+
+RETRIEVING BOOK TEXT...
+
+</div>
+
+`;
+
+try{
+
+if(!book.html){
+
+throw new Error(
+"No HTML format available"
+);
+
+}
+
+const response=
+await fetch(book.html);
+
+if(!response.ok){
+
+throw new Error(
+"Unable to retrieve HTML"
+);
+
+}
+
+const html=
+await response.text();
+
+parseGutenbergHTML(html);
+
+debug(
+"BOOK LOADED // GUTENBERG "+
+book.id
+);
+
+}
+catch(error){
+
+console.error(
+"GUTENBERG BOOK ERROR",
+error
+);
+
+document
+.getElementById("bookContent")
+.innerHTML=`
+
+<h2>
+BOOK FILE UNAVAILABLE
+</h2>
+
+<p>
+
+The browser could not directly retrieve
+the Gutenberg HTML file.
+
+</p>
+
+<p>
+
+The canonical Project Gutenberg
+book page is available below.
+
+</p>
+
+<button
+onclick="
+window.open(
+'${book.landing}',
+'_blank'
+)">
+
+OPEN GUTENBERG BOOK
+
+</button>
+
+`;
+
+document
+.getElementById("chapters")
+innerHTML=
+"<div style='color:#777'>SOURCE PAGE AVAILABLE</div>";
+
+debug(
+"GUTENBERG FILE ACCESS FAILED"
+);
+
+}
+
+}
+
+
+/*
+================================================
+PARSE GUTENBERG HTML
+================================================
+*/
+
+function parseGutenbergHTML(html){
+
+const parser=
+new DOMParser();
+
+const doc=
+parser.parseFromString(
+html,
+"text/html"
+);
+
+
+/*
+REMOVE UNWANTED ELEMENTS
+*/
+
+doc
+.querySelectorAll(
+"script,style,noscript"
+)
+.forEach(el=>
+el.remove()
+);
+
+
+/*
+FIND BODY
+*/
+
+const body=
+doc.body;
+
+if(!body){
+
+throw new Error(
+"No document body"
+);
+
+}
+
+
+/*
+CREATE SAFE READER
+*/
+
+const reader=
+document
+.getElementById("bookContent");
+
+reader.innerHTML="";
+
+
+/*
+FIND HEADINGS
+*/
+
+const headings=
+[
+...body.querySelectorAll(
+"h1,h2,h3,h4"
+)
+];
+
+
+/*
+CREATE CHAPTER NAVIGATION
+*/
+
+const chapterContainer=
+document
+.getElementById("chapters");
+
+chapterContainer.innerHTML="";
+
+
+let chapterCount=0;
+
+
+/*
+PROCESS HEADINGS
+*/
+
+headings.forEach((heading)=>{
+
+const text=
+heading.innerText
+.trim();
+
+if(!text)
+return;
+
+
+/*
+IGNORE FRONT MATTER
+*/
+
+if(
+text.length>150
+)
+return;
+
+
+chapterCount++;
+
+const id=
+"chapter-"+chapterCount;
+
+heading.id=id;
+
+const button=
+document
+.createElement("button");
+
+button.className=
+"chapterButton";
+
+button.innerText=
+text;
+
+button.onclick=
+()=>{
+
+document
+.getElementById(id)
 .scrollIntoView({
 behavior:"smooth",
 block:"start"
 });
 
-debug(
-"ACCESSING ARCHIVE RECORD // "
-+
-book.title
-);
+};
 
-}
+chapterContainer
+.appendChild(button);
+
+});
 
 
 /*
-=================================================
-CLOSE READER
-=================================================
+COPY CONTENT
 */
 
-function closeReader(){
+const elements=
+[
+...body.children
+];
 
-document.getElementById("reader")
-.style.display="none";
+elements.forEach(el=>{
 
-debug(
-"ARCHIVE BROWSER READY"
+/*
+REMOVE PG NAVIGATION
+*/
+
+if(
+el.tagName==="NAV" ||
+el.id==="pg-header" ||
+el.id==="pg-footer"
+)
+return;
+
+
+/*
+SKIP EMPTY ELEMENTS
+*/
+
+if(
+!el.innerText &&
+!el.querySelector("img")
+)
+return;
+
+
+/*
+CLONE
+*/
+
+const clone=
+el.cloneNode(true);
+
+
+/*
+REMOVE EXTERNAL SCRIPTS
+*/
+
+clone
+.querySelectorAll(
+"script,style"
+)
+.forEach(x=>
+x.remove()
 );
+
+
+/*
+REMOVE LINKS THAT POINT
+TO PG INTERNAL FILES
+*/
+
+clone
+.querySelectorAll("a")
+.forEach(a=>{
+
+a.target="_blank";
+
+});
+
+
+reader
+.appendChild(clone);
+
+});
+
+
+if(!reader.innerHTML.trim()){
+
+reader.innerHTML=`
+
+<h2>
+BOOK CONTENT EMPTY
+</h2>
+
+<p>
+Open the original Gutenberg record.
+</p>
+
+`;
+
+}
+
 
 }
 
 
 /*
-=================================================
+================================================
+RANDOM
+================================================
+*/
+
+async function randomSearch(){
+
+const subjects=[
+
+"dracula",
+"ghost",
+"horror",
+"mystery",
+"adventure",
+"science fiction",
+"western",
+"pirates",
+"poetry",
+"philosophy",
+"history",
+"fantasy"
+
+];
+
+const query=
+subjects[
+Math.floor(
+Math.random()*
+subjects.length
+)
+];
+
+document
+.getElementById("search")
+.value=query;
+
+await searchBooks();
+
+}
+
+
+/*
+================================================
 LOADING
-=================================================
+================================================
 */
 
 function showLoading(){
 
-document.getElementById("books")
-.innerHTML = `
+document
+.getElementById("books")
+.innerHTML=`
 
 <div class="loading">
 
@@ -1316,14 +1978,44 @@ SEARCHING DIGITAL ARCHIVES...
 
 
 /*
-=================================================
-ESCAPE HTML
-=================================================
+================================================
+CLOSE
+================================================
+*/
+
+function closeReader(){
+
+document
+.getElementById("reader")
+.style.display="none";
+
+window.scrollTo({
+
+top:0,
+
+behavior:"smooth"
+
+});
+
+debug(
+"ARCHIVE BROWSER READY"
+);
+
+}
+
+
+/*
+================================================
+ESCAPE
+================================================
 */
 
 function escapeHTML(value){
 
-return String(value ?? "")
+return String(
+value??""
+)
+
 .replace(/&/g,"&amp;")
 .replace(/</g,"&lt;")
 .replace(/>/g,"&gt;")
@@ -1334,53 +2026,40 @@ return String(value ?? "")
 
 
 /*
-=================================================
+================================================
 TOP BUTTON
-=================================================
+================================================
 */
 
-const topButton =
-document.getElementById("topButton");
+const topButton=
+document
+.getElementById("topButton");
 
 window.addEventListener(
 "scroll",
 ()=>{
 
-if(window.scrollY > 500){
+if(window.scrollY>500)
 
 topButton.style.display="flex";
 
-}
-else{
+else
 
 topButton.style.display="none";
 
-}
-
 });
-
-function scrollTopArchive(){
-
-window.scrollTo({
-
-top:0,
-
-behavior:"smooth"
-
-});
-
-}
 
 
 /*
-=================================================
-INITIAL LOAD
-=================================================
+================================================
+START
+================================================
 */
 
-randomBooks();
+randomSearch();
 
 </script>
 
 </body>
+
 </html>
