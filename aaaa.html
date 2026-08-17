@@ -7,475 +7,308 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 
-<title>
-OBVYRIS ARCHIVE // DIGITAL LIBRARY
-</title>
+<title>OBVYRIS ARCHIVE // DIGITAL LIBRARY</title>
 
 <style>
 
-@import url(
-'https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap'
-);
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
 
 *{
 box-sizing:border-box;
 }
 
+html{
+scroll-behavior:smooth;
+}
+
 body{
-
 margin:0;
-
 padding-top:34px;
-
 background:
-radial-gradient(
-circle at top,
-#38215f,
-#05060b 65%
-);
-
+radial-gradient(circle at top,#38215f,#05060b 65%);
 color:#d9eaff;
-
-font-family:
-'Orbitron',
-sans-serif;
-
+font-family:'Orbitron',sans-serif;
 }
 
 /* DEBUG */
 
 #debug{
-
 position:fixed;
-
 top:0;
 left:0;
 right:0;
-
 z-index:100000;
-
 height:34px;
-
 display:flex;
-
 align-items:center;
 justify-content:center;
-
 padding:0 15px;
-
-background:
-rgba(0,0,0,.94);
-
-border-bottom:
-1px solid #651fff;
-
+background:rgba(0,0,0,.94);
+border-bottom:1px solid #651fff;
 color:#7cff7c;
-
 font-size:12px;
-
 white-space:nowrap;
-
 overflow:hidden;
-
 text-overflow:ellipsis;
-
-box-shadow:
-0 2px 12px black;
-
+box-shadow:0 2px 12px black;
 }
 
 /* HEADER */
 
 .header{
-
-padding:
-50px 20px 40px;
-
+padding:50px 20px 40px;
 text-align:center;
-
-background:
-rgba(0,0,0,.55);
-
-border-bottom:
-1px solid #555;
-
+background:rgba(0,0,0,.55);
+border-bottom:1px solid #555;
 }
 
 .logo{
-
 font-size:45px;
-
 font-weight:900;
-
 color:white;
-
 text-shadow:
-
 0 0 10px #8a2be2,
 0 0 40px #8a2be2;
-
 }
 
 .subtitle{
-
 margin-top:15px;
-
 color:#9aa;
-
 font-size:12px;
-
 letter-spacing:1px;
-
 }
 
 /* SEARCH */
 
 .controls{
-
 position:sticky;
-
 top:34px;
-
 z-index:5000;
-
-background:
-rgba(5,6,11,.96);
-
+background:rgba(5,6,11,.96);
 padding:15px;
-
 display:flex;
-
 justify-content:center;
-
 gap:10px;
-
 flex-wrap:wrap;
-
-box-shadow:
-0 5px 20px black;
-
-border-bottom:
-1px solid #32105f;
-
+box-shadow:0 5px 20px black;
+border-bottom:1px solid #32105f;
 }
 
 input,
 select{
-
 background:#100b1d;
-
-border:
-1px solid #6941a5;
-
+border:1px solid #6941a5;
 border-radius:9px;
-
 padding:12px;
-
 color:white;
-
 font-family:inherit;
-
 outline:none;
-
 }
 
 #search{
-
-width:
-min(500px,90vw);
-
+width:min(500px,90vw);
 }
 
 button{
-
 background:#651fff;
-
 border:none;
-
 padding:12px 20px;
-
 border-radius:10px;
-
 color:white;
-
 cursor:pointer;
-
 font-family:inherit;
-
 font-weight:bold;
-
 }
 
 button:hover{
-
 background:#a855ff;
-
 }
 
 .secondary{
-
 background:#211532;
+border:1px solid #814cff;
+}
 
-border:
-1px solid #814cff;
-
+.secondary:hover{
+background:#352052;
 }
 
 /* ARCHIVE */
 
 .archive{
-
 max-width:1450px;
-
 margin:auto;
-
 padding:40px 25px 80px;
-
 }
 
 .status{
-
 display:flex;
-
 justify-content:space-between;
-
 flex-wrap:wrap;
-
 gap:10px;
-
 margin-bottom:25px;
-
 font-size:11px;
-
 color:#888;
-
 }
 
 #count{
-
 color:#7cff7c;
-
 }
 
-/* BOOK GRID */
+/* GRID */
 
 .grid{
-
 display:grid;
-
 grid-template-columns:
-repeat(
-auto-fit,
-minmax(290px,1fr)
-);
-
+repeat(auto-fit,minmax(290px,1fr));
 gap:25px;
-
 }
 
 /* CARD */
 
 .card{
-
 background:
-
 linear-gradient(
 145deg,
 rgba(255,255,255,.12),
 rgba(0,0,0,.85)
 );
-
-border:
-1px solid #566;
-
+border:1px solid #566;
 border-radius:18px;
-
 padding:20px;
-
 position:relative;
-
 overflow:hidden;
-
 transition:.3s;
-
-min-height:440px;
-
+min-height:460px;
 display:flex;
-
 flex-direction:column;
-
 }
 
 .card:hover{
-
-transform:
-translateY(-8px);
-
+transform:translateY(-8px);
 border-color:#b26cff;
-
-box-shadow:
-0 0 30px #7b2cff;
-
+box-shadow:0 0 30px #7b2cff;
 }
 
 .card:before{
-
 content:"";
-
 position:absolute;
-
 right:-50px;
 top:-50px;
-
 width:150px;
 height:150px;
-
 background:#8a2be2;
-
 filter:blur(60px);
-
 opacity:.45;
-
 pointer-events:none;
-
 }
 
 /* COVER */
 
 .cover{
-
 width:145px;
 height:210px;
-
-margin:
-0 auto 20px;
-
-background:
-#100b1d;
-
-border:
-1px solid #6941a5;
-
+margin:0 auto 20px;
+background:#100b1d;
+border:1px solid #6941a5;
 border-radius:7px;
-
 overflow:hidden;
-
 display:flex;
-
 align-items:center;
 justify-content:center;
-
-box-shadow:
-0 0 20px
-rgba(138,43,226,.4);
-
+box-shadow:0 0 20px rgba(138,43,226,.4);
+color:#777;
+font-size:10px;
+text-align:center;
 }
 
 .cover img{
-
 width:100%;
 height:100%;
-
 object-fit:cover;
-
 }
 
-/* CARD TEXT */
+/* TEXT */
 
 .source{
-
 font-size:10px;
-
 color:#8fff8f;
-
 letter-spacing:1px;
-
 }
 
 .title{
-
 font-size:19px;
-
 font-weight:bold;
-
 color:white;
-
 margin:10px 0;
-
 line-height:1.35;
-
 }
 
 .author{
-
 font-size:12px;
-
 color:#a8a8ff;
-
 margin-bottom:10px;
-
 }
 
 .description{
-
 font-family:Arial,sans-serif;
-
 font-size:13px;
-
 line-height:1.5;
-
 color:#aaa;
 
-display:
--webkit-box;
-
+display:-webkit-box;
 -webkit-line-clamp:4;
-
 -webkit-box-orient:vertical;
 
 overflow:hidden;
-
 }
 
 .meta{
-
 margin-top:auto;
-
 padding-top:15px;
-
 font-size:10px;
-
 color:#777;
-
 }
 
-.card button{
-
+.card-actions{
+display:flex;
+gap:8px;
 margin-top:15px;
-
-width:100%;
-
 position:relative;
-
 z-index:2;
+}
 
+.card-actions button{
+flex:1;
+padding:11px 7px;
+font-size:10px;
+}
+
+.read-button{
+background:#651fff;
+}
+
+.source-button{
+background:#211532;
+border:1px solid #814cff;
+}
+
+.source-button:hover{
+background:#352052;
 }
 
 /* READER */
 
 #reader{
-
 display:none;
 
-max-width:1200px;
+max-width:1250px;
 
-margin:
-40px auto 80px;
+margin:40px auto 80px;
 
 padding:45px;
 
 background:
-
 linear-gradient(
 180deg,
 rgba(20,20,35,.98),
@@ -484,125 +317,81 @@ rgba(8,8,15,.99)
 
 border-radius:24px;
 
-border:
-1px solid #555;
+border:1px solid #555;
 
 box-shadow:
-
 0 0 40px black,
 0 0 30px #32105f;
-
 }
 
 .readerHeader{
-
-border-bottom:
-1px solid #27384d;
-
+border-bottom:1px solid #27384d;
 padding-bottom:30px;
-
 margin-bottom:30px;
-
 }
 
 .readerSource{
-
 font-size:11px;
-
 color:#7cff7c;
-
 margin-bottom:10px;
-
 }
 
 .readerTitle{
-
 font-size:34px;
-
 color:white;
-
 margin-bottom:10px;
-
+line-height:1.3;
 }
 
 .readerAuthor{
-
 color:#a8a8ff;
-
 font-size:13px;
-
 }
 
 .readerControls{
-
 display:flex;
-
 gap:10px;
-
 flex-wrap:wrap;
-
 margin-top:25px;
-
 }
 
 /* BOOK LAYOUT */
 
 .bookLayout{
-
 display:grid;
-
-grid-template-columns:
-230px 1fr;
-
+grid-template-columns:230px 1fr;
 gap:30px;
-
 }
 
-/* CHAPTERS */
+/* CHAPTER MENU */
 
 .chapterMenu{
-
-background:
-rgba(0,0,0,.45);
-
-border:
-1px solid #32105f;
-
+background:rgba(0,0,0,.45);
+border:1px solid #32105f;
 border-radius:15px;
-
 padding:20px;
-
 height:max-content;
-
 position:sticky;
-
 top:100px;
-
+max-height:70vh;
+overflow:auto;
 }
 
 .chapterMenu h3{
-
 font-size:13px;
-
 color:#2793ff;
-
+margin-top:0;
 }
 
 .chapterButton{
-
 display:block;
-
 width:100%;
-
 margin:6px 0;
-
 padding:10px;
 
-background:
-#160d2b;
+background:#160d2b;
 
-border:
-1px solid #32105f;
+border:1px solid #32105f;
 
 border-radius:8px;
 
@@ -615,128 +404,123 @@ font-size:10px;
 text-align:left;
 
 cursor:pointer;
-
 }
 
 .chapterButton:hover{
-
 background:#32105f;
-
 color:white;
-
 border-color:#814cff;
-
 }
 
-/* BOOK */
+/* BOOK CONTENT */
 
 .bookContent{
-
-background:
-rgba(255,255,255,.025);
-
+background:rgba(255,255,255,.025);
 border-radius:15px;
-
-padding:
-35px 45px;
-
+padding:35px 45px;
 min-height:500px;
-
+overflow:hidden;
 }
 
 .bookContent h1,
 .bookContent h2,
-.bookContent h3{
-
+.bookContent h3,
+.bookContent h4{
 color:#2793ff;
-
+scroll-margin-top:100px;
 }
 
 .bookContent p{
-
 font-family:
 Georgia,
 'Times New Roman',
 serif;
 
 font-size:19px;
-
 line-height:1.9;
 
 color:#ddd;
 
-margin:
-0 0 1.4em;
-
+margin:0 0 1.4em;
 }
 
 .bookContent img{
-
 max-width:100%;
-
 height:auto;
-
 }
 
 .bookContent a{
-
 color:#8d72ff;
+}
 
+/* GUTENBERG NOTICE */
+
+.readerNotice{
+background:rgba(101,31,255,.08);
+border:1px solid #32105f;
+border-radius:12px;
+padding:15px;
+margin-bottom:25px;
+
+font-family:Arial,sans-serif;
+
+font-size:13px;
+
+line-height:1.6;
+
+color:#aaa;
 }
 
 /* LOADING */
 
 .loading{
-
-grid-column:
-1/-1;
-
+grid-column:1/-1;
 text-align:center;
-
 padding:80px 20px;
-
 color:#7cff7c;
-
 }
 
 .spinner{
-
 width:40px;
-
 height:40px;
 
-border:
-3px solid #32105f;
+border:3px solid #32105f;
 
-border-top:
-3px solid #a855ff;
+border-top:3px solid #a855ff;
 
 border-radius:50%;
 
-animation:
-spin 1s linear infinite;
+animation:spin 1s linear infinite;
 
-margin:
-0 auto 20px;
-
+margin:0 auto 20px;
 }
 
 @keyframes spin{
-
 to{
 transform:rotate(360deg);
 }
+}
 
+/* ERROR */
+
+.errorBox{
+padding:30px;
+background:rgba(255,0,0,.05);
+border:1px solid #572020;
+border-radius:15px;
+color:#aaa;
+
+font-family:Arial,sans-serif;
+
+line-height:1.6;
 }
 
 /* TOP */
 
 #topButton{
-
 position:fixed;
 
 right:25px;
-
 bottom:25px;
 
 z-index:9999;
@@ -759,23 +543,16 @@ justify-content:center;
 
 cursor:pointer;
 
-box-shadow:
-0 0 20px #8a2be2;
-
+box-shadow:0 0 20px #8a2be2;
 }
 
 /* FOOTER */
 
 .footer{
-
 text-align:center;
-
 padding:40px;
-
 color:#666;
-
 font-size:10px;
-
 }
 
 /* MOBILE */
@@ -787,38 +564,34 @@ font-size:30px;
 }
 
 .bookLayout{
-
 grid-template-columns:1fr;
-
 }
 
 .chapterMenu{
-
 position:relative;
-
 top:auto;
-
+max-height:300px;
 }
 
 .bookContent{
-
 padding:25px 20px;
-
 }
 
 .bookContent p{
-
 font-size:17px;
-
 }
 
 #reader{
-
-margin:
-20px 10px 60px;
-
+margin:20px 10px 60px;
 padding:25px;
+}
 
+.card-actions{
+flex-direction:column;
+}
+
+.readerTitle{
+font-size:26px;
 }
 
 }
@@ -903,6 +676,14 @@ OPEN LIBRARY + PROJECT GUTENBERG
 id="books"
 class="grid">
 
+<div class="loading">
+
+<div class="spinner"></div>
+
+CONNECTING TO DIGITAL ARCHIVES...
+
+</div>
+
 </div>
 
 </div>
@@ -935,12 +716,17 @@ CLOSE READER
 </button>
 
 <button
-class="secondary"
-onclick="window.open(currentLanding,'_blank')">
-GUTENBERG SOURCE </button>
+id="readerSourceButton"
+class="secondary">
+SOURCE </button>
 
 </div>
 
+</div>
+
+<div id="readerNotice"
+class="readerNotice"
+style="display:none">
 </div>
 
 <div class="bookLayout">
@@ -954,7 +740,6 @@ BOOK NAVIGATION
 </h3>
 
 <div id="chapters">
-Loading...
 </div>
 
 </div>
@@ -962,14 +747,6 @@ Loading...
 <div
 id="bookContent"
 class="bookContent">
-
-<div class="loading">
-
-<div class="spinner"></div>
-
-LOADING BOOK...
-
-</div>
 
 </div>
 
@@ -986,16 +763,41 @@ OPEN LIBRARY + PROJECT GUTENBERG
 
 <button
 id="topButton"
-onclick="window.scrollTo({top:0,behavior:'smooth'})">
-⬆ </button>
+onclick="
+window.scrollTo({
+top:0,
+behavior:'smooth'
+});
+">
+
+⬆
+
+</button>
 
 <script>
 
 /*
-================================================
-OBVYRIS HYBRID LIBRARY
-================================================
+====================================================
+OBVYRIS HYBRID DIGITAL LIBRARY
+====================================================
+
+OPEN LIBRARY
++
+PROJECT GUTENBERG / GUTENDEX
+
+GUTENBERG:
+
+READ IN OBVYRIS
+=
+actual HTML format supplied by Gutendex
+
+SOURCE
+=
+canonical Gutenberg ebook page
+
+====================================================
 */
+
 
 const OPEN_LIBRARY =
 "https://openlibrary.org/search.json";
@@ -1003,32 +805,33 @@ const OPEN_LIBRARY =
 const GUTENDEX =
 "https://gutendex.com/books/";
 
-let books=[];
 
-let currentLanding="";
+let books=[];
 
 let currentBook=null;
 
+let currentLanding="";
+
 
 /*
-================================================
+====================================================
 DEBUG
-================================================
+====================================================
 */
 
-function debug(text){
+function debug(message){
 
 document
 .getElementById("debug")
-.innerText=text;
+.innerText=message;
 
 }
 
 
 /*
-================================================
-SEARCH
-================================================
+====================================================
+SEARCH BOTH SOURCES
+====================================================
 */
 
 async function searchBooks(){
@@ -1039,6 +842,7 @@ document
 .value
 .trim();
 
+
 if(!query){
 
 randomSearch();
@@ -1047,11 +851,14 @@ return;
 
 }
 
+
 debug(
-"SEARCHING OPEN LIBRARY + GUTENBERG..."
+"SEARCHING OPEN LIBRARY + PROJECT GUTENBERG..."
 );
 
+
 showLoading();
+
 
 const results=
 await Promise.all([
@@ -1062,27 +869,29 @@ searchGutenberg(query)
 
 ]);
 
+
 books=[
 ...results[0],
 ...results[1]
 ];
 
+
 renderBooks();
 
+
 debug(
-"ARCHIVE ONLINE // "
-+
+"ARCHIVE ONLINE // "+
 books.length+
-" RECORDS"
+" RECORDS LOADED"
 );
 
 }
 
 
 /*
-================================================
-OPEN LIBRARY SEARCH
-================================================
+====================================================
+OPEN LIBRARY
+====================================================
 */
 
 async function searchOpenLibrary(query){
@@ -1099,16 +908,27 @@ encodeURIComponent(query)+
 
 );
 
+
+if(!response.ok){
+
+throw new Error(
+"Open Library HTTP "+
+response.status
+);
+
+}
+
+
 const data=
 await response.json();
 
+
 return data.docs.map(book=>({
 
-source:
-"openlibrary",
+source:"openlibrary",
 
 title:
-book.title ||
+book.title||
 "Unknown Title",
 
 author:
@@ -1119,7 +939,7 @@ book.author_name.join(", ")
 "Unknown Author",
 
 year:
-book.first_publish_year ||
+book.first_publish_year||
 "Unknown",
 
 cover:
@@ -1140,7 +960,7 @@ book.first_sentence[0]
 :
 book.first_sentence
 :
-"",
+"Open Library catalog record.",
 
 url:
 book.key
@@ -1151,14 +971,24 @@ book.key
 "https://openlibrary.org/",
 
 id:
-book.key
+book.key,
+
+subjects:
+book.subject
+?
+book.subject.slice(0,6)
+:
+[]
 
 }));
 
 }
-catch(e){
+catch(error){
 
-console.error(e);
+console.error(
+"OPEN LIBRARY ERROR",
+error
+);
 
 return[];
 
@@ -1168,9 +998,9 @@ return[];
 
 
 /*
-================================================
-GUTENBERG SEARCH
-================================================
+====================================================
+PROJECT GUTENBERG
+====================================================
 */
 
 async function searchGutenberg(query){
@@ -1182,18 +1012,50 @@ await fetch(
 
 GUTENDEX+
 "?search="+
-encodeURIComponent(query)
+encodeURIComponent(query)+
+"&mime_type=text/html"
 
 );
 
+
+if(!response.ok){
+
+throw new Error(
+"Gutendex HTTP "+
+response.status
+);
+
+}
+
+
 const data=
 await response.json();
+
 
 return data.results.map(book=>{
 
 const formats=
 book.formats||
 {};
+
+
+/*
+-----------------------------------------------
+FIND HTML FORMAT
+-----------------------------------------------
+
+Gutendex can return multiple HTML MIME types.
+
+We specifically prefer:
+
+text/html; charset=utf-8
+
+then:
+
+text/html
+
+-----------------------------------------------
+*/
 
 const html=
 findFormat(
@@ -1203,6 +1065,13 @@ formats,
 "text/html"
 ]
 );
+
+
+/*
+-----------------------------------------------
+FIND TEXT
+-----------------------------------------------
+*/
 
 const text=
 findFormat(
@@ -1214,6 +1083,13 @@ formats,
 ]
 );
 
+
+/*
+-----------------------------------------------
+EPUB
+-----------------------------------------------
+*/
+
 const epub=
 findFormat(
 formats,
@@ -1222,13 +1098,36 @@ formats,
 ]
 );
 
+
+/*
+-----------------------------------------------
+COVER
+-----------------------------------------------
+*/
+
+const cover=
+findFormat(
+formats,
+[
+"image/jpeg"
+]
+);
+
+
+/*
+-----------------------------------------------
+RETURN RECORD
+-----------------------------------------------
+*/
+
 return{
 
 source:
 "gutenberg",
 
 title:
-book.title,
+book.title||
+"Unknown Title",
 
 author:
 book.authors &&
@@ -1247,9 +1146,7 @@ book.copyright===false
 :
 "SEE LICENSE",
 
-cover:
-formats["image/jpeg"]||
-null,
+cover:cover,
 
 description:
 book.summaries &&
@@ -1273,36 +1170,45 @@ text:text,
 epub:epub,
 
 subjects:
-book.subjects||[]
+book.subjects||
+[],
+
+downloadCount:
+book.download_count||
+0
 
 };
 
 });
 
 }
-catch(e){
+catch(error){
 
-console.error(e);
+console.error(
+"GUTENBERG ERROR",
+error
+);
 
 return[];
 
 }
 
-}
-
 
 /*
-================================================
+====================================================
 FIND FORMAT
-================================================
+====================================================
 */
 
 function findFormat(formats,types){
 
 for(const type of types){
 
-if(formats[type])
+if(formats[type]){
+
 return formats[type];
+
+}
 
 }
 
@@ -1312,9 +1218,9 @@ return null;
 
 
 /*
-================================================
-RENDER
-================================================
+====================================================
+RENDER BOOKS
+====================================================
 */
 
 function renderBooks(){
@@ -1322,9 +1228,12 @@ function renderBooks(){
 const container=
 document.getElementById("books");
 
+
 const source=
-document.getElementById("source")
+document
+.getElementById("source")
 .value;
+
 
 const filtered=
 books.filter(book=>{
@@ -1336,10 +1245,12 @@ return book.source===source;
 
 });
 
+
 document
 .getElementById("count")
 .innerText=
 filtered.length;
+
 
 if(!filtered.length){
 
@@ -1357,29 +1268,33 @@ return;
 
 }
 
+
 container.innerHTML=
 filtered
-.map((book,index)=>card(book,index))
+.map(
+(book,index)=>
+createCard(book,index)
+)
 .join("");
 
 }
 
 
 /*
-================================================
-CARD
-================================================
+====================================================
+CREATE CARD
+====================================================
 */
 
-function card(book,index){
+function createCard(book,index){
 
-const source=
-book.source===
-"gutenberg"
+const sourceName=
+book.source==="gutenberg"
 ?
 "PROJECT GUTENBERG"
 :
 "OPEN LIBRARY";
+
 
 const cover=
 book.cover
@@ -1388,12 +1303,24 @@ book.cover
 <img
 src="${escapeHTML(book.cover)}"
 loading="lazy"
+alt="Book cover"
 onerror="
-this.style.display='none'
+this.style.display='none';
 ">
 `
 :
-"";
+`
+<span>
+NO COVER
+</span>
+`;
+
+
+/*
+GUTENBERG CARD
+*/
+
+if(book.source==="gutenberg"){
 
 return`
 
@@ -1403,47 +1330,72 @@ return`
 
 ${cover}
 
-${!book.cover
-?
-"<span>NO COVER</span>"
-:
-""}
-
 </div>
 
 <div class="source">
-${source}
+
+${sourceName}
+
 </div>
 
 <div class="title">
+
 ${escapeHTML(book.title)}
+
 </div>
 
 <div class="author">
+
 ${escapeHTML(book.author)}
+
 </div>
 
 <div class="description">
-${escapeHTML(book.description||"")}
+
+${escapeHTML(
+book.description||
+""
+)}
+
 </div>
 
 <div class="meta">
 
-YEAR:
-${escapeHTML(book.year)}
+GUTENBERG ID:
+${escapeHTML(
+String(book.id)
+)}
+
+<br><br>
+
+DOWNLOADS:
+${escapeHTML(
+String(book.downloadCount)
+)}
 
 </div>
 
+<div class="card-actions">
+
 <button
+class="read-button"
 onclick="openBook(${index})">
 
-${book.source==="gutenberg"
-?
-"READ BOOK"
-:
-"VIEW RECORD"}
+READ IN OBVYRIS
 
 </button>
+
+<button
+class="source-button"
+onclick="
+openSource(${index})
+">
+
+SOURCE
+
+</button>
+
+</div>
 
 </article>
 
@@ -1453,17 +1405,97 @@ ${book.source==="gutenberg"
 
 
 /*
-================================================
-OPEN BOOK
-================================================
+OPEN LIBRARY CARD
 */
 
-function openBook(index){
+return`
+
+<article class="card">
+
+<div class="cover">
+
+${cover}
+
+</div>
+
+<div class="source">
+
+OPEN LIBRARY
+
+</div>
+
+<div class="title">
+
+${escapeHTML(book.title)}
+
+</div>
+
+<div class="author">
+
+${escapeHTML(book.author)}
+
+</div>
+
+<div class="description">
+
+${escapeHTML(
+book.description||
+""
+)}
+
+</div>
+
+<div class="meta">
+
+YEAR:
+${escapeHTML(
+String(book.year)
+)}
+
+</div>
+
+<div class="card-actions">
+
+<button
+class="read-button"
+onclick="openBook(${index})">
+
+VIEW RECORD
+
+</button>
+
+<button
+class="source-button"
+onclick="
+openSource(${index})
+">
+
+SOURCE
+
+</button>
+
+</div>
+
+</article>
+
+`;
+
+}
+
+
+/*
+====================================================
+GET FILTERED BOOK
+====================================================
+*/
+
+function getFilteredBook(index){
 
 const source=
 document
 .getElementById("source")
 .value;
+
 
 const filtered=
 books.filter(book=>{
@@ -1475,44 +1507,112 @@ return book.source===source;
 
 });
 
+
+return filtered[index];
+
+}
+
+
+/*
+====================================================
+OPEN SOURCE
+====================================================
+*/
+
+function openSource(index){
+
 const book=
-filtered[index];
+getFilteredBook(index);
+
 
 if(!book)
 return;
 
+
+const url=
+book.source==="gutenberg"
+?
+book.landing
+:
+book.url;
+
+
+window.open(
+url,
+"_blank",
+"noopener"
+);
+
+}
+
+
+/*
+====================================================
+OPEN BOOK
+====================================================
+*/
+
+function openBook(index){
+
+const book=
+getFilteredBook(index);
+
+
+if(!book)
+return;
+
+
 currentBook=book;
+
 
 document
 .getElementById("reader")
 .style.display="block";
 
+
 document
 .getElementById("reader")
 .scrollIntoView({
-behavior:"smooth"
+behavior:"smooth",
+block:"start"
 });
+
 
 document
 .getElementById("readerTitle")
 .innerText=
 book.title;
 
+
 document
 .getElementById("readerAuthor")
 .innerText=
-"AUTHOR // "+book.author;
+"AUTHOR // "+
+book.author;
+
+
+document
+.getElementById("readerSourceButton")
+onclick=
+function(){
+
+openCurrentSource();
+
+};
+
 
 if(book.source==="gutenberg"){
 
 currentLanding=
 book.landing;
 
+
 document
 .getElementById("readerSource")
 .innerText=
 "GUTENBERG // BOOK "+
 book.id;
+
 
 loadGutenbergBook(book);
 
@@ -1522,34 +1622,62 @@ else{
 currentLanding=
 book.url;
 
+
 document
 .getElementById("readerSource")
 .innerText=
 "OPEN LIBRARY // ARCHIVE RECORD";
 
+
+document
+.getElementById("readerNotice")
+.style.display="none";
+
+
+document
+.getElementById("chapterMenu")
+.innerHTML=`
+
+<h3>
+BOOK NAVIGATION
+</h3>
+
+<div style="
+color:#777;
+font-size:10px;
+line-height:1.6;
+">
+
+CATALOG RECORD ONLY
+
+</div>
+
+`;
+
+
 document
 .getElementById("bookContent")
-innerHTML=`
+.innerHTML=`
 
 <h2>
 OPEN LIBRARY RECORD
 </h2>
 
 <p>
-This record is catalog information from Open Library.
+
+This is an Open Library catalog record.
+
 </p>
 
 <p>
-Use the source link to access available editions,
-borrow information, and Internet Archive availability.
+
+Available editions, borrowing information,
+and Internet Archive availability can be
+accessed through the source record.
+
 </p>
 
 `;
-
-document
-.getElementById("chapters")
-innerHTML=
-"<div style='color:#777'>NO CHAPTER DATA</div>";
 
 }
 
@@ -1557,9 +1685,38 @@ innerHTML=
 
 
 /*
-================================================
+====================================================
+OPEN CURRENT SOURCE
+====================================================
+*/
+
+function openCurrentSource(){
+
+if(!currentBook)
+return;
+
+
+const url=
+currentBook.source==="gutenberg"
+?
+currentBook.landing
+:
+currentBook.url;
+
+
+window.open(
+url,
+"_blank",
+"noopener"
+);
+
+}
+
+
+/*
+====================================================
 LOAD GUTENBERG BOOK
-================================================
+====================================================
 */
 
 async function loadGutenbergBook(book){
@@ -1567,8 +1724,34 @@ async function loadGutenbergBook(book){
 debug(
 "ACCESSING GUTENBERG BOOK "+
 book.id+
-"..."
+" // LOCATING HTML EDITION..."
 );
+
+
+/*
+NOTICE
+*/
+
+const notice=
+document
+.getElementById("readerNotice");
+
+
+notice.style.display="block";
+
+
+notice.innerHTML=
+
+"OBVYRIS READER // GUTENBERG HTML EDITION<br>"+
+"BOOK ID: "+
+escapeHTML(String(book.id))+
+"<br>"+
+"HTML SOURCE LOCATED FROM GUTENDEX FORMAT DATA";
+
+
+/*
+LOADING
+*/
 
 document
 .getElementById("bookContent")
@@ -1578,93 +1761,109 @@ document
 
 <div class="spinner"></div>
 
-RETRIEVING BOOK TEXT...
+LOADING ACTUAL BOOK...
 
 </div>
 
 `;
 
-try{
+
+document
+.getElementById("chapters")
+.innerHTML=
+
+"<div style='color:#7cff7c;font-size:10px'>"+
+"SCANNING BOOK STRUCTURE..."+
+"</div>";
+
+
+/*
+NO HTML
+*/
 
 if(!book.html){
 
-throw new Error(
-"No HTML format available"
+showGutenbergFailure(
+book,
+"NO HTML EDITION WAS RETURNED BY GUTENDEX."
 );
 
+return;
+
 }
+
+
+/*
+DEBUG EXACT URL
+*/
+
+console.log(
+"GUTENBERG HTML:",
+book.html
+);
+
+
+try{
+
+/*
+FETCH ACTUAL BOOK
+*/
 
 const response=
 await fetch(book.html);
 
+
 if(!response.ok){
 
 throw new Error(
-"Unable to retrieve HTML"
+"HTTP "+
+response.status
 );
 
 }
 
+
 const html=
 await response.text();
 
-parseGutenbergHTML(html);
+
+if(!html){
+
+throw new Error(
+"EMPTY HTML RESPONSE"
+);
+
+}
+
+
+/*
+PARSE
+*/
+
+parseGutenbergHTML(
+html,
+book
+);
+
 
 debug(
 "BOOK LOADED // GUTENBERG "+
-book.id
+book.id+
+" // OBVYRIS READER ONLINE"
 );
 
 }
 catch(error){
 
 console.error(
-"GUTENBERG BOOK ERROR",
+"GUTENBERG HTML ERROR",
 error
 );
 
-document
-.getElementById("bookContent")
-.innerHTML=`
 
-<h2>
-BOOK FILE UNAVAILABLE
-</h2>
-
-<p>
-
-The browser could not directly retrieve
-the Gutenberg HTML file.
-
-</p>
-
-<p>
-
-The canonical Project Gutenberg
-book page is available below.
-
-</p>
-
-<button
-onclick="
-window.open(
-'${book.landing}',
-'_blank'
-)">
-
-OPEN GUTENBERG BOOK
-
-</button>
-
-`;
-
-document
-.getElementById("chapters")
-innerHTML=
-"<div style='color:#777'>SOURCE PAGE AVAILABLE</div>";
-
-debug(
-"GUTENBERG FILE ACCESS FAILED"
+showGutenbergFailure(
+book,
+error.message
 );
 
 }
@@ -1673,15 +1872,122 @@ debug(
 
 
 /*
-================================================
-PARSE GUTENBERG HTML
-================================================
+====================================================
+GUTENBERG FAILURE
+====================================================
 */
 
-function parseGutenbergHTML(html){
+function showGutenbergFailure(book,error){
+
+document
+.getElementById("bookContent")
+.innerHTML=`
+
+<div class="errorBox">
+
+<h2>
+OBVYRIS READER COULD NOT RETRIEVE BOOK
+</h2>
+
+<p>
+
+Book:
+<strong>
+${escapeHTML(book.title)}
+</strong>
+
+</p>
+
+<p>
+
+Gutenberg ID:
+${escapeHTML(String(book.id))}
+
+</p>
+
+<p>
+
+HTML edition:
+<br>
+
+${escapeHTML(book.html||"NOT AVAILABLE")}
+
+</p>
+
+<p>
+
+Reason:
+${escapeHTML(error)}
+
+</p>
+
+<button
+onclick="
+window.open(
+'${escapeJS(book.html||book.landing)}',
+'_blank'
+)">
+
+OPEN HTML EDITION
+
+</button>
+
+<button
+class="secondary"
+onclick="
+window.open(
+'${escapeJS(book.landing)}',
+'_blank'
+)">
+
+OPEN GUTENBERG SOURCE
+
+</button>
+
+</div>
+
+`;
+
+
+document
+.getElementById("chapters")
+.innerHTML=`
+
+<h3>
+BOOK NAVIGATION
+</h3>
+
+<div style="
+color:#777;
+font-size:10px;
+line-height:1.6;
+">
+
+DIRECT SOURCE AVAILABLE
+
+</div>
+
+`;
+
+
+debug(
+"GUTENBERG HTML ACCESS FAILED // SOURCE AVAILABLE"
+);
+
+}
+
+
+/*
+====================================================
+PARSE GUTENBERG HTML
+====================================================
+*/
+
+function parseGutenbergHTML(html,book){
 
 const parser=
 new DOMParser();
+
 
 const doc=
 parser.parseFromString(
@@ -1691,12 +1997,25 @@ html,
 
 
 /*
-REMOVE UNWANTED ELEMENTS
+REMOVE ACTIVE CONTENT
 */
 
 doc
 .querySelectorAll(
 "script,style,noscript"
+)
+.forEach(el=>
+el.remove()
+);
+
+
+/*
+REMOVE COMMON PG WRAPPER ELEMENTS
+*/
+
+doc
+.querySelectorAll(
+"#pg-header,#pg-footer,.pg-boilerplate"
 )
 .forEach(el=>
 el.remove()
@@ -1710,24 +2029,38 @@ FIND BODY
 const body=
 doc.body;
 
+
 if(!body){
 
 throw new Error(
-"No document body"
+"NO BOOK BODY FOUND"
 );
 
 }
 
 
 /*
-CREATE SAFE READER
+READER
 */
 
 const reader=
 document
 .getElementById("bookContent");
 
+
 reader.innerHTML="";
+
+
+/*
+CHAPTER MENU
+*/
+
+const chapterContainer=
+document
+.getElementById("chapters");
+
+
+chapterContainer.innerHTML="";
 
 
 /*
@@ -1737,65 +2070,61 @@ FIND HEADINGS
 const headings=
 [
 ...body.querySelectorAll(
-"h1,h2,h3,h4"
+"h1,h2,h3,h4,h5,h6"
 )
 ];
-
-
-/*
-CREATE CHAPTER NAVIGATION
-*/
-
-const chapterContainer=
-document
-.getElementById("chapters");
-
-chapterContainer.innerHTML="";
 
 
 let chapterCount=0;
 
 
-/*
-PROCESS HEADINGS
-*/
-
-headings.forEach((heading)=>{
+headings.forEach(
+heading=>{
 
 const text=
 heading.innerText
 .trim();
+
 
 if(!text)
 return;
 
 
 /*
-IGNORE FRONT MATTER
+IGNORE VERY LONG HEADINGS
 */
 
-if(
-text.length>150
-)
+if(text.length>180)
 return;
 
 
 chapterCount++;
 
+
 const id=
-"chapter-"+chapterCount;
+"obvyris-chapter-"+
+chapterCount;
+
 
 heading.id=id;
+
+
+/*
+CHAPTER BUTTON
+*/
 
 const button=
 document
 .createElement("button");
 
+
 button.className=
 "chapterButton";
 
+
 button.innerText=
 text;
+
 
 button.onclick=
 ()=>{
@@ -1809,6 +2138,7 @@ block:"start"
 
 };
 
+
 chapterContainer
 .appendChild(button);
 
@@ -1816,35 +2146,60 @@ chapterContainer
 
 
 /*
-COPY CONTENT
+NO HEADINGS
 */
 
-const elements=
+if(!chapterCount){
+
+chapterContainer.innerHTML=`
+
+<div style="
+color:#777;
+font-family:Arial;
+font-size:12px;
+line-height:1.5;
+">
+
+No chapter headings detected.
+The complete HTML book is still displayed below.
+
+</div>
+
+`;
+
+}
+
+
+/*
+COPY BOOK BODY
+*/
+
+const children=
 [
 ...body.children
 ];
 
-elements.forEach(el=>{
+
+children.forEach(
+element=>{
 
 /*
-REMOVE PG NAVIGATION
+SKIP NAVIGATION
 */
 
 if(
-el.tagName==="NAV" ||
-el.id==="pg-header" ||
-el.id==="pg-footer"
+element.tagName==="NAV"
 )
 return;
 
 
 /*
-SKIP EMPTY ELEMENTS
+SKIP EMPTY
 */
 
 if(
-!el.innerText &&
-!el.querySelector("img")
+!element.innerText &&
+!element.querySelector("img")
 )
 return;
 
@@ -1854,32 +2209,74 @@ CLONE
 */
 
 const clone=
-el.cloneNode(true);
+element.cloneNode(true);
 
 
 /*
-REMOVE EXTERNAL SCRIPTS
+REMOVE ACTIVE ELEMENTS
 */
 
 clone
 .querySelectorAll(
-"script,style"
+"script,style,noscript"
 )
-.forEach(x=>
-x.remove()
+.forEach(
+el=>
+el.remove()
 );
 
 
 /*
-REMOVE LINKS THAT POINT
-TO PG INTERNAL FILES
+MAKE LINKS SAFE
 */
 
 clone
 .querySelectorAll("a")
-.forEach(a=>{
+.forEach(
+link=>{
 
-a.target="_blank";
+link.target="_blank";
+
+link.rel=
+"noopener noreferrer";
+
+});
+
+
+/*
+FIX IMAGES
+
+Gutenberg HTML often uses
+relative image paths.
+
+*/
+
+clone
+.querySelectorAll("img")
+.forEach(
+img=>{
+
+const src=
+img.getAttribute("src");
+
+
+if(
+src &&
+!src.startsWith("http")
+){
+
+try{
+
+img.src=
+new URL(
+src,
+book.html
+).href;
+
+}
+catch(e){}
+
+}
 
 });
 
@@ -1890,6 +2287,10 @@ reader
 });
 
 
+/*
+READER EMPTY
+*/
+
 if(!reader.innerHTML.trim()){
 
 reader.innerHTML=`
@@ -1899,41 +2300,44 @@ BOOK CONTENT EMPTY
 </h2>
 
 <p>
-Open the original Gutenberg record.
+
+The Gutenberg HTML edition was found,
+but no readable body content was detected.
+
 </p>
 
 `;
 
 }
 
-
 }
 
 
 /*
-================================================
+====================================================
 RANDOM
-================================================
+====================================================
 */
 
 async function randomSearch(){
 
 const subjects=[
 
-"dracula",
-"ghost",
+"pirates",
 "horror",
+"ghost",
 "mystery",
 "adventure",
 "science fiction",
 "western",
-"pirates",
+"history",
+"fantasy",
 "poetry",
 "philosophy",
-"history",
-"fantasy"
+"sea stories"
 
 ];
+
 
 const query=
 subjects[
@@ -1943,9 +2347,12 @@ subjects.length
 )
 ];
 
+
 document
 .getElementById("search")
-.value=query;
+.value=
+query;
+
 
 await searchBooks();
 
@@ -1953,9 +2360,9 @@ await searchBooks();
 
 
 /*
-================================================
+====================================================
 LOADING
-================================================
+====================================================
 */
 
 function showLoading(){
@@ -1978,9 +2385,9 @@ SEARCHING DIGITAL ARCHIVES...
 
 
 /*
-================================================
-CLOSE
-================================================
+====================================================
+CLOSE READER
+====================================================
 */
 
 function closeReader(){
@@ -1988,6 +2395,7 @@ function closeReader(){
 document
 .getElementById("reader")
 .style.display="none";
+
 
 window.scrollTo({
 
@@ -1997,6 +2405,7 @@ behavior:"smooth"
 
 });
 
+
 debug(
 "ARCHIVE BROWSER READY"
 );
@@ -2005,9 +2414,9 @@ debug(
 
 
 /*
-================================================
-ESCAPE
-================================================
+====================================================
+ESCAPE HTML
+====================================================
 */
 
 function escapeHTML(value){
@@ -2026,34 +2435,62 @@ value??""
 
 
 /*
-================================================
+====================================================
+ESCAPE JAVASCRIPT
+====================================================
+*/
+
+function escapeJS(value){
+
+return String(
+value??""
+)
+
+.replace(/\\/g,"\\\\")
+.replace(/'/g,"\\'")
+.replace(/\n/g,"\\n")
+.replace(/\r/g,"\\r");
+
+}
+
+
+/*
+====================================================
 TOP BUTTON
-================================================
+====================================================
 */
 
 const topButton=
 document
 .getElementById("topButton");
 
+
 window.addEventListener(
 "scroll",
 ()=>{
 
-if(window.scrollY>500)
+if(
+window.scrollY>500
+){
 
-topButton.style.display="flex";
+topButton.style.display=
+"flex";
 
-else
+}
+else{
 
-topButton.style.display="none";
+topButton.style.display=
+"none";
+
+}
 
 });
 
 
 /*
-================================================
+====================================================
 START
-================================================
+====================================================
 */
 
 randomSearch();
