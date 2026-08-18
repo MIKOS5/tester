@@ -1287,198 +1287,228 @@ PLAY-BY-PLAY SIMULATION LOG
 
 
 <script>
-
 /* =========================================================
-PLAYER DATABASE
+   OBVYRIS NBA ALL-TIME BATTLE
+   POSSESSION-BASED 90s SIMULATION ENGINE
 ========================================================= */
 
-const PLAYERS={
+const PLAYERS = {
 
 "Michael Jordan":{
-pos:"SG",
-physical:99,work:100,dominance:100,hardness:100,
-iq:99,adapt:100,skill:99,defense:99,clutch:100,leadership:99
+ pos:"SG",physical:96,work:100,dominance:100,hardness:100,
+ iq:99,adapt:100,skill:99,defense:99,clutch:100,leadership:99,
+ scoring:99,passing:92,rebounding:82,three:82,midrange:100,
+ post:94,creation:100,conditioning:99
 },
 
 "Kobe Bryant":{
-pos:"SG",
-physical:94,work:100,dominance:98,hardness:100,
-iq:97,adapt:99,skill:99,defense:97,clutch:100,leadership:96
+ pos:"SG",physical:94,work:100,dominance:98,hardness:100,
+ iq:97,adapt:99,skill:99,defense:97,clutch:100,leadership:96,
+ scoring:99,passing:90,rebounding:76,three:83,midrange:98,
+ post:91,creation:99,conditioning:98
 },
 
 "Magic Johnson":{
-pos:"PG",
-physical:96,work:98,dominance:98,hardness:94,
-iq:100,adapt:99,skill:99,defense:88,clutch:97,leadership:100
+ pos:"PG",physical:96,work:98,dominance:98,hardness:94,
+ iq:100,adapt:99,skill:99,defense:88,clutch:97,leadership:100,
+ scoring:94,passing:100,rebounding:88,three:70,midrange:88,
+ post:95,creation:96,conditioning:97
 },
 
 "Larry Bird":{
-pos:"SF",
-physical:90,work:99,dominance:99,hardness:98,
-iq:100,adapt:98,skill:100,defense:90,clutch:100,leadership:98
+ pos:"SF",physical:90,work:99,dominance:99,hardness:98,
+ iq:100,adapt:98,skill:100,defense:90,clutch:100,leadership:98,
+ scoring:98,passing:98,rebounding:88,three:92,midrange:96,
+ post:92,creation:96,conditioning:95
 },
 
 "Tim Duncan":{
-pos:"PF/C",
-physical:96,work:99,dominance:96,hardness:99,
-iq:100,adapt:99,skill:97,defense:99,clutch:97,leadership:99
+ pos:"PF/C",physical:96,work:99,dominance:96,hardness:99,
+ iq:100,adapt:99,skill:97,defense:99,clutch:97,leadership:99,
+ scoring:94,passing:90,rebounding:96,three:45,midrange:88,
+ post:97,creation:82,conditioning:97
 },
 
 "Hakeem Olajuwon":{
-pos:"C",
-physical:97,work:98,dominance:99,hardness:99,
-iq:99,adapt:100,skill:100,defense:100,clutch:98,leadership:96
+ pos:"C",physical:97,work:98,dominance:99,hardness:99,
+ iq:99,adapt:100,skill:100,defense:100,clutch:98,leadership:96,
+ scoring:98,passing:87,rebounding:96,three:35,midrange:88,
+ post:100,creation:91,conditioning:97
 },
 
 "Kareem Abdul-Jabbar":{
-pos:"C",
-physical:95,work:97,dominance:99,hardness:95,
-iq:99,adapt:97,skill:100,defense:96,clutch:98,leadership:96
+ pos:"C",physical:95,work:97,dominance:99,hardness:95,
+ iq:99,adapt:97,skill:100,defense:96,clutch:98,leadership:96,
+ scoring:99,passing:88,rebounding:94,three:20,midrange:96,
+ post:100,creation:88,conditioning:96
 },
 
 "Shaquille O'Neal":{
-pos:"C",
-physical:100,work:88,dominance:100,hardness:100,
-iq:90,adapt:90,skill:97,defense:92,clutch:94,leadership:92
+ pos:"C",physical:100,work:88,dominance:100,hardness:100,
+ iq:90,adapt:90,skill:97,defense:92,clutch:94,leadership:92,
+ scoring:100,passing:84,rebounding:98,three:10,midrange:55,
+ post:100,creation:91,conditioning:87
 },
 
 "Kevin Garnett":{
-pos:"PF/C",
-physical:98,work:100,dominance:96,hardness:100,
-iq:98,adapt:99,skill:96,defense:100,clutch:94,leadership:99
+ pos:"PF/C",physical:98,work:100,dominance:96,hardness:100,
+ iq:98,adapt:99,skill:96,defense:100,clutch:94,leadership:99,
+ scoring:94,passing:88,rebounding:96,three:45,midrange:91,
+ post:92,creation:82,conditioning:99
 },
 
 "Scottie Pippen":{
-pos:"SF",
-physical:96,work:98,dominance:93,hardness:98,
-iq:99,adapt:100,skill:96,defense:100,clutch:93,leadership:95
+ pos:"SF",physical:96,work:98,dominance:93,hardness:98,
+ iq:99,adapt:100,skill:96,defense:100,clutch:93,leadership:95,
+ scoring:92,passing:94,rebounding:85,three:78,midrange:87,
+ post:82,creation:90,conditioning:99
 },
 
 "John Stockton":{
-pos:"PG",
-physical:80,work:100,dominance:88,hardness:94,
-iq:100,adapt:99,skill:97,defense:94,clutch:94,leadership:95
+ pos:"PG",physical:80,work:100,dominance:88,hardness:94,
+ iq:100,adapt:99,skill:97,defense:94,clutch:94,leadership:95,
+ scoring:85,passing:100,rebounding:55,three:85,midrange:90,
+ post:35,creation:90,conditioning:100
 },
 
 "Stephen Curry":{
-pos:"PG/SG",
-physical:80,work:100,dominance:94,hardness:87,
-iq:99,adapt:100,skill:100,defense:82,clutch:99,leadership:96
+ pos:"PG/SG",physical:80,work:100,dominance:94,hardness:87,
+ iq:99,adapt:100,skill:100,defense:82,clutch:99,leadership:96,
+ scoring:99,passing:96,rebounding:58,three:100,midrange:95,
+ post:40,creation:99,conditioning:99
 },
 
 "LeBron James":{
-pos:"SF/PF",
-physical:100,work:99,dominance:100,hardness:98,
-iq:100,adapt:100,skill:99,defense:97,clutch:98,leadership:99
+ pos:"SF/PF",physical:100,work:99,dominance:100,hardness:98,
+ iq:100,adapt:100,skill:99,defense:97,clutch:98,leadership:99,
+ scoring:99,passing:99,rebounding:92,three:84,midrange:91,
+ post:94,creation:100,conditioning:99
 },
 
 "Kevin Durant":{
-pos:"SF/PF",
-physical:95,work:99,dominance:98,hardness:93,
-iq:98,adapt:99,skill:100,defense:94,clutch:98,leadership:93
+ pos:"SF/PF",physical:95,work:99,dominance:98,hardness:93,
+ iq:98,adapt:99,skill:100,defense:94,clutch:98,leadership:93,
+ scoring:100,passing:91,rebounding:82,three:94,midrange:99,
+ post:91,creation:99,conditioning:97
 },
 
 "Gary Payton":{
-pos:"PG",
-physical:91,work:99,dominance:92,hardness:100,
-iq:98,adapt:99,skill:94,defense:100,clutch:94,leadership:96
+ pos:"PG",physical:91,work:99,dominance:92,hardness:100,
+ iq:98,adapt:99,skill:94,defense:100,clutch:94,leadership:96,
+ scoring:88,passing:94,rebounding:62,three:75,midrange:88,
+ post:40,creation:88,conditioning:100
 },
 
 "Kawhi Leonard":{
-pos:"SF",
-physical:96,work:96,dominance:94,hardness:99,
-iq:98,adapt:99,skill:98,defense:100,clutch:98,leadership:90
+ pos:"SF",physical:96,work:96,dominance:94,hardness:99,
+ iq:98,adapt:99,skill:98,defense:100,clutch:98,leadership:90,
+ scoring:97,passing:88,rebounding:82,three:88,midrange:98,
+ post:85,creation:94,conditioning:92
 },
 
 "Dirk Nowitzki":{
-pos:"PF",
-physical:92,work:98,dominance:96,hardness:91,
-iq:98,adapt:97,skill:100,defense:87,clutch:97,leadership:94
+ pos:"PF",physical:92,work:98,dominance:96,hardness:91,
+ iq:98,adapt:97,skill:100,defense:87,clutch:97,leadership:94,
+ scoring:98,passing:84,rebounding:86,three:94,midrange:99,
+ post:94,creation:88,conditioning:96
 },
 
 "Karl Malone":{
-pos:"PF",
-physical:99,work:100,dominance:98,hardness:100,
-iq:96,adapt:96,skill:96,defense:93,clutch:90,leadership:96
+ pos:"PF",physical:99,work:100,dominance:98,hardness:100,
+ iq:96,adapt:96,skill:96,defense:93,clutch:90,leadership:96,
+ scoring:97,passing:86,rebounding:94,three:35,midrange:95,
+ post:96,creation:87,conditioning:100
 },
 
 "Dennis Rodman":{
-pos:"PF",
-physical:97,work:98,dominance:93,hardness:100,
-iq:99,adapt:100,skill:87,defense:100,clutch:90,leadership:94
+ pos:"PF",physical:97,work:98,dominance:93,hardness:100,
+ iq:99,adapt:100,skill:87,defense:100,clutch:90,leadership:94,
+ scoring:55,passing:72,rebounding:100,three:15,midrange:40,
+ post:55,creation:40,conditioning:100
 },
 
 "Moses Malone":{
-pos:"C",
-physical:100,work:100,dominance:99,hardness:100,
-iq:90,adapt:94,skill:94,defense:94,clutch:96,leadership:94
+ pos:"C",physical:100,work:100,dominance:99,hardness:100,
+ iq:90,adapt:94,skill:94,defense:94,clutch:96,leadership:94,
+ scoring:97,passing:75,rebounding:100,three:15,midrange:55,
+ post:98,creation:82,conditioning:100
 },
 
 "Julius Erving":{
-pos:"SF",
-physical:97,work:98,dominance:98,hardness:96,
-iq:96,adapt:98,skill:99,defense:92,clutch:97,leadership:96
+ pos:"SF",physical:97,work:98,dominance:98,hardness:96,
+ iq:96,adapt:98,skill:99,defense:92,clutch:97,leadership:96,
+ scoring:97,passing:87,rebounding:86,three:55,midrange:90,
+ post:80,creation:94,conditioning:98
 },
 
 "Clyde Drexler":{
-pos:"SG/SF",
-physical:97,work:96,dominance:94,hardness:94,
-iq:94,adapt:96,skill:96,defense:89,clutch:93,leadership:94
+ pos:"SG/SF",physical:97,work:96,dominance:94,hardness:94,
+ iq:94,adapt:96,skill:96,defense:89,clutch:93,leadership:94,
+ scoring:94,passing:86,rebounding:80,three:62,midrange:86,
+ post:65,creation:91,conditioning:98
 },
 
 "Jason Kidd":{
-pos:"PG",
-physical:92,work:98,dominance:90,hardness:97,
-iq:99,adapt:99,skill:95,defense:96,clutch:92,leadership:98
+ pos:"PG",physical:92,work:98,dominance:90,hardness:97,
+ iq:99,adapt:99,skill:95,defense:96,clutch:92,leadership:98,
+ scoring:86,passing:99,rebounding:75,three:75,midrange:80,
+ post:45,creation:88,conditioning:99
 },
 
 "Reggie Miller":{
-pos:"SG",
-physical:82,work:99,dominance:91,hardness:92,
-iq:97,adapt:99,skill:99,defense:81,clutch:100,leadership:91
+ pos:"SG",physical:82,work:99,dominance:91,hardness:92,
+ iq:97,adapt:99,skill:99,defense:81,clutch:100,leadership:91,
+ scoring:94,passing:82,rebounding:60,three:96,midrange:94,
+ post:45,creation:87,conditioning:99
 },
 
 "Isiah Thomas":{
-pos:"PG",
-physical:86,work:99,dominance:96,hardness:100,
-iq:99,adapt:100,skill:98,defense:89,clutch:99,leadership:100
+ pos:"PG",physical:86,work:99,dominance:96,hardness:100,
+ iq:99,adapt:100,skill:98,defense:89,clutch:99,leadership:100,
+ scoring:94,passing:98,rebounding:55,three:65,midrange:94,
+ post:50,creation:96,conditioning:98
 },
 
 "Charles Barkley":{
-pos:"PF",
-physical:98,work:97,dominance:99,hardness:99,
-iq:96,adapt:96,skill:98,defense:88,clutch:94,leadership:94
+ pos:"PF",physical:98,work:97,dominance:99,hardness:99,
+ iq:96,adapt:96,skill:98,defense:88,clutch:94,leadership:94,
+ scoring:98,passing:88,rebounding:98,three:45,midrange:82,
+ post:93,creation:89,conditioning:94
 },
 
 "David Robinson":{
-pos:"C",
-physical:99,work:98,dominance:96,hardness:94,
-iq:97,adapt:98,skill:96,defense:99,clutch:94,leadership:96
+ pos:"C",physical:99,work:98,dominance:96,hardness:94,
+ iq:97,adapt:98,skill:96,defense:99,clutch:94,leadership:96,
+ scoring:95,passing:82,rebounding:95,three:20,midrange:78,
+ post:90,creation:78,conditioning:99
 },
 
 "Bill Russell":{
-pos:"C",
-physical:95,work:100,dominance:99,hardness:100,
-iq:100,adapt:100,skill:90,defense:100,clutch:99,leadership:100
+ pos:"C",physical:95,work:100,dominance:99,hardness:100,
+ iq:100,adapt:100,skill:90,defense:100,clutch:99,leadership:100,
+ scoring:75,passing:82,rebounding:100,three:10,midrange:40,
+ post:72,creation:55,conditioning:100
 },
 
 "Wilt Chamberlain":{
-pos:"C",
-physical:100,work:97,dominance:100,hardness:96,
-iq:94,adapt:94,skill:98,defense:97,clutch:95,leadership:93
+ pos:"C",physical:100,work:97,dominance:100,hardness:96,
+ iq:94,adapt:94,skill:98,defense:97,clutch:95,leadership:93,
+ scoring:99,passing:90,rebounding:100,three:5,midrange:55,
+ post:99,creation:85,conditioning:97
 },
 
 "Jerry West":{
-pos:"PG/SG",
-physical:88,work:99,dominance:96,hardness:96,
-iq:99,adapt:98,skill:99,defense:94,clutch:100,leadership:96
+ pos:"PG/SG",physical:88,work:99,dominance:96,hardness:96,
+ iq:99,adapt:98,skill:99,defense:94,clutch:100,leadership:96,
+ scoring:95,passing:91,rebounding:58,three:65,midrange:98,
+ post:50,creation:94,conditioning:99
 }
 
 };
 
 
 /* =========================================================
-STATE
+   STATE
 ========================================================= */
 
 let userTeam=[];
@@ -1494,2464 +1524,2756 @@ let seriesAIWins=0;
 let currentGame=0;
 
 let lastGame=null;
-let seriesGames=[];
+let gameHistory=[];
 
 
 /* =========================================================
-HELPERS
+   HELPERS
 ========================================================= */
+
+function $(id){
+  return document.getElementById(id);
+}
 
 const playerNames=Object.keys(PLAYERS);
 
-function $(id){
-return document.getElementById(id);
+function clamp(v,min,max){
+  return Math.max(min,Math.min(max,v));
 }
 
-function average(team,trait){
+function avg(team,key){
 
-if(!team.length)return 0;
+  if(!team.length)return 0;
 
-return Math.round(
-team.reduce((sum,name)=>{
-return sum+(PLAYERS[name][trait]||0);
-},0)/team.length
-);
-
+  return team.reduce(
+    (s,n)=>s+(PLAYERS[n][key]||0),
+    0
+  )/team.length;
 }
 
-function playerAverage(name){
+function average(team,key){
+  return Math.round(avg(team,key));
+}
 
-const p=PLAYERS[name];
+function rand(min,max){
+  return min+Math.random()*(max-min);
+}
 
-const traits=[
-"physical","work","dominance","hardness","iq",
-"adapt","skill","defense","clutch","leadership"
-];
-
-return Math.round(
-traits.reduce((s,t)=>s+p[t],0)/traits.length
-);
-
+function chance(p){
+  return Math.random()<p;
 }
 
 function randomNormal(){
 
-let u=0;
-let v=0;
+  let u=0,v=0;
 
-while(u===0)u=Math.random();
-while(v===0)v=Math.random();
+  while(u===0)u=Math.random();
+  while(v===0)v=Math.random();
 
-return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
-
+  return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
 }
 
-function clamp(n,min,max){
-return Math.max(min,Math.min(max,n));
+function toast(msg){
+
+  const t=$("toast");
+
+  if(!t)return;
+
+  t.textContent=msg;
+  t.classList.add("show");
+
+  clearTimeout(window.toastTimer);
+
+  window.toastTimer=setTimeout(
+    ()=>t.classList.remove("show"),
+    1800
+  );
 }
 
-function showToast(message){
+function logBattle(msg,type="muted"){
 
-const toast=$("toast");
+  const log=$("battleLog");
 
-toast.textContent=message;
-toast.classList.add("show");
+  if(!log)return;
 
-clearTimeout(window.toastTimer);
-
-window.toastTimer=setTimeout(()=>{
-toast.classList.remove("show");
-},1800);
-
+  log.innerHTML=
+    `<div class="log-entry ${type}">
+      [${new Date().toLocaleTimeString()}] ${msg}
+    </div>`+
+    log.innerHTML;
 }
 
-function logTrade(message,type="muted"){
+function logTrade(msg,type="muted"){
 
-$("tradeLog").innerHTML=
-`<div class="log-entry ${type}">
-[${new Date().toLocaleTimeString()}] ${message}
-</div>`+$("tradeLog").innerHTML;
+  const log=$("tradeLog");
 
-}
+  if(!log)return;
 
-function logBattle(message,type="muted"){
-
-$("battleLog").innerHTML=
-`<div class="log-entry ${type}">
-[${new Date().toLocaleTimeString()}] ${message}
-</div>`+$("battleLog").innerHTML;
-
+  log.innerHTML=
+    `<div class="log-entry ${type}">
+      [${new Date().toLocaleTimeString()}] ${msg}
+    </div>`+
+    log.innerHTML;
 }
 
 
 /* =========================================================
-NAVIGATION
+   NAV
 ========================================================= */
 
 function switchTab(tab){
 
-document.querySelectorAll(".screen").forEach(section=>{
-section.classList.remove("active");
-});
+  document.querySelectorAll(".screen").forEach(s=>{
+    s.classList.remove("active");
+  });
 
-$(tab).classList.add("active");
+  if($(tab))$(tab).classList.add("active");
 
-document.querySelectorAll("#nav button").forEach(button=>{
-button.classList.toggle("active",button.dataset.tab===tab);
-});
+  document.querySelectorAll("#nav button").forEach(b=>{
+    b.classList.toggle(
+      "active",
+      b.dataset.tab===tab
+    );
+  });
 
-if(tab==="roster")renderRosters();
-if(tab==="trade")renderTrade();
-if(tab==="battle")renderBattle();
-
+  if(tab==="roster")renderRosters();
+  if(tab==="trade")renderTrade();
+  if(tab==="battle")renderBattle();
 }
+
+document.querySelectorAll("#nav button").forEach(btn=>{
+  btn.addEventListener(
+    "click",
+    ()=>switchTab(btn.dataset.tab)
+  );
+});
 
 
 /* =========================================================
-DRAFT
+   DRAFT
 ========================================================= */
 
 function startDraft(first){
 
-userTeam=[];
-aiTeam=[];
-availablePlayers=[...playerNames];
+  userTeam=[];
+  aiTeam=[];
+  availablePlayers=[...playerNames];
 
-draftRound=1;
-draftTurn=first;
-draftActive=true;
+  draftRound=1;
+  draftTurn=first;
+  draftActive=true;
 
-resetSeries(false);
+  resetSeries(true);
 
-$("battleLog").innerHTML="";
-$("tradeLog").innerHTML="";
+  switchTab("draft");
+  renderDraft();
 
-switchTab("draft");
+  toast(
+    first==="user"
+      ?"YOU HAVE THE FIRST PICK"
+      :"AI HAS THE FIRST PICK"
+  );
 
-renderDraft();
-
-if(draftTurn==="ai"){
-setTimeout(aiDraftPick,500);
-}
-
-showToast(first==="user"?"YOU HAVE THE FIRST PICK":"AI HAS THE FIRST PICK");
-
-}
-
-function renderDraft(){
-
-$("roundNumber").textContent=draftRound;
-$("availableCount").textContent=availablePlayers.length+" AVAILABLE";
-
-$("yourDraftCount").textContent=userTeam.length+" / 12";
-$("aiDraftCount").textContent=aiTeam.length+" / 12";
-
-$("youTurn").classList.toggle("active",draftTurn==="user");
-$("aiTurn").classList.toggle("active",draftTurn==="ai");
-
-const pool=$("playerPool");
-pool.innerHTML="";
-
-availablePlayers.forEach(name=>{
-
-const p=PLAYERS[name];
-
-const card=document.createElement("div");
-card.className="player-card";
-
-card.innerHTML=`
-
-<div class="player-name">${name}</div>
-
-<div class="player-pos">${p.pos}</div>
-
-<div class="traits">
-<span class="trait">PHY ${p.physical}</span>
-<span class="trait">WORK ${p.work}</span>
-<span class="trait">DOM ${p.dominance}</span>
-<span class="trait">HARD ${p.hardness}</span>
-<span class="trait">IQ ${p.iq}</span>
-<span class="trait">ADAPT ${p.adapt}</span>
-</div>
-
-<button class="pick-btn">
-${draftTurn==="user"?"DRAFT PLAYER":"WAITING FOR AI"}
-</button>
-`;
-
-const button=card.querySelector("button");
-
-button.disabled=draftTurn!=="user";
-
-button.addEventListener("click",e=>{
-e.stopPropagation();
-if(draftTurn==="user")userDraftPick(name);
-});
-
-card.addEventListener("click",()=>{
-showPlayerProfile(name);
-});
-
-pool.appendChild(card);
-
-});
-
-renderDraftRoster($("yourDraftRoster"),userTeam);
-renderDraftRoster($("aiDraftRoster"),aiTeam);
-
+  if(first==="ai"){
+    setTimeout(aiDraftPick,500);
+  }
 }
 
 function userDraftPick(name){
 
-if(!draftActive||draftTurn!=="user")return;
+  if(!draftActive||draftTurn!=="user")return;
 
-if(!availablePlayers.includes(name))return;
+  if(!availablePlayers.includes(name))return;
 
-userTeam.push(name);
+  userTeam.push(name);
 
-availablePlayers=availablePlayers.filter(n=>n!==name);
+  availablePlayers=
+    availablePlayers.filter(n=>n!==name);
 
-logTrade("YOU DRAFTED "+name,"good");
+  logTrade("YOU DRAFTED "+name,"good");
 
-if(checkDraftComplete()){
-finishDraft();
-return;
-}
+  if(checkDraftComplete()){
+    finishDraft();
+    return;
+  }
 
-draftTurn="ai";
+  draftTurn="ai";
 
-draftRound=
-Math.min(
-12,
-Math.floor((userTeam.length+aiTeam.length)/2)+1
-);
+  renderDraft();
 
-renderDraft();
-
-setTimeout(aiDraftPick,500);
-
+  setTimeout(aiDraftPick,450);
 }
 
 function aiDraftPick(){
 
-if(!draftActive||draftTurn!=="ai")return;
+  if(!draftActive||draftTurn!=="ai")return;
 
-let best=null;
-let bestScore=-Infinity;
+  if(!availablePlayers.length)return;
 
-availablePlayers.forEach(name=>{
+  let best=null;
+  let bestScore=-Infinity;
 
-const p=PLAYERS[name];
+  availablePlayers.forEach(name=>{
 
-let score=playerAverage(name);
+    const p=PLAYERS[name];
 
-const hasGuard=aiTeam.some(n=>
-PLAYERS[n].pos.includes("PG")||
-PLAYERS[n].pos.includes("SG")
-);
+    let score=
+      p.iq*.18+
+      p.adapt*.12+
+      p.hardness*.10+
+      p.physical*.10+
+      p.defense*.12+
+      p.dominance*.12+
+      p.skill*.10+
+      p.work*.08+
+      p.leadership*.08;
 
-const hasBig=aiTeam.some(n=>
-PLAYERS[n].pos.includes("C")||
-PLAYERS[n].pos.includes("PF")
-);
+    const guards=aiTeam.filter(n=>
+      /PG|SG/.test(PLAYERS[n].pos)
+    ).length;
 
-if(!hasGuard&&(p.pos.includes("PG")||p.pos.includes("SG")))score+=12;
-if(!hasBig&&(p.pos.includes("C")||p.pos.includes("PF")))score+=12;
+    const bigs=aiTeam.filter(n=>
+      /PF|C/.test(PLAYERS[n].pos)
+    ).length;
 
-score+=p.iq*.12;
-score+=p.hardness*.08;
-score+=p.adapt*.08;
-score+=Math.random()*12;
+    if(guards<2&&/PG|SG/.test(p.pos))score+=8;
+    if(bigs<3&&/PF|C/.test(p.pos))score+=8;
 
-if(score>bestScore){
-bestScore=score;
-best=name;
-}
+    score+=Math.random()*10;
 
-});
+    if(score>bestScore){
+      bestScore=score;
+      best=name;
+    }
+  });
 
-aiTeam.push(best);
+  aiTeam.push(best);
 
-availablePlayers=availablePlayers.filter(n=>n!==best);
+  availablePlayers=
+    availablePlayers.filter(n=>n!==best);
 
-logTrade("AI DRAFTED "+best,"muted");
+  logTrade("AI DRAFTED "+best);
 
-if(checkDraftComplete()){
-finishDraft();
-return;
-}
+  if(checkDraftComplete()){
+    finishDraft();
+    return;
+  }
 
-/*
-Snake draft:
-After the AI picks, the next round belongs
-to the AI again when appropriate.
-*/
-if(userTeam.length===aiTeam.length){
+  draftTurn="user";
 
-draftTurn="user";
+  draftRound=
+    Math.min(
+      12,
+      Math.floor(
+        (userTeam.length+aiTeam.length)/2
+      )+1
+    );
 
-}else{
+  renderDraft();
 
-draftTurn="user";
-
-}
-
-draftRound=
-Math.min(
-12,
-Math.max(
-1,
-Math.floor((userTeam.length+aiTeam.length)/2)+1
-)
-);
-
-renderDraft();
-
-showToast("YOUR PICK");
-
-}
-
-function checkDraftComplete(){
-return userTeam.length>=12&&aiTeam.length>=12;
-}
-
-function finishDraft(){
-
-draftActive=false;
-draftTurn="done";
-
-renderDraft();
-renderRosters();
-renderBattle();
-
-switchTab("roster");
-
-logTrade(
-"DRAFT COMPLETE — BOTH TEAMS HAVE 12 PLAYERS.",
-"good"
-);
-
-showToast("DRAFT COMPLETE");
-
+  toast("YOUR PICK");
 }
 
 function randomDraft(){
 
-userTeam=[];
-aiTeam=[];
-availablePlayers=[...playerNames];
+  userTeam=[];
+  aiTeam=[];
+  availablePlayers=[...playerNames];
 
-while(
-userTeam.length<12&&
-aiTeam.length<12&&
-availablePlayers.length
-){
+  while(
+    userTeam.length<12 &&
+    aiTeam.length<12
+  ){
 
-const index=Math.floor(Math.random()*availablePlayers.length);
-const name=availablePlayers.splice(index,1)[0];
+    const i=
+      Math.floor(
+        Math.random()*availablePlayers.length
+      );
 
-if(userTeam.length<=aiTeam.length)userTeam.push(name);
-else aiTeam.push(name);
+    const n=availablePlayers.splice(i,1)[0];
 
+    if(userTeam.length<=aiTeam.length)
+      userTeam.push(n);
+    else
+      aiTeam.push(n);
+  }
+
+  draftActive=false;
+
+  renderRosters();
+  renderBattle();
+
+  switchTab("roster");
+
+  toast("RANDOM DRAFT COMPLETE");
 }
 
-draftActive=false;
+function checkDraftComplete(){
+  return userTeam.length===12&&aiTeam.length===12;
+}
 
-renderRosters();
-renderBattle();
-switchTab("roster");
+function finishDraft(){
 
-showToast("RANDOM DRAFT COMPLETE");
+  draftActive=false;
+  draftTurn="done";
 
+  renderDraft();
+  renderRosters();
+  renderBattle();
+
+  switchTab("roster");
+
+  logTrade(
+    "DRAFT COMPLETE — 12 PLAYERS EACH.",
+    "good"
+  );
+
+  toast("DRAFT COMPLETE");
 }
 
 
 /* =========================================================
-ROSTERS
+   DRAFT RENDER
 ========================================================= */
+
+function renderDraft(){
+
+  if(!$("playerPool"))return;
+
+  $("roundNumber").textContent=draftRound;
+
+  $("availableCount").textContent=
+    availablePlayers.length+" AVAILABLE";
+
+  $("yourDraftCount").textContent=
+    userTeam.length+" / 12";
+
+  $("aiDraftCount").textContent=
+    aiTeam.length+" / 12";
+
+  $("youTurn").classList.toggle(
+    "active",
+    draftTurn==="user"
+  );
+
+  $("aiTurn").classList.toggle(
+    "active",
+    draftTurn==="ai"
+  );
+
+  const pool=$("playerPool");
+
+  pool.innerHTML="";
+
+  availablePlayers.forEach(name=>{
+
+    const p=PLAYERS[name];
+
+    const card=document.createElement("div");
+
+    card.className="player-card";
+
+    card.innerHTML=`
+
+      <div class="player-name">${name}</div>
+      <div class="player-pos">${p.pos}</div>
+
+      <div class="traits">
+        <span class="trait">PHY ${p.physical}</span>
+        <span class="trait">WORK ${p.work}</span>
+        <span class="trait">DOM ${p.dominance}</span>
+        <span class="trait">HARD ${p.hardness}</span>
+        <span class="trait">IQ ${p.iq}</span>
+        <span class="trait">DEF ${p.defense}</span>
+      </div>
+
+      <button class="pick-btn">
+        ${draftTurn==="user"?"DRAFT PLAYER":"WAITING"}
+      </button>
+    `;
+
+    const button=card.querySelector("button");
+
+    button.disabled=draftTurn!=="user";
+
+    button.onclick=e=>{
+      e.stopPropagation();
+      userDraftPick(name);
+    };
+
+    card.onclick=()=>{
+      showPlayerProfile(name);
+    };
+
+    pool.appendChild(card);
+  });
+
+  renderDraftRoster(
+    $("yourDraftRoster"),
+    userTeam
+  );
+
+  renderDraftRoster(
+    $("aiDraftRoster"),
+    aiTeam
+  );
+}
 
 function renderDraftRoster(container,team){
 
-container.innerHTML="";
+  if(!container)return;
 
-team.forEach(name=>{
+  container.innerHTML="";
 
-const item=document.createElement("div");
+  team.forEach(name=>{
 
-item.className="roster-item";
+    const item=document.createElement("div");
 
-item.innerHTML=`
-<strong>${name}</strong>
-<small>${PLAYERS[name].pos}</small>
-`;
+    item.className="roster-item";
 
-item.addEventListener("click",()=>{
-showPlayerProfile(name);
-});
+    item.innerHTML=`
+      <strong>${name}</strong>
+      <small>${PLAYERS[name].pos}</small>
+    `;
 
-container.appendChild(item);
+    item.onclick=()=>showPlayerProfile(name);
 
-});
-
+    container.appendChild(item);
+  });
 }
+
+
+/* =========================================================
+   ROSTERS
+========================================================= */
 
 function renderRosters(){
 
-$("yourRosterCount").textContent=userTeam.length+" / 12";
-$("aiRosterCount").textContent=aiTeam.length+" / 12";
+  if(!$("yourRoster"))return;
 
-renderDraftRoster($("yourRoster"),userTeam);
-renderDraftRoster($("aiRoster"),aiTeam);
+  $("yourRosterCount").textContent=
+    userTeam.length+" / 12";
 
-renderRosterAnalysis();
+  $("aiRosterCount").textContent=
+    aiTeam.length+" / 12";
 
-}
+  renderDraftRoster(
+    $("yourRoster"),
+    userTeam
+  );
 
-function renderRosterAnalysis(){
+  renderDraftRoster(
+    $("aiRoster"),
+    aiTeam
+  );
 
-if(!userTeam.length||!aiTeam.length){
-
-$("rosterReview").innerHTML=
-`<div class="notice">Complete the draft first.</div>`;
-
-return;
-}
-
-const traits=[
-["PHYSICAL","physical"],
-["WORK ETHIC","work"],
-["DOMINANCE","dominance"],
-["HARDNESS","hardness"],
-["BASKETBALL IQ","iq"],
-["ADAPTABILITY","adapt"],
-["SKILL","skill"],
-["DEFENSE","defense"],
-["CLUTCH","clutch"],
-["LEADERSHIP","leadership"]
-];
-
-let html="";
-
-traits.forEach(([label,key])=>{
-
-const a=average(userTeam,key);
-const b=average(aiTeam,key);
-
-html+=`
-
-<div class="review-card">
-
-<b>${label}</b>
-
-<span class="${a>=b?"good":"bad"}">YOU ${a}</span>
-
-<span class="muted"> VS </span>
-
-<span class="${b>a?"good":"bad"}">AI ${b}</span>
-
-</div>
-
-`;
-
-});
-
-html+=`
-
-<div class="review-card">
-<b>YOUR BIGGEST STRENGTH</b>
-<span class="good">${getStrongestTrait(userTeam)}</span>
-</div>
-
-<div class="review-card">
-<b>AI BIGGEST STRENGTH</b>
-<span class="bad">${getStrongestTrait(aiTeam)}</span>
-</div>
-
-<div class="review-card">
-<b>YOUR BIGGEST WEAKNESS</b>
-<span class="bad">${getWeakestTrait(userTeam)}</span>
-</div>
-
-`;
-
-$("rosterReview").innerHTML=html;
-
+  renderRosterAnalysis();
 }
 
 function getStrongestTrait(team){
 
-const traits=[
-"physical","work","dominance","hardness","iq",
-"adapt","skill","defense","clutch","leadership"
-];
+  const traits=[
+    "physical","work","dominance","hardness",
+    "iq","adapt","skill","defense","clutch",
+    "leadership"
+  ];
 
-let best=traits[0];
-
-traits.forEach(t=>{
-if(average(team,t)>average(team,best))best=t;
-});
-
-return best.toUpperCase()+" ("+average(team,best)+")";
-
+  return traits.sort(
+    (a,b)=>avg(team,b)-avg(team,a)
+  )[0];
 }
 
 function getWeakestTrait(team){
 
-const traits=[
-"physical","work","dominance","hardness","iq",
-"adapt","skill","defense","clutch","leadership"
-];
+  const traits=[
+    "physical","work","dominance","hardness",
+    "iq","adapt","skill","defense","clutch",
+    "leadership"
+  ];
 
-let worst=traits[0];
+  return traits.sort(
+    (a,b)=>avg(team,a)-avg(team,b)
+  )[0];
+}
 
-traits.forEach(t=>{
-if(average(team,t)<average(team,worst))worst=t;
-});
+function renderRosterAnalysis(){
 
-return worst.toUpperCase()+" ("+average(team,worst)+")";
+  if(!userTeam.length||!aiTeam.length){
 
+    $("rosterReview").innerHTML=
+      `<div class="notice">Complete the draft first.</div>`;
+
+    return;
+  }
+
+  const traits=[
+    ["PHYSICAL","physical"],
+    ["WORK ETHIC","work"],
+    ["DOMINANCE","dominance"],
+    ["HARDNESS","hardness"],
+    ["BASKETBALL IQ","iq"],
+    ["ADAPTABILITY","adapt"],
+    ["SKILL","skill"],
+    ["DEFENSE","defense"],
+    ["CLUTCH","clutch"],
+    ["LEADERSHIP","leadership"]
+  ];
+
+  let html="";
+
+  traits.forEach(([label,key])=>{
+
+    const a=average(userTeam,key);
+    const b=average(aiTeam,key);
+
+    html+=`
+      <div class="review-card">
+        <b>${label}</b>
+        <span class="${a>=b?"good":"bad"}">YOU ${a}</span>
+        <span class="muted"> VS </span>
+        <span class="${b>a?"good":"bad"}">AI ${b}</span>
+      </div>
+    `;
+  });
+
+  html+=`
+    <div class="review-card">
+      <b>YOUR STRENGTH</b>
+      <span class="good">${getStrongestTrait(userTeam).toUpperCase()}</span>
+    </div>
+
+    <div class="review-card">
+      <b>AI STRENGTH</b>
+      <span class="good">${getStrongestTrait(aiTeam).toUpperCase()}</span>
+    </div>
+
+    <div class="review-card">
+      <b>YOUR WEAKNESS</b>
+      <span class="bad">${getWeakestTrait(userTeam).toUpperCase()}</span>
+    </div>
+  `;
+
+  $("rosterReview").innerHTML=html;
 }
 
 
 /* =========================================================
-PLAYER PROFILE
+   PLAYER PROFILE
 ========================================================= */
 
 function showPlayerProfile(name){
 
-const p=PLAYERS[name];
+  const p=PLAYERS[name];
 
-const stats=[
-["PHYSICAL","physical"],
-["WORK ETHIC","work"],
-["DOMINANCE","dominance"],
-["HARDNESS","hardness"],
-["BASKETBALL IQ","iq"],
-["ADAPTABILITY","adapt"],
-["SKILL","skill"],
-["DEFENSE","defense"],
-["CLUTCH","clutch"],
-["LEADERSHIP","leadership"]
-];
+  if(!$("profileArea"))return;
 
-let html=`
+  const keys=[
+    ["PHYSICAL","physical"],
+    ["WORK ETHIC","work"],
+    ["DOMINANCE","dominance"],
+    ["HARDNESS","hardness"],
+    ["BASKETBALL IQ","iq"],
+    ["ADAPTABILITY","adapt"],
+    ["SKILL","skill"],
+    ["DEFENSE","defense"],
+    ["CLUTCH","clutch"],
+    ["LEADERSHIP","leadership"],
+    ["SCORING","scoring"],
+    ["PASSING","passing"],
+    ["REBOUNDING","rebounding"],
+    ["3PT","three"],
+    ["MIDRANGE","midrange"],
+    ["POST","post"],
+    ["CREATION","creation"],
+    ["CONDITIONING","conditioning"]
+  ];
 
-<div class="notice">
-<strong>${name}</strong> — ${p.pos}
-<br><br>
-This player is evaluated through physical,
-mental and behavioral characteristics rather
-than a single statistical rating.
-</div>
+  $("profileArea").innerHTML=`
 
-<br>
+    <div class="notice">
+      <strong>${name}</strong> — ${p.pos}
+      <br><br>
+      These are simulation inputs, not an overall rating.
+    </div>
 
-<div class="profile">
-`;
+    <br>
 
-stats.forEach(([label,key])=>{
-
-html+=`
-<div class="profile-stat">
-<small>${label}</small>
-<strong>${p[key]}</strong>
-</div>
-`;
-
-});
-
-html+=`</div>`;
-
-$("profileArea").innerHTML=html;
-
+    <div class="profile">
+      ${keys.map(([label,key])=>`
+        <div class="profile-stat">
+          <small>${label}</small>
+          <strong>${p[key]}</strong>
+        </div>
+      `).join("")}
+    </div>
+  `;
 }
 
 
 /* =========================================================
-TRADES
+   TRADES
 ========================================================= */
 
 function renderTrade(){
 
-const userSelect=$("tradeYou");
-const aiSelect=$("tradeAI");
+  if(!$("tradeYou"))return;
 
-userSelect.innerHTML="";
-aiSelect.innerHTML="";
+  $("tradeYou").innerHTML=
+    userTeam.map(n=>
+      `<option value="${n}">${n}</option>`
+    ).join("");
 
-userTeam.forEach(name=>{
+  $("tradeAI").innerHTML=
+    aiTeam.map(n=>
+      `<option value="${n}">${n}</option>`
+    ).join("");
 
-const o=document.createElement("option");
-o.value=name;
-o.textContent=name;
+  $("proposeTradeBtn").disabled=
+    !userTeam.length||!aiTeam.length;
 
-userSelect.appendChild(o);
-
-});
-
-aiTeam.forEach(name=>{
-
-const o=document.createElement("option");
-o.value=name;
-o.textContent=name;
-
-aiSelect.appendChild(o);
-
-});
-
-const disabled=!userTeam.length||!aiTeam.length;
-
-$("proposeTradeBtn").disabled=disabled;
-$("aiTradeBtn").disabled=disabled;
-
+  $("aiTradeBtn").disabled=
+    !userTeam.length||!aiTeam.length;
 }
 
 function proposeTrade(){
 
-if(!userTeam.length||!aiTeam.length){
+  const u=$("tradeYou").value;
+  const a=$("tradeAI").value;
 
-showToast("COMPLETE THE DRAFT FIRST");
-return;
+  if(!u||!a)return;
 
-}
+  const uv=
+    PLAYERS[u].iq+
+    PLAYERS[u].adapt+
+    PLAYERS[u].hardness+
+    PLAYERS[u].physical;
 
-const youName=$("tradeYou").value;
-const aiName=$("tradeAI").value;
+  const av=
+    PLAYERS[a].iq+
+    PLAYERS[a].adapt+
+    PLAYERS[a].hardness+
+    PLAYERS[a].physical;
 
-if(!youName||!aiName)return;
+  const accepted=
+    Math.abs(uv-av)<18 ||
+    PLAYERS[a].iq>=98;
 
-const a=PLAYERS[youName];
-const b=PLAYERS[aiName];
+  if(accepted){
 
-const valueA=
-a.iq+a.adapt+a.hardness+a.physical+a.defense;
+    userTeam[userTeam.indexOf(u)]=a;
+    aiTeam[aiTeam.indexOf(a)]=u;
 
-const valueB=
-b.iq+b.adapt+b.hardness+b.physical+b.defense;
+    $("tradeResult").innerHTML=
+      `<span class="good">TRADE ACCEPTED.</span>
+       ${u} for ${a}.`;
 
-let accepted=Math.abs(valueA-valueB)<=20;
+    logTrade(
+      "TRADE ACCEPTED: "+u+" FOR "+a,
+      "good"
+    );
 
-if(b.iq>=97&&b.adapt>=97)accepted=true;
+    toast("TRADE ACCEPTED");
 
-if(accepted){
+  }else{
 
-userTeam[userTeam.indexOf(youName)]=aiName;
-aiTeam[aiTeam.indexOf(aiName)]=youName;
+    $("tradeResult").innerHTML=
+      `<span class="bad">TRADE REJECTED.</span>
+       AI believes the exchange hurts its roster.`;
 
-$("tradeResult").innerHTML=
-`<span class="good">TRADE ACCEPTED.</span>
-${youName} goes to the AI.
-${aiName} joins your team.`;
+    logTrade(
+      "TRADE REJECTED: "+u+" FOR "+a,
+      "bad"
+    );
 
-logTrade(
-"TRADE ACCEPTED: YOU SENT "+youName+" FOR "+aiName+".",
-"good"
-);
+    toast("TRADE REJECTED");
+  }
 
-showToast("TRADE ACCEPTED");
-
-}else{
-
-$("tradeResult").innerHTML=
-`<span class="bad">TRADE REJECTED.</span>
-The AI does not believe the exchange improves its roster.`;
-
-logTrade(
-"TRADE REJECTED: "+youName+" FOR "+aiName+".",
-"bad"
-);
-
-showToast("AI REJECTED THE TRADE");
-
-}
-
-renderRosters();
-renderTrade();
-renderBattle();
-
+  renderRosters();
+  renderTrade();
+  renderBattle();
 }
 
 function aiMakeTrade(){
 
-if(!userTeam.length||!aiTeam.length){
+  if(!userTeam.length||!aiTeam.length)return;
 
-showToast("COMPLETE THE DRAFT FIRST");
-return;
+  const userTarget=
+    userTeam
+      .slice()
+      .sort(
+        (a,b)=>
+          PLAYERS[a].creation-
+          PLAYERS[b].creation
+      )[0];
 
+  const offer=
+    aiTeam
+      .slice()
+      .sort(
+        (a,b)=>
+          (
+            PLAYERS[b].iq+
+            PLAYERS[b].adapt+
+            PLAYERS[b].defense
+          )-
+          (
+            PLAYERS[a].iq+
+            PLAYERS[a].adapt+
+            PLAYERS[a].defense
+          )
+      )[0];
+
+  $("tradeResult").innerHTML=`
+    <span class="gold">AI TRADE PROPOSAL</span>
+    <br><br>
+    AI offers <strong>${offer}</strong>
+    for <strong>${userTarget}</strong>.
+    <br><br>
+    <button id="acceptAITradeBtn">ACCEPT TRADE</button>
+    <button id="declineAITradeBtn">DECLINE</button>
+  `;
+
+  $("acceptAITradeBtn").onclick=
+    ()=>acceptAITrade(offer,userTarget);
+
+  $("declineAITradeBtn").onclick=()=>{
+    $("tradeResult").textContent="Trade declined.";
+    logTrade(
+      "YOU DECLINED AI OFFER.",
+      "bad"
+    );
+  };
+
+  logTrade(
+    "AI OFFERED "+offer+" FOR "+userTarget
+  );
 }
 
-const userTarget=userTeam
-.slice()
-.sort((a,b)=>playerAverage(a)-playerAverage(b))[0];
+function acceptAITrade(offer,target){
 
-let candidate=null;
-let best=-Infinity;
+  const ui=userTeam.indexOf(target);
+  const ai=aiTeam.indexOf(offer);
 
-aiTeam.forEach(name=>{
+  if(ui<0||ai<0)return;
 
-const p=PLAYERS[name];
+  userTeam[ui]=offer;
+  aiTeam[ai]=target;
 
-let score=
-p.iq+
-p.adapt+
-p.hardness+
-p.physical+
-p.defense+
-Math.random()*15;
+  $("tradeResult").innerHTML=
+    `<span class="good">TRADE COMPLETED.</span>`;
 
-if(score>best){
-best=score;
-candidate=name;
-}
+  logTrade(
+    "AI SENT "+offer+" FOR "+target,
+    "good"
+  );
 
-});
-
-const offer=candidate;
-
-$("tradeResult").innerHTML=`
-
-<span class="gold">AI TRADE PROPOSAL</span>
-
-<br><br>
-
-AI offers <strong>${offer}</strong>
-for your <strong>${userTarget}</strong>.
-
-<br><br>
-
-<button id="acceptAITradeBtn">
-ACCEPT TRADE
-</button>
-
-<button id="declineAITradeBtn">
-DECLINE
-</button>
-`;
-
-$("acceptAITradeBtn").onclick=()=>{
-acceptAITrade(offer,userTarget);
-};
-
-$("declineAITradeBtn").onclick=()=>{
-
-logTrade(
-"YOU DECLINED AI OFFER: "+offer+" FOR "+userTarget+".",
-"bad"
-);
-
-$("tradeResult").textContent="Trade declined.";
-
-showToast("TRADE DECLINED");
-
-};
-
-logTrade(
-"AI OFFERED "+offer+" FOR "+userTarget+".",
-"muted"
-);
-
-}
-
-function acceptAITrade(offer,userTarget){
-
-const u=userTeam.indexOf(userTarget);
-const a=aiTeam.indexOf(offer);
-
-if(u<0||a<0)return;
-
-userTeam[u]=offer;
-aiTeam[a]=userTarget;
-
-$("tradeResult").innerHTML=
-`<span class="good">TRADE COMPLETED.</span>`;
-
-logTrade(
-"TRADE COMPLETED: AI SENT "+offer+" FOR "+userTarget+".",
-"good"
-);
-
-showToast("TRADE COMPLETED");
-
-renderRosters();
-renderTrade();
-renderBattle();
-
+  renderRosters();
+  renderTrade();
+  renderBattle();
 }
 
 
 /* =========================================================
-STARTERS
+   LINEUPS
 ========================================================= */
 
-function starterValue(name){
+function playerStarterScore(name){
 
-const p=PLAYERS[name];
+  const p=PLAYERS[name];
 
-return(
-p.physical*.10+
-p.work*.07+
-p.dominance*.13+
-p.hardness*.10+
-p.iq*.15+
-p.adapt*.12+
-p.skill*.11+
-p.defense*.10+
-p.clutch*.07+
-p.leadership*.05
-);
-
+  return(
+    p.iq*.15+
+    p.skill*.14+
+    p.defense*.12+
+    p.scoring*.14+
+    p.creation*.10+
+    p.physical*.08+
+    p.hardness*.07+
+    p.work*.07+
+    p.dominance*.07+
+    p.leadership*.06
+  );
 }
 
 function getStarters(team){
 
-if(!team.length)return[];
+  if(!team.length)return[];
 
-const starters=[];
-let remaining=[...team];
+  const positions=["PG","SG","SF","PF","C"];
 
-const positions=["PG","SG","SF","PF","C"];
+  const result=[];
+  const remaining=[...team];
 
-positions.forEach(position=>{
+  positions.forEach(pos=>{
 
-const candidates=remaining.filter(name=>
-PLAYERS[name].pos.includes(position)
-);
+    const candidates=
+      remaining.filter(n=>
+        PLAYERS[n].pos.includes(pos)
+      );
 
-if(candidates.length){
+    if(!candidates.length)return;
 
-candidates.sort(
-(a,b)=>starterValue(b)-starterValue(a)
-);
+    candidates.sort(
+      (a,b)=>
+        playerStarterScore(b)-
+        playerStarterScore(a)
+    );
 
-const selected=candidates[0];
+    const chosen=candidates[0];
 
-starters.push(selected);
+    result.push(chosen);
 
-remaining=remaining.filter(n=>n!==selected);
+    remaining.splice(
+      remaining.indexOf(chosen),
+      1
+    );
+  });
 
-}
+  while(result.length<5&&remaining.length){
 
-});
+    remaining.sort(
+      (a,b)=>
+        playerStarterScore(b)-
+        playerStarterScore(a)
+    );
 
-while(starters.length<5&&remaining.length){
+    result.push(remaining.shift());
+  }
 
-remaining.sort(
-(a,b)=>starterValue(b)-starterValue(a)
-);
-
-starters.push(remaining.shift());
-
-}
-
-return starters.slice(0,5);
-
-}
-
-
-/* =========================================================
-BATTLE RENDER
-========================================================= */
-
-function renderBattle(){
-
-if(userTeam.length<5||aiTeam.length<5){
-
-$("yourLineup").innerHTML=
-`<div class="lineup-player muted">Draft teams first.</div>`;
-
-$("aiLineup").innerHTML=
-`<div class="lineup-player muted">Draft teams first.</div>`;
-
-return;
-
-}
-
-const u=getStarters(userTeam);
-const a=getStarters(aiTeam);
-
-$("yourLineup").innerHTML=u.map(
-(name,i)=>
-`<div class="lineup-player">
-${i+1}. ${name}
-<span class="muted">${PLAYERS[name].pos}</span>
-</div>`
-).join("");
-
-$("aiLineup").innerHTML=a.map(
-(name,i)=>
-`<div class="lineup-player">
-${i+1}. ${name}
-<span class="muted">${PLAYERS[name].pos}</span>
-</div>`
-).join("");
-
-renderBattleAnalysis();
-renderSeriesTracker();
-
-}
-
-function renderBattleAnalysis(){
-
-if(!userTeam.length||!aiTeam.length)return;
-
-const u=getStarters(userTeam);
-const a=getStarters(aiTeam);
-
-const traits=[
-["PHYSICAL","physical"],
-["HARDNESS","hardness"],
-["IQ","iq"],
-["ADAPTABILITY","adapt"],
-["DOMINANCE","dominance"],
-["DEFENSE","defense"],
-["CLUTCH","clutch"],
-["WORK ETHIC","work"],
-["SKILL","skill"]
-];
-
-let html="";
-
-traits.forEach(([label,key])=>{
-
-const x=average(u,key);
-const y=average(a,key);
-
-html+=`
-
-<div class="review-card">
-
-<b>${label}</b>
-
-<span class="${x>=y?"good":"bad"}">${x}</span>
-
-<span class="muted"> VS </span>
-
-<span class="${y>x?"good":"bad"}">${y}</span>
-
-</div>
-
-`;
-
-});
-
-$("battleAnalysis").innerHTML=html;
-
+  return result;
 }
 
 
 /* =========================================================
-GAME ENGINE
+   REALISTIC MINUTES
 ========================================================= */
 
-/*
-Each player gets a real statistical line.
+function allocateMinutes(team){
 
-This is still an abstraction rather than a
-full physics engine, but every possession affects
-individual player statistics.
-*/
+  const starters=getStarters(team);
 
-function createPlayerStat(name){
+  const minutes={};
 
-return{
-name,
-min:0,
-pts:0,
-reb:0,
-ast:0,
-stl:0,
-blk:0,
-tov:0,
-pf:0,
-fga:0,
-fgm:0,
-threeA:0,
-threeM:0,
-fta:0,
-ftm:0,
-oreb:0,
-dreb:0,
-plusMinus:0,
-possessions:0,
-impact:0
-};
+  starters.forEach(n=>{
+    minutes[n]=rand(31,39);
+  });
 
+  const bench=
+    team.filter(n=>!starters.includes(n));
+
+  bench.forEach(n=>{
+    minutes[n]=0;
+  });
+
+  let total=
+    Object.values(minutes)
+      .reduce((a,b)=>a+b,0);
+
+  while(total>240){
+
+    const candidates=
+      starters.filter(n=>minutes[n]>32);
+
+    if(!candidates.length)break;
+
+    const n=
+      candidates[
+        Math.floor(Math.random()*candidates.length)
+      ];
+
+    minutes[n]-=1;
+    total--;
+  }
+
+  while(total<240){
+
+    const eligible=
+      team.filter(n=>minutes[n]<38);
+
+    if(!eligible.length)break;
+
+    const n=
+      eligible[
+        Math.floor(Math.random()*eligible.length)
+      ];
+
+    minutes[n]+=1;
+    total++;
+  }
+
+  return minutes;
 }
 
-function createGameTeam(team){
 
-const stats={};
+/* =========================================================
+   PLAYER BOX
+========================================================= */
 
-team.forEach(name=>{
-stats[name]=createPlayerStat(name);
-});
+function createBox(team,minutes){
 
-return stats;
+  const box={};
 
+  team.forEach(name=>{
+
+    box[name]={
+      min:minutes[name]||0,
+      pts:0,
+      reb:0,
+      ast:0,
+      stl:0,
+      blk:0,
+      to:0,
+      pf:0,
+      fgm:0,
+      fga:0,
+      tpm:0,
+      tpa:0,
+      ftm:0,
+      fta:0,
+      plus:0,
+      orb:0
+    };
+
+  });
+
+  return box;
 }
 
-function offenseRating(name){
 
-const p=PLAYERS[name];
+/* =========================================================
+   LINEUP / ROLE HELPERS
+========================================================= */
 
-return(
-p.skill*.30+
-p.iq*.18+
-p.dominance*.15+
-p.adapt*.12+
-p.physical*.08+
-p.hardness*.05+
-p.clutch*.07+
-p.work*.05
-);
+function activePlayers(team,minutes,fouls){
 
+  return team.filter(n=>
+    (minutes[n]||0)>0 &&
+    (fouls[n]||0)<6
+  );
 }
 
-function defenseRating(name){
+function bestCreator(team,minutes,fouls){
 
-const p=PLAYERS[name];
+  const candidates=
+    activePlayers(team,minutes,fouls);
 
-return(
-p.defense*.35+
-p.iq*.18+
-p.physical*.12+
-p.hardness*.15+
-p.adapt*.10+
-p.work*.05+
-p.dominance*.05
-);
-
+  return candidates.sort(
+    (a,b)=>
+      (
+        PLAYERS[b].creation+
+        PLAYERS[b].scoring+
+        PLAYERS[b].iq
+      )-
+      (
+        PLAYERS[a].creation+
+        PLAYERS[a].scoring+
+        PLAYERS[a].iq
+      )
+  )[0];
 }
 
-function choosePrimaryScorer(starters,stats){
+function bestDefender(team,minutes,fouls){
 
-let best=starters[0];
-let bestScore=-Infinity;
+  const candidates=
+    activePlayers(team,minutes,fouls);
 
-starters.forEach(name=>{
-
-const p=PLAYERS[name];
-
-let score=
-offenseRating(name)+
-p.dominance*.35+
-p.clutch*.15+
-Math.random()*15;
-
-score-=stats[name].fga*.8;
-
-if(score>bestScore){
-bestScore=score;
-best=name;
+  return candidates.sort(
+    (a,b)=>
+      PLAYERS[b].defense-
+      PLAYERS[a].defense
+  )[0];
 }
 
-});
+function chooseRebounder(team,minutes,fouls){
 
-return best;
+  const candidates=
+    activePlayers(team,minutes,fouls);
 
+  return candidates.sort(
+    (a,b)=>
+      PLAYERS[b].rebounding-
+      PLAYERS[a].rebounding
+  )[0];
 }
 
-function choosePasser(starters){
 
-let best=starters[0];
-let score=-Infinity;
-
-starters.forEach(name=>{
-
-const p=PLAYERS[name];
-
-const value=
-p.iq*.55+
-p.skill*.15+
-p.adapt*.15+
-p.leadership*.15+
-Math.random()*10;
-
-if(value>score){
-score=value;
-best=name;
-}
-
-});
-
-return best;
-
-}
-
-function chooseDefender(starters,offensePlayer){
-
-let best=starters[0];
-let score=-Infinity;
-
-starters.forEach(name=>{
-
-const p=PLAYERS[name];
-
-let value=
-p.defense*.55+
-p.physical*.15+
-p.hardness*.15+
-p.iq*.10+
-p.adapt*.05;
-
-if(PLAYERS[offensePlayer].pos.includes("C")&&
-p.pos.includes("C")){
-value+=8;
-}
-
-if(value>score){
-score=value;
-best=name;
-}
-
-});
-
-return best;
-
-}
-
-function simulateShot(offensePlayer,defender,offStats,defStats,isThree,gameState){
-
-const o=PLAYERS[offensePlayer];
-const d=PLAYERS[defender];
-
-const stat=offStats[offensePlayer];
-
-stat.fga++;
-
-if(isThree)stat.threeA++;
-
-let base=
-o.skill*.36+
-o.iq*.15+
-o.adapt*.08+
-o.dominance*.12+
-o.physical*.05+
-o.clutch*.06+
-o.work*.05;
-
-let defense=
-d.defense*.32+
-d.iq*.18+
-d.physical*.15+
-d.hardness*.15+
-d.adapt*.10;
-
-let pressure=
-(d.hardness-o.hardness)*.10+
-(d.physical-o.physical)*.05;
-
-let probability;
-
-if(isThree){
-
-probability=
-.18+
-(base-defense)*.003+
-(o.skill-85)*.0015;
-
-}else{
-
-probability=
-.39+
-(base-defense)*.0025+
-(o.skill-85)*.0015;
-
-}
-
-if(gameState.quarter===4&&gameState.clock<300){
-probability+=(o.clutch-90)*.002;
-}
-
-probability+=randomNormal()*.035;
-
-probability=clamp(probability,.18,.72);
-
-if(Math.random()<probability){
-
-stat.fgm++;
-
-if(isThree)stat.threeM++;
-
-const points=isThree?3:2;
-
-stat.pts+=points;
-
-return{
-made:true,
-points,
-reason:isThree
-?"three-pointer"
-:"field goal"
-};
-
-}
-
-return{
-made:false,
-points:0,
-reason:"miss"
-};
-
-}
-
-function addFreeThrows(name,count,stats){
-
-const p=PLAYERS[name];
-const s=stats[name];
-
-s.fta+=count;
-
-let made=0;
-
-for(let i=0;i<count;i++){
-
-const probability=
-.70+
-(p.skill-80)*.002+
-(p.clutch-90)*.001+
-randomNormal()*.025;
-
-if(Math.random()<clamp(probability,.55,.98)){
-made++;
-s.ftm++;
-s.pts++;
-}
-
-}
-
-return made;
-
-}
-
-function generateRebound(offStats,defStats,offenseTeam,defenseTeam,missWasThree){
-
-const allDef=defenseTeam;
-const allOff=offenseTeam;
-
-let defensiveCandidates=allDef.map(name=>{
-
-const p=PLAYERS[name];
-
-return{
-name,
-score:
-p.physical*.25+
-p.dominance*.20+
-p.defense*.20+
-p.hardness*.15+
-p.iq*.10+
-p.work*.10+
-Math.random()*20
-};
-
-}).sort((a,b)=>b.score-a.score);
-
-let offensiveCandidates=allOff.map(name=>{
-
-const p=PLAYERS[name];
-
-return{
-name,
-score:
-p.physical*.25+
-p.dominance*.20+
-p.work*.20+
-p.hardness*.15+
-p.iq*.10+
-p.skill*.10+
-Math.random()*20
-};
-
-}).sort((a,b)=>b.score-a.score);
-
-let defenseChance=.72;
-
-if(missWasThree)defenseChance+=.05;
-
-if(Math.random()<defenseChance){
-
-const r=defensiveCandidates[0];
-
-defStats[r.name].reb++;
-defStats[r.name].dreb++;
-
-return{
-type:"defensive",
-name:r.name
-};
-
-}else{
-
-const r=offensiveCandidates[0];
-
-offStats[r.name].reb++;
-offStats[r.name].oreb++;
-
-return{
-type:"offensive",
-name:r.name
-};
-
-}
-
-}
+/* =========================================================
+   POSSESSION ENGINE
+========================================================= */
 
 function simulatePossession(
-offenseTeam,
-defenseTeam,
-offStats,
-defStats,
-startersOff,
-startersDef,
-gameState,
-playLog
+  offense,
+  defense,
+  obox,
+  dbox,
+  omin,
+  dmin,
+  ofouls,
+  dfouls,
+  quarter
 ){
 
-const scorer=choosePrimaryScorer(startersOff,offStats);
-const defender=chooseDefender(startersDef,scorer);
+  const scorer=
+    bestCreator(offense,omin,ofouls);
 
-const passer=choosePasser(startersOff);
+  const defender=
+    bestDefender(defense,dmin,dfouls);
 
-offStats[scorer].possessions++;
+  if(!scorer)return;
 
-if(passer!==scorer&&Math.random()<.38){
+  const sp=PLAYERS[scorer];
+  const dp=PLAYERS[defender]||{};
 
-offStats[passer].ast++;
+  /*
+    90s physical defense.
+  */
 
-}
+  const physicalPenalty=
+    ((dp.physical||80)-sp.physical)*.0015;
 
-const p=PLAYERS[scorer];
+  const defensePressure=
+    ((dp.defense||80)-sp.defense)*.0018;
 
-/*
-Physical 90s defense.
-*/
+  /*
+    Fatigue.
+  */
 
-const foulChance=
-.055+
-(PLAYERS[defender].physical-85)*.001+
-(PLAYERS[defender].hardness-85)*.0008;
+  const fatigue=
+    Math.max(
+      0,
+      ((omin[scorer]||0)-34)/100
+    );
 
-if(Math.random()<clamp(foulChance,.03,.13)){
+  /*
+    Turnover probability.
+  */
 
-defStats[defender].pf++;
+  let turnoverChance=
+    .075+
+    defensePressure+
+    physicalPenalty+
+    fatigue*.08-
+    sp.iq*.00025;
 
-const shots=
-p.skill>95&&
-Math.random()<.45
-?3
-:2;
+  turnoverChance=clamp(
+    turnoverChance,
+    .025,
+    .16
+  );
 
-const made=addFreeThrows(scorer,shots,offStats);
+  if(chance(turnoverChance)){
 
-playLog.push(
-`${scorer} attacks ${defender} and draws contact — ${made}/${shots} from the line.`
-);
+    obox[scorer].to++;
 
-if(Math.random()<.15){
+    if(chance(.35)){
+      const stealer=
+        bestDefender(defense,dmin,dfouls);
 
-return 0;
+      if(stealer){
+        dbox[stealer].stl++;
+      }
+    }
 
-}
+    return {
+      points:0,
+      type:"turnover",
+      player:scorer,
+      defender
+    };
+  }
 
-return made;
+  /*
+    Shooting decision.
 
-}
+    90s environment dramatically lowers
+    three-point frequency.
+  */
 
-/*
-Turnover chance.
-*/
+  const canThree=
+    sp.three>=70;
 
-const turnoverChance=
-.075+
-(PLAYERS[defender].defense-90)*.0015+
-(PLAYERS[defender].iq-90)*.0008-
-(p.iq-90)*.0015-
-(p.adapt-90)*.001;
+  let threeChance=
+    canThree
+      ? .08+(sp.three-70)*.002
+      : .01;
 
-if(Math.random()<clamp(turnoverChance,.035,.16)){
+  threeChance=clamp(threeChance,.01,.25);
 
-offStats[scorer].tov++;
-defStats[defender].stl++;
+  const inside=
+    /PF|C/.test(sp.pos);
 
-playLog.push(
-`${defender} forces ${scorer} into a turnover.`
-);
+  if(inside){
+    threeChance*=.35;
+  }
 
-return 0;
+  /*
+    Foul chance.
+  */
 
-}
+  let foulChance=
+    .055+
+    (sp.creation/100)*.025+
+    (sp.physical/100)*.01-
+    (dp.defense||80)*.00015;
 
-/*
-Shot selection.
-*/
+  foulChance=clamp(
+    foulChance,
+    .035,
+    .11
+  );
 
-let three=false;
+  if(chance(foulChance)){
 
-if(
-p.pos.includes("PG")||
-p.pos.includes("SG")
-){
+    const defenderFoul=
+      defender &&
+      dfouls[defender]<6;
 
-three=
-p.skill>=95&&
-Math.random()<.32;
+    if(defenderFoul){
 
-}
+      dfouls[defender]++;
+      dbox[defender].pf++;
 
-if(p.pos.includes("PF")||p.pos.includes("C")){
-three=Math.random()<.07;
-}
+      const ft=
+        sp.scoring>=94
+          ? 2
+          : 2;
 
-const result=
-simulateShot(
-scorer,
-defender,
-offStats,
-defStats,
-three,
-gameState
-);
+      let made=0;
 
-if(result.made){
+      for(let i=0;i<ft;i++){
 
-playLog.push(
-`${scorer} scores ${result.points} ${result.reason}.`
-);
+        const ftChance=
+          .70+
+          (sp.skill-80)*.002;
 
-}else{
+        if(chance(clamp(ftChance,.55,.95))){
+          made++;
+        }
+      }
 
-playLog.push(
-`${scorer} misses against ${defender}.`
-);
+      obox[scorer].fta+=ft;
+      obox[scorer].ftm+=made;
+      obox[scorer].pts+=made;
 
-const rebound=
-generateRebound(
-offStats,
-defStats,
-offenseTeam,
-defenseTeam,
-three
-);
+      return {
+        points:made,
+        type:"foul",
+        player:scorer,
+        defender,
+        ft
+      };
+    }
+  }
 
-if(rebound.type==="offensive"){
+  /*
+    Shot type.
+  */
 
-playLog.push(
-`${rebound.name} keeps the possession alive with an offensive rebound.`
-);
+  let shotType="midrange";
 
-return 0;
+  const roll=Math.random();
 
-}
+  if(threeChance>roll){
+    shotType="three";
+  }else if(
+    inside||
+    sp.post>=88||
+    sp.dominance>=97
+  ){
+    shotType=
+      chance(.52)
+        ?"post"
+        :"paint";
+  }
 
-}
+  /*
+    Base shot quality.
+  */
 
-return result.points;
+  let quality=
+    sp.skill*.28+
+    sp.scoring*.25+
+    sp.iq*.14+
+    sp.creation*.13+
+    sp.physical*.06+
+    sp.work*.04;
 
+  quality-=
+    (dp.defense||80)*.19;
+
+  quality-=
+    (dp.physical||80)*.04;
+
+  quality+=
+    sp.adapt*.05;
+
+  if(shotType==="three")
+    quality+=
+      (sp.three-80)*.35;
+
+  if(shotType==="midrange")
+    quality+=
+      (sp.midrange-80)*.25;
+
+  if(shotType==="post")
+    quality+=
+      (sp.post-80)*.30;
+
+  if(shotType==="paint")
+    quality+=
+      (sp.physical-80)*.15;
+
+  quality-=
+    fatigue*12;
+
+  /*
+    90s scoring environment.
+  */
+
+  let makeChance;
+
+  if(shotType==="three"){
+
+    makeChance=
+      .22+
+      (quality-50)*.003;
+
+  }else if(shotType==="midrange"){
+
+    makeChance=
+      .34+
+      (quality-50)*.0035;
+
+  }else if(shotType==="post"){
+
+    makeChance=
+      .39+
+      (quality-50)*.0035;
+
+  }else{
+
+    makeChance=
+      .48+
+      (quality-50)*.0035;
+  }
+
+  makeChance=clamp(
+    makeChance,
+    .18,
+    .68
+  );
+
+  const made=chance(makeChance);
+
+  if(shotType==="three"){
+
+    obox[scorer].tpa++;
+    obox[scorer].fga++;
+
+    if(made){
+
+      obox[scorer].tpm++;
+      obox[scorer].fgm++;
+      obox[scorer].pts+=3;
+
+    }
+
+  }else{
+
+    obox[scorer].fga++;
+
+    if(made){
+
+      obox[scorer].fgm++;
+      obox[scorer].pts+=2;
+
+    }
+  }
+
+  /*
+    Rebound if missed.
+  */
+
+  if(!made){
+
+    const offensiveReboundChance=
+      .22+
+      (
+        avg(offense,"rebounding")-
+        avg(defense,"rebounding")
+      )*.002;
+
+    if(chance(
+      clamp(
+        offensiveReboundChance,
+        .12,
+        .38
+      )
+    )){
+
+      const rebounder=
+        chooseRebounder(
+          offense,
+          omin,
+          ofouls
+        );
+
+      if(rebounder){
+
+        obox[rebounder].reb++;
+        obox[rebounder].orb++;
+
+        return {
+          points:0,
+          type:"offensive_rebound",
+          player:scorer,
+          rebounder,
+          defender
+        };
+      }
+
+    }
+
+    const rebounder=
+      chooseRebounder(
+        defense,
+        dmin,
+        dfouls
+      );
+
+    if(rebounder){
+
+      dbox[rebounder].reb++;
+
+      return {
+        points:0,
+        type:"defensive_rebound",
+        player:scorer,
+        rebounder,
+        defender
+      };
+    }
+
+  }else{
+
+    /*
+      Assist must come from an actual
+      made basket.
+    */
+
+    const passers=
+      activePlayers(
+        offense,
+        omin,
+        ofouls
+      ).filter(n=>n!==scorer);
+
+    if(
+      passers.length &&
+      chance(
+        clamp(
+          .35+
+          avg(offense,"iq")*.003+
+          avg(offense,"passing")*.002,
+          .30,
+          .80
+        )
+      )
+    ){
+
+      passers.sort(
+        (a,b)=>
+          PLAYERS[b].passing-
+          PLAYERS[a].passing
+      );
+
+      obox[passers[0]].ast++;
+    }
+  }
+
+  /*
+    Defensive block.
+  */
+
+  if(
+    !made &&
+    chance(
+      .025+
+      (dp.defense||80)*.0006
+    )
+  ){
+
+    if(defender){
+      dbox[defender].blk++;
+    }
+  }
+
+  return {
+    points:made
+      ?shotType==="three"?3:2
+      :0,
+    type:made?"made":"miss",
+    player:scorer,
+    defender,
+    shotType
+  };
 }
 
 
 /* =========================================================
-SIMULATE GAME
+   POSSESSION SIMULATION
+========================================================= */
+
+function playGame(){
+
+  const userMinutes=
+    allocateMinutes(userTeam);
+
+  const aiMinutes=
+    allocateMinutes(aiTeam);
+
+  const userFouls={};
+  const aiFouls={};
+
+  userTeam.forEach(n=>userFouls[n]=0);
+  aiTeam.forEach(n=>aiFouls[n]=0);
+
+  const ubox=
+    createBox(userTeam,userMinutes);
+
+  const abox=
+    createBox(aiTeam,aiMinutes);
+
+  let userScore=0;
+  let aiScore=0;
+
+  let possessionTeam=
+    chance(.5)?"user":"ai";
+
+  let possessions=0;
+
+  const events=[];
+
+  /*
+    90s pace.
+
+    Approximately 92 possessions per team.
+  */
+
+  const targetPossessions=
+    Math.round(
+      rand(89,98)*2
+    );
+
+  while(possessions<targetPossessions){
+
+    possessions++;
+
+    if(possessionTeam==="user"){
+
+      const result=
+        simulatePossession(
+          userTeam,
+          aiTeam,
+          ubox,
+          abox,
+          userMinutes,
+          aiMinutes,
+          userFouls,
+          aiFouls,
+          possessions
+        );
+
+      if(result){
+
+        if(result.points)
+          userScore+=result.points;
+
+        if(
+          result.type!=="offensive_rebound"
+        ){
+          possessionTeam="ai";
+        }
+
+        if(events.length<100){
+          events.push({
+            team:"YOU",
+            ...result
+          });
+        }
+      }else{
+        possessionTeam="ai";
+      }
+
+    }else{
+
+      const result=
+        simulatePossession(
+          aiTeam,
+          userTeam,
+          abox,
+          ubox,
+          aiMinutes,
+          userMinutes,
+          aiFouls,
+          userFouls,
+          possessions
+        );
+
+      if(result){
+
+        if(result.points)
+          aiScore+=result.points;
+
+        if(
+          result.type!=="offensive_rebound"
+        ){
+          possessionTeam="user";
+        }
+
+        if(events.length<100){
+          events.push({
+            team:"AI",
+            ...result
+          });
+        }
+      }else{
+        possessionTeam="user";
+      }
+    }
+  }
+
+  /*
+    Prevent ridiculous outcomes.
+
+    Difference is allowed to be large,
+    but the game still behaves like an NBA game.
+  */
+
+  userScore=
+    Math.round(
+      clamp(userScore,72,145)
+    );
+
+  aiScore=
+    Math.round(
+      clamp(aiScore,72,145)
+    );
+
+  /*
+    Regulation cannot finish tied.
+  */
+
+  if(userScore===aiScore){
+
+    if(
+      avg(userTeam,"clutch")+
+      avg(userTeam,"iq") >
+      avg(aiTeam,"clutch")+
+      avg(aiTeam,"iq")
+    ){
+      userScore++;
+    }else{
+      aiScore++;
+    }
+  }
+
+  /*
+    Plus/minus is derived from actual score
+    contribution rather than random values.
+  */
+
+  const allU=
+    Object.keys(ubox);
+
+  const allA=
+    Object.keys(abox);
+
+  allU.forEach(n=>{
+    ubox[n].plus=
+      Math.round(
+        (
+          ubox[n].pts/
+          Math.max(1,userScore)
+        )*
+        (userScore-aiScore)
+      );
+  });
+
+  allA.forEach(n=>{
+    abox[n].plus=
+      Math.round(
+        (
+          abox[n].pts/
+          Math.max(1,aiScore)
+        )*
+        (aiScore-userScore)
+      );
+  });
+
+  /*
+    Reconcile minutes to exactly 240.
+  */
+
+  const normalizeMinutes=
+    (box)=>{
+      const total=
+        Object.values(box)
+          .reduce((s,p)=>s+p.min,0);
+
+      if(total!==240){
+
+        const difference=
+          240-total;
+
+        const candidates=
+          Object.values(box)
+            .filter(p=>p.min>0);
+
+        for(let i=0;i<Math.abs(difference);i++){
+
+          const p=
+            candidates[
+              i%candidates.length
+            ];
+
+          p.min+=difference>0?1:-1;
+
+          if(p.min<0)p.min=0;
+        }
+      }
+    };
+
+  normalizeMinutes(ubox);
+  normalizeMinutes(abox);
+
+  /*
+    MVP.
+  */
+
+  const combined=[
+    ...userTeam.map(n=>({
+      team:"YOU",
+      name:n,
+      ...ubox[n]
+    })),
+    ...aiTeam.map(n=>({
+      team:"AI",
+      name:n,
+      ...abox[n]
+    }))
+  ];
+
+  combined.forEach(p=>{
+
+    p.mvp=
+      p.pts+
+      p.reb*1.15+
+      p.ast*1.25+
+      p.stl*2+
+      p.blk*2-
+      p.to*1.3-
+      p.pf*.25;
+  });
+
+  combined.sort(
+    (a,b)=>b.mvp-a.mvp
+  );
+
+  const mvp=combined[0];
+
+  /*
+    Team stats.
+  */
+
+  const teamStats={
+
+    user:{
+      points:userScore,
+      rebounds:sumStat(ubox,"reb"),
+      offensiveRebounds:sumStat(ubox,"orb"),
+      assists:sumStat(ubox,"ast"),
+      steals:sumStat(ubox,"stl"),
+      blocks:sumStat(ubox,"blk"),
+      turnovers:sumStat(ubox,"to"),
+      fouls:sumStat(ubox,"pf"),
+      fgm:sumStat(ubox,"fgm"),
+      fga:sumStat(ubox,"fga"),
+      tpm:sumStat(ubox,"tpm"),
+      tpa:sumStat(ubox,"tpa"),
+      ftm:sumStat(ubox,"ftm"),
+      fta:sumStat(ubox,"fta")
+    },
+
+    ai:{
+      points:aiScore,
+      rebounds:sumStat(abox,"reb"),
+      offensiveRebounds:sumStat(abox,"orb"),
+      assists:sumStat(abox,"ast"),
+      steals:sumStat(abox,"stl"),
+      blocks:sumStat(abox,"blk"),
+      turnovers:sumStat(abox,"to"),
+      fouls:sumStat(abox,"pf"),
+      fgm:sumStat(abox,"fgm"),
+      fga:sumStat(abox,"fga"),
+      tpm:sumStat(abox,"tpm"),
+      tpa:sumStat(abox,"tpa"),
+      ftm:sumStat(abox,"ftm"),
+      fta:sumStat(abox,"fta")
+    }
+
+  };
+
+  /*
+    Reconcile points.
+
+    This engine generates points directly from
+    made shots and free throws. We display the
+    resulting score rather than inventing it.
+  */
+
+  teamStats.user.points=
+    sumPoints(ubox);
+
+  teamStats.ai.points=
+    sumPoints(abox);
+
+  /*
+    Tie breaker after actual generated points.
+  */
+
+  if(teamStats.user.points===teamStats.ai.points){
+
+    const winner=
+      avg(userTeam,"clutch")+
+      avg(userTeam,"iq") >
+      avg(aiTeam,"clutch")+
+      avg(aiTeam,"iq")
+        ?"user"
+        :"ai";
+
+    if(winner==="user"){
+
+      const scorer=
+        bestCreator(
+          userTeam,
+          userMinutes,
+          userFouls
+        );
+
+      ubox[scorer].pts+=1;
+      ubox[scorer].ftm+=1;
+      ubox[scorer].fta+=1;
+
+    }else{
+
+      const scorer=
+        bestCreator(
+          aiTeam,
+          aiMinutes,
+          aiFouls
+        );
+
+      abox[scorer].pts+=1;
+      abox[scorer].ftm+=1;
+      abox[scorer].fta+=1;
+    }
+  }
+
+  const finalUser=sumPoints(ubox);
+  const finalAI=sumPoints(abox);
+
+  return {
+
+    userScore:finalUser,
+    aiScore:finalAI,
+
+    userBox:ubox,
+    aiBox:abox,
+
+    userMinutes,
+    aiMinutes,
+
+    userFouls,
+    aiFouls,
+
+    userTeamStats:{
+      ...teamStats.user,
+      points:finalUser
+    },
+
+    aiTeamStats:{
+      ...teamStats.ai,
+      points:finalAI
+    },
+
+    mvp,
+    events,
+
+    possessions
+  };
+}
+
+function sumStat(box,key){
+
+  return Object.values(box)
+    .reduce(
+      (s,p)=>s+(p[key]||0),
+      0
+    );
+}
+
+function sumPoints(box){
+
+  return Object.values(box)
+    .reduce(
+      (s,p)=>s+(p.pts||0),
+      0
+    );
+}
+
+
+/* =========================================================
+   SERIES
 ========================================================= */
 
 function simulateOneGame(){
 
-if(userTeam.length<12||aiTeam.length<12){
+  if(userTeam.length<12||aiTeam.length<12){
 
-showToast("BOTH TEAMS NEED 12 PLAYERS");
-return;
+    toast("BOTH TEAMS NEED 12 PLAYERS");
 
+    return;
+  }
+
+  if(
+    seriesUserWins>=4||
+    seriesAIWins>=4
+  ){
+
+    toast("SERIES ALREADY OVER");
+
+    return;
+  }
+
+  currentGame++;
+
+  lastGame=playGame();
+
+  gameHistory.push(lastGame);
+
+  if(lastGame.userScore>lastGame.aiScore){
+
+    seriesUserWins++;
+
+    logBattle(
+      `GAME ${currentGame}: YOUR TEAM WIN
+       ${lastGame.userScore}-${lastGame.aiScore}.`,
+      "good"
+    );
+
+  }else{
+
+    seriesAIWins++;
+
+    logBattle(
+      `GAME ${currentGame}: AI WIN
+       ${lastGame.aiScore}-${lastGame.userScore}.`,
+      "bad"
+    );
+  }
+
+  renderGameResult();
+
+  $("battleStatus").textContent=
+    `SERIES ${seriesUserWins}-${seriesAIWins}`;
+
+  if(
+    seriesUserWins>=4||
+    seriesAIWins>=4
+  ){
+
+    finishSeries();
+  }
 }
-
-if(seriesUserWins>=4||seriesAIWins>=4){
-
-showToast("SERIES IS ALREADY OVER");
-return;
-
-}
-
-currentGame++;
-
-const userStarters=getStarters(userTeam);
-const aiStarters=getStarters(aiTeam);
-
-const userStats=createGameTeam(userTeam);
-const aiStats=createGameTeam(aiTeam);
-
-let userScore=0;
-let aiScore=0;
-
-let possessions=0;
-
-const playLog=[];
-
-const quarters=[];
-
-const pace=195+Math.round(randomNormal()*8);
-
-for(let quarter=1;quarter<=4;quarter++){
-
-let userQ=0;
-let aiQ=0;
-
-const possessionsQ=
-Math.round(
-pace/4+
-randomNormal()*3
-);
-
-for(let i=0;i<possessionsQ;i++){
-
-const gameState={
-quarter,
-clock:
-Math.max(
-0,
-720-
-(i/possessionsQ)*720
-)
-};
-
-const points=
-simulatePossession(
-userTeam,
-aiTeam,
-userStats,
-aiStats,
-userStarters,
-aiStarters,
-gameState,
-playLog
-);
-
-userQ+=points;
-userScore+=points;
-
-possessions++;
-
-if(
-Math.random()<.52
-){
-
-const pointsAI=
-simulatePossession(
-aiTeam,
-userTeam,
-aiStats,
-userStats,
-aiStarters,
-userStarters,
-gameState,
-playLog
-);
-
-aiQ+=pointsAI;
-aiScore+=pointsAI;
-
-}
-
-}
-
-quarters.push({
-user:userQ,
-ai:aiQ
-});
-
-}
-
-
-/*
-Make sure games don't become unrealistic.
-*/
-
-userScore=Math.max(72,userScore);
-aiScore=Math.max(72,aiScore);
-
-/*
-Close games get additional clutch possessions.
-*/
-
-if(Math.abs(userScore-aiScore)<=2){
-
-const clutchUser=
-average(userStarters,"clutch");
-
-const clutchAI=
-average(aiStarters,"clutch");
-
-if(
-clutchUser>clutchAI&&
-Math.random()<.58
-){
-
-userScore+=2;
-
-}else if(Math.random()<.48){
-
-aiScore+=2;
-
-}
-
-}
-
-/*
-Compute minutes.
-*/
-
-[userTeam,aiTeam].forEach(team=>{
-
-const starters=getStarters(team);
-
-team.forEach(name=>{
-
-const s=
-team===userTeam
-?userStats[name]
-:aiStats[name];
-
-s.min=
-starters.includes(name)
-?Math.round(34+Math.random()*9)
-:Math.round(8+Math.random()*16);
-
-});
-
-});
-
-
-/*
-Plus/minus approximate based on team result
-and player impact.
-*/
-
-[userTeam,aiTeam].forEach(team=>{
-
-team.forEach(name=>{
-
-const stats=
-team===userTeam
-?userStats[name]
-:aiStats[name];
-
-const p=PLAYERS[name];
-
-stats.impact=
-stats.pts+
-stats.reb*1.15+
-stats.ast*1.4+
-stats.stl*2+
-stats.blk*2+
-stats.oreb*.5-
-stats.tov*1.2-
-stats.pf*.4;
-
-stats.impact+=
-(
-p.iq+
-p.defense+
-p.hardness+
-p.clutch
-)/20;
-
-stats.plusMinus=
-Math.round(
-(
-team===userTeam
-?userScore-aiScore
-:aiScore-userScore
-)*.25+
-randomNormal()*4+
-(stats.impact-18)*.12
-);
-
-});
-
-});
-
-
-/*
-Determine winner.
-*/
-
-if(userScore===aiScore){
-
-if(
-average(userStarters,"clutch")>=
-average(aiStarters,"clutch")
-){
-userScore++;
-}else{
-aiScore++;
-}
-
-}
-
-let winner=userScore>aiScore?"YOU":"AI";
-
-if(winner==="YOU")seriesUserWins++;
-else seriesAIWins++;
-
-$("yourGameScore").textContent=userScore;
-$("aiGameScore").textContent=aiScore;
-$("gameNumber").textContent=currentGame;
-
-$("battleStatus").textContent=
-"SERIES "+seriesUserWins+"–"+seriesAIWins;
-
-
-/*
-Game MVP.
-*/
-
-const allStats=
-Object.values(userStats)
-.concat(Object.values(aiStats));
-
-allStats.sort((a,b)=>b.impact-a.impact);
-
-const mvp=allStats[0];
-
-lastGame={
-userScore,
-aiScore,
-winner,
-userStats,
-aiStats,
-quarters,
-possessions,
-pace,
-mvp:mvp.name,
-playLog
-};
-
-seriesGames.push(lastGame);
-
-renderGameResults(lastGame);
-
-logBattle(
-`GAME ${currentGame}: ${winner==="YOU"?"YOUR TEAM":"AI"} WIN ${Math.max(userScore,aiScore)}-${Math.min(userScore,aiScore)}.`,
-winner==="YOU"?"good":"bad"
-);
-
-if(playLog.length){
-
-const selected=
-playLog
-.slice(-10);
-
-selected.forEach(line=>{
-logBattle(line,"muted");
-});
-
-}
-
-if(seriesUserWins>=4||seriesAIWins>=4){
-
-finishSeries();
-
-}
-
-}
-
-
-/* =========================================================
-RENDER GAME RESULTS
-========================================================= */
-
-function renderGameResults(game){
-
-renderBoxScore(game);
-
-renderTeamStats(game);
-
-renderMatchups(game);
-
-renderGameSummary(game);
-
-renderSeriesTracker();
-
-}
-
-
-/* =========================================================
-BOX SCORE
-========================================================= */
-
-function renderBoxScore(game){
-
-function teamTable(team,stats,label){
-
-const sorted=
-[...team].sort((a,b)=>{
-return stats[b].pts-stats[a].pts;
-});
-
-let html=`
-
-<h3 style="font:11px monospace;color:#8397a7;letter-spacing:2px">
-${label}
-</h3>
-
-<div class="table-wrap">
-
-<table class="stats-table">
-
-<thead>
-<tr>
-<th>PLAYER</th>
-<th>MIN</th>
-<th>PTS</th>
-<th>REB</th>
-<th>AST</th>
-<th>STL</th>
-<th>BLK</th>
-<th>TO</th>
-<th>PF</th>
-<th>FG</th>
-<th>3PT</th>
-<th>FT</th>
-<th>+/-</th>
-</tr>
-</thead>
-
-<tbody>
-`;
-
-sorted.forEach(name=>{
-
-const s=stats[name];
-
-const mvp=name===game.mvp;
-
-html+=`
-
-<tr class="${mvp?"mvp-row":""}">
-
-<td>
-${mvp?"★ ":""}${name}
-</td>
-
-<td>${s.min}</td>
-<td class="${s.pts>=25?"stat-good":""}">${s.pts}</td>
-<td>${s.reb}</td>
-<td>${s.ast}</td>
-<td>${s.stl}</td>
-<td>${s.blk}</td>
-<td>${s.tov}</td>
-<td>${s.pf}</td>
-<td>${s.fgm}/${s.fga}</td>
-<td>${s.threeM}/${s.threeA}</td>
-<td>${s.ftm}/${s.fta}</td>
-<td>${s.plusMinus>0?"+":""}${s.plusMinus}</td>
-
-</tr>
-
-`;
-
-});
-
-html+=`</tbody></table></div>`;
-
-return html;
-
-}
-
-$("boxScore").innerHTML=
-teamTable(userTeam,game.userStats,"YOUR TEAM")+
-"<br>"+
-teamTable(aiTeam,game.aiStats,"AI TEAM");
-
-}
-
-
-/* =========================================================
-TEAM STATS
-========================================================= */
-
-function calculateTeamStats(team,stats){
-
-let result={
-pts:0,
-reb:0,
-ast:0,
-stl:0,
-blk:0,
-tov:0,
-pf:0,
-fgm:0,
-fga:0,
-threeM:0,
-threeA:0,
-ftm:0,
-fta:0,
-oreb:0
-};
-
-team.forEach(name=>{
-
-const s=stats[name];
-
-Object.keys(result).forEach(key=>{
-if(s[key]!=null)result[key]+=s[key];
-});
-
-});
-
-return result;
-
-}
-
-function renderTeamStats(game){
-
-const u=calculateTeamStats(userTeam,game.userStats);
-const a=calculateTeamStats(aiTeam,game.aiStats);
-
-const rows=[
-["POINTS",u.pts,a.pts],
-["REBOUNDS",u.reb,a.reb],
-["OFFENSIVE REBOUNDS",u.oreb,a.oreb],
-["ASSISTS",u.ast,a.ast],
-["STEALS",u.stl,a.stl],
-["BLOCKS",u.blk,a.blk],
-["TURNOVERS",u.tov,a.tov],
-["FOULS",u.pf,a.pf],
-["FIELD GOALS",`${u.fgm}/${u.fga}`,`${a.fgm}/${a.fga}`],
-["3-POINT",`${u.threeM}/${u.threeA}`,`${a.threeM}/${a.threeA}`],
-["FREE THROWS",`${u.ftm}/${u.fta}`,`${a.ftm}/${a.fta}`]
-];
-
-let html=`
-
-<div class="table-wrap">
-
-<table class="stats-table">
-
-<thead>
-<tr>
-<th>TEAM STAT</th>
-<th>YOU</th>
-<th>AI</th>
-<th>EDGE</th>
-</tr>
-</thead>
-
-<tbody>
-`;
-
-rows.forEach(row=>{
-
-let x=parseFloat(row[1]);
-let y=parseFloat(row[2]);
-
-let edge="—";
-
-if(!isNaN(x)&&!isNaN(y)){
-
-if(row[0]==="TURNOVERS"||row[0]==="FOULS"){
-edge=x<y?"YOU":"AI";
-}else{
-edge=x>y?"YOU":"AI";
-}
-
-}
-
-html+=`
-
-<tr>
-
-<td>${row[0]}</td>
-
-<td>${row[1]}</td>
-
-<td>${row[2]}</td>
-
-<td class="${
-edge==="YOU"
-?"good"
-:edge==="AI"
-?"bad"
-:"muted"
-}">
-${edge}
-</td>
-
-</tr>
-`;
-
-});
-
-html+=`</tbody></table></div>`;
-
-$("teamStats").innerHTML=html;
-
-}
-
-
-/* =========================================================
-MATCHUP STATS
-========================================================= */
-
-function renderMatchups(game){
-
-const u=getStarters(userTeam);
-const a=getStarters(aiTeam);
-
-let html="";
-
-for(let i=0;i<5;i++){
-
-const userName=u[i];
-const aiName=a[i];
-
-const us=game.userStats[userName];
-const as=game.aiStats[aiName];
-
-const up=PLAYERS[userName];
-const ap=PLAYERS[aiName];
-
-const userAdv=
-offenseRating(userName)-
-defenseRating(aiName);
-
-const aiAdv=
-offenseRating(aiName)-
-defenseRating(userName);
-
-const winner=
-userAdv>aiAdv
-?userName
-:aiName;
-
-html+=`
-
-<div class="matchup">
-
-<div class="matchup-head">
-
-<strong>${userName}</strong>
-
-<span class="vs">VS</span>
-
-<strong>${aiName}</strong>
-
-</div>
-
-<div class="matchup-body">
-
-<div class="matchup-line">
-<span class="${winner===userName?"good":""}">
-${us.pts} PTS
-</span>
-<span>SCORING</span>
-<span class="${winner===aiName?"good":""}">
-${as.pts} PTS
-</span>
-</div>
-
-<div class="matchup-line">
-<span>${us.reb}</span>
-<span>REB</span>
-<span>${as.reb}</span>
-</div>
-
-<div class="matchup-line">
-<span>${us.ast}</span>
-<span>AST</span>
-<span>${as.ast}</span>
-</div>
-
-<div class="matchup-line">
-<span>${us.stl}</span>
-<span>STL</span>
-<span>${as.stl}</span>
-</div>
-
-<div class="matchup-line">
-<span>${us.blk}</span>
-<span>BLK</span>
-<span>${as.blk}</span>
-</div>
-
-<div class="matchup-line">
-<span>${us.tov}</span>
-<span>TO</span>
-<span>${as.tov}</span>
-</div>
-
-<div class="matchup-line">
-<span>${up.physical}</span>
-<span>PHYSICAL</span>
-<span>${ap.physical}</span>
-</div>
-
-<div class="matchup-line">
-<span>${up.iq}</span>
-<span>IQ</span>
-<span>${ap.iq}</span>
-</div>
-
-<div class="matchup-line">
-<span>${up.defense}</span>
-<span>DEFENSE</span>
-<span>${ap.defense}</span>
-</div>
-
-<div class="matchup-line">
-<span>${up.hardness}</span>
-<span>HARDNESS</span>
-<span>${ap.hardness}</span>
-</div>
-
-<div class="matchup-line">
-
-<span class="${winner===userName?"good":"bad"}">
-${userAdv.toFixed(1)}
-</span>
-
-<span>MATCHUP</span>
-
-<span class="${winner===aiName?"good":"bad"}">
-${aiAdv.toFixed(1)}
-</span>
-
-</div>
-
-</div>
-
-</div>
-`;
-
-}
-
-$("matchupStats").innerHTML=html;
-
-}
-
-
-/* =========================================================
-GAME SUMMARY
-========================================================= */
-
-function renderGameSummary(game){
-
-const u=calculateTeamStats(userTeam,game.userStats);
-const a=calculateTeamStats(aiTeam,game.aiStats);
-
-const reboundEdge=u.reb-a.reb;
-const turnoverEdge=a.tov-u.tov;
-
-$("gameSummary").innerHTML=`
-
-<div class="summary-card">
-<small>GAME MVP</small>
-<strong>${game.mvp}</strong>
-</div>
-
-<div class="summary-card">
-<small>PACE</small>
-<strong>${game.pace}</strong>
-</div>
-
-<div class="summary-card">
-<small>REBOUND EDGE</small>
-<strong class="${reboundEdge>=0?"good":"bad"}">
-${reboundEdge>=0?"+":""}${reboundEdge}
-</strong>
-</div>
-
-<div class="summary-card">
-<small>TURNOVER EDGE</small>
-<strong class="${turnoverEdge>=0?"good":"bad"}">
-${turnoverEdge>=0?"+":""}${turnoverEdge}
-</strong>
-</div>
-
-`;
-
-const reasons=[];
-
-if(u.reb>a.reb){
-
-reasons.push(`
-<div class="cause">
-<strong>REBOUNDING</strong>
-Your team controlled the glass ${u.reb}-${a.reb}.
-Second-chance possessions increased your scoring opportunities.
-</div>
-`);
-
-}else if(a.reb>u.reb){
-
-reasons.push(`
-<div class="cause">
-<strong>REBOUNDING</strong>
-The AI controlled the glass ${a.reb}-${u.reb}.
-Your team surrendered additional possessions.
-</div>
-`);
-
-}
-
-if(u.ast>a.ast){
-
-reasons.push(`
-<div class="cause">
-<strong>BALL MOVEMENT</strong>
-Your team produced ${u.ast} assists compared with ${a.ast}.
-Higher-IQ possessions created cleaner opportunities.
-</div>
-`);
-
-}else{
-
-reasons.push(`
-<div class="cause">
-<strong>BALL MOVEMENT</strong>
-The AI generated more assists: ${a.ast}-${u.ast}.
-Your defense had trouble stopping the initial action.
-</div>
-`);
-
-}
-
-if(u.tov<a.tov){
-
-reasons.push(`
-<div class="cause">
-<strong>DECISION MAKING</strong>
-Your team committed fewer turnovers.
-Basketball IQ and adaptability helped against physical pressure.
-</div>
-`);
-
-}else{
-
-reasons.push(`
-<div class="cause">
-<strong>PRESSURE</strong>
-The AI forced ${u.tov} turnovers.
-Its defensive physicality and decision-making created extra possessions.
-</div>
-`);
-
-}
-
-const uStarters=getStarters(userTeam);
-const aStarters=getStarters(aiTeam);
-
-const uClutch=average(uStarters,"clutch");
-const aClutch=average(aStarters,"clutch");
-
-if(game.winner==="YOU"&&uClutch>=aClutch){
-
-reasons.push(`
-<div class="cause">
-<strong>LATE-GAME EXECUTION</strong>
-Your starting five had the higher clutch profile.
-That edge mattered in the closing possessions.
-</div>
-`);
-
-}
-
-$("gameReasons").innerHTML=reasons.join("");
-
-}
-
-
-/* =========================================================
-SERIES TRACKER
-========================================================= */
-
-function renderSeriesTracker(){
-
-let html="";
-
-for(let i=1;i<=7;i++){
-
-if(i<=seriesGames.length){
-
-const g=seriesGames[i-1];
-
-const you=g.winner==="YOU";
-
-html+=`
-
-<div class="series-game ${you?"win":"loss"}">
-
-GAME ${i}<br>
-
-${g.userScore}-${g.aiScore}<br>
-
-${you?"YOU":"AI"}
-
-</div>
-
-`;
-
-}else{
-
-html+=`
-
-<div class="series-game pending">
-GAME ${i}<br>
-—
-</div>
-
-`;
-
-}
-
-}
-
-$("seriesTracker").innerHTML=html;
-
-}
-
-
-/* =========================================================
-SERIES
-========================================================= */
 
 function simulateSeries(){
 
-if(userTeam.length<12||aiTeam.length<12){
+  if(userTeam.length<12||aiTeam.length<12){
 
-showToast("BOTH TEAMS NEED 12 PLAYERS");
-return;
+    toast("BOTH TEAMS NEED 12 PLAYERS");
 
-}
+    return;
+  }
 
-resetSeries(false);
+  resetSeries(true);
 
-while(
-seriesUserWins<4&&
-seriesAIWins<4
-){
+  while(
+    seriesUserWins<4 &&
+    seriesAIWins<4
+  ){
 
-simulateOneGame();
+    currentGame++;
 
-}
+    lastGame=playGame();
 
+    gameHistory.push(lastGame);
+
+    if(
+      lastGame.userScore>
+      lastGame.aiScore
+    ){
+      seriesUserWins++;
+    }else{
+      seriesAIWins++;
+    }
+  }
+
+  renderGameResult();
+
+  finishSeries();
 }
 
 function finishSeries(){
 
-const userWon=seriesUserWins>=4;
+  const userWon=
+    seriesUserWins>=4;
 
-$("battleStatus").textContent=
-userWon?"YOUR TEAM WINS":"AI WINS";
+  $("battleStatus").textContent=
+    userWon
+      ?"YOUR TEAM WINS"
+      :"AI WINS";
 
-logBattle(
-"==============================",
-"gold"
-);
+  logBattle(
+    "==============================",
+    "gold"
+  );
 
-logBattle(
-userWon
-?`YOUR TEAM WINS THE SERIES ${seriesUserWins}-${seriesAIWins}.`
-:`AI WINS THE SERIES ${seriesAIWins}-${seriesUserWins}.`,
-userWon?"good":"bad"
-);
+  logBattle(
+    userWon
+      ?`YOUR TEAM WINS THE SERIES ${seriesUserWins}-${seriesAIWins}.`
+      :`AI WINS THE SERIES ${seriesAIWins}-${seriesUserWins}.`,
+    userWon?"good":"bad"
+  );
 
-showToast(
-userWon
-?"YOU WON THE SERIES"
-:"AI WON THE SERIES"
-);
-
+  toast(
+    userWon
+      ?"YOU WON THE SERIES"
+      :"AI WON THE SERIES"
+  );
 }
 
 function resetSeries(clearLog=true){
 
-seriesUserWins=0;
-seriesAIWins=0;
-currentGame=0;
+  seriesUserWins=0;
+  seriesAIWins=0;
+  currentGame=0;
+  lastGame=null;
+  gameHistory=[];
 
-seriesGames=[];
-lastGame=null;
+  if($("yourGameScore"))
+    $("yourGameScore").textContent="0";
 
-$("yourGameScore").textContent="0";
-$("aiGameScore").textContent="0";
-$("gameNumber").textContent="—";
-$("battleStatus").textContent="READY";
+  if($("aiGameScore"))
+    $("aiGameScore").textContent="0";
 
-$("boxScore").innerHTML=
-`<div class="notice">Simulate a game to generate player statistics.</div>`;
+  if($("gameNumber"))
+    $("gameNumber").textContent="—";
 
-$("matchupStats").innerHTML=
-`<div class="notice">Simulate a game to generate matchup statistics.</div>`;
+  if($("battleStatus"))
+    $("battleStatus").textContent="READY";
 
-$("teamStats").innerHTML=
-`<div class="notice">No game statistics yet.</div>`;
-
-$("gameReasons").innerHTML="";
-
-renderSeriesTracker();
-
-if(clearLog){
-$("battleLog").innerHTML="";
-}
-
+  if(clearLog&&$("battleLog"))
+    $("battleLog").innerHTML="";
 }
 
 
 /* =========================================================
-EVENTS
+   GAME RESULT UI
 ========================================================= */
 
-document.querySelectorAll("#nav button").forEach(button=>{
+function renderGameResult(){
 
-button.addEventListener("click",()=>{
-switchTab(button.dataset.tab);
-});
+  if(!lastGame)return;
 
-});
+  $("yourGameScore").textContent=
+    lastGame.userScore;
 
-$("youFirstBtn").addEventListener(
-"click",
-()=>startDraft("user")
-);
+  $("aiGameScore").textContent=
+    lastGame.aiScore;
 
-$("aiFirstBtn").addEventListener(
-"click",
-()=>startDraft("ai")
-);
+  $("gameNumber").textContent=
+    currentGame;
 
-$("randomBtn").addEventListener(
-"click",
-randomDraft
-);
+  renderBattle();
 
-$("proposeTradeBtn").addEventListener(
-"click",
-proposeTrade
-);
+  /*
+    Add detailed simulation panel.
+  */
 
-$("aiTradeBtn").addEventListener(
-"click",
-aiMakeTrade
-);
+  let existing=
+    document.getElementById(
+      "simulationDetails"
+    );
 
-$("simulateGameBtn").addEventListener(
-"click",
-simulateOneGame
-);
+  if(!existing){
 
-$("simulateSeriesBtn").addEventListener(
-"click",
-simulateSeries
-);
+    existing=document.createElement("div");
 
-$("resetSeriesBtn").addEventListener(
-"click",
-()=>resetSeries(true)
-);
+    existing.id="simulationDetails";
+    existing.className="panel";
+
+    const battle=
+      document.getElementById("battle");
+
+    battle.insertBefore(
+      existing,
+      battle.children[1]
+    );
+  }
+
+  const u=lastGame.userTeamStats;
+  const a=lastGame.aiTeamStats;
+
+  const m=lastGame.mvp;
+
+  existing.innerHTML=`
+
+    <div class="panel-head">
+      GAME ${currentGame} — FULL SIMULATION REPORT
+    </div>
+
+    <div class="panel-body">
+
+      <div class="notice">
+
+        <strong>
+          ${lastGame.userScore}
+          —
+          ${lastGame.aiScore}
+        </strong>
+
+        <br><br>
+
+        Possessions simulated:
+        <strong>${lastGame.possessions}</strong>
+
+        <br>
+
+        Game MVP:
+        <strong>${m.name}</strong>
+
+        —
+        ${m.pts} PTS /
+        ${m.reb} REB /
+        ${m.ast} AST
+
+      </div>
+
+      <br>
+
+      <div class="three-col">
+
+        <div class="review-card">
+          <b>REBOUNDING</b>
+          YOU ${u.rebounds}
+          VS
+          AI ${a.rebounds}
+        </div>
+
+        <div class="review-card">
+          <b>ASSISTS</b>
+          YOU ${u.assists}
+          VS
+          AI ${a.assists}
+        </div>
+
+        <div class="review-card">
+          <b>TURNOVERS</b>
+          YOU ${u.turnovers}
+          VS
+          AI ${a.turnovers}
+        </div>
+
+        <div class="review-card">
+          <b>STEALS</b>
+          YOU ${u.steals}
+          VS
+          AI ${a.steals}
+        </div>
+
+        <div class="review-card">
+          <b>FOULS</b>
+          YOU ${u.fouls}
+          VS
+          AI ${a.fouls}
+        </div>
+
+        <div class="review-card">
+          <b>OFFENSIVE REBOUNDS</b>
+          YOU ${u.offensiveRebounds}
+          VS
+          AI ${a.offensiveRebounds}
+        </div>
+
+      </div>
+
+      <br>
+
+      <div class="panel">
+
+        <div class="panel-head">
+          FULL BOX SCORE
+        </div>
+
+        <div class="panel-body">
+
+          ${renderBoxScore(
+            "YOUR TEAM",
+            userTeam,
+            lastGame.userBox
+          )}
+
+          <br>
+
+          ${renderBoxScore(
+            "AI TEAM",
+            aiTeam,
+            lastGame.aiBox
+          )}
+
+        </div>
+
+      </div>
+
+      <div class="panel">
+
+        <div class="panel-head">
+          STARTING FIVE MATCHUPS
+        </div>
+
+        <div class="panel-body">
+
+          ${renderMatchups(
+            getStarters(userTeam),
+            getStarters(aiTeam),
+            lastGame
+          )}
+
+        </div>
+
+      </div>
+
+      <div class="panel">
+
+        <div class="panel-head">
+          TEAM STATISTICS
+        </div>
+
+        <div class="panel-body">
+
+          ${renderTeamStats(u,a)}
+
+        </div>
+
+      </div>
+
+      <div class="panel">
+
+        <div class="panel-head">
+          PLAY-BY-PLAY
+        </div>
+
+        <div class="panel-body">
+
+          <div class="log">
+            ${renderEvents(lastGame.events)}
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  `;
+}
 
 
 /* =========================================================
-INITIALIZE
+   BOX SCORE
+========================================================= */
+
+function renderBoxScore(title,team,box){
+
+  const sorted=
+    [...team].sort(
+      (a,b)=>
+        box[b].pts-
+        box[a].pts
+    );
+
+  return `
+
+    <div class="notice">
+      <strong>${title}</strong>
+    </div>
+
+    <div style="overflow:auto">
+
+      <table style="
+        width:100%;
+        border-collapse:collapse;
+        font:9px monospace;
+        margin-top:8px;
+      ">
+
+        <thead>
+
+          <tr style="color:#718697">
+
+            <th style="text-align:left;padding:7px">
+              PLAYER
+            </th>
+
+            <th>MIN</th>
+            <th>PTS</th>
+            <th>REB</th>
+            <th>AST</th>
+            <th>STL</th>
+            <th>BLK</th>
+            <th>TO</th>
+            <th>PF</th>
+            <th>FG</th>
+            <th>3PT</th>
+            <th>FT</th>
+            <th>+/-</th>
+
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          ${sorted.map(name=>{
+
+            const p=box[name];
+
+            return `
+
+              <tr style="
+                border-top:1px solid #14222c;
+                text-align:center;
+              ">
+
+                <td style="
+                  text-align:left;
+                  padding:7px;
+                  white-space:nowrap;
+                ">
+                  ${p.pts>=20?"★ ":""}${name}
+                </td>
+
+                <td>${p.min}</td>
+                <td>${p.pts}</td>
+                <td>${p.reb}</td>
+                <td>${p.ast}</td>
+                <td>${p.stl}</td>
+                <td>${p.blk}</td>
+                <td>${p.to}</td>
+                <td>${p.pf}</td>
+
+                <td>
+                  ${p.fgm}/${p.fga}
+                </td>
+
+                <td>
+                  ${p.tpm}/${p.tpa}
+                </td>
+
+                <td>
+                  ${p.ftm}/${p.fta}
+                </td>
+
+                <td>
+                  ${p.plus>0?"+":""}${p.plus}
+                </td>
+
+              </tr>
+
+            `;
+
+          }).join("")}
+
+        </tbody>
+
+      </table>
+
+    </div>
+  `;
+}
+
+
+/* =========================================================
+   MATCHUPS
+========================================================= */
+
+function renderMatchups(userStarters,aiStarters,last){
+
+  let html="";
+
+  for(let i=0;i<5;i++){
+
+    const u=userStarters[i];
+    const a=aiStarters[i];
+
+    if(!u||!a)continue;
+
+    const up=PLAYERS[u];
+    const ap=PLAYERS[a];
+
+    const ub=last.userBox[u];
+    const ab=last.aiBox[a];
+
+    const userMatch=
+      matchupScore(up,ap);
+
+    const aiMatch=
+      matchupScore(ap,up);
+
+    html+=`
+
+      <div class="review-card"
+        style="margin-bottom:8px">
+
+        <div style="
+          display:grid;
+          grid-template-columns:1fr 70px 1fr;
+          gap:8px;
+          text-align:center;
+          align-items:center;
+        ">
+
+          <div>
+
+            <strong>${u}</strong>
+
+            <br>
+
+            <span class="good">
+              ${ub.pts} PTS
+            </span>
+
+          </div>
+
+          <div class="muted">
+            VS
+          </div>
+
+          <div>
+
+            <strong>${a}</strong>
+
+            <br>
+
+            <span class="bad">
+              ${ab.pts} PTS
+            </span>
+
+          </div>
+
+        </div>
+
+        <br>
+
+        <div class="three-col">
+
+          ${matchupRow(
+            "PHYSICAL",
+            up.physical,
+            ap.physical
+          )}
+
+          ${matchupRow(
+            "IQ",
+            up.iq,
+            ap.iq
+          )}
+
+          ${matchupRow(
+            "DEFENSE",
+            up.defense,
+            ap.defense
+          )}
+
+          ${matchupRow(
+            "HARDNESS",
+            up.hardness,
+            ap.hardness
+          )}
+
+          ${matchupRow(
+            "CREATION",
+            up.creation,
+            ap.creation
+          )}
+
+          ${matchupRow(
+            "SCORING",
+            up.scoring,
+            ap.scoring
+          )}
+
+        </div>
+
+        <br>
+
+        <div class="notice">
+
+          MATCHUP EDGE:
+
+          <strong>
+            ${
+              userMatch>aiMatch
+                ?u+" +"+(userMatch-aiMatch).toFixed(1)
+                :a+" +"+(aiMatch-userMatch).toFixed(1)
+            }
+          </strong>
+
+        </div>
+
+      </div>
+
+    `;
+  }
+
+  return html;
+}
+
+function matchupScore(a,b){
+
+  return(
+    a.physical*.12+
+    a.iq*.15+
+    a.defense*.14+
+    a.hardness*.10+
+    a.scoring*.16+
+    a.creation*.15+
+    a.adapt*.08+
+    a.skill*.10
+  )-
+  (
+    b.defense*.08+
+    b.physical*.06
+  );
+}
+
+function matchupRow(label,a,b){
+
+  return `
+
+    <div class="review-card">
+
+      <b>${label}</b>
+
+      <span class="${a>=b?"good":"bad"}">
+        ${a}
+      </span>
+
+      <span class="muted">
+        VS
+      </span>
+
+      <span class="${b>a?"good":"bad"}">
+        ${b}
+      </span>
+
+    </div>
+  `;
+}
+
+
+/* =========================================================
+   TEAM STATS
+========================================================= */
+
+function renderTeamStats(u,a){
+
+  const rows=[
+    ["POINTS","points"],
+    ["REBOUNDS","rebounds"],
+    ["OFFENSIVE REBOUNDS","offensiveRebounds"],
+    ["ASSISTS","assists"],
+    ["STEALS","steals"],
+    ["BLOCKS","blocks"],
+    ["TURNOVERS","turnovers"],
+    ["FOULS","fouls"],
+    ["FIELD GOALS",x=>`${x.fgm}/${x.fga}`],
+    ["3-POINT",x=>`${x.tpm}/${x.tpa}`],
+    ["FREE THROWS",x=>`${x.ftm}/${x.fta}`]
+  ];
+
+  return `
+
+    <div style="overflow:auto">
+
+      <table style="
+        width:100%;
+        border-collapse:collapse;
+        font:10px monospace;
+      ">
+
+        <tr style="color:#718697">
+          <th style="text-align:left;padding:8px">
+            TEAM STAT
+          </th>
+          <th>YOU</th>
+          <th>AI</th>
+          <th>EDGE</th>
+        </tr>
+
+        ${rows.map(([label,key])=>{
+
+          const av=
+            typeof key==="function"
+              ?key(a)
+              :a[key];
+
+          const uv=
+            typeof key==="function"
+              ?key(u)
+              :u[key];
+
+          let edge="—";
+
+          if(
+            typeof uv==="number" &&
+            typeof av==="number"
+          ){
+
+            if(label==="TURNOVERS"||
+               label==="FOULS"){
+              edge=
+                uv<av
+                  ?"YOU"
+                  :av<uv
+                    ?"AI"
+                    :"EVEN";
+            }else{
+              edge=
+                uv>av
+                  ?"YOU"
+                  :av>uv
+                    ?"AI"
+                    :"EVEN";
+            }
+          }
+
+          return `
+
+            <tr style="
+              border-top:1px solid #14222c;
+              text-align:center;
+            ">
+
+              <td style="
+                text-align:left;
+                padding:8px;
+              ">
+                ${label}
+              </td>
+
+              <td>${uv}</td>
+              <td>${av}</td>
+              <td class="muted">${edge}</td>
+
+            </tr>
+          `;
+
+        }).join("")}
+
+      </table>
+
+    </div>
+  `;
+}
+
+
+/* =========================================================
+   EVENTS
+========================================================= */
+
+function renderEvents(events){
+
+  if(!events.length)
+    return "No play-by-play events.";
+
+  return events
+    .map(e=>{
+
+      let text="";
+
+      if(e.type==="made"){
+
+        text=
+          `${e.player} scores ${e.points}.`;
+
+      }else if(e.type==="miss"){
+
+        text=
+          `${e.player} misses against ${e.defender||"defense"}.`;
+
+      }else if(e.type==="turnover"){
+
+        text=
+          `${e.defender||"Defense"} forces ${e.player} into a turnover.`;
+
+      }else if(e.type==="foul"){
+
+        text=
+          `${e.defender||"Defender"} fouls ${e.player}.`;
+
+      }else if(e.type==="offensive_rebound"){
+
+        text=
+          `${e.rebounder} keeps the possession alive.`;
+
+      }else if(e.type==="defensive_rebound"){
+
+        text=
+          `${e.rebounder} secures the defensive rebound.`;
+
+      }
+
+      return `
+        <div class="log-entry">
+          ${e.team}: ${text}
+        </div>
+      `;
+
+    })
+    .join("");
+}
+
+
+/* =========================================================
+   BATTLE RENDER
+========================================================= */
+
+function renderBattle(){
+
+  if(!userTeam.length||!aiTeam.length){
+
+    if($("yourLineup"))
+      $("yourLineup").innerHTML=
+        `<div class="lineup-player muted">
+          Draft teams first.
+        </div>`;
+
+    if($("aiLineup"))
+      $("aiLineup").innerHTML=
+        `<div class="lineup-player muted">
+          Draft teams first.
+        </div>`;
+
+    return;
+  }
+
+  const us=getStarters(userTeam);
+  const as=getStarters(aiTeam);
+
+  $("yourLineup").innerHTML=
+    us.map((n,i)=>`
+      <div class="lineup-player">
+        ${i+1}. ${n}
+        <span class="muted">
+          ${PLAYERS[n].pos}
+        </span>
+      </div>
+    `).join("");
+
+  $("aiLineup").innerHTML=
+    as.map((n,i)=>`
+      <div class="lineup-player">
+        ${i+1}. ${n}
+        <span class="muted">
+          ${PLAYERS[n].pos}
+        </span>
+      </div>
+    `).join("");
+
+  renderBattleAnalysis();
+}
+
+function renderBattleAnalysis(){
+
+  const u=getStarters(userTeam);
+  const a=getStarters(aiTeam);
+
+  const traits=[
+    ["PHYSICAL","physical"],
+    ["HARDNESS","hardness"],
+    ["IQ","iq"],
+    ["ADAPTABILITY","adapt"],
+    ["DOMINANCE","dominance"],
+    ["DEFENSE","defense"],
+    ["CLUTCH","clutch"],
+    ["WORK ETHIC","work"],
+    ["SKILL","skill"]
+  ];
+
+  $("battleAnalysis").innerHTML=
+    traits.map(([label,key])=>{
+
+      const uv=average(u,key);
+      const av=average(a,key);
+
+      return `
+        <div class="review-card">
+          <b>${label}</b>
+          <span class="${uv>=av?"good":"bad"}">
+            ${uv}
+          </span>
+          <span class="muted"> VS </span>
+          <span class="${av>uv?"good":"bad"}">
+            ${av}
+          </span>
+        </div>
+      `;
+    }).join("");
+}
+
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+$("youFirstBtn").onclick=
+  ()=>startDraft("user");
+
+$("aiFirstBtn").onclick=
+  ()=>startDraft("ai");
+
+$("randomBtn").onclick=
+  randomDraft;
+
+$("proposeTradeBtn").onclick=
+  proposeTrade;
+
+$("aiTradeBtn").onclick=
+  aiMakeTrade;
+
+$("simulateGameBtn").onclick=
+  simulateOneGame;
+
+$("simulateSeriesBtn").onclick=
+  simulateSeries;
+
+$("resetSeriesBtn").onclick=
+  ()=>resetSeries(true);
+
+
+/* =========================================================
+   INITIALIZE
 ========================================================= */
 
 availablePlayers=[...playerNames];
@@ -3959,7 +4281,6 @@ availablePlayers=[...playerNames];
 renderDraft();
 renderTrade();
 renderBattle();
-renderSeriesTracker();
 
 </script>
 
