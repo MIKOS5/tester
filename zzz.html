@@ -37,7 +37,7 @@ h1{
     background:#09111a;
     border-bottom:1px solid #263746;
     display:grid;
-    grid-template-columns:2fr 1fr 1fr 1fr auto;
+    grid-template-columns:minmax(220px,2fr) minmax(150px,1fr) minmax(150px,1fr) minmax(120px,1fr) auto auto;
     gap:10px;
 }
 
@@ -72,6 +72,7 @@ button.danger{
 .stats{
     display:flex;
     gap:20px;
+    flex-wrap:wrap;
     padding:12px 22px;
     background:#070d15;
     border-bottom:1px solid #263746;
@@ -98,17 +99,18 @@ button.danger{
     padding:10px 22px;
     font-size:12px;
     color:#8fa2b6;
+    min-height:34px;
 }
 
 .tableWrap{
     overflow:auto;
-    height:calc(100vh - 230px);
+    height:calc(100vh - 270px);
 }
 
 table{
     width:100%;
     border-collapse:collapse;
-    min-width:1500px;
+    min-width:1900px;
     font-size:12px;
 }
 
@@ -121,6 +123,7 @@ th{
     padding:9px 8px;
     border-bottom:1px solid #31465a;
     z-index:2;
+    white-space:nowrap;
 }
 
 td{
@@ -138,7 +141,9 @@ tr:hover{
     padding:3px 6px;
     border-radius:4px;
     margin-right:4px;
+    margin-bottom:3px;
     font-weight:bold;
+    white-space:nowrap;
 }
 
 .nes{
@@ -146,14 +151,89 @@ tr:hover{
     color:#9ed9ff;
 }
 
-.sfc{
+.snes{
     background:#49376d;
     color:#d0b8ff;
 }
 
-.both{
-    background:#315d47;
+.gb{
+    background:#3d5830;
+    color:#bfe7a7;
+}
+
+.gbc{
+    background:#315f43;
     color:#a9edc5;
+}
+
+.gba{
+    background:#4d396c;
+    color:#d7b9ff;
+}
+
+.genesis{
+    background:#573a2c;
+    color:#efc19f;
+}
+
+.sms{
+    background:#304e63;
+    color:#a9d9ef;
+}
+
+.gamegear{
+    background:#3c4c62;
+    color:#bfd4ef;
+}
+
+.n64{
+    background:#5b3333;
+    color:#efb2b2;
+}
+
+.atari2600{
+    background:#4d4728;
+    color:#e7dda0;
+}
+
+.atari7800{
+    background:#3f4a2a;
+    color:#cbdc9c;
+}
+
+.lynx{
+    background:#334f4e;
+    color:#a9d9d5;
+}
+
+.pce{
+    background:#514030;
+    color:#e7c79e;
+}
+
+.wswan{
+    background:#443c58;
+    color:#cfc1e7;
+}
+
+.ps1{
+    background:#343f59;
+    color:#b8c9eb;
+}
+
+.saturn{
+    background:#493c56;
+    color:#d1c0e2;
+}
+
+.dreamcast{
+    background:#354f5b;
+    color:#afd8e7;
+}
+
+.unknown{
+    background:#27313b;
+    color:#9eacb9;
 }
 
 a{
@@ -163,17 +243,48 @@ a{
 .small{
     color:#718499;
     font-size:11px;
+    margin-top:3px;
 }
 
 .filename{
     color:#cbd7e3;
     word-break:break-all;
+    max-width:450px;
+}
+
+.description{
+    max-width:350px;
+    color:#9baabd;
 }
 
 #empty{
     padding:40px;
     text-align:center;
     color:#65788b;
+}
+
+.floatingButtons{
+    position:fixed;
+    right:18px;
+    bottom:18px;
+    z-index:20;
+    display:flex;
+    gap:8px;
+}
+
+@media(max-width:1000px){
+
+    .controls{
+        grid-template-columns:1fr 1fr;
+    }
+
+    .controls input{
+        grid-column:1/-1;
+    }
+
+    .stats{
+        gap:10px;
+    }
 }
 </style>
 
@@ -184,7 +295,7 @@ a{
 <header>
     <h1>OBVYRIS ARCHIVE ROM FINDER</h1>
     <div class="subtitle">
-        Internet Archive scanner — finds items containing .NES and .SFC files
+        Internet Archive scanner — multi-platform ROM discovery
     </div>
 </header>
 
@@ -194,14 +305,28 @@ a{
 <input
     id="query"
     value="mediatype:texts"
-    placeholder="Archive search query"
+    placeholder="Internet Archive search query"
     title="Internet Archive Advanced Search query">
 
 <select id="platform">
     <option value="ALL">All Platforms</option>
-    <option value="nes">NES only</option>
-    <option value="sfc">SNES / SFC only</option>
-    <option value="both">NES + SFC</option>
+    <option value="nes">Nintendo NES</option>
+    <option value="snes">Super Nintendo</option>
+    <option value="gb">Game Boy</option>
+    <option value="gbc">Game Boy Color</option>
+    <option value="gba">Game Boy Advance</option>
+    <option value="genesis">Sega Genesis</option>
+    <option value="sms">Sega Master System</option>
+    <option value="gamegear">Sega Game Gear</option>
+    <option value="n64">Nintendo 64</option>
+    <option value="atari2600">Atari 2600</option>
+    <option value="atari7800">Atari 7800</option>
+    <option value="lynx">Atari Lynx</option>
+    <option value="pce">TurboGrafx / PC Engine</option>
+    <option value="wswan">WonderSwan</option>
+    <option value="ps1">PlayStation</option>
+    <option value="saturn">Sega Saturn</option>
+    <option value="dreamcast">Dreamcast</option>
 </select>
 
 <select id="sort">
@@ -216,19 +341,56 @@ a{
     <option value="25" selected>25 Items</option>
     <option value="50">50 Items</option>
     <option value="100">100 Items</option>
+    <option value="250">250 Items</option>
 </select>
 
 <button class="primary" onclick="startScan()">SCAN</button>
+
+<button onclick="clearResults()">CLEAR</button>
 ```
 
 </div>
 
 <div class="stats">
-    <div class="stat">Archive Results: <b id="resultCount">0</b></div>
-    <div class="stat">Scanned: <b id="scanned">0</b></div>
-    <div class="stat">NES: <b id="nesCount">0</b></div>
-    <div class="stat">SFC: <b id="sfcCount">0</b></div>
-    <div class="stat">Matches: <b id="matchCount">0</b></div>
+
+```
+<div class="stat">
+    Archive Results: <b id="resultCount">0</b>
+</div>
+
+<div class="stat">
+    Scanned: <b id="scanned">0</b>
+</div>
+
+<div class="stat">
+    Files: <b id="fileCount">0</b>
+</div>
+
+<div class="stat">
+    Matches: <b id="matchCount">0</b>
+</div>
+
+<div class="stat">
+    NES: <b id="nesCount">0</b>
+</div>
+
+<div class="stat">
+    SNES: <b id="snesCount">0</b>
+</div>
+
+<div class="stat">
+    GB/GBC/GBA: <b id="gbCount">0</b>
+</div>
+
+<div class="stat">
+    Sega: <b id="segaCount">0</b>
+</div>
+
+<div class="stat">
+    Other: <b id="otherCount">0</b>
+</div>
+```
+
 </div>
 
 <div class="progress">
@@ -257,6 +419,7 @@ a{
     <th>ROMURL</th>
     <th>EmulatorCore</th>
     <th>GameType</th>
+    <th>Status</th>
     <th>LegalStatus</th>
     <th>Archive</th>
 </tr>
@@ -272,6 +435,23 @@ a{
 
 </div>
 
+<div class="floatingButtons">
+
+```
+<button
+    class="primary"
+    onclick="exportTSV()">
+    EXPORT TSV
+</button>
+
+<button
+    onclick="exportJSON()">
+    EXPORT JSON
+</button>
+```
+
+</div>
+
 <script>
 
 const IA_SEARCH =
@@ -280,17 +460,200 @@ const IA_SEARCH =
 const IA_METADATA =
     "https://archive.org/metadata/";
 
+
+/*
+=========================================================
+OBVYRIS ROM FORMAT REGISTRY
+=========================================================
+*/
+
+const ROM_FORMATS = {
+
+    ".nes":{
+        platform:"nes",
+        name:"Nintendo NES",
+        core:"nes",
+        category:"Nintendo"
+    },
+
+    ".sfc":{
+        platform:"snes",
+        name:"Super Nintendo",
+        core:"snes",
+        category:"Nintendo"
+    },
+
+    ".smc":{
+        platform:"snes",
+        name:"Super Nintendo",
+        core:"snes",
+        category:"Nintendo"
+    },
+
+    ".gb":{
+        platform:"gb",
+        name:"Game Boy",
+        core:"gb",
+        category:"Nintendo"
+    },
+
+    ".gbc":{
+        platform:"gbc",
+        name:"Game Boy Color",
+        core:"gbc",
+        category:"Nintendo"
+    },
+
+    ".gba":{
+        platform:"gba",
+        name:"Game Boy Advance",
+        core:"gba",
+        category:"Nintendo"
+    },
+
+    ".md":{
+        platform:"genesis",
+        name:"Sega Genesis",
+        core:"genesis",
+        category:"Sega"
+    },
+
+    ".gen":{
+        platform:"genesis",
+        name:"Sega Genesis",
+        core:"genesis",
+        category:"Sega"
+    },
+
+    ".smd":{
+        platform:"genesis",
+        name:"Sega Genesis",
+        core:"genesis",
+        category:"Sega"
+    },
+
+    ".sms":{
+        platform:"sms",
+        name:"Sega Master System",
+        core:"sega",
+        category:"Sega"
+    },
+
+    ".gg":{
+        platform:"gamegear",
+        name:"Sega Game Gear",
+        core:"sega",
+        category:"Sega"
+    },
+
+    ".z64":{
+        platform:"n64",
+        name:"Nintendo 64",
+        core:"mupen64plus_next",
+        category:"Nintendo"
+    },
+
+    ".n64":{
+        platform:"n64",
+        name:"Nintendo 64",
+        core:"mupen64plus_next",
+        category:"Nintendo"
+    },
+
+    ".v64":{
+        platform:"n64",
+        name:"Nintendo 64",
+        core:"mupen64plus_next",
+        category:"Nintendo"
+    },
+
+    ".a26":{
+        platform:"atari2600",
+        name:"Atari 2600",
+        core:"atari2600",
+        category:"Atari"
+    },
+
+    ".a78":{
+        platform:"atari7800",
+        name:"Atari 7800",
+        core:"atari7800",
+        category:"Atari"
+    },
+
+    ".lnx":{
+        platform:"lynx",
+        name:"Atari Lynx",
+        core:"lynx",
+        category:"Atari"
+    },
+
+    ".pce":{
+        platform:"pce",
+        name:"TurboGrafx-16 / PC Engine",
+        core:"mednafen_pce",
+        category:"NEC"
+    },
+
+    ".ws":{
+        platform:"wswan",
+        name:"WonderSwan",
+        core:"wswan",
+        category:"Bandai"
+    },
+
+    ".wsc":{
+        platform:"wswan",
+        name:"WonderSwan Color",
+        core:"wswan",
+        category:"Bandai"
+    },
+
+    ".nds":{
+        platform:"nds",
+        name:"Nintendo DS",
+        core:"melonds",
+        category:"Nintendo"
+    },
+
+    ".iso":{
+        platform:"disc",
+        name:"Disc Image",
+        core:"",
+        category:"Disc"
+    },
+
+    ".chd":{
+        platform:"disc",
+        name:"CHD Disc Image",
+        core:"",
+        category:"Disc"
+    }
+};
+
+
+/*
+=========================================================
+STATE
+=========================================================
+*/
+
 let foundGames = [];
 
 let scanning = false;
 
 
-/* ---------------------------------------------------------
-   Utilities
---------------------------------------------------------- */
+/*
+=========================================================
+UTILITIES
+=========================================================
+*/
 
 function escapeHTML(value){
-    if(value === undefined || value === null) return "";
+
+    if(value === undefined || value === null){
+        return "";
+    }
 
     return String(value)
         .replace(/&/g,"&amp;")
@@ -313,9 +676,12 @@ function slugify(text){
 
 function getYear(date){
 
-    if(!date) return "";
+    if(!date){
+        return "";
+    }
 
-    const match = String(date).match(/\b(19|20)\d{2}\b/);
+    const match =
+        String(date).match(/\b(19|20)\d{2}\b/);
 
     return match ? match[0] : "";
 }
@@ -323,42 +689,102 @@ function getYear(date){
 
 function normalizeArray(value){
 
-    if(!value) return [];
+    if(!value){
+        return [];
+    }
 
-    if(Array.isArray(value)) return value;
+    if(Array.isArray(value)){
+        return value;
+    }
 
     return [value];
 }
 
 
-/* ---------------------------------------------------------
-   Internet Archive Search
---------------------------------------------------------- */
+function sleep(ms){
 
-async function searchArchive(query,pageSize,sort){
+    return new Promise(
+        resolve => setTimeout(resolve,ms)
+    );
+}
+
+
+/*
+=========================================================
+EXTENSION DETECTION
+=========================================================
+*/
+
+function getExtension(filename){
+
+    const clean =
+        String(filename || "")
+            .split("?")[0]
+            .split("#")[0]
+            .toLowerCase();
+
+    const match =
+        clean.match(/\.[a-z0-9]+$/);
+
+    return match
+        ? match[0]
+        : "";
+}
+
+
+function getFormat(filename){
+
+    const extension =
+        getExtension(filename);
+
+    return ROM_FORMATS[extension] || null;
+}
+
+
+/*
+=========================================================
+ARCHIVE SEARCH
+=========================================================
+*/
+
+async function searchArchive(
+    query,
+    pageSize,
+    sort
+){
 
     const url =
         IA_SEARCH +
-        "?q=" + encodeURIComponent(query) +
+        "?q=" +
+        encodeURIComponent(query) +
         "&fl[]=identifier,title,creator,description,mediatype,date" +
-        "&rows=" + pageSize +
+        "&rows=" +
+        pageSize +
         "&start=0" +
-        "&sort[]=" + encodeURIComponent(sort) +
+        "&sort[]=" +
+        encodeURIComponent(sort) +
         "&output=json";
 
-    const response = await fetch(url);
+    const response =
+        await fetch(url);
 
     if(!response.ok){
-        throw new Error("Archive search failed: HTTP " + response.status);
+
+        throw new Error(
+            "Archive search failed: HTTP " +
+            response.status
+        );
     }
 
     return await response.json();
 }
 
 
-/* ---------------------------------------------------------
-   Archive Metadata / Files
---------------------------------------------------------- */
+/*
+=========================================================
+ARCHIVE FILE METADATA
+=========================================================
+*/
 
 async function getArchiveFiles(identifier){
 
@@ -366,9 +792,11 @@ async function getArchiveFiles(identifier){
         IA_METADATA +
         encodeURIComponent(identifier);
 
-    const response = await fetch(url);
+    const response =
+        await fetch(url);
 
     if(!response.ok){
+
         throw new Error(
             "Metadata failed for " +
             identifier +
@@ -381,87 +809,140 @@ async function getArchiveFiles(identifier){
 }
 
 
-/* ---------------------------------------------------------
-   File detection
---------------------------------------------------------- */
+/*
+=========================================================
+ROM FILE DETECTION
+=========================================================
+*/
 
 function detectROMFiles(metadata){
 
-    const files = normalizeArray(metadata.files);
+    const files =
+        normalizeArray(metadata.files);
 
-    const nes = [];
-    const sfc = [];
+    const matches = [];
 
     for(const file of files){
 
-        if(!file || !file.name) continue;
-
-        const name = String(file.name);
-
-        /*
-         * Ignore directories.
-         */
-        if(name.endsWith("/")) continue;
-
-        /*
-         * Case-insensitive extension detection.
-         */
-        if(/\.nes$/i.test(name)){
-            nes.push(file);
+        if(!file || !file.name){
+            continue;
         }
 
-        if(/\.sfc$/i.test(name)){
-            sfc.push(file);
+        const name =
+            String(file.name);
+
+        if(name.endsWith("/")){
+            continue;
         }
+
+        const format =
+            getFormat(name);
+
+        if(!format){
+            continue;
+        }
+
+        matches.push({
+
+            file:file,
+
+            name:name,
+
+            extension:getExtension(name),
+
+            format:format
+
+        });
     }
 
-    return {nes,sfc};
+    return matches;
 }
 
 
-/* ---------------------------------------------------------
-   Platform / core
---------------------------------------------------------- */
+/*
+=========================================================
+PLATFORM FILTER
+=========================================================
+*/
 
-function determinePlatform(nes,sfc){
+function passesPlatformFilter(
+    match,
+    filter
+){
 
-    if(nes.length && sfc.length){
-        return "NES + SNES";
+    if(filter === "ALL"){
+        return true;
     }
 
-    if(nes.length){
-        return "NES";
-    }
-
-    if(sfc.length){
-        return "SNES";
-    }
-
-    return "";
+    return match.format.platform === filter;
 }
 
 
-function determineCore(nes,sfc){
+/*
+=========================================================
+CATEGORY COUNTERS
+=========================================================
+*/
 
-    if(nes.length && !sfc.length){
-        return "nes";
+function updateCategoryCount(platform){
+
+    if(platform === "nes"){
+
+        increment("nesCount");
+        return;
     }
 
-    if(sfc.length && !nes.length){
-        return "snes";
+    if(platform === "snes"){
+
+        increment("snesCount");
+        return;
     }
 
-    return "multi";
+    if(
+        platform === "gb" ||
+        platform === "gbc" ||
+        platform === "gba"
+    ){
+
+        increment("gbCount");
+        return;
+    }
+
+    if(
+        platform === "genesis" ||
+        platform === "sms" ||
+        platform === "gamegear"
+    ){
+
+        increment("segaCount");
+        return;
+    }
+
+    increment("otherCount");
 }
 
 
-/* ---------------------------------------------------------
-   Main scanner
---------------------------------------------------------- */
+function increment(id){
+
+    const element =
+        document.getElementById(id);
+
+    element.textContent =
+        Number(element.textContent) + 1;
+}
+
+
+/*
+=========================================================
+MAIN SCAN
+=========================================================
+*/
 
 async function startScan(){
 
-    if(scanning) return;
+    if(scanning){
+        return;
+    }
 
     scanning = true;
 
@@ -469,28 +950,35 @@ async function startScan(){
 
     document.getElementById("results").innerHTML = "";
 
-    document.getElementById("empty").style.display = "none";
+    document.getElementById("empty").style.display =
+        "none";
 
-    document.getElementById("scanned").textContent = "0";
-    document.getElementById("nesCount").textContent = "0";
-    document.getElementById("sfcCount").textContent = "0";
-    document.getElementById("matchCount").textContent = "0";
+    resetCounters();
 
     const query =
-        document.getElementById("query").value.trim();
+        document.getElementById("query")
+            .value
+            .trim();
 
     const sort =
-        document.getElementById("sort").value;
+        document.getElementById("sort")
+            .value;
 
     const pageSize =
-        Number(document.getElementById("pageSize").value);
+        Number(
+            document.getElementById("pageSize")
+                .value
+        );
 
     const platformFilter =
-        document.getElementById("platform").value;
+        document.getElementById("platform")
+            .value;
 
     try{
 
-        setStatus("Searching Internet Archive...");
+        setStatus(
+            "Searching Internet Archive..."
+        );
 
         const searchData =
             await searchArchive(
@@ -505,23 +993,40 @@ async function startScan(){
                 ? searchData.response.docs
                 : [];
 
-        document.getElementById("resultCount").textContent =
-            docs.length;
+        document.getElementById("resultCount")
+            .textContent =
+                docs.length;
 
         if(!docs.length){
 
-            setStatus("No Archive search results.");
+            setStatus(
+                "No Archive search results."
+            );
 
-            document.getElementById("empty").style.display = "block";
+            document.getElementById("empty")
+                .style.display =
+                    "block";
 
             scanning = false;
 
             return;
         }
 
-        for(let i = 0; i < docs.length; i++){
 
-            const doc = docs[i];
+        /*
+        ================================================
+        SCAN EACH ARCHIVE ITEM
+        ================================================
+        */
+
+        for(
+            let i = 0;
+            i < docs.length;
+            i++
+        ){
+
+            const doc =
+                docs[i];
 
             setStatus(
                 "Scanning " +
@@ -539,212 +1044,56 @@ async function startScan(){
                         doc.identifier
                     );
 
-                const detected =
-                    detectROMFiles(metadata);
+                const matches =
+                    detectROMFiles(
+                        metadata
+                    );
 
-                const nes =
-                    detected.nes;
+                for(const match of matches){
 
-                const sfc =
-                    detected.sfc;
+                    /*
+                     * Count every recognized file.
+                     */
 
-                /*
-                 * Update statistics.
-                 */
+                    increment("fileCount");
 
-                if(nes.length){
-
-                    document.getElementById("nesCount").textContent =
-                        Number(
-                            document.getElementById("nesCount").textContent
-                        ) + nes.length;
-                }
-
-                if(sfc.length){
-
-                    document.getElementById("sfcCount").textContent =
-                        Number(
-                            document.getElementById("sfcCount").textContent
-                        ) + sfc.length;
-                }
-
-                if(!nes.length && !sfc.length){
-
-                    updateProgress(i + 1,docs.length);
-
-                    continue;
-                }
-
-                /*
-                 * Platform filter.
-                 */
-
-                if(platformFilter === "nes" && !nes.length){
-                    updateProgress(i + 1,docs.length);
-                    continue;
-                }
-
-                if(platformFilter === "sfc" && !sfc.length){
-                    updateProgress(i + 1,docs.length);
-                    continue;
-                }
-
-                if(platformFilter === "both" &&
-                   !(nes.length && sfc.length)){
-
-                    updateProgress(i + 1,docs.length);
-                    continue;
-                }
+                    updateCategoryCount(
+                        match.format.platform
+                    );
 
 
-                /*
-                 * Create one Game row for each ROM file.
-                 *
-                 * This is intentional:
-                 *
-                 * One Archive item can contain hundreds
-                 * or thousands of ROMs.
-                 */
+                    /*
+                     * Apply selected platform.
+                     */
 
-                const romFiles =
-                    nes.concat(sfc);
+                    if(
+                        !passesPlatformFilter(
+                            match,
+                            platformFilter
+                        )
+                    ){
 
-                for(const romFile of romFiles){
+                        continue;
+                    }
 
-                    const isNES =
-                        /\.nes$/i.test(romFile.name);
 
-                    const isSFC =
-                        /\.sfc$/i.test(romFile.name);
+                    /*
+                     * Create game record.
+                     */
 
-                    const gameTitle =
-                        romFile.name
-                            .split("/")
-                            .pop()
-                            .replace(/\.(nes|sfc)$/i,"")
-                            .replace(/[_]+/g," ")
-                            .trim();
-
-                    const platform =
-                        isNES
-                            ? "nes"
-                            : "snes";
-
-                    const core =
-                        isNES
-                            ? "nes"
-                            : "snes";
-
-                    const romURL =
-                        "https://archive.org/download/" +
-                        encodeURIComponent(doc.identifier) +
-                        "/" +
-                        romFile.name
-                            .split("/")
-                            .map(encodeURIComponent)
-                            .join("/");
-
-                    const archiveURL =
-                        "https://archive.org/details/" +
-                        encodeURIComponent(doc.identifier);
-
-                    const game = {
-
-                        GameID:
-                            "IA-" +
-                            doc.identifier +
-                            "-" +
-                            slugify(gameTitle),
-
-                        Title:
-                            gameTitle,
-
-                        Slug:
-                            slugify(gameTitle),
-
-                        PlatformID:
-                            platform,
-
-                        GenreID:
-                            "",
-
-                        SourceID:
-                            "internet-archive",
-
-                        Description:
-                            doc.description || "",
-
-                        Year:
-                            getYear(doc.date),
-
-                        Developer:
-                            doc.creator || "",
-
-                        Publisher:
-                            "",
-
-                        Thumbnail:
-                            "https://archive.org/services/img/" +
-                            encodeURIComponent(doc.identifier),
-
-                        GameURL:
-                            archiveURL,
-
-                        ROMURL:
-                            romURL,
-
-                        PlayURL:
-                            "",
-
-                        EmulatorCore:
-                            core,
-
-                        GameType:
-                            "rom",
-
-                        Status:
-                            "active",
-
-                        Featured:
-                            "FALSE",
-
-                        Approved:
-                            "FALSE",
-
-                        LegalStatus:
-                            "unknown",
-
-                        Created:
-                            new Date().toISOString(),
-
-                        Updated:
-                            new Date().toISOString(),
-
-                        DriveFileID:
-                            "",
-
-                        CacheStatus:
-                            "uncached",
-
-                        CacheUpdated:
-                            "",
-
-                        ROMFile:
-                            romFile.name,
-
-                        ArchiveIdentifier:
-                            doc.identifier,
-
-                        ArchiveURL:
-                            archiveURL
-
-                    };
+                    const game =
+                        createGame(
+                            doc,
+                            match
+                        );
 
                     foundGames.push(game);
 
                     addRow(game);
 
-                    document.getElementById("matchCount").textContent =
+                    document.getElementById(
+                        "matchCount"
+                    ).textContent =
                         foundGames.length;
                 }
 
@@ -755,30 +1104,38 @@ async function startScan(){
                     doc.identifier,
                     error
                 );
-
             }
 
-            document.getElementById("scanned").textContent =
+
+            document.getElementById(
+                "scanned"
+            ).textContent =
                 i + 1;
 
-            updateProgress(i + 1,docs.length);
+            updateProgress(
+                i + 1,
+                docs.length
+            );
 
             /*
-             * Small delay to avoid hammering Archive.
+             * Prevent a rapid request burst.
              */
 
             await sleep(150);
         }
 
+
         setStatus(
             "Scan complete. Found " +
             foundGames.length +
-            " ROM files."
+            " matching ROM files."
         );
 
         if(!foundGames.length){
 
-            document.getElementById("empty").style.display =
+            document.getElementById(
+                "empty"
+            ).style.display =
                 "block";
         }
 
@@ -791,31 +1148,206 @@ async function startScan(){
             error.message
         );
 
-        document.getElementById("empty").style.display =
+        document.getElementById(
+            "empty"
+        ).style.display =
             "block";
-
     }
 
     scanning = false;
 }
 
 
-/* ---------------------------------------------------------
-   Table
---------------------------------------------------------- */
+/*
+=========================================================
+CREATE GAME OBJECT
+=========================================================
+*/
+
+function createGame(
+    doc,
+    match
+){
+
+    const format =
+        match.format;
+
+    const filename =
+        match.name
+            .split("/")
+            .pop();
+
+    const gameTitle =
+        filename
+            .replace(
+                /\.(nes|sfc|smc|gb|gbc|gba|md|gen|smd|sms|gg|z64|n64|v64|a26|a78|lnx|pce|ws|wsc|nds|iso|chd)$/i,
+                ""
+            )
+            .replace(/[_]+/g," ")
+            .replace(/\s+/g," ")
+            .trim();
+
+    const platform =
+        format.platform;
+
+    const archiveIdentifier =
+        doc.identifier;
+
+    const encodedPath =
+        match.name
+            .split("/")
+            .map(
+                part =>
+                    encodeURIComponent(part)
+            )
+            .join("/");
+
+    const romURL =
+        "https://archive.org/download/" +
+        encodeURIComponent(
+            archiveIdentifier
+        ) +
+        "/" +
+        encodedPath;
+
+    const archiveURL =
+        "https://archive.org/details/" +
+        encodeURIComponent(
+            archiveIdentifier
+        );
+
+    return {
+
+        GameID:
+            "IA-" +
+            archiveIdentifier +
+            "-" +
+            platform +
+            "-" +
+            slugify(gameTitle),
+
+        Title:
+            gameTitle,
+
+        Slug:
+            slugify(gameTitle),
+
+        PlatformID:
+            platform,
+
+        GenreID:
+            "",
+
+        SourceID:
+            "internet-archive",
+
+        Description:
+            doc.description || "",
+
+        Year:
+            getYear(doc.date),
+
+        Developer:
+            doc.creator || "",
+
+        Publisher:
+            "",
+
+        Thumbnail:
+            "https://archive.org/services/img/" +
+            encodeURIComponent(
+                archiveIdentifier
+            ),
+
+        GameURL:
+            archiveURL,
+
+        ROMURL:
+            romURL,
+
+        PlayURL:
+            "",
+
+        EmulatorCore:
+            format.core,
+
+        GameType:
+            "rom",
+
+        Status:
+            "active",
+
+        Featured:
+            "FALSE",
+
+        Approved:
+            "FALSE",
+
+        LegalStatus:
+            "unknown",
+
+        Created:
+            new Date().toISOString(),
+
+        Updated:
+            new Date().toISOString(),
+
+        DriveFileID:
+            "",
+
+        CacheStatus:
+            "uncached",
+
+        CacheUpdated:
+            "",
+
+        ROMFile:
+            match.name,
+
+        Extension:
+            match.extension,
+
+        PlatformName:
+            format.name,
+
+        Category:
+            format.category,
+
+        ArchiveIdentifier:
+            archiveIdentifier,
+
+        ArchiveURL:
+            archiveURL
+    };
+}
+
+
+/*
+=========================================================
+TABLE
+=========================================================
+*/
 
 function addRow(game){
 
     const tbody =
-        document.getElementById("results");
+        document.getElementById(
+            "results"
+        );
 
     const tr =
         document.createElement("tr");
 
+    const platformClass =
+        game.PlatformID
+            .replace(/[^a-z0-9]/gi,"");
+
     const badge =
-        game.PlatformID === "nes"
-            ? '<span class="badge nes">NES</span>'
-            : '<span class="badge sfc">SFC</span>';
+        '<span class="badge ' +
+        escapeHTML(platformClass) +
+        '">' +
+        escapeHTML(game.PlatformName) +
+        '</span>';
 
     tr.innerHTML = `
 
@@ -824,22 +1356,37 @@ function addRow(game){
         </td>
 
         <td>
-            <strong>${escapeHTML(game.Title)}</strong>
+            <strong>
+                ${escapeHTML(game.Title)}
+            </strong>
+
             <div class="small">
-                ${escapeHTML(game.ArchiveIdentifier)}
+                ${escapeHTML(
+                    game.ArchiveIdentifier
+                )}
             </div>
         </td>
 
         <td>
             ${badge}
+
+            <div class="small">
+                ${escapeHTML(
+                    game.PlatformID
+                )}
+            </div>
         </td>
 
         <td>
-            ${escapeHTML(game.SourceID)}
+            ${escapeHTML(
+                game.SourceID
+            )}
         </td>
 
-        <td>
-            ${escapeHTML(game.Description).substring(0,250)}
+        <td class="description">
+            ${escapeHTML(
+                game.Description
+            ).substring(0,350)}
         </td>
 
         <td>
@@ -847,45 +1394,71 @@ function addRow(game){
         </td>
 
         <td>
-            ${escapeHTML(game.Developer)}
+            ${escapeHTML(
+                game.Developer
+            )}
         </td>
 
         <td>
-            ${escapeHTML(game.Publisher)}
+            ${escapeHTML(
+                game.Publisher
+            )}
         </td>
 
         <td class="filename">
-            ${escapeHTML(game.ROMFile)}
+            ${escapeHTML(
+                game.ROMFile
+            )}
+
+            <div class="small">
+                ${escapeHTML(
+                    game.Extension
+                )}
+            </div>
         </td>
 
         <td>
             <a
-                href="${escapeHTML(game.ROMURL)}"
+                href="${escapeHTML(
+                    game.ROMURL
+                )}"
                 target="_blank"
-                rel="noopener"
-            >
+                rel="noopener">
                 ROM
             </a>
         </td>
 
         <td>
-            ${escapeHTML(game.EmulatorCore)}
+            ${escapeHTML(
+                game.EmulatorCore
+            )}
         </td>
 
         <td>
-            ${escapeHTML(game.GameType)}
+            ${escapeHTML(
+                game.GameType
+            )}
         </td>
 
         <td>
-            ${escapeHTML(game.LegalStatus)}
+            ${escapeHTML(
+                game.Status
+            )}
+        </td>
+
+        <td>
+            ${escapeHTML(
+                game.LegalStatus
+            )}
         </td>
 
         <td>
             <a
-                href="${escapeHTML(game.ArchiveURL)}"
+                href="${escapeHTML(
+                    game.ArchiveURL
+                )}"
                 target="_blank"
-                rel="noopener"
-            >
+                rel="noopener">
                 Archive
             </a>
         </td>
@@ -895,20 +1468,85 @@ function addRow(game){
 }
 
 
-/* ---------------------------------------------------------
-   Export
---------------------------------------------------------- */
+/*
+=========================================================
+RESET
+=========================================================
+*/
+
+function resetCounters(){
+
+    const ids = [
+
+        "scanned",
+        "fileCount",
+        "matchCount",
+        "nesCount",
+        "snesCount",
+        "gbCount",
+        "segaCount",
+        "otherCount"
+    ];
+
+    for(const id of ids){
+
+        document.getElementById(id)
+            .textContent = "0";
+    }
+
+    document.getElementById(
+        "resultCount"
+    ).textContent = "0";
+
+    document.getElementById(
+        "progressBar"
+    ).style.width = "0%";
+}
+
+
+/*
+=========================================================
+CLEAR
+=========================================================
+*/
+
+function clearResults(){
+
+    foundGames = [];
+
+    document.getElementById(
+        "results"
+    ).innerHTML = "";
+
+    document.getElementById(
+        "empty"
+    ).style.display = "block";
+
+    resetCounters();
+
+    setStatus("Ready.");
+}
+
+
+/*
+=========================================================
+EXPORT TSV
+=========================================================
+*/
 
 function exportTSV(){
 
     if(!foundGames.length){
 
-        alert("No games found.");
+        alert(
+            "No games found."
+        );
 
         return;
     }
 
     const headers = [
+
         "GameID",
         "Title",
         "Slug",
@@ -942,16 +1580,17 @@ function exportTSV(){
         headers.join("\t")
     );
 
-    for(const game of foundGames){
+    for(
+        const game of foundGames
+    ){
 
         const row =
-            headers.map(function(header){
-
-                return cleanTSV(
-                    game[header] || ""
-                );
-
-            });
+            headers.map(
+                header =>
+                    cleanTSV(
+                        game[header] || ""
+                    )
+            );
 
         lines.push(
             row.join("\t")
@@ -966,6 +1605,41 @@ function exportTSV(){
 }
 
 
+/*
+=========================================================
+EXPORT JSON
+=========================================================
+*/
+
+function exportJSON(){
+
+    if(!foundGames.length){
+
+        alert(
+            "No games found."
+        );
+
+        return;
+    }
+
+    downloadText(
+        JSON.stringify(
+            foundGames,
+            null,
+            2
+        ),
+        "obvyris_rom_import.json",
+        "application/json"
+    );
+}
+
+
+/*
+=========================================================
+DOWNLOAD
+=========================================================
+*/
+
 function cleanTSV(value){
 
     return String(value)
@@ -975,19 +1649,31 @@ function cleanTSV(value){
 }
 
 
-function downloadText(text,filename,type){
+function downloadText(
+    text,
+    filename,
+    type
+){
 
     const blob =
         new Blob(
             [text],
-            {type:type + ";charset=utf-8"}
+            {
+                type:
+                    type +
+                    ";charset=utf-8"
+            }
         );
 
     const url =
-        URL.createObjectURL(blob);
+        URL.createObjectURL(
+            blob
+        );
 
     const a =
-        document.createElement("a");
+        document.createElement(
+            "a"
+        );
 
     a.href = url;
 
@@ -1003,68 +1689,39 @@ function downloadText(text,filename,type){
 }
 
 
-/* ---------------------------------------------------------
-   Controls
---------------------------------------------------------- */
+/*
+=========================================================
+STATUS / PROGRESS
+=========================================================
+*/
 
 function setStatus(text){
 
-    document.getElementById("status").textContent =
+    document.getElementById(
+        "status"
+    ).textContent =
         text;
 }
 
 
-function updateProgress(current,total){
+function updateProgress(
+    current,
+    total
+){
 
     const percent =
         total
-            ? Math.round((current / total) * 100)
+            ? Math.round(
+                (current / total) *
+                100
+            )
             : 0;
 
-    document.getElementById("progressBar").style.width =
+    document.getElementById(
+        "progressBar"
+    ).style.width =
         percent + "%";
 }
-
-
-function sleep(ms){
-
-    return new Promise(
-        resolve => setTimeout(resolve,ms)
-    );
-}
-
-
-/* ---------------------------------------------------------
-   Add export button
---------------------------------------------------------- */
-
-const exportButton =
-    document.createElement("button");
-
-exportButton.textContent =
-    "EXPORT TSV";
-
-exportButton.onclick =
-    exportTSV;
-
-exportButton.style.position =
-    "fixed";
-
-exportButton.style.right =
-    "18px";
-
-exportButton.style.bottom =
-    "18px";
-
-exportButton.style.zIndex =
-    "20";
-
-exportButton.className =
-    "primary";
-
-document.body.appendChild(
-    exportButton
-);
 
 </script>
 
