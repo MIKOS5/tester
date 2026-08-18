@@ -613,7 +613,7 @@ All Games
 id="searchInput"
 type="search"
 placeholder="Search games..."
-oninput="applyFilters">
+oninput="applyFilters()">
 
 </div>
 
@@ -750,6 +750,16 @@ let DATA={
 
 let activePlatform="all";
 let featuredOnly=false;
+
+/* =====================================================
+   INFINITE SCROLL
+===================================================== */
+
+const GAMES_PER_BATCH = 40;
+
+let filteredGames = [];
+let renderedGameCount = 0;
+let isRenderingGames = false;
 
 
 /* =====================================================
@@ -1050,6 +1060,12 @@ function applyFilters(){
 
     let games=DATA.games.slice();
 
+    /*
+     * PLATFORM FILTER
+     *
+     * This still searches ALL games.
+     */
+
     if(activePlatform!=="all"){
 
         games=games.filter(function(game){
@@ -1060,6 +1076,10 @@ function applyFilters(){
         });
 
     }
+
+    /*
+     * GENRE FILTER
+     */
 
     if(genre){
 
@@ -1072,6 +1092,10 @@ function applyFilters(){
 
     }
 
+    /*
+     * FEATURED FILTER
+     */
+
     if(featuredOnly){
 
         games=games.filter(function(game){
@@ -1081,6 +1105,14 @@ function applyFilters(){
         });
 
     }
+
+    /*
+     * SEARCH
+     *
+     * IMPORTANT:
+     * Search operates against the COMPLETE DATA.games
+     * before anything gets rendered.
+     */
 
     if(search){
 
@@ -1101,6 +1133,10 @@ function applyFilters(){
         });
 
     }
+
+    /*
+     * SORT
+     */
 
     if(sort==="title"){
 
@@ -1147,16 +1183,29 @@ function applyFilters(){
 
     }
 
-    renderGames(games);
+    /*
+     * SAVE THE COMPLETE FILTERED RESULT.
+     *
+     * We DO NOT render all of it.
+     */
+
+    filteredGames=games;
+
+    /*
+     * Reset infinite scroll.
+     */
+
+    renderedGameCount=0;
+
+    renderInitialGames();
 
 }
-
 
 /* =====================================================
    RENDER
 ===================================================== */
 
-function renderGames(games){
+function renderInitialGames(){
 
     const grid=document.getElementById("gameGrid");
 
@@ -1164,12 +1213,18 @@ function renderGames(games){
 
     grid.innerHTML="";
 
+    renderedGameCount=0;
+    window.scrollTo({
+    top:0,
+    behavior:"instant"
+});
+    
     document.getElementById("resultsTitle").textContent=
-        games.length+
+        filteredGames.length+
         " Game"+
-        (games.length===1?"":"s");
+        (filteredGames.length===1?"":"s");
 
-    if(!games.length){
+    if(!filteredGames.length){
 
         showEmpty("No games match the current filters.");
 
@@ -1179,13 +1234,91 @@ function renderGames(games){
 
     document.getElementById("empty").classList.remove("show");
 
-    games.forEach(function(game){
+    renderNextGames();
 
-        grid.appendChild(createGameCard(game));
+}
+
+function renderNextGames(){
+
+    if(isRenderingGames){
+        return;
+    }
+
+    if(renderedGameCount>=filteredGames.length){
+        return;
+    }
+
+    isRenderingGames=true;
+
+    const grid=document.getElementById("gameGrid");
+
+    const start=renderedGameCount;
+
+    const end=Math.min(
+        start+GAMES_PER_BATCH,
+        filteredGames.length
+    );
+
+    /*
+     * Only create this batch of cards.
+     */
+
+    const fragment=document.createDocumentFragment();
+
+    for(let i=start;i<end;i++){
+
+        fragment.appendChild(
+            createGameCard(filteredGames[i])
+        );
+
+    }
+
+    grid.appendChild(fragment);
+
+    renderedGameCount=end;
+
+    isRenderingGames=false;
+
+    /*
+     * If the first batch does not fill the screen,
+     * immediately load another batch.
+     */
+
+    requestAnimationFrame(function(){
+
+        checkInfiniteScroll();
 
     });
 
 }
+
+function checkInfiniteScroll(){
+
+    if(renderedGameCount>=filteredGames.length){
+        return;
+    }
+
+    const scrollPosition=
+        window.innerHeight+
+        window.scrollY;
+
+    const pageHeight=
+        document.documentElement.scrollHeight;
+
+    /*
+     * Load the next batch when the user is
+     * within 900px of the bottom.
+     */
+
+    if(pageHeight-scrollPosition<900){
+
+        renderNextGames();
+
+    }
+
+}
+
+    
 
 
 /* =====================================================
@@ -1219,12 +1352,13 @@ function createGameCard(game){
     if(image){
 
         imageHTML=
-            '<img src="'+
-            escapeAttribute(image)+
-            '" alt="'+
-            escapeAttribute(title)+
-            '" loading="lazy" '+
-            'onerror="this.style.display=\'none\'">';
+    '<img src="'+
+    escapeAttribute(image)+
+    '" alt="'+
+    escapeAttribute(title)+
+    '" loading="lazy" '+
+    'decoding="async" '+
+    'onerror="this.style.display=\'none\'">';
 
     }else{
 
@@ -1791,10 +1925,11 @@ function escapeAttribute(value){
 
 }
 
-
 function showEmpty(text){
 
     document.getElementById("gameGrid").innerHTML="";
+
+    renderedGameCount=0;
 
     const empty=document.getElementById("empty");
 
@@ -1803,6 +1938,19 @@ function showEmpty(text){
     empty.classList.add("show");
 
 }
+
+
+/* =====================================================
+   SCROLL
+===================================================== */
+
+window.addEventListener(
+    "scroll",
+    checkInfiniteScroll,
+    {
+        passive:true
+    }
+);
 
 
 /* =====================================================
