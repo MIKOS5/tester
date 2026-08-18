@@ -61,10 +61,6 @@ body{
     margin-bottom:8px;
 }
 
-#loading span{
-    margin-bottom:6px;
-}
-
 #loadingStatus{
     color:#52657a;
     font-size:10px;
@@ -140,20 +136,7 @@ body{
 <script>
 
 /*******************************************************
- * OBVYRIS EMULATOR
- *******************************************************/
-
-console.log(
-    "[OBVYRIS EMULATOR] ==============================="
-);
-
-console.log(
-    "[OBVYRIS EMULATOR] Emulator page loaded"
-);
-
-
-/*******************************************************
- * PARAMETERS
+ * READ PARAMETERS
  *******************************************************/
 
 const params =
@@ -172,9 +155,13 @@ const title =
     "Obvyris Emulator";
 
 
-/*******************************************************
- * LOG ORIGINAL VALUES
- *******************************************************/
+console.log(
+    "[OBVYRIS EMULATOR] ==============================="
+);
+
+console.log(
+    "[OBVYRIS EMULATOR] Emulator page loaded"
+);
 
 console.log(
     "[OBVYRIS EMULATOR] Title:",
@@ -193,7 +180,7 @@ console.log(
 
 
 /*******************************************************
- * VALIDATE ROM
+ * VALIDATE
  *******************************************************/
 
 if(!rom){
@@ -210,7 +197,7 @@ if(!rom){
 
 
 /*******************************************************
- * START
+ * START EMULATOR
  *******************************************************/
 
 function startEmulator(){
@@ -241,12 +228,13 @@ function startEmulator(){
 
 
     /***************************************************
-     * UPDATE UI
+     * UI
      ***************************************************/
 
     document.getElementById(
         "loadingTitle"
-    ).textContent = title;
+    ).textContent =
+        title;
 
     document.getElementById(
         "loadingText"
@@ -256,7 +244,7 @@ function startEmulator(){
     document.getElementById(
         "loadingStatus"
     ).textContent =
-        "ROM proxy ready";
+        "Preparing ROM";
 
 
     /***************************************************
@@ -266,54 +254,34 @@ function startEmulator(){
     window.EJS_player =
         "#game";
 
-
     window.EJS_core =
         core;
-
 
     /*
      * IMPORTANT:
      *
-     * EmulatorJS now downloads the ROM from
-     * Vercel instead of Archive.org directly.
+     * EmulatorJS receives the Vercel proxy URL,
+     * NOT the Archive.org URL.
      */
 
     window.EJS_gameUrl =
         proxyURL;
 
-
     window.EJS_gameName =
         title;
-
 
     window.EJS_pathtodata =
         "https://cdn.emulatorjs.org/stable/data/";
 
-
     window.EJS_startOnLoaded =
         true;
-
 
     window.EJS_threads =
         false;
 
-
     window.EJS_color =
         "#48bfff";
 
-
-    /*
-     * Disable unnecessary features that can
-     * interfere with older browser environments.
-     */
-
-    window.EJS_DEBUG =
-        true;
-
-
-    /***************************************************
-     * LOG FINAL CONFIG
-     ***************************************************/
 
     console.log(
         "[OBVYRIS EMULATOR] EJS_player:",
@@ -342,137 +310,12 @@ function startEmulator(){
 
 
     /***************************************************
-     * TEST PROXY BEFORE STARTING EMULATORJS
+     * LOAD EMULATORJS
      ***************************************************/
-
-    document.getElementById(
-        "loadingText"
-    ).textContent =
-        "Testing ROM connection...";
-
-
-    fetch(
-        proxyURL,
-        {
-            method:"GET",
-            cache:"no-store"
-        }
-    )
-    .then(function(response){
-
-        console.log(
-            "[OBVYRIS EMULATOR] Proxy HTTP status:",
-            response.status
-        );
-
-        if(!response.ok){
-
-            throw new Error(
-                "Proxy returned HTTP " +
-                response.status
-            );
-
-        }
-
-        const contentLength =
-            response.headers.get(
-                "content-length"
-            );
-
-        console.log(
-            "[OBVYRIS EMULATOR] Proxy Content-Length:",
-            contentLength
-        );
-
-        return response.blob();
-
-    })
-    .then(function(blob){
-
-        console.log(
-            "[OBVYRIS EMULATOR] Proxy ROM downloaded"
-        );
-
-        console.log(
-            "[OBVYRIS EMULATOR] ROM size:",
-            blob.size,
-            "bytes"
-        );
-
-
-        if(blob.size < 100){
-
-            throw new Error(
-                "ROM response is too small: " +
-                blob.size +
-                " bytes"
-            );
-
-        }
-
-
-        document.getElementById(
-            "loadingText"
-        ).textContent =
-            "Starting " +
-            core.toUpperCase() +
-            "...";
-
-
-        document.getElementById(
-            "loadingStatus"
-        ).textContent =
-            "ROM: " +
-            Math.round(blob.size / 1024) +
-            " KB";
-
-
-        loadEmulatorJS();
-
-    })
-    .catch(function(error){
-
-        console.error(
-            "[OBVYRIS EMULATOR] ROM proxy error:",
-            error
-        );
-
-        showError(
-            "The ROM proxy could not be accessed.\n\n" +
-            error.message
-        );
-
-    });
-
-}
-
-
-/*******************************************************
- * LOAD EMULATORJS
- *******************************************************/
-
-function loadEmulatorJS(){
 
     console.log(
         "[OBVYRIS EMULATOR] Loading EmulatorJS loader..."
     );
-
-
-    const existing =
-        document.querySelector(
-            'script[src*="emulatorjs.org"]'
-        );
-
-
-    if(existing){
-
-        console.log(
-            "[OBVYRIS EMULATOR] EmulatorJS already exists"
-        );
-
-        return;
-
-    }
 
 
     const script =
@@ -483,10 +326,6 @@ function loadEmulatorJS(){
         "https://cdn.emulatorjs.org/stable/data/loader.js";
 
 
-    script.async =
-        false;
-
-
     script.onload =
         function(){
 
@@ -494,34 +333,16 @@ function loadEmulatorJS(){
                 "[OBVYRIS EMULATOR] EmulatorJS loader loaded"
             );
 
-
             document.getElementById(
                 "loadingText"
             ).textContent =
                 "EmulatorJS loaded";
-
 
             document.getElementById(
                 "loadingStatus"
             ).textContent =
                 "Starting " +
                 core.toUpperCase();
-
-
-            /*
-             * Give EmulatorJS a moment to initialize.
-             */
-
-            setTimeout(
-                function(){
-
-                    console.log(
-                        "[OBVYRIS EMULATOR] EmulatorJS initialization complete"
-                    );
-
-                },
-                2000
-            );
 
         };
 
@@ -558,26 +379,15 @@ function showError(message){
         message
     );
 
-
-    const loading =
-        document.getElementById(
-            "loading"
-        );
-
-
-    if(loading){
-
-        loading.style.display =
-            "none";
-
-    }
-
+    document.getElementById(
+        "loading"
+    ).style.display =
+        "none";
 
     document.getElementById(
         "errorText"
     ).textContent =
         message;
-
 
     document.getElementById(
         "error"
@@ -589,7 +399,7 @@ function showError(message){
 
 
 /*******************************************************
- * WINDOW ERROR
+ * DEBUG
  *******************************************************/
 
 window.addEventListener(
@@ -606,10 +416,6 @@ window.addEventListener(
 );
 
 
-/*******************************************************
- * PROMISE ERRORS
- *******************************************************/
-
 window.addEventListener(
     "unhandledrejection",
     function(event){
@@ -622,10 +428,6 @@ window.addEventListener(
     }
 );
 
-
-/*******************************************************
- * PAGE LOAD
- *******************************************************/
 
 window.addEventListener(
     "load",
