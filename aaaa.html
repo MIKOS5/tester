@@ -18,17 +18,10 @@ html,body{
     font-family:Inter,Arial,Helvetica,sans-serif;
 }
 
-body{
-    overflow-x:hidden;
-}
+body{overflow-x:hidden}
 
-button,input,select{
-    font:inherit;
-}
-
-button{
-    cursor:pointer;
-}
+button,input,select{font:inherit}
+button{cursor:pointer}
 
 .app{
     display:flex;
@@ -130,13 +123,8 @@ button{
     background:#d7a83e;
 }
 
-.status-dot.online{
-    background:#42d77d;
-}
-
-.status-dot.error{
-    background:#e45555;
-}
+.status-dot.online{background:#42d77d}
+.status-dot.error{background:#e45555}
 
 /* MAIN */
 
@@ -452,9 +440,7 @@ button{
     color:#647489;
 }
 
-.empty.show{
-    display:block;
-}
+.empty.show{display:block}
 
 .empty-title{
     color:#a0adbd;
@@ -563,9 +549,7 @@ button{
     color:#8190a3;
 }
 
-.player-message.show{
-    display:flex;
-}
+.player-message.show{display:flex}
 
 .player-message strong{
     color:#dce5ef;
@@ -628,7 +612,6 @@ button{
         border-radius:0;
         border:0;
     }
-
 }
 </style>
 </head>
@@ -651,12 +634,12 @@ button{
 
     <div class="nav">
 
-        <button
-            id="navAll"
-            class="active"
-            onclick="setPlatform('all')">
+        <button id="navAll"
+                class="active"
+                onclick="setPlatform('all')">
             All Games
-            <span id="countAll" class="platform-count">0</span>
+            <span id="countAll"
+                  class="platform-count">0</span>
         </button>
 
         <button onclick="showFeatured()">
@@ -685,9 +668,8 @@ button{
 
         <div class="status-line">
 
-            <span
-                id="statusDot"
-                class="status-dot">
+            <span id="statusDot"
+                  class="status-dot">
             </span>
 
             <span id="statusText">
@@ -724,15 +706,13 @@ button{
 
     <div class="top-actions">
 
-        <button
-            class="action hide-mobile"
-            onclick="loadAPI()">
+        <button class="action hide-mobile"
+                onclick="loadAPI()">
             Reload
         </button>
 
-        <button
-            class="action primary"
-            onclick="randomGame()">
+        <button class="action primary"
+                onclick="randomGame()">
             Random
         </button>
 
@@ -783,43 +763,26 @@ button{
 
     <div class="toolbar">
 
-        <div
-            id="resultsTitle"
-            class="toolbar-title">
+        <div id="resultsTitle"
+             class="toolbar-title">
             All Games
         </div>
 
-        <select
-            id="sortSelect"
-            class="select"
-            onchange="applyFilters()">
+        <select id="sortSelect"
+                class="select"
+                onchange="applyFilters()">
 
-            <option value="">
-                Default
-            </option>
-
-            <option value="title">
-                Title
-            </option>
-
-            <option value="newest">
-                Newest
-            </option>
-
-            <option value="oldest">
-                Oldest
-            </option>
-
-            <option value="year">
-                Year
-            </option>
+            <option value="">Default</option>
+            <option value="title">Title</option>
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>
+            <option value="year">Year</option>
 
         </select>
 
-        <select
-            id="genreSelect"
-            class="select"
-            onchange="applyFilters()">
+        <select id="genreSelect"
+                class="select"
+                onchange="applyFilters()">
 
             <option value="">
                 All Genres
@@ -829,20 +792,17 @@ button{
 
     </div>
 
-    <div
-        id="loading"
-        class="loading">
+    <div id="loading"
+         class="loading">
         Loading Obvyris Games...
     </div>
 
-    <div
-        id="gameGrid"
-        class="grid">
+    <div id="gameGrid"
+         class="grid">
     </div>
 
-    <div
-        id="empty"
-        class="empty">
+    <div id="empty"
+         class="empty">
 
         <div class="empty-title">
             No Games Found
@@ -859,30 +819,27 @@ button{
 </main>
 </div>
 
+
 <!-- PLAYER -->
 
-<div
-    id="modal"
-    class="modal">
+<div id="modal"
+     class="modal">
 
     <div class="player">
 
         <div class="player-head">
 
-            <div
-                id="playerTitle"
-                class="player-title">
+            <div id="playerTitle"
+                 class="player-title">
                 Obvyris Game
             </div>
 
-            <div
-                id="playerPlatform"
-                class="player-platform">
+            <div id="playerPlatform"
+                 class="player-platform">
             </div>
 
-            <button
-                class="close"
-                onclick="closePlayer()">
+            <button class="close"
+                    onclick="closePlayer()">
                 CLOSE
             </button>
 
@@ -890,9 +847,8 @@ button{
 
         <div id="game"></div>
 
-        <div
-            id="playerMessage"
-            class="player-message">
+        <div id="playerMessage"
+             class="player-message">
 
             <strong>
                 This game is not directly playable yet
@@ -906,14 +862,15 @@ button{
 
 </div>
 
+
 <script>
 
 /*******************************************************
- * OBVYRIS API
+ * API
  *******************************************************/
 
 const API_URL =
-    "https://script.google.com/macros/s/AKfycbxDYk9W7QQLEn_FbyFu261mL0bQELvIh7TEMwFIYXwaCTWG4pqOjwfEtLbKZSgI2eNO/exec";
+"https://script.google.com/macros/s/AKfycbxDYk9W7QQLEn_FbyFu261mL0bQELvIh7TEMwFIYXwaCTWG4pqOjwfEtLbKZSgI2eNO/exec";
 
 
 /*******************************************************
@@ -942,25 +899,30 @@ async function loadAPI(){
 
     setStatus("Connecting...","loading");
 
-    document.getElementById("loading").style.display = "block";
+    document.getElementById("loading").style.display =
+        "block";
 
     try{
 
-        const response = await fetch(
-            API_URL +
-            "?action=broadcast&ts=" +
-            Date.now(),
-            {
-                method:"GET",
-                cache:"no-store"
-            }
-        );
+        const response =
+            await fetch(
+                API_URL +
+                "?action=broadcast&ts=" +
+                Date.now(),
+                {
+                    method:"GET",
+                    cache:"no-store"
+                }
+            );
 
         if(!response.ok){
-            throw new Error("HTTP " + response.status);
+            throw new Error(
+                "HTTP " + response.status
+            );
         }
 
-        const json = await response.json();
+        const json =
+            await response.json();
 
         if(!json.success){
             throw new Error(
@@ -1021,9 +983,8 @@ async function loadAPI(){
 
         setStatus("API Error","error");
 
-        document.getElementById(
-            "loading"
-        ).style.display = "none";
+        document.getElementById("loading")
+            .style.display = "none";
 
         showEmpty(
             "Unable to load the Obvyris Games API."
@@ -1067,25 +1028,20 @@ function setStatus(text,type){
 
 function updateStats(){
 
-    document.getElementById(
-        "statGames"
-    ).textContent = DATA.games.length;
+    document.getElementById("statGames")
+        .textContent = DATA.games.length;
 
-    document.getElementById(
-        "statPlatforms"
-    ).textContent = DATA.platforms.length;
+    document.getElementById("statPlatforms")
+        .textContent = DATA.platforms.length;
 
-    document.getElementById(
-        "statGenres"
-    ).textContent = DATA.genres.length;
+    document.getElementById("statGenres")
+        .textContent = DATA.genres.length;
 
-    document.getElementById(
-        "statSources"
-    ).textContent = DATA.sources.length;
+    document.getElementById("statSources")
+        .textContent = DATA.sources.length;
 
-    document.getElementById(
-        "countAll"
-    ).textContent = DATA.games.length;
+    document.getElementById("countAll")
+        .textContent = DATA.games.length;
 
 }
 
@@ -1111,12 +1067,8 @@ function buildPlatformNav(){
         })
         .sort(function(a,b){
 
-            return Number(
-                a.SortOrder || 999
-            ) -
-            Number(
-                b.SortOrder || 999
-            );
+            return Number(a.SortOrder || 999) -
+                   Number(b.SortOrder || 999);
 
         })
         .forEach(function(platform){
@@ -1148,13 +1100,14 @@ function buildPlatformNav(){
                 count +
                 '</span>';
 
-            button.onclick = function(){
+            button.onclick =
+                function(){
 
-                setPlatform(
-                    platform.PlatformID
-                );
+                    setPlatform(
+                        platform.PlatformID
+                    );
 
-            };
+                };
 
             button.dataset.platform =
                 platform.PlatformID;
@@ -1187,12 +1140,8 @@ function buildGenreNav(){
         })
         .sort(function(a,b){
 
-            return Number(
-                a.SortOrder || 999
-            ) -
-            Number(
-                b.SortOrder || 999
-            );
+            return Number(a.SortOrder || 999) -
+                   Number(b.SortOrder || 999);
 
         })
         .slice(0,12)
@@ -1205,16 +1154,17 @@ function buildGenreNav(){
                 genre.Name ||
                 genre.GenreID;
 
-            button.onclick = function(){
+            button.onclick =
+                function(){
 
-                document.getElementById(
-                    "genreSelect"
-                ).value =
-                    genre.GenreID;
+                    document.getElementById(
+                        "genreSelect"
+                    ).value =
+                        genre.GenreID;
 
-                applyFilters();
+                    applyFilters();
 
-            };
+                };
 
             nav.appendChild(button);
 
@@ -1281,9 +1231,8 @@ function setPlatform(platform){
 
     if(platform === "all"){
 
-        document.getElementById(
-            "navAll"
-        ).classList.add("active");
+        document.getElementById("navAll")
+            .classList.add("active");
 
     }else{
 
@@ -1338,21 +1287,18 @@ function showFeatured(){
 function applyFilters(){
 
     const search =
-        document.getElementById(
-            "searchInput"
-        ).value
+        document.getElementById("searchInput")
+        .value
         .trim()
         .toLowerCase();
 
     const genre =
-        document.getElementById(
-            "genreSelect"
-        ).value;
+        document.getElementById("genreSelect")
+        .value;
 
     const sort =
-        document.getElementById(
-            "sortSelect"
-        ).value;
+        document.getElementById("sortSelect")
+        .value;
 
     let games =
         DATA.games.slice();
@@ -1392,9 +1338,7 @@ function applyFilters(){
         games =
             games.filter(function(game){
 
-                return isTrue(
-                    game.Featured
-                );
+                return isTrue(game.Featured);
 
             });
 
@@ -1429,13 +1373,10 @@ function applyFilters(){
 
         games.sort(function(a,b){
 
-            return String(
-                a.Title || ""
-            ).localeCompare(
-                String(
-                    b.Title || ""
-                )
-            );
+            return String(a.Title || "")
+                .localeCompare(
+                    String(b.Title || "")
+                );
 
         });
 
@@ -1445,12 +1386,8 @@ function applyFilters(){
 
         games.sort(function(a,b){
 
-            return new Date(
-                b.Created || 0
-            ) -
-            new Date(
-                a.Created || 0
-            );
+            return new Date(b.Created || 0) -
+                   new Date(a.Created || 0);
 
         });
 
@@ -1460,12 +1397,8 @@ function applyFilters(){
 
         games.sort(function(a,b){
 
-            return new Date(
-                a.Created || 0
-            ) -
-            new Date(
-                b.Created || 0
-            );
+            return new Date(a.Created || 0) -
+                   new Date(b.Created || 0);
 
         });
 
@@ -1475,12 +1408,8 @@ function applyFilters(){
 
         games.sort(function(a,b){
 
-            return Number(
-                a.Year || 0
-            ) -
-            Number(
-                b.Year || 0
-            );
+            return Number(a.Year || 0) -
+                   Number(b.Year || 0);
 
         });
 
@@ -1500,22 +1429,16 @@ function renderGames(games){
     const grid =
         document.getElementById("gameGrid");
 
-    document.getElementById(
-        "loading"
-    ).style.display = "none";
+    document.getElementById("loading")
+        .style.display = "none";
 
     grid.innerHTML = "";
 
-    document.getElementById(
-        "resultsTitle"
-    ).textContent =
-        games.length +
-        " Game" +
-        (
-            games.length === 1
-                ? ""
-                : "s"
-        );
+    document.getElementById("resultsTitle")
+        .textContent =
+            games.length +
+            " Game" +
+            (games.length === 1 ? "" : "s");
 
     if(!games.length){
 
@@ -1527,9 +1450,8 @@ function renderGames(games){
 
     }
 
-    document.getElementById(
-        "empty"
-    ).classList.remove("show");
+    document.getElementById("empty")
+        .classList.remove("show");
 
     games.forEach(function(game){
 
@@ -1559,14 +1481,10 @@ function createGameCard(game){
         "";
 
     const platform =
-        getPlatformName(
-            game.PlatformID
-        );
+        getPlatformName(game.PlatformID);
 
     const genre =
-        getGenreName(
-            game.GenreID
-        );
+        getGenreName(game.GenreID);
 
     const title =
         game.Title ||
@@ -1586,11 +1504,9 @@ function createGameCard(game){
         imageHTML =
             '<img src="' +
             escapeAttribute(image) +
-            '" ' +
-            'alt="' +
+            '" alt="' +
             escapeAttribute(title) +
-            '" ' +
-            'loading="lazy" ' +
+            '" loading="lazy" ' +
             'onerror="this.style.display=\'none\'">';
 
     }else{
@@ -1664,7 +1580,8 @@ function createGameCard(game){
                     'PLAY' +
                 '</button>' +
 
-                '<button class="info-btn" title="Game information">' +
+                '<button class="info-btn" ' +
+                    'title="Game information">' +
                     'i' +
                 '</button>' +
 
@@ -1672,21 +1589,21 @@ function createGameCard(game){
 
         '</div>';
 
-    card.querySelector(
-        ".play-btn"
-    ).onclick = function(){
+    card.querySelector(".play-btn")
+        .onclick =
+        function(){
 
-        launchGame(game);
+            launchGame(game);
 
-    };
+        };
 
-    card.querySelector(
-        ".info-btn"
-    ).onclick = function(){
+    card.querySelector(".info-btn")
+        .onclick =
+        function(){
 
-        showGameInfo(game);
+            showGameInfo(game);
 
-    };
+        };
 
     return card;
 
@@ -1706,19 +1623,13 @@ function launchGame(game){
         document.getElementById("game");
 
     const message =
-        document.getElementById(
-            "playerMessage"
-        );
+        document.getElementById("playerMessage");
 
     const title =
-        document.getElementById(
-            "playerTitle"
-        );
+        document.getElementById("playerTitle");
 
     const platform =
-        document.getElementById(
-            "playerPlatform"
-        );
+        document.getElementById("playerPlatform");
 
     title.textContent =
         game.Title ||
@@ -1736,13 +1647,12 @@ function launchGame(game){
     modal.classList.add("open");
 
     /*
-     * HTML5
+     * HTML5 GAME
      */
 
     if(
-        String(
-            game.GameType || ""
-        ).toLowerCase() === "html5"
+        String(game.GameType || "")
+            .toLowerCase() === "html5"
     ){
 
         if(game.PlayURL){
@@ -1763,8 +1673,9 @@ function launchGame(game){
 
     }
 
+
     /*
-     * Emulator
+     * ROM / EMULATOR GAME
      */
 
     if(
@@ -1778,8 +1689,9 @@ function launchGame(game){
 
     }
 
+
     /*
-     * External playable URL
+     * EXTERNAL PLAY URL
      */
 
     if(game.PlayURL){
@@ -1808,20 +1720,34 @@ function openURLInIframe(url){
     const container =
         document.getElementById("game");
 
-    container.innerHTML =
-        '<iframe ' +
-        'src="' +
-        escapeAttribute(url) +
-        '" ' +
-        'allow="fullscreen; autoplay; gamepad" ' +
-        'allowfullscreen>' +
-        '</iframe>';
+    const iframe =
+        document.createElement("iframe");
+
+    iframe.src =
+        String(url);
+
+    iframe.allow =
+        "fullscreen; autoplay; gamepad";
+
+    iframe.allowFullscreen = true;
+
+    iframe.title =
+        "Obvyris Game";
+
+    container.innerHTML = "";
+
+    container.appendChild(
+        iframe
+    );
 
 }
 
 
 /*******************************************************
- * EMULATORJS IFRAME
+ * EMULATOR
+ *
+ * emulator.html is in the SAME DIRECTORY
+ * as aaaa.html.
  *******************************************************/
 
 function startEmulator(game){
@@ -1852,7 +1778,7 @@ function startEmulator(game){
     if(!core){
 
         showPlayerMessage(
-            "No EmulatorJS core was supplied for this game."
+            "No emulator core was supplied for this game."
         );
 
         return;
@@ -1860,21 +1786,49 @@ function startEmulator(game){
     }
 
     /*
-     * The emulator is deliberately isolated
-     * inside an iframe.
+     * Build URL to local emulator.html.
+     */
+
+    const emulatorURL =
+        new URL(
+            "emulator.html",
+            window.location.href
+        );
+
+    emulatorURL.searchParams.set(
+        "rom",
+        romURL
+    );
+
+    emulatorURL.searchParams.set(
+        "core",
+        core
+    );
+
+    emulatorURL.searchParams.set(
+        "title",
+        game.Title ||
+        "Obvyris Game"
+    );
+
+    /*
+     * Create emulator iframe.
      */
 
     const iframe =
         document.createElement("iframe");
 
-    iframe.allow =
-        "fullscreen; autoplay; gamepad";
-
-    iframe.allowFullscreen = true;
+    iframe.src =
+        emulatorURL.href;
 
     iframe.title =
         game.Title ||
         "Obvyris Emulator";
+
+    iframe.allow =
+        "fullscreen; autoplay; gamepad";
+
+    iframe.allowFullscreen = true;
 
     iframe.style.width = "100%";
     iframe.style.height = "100%";
@@ -1882,71 +1836,43 @@ function startEmulator(game){
     iframe.style.display = "block";
     iframe.style.background = "#000";
 
-    /*
-     * Build a completely independent EmulatorJS
-     * document.
-     */
+    iframe.onload =
+        function(){
 
-    const emulatorHTML = `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Obvyris Emulator</title>
+            console.log(
+                "[OBVYRIS] Emulator loaded:",
+                emulatorURL.href
+            );
 
-<style>
-html,body{
-    margin:0;
-    padding:0;
-    width:100%;
-    height:100%;
-    overflow:hidden;
-    background:#000;
-}
+        };
 
-#game{
-    width:100%;
-    height:100%;
-    position:absolute;
-    inset:0;
-}
-</style>
-</head>
+    iframe.onerror =
+        function(error){
 
-<body>
+            console.error(
+                "[OBVYRIS] Emulator iframe error:",
+                error
+            );
 
-<div id="game"></div>
+            showPlayerMessage(
+                "Unable to load emulator.html."
+            );
 
-<script>
+        };
 
-window.EJS_player = "#game";
-window.EJS_core = ${JSON.stringify(core)};
-window.EJS_gameUrl = ${JSON.stringify(romURL)};
-window.EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/";
-window.EJS_startOnLoaded = true;
-window.EJS_color = "#48bfff";
+    container.innerHTML = "";
 
-<\/script>
-
-<script
-    src="https://cdn.emulatorjs.org/stable/data/loader.js">
-<\/script>
-
-</body>
-</html>`;
-
-    /*
-     * srcdoc isolates EmulatorJS from the main page.
-     */
-
-    iframe.srcdoc =
-        emulatorHTML;
-
-    container.appendChild(iframe);
+    container.appendChild(
+        iframe
+    );
 
     console.log(
-        "[OBVYRIS] Emulator iframe started:",
-        core,
+        "[OBVYRIS] Emulator:",
+        core
+    );
+
+    console.log(
+        "[OBVYRIS] ROM:",
         romURL
     );
 
@@ -1982,11 +1908,6 @@ function closePlayer(){
     const game =
         document.getElementById("game");
 
-    /*
-     * Removing the iframe destroys the entire
-     * EmulatorJS instance automatically.
-     */
-
     game.innerHTML = "";
 
     document.getElementById(
@@ -1999,7 +1920,7 @@ function closePlayer(){
 
 
 /*******************************************************
- * ESCAPE KEY
+ * ESCAPE
  *******************************************************/
 
 document.addEventListener(
@@ -2008,9 +1929,8 @@ document.addEventListener(
 
         if(
             event.key === "Escape" &&
-            document.getElementById(
-                "modal"
-            ).classList.contains("open")
+            document.getElementById("modal")
+                .classList.contains("open")
         ){
 
             closePlayer();
@@ -2025,20 +1945,19 @@ document.addEventListener(
  * MODAL BACKGROUND CLICK
  *******************************************************/
 
-document.getElementById(
-    "modal"
-).addEventListener(
-    "click",
-    function(event){
+document.getElementById("modal")
+    .addEventListener(
+        "click",
+        function(event){
 
-        if(event.target === this){
+            if(event.target === this){
 
-            closePlayer();
+                closePlayer();
+
+            }
 
         }
-
-    }
-);
+    );
 
 
 /*******************************************************
@@ -2090,31 +2009,17 @@ function randomGame(){
 
 function showGameInfo(game){
 
-    const title =
-        game.Title ||
-        "Untitled";
-
-    const platform =
-        getPlatformName(
-            game.PlatformID
-        );
-
-    const genre =
-        getGenreName(
-            game.GenreID
-        );
-
     const lines = [
 
-        title,
+        game.Title || "Untitled",
 
         "",
 
         "Platform: " +
-        platform,
+        getPlatformName(game.PlatformID),
 
         "Genre: " +
-        genre,
+        getGenreName(game.GenreID),
 
         game.Year
             ? "Year: " + game.Year
@@ -2223,7 +2128,9 @@ function isTrue(value){
         value === true ||
         value === 1
     ){
+
         return true;
+
     }
 
     const text =
@@ -2265,9 +2172,8 @@ function escapeAttribute(value){
 
 function showEmpty(text){
 
-    document.getElementById(
-        "gameGrid"
-    ).innerHTML = "";
+    document.getElementById("gameGrid")
+        .innerHTML = "";
 
     const empty =
         document.getElementById("empty");
