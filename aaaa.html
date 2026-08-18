@@ -3,641 +3,129 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 
-<title>OBVYRIS — Local ROM Emulator</title>
+<title>Obvyris NES Test</title>
 
 <style>
-*{
-  box-sizing:border-box;
+* {
+    box-sizing: border-box;
 }
 
-html,body{
-  margin:0;
-  width:100%;
-  height:100%;
-  background:#05080d;
-  color:#dce8f2;
-  font-family:Arial,sans-serif;
-  overflow:hidden;
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: #070b12;
+    color: #e8edf5;
+    font-family: Arial, sans-serif;
 }
 
-body{
-  display:flex;
-  flex-direction:column;
+body {
+    display: flex;
+    flex-direction: column;
 }
 
-#header{
-  height:58px;
-  flex-shrink:0;
-  display:flex;
-  align-items:center;
-  padding:0 18px;
-  background:#09111a;
-  border-bottom:1px solid #263746;
+.header {
+    height: 64px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    border-bottom: 1px solid #1d2938;
+    background: #0b111b;
 }
 
-.logo{
-  font-size:21px;
-  font-weight:bold;
-  letter-spacing:3px;
-  color:#fff;
+.logo {
+    font-size: 21px;
+    font-weight: 800;
+    letter-spacing: 3px;
 }
 
-#status{
-  margin-left:auto;
-  font-size:12px;
-  color:#8ca4b5;
+.status {
+    margin-left: auto;
+    font-size: 12px;
+    color: #8d9aae;
 }
 
-#main{
-  flex:1;
-  min-height:0;
-  position:relative;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  padding:15px;
+.game-wrap {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
 }
 
-#game{
-  width:100%;
-  height:100%;
-  max-width:1200px;
-  max-height:calc(100vh - 90px);
-  background:#000;
-  position:relative;
+#game {
+    width: 100%;
+    height: 100%;
+    max-width: 1200px;
+    max-height: 800px;
 }
 
-#uploadPanel{
-  position:absolute;
-  z-index:20000;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%);
-  width:min(500px,calc(100% - 30px));
-  padding:30px;
-  text-align:center;
-  background:#09111a;
-  border:1px solid #385269;
-  box-shadow:0 20px 60px rgba(0,0,0,.6);
-}
-
-.title{
-  font-size:24px;
-  font-weight:bold;
-  letter-spacing:3px;
-  margin-bottom:8px;
-}
-
-.subtitle{
-  color:#8197a8;
-  font-size:13px;
-  margin-bottom:25px;
-}
-
-#romInput{
-  display:none;
-}
-
-#selectButton{
-  display:inline-block;
-  padding:13px 25px;
-  background:#132536;
-  border:1px solid #49647a;
-  color:#fff;
-  cursor:pointer;
-  font-size:13px;
-  font-weight:bold;
-  letter-spacing:1px;
-}
-
-#selectButton:hover{
-  background:#1b3348;
-}
-
-#fileName{
-  margin-top:18px;
-  color:#6ee7a0;
-  font-family:monospace;
-  font-size:12px;
-  word-break:break-all;
-}
-
-#diagnostics{
-  position:absolute;
-  left:15px;
-  bottom:15px;
-  z-index:30000;
-  width:min(560px,calc(100% - 30px));
-  max-height:190px;
-  overflow:auto;
-  background:rgba(5,8,13,.95);
-  border:1px solid #263746;
-  padding:10px;
-  font-family:monospace;
-  font-size:11px;
-  color:#9fb5c5;
-}
-
-.diagTitle{
-  color:#fff;
-  font-weight:bold;
-  margin-bottom:7px;
-}
-
-.good{
-  color:#6ee7a0;
-}
-
-.bad{
-  color:#ff7272;
-}
-
-.warn{
-  color:#ffd166;
-}
-
-.hidden{
-  display:none!important;
+.info {
+    height: 42px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-top: 1px solid #1d2938;
+    background: #0b111b;
+    color: #758298;
+    font-size: 12px;
 }
 </style>
+
+<script>
+/*
+    EmulatorJS configuration
+*/
+
+EJS_player = "#game";
+
+/* NES system */
+EJS_core = "nes";
+
+/*
+    Test ROM
+*/
+EJS_gameUrl =
+    "https://archive.org/download/nes-emulator_202404/Legend%20of%20Zelda.nes";
+
+/*
+    EmulatorJS data files
+*/
+EJS_pathtodata =
+    "https://cdn.emulatorjs.org/latest/data/";
+
+/*
+    Optional settings
+*/
+EJS_startOnLoaded = true;
+EJS_color = "#00d4ff";
+</script>
 
 </head>
 
 <body>
 
-<div id="header">
-  <div class="logo">OBVYRIS</div>
-  <div id="status">WAITING FOR ROM</div>
-</div>
-
-<div id="main">
-
-  <div id="game"></div>
-
-  <div id="uploadPanel">
-
-```
-<div class="title">
-  OBVYRIS GAMES
-</div>
-
-<div class="subtitle">
-  Select a ROM from your computer to begin.
-</div>
-
-<label id="selectButton" for="romInput">
-  SELECT ROM
-</label>
-
-<input
-  id="romInput"
-  type="file"
-  accept=".nes,.sfc,.smc,.gb,.gbc,.gba,.gen,.md,.bin,.n64,.z64,.v64,.iso,.cue"
->
-
-<div id="fileName">
-  No ROM selected
-</div>
-```
-
-  </div>
-
-  <div id="diagnostics">
-
-```
-<div class="diagTitle">
-  OBVYRIS EMULATOR DIAGNOSTICS
-</div>
-
-<div id="logs"></div>
-```
-
-  </div>
-
-</div>
-
-<script>
-
-/* =========================================================
-   EMULATORJS CONFIG
-   ========================================================= */
-
-const DATA_PATH =
-  "https://cdn.emulatorjs.org/latest/data/";
-
-
-/* =========================================================
-   ELEMENTS
-   ========================================================= */
-
-const input =
-  document.getElementById("romInput");
-
-const uploadPanel =
-  document.getElementById("uploadPanel");
-
-const fileName =
-  document.getElementById("fileName");
-
-const logs =
-  document.getElementById("logs");
-
-const status =
-  document.getElementById("status");
-
-
-/* =========================================================
-   LOGGING
-   ========================================================= */
-
-function log(message,type=""){
-
-  const row =
-    document.createElement("div");
-
-  if(type){
-    row.className = type;
-  }
-
-  row.textContent =
-    "[" +
-    new Date().toLocaleTimeString() +
-    "] " +
-    message;
-
-  logs.appendChild(row);
-
-  logs.scrollTop =
-    logs.scrollHeight;
-
-  console.log(
-    "[OBVYRIS]",
-    message
-  );
-}
-
-
-function setStatus(text,type=""){
-
-  status.textContent =
-    text;
-
-  status.className =
-    type;
-}
-
-
-/* =========================================================
-   ERROR HANDLING
-   ========================================================= */
-
-window.addEventListener(
-  "error",
-  function(event){
-
-    log(
-      "JAVASCRIPT ERROR: " +
-      event.message,
-      "bad"
-    );
-
-    setStatus(
-      "ERROR",
-      "bad"
-    );
-
-  }
-);
-
-
-window.addEventListener(
-  "unhandledrejection",
-  function(event){
-
-    log(
-      "PROMISE ERROR: " +
-      event.reason,
-      "bad"
-    );
-
-    setStatus(
-      "EMULATOR ERROR",
-      "bad"
-    );
-
-  }
-);
-
-
-/* =========================================================
-   EMULATORJS CALLBACKS
-   ========================================================= */
-
-window.EJS_onGameStart =
-function(){
-
-  log(
-    "GAME STARTED.",
-    "good"
-  );
-
-  setStatus(
-    "RUNNING",
-    "good"
-  );
-
-};
-
-
-window.EJS_onGameExit =
-function(){
-
-  log(
-    "EMULATOR EXITED.",
-    "bad"
-  );
-
-  setStatus(
-    "EMULATOR EXITED",
-    "bad"
-  );
-
-};
-
-
-window.EJS_onLoad =
-function(){
-
-  log(
-    "EmulatorJS loaded.",
-    "good"
-  );
-
-};
-
-
-/* =========================================================
-   ROM SELECTION
-   ========================================================= */
-
-input.addEventListener(
-  "change",
-  function(){
-
-    const file =
-      input.files[0];
-
-    if(!file){
-
-      return;
-    }
-
-
-    log(
-      "ROM selected: " +
-      file.name
-    );
-
-
-    log(
-      "ROM size: " +
-      file.size.toLocaleString() +
-      " bytes",
-      "good"
-    );
-
-
-    fileName.textContent =
-      file.name;
-
-
-    /*
-      Determine emulator core
-      from the ROM extension.
-    */
-
-    const extension =
-      file.name
-        .split(".")
-        .pop()
-        .toLowerCase();
-
-
-    let core = null;
-
-
-    if(extension === "nes"){
-      core = "nes";
-    }
-
-    else if(
-      extension === "sfc" ||
-      extension === "smc"
-    ){
-      core = "snes";
-    }
-
-    else if(extension === "gb"){
-      core = "gb";
-    }
-
-    else if(extension === "gbc"){
-      core = "gbc";
-    }
-
-    else if(extension === "gba"){
-      core = "gba";
-    }
-
-    else if(
-      extension === "gen" ||
-      extension === "md"
-    ){
-      core = "segaMD";
-    }
-
-    else if(
-      extension === "n64" ||
-      extension === "z64" ||
-      extension === "v64"
-    ){
-      core = "n64";
-    }
-
-
-    if(!core){
-
-      log(
-        "Unknown ROM extension: ." +
-        extension,
-        "bad"
-      );
-
-      setStatus(
-        "UNKNOWN ROM",
-        "bad"
-      );
-
-      return;
-    }
-
-
-    log(
-      "Detected core: " +
-      core,
-      "good"
-    );
-
-
-    setStatus(
-      "LOADING " +
-      core.toUpperCase(),
-      "warn"
-    );
-
-
-    /*
-      Convert the uploaded ROM into
-      a browser object URL.
-    */
-
-    const romURL =
-      URL.createObjectURL(file);
-
-
-    log(
-      "Created local ROM URL.",
-      "good"
-    );
-
-
-    /*
-      EmulatorJS configuration.
-    */
-
-    window.EJS_player =
-      "#game";
-
-    window.EJS_core =
-      core;
-
-    window.EJS_gameUrl =
-      romURL;
-
-    window.EJS_pathtodata =
-      DATA_PATH;
-
-    window.EJS_startOnLoaded =
-      true;
-
-    window.EJS_volume =
-      0.8;
-
-
-    /*
-      Hide upload screen.
-    */
-
-    uploadPanel.classList.add(
-      "hidden"
-    );
-
-
-    log(
-      "Starting EmulatorJS..."
-    );
-
-
-    /*
-      Prevent loading EmulatorJS
-      more than once.
-    */
-
-    if(
-      document.getElementById(
-        "emulatorjs-loader"
-      )
-    ){
-
-      log(
-        "EmulatorJS loader already exists.",
-        "warn"
-      );
-
-      return;
-    }
-
-
-    const script =
-      document.createElement("script");
-
-    script.id =
-      "emulatorjs-loader";
-
-    script.src =
-      DATA_PATH + "loader.js";
-
-
-    script.onload =
-    function(){
-
-      log(
-        "EmulatorJS loader loaded.",
-        "good"
-      );
-
-      setStatus(
-        "STARTING",
-        "warn"
-      );
-
-    };
-
-
-    script.onerror =
-    function(){
-
-      log(
-        "Could not load EmulatorJS.",
-        "bad"
-      );
-
-      setStatus(
-        "LOADER FAILED",
-        "bad"
-      );
-
-    };
-
-
-    document.body.appendChild(
-      script
-    );
-
-  }
-);
-
-
-/* =========================================================
-   INITIALIZATION
-   ========================================================= */
-
-log(
-  "OBVYRIS local ROM emulator ready.",
-  "good"
-);
-
-log(
-  "No remote ROM URL will be used."
-);
-
-log(
-  "Select a ROM file to begin."
-);
-
-</script>
+<header class="header">
+    <div class="logo">OBVYRIS</div>
+    <div class="status">NES EMULATOR TEST</div>
+</header>
+
+<main class="game-wrap">
+    <div id="game"></div>
+</main>
+
+<footer class="info">
+    EmulatorJS • NES Test • Internet Archive ROM URL
+</footer>
+
+<script src="https://cdn.emulatorjs.org/latest/data/loader.js"></script>
 
 </body>
 </html>
