@@ -3,9 +3,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Obvyris NES Test</title>
+<title>Obvyris Archive ROM Test</title>
 
 <style>
 * {
@@ -15,495 +15,479 @@
 html,
 body {
     margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    background: #05080d;
-    color: #e7edf5;
+    min-height: 100%;
+    background: #070b12;
+    color: #e8edf5;
     font-family: Arial, Helvetica, sans-serif;
 }
 
 body {
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+    padding: 30px 16px;
+}
+
+.container {
+    width: min(900px, 100%);
+    margin: auto;
 }
 
 .header {
-    height: 62px;
-    min-height: 62px;
-    display: flex;
-    align-items: center;
-    padding: 0 18px;
-    background: #090f18;
-    border-bottom: 1px solid #1b2838;
+    padding: 24px;
+    margin-bottom: 18px;
+    background: #0c131e;
+    border: 1px solid #1d2a3a;
+    border-radius: 12px;
 }
 
 .logo {
-    font-size: 20px;
+    font-size: 24px;
     font-weight: 800;
     letter-spacing: 4px;
 }
 
-.title {
-    margin-left: 18px;
-    font-size: 12px;
-    color: #78879a;
+.subtitle {
+    margin-top: 8px;
+    color: #7e8da1;
+    font-size: 13px;
+}
+
+.card {
+    padding: 22px;
+    margin-bottom: 16px;
+    background: #0c131e;
+    border: 1px solid #1d2a3a;
+    border-radius: 12px;
+}
+
+.label {
+    margin-bottom: 8px;
+    color: #7f8da0;
+    font-size: 11px;
+    text-transform: uppercase;
     letter-spacing: 1px;
 }
 
-.status {
-    margin-left: auto;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 11px;
-    color: #7f8da0;
+.url {
+    padding: 13px;
+    background: #060a10;
+    border: 1px solid #202d3e;
+    border-radius: 7px;
+    color: #83caff;
+    font-size: 12px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
 }
 
-.dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #e2a93b;
+button {
+    margin-top: 16px;
+    padding: 12px 18px;
+    border: 0;
+    border-radius: 7px;
+    background: #1688d8;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
 }
 
-.dot.ready {
-    background: #43d17a;
+button:hover {
+    background: #1c9bea;
 }
 
-.dot.error {
-    background: #e05252;
+button:disabled {
+    opacity: .5;
+    cursor: wait;
 }
 
-.game-area {
-    position: relative;
-    flex: 1;
-    min-height: 0;
-    background: #000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.result {
+    display: none;
 }
 
-#game {
-    width: 100%;
-    height: 100%;
+.result.show {
+    display: block;
+}
+
+.result-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+.success {
+    color: #54d98a;
+}
+
+.failure {
+    color: #ff6969;
+}
+
+.warning {
+    color: #e7bb55;
+}
+
+.row {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 12px;
+    padding: 11px 0;
+    border-bottom: 1px solid #182434;
+    font-size: 13px;
+}
+
+.row:last-child {
+    border-bottom: 0;
+}
+
+.key {
+    color: #77879b;
+}
+
+.value {
+    color: #dce4ed;
+    overflow-wrap: anywhere;
+}
+
+pre {
+    margin: 0;
+    padding: 14px;
+    background: #05090e;
+    border: 1px solid #1b2939;
+    border-radius: 7px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    color: #aebdce;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.note {
+    margin-top: 16px;
+    padding: 14px;
+    background: #111923;
+    border-left: 3px solid #d5a83c;
+    color: #9aa8b9;
+    font-size: 12px;
+    line-height: 1.6;
 }
 
 .loading {
-    position: absolute;
-    z-index: 20;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #05080d;
-    transition: opacity .3s ease;
+    display: none;
+    margin-top: 16px;
+    color: #8190a3;
+    font-size: 13px;
 }
 
-.loading.hidden {
-    opacity: 0;
-    pointer-events: none;
+.loading.show {
+    display: block;
 }
 
-.loading-box {
-    width: min(90%, 480px);
-    padding: 28px;
-    text-align: center;
-    border: 1px solid #202e40;
-    border-radius: 12px;
-    background: #0b121d;
-    box-shadow: 0 20px 60px rgba(0,0,0,.45);
-}
-
-.loading-title {
-    font-size: 16px;
-    font-weight: 700;
-    margin-bottom: 10px;
-}
-
-.loading-text {
-    font-size: 12px;
-    line-height: 1.6;
-    color: #8290a3;
-}
-
-.spinner {
-    width: 30px;
-    height: 30px;
-    margin: 0 auto 18px;
-    border: 3px solid #263547;
-    border-top-color: #5cbcff;
-    border-radius: 50%;
-    animation: spin .8s linear infinite;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
+@media (max-width: 600px) {
+    .row {
+        grid-template-columns: 1fr;
+        gap: 4px;
     }
 }
-
-.error {
-    display: none;
-    position: absolute;
-    z-index: 30;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: min(92%, 600px);
-    padding: 24px;
-    background: #0b121d;
-    border: 1px solid #49303a;
-    border-radius: 12px;
-    box-shadow: 0 20px 70px rgba(0,0,0,.65);
-}
-
-.error.show {
-    display: block;
-}
-
-.error h2 {
-    margin: 0 0 12px;
-    font-size: 18px;
-}
-
-.error p {
-    margin: 8px 0;
-    font-size: 13px;
-    line-height: 1.6;
-    color: #9ba8b8;
-}
-
-.error code {
-    display: block;
-    margin-top: 14px;
-    padding: 12px;
-    overflow-wrap: anywhere;
-    background: #060a10;
-    border: 1px solid #1d2a39;
-    border-radius: 7px;
-    color: #8dcfff;
-    font-size: 11px;
-}
-
-.footer {
-    height: 40px;
-    min-height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-top: 1px solid #1b2838;
-    background: #090f18;
-    color: #68778a;
-    font-size: 10px;
-    letter-spacing: .5px;
-}
 </style>
-
-<script>
-/*
-    ============================================================
-    OBVYRIS NES TEST
-    ============================================================
-
-    IMPORTANT:
-
-    Direct Archive.org ROM loading can fail because of browser
-    cross-origin restrictions.
-
-    For a legally redistributable ROM, you can eventually change
-    ROM_URL to your own Cloudflare Worker/proxy URL.
-
-    Example:
-
-    const ROM_URL =
-        "https://your-worker.workers.dev/rom/game.nes";
-
-    ============================================================
-*/
-
-/*
-    Original test ROM URL
-*/
-const ROM_URL =
-    "https://archive.org/download/nes-emulator_202404/Legend%20of%20Zelda.nes";
-
-
-/*
-    EmulatorJS
-*/
-EJS_player = "#game";
-EJS_core = "nes";
-EJS_gameUrl = ROM_URL;
-
-EJS_pathtodata =
-    "https://cdn.emulatorjs.org/latest/data/";
-
-EJS_startOnLoaded = true;
-
-/*
-    Optional visual setting
-*/
-EJS_color = "#4db8ff";
-
-/*
-    Disable unnecessary network multiplayer behavior
-*/
-EJS_netplay = false;
-
-
-/*
-    Debug information
-*/
-window.addEventListener("error", function(event) {
-
-    console.error(
-        "[OBVYRIS] Browser error:",
-        event.error || event.message
-    );
-
-});
-
-window.addEventListener("unhandledrejection", function(event) {
-
-    console.error(
-        "[OBVYRIS] Promise error:",
-        event.reason
-    );
-
-});
-</script>
 
 </head>
 
 <body>
 
-<header class="header">
+<div class="container">
 
 ```
-<div class="logo">
-    OBVYRIS
+<div class="header">
+    <div class="logo">OBVYRIS</div>
+    <div class="subtitle">
+        ARCHIVE.ORG ROM CORS TEST
+    </div>
 </div>
 
-<div class="title">
-    RETRO // NES TEST
-</div>
 
-<div class="status">
-    <span id="statusDot" class="dot"></span>
-    <span id="statusText">LOADING</span>
-</div>
-```
+<div class="card">
 
-</header>
+    <div class="label">
+        Test File
+    </div>
 
-<main class="game-area">
+    <div class="url" id="romUrl"></div>
 
-```
-<div id="game"></div>
+    <button id="testButton" onclick="testRom()">
+        TEST ARCHIVE.ORG FILE
+    </button>
 
-
-<div id="loading" class="loading">
-
-    <div class="loading-box">
-
-        <div class="spinner"></div>
-
-        <div class="loading-title">
-            INITIALIZING NES
-        </div>
-
-        <div class="loading-text">
-            Loading EmulatorJS and preparing the NES core...
-        </div>
-
+    <div id="loading" class="loading">
+        Testing browser access to the ROM...
     </div>
 
 </div>
 
 
-<div id="error" class="error">
+<div id="result" class="card result">
 
-    <h2>
-        ROM COULD NOT BE LOADED
-    </h2>
+    <div id="resultTitle" class="result-title"></div>
 
-    <p>
-        EmulatorJS loaded successfully, but the browser could
-        not fetch the remote ROM.
-    </p>
+    <div class="row">
+        <div class="key">HTTP Status</div>
+        <div class="value" id="httpStatus">—</div>
+    </div>
 
-    <p>
-        This commonly occurs when the remote server does not
-        permit cross-origin browser requests.
-    </p>
+    <div class="row">
+        <div class="key">Content-Type</div>
+        <div class="value" id="contentType">—</div>
+    </div>
 
-    <code id="errorUrl"></code>
+    <div class="row">
+        <div class="key">Content-Length</div>
+        <div class="value" id="contentLength">—</div>
+    </div>
+
+    <div class="row">
+        <div class="key">CORS Header</div>
+        <div class="value" id="corsHeader">—</div>
+    </div>
+
+    <div class="row">
+        <div class="key">Readable by JavaScript</div>
+        <div class="value" id="jsReadable">—</div>
+    </div>
+
+    <div class="row">
+        <div class="key">Final URL</div>
+        <div class="value" id="finalUrl">—</div>
+    </div>
+
+</div>
+
+
+<div id="errorCard" class="card result">
+
+    <div class="result-title failure">
+        BROWSER FETCH FAILED
+    </div>
+
+    <div class="label">
+        JavaScript Error
+    </div>
+
+    <pre id="errorText"></pre>
+
+    <div class="note">
+        If this reports "Failed to fetch" while the ROM URL
+        works when opened directly in a browser, the likely
+        problem is cross-origin browser access (CORS).
+    </div>
+
+</div>
+
+
+<div class="card">
+
+    <div class="label">
+        What this test means
+    </div>
+
+    <div style="color:#9aa8b9;font-size:13px;line-height:1.7;">
+
+        <strong style="color:#dce4ed;">
+            Browser can read the file
+        </strong>
+        — The ROM can potentially be passed directly to
+        EmulatorJS.
+
+        <br><br>
+
+        <strong style="color:#dce4ed;">
+            Browser cannot read the file
+        </strong>
+        — EmulatorJS will also fail when using the remote
+        URL directly.
+
+        <br><br>
+
+        <strong style="color:#dce4ed;">
+            Direct browser download works but this test fails
+        </strong>
+        — This is particularly strong evidence of a CORS
+        restriction.
+    </div>
 
 </div>
 ```
 
-</main>
-
-<footer class="footer">
-    EMULATORJS • NESTOPIA • OBVYRIS RETRO TEST
-</footer>
+</div>
 
 <script>
 
-/*
-    UI helpers
-*/
-
-const loading =
-    document.getElementById("loading");
-
-const errorBox =
-    document.getElementById("error");
-
-const errorUrl =
-    document.getElementById("errorUrl");
-
-const statusText =
-    document.getElementById("statusText");
-
-const statusDot =
-    document.getElementById("statusDot");
+const ROM_URL =
+    "https://archive.org/download/nes-emulator_202404/Legend%20of%20Zelda.nes";
 
 
-function setStatus(text, type) {
-
-    statusText.textContent = text;
-
-    statusDot.className = "dot";
-
-    if (type === "ready") {
-        statusDot.classList.add("ready");
-    }
-
-    if (type === "error") {
-        statusDot.classList.add("error");
-    }
-}
+document.getElementById("romUrl").textContent =
+    ROM_URL;
 
 
-/*
-    Give EmulatorJS some time to initialize.
-*/
+async function testRom() {
 
-let emulatorStarted = false;
+    const button =
+        document.getElementById("testButton");
 
-const emulatorWatch =
-    setInterval(function() {
+    const loading =
+        document.getElementById("loading");
 
-        const canvas =
-            document.querySelector("#game canvas");
+    const result =
+        document.getElementById("result");
 
-        const iframe =
-            document.querySelector("#game iframe");
+    const errorCard =
+        document.getElementById("errorCard");
 
-        if (canvas || iframe) {
 
-            emulatorStarted = true;
+    button.disabled = true;
 
-            clearInterval(emulatorWatch);
+    loading.classList.add("show");
 
-            loading.classList.add("hidden");
+    result.classList.remove("show");
 
-            setStatus(
-                "EMULATOR READY",
-                "ready"
+    errorCard.classList.remove("show");
+
+
+    /*
+        Use GET because we need to determine whether the browser
+        can actually read the ROM response.
+
+        mode:"cors" explicitly requires the remote server to
+        provide the appropriate CORS permission.
+    */
+
+    try {
+
+        const response = await fetch(
+            ROM_URL,
+            {
+                method: "GET",
+                mode: "cors",
+                credentials: "omit",
+                cache: "no-store"
+            }
+        );
+
+
+        document.getElementById("httpStatus").textContent =
+            response.status + " " + response.statusText;
+
+
+        document.getElementById("contentType").textContent =
+            response.headers.get("content-type") || "Not exposed";
+
+
+        document.getElementById("contentLength").textContent =
+            response.headers.get("content-length") || "Not exposed";
+
+
+        /*
+            Browsers only expose response headers to JavaScript
+            when they are permitted by CORS.
+        */
+
+        const cors =
+            response.headers.get(
+                "access-control-allow-origin"
             );
+
+
+        document.getElementById("corsHeader").textContent =
+            cors || "Not exposed";
+
+
+        document.getElementById("finalUrl").textContent =
+            response.url;
+
+
+        /*
+            Read the actual binary.
+
+            This is the important part.
+
+            If this succeeds, JavaScript really can access the
+            ROM contents.
+        */
+
+        const buffer =
+            await response.arrayBuffer();
+
+
+        const size =
+            buffer.byteLength;
+
+
+        document.getElementById("contentLength").textContent =
+            size.toLocaleString() + " bytes";
+
+
+        document.getElementById("jsReadable").innerHTML =
+            '<span class="success">YES — JavaScript successfully read ' +
+            size.toLocaleString() +
+            ' bytes</span>';
+
+
+        const title =
+            document.getElementById("resultTitle");
+
+
+        if (response.ok) {
+
+            title.innerHTML =
+                '<span class="success">' +
+                'ARCHIVE.ORG FILE IS ACCESSIBLE' +
+                '</span>';
+
+        } else {
+
+            title.innerHTML =
+                '<span class="warning">' +
+                'SERVER RESPONDED, BUT HTTP STATUS IS ' +
+                response.status +
+                '</span>';
+
         }
 
-    }, 1000);
+
+        result.classList.add("show");
 
 
-/*
-    Detect network errors.
-
-    This does not replace EmulatorJS's own error handling;
-    it simply provides a clearer Obvyris interface.
-*/
-
-window.addEventListener("unhandledrejection", function(event) {
-
-    const message =
-        String(event.reason || "");
-
-    if (
-        message.includes("Failed to fetch") ||
-        message.includes("Network Error") ||
-        message.includes("Download failed")
-    ) {
-
-        showRomError();
-
-    }
-
-});
+        console.log(
+            "[OBVYRIS] ROM successfully fetched:",
+            size,
+            "bytes"
+        );
 
 
-window.addEventListener("error", function(event) {
+    } catch (error) {
 
-    const message =
-        String(event.message || "");
+        console.error(
+            "[OBVYRIS] ROM fetch failed:",
+            error
+        );
 
-    if (
-        message.includes("Failed to fetch") ||
-        message.includes("Network Error")
-    ) {
 
-        showRomError();
+        document.getElementById("errorText").textContent =
+            String(error);
+
+
+        document.getElementById("jsReadable").innerHTML =
+            '<span class="failure">NO</span>';
+
+
+        errorCard.classList.add("show");
 
     }
 
-});
 
+    loading.classList.remove("show");
 
-function showRomError() {
-
-    if (emulatorStarted) {
-        return;
-    }
-
-    loading.classList.add("hidden");
-
-    errorBox.classList.add("show");
-
-    errorUrl.textContent =
-        ROM_URL;
-
-    setStatus(
-        "ROM ERROR",
-        "error"
-    );
+    button.disabled = false;
 
 }
 
-
-/*
-    Fallback timeout.
-
-    If the emulator never appears after 30 seconds,
-    display the diagnostic screen.
-*/
-
-setTimeout(function() {
-
-    if (!emulatorStarted) {
-
-        showRomError();
-
-    }
-
-}, 30000);
-
 </script>
-
-<script src="https://cdn.emulatorjs.org/latest/data/loader.js"></script>
 
 </body>
 </html>
