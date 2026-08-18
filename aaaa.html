@@ -1,24 +1,447 @@
-<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width,initial-scale=1"> <title>Obvyris Archive Explorer</title> <style> *{ box-sizing:border-box; } body{ margin:10px; height:calc(100vh - 20px); overflow:hidden; background:#070d16; color:#d8e1ec; font-family:Arial,Helvetica,sans-serif; font-size:15px; } h1{ color:#2793ff; font-size:28px; margin:5px 0 15px; } .controls{ background:#101923; border:1px solid #26384f; border-radius:12px; padding:14px; display:flex; flex-wrap:wrap; gap:10px; } input, select, button{ background:#17263a; color:white; border:1px solid #31465f; border-radius:7px; padding:11px 14px; font-size:15px; } input{ width:260px; } button{ background:#2793ff; border:none; font-weight:bold; cursor:pointer; } button:hover{ background:#55b5ff; } .secondary{ background:#17263a; border:1px solid #31465f; } #status{ margin-top:12px; color:#9aaabd; } #results{ height:calc(100vh - 250px); overflow-y:auto; padding-right:8px; padding-bottom:60px; } .card{ background:#101923; border:1px solid #26384f; border-radius:12px; padding:16px; margin-top:12px; overflow:hidden; } .card:hover{ border-color:#2793ff; } .title{ font-size:20px; font-weight:bold; color:#55b8ff; margin-bottom:10px; } .meta{ line-height:25px; color:#b8c5d6; } .tag{ display:inline-block; background:#2793ff; padding:4px 10px; border-radius:20px; font-size:12px; margin-right:5px; } .sourceTag{ background:#6b45ff; } .gutenbergTag{ background:#16804b; } .openLibraryTag{ background:#d18b00; } .archiveThumb{ width:140px; height:140px; object-fit:cover; border-radius:10px; float:right; margin-left:15px; border:1px solid #31465f; background:#080d14; } .bookThumb{ width:140px; height:190px; object-fit:cover; } .files{ display:none; clear:both; margin-top:15px; background:#0c1522; border-radius:10px; padding:10px; } .file{ padding:12px; border-bottom:1px solid #26384f; cursor:pointer; } .file:hover{ background:#182b43; } .file a{ color:#55b8ff; text-decoration:none; } .metaPanel{ clear:both; margin-top:10px; padding:14px; background:#0c1522; border-left:3px solid #2793ff; border-radius:8px; } .resultButtons{ clear:both; padding-top:12px; display:flex; gap:8px; flex-wrap:wrap; } .resultButtons button{ font-size:13px; } .loading{ padding:40px; text-align:center; color:#55b8ff; } .error{ color:#ff8080; } .sourceDescription{ color:#8995a5; font-size:13px; margin-top:6px; } #obvyrisVideoPlayer{ position:fixed; left:50px; top:100px; width:520px; height:620px; display:none; background:rgba(16,25,35,.65); backdrop-filter:blur(12px); border:2px solid rgba(39,147,255,.8); border-radius:14px; box-shadow:0 0 35px rgba(0,0,0,.8); z-index:99999; resize:both; overflow:hidden; } #videoHeader{ height:42px; padding:10px; background:rgba(20,35,56,.7); color:#55b8ff; font-weight:bold; display:flex; justify-content:space-between; align-items:center; cursor:move; } .windowButtons{ display:flex; gap:4px; } .windowButtons button{ width:22px; height:22px; padding:0; font-size:12px; } #videoDisplay{ padding:15px; text-align:center; background:rgba(0,0,0,.25); } #videoTitle{ font-size:18px; font-weight:bold; color:#55b8ff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } #videoMeta{ color:#aaa; margin-top:6px; } #archiveVideo{ width:100%; height:300px; background:black; } #videoProgress{ padding:10px; } #videoTime{ display:flex; justify-content:space-between; font-family:monospace; color:#65c9ff; } #videoSeek{ width:100%; } #videoButtons{ display:flex; justify-content:center; gap:8px; padding:10px; } #videoButtons button{ width:55px; height:40px; } #videoPlaylist{ height:160px; overflow:auto; padding:10px; border-top:1px solid #26384f; } #videoPlaylist h3{ margin-top:0; font-size:14px; color:#55b8ff; } .videoItem{ padding:8px; border-bottom:1px solid #26384f; cursor:pointer; } .videoItem:hover{ background:#182b43; } .videoItem.playing{ background:#163453; color:#55b8ff; } #obvyrisVideoPlayer.minimized{ height:45px; resize:none; } #obvyrisVideoPlayer.minimized #videoDisplay, #obvyrisVideoPlayer.minimized video, #obvyrisVideoPlayer.minimized #videoProgress, #obvyrisVideoPlayer.minimized #videoButtons, #obvyrisVideoPlayer.minimized #videoPlaylist{ display:none; } #restorePlayer{ position:fixed; bottom:20px; right:20px; display:none; z-index:99999; } footer{ position:fixed; bottom:0; left:0; right:0; background:#101923; border-top:1px solid #26384f; padding:10px; text-align:center; color:#8995a5; font-size:13px; z-index:100; } ::-webkit-scrollbar{ width:10px; } ::-webkit-scrollbar-track{ background:#070d16; } ::-webkit-scrollbar-thumb{ background:#26384f; border-radius:10px; } ::-webkit-scrollbar-thumb:hover{ background:#2793ff; } @media(max-width:700px){ body{ margin:5px; } h1{ font-size:22px; text-align:center; } .controls{ display:block; } .controls input, .controls select, .controls button{ width:100%; height:55px; margin-bottom:10px; } #results{ height:calc(100vh - 330px); } .archiveThumb{ float:none; width:100%; height:180px; margin:0 0 10px 0; } .bookThumb{ height:220px; } #obvyrisVideoPlayer{ left:5px; top:80px; width:95%; } footer{ font-size:12px; } } </style> </head> <body> <h1> 🌐 Obvyris Archive Explorer </h1> <div class="controls">
+<!DOCTYPE html>
 
-<input id="search" placeholder="Search archives..." onkeydown="if(event.key==='Enter')searchAll();">
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
-<select id="source"> <option value="all"> 🌐 All Sources </option> <option value="archive"> Internet Archive </option> <option value="openlibrary"> Open Library </option> <option value="gutenberg"> Project Gutenberg </option> </select> <select id="type"> <option value=""> All Media </option> <option value="movies"> 🎬 Video </option> <option value="texts"> 📚 Documents </option> <option value="software"> 💾 Software </option> <option value="audio"> 🎵 Audio </option> <option value="image"> 🖼 Images </option> </select>
+<title>OBVYRIS — NES Emulator Test</title>
 
-<input id="creator" placeholder="Creator / Author">
+<style>
+*{
+  box-sizing:border-box;
+}
 
-<select id="sort"> <option value="downloads desc"> Most Popular </option> <option value="date desc"> Newest </option> <option value="titleSorter asc"> A-Z </option> </select> <button onclick="searchAll()"> 🔎 SEARCH ALL </button> </div> <div id="status"> Ready — search Internet Archive, Open Library and Project Gutenberg </div> <div id="results"> <div class="loading"> Enter a search term to search all archives. </div> </div>
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  background:#05080d;
+  color:#dce8f2;
+  font-family:Arial,sans-serif;
+  overflow:hidden;
+}
 
-<button id="restorePlayer" onclick="showVideoPlayer()">
+body{
+  display:flex;
+  flex-direction:column;
+}
 
-🎬 Player
+#header{
+  height:58px;
+  flex-shrink:0;
+  display:flex;
+  align-items:center;
+  padding:0 18px;
+  background:#09111a;
+  border-bottom:1px solid #263746;
+}
 
-</button> <div id="obvyrisVideoPlayer"> <div id="videoHeader"> <span> Obvyris Video Player </span> <div class="windowButtons"> <button onclick="minimizeVideoPlayer()"> − </button> <button onclick="hideVideoPlayer()"> × </button> </div> </div> <div id="videoDisplay"> <div id="videoTitle"> No Video Selected </div> <div id="videoMeta"> Internet Archive Video </div> </div>
+.logo{
+  font-size:21px;
+  font-weight:bold;
+  letter-spacing:3px;
+  color:#ffffff;
+}
 
-<video id="archiveVideo" controls>
-</video>
+.status{
+  margin-left:auto;
+  font-size:12px;
+  color:#7f9aad;
+}
 
-<div id="videoProgress"> <div id="videoTime"> <span id="videoCurrent"> 0:00 </span> <span id="videoDuration"> 0:00 </span> </div>
+#main{
+  flex:1;
+  min-height:0;
+  position:relative;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:15px;
+}
 
-<input id="videoSeek" type="range" value="0" min="0" max="100">
+#game{
+  width:100%;
+  height:100%;
+  max-width:1200px;
+  max-height:calc(100vh - 100px);
+  background:#000;
+  position:relative;
+}
 
-</div> <div id="videoButtons"> <button onclick="previousVideo()"> ◀ </button> <button onclick="toggleVideo()"> ▶⏸ </button> <button onclick="nextVideo()"> ▶▶ </button> <button onclick="fullscreenVideo()"> ⛶ </button> </div> <div id="videoPlaylist"> <h3> Playlist </h3> <div id="videoQueue"> </div> </div> </div> <footer> OBVYRIS ARCHIVE // INTERNET ARCHIVE + OPEN LIBRARY + PROJECT GUTENBERG </footer> <script> const ARCHIVE_API = "https://archive.org/advancedsearch.php"; const ARCHIVE_METADATA = "https://archive.org/metadata/"; const ARCHIVE_DOWNLOAD = "https://archive.org/download/"; const ARCHIVE_IMAGE = "https://archive.org/services/img/"; const OPEN_LIBRARY_API = "https://openlibrary.org/search.json"; const GUTENDEX_API = "https://gutendex.com/books/"; let currentPage = 0; let pageSize = 25; let allResults = []; let videoQueue = []; let videoIndex = 0; /* ========================================= SEARCH ALL SOURCES ========================================= */ async function searchAll(){ const text = document.getElementById("search").value.trim(); if(!text){ document.getElementById("status").innerHTML = "Enter a search term."; return; } const source = document.getElementById("source").value; const type = document.getElementById("type").value; const creator = document.getElementById("creator").value.trim(); const sort = document.getElementById("sort").value; document.getElementById("results").innerHTML = '<div class="loading">SEARCHING OBVYRIS ARCHIVES...</div>'; document.getElementById("status").innerHTML = "Searching Internet Archive + Open Library + Project Gutenberg..."; let tasks = []; if(source === "all" || source === "archive"){ tasks.push(searchInternetArchive(text,type,creator,sort)); } if(source === "all" || source === "openlibrary"){ tasks.push(searchOpenLibrary(text,creator)); } if(source === "all" || source === "gutenberg"){ tasks.push(searchGutenberg(text,creator)); } try{ const results = await Promise.all(tasks); allResults = []; results.forEach(group => { if(Array.isArray(group)){ allResults.push(...group); } }); renderHybridResults(); document.getElementById("status").innerHTML = "FOUND " + allResults.length + " RESULTS // " + getSourceSummary(); } catch(error){ console.error(error); document.getElementById("status").innerHTML = "Search failed: " + escapeHTML(error.message); document.getElementById("results").innerHTML = '<div class="card error">Unable to access one or more archive APIs.</div>'; } } /* ========================================= INTERNET ARCHIVE ========================================= */ async function searchInternetArchive( text, type, creator, sort ){ let query = text || "*"; if(type){ query += " AND mediatype:" + type; } if(creator){ query += ' AND creator:"' + creator.replace(/"/g,"") + '"'; } const url = ARCHIVE_API + "?q=" + encodeURIComponent(query) + "&fl[]=identifier,title,creator,description,mediatype,date,collection" + "&rows=" + pageSize + "&start=0" + "&sort[]=" + encodeURIComponent(sort) + "&output=json"; const response = await fetch(url); if(!response.ok){ throw new Error( "Internet Archive HTTP " + response.status ); } const data = await response.json(); return (data.response.docs || []).map(item => { return { source:"archive", id:item.identifier, title:item.title || "Unknown", creator:item.creator || "Unknown", description:item.description || "No description", date:item.date || "", mediatype:item.mediatype || "", url: "https://archive.org/details/" + encodeURIComponent(item.identifier), thumb: ARCHIVE_IMAGE + encodeURIComponent(item.identifier) }; }); } /* ========================================= OPEN LIBRARY ========================================= */ async function searchOpenLibrary( text, creator ){ let query = text; if(creator){ query += " author:" + creator; } const url = OPEN_LIBRARY_API + "?q=" + encodeURIComponent(query) + "&limit=25"; const response = await fetch(url); if(!response.ok){ throw new Error( "Open Library HTTP " + response.status ); } const data = await response.json(); return (data.docs || []).map(book => { let cover = null; if(book.cover_i){ cover = "https://covers.openlibrary.org/b/id/" + book.cover_i + "-L.jpg"; } return { source:"openlibrary", id: book.key || ("ol-" + Math.random()), title: book.title || "Unknown Title", creator: book.author_name ? book.author_name.join(", ") : "Unknown Author", description: book.first_sentence ? Array.isArray(book.first_sentence) ? book.first_sentence[0] : book.first_sentence : "Open Library catalog record.", date: book.first_publish_year || "", mediatype:"book", collection:"Open Library", cover:cover, url: book.key ? "https://openlibrary.org" + book.key : "https://openlibrary.org/", isbn: book.isbn ? book.isbn[0] : "" }; }); } /* ========================================= GUTENBERG / GUTENDEX ========================================= */ async function searchGutenberg( text, creator ){ let query = text; if(creator){ query += " " + creator; } const url = GUTENDEX_API + "?search=" + encodeURIComponent(query); const response = await fetch(url); if(!response.ok){ throw new Error( "Project Gutenberg HTTP " + response.status ); } const data = await response.json(); return (data.results || []).map(book => { const formats = book.formats || {}; const html = findGutenbergFormat( formats, [ "text/html; charset=utf-8", "text/html" ] ); const epub = findGutenbergFormat( formats, [ "application/epub+zip" ] ); const text = findGutenbergFormat( formats, [ "text/plain; charset=utf-8", "text/plain" ] ); const cover = findGutenbergFormat( formats, [ "image/jpeg" ] ); return { source:"gutenberg", id: String(book.id), title: book.title || "Unknown Title", creator: book.authors && book.authors.length ? book.authors .map(author => author.name) .join(", ") : "Unknown Author", description: book.summaries && book.summaries.length ? book.summaries[0] : "Project Gutenberg ebook.", date: book.copyright === false ? "PUBLIC DOMAIN" : "", mediatype:"book", collection:"Project Gutenberg", cover:cover || null, url: "https://www.gutenberg.org/ebooks/" + book.id, html:html, epub:epub, text:text, downloads: book.download_count || 0, subjects: book.subjects || [] }; }); } /* ========================================= FIND GUTENBERG FORMAT ========================================= */ function findGutenbergFormat( formats, types ){ for(const type of types){ if(formats[type]){ return formats[type]; } } return null; } /* ========================================= SOURCE SUMMARY ========================================= */ function getSourceSummary(){ const archive = allResults.filter( x => x.source === "archive" ).length; const openlibrary = allResults.filter( x => x.source === "openlibrary" ).length; const gutenberg = allResults.filter( x => x.source === "gutenberg" ).length; return ( "IA " + archive + " // OL " + openlibrary + " // PG " + gutenberg ); } /* ========================================= RENDER HYBRID RESULTS ========================================= */ function renderHybridResults(){ const box = document.getElementById("results"); box.innerHTML = ""; if(!allResults.length){ box.innerHTML = '<div class="card">No results found.</div>'; return; } allResults.forEach((item,index) => { box.innerHTML += createResultCard(item,index); }); } /* ========================================= CREATE RESULT CARD ========================================= */ function createResultCard(item,index){ if(item.source === "archive"){ return createArchiveCard(item,index); } if(item.source === "openlibrary"){ return createOpenLibraryCard(item,index); } return createGutenbergCard(item,index); } /* ========================================= ARCHIVE CARD ========================================= */ function createArchiveCard(item,index){ return ` <div class="card"> <img class="archiveThumb" src="${escapeHTML(item.thumb)}" onerror="this.style.display='none'"> <div class="title"> 📦 ${escapeHTML(item.title)} </div> <div class="meta"> <span class="tag"> INTERNET ARCHIVE </span> <span class="tag sourceTag"> ${escapeHTML(item.mediatype)} </span> <br><br> Creator: ${escapeHTML(formatCreator(item.creator))} <br> Date: ${escapeHTML(item.date)} <br> ${escapeHTML( truncate(item.description,300) )} </div> <div class="resultButtons"> <button onclick="loadFiles(${index})"> 📂 Browse Files </button> <button onclick="showMeta(${index})"> ⚙ Metadata </button> <button class="secondary" onclick="openResultSource(${index})"> OPEN ARCHIVE </button> </div> <div class="files" id="files-${index}"> </div> <div id="meta-${index}"> </div> </div> `; } /* ========================================= OPEN LIBRARY CARD ========================================= */ function createOpenLibraryCard(item,index){ let cover = ""; if(item.cover){ cover = ` <img class="archiveThumb bookThumb" src="${escapeHTML(item.cover)}" onerror="this.style.display='none'"> `; } return ` <div class="card"> ${cover} <div class="title"> 📚 ${escapeHTML(item.title)} </div> <div class="meta"> <span class="tag openLibraryTag"> OPEN LIBRARY </span> <br><br> Author: ${escapeHTML(item.creator)} <br> First Published: ${escapeHTML(String(item.date || "Unknown"))} <br> ${item.isbn ? "ISBN: " + escapeHTML(item.isbn) : ""} <br><br> ${escapeHTML( truncate(item.description,300) )} </div> <div class="resultButtons"> <button onclick="openResultSource(${index})"> 📖 OPEN BOOK RECORD </button> </div> </div> `; } /* ========================================= GUTENBERG CARD ========================================= */ function createGutenbergCard(item,index){ let cover = ""; if(item.cover){ cover = ` <img class="archiveThumb bookThumb" src="${escapeHTML(item.cover)}" onerror="this.style.display='none'"> `; } return ` <div class="card"> ${cover} <div class="title"> 📖 ${escapeHTML(item.title)} </div> <div class="meta"> <span class="tag gutenbergTag"> PROJECT GUTENBERG </span> <br><br> Author: ${escapeHTML(item.creator)} <br> Status: ${escapeHTML(item.date)} <br> Downloads: ${escapeHTML( String(item.downloads) )} <br><br> ${escapeHTML( truncate(item.description,300) )} </div> <div class="resultButtons"> ${ item.html ? ` <button onclick="openGutenbergHTML(${index})"> 📖 READ HTML BOOK </button> ` : "" } <button class="secondary" onclick="openResultSource(${index})"> OPEN GUTENBERG </button> </div> </div> `; } /* ========================================= OPEN RESULT SOURCE ========================================= */ function openResultSource(index){ const item = allResults[index]; if(!item) return; let url = item.url; window.open( url, "_blank", "noopener,noreferrer" ); } /* ========================================= OPEN ACTUAL GUTENBERG HTML ========================================= */ function openGutenbergHTML(index){ const item = allResults[index]; if(!item || !item.html) return; window.open( item.html, "_blank", "noopener,noreferrer" ); } /* ========================================= INTERNET ARCHIVE FILES ========================================= */ async function loadFiles(index){ const item = allResults[index]; if(!item || item.source !== "archive") return; const box = document.getElementById( "files-" + index ); box.style.display = "block"; box.innerHTML = '<div class="loading">Loading Archive files...</div>'; try{ const response = await fetch( ARCHIVE_METADATA + encodeURIComponent(item.id) ); if(!response.ok){ throw new Error( "HTTP " + response.status ); } const data = await response.json(); let html = ""; videoQueue = []; (data.files || []).forEach(file => { const name = file.name || ""; const ext = name .split(".") .pop() .toLowerCase(); const url = ARCHIVE_DOWNLOAD + encodeURIComponent(item.id) + "/" + encodeURIComponent(name); if([ "mp4", "webm", "ogv" ].includes(ext)){ videoQueue.push({ name:name, url:url }); html += ` <div class="file" onclick="playVideo(${videoQueue.length - 1})"> 🎬 ${escapeHTML(name)} </div> `; } else if([ "mp3", "wav", "ogg" ].includes(ext)){ html += ` <div class="file"> 🎵 <a href="${escapeHTML(url)}" target="_blank" rel="noopener"> ${escapeHTML(name)} </a> </div> `; } else if([ "pdf", "epub", "txt" ].includes(ext)){ html += ` <div class="file"> 📚 <a href="${escapeHTML(url)}" target="_blank" rel="noopener"> ${escapeHTML(name)} </a> </div> `; } else{ html += ` <div class="file"> 📄 <a href="${escapeHTML(url)}" target="_blank" rel="noopener"> ${escapeHTML(name)} </a> </div> `; } }); if(!html){ html = '<div class="file">No files returned.</div>'; } box.innerHTML = html; renderVideoQueue(); } catch(error){ box.innerHTML = '<div class="error">' + escapeHTML(error.message) + '</div>'; } } /* ========================================= ARCHIVE METADATA ========================================= */ async function showMeta(index){ const item = allResults[index]; if(!item || item.source !== "archive") return; const box = document.getElementById( "meta-" + index ); box.innerHTML = '<div class="loading">Loading metadata...</div>'; try{ const response = await fetch( ARCHIVE_METADATA + encodeURIComponent(item.id) ); const data = await response.json(); const metadata = data.metadata || {}; box.innerHTML = ` <div class="metaPanel"> <strong> Internet Archive Metadata </strong> <br><br> Identifier: <br> ${escapeHTML(item.id)} <br><br> Title: <br> ${escapeHTML(metadata.title || "")} <br><br> Creator: <br> ${escapeHTML(formatCreator(metadata.creator || ""))} <br><br> Media Type: <br> ${escapeHTML(metadata.mediatype || "")} <br><br> Files: ${escapeHTML(String( (data.files || []).length ))} </div> `; } catch(error){ box.innerHTML = '<div class="error">' + escapeHTML(error.message) + '</div>'; } } /* ========================================= VIDEO PLAYER ========================================= */ function playVideo(index){ if(!videoQueue[index]) return; videoIndex = index; const video = document.getElementById( "archiveVideo" ); video.src = videoQueue[index].url; document.getElementById( "videoTitle" ).innerText = videoQueue[index].name; document.getElementById( "videoMeta" ).innerText = "Video " + (index + 1) + " / " + videoQueue.length; showVideoPlayer(); video.play().catch( () => {} ); renderVideoQueue(); } function toggleVideo(){ const video = document.getElementById( "archiveVideo" ); if(video.paused){ video.play(); } else{ video.pause(); } } function nextVideo(){ if(videoIndex < videoQueue.length - 1){ videoIndex++; playVideo(videoIndex); } } function previousVideo(){ if(videoIndex > 0){ videoIndex--; playVideo(videoIndex); } } function fullscreenVideo(){ const video = document.getElementById( "archiveVideo" ); if(video.requestFullscreen){ video.requestFullscreen(); } } function renderVideoQueue(){ const box = document.getElementById( "videoQueue" ); box.innerHTML = ""; videoQueue.forEach( (v,i) => { const active = i === videoIndex ? "playing" : ""; box.innerHTML += ` <div class="videoItem ${active}" onclick="playVideo(${i})"> 🎬 ${i + 1}. ${escapeHTML(v.name)} </div> `; }); saveVideoQueue(); } /* ========================================= PLAYER WINDOW ========================================= */ function minimizeVideoPlayer(){ document .getElementById( "obvyrisVideoPlayer" ) .classList.toggle( "minimized" ); } function hideVideoPlayer(){ document .getElementById( "obvyrisVideoPlayer" ) .style.display = "none"; document .getElementById( "restorePlayer" ) .style.display = "block"; } function showVideoPlayer(){ const player = document.getElementById( "obvyrisVideoPlayer" ); player.style.display = "block"; player.classList.remove( "minimized" ); document .getElementById( "restorePlayer" ) .style.display = "none"; } /* ========================================= VIDEO TIME ========================================= */ const video = document.getElementById( "archiveVideo" ); video.addEventListener( "timeupdate", () => { if(!video.duration) return; document.getElementById( "videoSeek" ).value = (video.currentTime / video.duration) * 100; document.getElementById( "videoCurrent" ).innerText = formatTime(video.currentTime); document.getElementById( "videoDuration" ).innerText = formatTime(video.duration); }); document.getElementById( "videoSeek" ).oninput = function(){ if(video.duration){ video.currentTime = (video.duration * this.value) / 100; } }; function formatTime(seconds){ if(!seconds || isNaN(seconds)){ return "0:00"; } const minutes = Math.floor(seconds / 60); let secs = Math.floor(seconds % 60); if(secs < 10){ secs = "0" + secs; } return minutes + ":" + secs; } /* ========================================= AUTO NEXT ========================================= */ video.addEventListener( "ended", () => { if(videoIndex < videoQueue.length - 1){ nextVideo(); } }); /* ========================================= PLAYER POSITION ========================================= */ const videoWindow = document.getElementById( "obvyrisVideoPlayer" ); const videoHeader = document.getElementById( "videoHeader" ); let dragging = false; let offsetX = 0; let offsetY = 0; videoHeader.addEventListener( "mousedown", function(e){ dragging = true; offsetX = e.clientX - videoWindow.offsetLeft; offsetY = e.clientY - videoWindow.offsetTop; }); document.addEventListener( "mousemove", function(e){ if(!dragging) return; videoWindow.style.left = (e.clientX - offsetX) + "px"; videoWindow.style.top = (e.clientY - offsetY) + "px"; savePlayerPosition(); }); document.addEventListener( "mouseup", function(){ dragging = false; }); videoHeader.addEventListener( "touchstart", function(e){ const t = e.touches[0]; dragging = true; offsetX = t.clientX - videoWindow.offsetLeft; offsetY = t.clientY - videoWindow.offsetTop; }, {passive:true} ); document.addEventListener( "touchmove", function(e){ if(!dragging) return; const t = e.touches[0]; videoWindow.style.left = (t.clientX - offsetX) + "px"; videoWindow.style.top = (t.clientY - offsetY) + "px"; savePlayerPosition(); }, {passive:true} ); document.addEventListener( "touchend", function(){ dragging = false; }); function savePlayerPosition(){ localStorage.setItem( "obvyrisVideoPosition", JSON.stringify({ left:videoWindow.style.left, top:videoWindow.style.top }) ); } function loadPlayerPosition(){ const saved = localStorage.getItem( "obvyrisVideoPosition" ); if(!saved) return; try{ const pos = JSON.parse(saved); if(pos.left) videoWindow.style.left = pos.left; if(pos.top) videoWindow.style.top = pos.top; } catch(error){ console.warn( "Could not restore player position" ); } } /* ========================================= SAVE VIDEO QUEUE ========================================= */ function saveVideoQueue(){ try{ localStorage.setItem( "obvyrisVideoQueue", JSON.stringify(videoQueue) ); } catch(error){} } function loadVideoQueue(){ try{ const saved = localStorage.getItem( "obvyrisVideoQueue" ); if(saved){ videoQueue = JSON.parse(saved); renderVideoQueue(); } } catch(error){ videoQueue = []; } } /* ========================================= KEYBOARD ========================================= */ document.addEventListener( "keydown", function(e){ const active = document.activeElement; if( active && ( active.tagName === "INPUT" || active.tagName === "TEXTAREA" || active.tagName === "SELECT" ) ){ return; } if(e.code === "Space"){ e.preventDefault(); toggleVideo(); } if(e.code === "ArrowRight"){ nextVideo(); } if(e.code === "ArrowLeft"){ previousVideo(); } if(e.code === "KeyF"){ fullscreenVideo(); } if(e.code === "Escape"){ hideVideoPlayer(); } }); /* ========================================= DOUBLE CLICK ========================================= */ video.addEventListener( "dblclick", function(){ fullscreenVideo(); }); /* ========================================= HELPERS ========================================= */ function truncate(text,length){ if(text === null || text === undefined){ return ""; } text = String(text); if(text.length <= length){ return text; } return text.substring(0,length) + "..."; } function formatCreator(value){ if(Array.isArray(value)){ return value.join(", "); } return value || "Unknown"; } function formatCollection(value){ if(Array.isArray(value)){ return value.join(", "); } return value || "None listed"; } function escapeHTML(text){ return String( text === null || text === undefined ? "" : text ) .replaceAll("&","&amp;") .replaceAll("<","&lt;") .replaceAll(">","&gt;") .replaceAll('"',"&quot;") .replaceAll("'","&#039;"); } /* ========================================= START ========================================= */ loadPlayerPosition(); loadVideoQueue(); </script> </body> </html>
+#diagnostics{
+  position:absolute;
+  left:15px;
+  bottom:15px;
+  z-index:10000;
+  width:min(520px,calc(100% - 30px));
+  max-height:180px;
+  overflow:auto;
+  background:rgba(5,8,13,.94);
+  border:1px solid #263746;
+  padding:10px;
+  font-family:monospace;
+  font-size:11px;
+  color:#9fb5c5;
+}
+
+.diag-title{
+  color:#fff;
+  font-weight:bold;
+  margin-bottom:6px;
+}
+
+.good{
+  color:#6ee7a0;
+}
+
+.bad{
+  color:#ff7272;
+}
+
+.warn{
+  color:#ffd166;
+}
+
+#romInfo{
+  position:absolute;
+  top:10px;
+  left:15px;
+  z-index:10000;
+  background:rgba(5,8,13,.9);
+  border:1px solid #263746;
+  padding:8px 11px;
+  font-size:11px;
+  color:#91a8b8;
+}
+</style>
+
+</head>
+
+<body>
+
+<div id="header">
+  <div class="logo">OBVYRIS</div>
+  <div class="status" id="status">INITIALIZING...</div>
+</div>
+
+<div id="main">
+
+  <div id="game"></div>
+
+  <div id="romInfo">
+    ROM: Legend of Zelda.nes<br>
+    CORE: NES
+  </div>
+
+  <div id="diagnostics">
+    <div class="diag-title">OBVYRIS EMULATOR DIAGNOSTICS</div>
+    <div id="logs"></div>
+  </div>
+
+</div>
+
+<script>
+
+/* =========================================================
+   OBVYRIS EMULATOR CONFIG
+   ========================================================= */
+
+const ROM_URL =
+  "https://archive.org/download/nes-emulator_202404/Legend%20of%20Zelda.nes";
+
+const CORE = "nes";
+
+const EMULATOR_DATA =
+  "https://cdn.emulatorjs.org/latest/data/";
+
+
+/* =========================================================
+   DIAGNOSTICS
+   ========================================================= */
+
+const logs = document.getElementById("logs");
+const status = document.getElementById("status");
+
+function log(message,type=""){
+
+  const row = document.createElement("div");
+
+  if(type){
+    row.className = type;
+  }
+
+  const time =
+    new Date().toLocaleTimeString();
+
+  row.textContent =
+    "[" + time + "] " + message;
+
+  logs.appendChild(row);
+
+  logs.scrollTop =
+    logs.scrollHeight;
+
+  console.log(
+    "[OBVYRIS]",
+    message
+  );
+}
+
+function setStatus(text,type=""){
+
+  status.textContent = text;
+
+  status.className =
+    "status " + type;
+}
+
+
+/* =========================================================
+   GLOBAL ERROR CAPTURE
+   ========================================================= */
+
+window.addEventListener(
+  "error",
+  function(event){
+
+    log(
+      "JAVASCRIPT ERROR: " +
+      event.message,
+      "bad"
+    );
+
+    setStatus(
+      "JAVASCRIPT ERROR",
+      "bad"
+    );
+  }
+);
+
+window.addEventListener(
+  "unhandledrejection",
+  function(event){
+
+    log(
+      "PROMISE ERROR: " +
+      event.reason,
+      "bad"
+    );
+
+    setStatus(
+      "EMULATOR ERROR",
+      "bad"
+    );
+  }
+);
+
+
+/* =========================================================
+   EMULATORJS CALLBACKS
+   ========================================================= */
+
+window.EJS_onGameStart = function(){
+
+  log(
+    "Emulator reported GAME START.",
+    "good"
+  );
+
+  setStatus(
+    "RUNNING",
+    "good"
+  );
+};
+
+
+window.EJS_onGameExit = function(){
+
+  log(
+    "Emulator reported GAME EXIT.",
+    "bad"
+  );
+
+  setStatus(
+    "EMULATOR EXITED",
+    "bad"
+  );
+};
+
+
+window.EJS_onLoad = function(){
+
+  log(
+    "EmulatorJS loader finished.",
+    "good"
+  );
+
+  setStatus(
+    "LOADED",
+    "good"
+  );
+};
+
+
+/* =========================================================
+   EMULATORJS SETTINGS
+   ========================================================= */
+
+EJS_player = "#game";
+
+EJS_core = CORE;
+
+EJS_gameUrl = ROM_URL;
+
+EJS_pathtodata = EMULATOR_DATA;
+
+
+/*
+ Optional settings
+*/
+
+EJS_startOnLoaded = true;
+
+EJS_backgroundColor = "#000000";
+
+EJS_volume = 0.8;
+
+
+/* =========================================================
+   STARTUP LOG
+   ========================================================= */
+
+log(
+  "Starting OBVYRIS EmulatorJS test..."
+);
+
+log(
+  "Core: " + CORE
+);
+
+log(
+  "ROM: " + ROM_URL
+);
+
+log(
+  "Emulator data: " + EMULATOR_DATA
+);
+
+log(
+  "Browser: " + navigator.userAgent
+);
+
+
+/* =========================================================
+   ROM URL TEST
+   ========================================================= */
+
+fetch(
+  ROM_URL,
+  {
+    method:"GET"
+  }
+)
+.then(function(response){
+
+  log(
+    "ROM HTTP status: " +
+    response.status +
+    " " +
+    response.statusText,
+    response.ok ? "good" : "bad"
+  );
+
+  if(!response.ok){
+
+    throw new Error(
+      "ROM returned HTTP " +
+      response.status
+    );
+  }
+
+  const length =
+    response.headers.get(
+      "content-length"
+    );
+
+  if(length){
+
+    log(
+      "ROM size: " +
+      Number(length).toLocaleString() +
+      " bytes",
+      "good"
+    );
+  }
+
+  log(
+    "ROM URL is reachable.",
+    "good"
+  );
+
+})
+.catch(function(error){
+
+  log(
+    "ROM FETCH FAILED: " +
+    error.message,
+    "bad"
+  );
+
+  log(
+    "This may be a CORS or remote-server issue.",
+    "warn"
+  );
+});
+
+
+/* =========================================================
+   LOAD EMULATORJS
+   ========================================================= */
+
+log(
+  "Loading EmulatorJS..."
+);
+
+const script =
+  document.createElement("script");
+
+script.src =
+  EMULATOR_DATA + "loader.js";
+
+script.onload =
+  function(){
+
+    log(
+      "EmulatorJS loader.js loaded.",
+      "good"
+    );
+
+    setStatus(
+      "STARTING EMULATOR",
+      "warn"
+    );
+  };
+
+script.onerror =
+  function(){
+
+    log(
+      "FAILED TO LOAD EmulatorJS loader.js.",
+      "bad"
+    );
+
+    setStatus(
+      "LOADER FAILED",
+      "bad"
+    );
+  };
+
+document.body.appendChild(
+  script
+);
+
+</script>
+
+</body>
+</html>
