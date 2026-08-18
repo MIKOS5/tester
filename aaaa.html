@@ -1427,142 +1427,93 @@ function openURLInIframe(url){
    EMULATOR
 ===================================================== */
 
+<script>
 function startEmulator(game){
 
-    const container =
-        document.getElementById("game");
+    const container = document.getElementById("game");
 
-    const romURL =
-        String(game.ROMURL || "").trim();
-
-    const core =
-        String(game.EmulatorCore || "").trim();
-
-    const title =
-        String(game.Title || "Obvyris Game").trim();
+    const romURL = String(game.ROMURL || "").trim();
+    const core = String(game.EmulatorCore || "").trim();
+    const title = String(game.Title || "Obvyris Game").trim();
 
     if(!romURL){
-
-        showPlayerMessage(
-            "No ROM URL was supplied for this game."
-        );
-
+        showPlayerMessage("No ROM URL was supplied.");
         return;
     }
 
     if(!core){
-
-        showPlayerMessage(
-            "No emulator core was supplied for this game."
-        );
-
+        showPlayerMessage("No emulator core was supplied.");
         return;
     }
 
     /*
-     * Build emulator.html URL.
+     * IMPORTANT:
      *
-     * URLSearchParams handles spaces and special
-     * characters correctly. Do NOT encode romURL
-     * manually before putting it into the query.
+     * Do NOT use URLSearchParams here.
+     * Your ROM URL already contains %20.
+     *
+     * Encode the complete ROM URL ONCE.
      */
 
-    const params = new URLSearchParams();
-
-    params.set("rom", romURL);
-    params.set("core", core);
-    params.set("title", title);
-
     const emulatorURL =
-        "emulator.html?" +
-        params.toString();
+        "emulator.html" +
+        "?rom=" +
+        encodeURIComponent(romURL) +
+        "&core=" +
+        encodeURIComponent(core) +
+        "&title=" +
+        encodeURIComponent(title);
 
-    console.log(
-        "[OBVYRIS] Emulator:",
-        core
-    );
+    console.log("[OBVYRIS] Emulator:", core);
+    console.log("[OBVYRIS] ROM:", romURL);
+    console.log("[OBVYRIS] Emulator URL:", emulatorURL);
 
-    console.log(
-        "[OBVYRIS] ROM:",
-        romURL
-    );
+    const iframe = document.createElement("iframe");
 
-    console.log(
-        "[OBVYRIS] Emulator URL:",
-        emulatorURL
-    );
+    iframe.src = emulatorURL;
 
-    const iframe =
-        document.createElement("iframe");
+    iframe.title = title + " Emulator";
 
-    iframe.src =
-        emulatorURL;
-
-    iframe.title =
-        title + " Emulator";
+    /*
+     * Do NOT add allowfullscreen.
+     * The fullscreen permission is supplied through allow.
+     */
 
     iframe.allow =
         "fullscreen; autoplay; gamepad";
 
-    iframe.setAttribute(
-        "allowfullscreen",
-        ""
-    );
+    iframe.style.width = "100%";
+    iframe.style.height = "100%";
+    iframe.style.border = "0";
+    iframe.style.display = "block";
+    iframe.style.background = "#000";
 
-    iframe.referrerPolicy =
-        "no-referrer";
+    iframe.onload = function(){
 
-    iframe.style.width =
-        "100%";
+        console.log(
+            "[OBVYRIS] Emulator loaded:",
+            emulatorURL
+        );
 
-    iframe.style.height =
-        "100%";
+    };
 
-    iframe.style.border =
-        "0";
+    iframe.onerror = function(){
 
-    iframe.style.display =
-        "block";
+        console.error(
+            "[OBVYRIS] Emulator iframe failed:",
+            emulatorURL
+        );
 
-    iframe.style.background =
-        "#000";
+        showPlayerMessage(
+            "The emulator page could not be loaded."
+        );
 
-    iframe.addEventListener(
-        "load",
-        function(){
-
-            console.log(
-                "[OBVYRIS] Emulator loaded:",
-                emulatorURL
-            );
-
-        }
-    );
-
-    iframe.addEventListener(
-        "error",
-        function(){
-
-            console.error(
-                "[OBVYRIS] Emulator iframe failed:",
-                emulatorURL
-            );
-
-            showPlayerMessage(
-                "The emulator page could not be loaded."
-            );
-
-        }
-    );
+    };
 
     container.innerHTML = "";
 
-    container.appendChild(
-        iframe
-    );
-
+    container.appendChild(iframe);
 }
-
 /* =====================================================
    URL NORMALIZATION
 ===================================================== */
