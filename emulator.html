@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>Obvyris Emulator</title>
+
+<style>
+html,
+body{
+    margin:0;
+    padding:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#000;
+}
+
+body{
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+#game{
+    width:100%;
+    height:100%;
+}
+
+#status{
+    position:fixed;
+    inset:0;
+    z-index:10;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    background:#05080d;
+    color:#8b9bad;
+    font-size:13px;
+}
+
+#status strong{
+    color:#dce5ef;
+    font-size:16px;
+    margin-bottom:8px;
+}
+
+#status.error{
+    color:#e47777;
+}
+
+.hidden{
+    display:none !important;
+}
+</style>
+
+</head>
+
+<body>
+
+<div id="status">
+    <strong>OBVYRIS EMULATOR</strong>
+    <span id="statusText">Loading...</span>
+</div>
+
+<div id="game"></div>
+
+<script>
+
+(function(){
+
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
+
+
+    const core =
+        params.get("core") ||
+        "nes";
+
+
+    const rom =
+        params.get("rom");
+
+
+    const status =
+        document.getElementById(
+            "status"
+        );
+
+
+    const statusText =
+        document.getElementById(
+            "statusText"
+        );
+
+
+    function setStatus(text,error){
+
+        statusText.textContent =
+            text;
+
+        if(error){
+
+            status.classList.add(
+                "error"
+            );
+
+        }
+
+    }
+
+
+    if(!rom){
+
+        setStatus(
+            "No ROM URL was supplied.",
+            true
+        );
+
+        return;
+
+    }
+
+
+    console.log(
+        "[OBVYRIS] Emulator",
+        core
+    );
+
+
+    console.log(
+        "[OBVYRIS] ROM:",
+        rom
+    );
+
+
+    /*
+     * EmulatorJS configuration
+     */
+
+    window.EJS_player =
+        "#game";
+
+
+    window.EJS_core =
+        core;
+
+
+    window.EJS_gameUrl =
+        rom;
+
+
+    window.EJS_pathtodata =
+        "https://cdn.emulatorjs.org/stable/data/";
+
+
+    window.EJS_startOnLoaded =
+        true;
+
+
+    window.EJS_color =
+        "#48bfff";
+
+
+    /*
+     * Tell EmulatorJS not to attempt
+     * unnecessary network features.
+     */
+
+    window.EJS_disableAutoLang =
+        true;
+
+
+    /*
+     * Load EmulatorJS
+     */
+
+    const script =
+        document.createElement(
+            "script"
+        );
+
+
+    script.src =
+        "https://cdn.emulatorjs.org/stable/data/loader.js";
+
+
+    script.async =
+        true;
+
+
+    script.onload =
+        function(){
+
+            console.log(
+                "[OBVYRIS] EmulatorJS loader loaded:",
+                core
+            );
+
+        };
+
+
+    script.onerror =
+        function(){
+
+            setStatus(
+                "Unable to load EmulatorJS.",
+                true
+            );
+
+            console.error(
+                "[OBVYRIS] EmulatorJS loader failed"
+            );
+
+        };
+
+
+    document.body.appendChild(
+        script
+    );
+
+
+    /*
+     * Hide our loading screen once
+     * EmulatorJS creates its player.
+     */
+
+    const observer =
+        new MutationObserver(
+            function(){
+
+                const emulator =
+                    document.querySelector(
+                        "#game > *"
+                    );
+
+
+                if(emulator){
+
+                    status.classList.add(
+                        "hidden"
+                    );
+
+                    observer.disconnect();
+
+                }
+
+            }
+        );
+
+
+    observer.observe(
+        document.getElementById(
+            "game"
+        ),
+        {
+            childList:true,
+            subtree:true
+        }
+    );
+
+
+})();
+
+</script>
+
+</body>
+</html>
