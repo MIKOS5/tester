@@ -1,79 +1,3078 @@
-<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width,initial-scale=1"> <title>Obvyris Games — ROM Test</title> <style> *{ box-sizing:border-box; } html, body{ margin:0; width:100%; height:100%; background:#05080d; color:#e8edf5; font-family:Arial,Helvetica,sans-serif; overflow:hidden; } #app{ width:100%; height:100%; display:flex; flex-direction:column; } #header{ height:58px; min-height:58px; display:flex; align-items:center; padding:0 16px; background:#0b121c; border-bottom:1px solid #1d2b3b; } .logo{ font-size:17px; font-weight:900; letter-spacing:3px; } .title{ margin-left:14px; color:#74859a; font-size:11px; } #status{ margin-left:auto; color:#718298; font-size:11px; } #player{ position:relative; flex:1; min-height:0; width:100%; background:#000; } #game{ position:absolute; inset:0; width:100%; height:100%; } #message{ position:absolute; inset:0; z-index:10; display:flex; align-items:center; justify-content:center; background:#05080d; padding:30px; } #message.hidden{ display:none; } .message-box{ width:min(700px,95vw); border:1px solid #223247; background:#0b131e; border-radius:10px; padding:24px; } .message-title{ font-size:16px; font-weight:700; margin-bottom:10px; } .message-text{ color:#8190a3; font-size:12px; line-height:1.6; white-space:pre-wrap; } #log{ margin-top:15px; max-height:220px; overflow:auto; padding:12px; border:1px solid #1d2b3b; border-radius:7px; background:#05090f; color:#64778c; font-family:monospace; font-size:10px; line-height:1.5; white-space:pre-wrap; } #controls{ position:absolute; z-index:20; right:12px; top:12px; display:flex; gap:6px; } button{ border:1px solid #26384c; background:#101925; color:#9aa9bb; border-radius:6px; padding:8px 11px; cursor:pointer; font-size:10px; } button:hover{ background:#182536; color:white; } </style> </head> <body> <div id="app">
-<header id="header">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OBVYRIS NBA — All-Time Battle</title>
 
+<style>
+*{box-sizing:border-box}
 
-    <div class="logo">
-        OBVYRIS
-    </div>
+:root{
+  --bg:#05080d;
+  --panel:#09111a;
+  --panel2:#0d1822;
+  --line:#263746;
+  --line2:#385269;
+  --text:#e2e9ef;
+  --muted:#73889a;
+  --good:#9fc7a8;
+  --bad:#c99797;
+  --gold:#c9b77e;
+  --blue:#8eabc2;
+}
 
+body{
+  margin:0;
+  min-height:100vh;
+  background:
+    radial-gradient(circle at 50% -10%,#182a39 0,#081019 35%,#05080d 70%);
+  color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;
+}
 
-    <div class="title">
-        DIRECT ROM TEST // THE LEGEND OF ZELDA
-    </div>
+button,select{
+  font:inherit;
+}
 
+button{
+  border:1px solid var(--line2);
+  background:#0b1721;
+  color:var(--text);
+  padding:11px 15px;
+  cursor:pointer;
+  transition:.15s;
+}
 
-    <div id="status">
-        Preparing...
-    </div>
+button:hover:not(:disabled){
+  background:#142837;
+  border-color:#7894a9;
+  transform:translateY(-1px);
+}
 
+button:active:not(:disabled){
+  transform:translateY(0);
+}
 
+button:disabled{
+  opacity:.35;
+  cursor:not-allowed;
+}
+
+#app{
+  width:min(1450px,100%);
+  margin:auto;
+  padding:12px;
+}
+
+header{
+  border:1px solid var(--line);
+  background:rgba(7,13,20,.94);
+  padding:20px;
+  margin-bottom:10px;
+}
+
+.logo{
+  color:#71899d;
+  font:10px monospace;
+  letter-spacing:4px;
+}
+
+h1{
+  margin:7px 0;
+  font-size:31px;
+  letter-spacing:4px;
+}
+
+.subtitle{
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.5;
+}
+
+.badges{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-top:14px;
+}
+
+.badge{
+  border:1px solid var(--line);
+  padding:6px 9px;
+  color:var(--muted);
+  font:9px monospace;
+}
+
+.badge.active{
+  color:var(--good);
+  border-color:#385840;
+}
+
+nav{
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+  margin-bottom:10px;
+}
+
+nav button{
+  font:10px monospace;
+  letter-spacing:1px;
+}
+
+nav button.active{
+  background:#172a39;
+  border-color:#7894a9;
+}
+
+.screen{
+  display:none;
+}
+
+.screen.active{
+  display:block;
+}
+
+.panel{
+  background:rgba(8,16,24,.95);
+  border:1px solid var(--line);
+  margin-bottom:10px;
+}
+
+.panel-head{
+  min-height:40px;
+  padding:11px 14px;
+  border-bottom:1px solid var(--line);
+  color:#8197a8;
+  font:10px monospace;
+  letter-spacing:2px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.panel-body{
+  padding:14px;
+}
+
+.hero{
+  min-height:500px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  border:1px solid var(--line);
+  background:
+    radial-gradient(circle at center,#132534 0,#08111a 45%,#05090e 100%);
+  padding:30px;
+}
+
+.hero h2{
+  font-size:42px;
+  letter-spacing:6px;
+  margin:0 0 12px;
+}
+
+.hero p{
+  max-width:720px;
+  color:var(--muted);
+  line-height:1.7;
+  font-size:13px;
+}
+
+.mode-grid{
+  width:min(800px,100%);
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  margin-top:22px;
+}
+
+.mode-btn{
+  min-height:85px;
+  font:11px monospace;
+  letter-spacing:1px;
+}
+
+.mode-btn strong{
+  display:block;
+  font-size:14px;
+  margin-bottom:6px;
+}
+
+.notice{
+  border:1px solid #304351;
+  background:#09141d;
+  padding:13px;
+  color:#91a3b1;
+  font-size:11px;
+  line-height:1.7;
+}
+
+.draft-top{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:7px;
+  margin-bottom:10px;
+}
+
+.turn{
+  padding:10px 18px;
+  border:1px solid var(--line);
+  background:#071019;
+  font:11px monospace;
+}
+
+.turn.active{
+  color:var(--good);
+  border-color:#5a7d62;
+  background:#0b1710;
+}
+
+.turn.ai{
+  color:#9aabb9;
+}
+
+.round-box{
+  padding:10px 15px;
+  border:1px solid var(--line);
+  font:10px monospace;
+  color:var(--muted);
+}
+
+.draft-layout{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 330px;
+  gap:10px;
+}
+
+.pool{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:7px;
+}
+
+.player-card{
+  border:1px solid #1e303e;
+  background:#071019;
+  padding:10px;
+  cursor:pointer;
+  min-height:135px;
+  display:flex;
+  flex-direction:column;
+}
+
+.player-card:hover{
+  border-color:#607b90;
+  background:#0b1720;
+}
+
+.player-card.taken{
+  opacity:.25;
+  pointer-events:none;
+}
+
+.player-name{
+  font-weight:bold;
+  font-size:12px;
+}
+
+.player-pos{
+  margin-top:3px;
+  color:#6e8495;
+  font:9px monospace;
+}
+
+.traits{
+  display:flex;
+  flex-wrap:wrap;
+  gap:4px;
+  margin-top:8px;
+}
+
+.trait{
+  border:1px solid #263744;
+  color:#73899a;
+  padding:3px 4px;
+  font:7px monospace;
+}
+
+.pick-btn{
+  width:100%;
+  margin-top:auto;
+  padding:7px;
+  font:9px monospace;
+}
+
+.roster-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+}
+
+.roster-item{
+  border:1px solid #1b2b38;
+  background:#060d13;
+  padding:9px;
+  cursor:pointer;
+}
+
+.roster-item:hover{
+  border-color:#526d81;
+}
+
+.roster-item strong{
+  display:block;
+  font-size:11px;
+}
+
+.roster-item small{
+  color:#6d8293;
+  font:8px monospace;
+}
+
+.count{
+  color:#728799;
+}
+
+.two-col{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.three-col{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+}
+
+.review-card{
+  border:1px solid #1c2c39;
+  background:#060d13;
+  padding:11px;
+}
+
+.review-card b{
+  display:block;
+  color:#718697;
+  font:8px monospace;
+  letter-spacing:1px;
+  margin-bottom:7px;
+}
+
+.good{
+  color:var(--good);
+}
+
+.bad{
+  color:var(--bad);
+}
+
+.gold{
+  color:var(--gold);
+}
+
+.muted{
+  color:var(--muted);
+}
+
+select{
+  width:100%;
+  padding:11px;
+  background:#071019;
+  color:var(--text);
+  border:1px solid var(--line2);
+}
+
+.controls{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+}
+
+.controls.center{
+  justify-content:center;
+}
+
+.big-score{
+  display:grid;
+  grid-template-columns:1fr 120px 1fr;
+  text-align:center;
+  align-items:center;
+}
+
+.team-score{
+  font:58px monospace;
+}
+
+.game-number{
+  font:32px monospace;
+}
+
+.score-label{
+  color:var(--muted);
+  font:9px monospace;
+  letter-spacing:1px;
+}
+
+.lineups{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+
+.lineup{
+  border:1px solid #1b2c39;
+  background:#060d13;
+}
+
+.lineup-title{
+  padding:9px;
+  border-bottom:1px solid #1b2c39;
+  font:9px monospace;
+  color:#8397a7;
+}
+
+.lineup-player{
+  padding:8px 10px;
+  border-bottom:1px solid #121f29;
+  font-size:10px;
+}
+
+.lineup-player:last-child{
+  border-bottom:0;
+}
+
+.log{
+  height:300px;
+  overflow:auto;
+  background:#03070b;
+  border:1px solid #17232d;
+  padding:10px;
+  font:10px/1.7 monospace;
+}
+
+.log-entry{
+  border-bottom:1px solid #101a21;
+  padding:4px 0;
+}
+
+.profile{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:6px;
+}
+
+.profile-stat{
+  border:1px solid #1a2b37;
+  background:#060d13;
+  padding:10px;
+}
+
+.profile-stat small{
+  display:block;
+  color:#718697;
+  font:7px monospace;
+  margin-bottom:5px;
+}
+
+.profile-stat strong{
+  font:18px monospace;
+}
+
+#toast{
+  position:fixed;
+  left:50%;
+  bottom:20px;
+  transform:translateX(-50%) translateY(100px);
+  background:#0d1c27;
+  border:1px solid #567187;
+  padding:12px 18px;
+  font:11px monospace;
+  opacity:0;
+  transition:.2s;
+  z-index:1000;
+  pointer-events:none;
+}
+
+#toast.show{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+
+@media(max-width:1050px){
+  .pool{
+    grid-template-columns:repeat(3,1fr);
+  }
+
+  .draft-layout{
+    grid-template-columns:1fr;
+  }
+}
+
+@media(max-width:700px){
+  #app{
+    padding:6px;
+  }
+
+  h1{
+    font-size:22px;
+  }
+
+  .hero h2{
+    font-size:27px;
+    letter-spacing:3px;
+  }
+
+  .mode-grid,
+  .two-col,
+  .lineups{
+    grid-template-columns:1fr;
+  }
+
+  .three-col{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .pool{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .profile{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .big-score{
+    grid-template-columns:1fr 70px 1fr;
+  }
+
+  .team-score{
+    font-size:38px;
+  }
+}
+
+@media(max-width:450px){
+  .pool{
+    grid-template-columns:1fr;
+  }
+
+  .roster-grid{
+    grid-template-columns:1fr;
+  }
+
+  .three-col{
+    grid-template-columns:1fr;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div id="app">
+
+<header>
+  <div class="logo">OBVYRIS // SPORTS LAB // EXPERIMENT 001</div>
+  <h1>NBA ALL-TIME BATTLE</h1>
+  <div class="subtitle">
+    Build a 12-man roster. Trade with the AI. Exploit weaknesses.
+    Then settle everything on the court.
+  </div>
+
+  <div class="badges">
+    <div class="badge active">90s RULESET</div>
+    <div class="badge">12 MAN ROSTERS</div>
+    <div class="badge">BEST OF 7</div>
+    <div class="badge">PHYSICALITY</div>
+    <div class="badge">BASKETBALL IQ</div>
+    <div class="badge">NO OVERALL RATINGS</div>
+  </div>
 </header>
 
-
-<main id="player">
-
-
-    <div id="game"></div>
-
-
-    <div id="controls">
-
-
-        <button onclick="start()">
-            RESTART
-        </button>
+<nav id="nav">
+  <button data-tab="home" class="active">HOME</button>
+  <button data-tab="draft">DRAFT</button>
+  <button data-tab="roster">ROSTERS</button>
+  <button data-tab="trade">TRADES</button>
+  <button data-tab="battle">BATTLE</button>
+</nav>
 
 
-        <button onclick="openDirectROM()">
-            DIRECT ROM
-        </button>
+<!-- HOME -->
 
+<section id="home" class="screen active">
+
+  <div class="hero">
+
+    <h2>BUILD YOUR TEAM</h2>
+
+    <p>
+      You are not choosing a collection of statistics.
+      You are building a basketball team.
+      Draft legends, evaluate physicality, work ethic, dominance,
+      hardness, basketball IQ and adaptability, then see what happens
+      under a 1990s-style NBA environment.
+    </p>
+
+    <div class="mode-grid">
+
+      <button class="mode-btn" id="youFirstBtn">
+        <strong>YOU PICK FIRST</strong>
+        Standard draft
+      </button>
+
+      <button class="mode-btn" id="aiFirstBtn">
+        <strong>AI PICKS FIRST</strong>
+        You must react
+      </button>
+
+      <button class="mode-btn" id="randomBtn">
+        <strong>RANDOM DRAFT</strong>
+        Let fate decide
+      </button>
+
+    </div>
+
+  </div>
+
+  <div class="panel" style="margin-top:10px">
+    <div class="panel-head">SIMULATION PHILOSOPHY</div>
+
+    <div class="panel-body">
+
+      <div class="notice">
+        Players are not reduced to one statistical "overall."
+        The simulation evaluates the traits that determine how players
+        interact with one another.
+        <br><br>
+
+        <strong>90s environment:</strong>
+        physical perimeter defense, hand-checking,
+        slower half-court possessions, no modern defensive three-second rule,
+        stronger value placed on post play, rebounding, toughness,
+        defensive positioning and half-court decision making.
+      </div>
+
+    </div>
+  </div>
+
+</section>
+
+
+<!-- DRAFT -->
+
+<section id="draft" class="screen">
+
+  <div class="draft-top">
+
+    <div id="youTurn" class="turn">
+      YOUR PICK
+    </div>
+
+    <div id="aiTurn" class="turn ai">
+      AI PICK
+    </div>
+
+    <div class="round-box">
+      ROUND <span id="roundNumber">1</span> / 12
+    </div>
+
+  </div>
+
+
+  <div class="draft-layout">
+
+    <div class="panel">
+
+      <div class="panel-head">
+        <span>AVAILABLE LEGENDS</span>
+        <span id="availableCount" class="count">0 AVAILABLE</span>
+      </div>
+
+      <div class="panel-body">
+
+        <div id="playerPool" class="pool"></div>
+
+      </div>
 
     </div>
 
 
-    <div id="message">
+    <div>
+
+      <div class="panel">
+
+        <div class="panel-head">
+          <span>YOUR TEAM</span>
+          <span id="yourDraftCount" class="count">0 / 12</span>
+        </div>
+
+        <div class="panel-body">
+          <div id="yourDraftRoster" class="roster-grid"></div>
+        </div>
+
+      </div>
 
 
-        <div class="message-box">
+      <div class="panel">
+
+        <div class="panel-head">
+          <span>AI TEAM</span>
+          <span id="aiDraftCount" class="count">0 / 12</span>
+        </div>
+
+        <div class="panel-body">
+          <div id="aiDraftRoster" class="roster-grid"></div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
 
 
-            <div
-                id="messageTitle"
-                class="message-title"
-            >
-                Preparing Game...
-            </div>
+<!-- ROSTERS -->
+
+<section id="roster" class="screen">
+
+  <div class="two-col">
+
+    <div class="panel">
+
+      <div class="panel-head">
+        <span>YOUR ROSTER</span>
+        <span id="yourRosterCount" class="count"></span>
+      </div>
+
+      <div class="panel-body">
+        <div id="yourRoster" class="roster-grid"></div>
+      </div>
+
+    </div>
 
 
-            <div
-                id="messageText"
-                class="message-text"
-            >
-                Downloading ROM from Archive.org
-            </div>
+    <div class="panel">
+
+      <div class="panel-head">
+        <span>AI ROSTER</span>
+        <span id="aiRosterCount" class="count"></span>
+      </div>
+
+      <div class="panel-body">
+        <div id="aiRoster" class="roster-grid"></div>
+      </div>
+
+    </div>
+
+  </div>
 
 
-            <div
-                id="log"
-            ></div>
+  <div class="panel">
 
+    <div class="panel-head">
+      ROSTER ANALYSIS
+    </div>
+
+    <div class="panel-body">
+
+      <div id="rosterReview" class="three-col"></div>
+
+    </div>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panel-head">
+      PLAYER PROFILE
+    </div>
+
+    <div class="panel-body">
+
+      <div id="profileArea" class="notice">
+        Click any player to inspect the player model.
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- TRADES -->
+
+<section id="trade" class="screen">
+
+  <div class="panel">
+
+    <div class="panel-head">
+      TRADE CENTER
+    </div>
+
+    <div class="panel-body">
+
+      <div class="two-col">
+
+        <div>
+
+          <div class="notice">
+            YOUR PLAYER
+          </div>
+
+          <br>
+
+          <select id="tradeYou"></select>
 
         </div>
 
 
+        <div>
+
+          <div class="notice">
+            AI PLAYER
+          </div>
+
+          <br>
+
+          <select id="tradeAI"></select>
+
+        </div>
+
+      </div>
+
+      <br>
+
+      <div class="controls">
+
+        <button id="proposeTradeBtn">
+          PROPOSE TRADE
+        </button>
+
+        <button id="aiTradeBtn">
+          ASK AI TO MAKE A TRADE
+        </button>
+
+      </div>
+
+      <br>
+
+      <div id="tradeResult" class="notice">
+        No trade has been proposed.
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panel-head">
+      FRONT OFFICE LOG
+    </div>
+
+    <div class="panel-body">
+
+      <div id="tradeLog" class="log"></div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- BATTLE -->
+
+<section id="battle" class="screen">
+
+  <div class="panel">
+
+    <div class="panel-head">
+
+      <span>BEST OF 7</span>
+
+      <span id="battleStatus" class="count">
+        READY
+      </span>
+
+    </div>
+
+    <div class="panel-body">
+
+      <div class="big-score">
+
+        <div>
+
+          <div class="score-label">
+            YOUR TEAM
+          </div>
+
+          <div id="yourGameScore" class="team-score">
+            0
+          </div>
+
+        </div>
+
+
+        <div>
+
+          <div id="gameNumber" class="game-number">
+            —
+          </div>
+
+          <div class="score-label">
+            GAME
+          </div>
+
+        </div>
+
+
+        <div>
+
+          <div class="score-label">
+            AI TEAM
+          </div>
+
+          <div id="aiGameScore" class="team-score">
+            0
+          </div>
+
+        </div>
+
+      </div>
+
+      <br>
+
+      <div class="controls center">
+
+        <button id="simulateGameBtn">
+          SIMULATE ONE GAME
+        </button>
+
+        <button id="simulateSeriesBtn">
+          SIMULATE BEST OF 7
+        </button>
+
+        <button id="resetSeriesBtn">
+          RESET SERIES
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panel-head">
+      STARTING LINEUPS
+    </div>
+
+    <div class="panel-body">
+
+      <div class="lineups">
+
+        <div class="lineup">
+
+          <div class="lineup-title">
+            YOUR STARTING FIVE
+          </div>
+
+          <div id="yourLineup"></div>
+
+        </div>
+
+
+        <div class="lineup">
+
+          <div class="lineup-title">
+            AI STARTING FIVE
+          </div>
+
+          <div id="aiLineup"></div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panel-head">
+      MATCHUP ANALYSIS
+    </div>
+
+    <div class="panel-body">
+
+      <div id="battleAnalysis" class="three-col"></div>
+
+    </div>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div class="panel-head">
+      PLAY-BY-PLAY SIMULATION LOG
+    </div>
+
+    <div class="panel-body">
+
+      <div id="battleLog" class="log"></div>
+
+    </div>
+
+  </div>
+
+</section>
+
+</div>
+
+<div id="toast"></div>
+
+
+<script>
+
+/* =========================================================
+   PLAYER DATABASE
+========================================================= */
+
+const PLAYERS = {
+
+"Michael Jordan":{
+ pos:"SG",
+ physical:99,work:100,dominance:100,hardness:100,
+ iq:99,adapt:100,skill:99,defense:99,clutch:100,leadership:99
+},
+
+"Kobe Bryant":{
+ pos:"SG",
+ physical:94,work:100,dominance:98,hardness:100,
+ iq:97,adapt:99,skill:99,defense:97,clutch:100,leadership:96
+},
+
+"Magic Johnson":{
+ pos:"PG",
+ physical:96,work:98,dominance:98,hardness:94,
+ iq:100,adapt:99,skill:99,defense:88,clutch:97,leadership:100
+},
+
+"Larry Bird":{
+ pos:"SF",
+ physical:90,work:99,dominance:99,hardness:98,
+ iq:100,adapt:98,skill:100,defense:90,clutch:100,leadership:98
+},
+
+"Tim Duncan":{
+ pos:"PF/C",
+ physical:96,work:99,dominance:96,hardness:99,
+ iq:100,adapt:99,skill:97,defense:99,clutch:97,leadership:99
+},
+
+"Hakeem Olajuwon":{
+ pos:"C",
+ physical:97,work:98,dominance:99,hardness:99,
+ iq:99,adapt:100,skill:100,defense:100,clutch:98,leadership:96
+},
+
+"Kareem Abdul-Jabbar":{
+ pos:"C",
+ physical:95,work:97,dominance:99,hardness:95,
+ iq:99,adapt:97,skill:100,defense:96,clutch:98,leadership:96
+},
+
+"Shaquille O'Neal":{
+ pos:"C",
+ physical:100,work:88,dominance:100,hardness:100,
+ iq:90,adapt:90,skill:97,defense:92,clutch:94,leadership:92
+},
+
+"Kevin Garnett":{
+ pos:"PF/C",
+ physical:98,work:100,dominance:96,hardness:100,
+ iq:98,adapt:99,skill:96,defense:100,clutch:94,leadership:99
+},
+
+"Scottie Pippen":{
+ pos:"SF",
+ physical:96,work:98,dominance:93,hardness:98,
+ iq:99,adapt:100,skill:96,defense:100,clutch:93,leadership:95
+},
+
+"John Stockton":{
+ pos:"PG",
+ physical:80,work:100,dominance:88,hardness:94,
+ iq:100,adapt:99,skill:97,defense:94,clutch:94,leadership:95
+},
+
+"Stephen Curry":{
+ pos:"PG/SG",
+ physical:80,work:100,dominance:94,hardness:87,
+ iq:99,adapt:100,skill:100,defense:82,clutch:99,leadership:96
+},
+
+"LeBron James":{
+ pos:"SF/PF",
+ physical:100,work:99,dominance:100,hardness:98,
+ iq:100,adapt:100,skill:99,defense:97,clutch:98,leadership:99
+},
+
+"Kevin Durant":{
+ pos:"SF/PF",
+ physical:95,work:99,dominance:98,hardness:93,
+ iq:98,adapt:99,skill:100,defense:94,clutch:98,leadership:93
+},
+
+"Gary Payton":{
+ pos:"PG",
+ physical:91,work:99,dominance:92,hardness:100,
+ iq:98,adapt:99,skill:94,defense:100,clutch:94,leadership:96
+},
+
+"Kawhi Leonard":{
+ pos:"SF",
+ physical:96,work:96,dominance:94,hardness:99,
+ iq:98,adapt:99,skill:98,defense:100,clutch:98,leadership:90
+},
+
+"Dirk Nowitzki":{
+ pos:"PF",
+ physical:92,work:98,dominance:96,hardness:91,
+ iq:98,adapt:97,skill:100,defense:87,clutch:97,leadership:94
+},
+
+"Karl Malone":{
+ pos:"PF",
+ physical:99,work:100,dominance:98,hardness:100,
+ iq:96,adapt:96,skill:96,defense:93,clutch:90,leadership:96
+},
+
+"Dennis Rodman":{
+ pos:"PF",
+ physical:97,work:98,dominance:93,hardness:100,
+ iq:99,adapt:100,skill:87,defense:100,clutch:90,leadership:94
+},
+
+"Moses Malone":{
+ pos:"C",
+ physical:100,work:100,dominance:99,hardness:100,
+ iq:90,adapt:94,skill:94,defense:94,clutch:96,leadership:94
+},
+
+"Julius Erving":{
+ pos:"SF",
+ physical:97,work:98,dominance:98,hardness:96,
+ iq:96,adapt:98,skill:99,defense:92,clutch:97,leadership:96
+},
+
+"Clyde Drexler":{
+ pos:"SG/SF",
+ physical:97,work:96,dominance:94,hardness:94,
+ iq:94,adapt:96,skill:96,defense:89,clutch:93,leadership:94
+},
+
+"Jason Kidd":{
+ pos:"PG",
+ physical:92,work:98,dominance:90,hardness:97,
+ iq:99,adapt:99,skill:95,defense:96,clutch:92,leadership:98
+},
+
+"Reggie Miller":{
+ pos:"SG",
+ physical:82,work:99,dominance:91,hardness:92,
+ iq:97,adapt:99,skill:99,defense:81,clutch:100,leadership:91
+},
+
+"Isiah Thomas":{
+ pos:"PG",
+ physical:86,work:99,dominance:96,hardness:100,
+ iq:99,adapt:100,skill:98,defense:89,clutch:99,leadership:100
+},
+
+"Charles Barkley":{
+ pos:"PF",
+ physical:98,work:97,dominance:99,hardness:99,
+ iq:96,adapt:96,skill:98,defense:88,clutch:94,leadership:94
+},
+
+"David Robinson":{
+ pos:"C",
+ physical:99,work:98,dominance:96,hardness:94,
+ iq:97,adapt:98,skill:96,defense:99,clutch:94,leadership:96
+},
+
+"Bill Russell":{
+ pos:"C",
+ physical:95,work:100,dominance:99,hardness:100,
+ iq:100,adapt:100,skill:90,defense:100,clutch:99,leadership:100
+},
+
+"Wilt Chamberlain":{
+ pos:"C",
+ physical:100,work:97,dominance:100,hardness:96,
+ iq:94,adapt:94,skill:98,defense:97,clutch:95,leadership:93
+},
+
+"Jerry West":{
+ pos:"PG/SG",
+ physical:88,work:99,dominance:96,hardness:96,
+ iq:99,adapt:98,skill:99,defense:94,clutch:100,leadership:96
+}
+
+};
+
+
+/* =========================================================
+   GAME STATE
+========================================================= */
+
+let userTeam=[];
+let aiTeam=[];
+let availablePlayers=[];
+
+let draftActive=false;
+let draftTurn="user";
+let draftRound=1;
+
+let seriesUserWins=0;
+let seriesAIWins=0;
+let currentGame=0;
+
+let gameRunning=false;
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+const playerNames=Object.keys(PLAYERS);
+
+function $(id){
+  return document.getElementById(id);
+}
+
+function average(team,trait){
+
+  if(!team.length)return 0;
+
+  return Math.round(
+    team.reduce((sum,name)=>{
+      return sum+(PLAYERS[name][trait]||0);
+    },0)/team.length
+  );
+
+}
+
+function playerAverage(name){
+
+  const p=PLAYERS[name];
+
+  const traits=[
+    "physical",
+    "work",
+    "dominance",
+    "hardness",
+    "iq",
+    "adapt",
+    "skill",
+    "defense",
+    "clutch",
+    "leadership"
+  ];
+
+  return Math.round(
+    traits.reduce((s,t)=>s+p[t],0)/traits.length
+  );
+
+}
+
+function randomNormal(){
+
+  let u=0;
+  let v=0;
+
+  while(u===0)u=Math.random();
+  while(v===0)v=Math.random();
+
+  return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
+
+}
+
+function showToast(message){
+
+  const toast=$("toast");
+
+  toast.textContent=message;
+  toast.classList.add("show");
+
+  clearTimeout(window.toastTimer);
+
+  window.toastTimer=setTimeout(()=>{
+    toast.classList.remove("show");
+  },1800);
+
+}
+
+function logTrade(message,type="muted"){
+
+  const log=$("tradeLog");
+
+  log.innerHTML=
+    `<div class="log-entry ${type}">
+      [${new Date().toLocaleTimeString()}] ${message}
+    </div>`+
+    log.innerHTML;
+
+}
+
+function logBattle(message,type="muted"){
+
+  const log=$("battleLog");
+
+  log.innerHTML=
+    `<div class="log-entry ${type}">
+      [${new Date().toLocaleTimeString()}] ${message}
+    </div>`+
+    log.innerHTML;
+
+}
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+function switchTab(tab){
+
+  document.querySelectorAll(".screen").forEach(section=>{
+    section.classList.remove("active");
+  });
+
+  const target=$(tab);
+
+  if(target){
+    target.classList.add("active");
+  }
+
+  document.querySelectorAll("#nav button").forEach(button=>{
+    button.classList.toggle(
+      "active",
+      button.dataset.tab===tab
+    );
+  });
+
+  if(tab==="roster"){
+    renderRosters();
+  }
+
+  if(tab==="trade"){
+    renderTrade();
+  }
+
+  if(tab==="battle"){
+    renderBattle();
+  }
+
+}
+
+
+/* =========================================================
+   START DRAFT
+========================================================= */
+
+function startDraft(first){
+
+  userTeam=[];
+  aiTeam=[];
+
+  availablePlayers=[...playerNames];
+
+  draftRound=1;
+  draftTurn=first;
+
+  draftActive=true;
+
+  $("battleLog").innerHTML="";
+  $("tradeLog").innerHTML="";
+
+  resetSeries();
+
+  switchTab("draft");
+
+  renderDraft();
+
+  if(draftTurn==="ai"){
+    setTimeout(aiDraftPick,600);
+  }
+
+  showToast(
+    first==="user"
+      ? "YOU HAVE THE FIRST PICK"
+      : "AI HAS THE FIRST PICK"
+  );
+
+}
+
+
+/* =========================================================
+   DRAFT RENDER
+========================================================= */
+
+function renderDraft(){
+
+  $("roundNumber").textContent=draftRound;
+
+  $("availableCount").textContent=
+    availablePlayers.length+" AVAILABLE";
+
+  $("yourDraftCount").textContent=
+    userTeam.length+" / 12";
+
+  $("aiDraftCount").textContent=
+    aiTeam.length+" / 12";
+
+  $("youTurn").classList.toggle(
+    "active",
+    draftTurn==="user"
+  );
+
+  $("aiTurn").classList.toggle(
+    "active",
+    draftTurn==="ai"
+  );
+
+
+  const pool=$("playerPool");
+
+  pool.innerHTML="";
+
+
+  availablePlayers.forEach(name=>{
+
+    const p=PLAYERS[name];
+
+    const card=document.createElement("div");
+
+    card.className="player-card";
+
+    card.innerHTML=`
+
+      <div class="player-name">${name}</div>
+
+      <div class="player-pos">${p.pos}</div>
+
+      <div class="traits">
+
+        <span class="trait">PHY ${p.physical}</span>
+        <span class="trait">WORK ${p.work}</span>
+        <span class="trait">DOM ${p.dominance}</span>
+        <span class="trait">HARD ${p.hardness}</span>
+        <span class="trait">IQ ${p.iq}</span>
+        <span class="trait">ADAPT ${p.adapt}</span>
+
+      </div>
+
+      <button class="pick-btn">
+        ${draftTurn==="user"?"DRAFT PLAYER":"WAITING FOR AI"}
+      </button>
+    `;
+
+
+    const button=card.querySelector("button");
+
+    button.disabled=draftTurn!=="user";
+
+    button.addEventListener("click",event=>{
+
+      event.stopPropagation();
+
+      if(draftTurn==="user"){
+        userDraftPick(name);
+      }
+
+    });
+
+
+    card.addEventListener("click",()=>{
+
+      showPlayerProfile(name);
+
+    });
+
+
+    pool.appendChild(card);
+
+  });
+
+
+  renderDraftRoster(
+    $("yourDraftRoster"),
+    userTeam
+  );
+
+  renderDraftRoster(
+    $("aiDraftRoster"),
+    aiTeam
+  );
+
+}
+
+
+/* =========================================================
+   DRAFT PLAYER
+========================================================= */
+
+function userDraftPick(name){
+
+  if(!draftActive)return;
+
+  if(draftTurn!=="user"){
+    showToast("IT IS THE AI'S PICK");
+    return;
+  }
+
+  if(!availablePlayers.includes(name)){
+    return;
+  }
+
+  userTeam.push(name);
+
+  availablePlayers=
+    availablePlayers.filter(n=>n!==name);
+
+  logTrade(
+    "YOU DRAFTED "+name,
+    "good"
+  );
+
+  if(checkDraftComplete()){
+    finishDraft();
+    return;
+  }
+
+  draftTurn="ai";
+
+  renderDraft();
+
+  setTimeout(aiDraftPick,500);
+
+}
+
+
+/* =========================================================
+   AI DRAFT
+========================================================= */
+
+function aiDraftPick(){
+
+  if(!draftActive)return;
+
+  if(draftTurn!=="ai")return;
+
+  if(!availablePlayers.length)return;
+
+
+  let best=null;
+
+  let bestScore=-Infinity;
+
+
+  availablePlayers.forEach(name=>{
+
+    const p=PLAYERS[name];
+
+    let score=playerAverage(name);
+
+    /*
+      AI roster construction isn't just
+      highest average. It looks for balance.
+    */
+
+    const hasGuard=aiTeam.some(n=>
+      PLAYERS[n].pos.includes("PG")||
+      PLAYERS[n].pos.includes("SG")
+    );
+
+    const hasBig=aiTeam.some(n=>
+      PLAYERS[n].pos.includes("C")||
+      PLAYERS[n].pos.includes("PF")
+    );
+
+    if(!hasGuard &&
+      (p.pos.includes("PG")||p.pos.includes("SG"))){
+      score+=12;
+    }
+
+    if(!hasBig &&
+      (p.pos.includes("C")||p.pos.includes("PF"))){
+      score+=12;
+    }
+
+    score+=p.iq*.12;
+    score+=p.hardness*.08;
+    score+=p.adapt*.08;
+
+    score+=Math.random()*12;
+
+
+    if(score>bestScore){
+
+      bestScore=score;
+      best=name;
+
+    }
+
+  });
+
+
+  aiTeam.push(best);
+
+  availablePlayers=
+    availablePlayers.filter(n=>n!==best);
+
+  logTrade(
+    "AI DRAFTED "+best,
+    "muted"
+  );
+
+
+  if(checkDraftComplete()){
+
+    finishDraft();
+
+    return;
+
+  }
+
+
+  draftTurn="user";
+
+  draftRound=
+    Math.min(
+      12,
+      Math.floor((userTeam.length+aiTeam.length)/2)+1
+    );
+
+  renderDraft();
+
+  showToast("YOUR PICK");
+
+}
+
+
+/* =========================================================
+   RANDOM DRAFT
+========================================================= */
+
+function randomDraft(){
+
+  userTeam=[];
+  aiTeam=[];
+
+  availablePlayers=[...playerNames];
+
+  draftActive=true;
+  draftRound=1;
+
+  while(
+    userTeam.length<12 &&
+    aiTeam.length<12 &&
+    availablePlayers.length
+  ){
+
+    const index=
+      Math.floor(
+        Math.random()*availablePlayers.length
+      );
+
+    const name=availablePlayers.splice(index,1)[0];
+
+    if(userTeam.length<=aiTeam.length){
+      userTeam.push(name);
+    }else{
+      aiTeam.push(name);
+    }
+
+  }
+
+  draftActive=false;
+
+  logTrade(
+    "RANDOM DRAFT COMPLETE.",
+    "good"
+  );
+
+  switchTab("roster");
+
+  renderRosters();
+
+  showToast("RANDOM DRAFT COMPLETE");
+
+}
+
+
+/* =========================================================
+   DRAFT COMPLETE
+========================================================= */
+
+function checkDraftComplete(){
+
+  return(
+    userTeam.length>=12 &&
+    aiTeam.length>=12
+  );
+
+}
+
+function finishDraft(){
+
+  draftActive=false;
+
+  draftTurn="done";
+
+  renderDraft();
+
+  renderRosters();
+
+  switchTab("roster");
+
+  logTrade(
+    "DRAFT COMPLETE — BOTH TEAMS HAVE 12 PLAYERS.",
+    "good"
+  );
+
+  showToast("DRAFT COMPLETE");
+
+}
+
+
+/* =========================================================
+   ROSTERS
+========================================================= */
+
+function renderDraftRoster(container,team){
+
+  container.innerHTML="";
+
+  team.forEach(name=>{
+
+    const item=document.createElement("div");
+
+    item.className="roster-item";
+
+    item.innerHTML=`
+      <strong>${name}</strong>
+      <small>${PLAYERS[name].pos}</small>
+    `;
+
+    item.addEventListener("click",()=>{
+      showPlayerProfile(name);
+    });
+
+    container.appendChild(item);
+
+  });
+
+}
+
+
+function renderRosters(){
+
+  $("yourRosterCount").textContent=
+    userTeam.length+" / 12";
+
+  $("aiRosterCount").textContent=
+    aiTeam.length+" / 12";
+
+
+  renderDraftRoster(
+    $("yourRoster"),
+    userTeam
+  );
+
+  renderDraftRoster(
+    $("aiRoster"),
+    aiTeam
+  );
+
+
+  renderRosterAnalysis();
+
+}
+
+
+function renderRosterAnalysis(){
+
+  if(!userTeam.length||!aiTeam.length){
+
+    $("rosterReview").innerHTML=
+      `<div class="notice">
+        Complete the draft first.
+      </div>`;
+
+    return;
+
+  }
+
+
+  const traits=[
+    ["PHYSICAL","physical"],
+    ["WORK ETHIC","work"],
+    ["DOMINANCE","dominance"],
+    ["HARDNESS","hardness"],
+    ["BASKETBALL IQ","iq"],
+    ["ADAPTABILITY","adapt"],
+    ["SKILL","skill"],
+    ["DEFENSE","defense"],
+    ["CLUTCH","clutch"],
+    ["LEADERSHIP","leadership"]
+  ];
+
+
+  let html="";
+
+
+  traits.forEach(([label,key])=>{
+
+    const a=average(userTeam,key);
+    const b=average(aiTeam,key);
+
+    const userBetter=a>=b;
+
+    html+=`
+
+      <div class="review-card">
+
+        <b>${label}</b>
+
+        <span class="${userBetter?"good":"bad"}">
+          YOU ${a}
+        </span>
+
+        <span class="muted"> VS </span>
+
+        <span class="${!userBetter?"good":"bad"}">
+          AI ${b}
+        </span>
+
+      </div>
+
+    `;
+
+  });
+
+
+  html+=`
+
+    <div class="review-card">
+
+      <b>YOUR BIGGEST STRENGTH</b>
+
+      <span class="good">
+        ${getStrongestTrait(userTeam)}
+      </span>
+
     </div>
 
 
-</main>
-</div> <script> /* ========================================================= OBVYRIS DIRECT ROM TEST ========================================================= This test intentionally DOES NOT use the Google Apps Script backend. ROM source: https://archive.org/download/nes-emulator_202404/Legend%20of%20Zelda.nes Flow: Archive.org ↓ fetch() ↓ ArrayBuffer ↓ Blob ↓ local blob URL ↓ EmulatorJS ↓ NES core ↓ Zelda ========================================================= */ const ROM_URL = "https://archive.org/download/nes-emulator_202404/Legend%20of%20Zelda.nes"; const GAME_TITLE = "The Legend of Zelda"; const CORE = "nes"; let romBlobURL = null; let emulatorScript = null; /* ========================================================= ELEMENTS ========================================================= */ const gameContainer = document.getElementById("game"); const message = document.getElementById("message"); const messageTitle = document.getElementById("messageTitle"); const messageText = document.getElementById("messageText"); const logBox = document.getElementById("log"); const status = document.getElementById("status"); /* ========================================================= LOGGING ========================================================= */ function log(text){ console.log( "[OBVYRIS]", text ); logBox.textContent += "[OBVYRIS] " + text + "\n"; logBox.scrollTop = logBox.scrollHeight; } /* ========================================================= STATUS ========================================================= */ function setStatus(text){ status.textContent = text; } /* ========================================================= MESSAGE ========================================================= */ function showMessage( title, text ){ messageTitle.textContent = title; messageText.textContent = text; message.classList.remove( "hidden" ); } function hideMessage(){ message.classList.add( "hidden" ); } /* ========================================================= CLEANUP ========================================================= */ function cleanup(){ /* * Remove EmulatorJS scripts. */ document .querySelectorAll( "script[data-obvyris]" ) .forEach( function(script){ script.remove(); } ); emulatorScript = null; /* * Remove previous emulator. */ gameContainer.innerHTML = ""; /* * Remove old blob URL. */ if(romBlobURL){ try{ URL.revokeObjectURL( romBlobURL ); }catch(e){} romBlobURL = null; } /* * Remove EmulatorJS globals. */ const globals = [ "EJS_player", "EJS_core", "EJS_gameUrl", "EJS_gameName", "EJS_pathtodata", "EJS_startOnLoaded", "EJS_color", "EJS_language", "EJS_volume" ]; globals.forEach( function(name){ try{ delete window[name]; }catch(e){ window[name] = undefined; } } ); } /* ========================================================= DOWNLOAD ROM ========================================================= */ async function downloadROM(){ log( "Downloading ROM:" ); log( ROM_URL ); setStatus( "Downloading ROM..." ); showMessage( "Downloading ROM...", "Retrieving The Legend of Zelda directly from Archive.org." ); let response; try{ response = await fetch( ROM_URL + "?obvyris=" + Date.now(), { method:"GET", mode:"cors", cache:"no-store" } ); }catch(error){ log( "FETCH ERROR: " + error.message ); throw new Error( "Browser could not fetch the Archive.org ROM.\n\n" + error.message ); } log( "HTTP status: " + response.status ); log( "Content-Type: " + ( response.headers.get( "content-type" ) || "unknown" ) ); if(!response.ok){ throw new Error( "Archive.org returned HTTP " + response.status ); } const buffer = await response.arrayBuffer(); log( "Downloaded bytes: " + buffer.byteLength ); if(!buffer.byteLength){ throw new Error( "The downloaded ROM is empty." ); } return buffer; } /* ========================================================= VALIDATE NES ROM ========================================================= */ function validateNES(buffer){ log( "Validating NES header..." ); if(buffer.byteLength < 16){ throw new Error( "ROM is smaller than the required NES header." ); } const bytes = new Uint8Array( buffer, 0, 16 ); const header = String.fromCharCode( bytes[0], bytes[1], bytes[2], bytes[3] ); log( "NES header: " + header ); if(header !== "NES\u001a"){ throw new Error( "Invalid NES ROM header.\n\n" + "Expected NES + 0x1A." ); } log( "Valid NES ROM." ); const prgBanks = bytes[4]; const chrBanks = bytes[5]; log( "PRG banks: " + prgBanks ); log( "CHR banks: " + chrBanks ); log( "ROM size: " + buffer.byteLength + " bytes" ); } /* ========================================================= CREATE LOCAL ROM URL ========================================================= */ function createROMBlob(buffer){ log( "Creating browser-local ROM Blob..." ); const blob = new Blob( [ buffer ], { type: "application/octet-stream" } ); romBlobURL = URL.createObjectURL( blob ); log( "Local ROM URL created." ); log( romBlobURL ); log( "Blob size: " + blob.size + " bytes" ); return romBlobURL; } /* ========================================================= START EMULATORJS ========================================================= */ function startEmulator( localROM ){ log( "Starting EmulatorJS..." ); setStatus( "Starting EmulatorJS..." ); showMessage( "Starting Emulator...", "Loading the NES emulator." ); /* * Clean player. */ gameContainer.innerHTML = ""; /* * EmulatorJS configuration. */ window.EJS_player = "#game"; window.EJS_core = CORE; window.EJS_gameUrl = localROM; window.EJS_gameName = GAME_TITLE; window.EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/"; window.EJS_startOnLoaded = true; window.EJS_color = "#48bfff"; window.EJS_language = "en-US"; window.EJS_volume = 0.8; log( "Core: " + CORE ); log( "ROM: " + localROM ); log( "Data path:" ); log( window.EJS_pathtodata ); /* * Load EmulatorJS. */ emulatorScript = document.createElement( "script" ); emulatorScript.src = "https://cdn.emulatorjs.org/stable/data/loader.js"; emulatorScript.dataset.obvyris = "emulator"; emulatorScript.onload = function(){ log( "EmulatorJS loader loaded." ); setStatus( "Emulator loaded" ); }; emulatorScript.onerror = function(){ log( "EmulatorJS loader FAILED." ); setStatus( "EmulatorJS error" ); showMessage( "EmulatorJS Failed", "The EmulatorJS loader could not be loaded." ); }; document.body.appendChild( emulatorScript ); } /* ========================================================= MAIN START ========================================================= */ async function start(){ cleanup(); logBox.textContent = ""; log( "==============================" ); log( "OBVYRIS DIRECT ROM TEST" ); log( "==============================" ); log( "Game: " + GAME_TITLE ); log( "Core: " + CORE ); log( "Source:" ); log( ROM_URL ); try{ const buffer = await downloadROM(); validateNES( buffer ); const localROM = createROMBlob( buffer ); /* * Small delay gives the browser time to * finish creating the Blob URL before * EmulatorJS starts. */ await new Promise( function(resolve){ setTimeout( resolve, 100 ); } ); startEmulator( localROM ); }catch(error){ console.error( "[OBVYRIS] GAME FAILED", error ); log( "ERROR: " + error.message ); setStatus( "Game failed" ); showMessage( "Game Could Not Start", error.message ); } } /* ========================================================= DIRECT ROM BUTTON ========================================================= */ function openDirectROM(){ window.open( ROM_URL, "_blank" ); } /* ========================================================= START AUTOMATICALLY ========================================================= */ window.addEventListener( "load", function(){ setTimeout( start, 300 ); } ); </script> </body> </html>
+    <div class="review-card">
+
+      <b>AI BIGGEST STRENGTH</b>
+
+      <span class="bad">
+        ${getStrongestTrait(aiTeam)}
+      </span>
+
+    </div>
+
+
+    <div class="review-card">
+
+      <b>YOUR BIGGEST WEAKNESS</b>
+
+      <span class="bad">
+        ${getWeakestTrait(userTeam)}
+      </span>
+
+    </div>
+
+  `;
+
+
+  $("rosterReview").innerHTML=html;
+
+}
+
+
+function getStrongestTrait(team){
+
+  const traits=[
+    "physical",
+    "work",
+    "dominance",
+    "hardness",
+    "iq",
+    "adapt",
+    "skill",
+    "defense",
+    "clutch",
+    "leadership"
+  ];
+
+  let best=traits[0];
+
+  traits.forEach(t=>{
+
+    if(
+      average(team,t)>
+      average(team,best)
+    ){
+      best=t;
+    }
+
+  });
+
+  return best.toUpperCase()+
+    " ("+average(team,best)+")";
+
+}
+
+
+function getWeakestTrait(team){
+
+  const traits=[
+    "physical",
+    "work",
+    "dominance",
+    "hardness",
+    "iq",
+    "adapt",
+    "skill",
+    "defense",
+    "clutch",
+    "leadership"
+  ];
+
+  let worst=traits[0];
+
+  traits.forEach(t=>{
+
+    if(
+      average(team,t)<
+      average(team,worst)
+    ){
+      worst=t;
+    }
+
+  });
+
+  return worst.toUpperCase()+
+    " ("+average(team,worst)+")";
+
+}
+
+
+/* =========================================================
+   PLAYER PROFILE
+========================================================= */
+
+function showPlayerProfile(name){
+
+  const p=PLAYERS[name];
+
+  const stats=[
+    ["PHYSICAL","physical"],
+    ["WORK ETHIC","work"],
+    ["DOMINANCE","dominance"],
+    ["HARDNESS","hardness"],
+    ["BASKETBALL IQ","iq"],
+    ["ADAPTABILITY","adapt"],
+    ["SKILL","skill"],
+    ["DEFENSE","defense"],
+    ["CLUTCH","clutch"],
+    ["LEADERSHIP","leadership"]
+  ];
+
+
+  let html=`
+
+    <div class="notice">
+
+      <strong>${name}</strong>
+
+      — ${p.pos}
+
+      <br><br>
+
+      This player is evaluated through physical,
+      mental and behavioral characteristics rather
+      than a single statistical rating.
+
+    </div>
+
+    <br>
+
+    <div class="profile">
+
+  `;
+
+
+  stats.forEach(([label,key])=>{
+
+    html+=`
+
+      <div class="profile-stat">
+
+        <small>${label}</small>
+
+        <strong>${p[key]}</strong>
+
+      </div>
+
+    `;
+
+  });
+
+
+  html+=`</div>`;
+
+  $("profileArea").innerHTML=html;
+
+}
+
+
+/* =========================================================
+   TRADING
+========================================================= */
+
+function renderTrade(){
+
+  const userSelect=$("tradeYou");
+  const aiSelect=$("tradeAI");
+
+  userSelect.innerHTML="";
+  aiSelect.innerHTML="";
+
+
+  userTeam.forEach(name=>{
+
+    const option=document.createElement("option");
+
+    option.value=name;
+    option.textContent=name;
+
+    userSelect.appendChild(option);
+
+  });
+
+
+  aiTeam.forEach(name=>{
+
+    const option=document.createElement("option");
+
+    option.value=name;
+    option.textContent=name;
+
+    aiSelect.appendChild(option);
+
+  });
+
+
+  const disabled=
+    !userTeam.length||
+    !aiTeam.length;
+
+
+  $("proposeTradeBtn").disabled=disabled;
+  $("aiTradeBtn").disabled=disabled;
+
+}
+
+
+function proposeTrade(){
+
+  if(!userTeam.length||!aiTeam.length){
+
+    showToast("COMPLETE THE DRAFT FIRST");
+
+    return;
+
+  }
+
+
+  const youName=$("tradeYou").value;
+  const aiName=$("tradeAI").value;
+
+
+  if(!youName||!aiName)return;
+
+
+  const userPlayer=PLAYERS[youName];
+  const aiPlayer=PLAYERS[aiName];
+
+
+  /*
+    AI evaluates more than raw average.
+  */
+
+  const userValue=
+    userPlayer.iq+
+    userPlayer.adapt+
+    userPlayer.hardness+
+    userPlayer.physical+
+    userPlayer.defense;
+
+  const aiValue=
+    aiPlayer.iq+
+    aiPlayer.adapt+
+    aiPlayer.hardness+
+    aiPlayer.physical+
+    aiPlayer.defense;
+
+
+  const difference=
+    Math.abs(userValue-aiValue);
+
+
+  let accepted=
+    difference<=20;
+
+
+  /*
+    AI can accept an imperfect trade
+    if the roster fit is attractive.
+  */
+
+  const userNeeds=
+    getWeakestTrait(userTeam);
+
+  const aiNeeds=
+    getWeakestTrait(aiTeam);
+
+
+  if(
+    aiPlayer.iq>=97 &&
+    aiPlayer.adapt>=97
+  ){
+    accepted=true;
+  }
+
+
+  if(accepted){
+
+    userTeam[
+      userTeam.indexOf(youName)
+    ]=aiName;
+
+    aiTeam[
+      aiTeam.indexOf(aiName)
+    ]=youName;
+
+
+    $("tradeResult").innerHTML=
+      `<span class="good">
+        TRADE ACCEPTED.
+      </span>
+      ${youName} goes to the AI.
+      ${aiName} joins your team.`;
+
+    logTrade(
+      "TRADE ACCEPTED: YOU SENT "+
+      youName+
+      " FOR "+
+      aiName+".",
+      "good"
+    );
+
+    showToast("TRADE ACCEPTED");
+
+  }else{
+
+    $("tradeResult").innerHTML=
+      `<span class="bad">
+        TRADE REJECTED.
+      </span>
+      The AI does not believe the exchange improves its roster.`;
+
+    logTrade(
+      "TRADE REJECTED: "+
+      youName+
+      " FOR "+
+      aiName+".",
+      "bad"
+    );
+
+    showToast("AI REJECTED THE TRADE");
+
+  }
+
+
+  renderRosters();
+  renderTrade();
+  renderBattle();
+
+}
+
+
+function aiMakeTrade(){
+
+  if(userTeam.length<1||aiTeam.length<1){
+
+    showToast("COMPLETE THE DRAFT FIRST");
+
+    return;
+
+  }
+
+
+  /*
+    AI looks for the player's weakest
+    structural area, not simply highest score.
+  */
+
+  const userTarget=
+    userTeam
+      .slice()
+      .sort(
+        (a,b)=>
+          playerAverage(b)-
+          playerAverage(a)
+      )[0];
+
+
+  let candidate=null;
+  let best=-Infinity;
+
+
+  aiTeam.forEach(name=>{
+
+    const p=PLAYERS[name];
+
+    let score=0;
+
+    score+=p.iq;
+    score+=p.adapt;
+    score+=p.hardness;
+    score+=p.physical;
+    score+=p.defense;
+
+    score+=Math.random()*15;
+
+
+    if(score>best){
+
+      best=score;
+      candidate=name;
+
+    }
+
+  });
+
+
+  const offer=candidate;
+
+
+  $("tradeResult").innerHTML=`
+
+    <span class="gold">
+      AI TRADE PROPOSAL
+    </span>
+
+    <br><br>
+
+    AI offers <strong>${offer}</strong>
+
+    for your <strong>${userTarget}</strong>.
+
+    <br><br>
+
+    <button id="acceptAITradeBtn">
+      ACCEPT TRADE
+    </button>
+
+    <button id="declineAITradeBtn">
+      DECLINE
+    </button>
+
+  `;
+
+
+  $("acceptAITradeBtn").addEventListener(
+    "click",
+    ()=>acceptAITrade(offer,userTarget)
+  );
+
+
+  $("declineAITradeBtn").addEventListener(
+    "click",
+    ()=>{
+
+      logTrade(
+        "YOU DECLINED AI OFFER: "+
+        offer+
+        " FOR "+
+        userTarget+".",
+        "bad"
+      );
+
+      $("tradeResult").textContent=
+        "Trade declined.";
+
+      showToast("TRADE DECLINED");
+
+    }
+  );
+
+
+  logTrade(
+    "AI OFFERED "+
+    offer+
+    " FOR "+
+    userTarget+".",
+    "muted"
+  );
+
+}
+
+
+function acceptAITrade(offer,userTarget){
+
+  const userIndex=
+    userTeam.indexOf(userTarget);
+
+  const aiIndex=
+    aiTeam.indexOf(offer);
+
+
+  if(userIndex<0||aiIndex<0)return;
+
+
+  userTeam[userIndex]=offer;
+  aiTeam[aiIndex]=userTarget;
+
+
+  $("tradeResult").innerHTML=
+    `<span class="good">
+      TRADE COMPLETED.
+    </span>`;
+
+  logTrade(
+    "TRADE COMPLETED: AI SENT "+
+    offer+
+    " FOR "+
+    userTarget+".",
+    "good"
+  );
+
+  showToast("TRADE COMPLETED");
+
+  renderRosters();
+  renderTrade();
+  renderBattle();
+
+}
+
+
+/* =========================================================
+   STARTERS
+========================================================= */
+
+function starterValue(name){
+
+  const p=PLAYERS[name];
+
+  return(
+    p.physical*.10+
+    p.work*.07+
+    p.dominance*.13+
+    p.hardness*.10+
+    p.iq*.15+
+    p.adapt*.12+
+    p.skill*.11+
+    p.defense*.10+
+    p.clutch*.07+
+    p.leadership*.05
+  );
+
+}
+
+
+function getStarters(team){
+
+  if(!team.length)return[];
+
+
+  const starters=[];
+  let remaining=[...team];
+
+
+  const positions=[
+    "PG",
+    "SG",
+    "SF",
+    "PF",
+    "C"
+  ];
+
+
+  positions.forEach(position=>{
+
+    const candidates=
+      remaining.filter(name=>
+        PLAYERS[name].pos.includes(position)
+      );
+
+
+    if(candidates.length){
+
+      candidates.sort(
+        (a,b)=>
+          starterValue(b)-
+          starterValue(a)
+      );
+
+
+      const selected=candidates[0];
+
+      starters.push(selected);
+
+      remaining=
+        remaining.filter(
+          n=>n!==selected
+        );
+
+    }
+
+  });
+
+
+  while(
+    starters.length<5&&
+    remaining.length
+  ){
+
+    remaining.sort(
+      (a,b)=>
+        starterValue(b)-
+        starterValue(a)
+    );
+
+    starters.push(
+      remaining.shift()
+    );
+
+  }
+
+
+  return starters;
+
+}
+
+
+/* =========================================================
+   BATTLE RENDER
+========================================================= */
+
+function renderBattle(){
+
+  if(userTeam.length<5||aiTeam.length<5){
+
+    $("yourLineup").innerHTML=
+      `<div class="lineup-player muted">
+        Draft teams first.
+      </div>`;
+
+    $("aiLineup").innerHTML=
+      `<div class="lineup-player muted">
+        Draft teams first.
+      </div>`;
+
+    $("battleAnalysis").innerHTML=
+      `<div class="notice">
+        Complete both 12-player rosters first.
+      </div>`;
+
+    return;
+
+  }
+
+
+  const userStarters=getStarters(userTeam);
+  const aiStarters=getStarters(aiTeam);
+
+
+  $("yourLineup").innerHTML=
+    userStarters.map(
+      (name,i)=>
+        `<div class="lineup-player">
+          ${i+1}. ${name}
+          <span class="muted">
+            ${PLAYERS[name].pos}
+          </span>
+        </div>`
+    ).join("");
+
+
+  $("aiLineup").innerHTML=
+    aiStarters.map(
+      (name,i)=>
+        `<div class="lineup-player">
+          ${i+1}. ${name}
+          <span class="muted">
+            ${PLAYERS[name].pos}
+          </span>
+        </div>`
+    ).join("");
+
+
+  renderBattleAnalysis();
+
+}
+
+
+function renderBattleAnalysis(){
+
+  const userStarters=getStarters(userTeam);
+  const aiStarters=getStarters(aiTeam);
+
+
+  const traits=[
+    ["PHYSICAL","physical"],
+    ["HARDNESS","hardness"],
+    ["IQ","iq"],
+    ["ADAPTABILITY","adapt"],
+    ["DOMINANCE","dominance"],
+    ["DEFENSE","defense"],
+    ["CLUTCH","clutch"],
+    ["WORK ETHIC","work"],
+    ["SKILL","skill"]
+  ];
+
+
+  let html="";
+
+
+  traits.forEach(([label,key])=>{
+
+    const a=average(userStarters,key);
+    const b=average(aiStarters,key);
+
+    const userWins=a>=b;
+
+
+    html+=`
+
+      <div class="review-card">
+
+        <b>${label}</b>
+
+        <span class="${userWins?"good":"bad"}">
+          ${a}
+        </span>
+
+        <span class="muted">
+          VS
+        </span>
+
+        <span class="${!userWins?"good":"bad"}">
+          ${b}
+        </span>
+
+      </div>
+
+    `;
+
+  });
+
+
+  $("battleAnalysis").innerHTML=html;
+
+}
+
+
+/* =========================================================
+   GAME SIMULATION
+========================================================= */
+
+function matchupAdvantage(){
+
+  const u=getStarters(userTeam);
+  const a=getStarters(aiTeam);
+
+
+  let advantage=0;
+
+
+  /*
+    90s rules emphasize:
+    physical defense
+    hardness
+    IQ
+    post play
+    defensive discipline
+    rebounding
+    clutch execution
+  */
+
+
+  advantage+=
+    (average(u,"physical")-
+     average(a,"physical"))*.13;
+
+
+  advantage+=
+    (average(u,"hardness")-
+     average(a,"hardness"))*.14;
+
+
+  advantage+=
+    (average(u,"iq")-
+     average(a,"iq"))*.17;
+
+
+  advantage+=
+    (average(u,"defense")-
+     average(a,"defense"))*.13;
+
+
+  advantage+=
+    (average(u,"dominance")-
+     average(a,"dominance"))*.13;
+
+
+  advantage+=
+    (average(u,"adapt")-
+     average(a,"adapt"))*.12;
+
+
+  advantage+=
+    (average(u,"clutch")-
+     average(a,"clutch"))*.08;
+
+
+  advantage+=
+    (average(u,"work")-
+     average(a,"work"))*.05;
+
+
+  advantage+=
+    (average(u,"skill")-
+     average(a,"skill"))*.05;
+
+
+  /*
+    90s physical environment.
+  */
+
+  advantage+=
+    (average(u,"hardness")-
+     average(a,"hardness"))*.08;
+
+
+  return advantage;
+
+}
+
+
+function simulateOneGame(){
+
+  if(userTeam.length<12||aiTeam.length<12){
+
+    showToast("BOTH TEAMS NEED 12 PLAYERS");
+
+    return;
+
+  }
+
+
+  if(
+    seriesUserWins>=4||
+    seriesAIWins>=4
+  ){
+
+    showToast("SERIES IS ALREADY OVER");
+
+    return;
+
+  }
+
+
+  currentGame++;
+
+
+  const advantage=
+    matchupAdvantage();
+
+
+  /*
+    Baseline scoring is intentionally
+    close to a physical 90s environment.
+  */
+
+  let userScore=
+    91+
+    advantage*.75+
+    randomNormal()*5.5;
+
+
+  let aiScore=
+    91-
+    advantage*.75+
+    randomNormal()*5.5;
+
+
+  userScore=Math.round(userScore);
+  aiScore=Math.round(aiScore);
+
+
+  userScore=Math.max(76,userScore);
+  aiScore=Math.max(76,aiScore);
+
+
+  if(userScore===aiScore){
+
+    if(Math.random()>.5){
+      userScore++;
+    }else{
+      aiScore++;
+    }
+
+  }
+
+
+  $("yourGameScore").textContent=userScore;
+  $("aiGameScore").textContent=aiScore;
+  $("gameNumber").textContent=currentGame;
+
+
+  if(userScore>aiScore){
+
+    seriesUserWins++;
+
+    logBattle(
+      "GAME "+currentGame+
+      ": YOUR TEAM wins "+
+      userScore+"-"+aiScore+".",
+      "good"
+    );
+
+  }else{
+
+    seriesAIWins++;
+
+    logBattle(
+      "GAME "+currentGame+
+      ": AI wins "+
+      aiScore+"-"+userScore+".",
+      "bad"
+    );
+
+  }
+
+
+  $("battleStatus").textContent=
+    "SERIES "+
+    seriesUserWins+
+    "–"+
+    seriesAIWins;
+
+
+  generateGameCommentary(
+    userScore,
+    aiScore,
+    advantage
+  );
+
+
+  if(
+    seriesUserWins>=4||
+    seriesAIWins>=4
+  ){
+
+    finishSeries();
+
+  }
+
+}
+
+
+function generateGameCommentary(
+  userScore,
+  aiScore,
+  advantage
+){
+
+  const userStarters=getStarters(userTeam);
+  const aiStarters=getStarters(aiTeam);
+
+
+  const userPhysical=
+    average(userStarters,"physical");
+
+  const aiPhysical=
+    average(aiStarters,"physical");
+
+
+  const userIQ=
+    average(userStarters,"iq");
+
+  const aiIQ=
+    average(aiStarters,"iq");
+
+
+  if(
+    Math.abs(userPhysical-aiPhysical)>4
+  ){
+
+    if(userPhysical>aiPhysical){
+
+      logBattle(
+        "Physical edge: your frontcourt is forcing the AI into tougher possessions.",
+        "good"
+      );
+
+    }else{
+
+      logBattle(
+        "Physical edge: the AI is making your perimeter players work for every touch.",
+        "bad"
+      );
+
+    }
+
+  }
+
+
+  if(
+    Math.abs(userIQ-aiIQ)>4
+  ){
+
+    if(userIQ>aiIQ){
+
+      logBattle(
+        "Basketball IQ is separating the teams. Your lineup is reading the floor better.",
+        "good"
+      );
+
+    }else{
+
+      logBattle(
+        "The AI is winning the decision-making battle and limiting your best options.",
+        "bad"
+      );
+
+    }
+
+  }
+
+
+  if(
+    Math.abs(advantage)<2
+  ){
+
+    logBattle(
+      "The matchup is extremely close. Physical execution and late-game decisions are deciding possessions.",
+      "muted"
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   SERIES
+========================================================= */
+
+function simulateSeries(){
+
+  if(userTeam.length<12||aiTeam.length<12){
+
+    showToast("BOTH TEAMS NEED 12 PLAYERS");
+
+    return;
+
+  }
+
+
+  resetSeries(false);
+
+
+  while(
+    seriesUserWins<4&&
+    seriesAIWins<4
+  ){
+
+    simulateOneGame();
+
+  }
+
+}
+
+
+function finishSeries(){
+
+  const userWon=
+    seriesUserWins>=4;
+
+
+  $("battleStatus").textContent=
+    userWon
+      ? "YOUR TEAM WINS"
+      : "AI WINS";
+
+
+  logBattle(
+    "==============================",
+    "gold"
+  );
+
+
+  logBattle(
+    userWon
+      ? "YOUR TEAM WINS THE SERIES "+
+        seriesUserWins+"-"+seriesAIWins+"."
+      : "AI WINS THE SERIES "+
+        seriesAIWins+"-"+seriesUserWins+".",
+    userWon?"good":"bad"
+  );
+
+
+  logBattle(
+    "The series was decided through physicality, IQ, toughness, adaptability and matchup execution.",
+    "muted"
+  );
+
+
+  showToast(
+    userWon
+      ? "YOU WON THE SERIES"
+      : "AI WON THE SERIES"
+  );
+
+}
+
+
+function resetSeries(clearLog=true){
+
+  seriesUserWins=0;
+  seriesAIWins=0;
+  currentGame=0;
+
+
+  $("yourGameScore").textContent="0";
+  $("aiGameScore").textContent="0";
+  $("gameNumber").textContent="—";
+  $("battleStatus").textContent="READY";
+
+
+  if(clearLog){
+    $("battleLog").innerHTML="";
+  }
+
+}
+
+
+/* =========================================================
+   EVENT LISTENERS
+   Everything is explicitly wired here.
+========================================================= */
+
+
+/* Navigation */
+
+document.querySelectorAll("#nav button").forEach(button=>{
+
+  button.addEventListener("click",()=>{
+
+    switchTab(button.dataset.tab);
+
+  });
+
+});
+
+
+/* Home */
+
+$("youFirstBtn").addEventListener(
+  "click",
+  ()=>startDraft("user")
+);
+
+$("aiFirstBtn").addEventListener(
+  "click",
+  ()=>startDraft("ai")
+);
+
+$("randomBtn").addEventListener(
+  "click",
+  randomDraft
+);
+
+
+/* Trades */
+
+$("proposeTradeBtn").addEventListener(
+  "click",
+  proposeTrade
+);
+
+$("aiTradeBtn").addEventListener(
+  "click",
+  aiMakeTrade
+);
+
+
+/* Battle */
+
+$("simulateGameBtn").addEventListener(
+  "click",
+  simulateOneGame
+);
+
+$("simulateSeriesBtn").addEventListener(
+  "click",
+  simulateSeries
+);
+
+$("resetSeriesBtn").addEventListener(
+  "click",
+  ()=>resetSeries(true)
+);
+
+
+/* =========================================================
+   INITIAL STATE
+========================================================= */
+
+availablePlayers=[...playerNames];
+
+renderDraft();
+
+renderTrade();
+
+renderBattle();
+
+</script>
+
+</body>
+</html>
