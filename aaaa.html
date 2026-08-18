@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -19,16 +20,10 @@ html,body{
 }
 
 body{overflow-x:hidden}
-
 button,input,select{font:inherit}
 button{cursor:pointer}
 
-.app{
-    display:flex;
-    min-height:100vh;
-}
-
-/* SIDEBAR */
+.app{display:flex;min-height:100vh}
 
 .sidebar{
     width:250px;
@@ -126,8 +121,6 @@ button{cursor:pointer}
 .status-dot.online{background:#42d77d}
 .status-dot.error{background:#e45555}
 
-/* MAIN */
-
 .main{
     flex:1;
     min-width:0;
@@ -164,9 +157,7 @@ button{cursor:pointer}
     font-size:12px;
 }
 
-.search input:focus{
-    border-color:#32698e;
-}
+.search input:focus{border-color:#32698e}
 
 .search-icon{
     position:absolute;
@@ -203,11 +194,7 @@ button{cursor:pointer}
     color:#6bc8ff;
 }
 
-/* CONTENT */
-
-.content{
-    padding:24px;
-}
+.content{padding:24px}
 
 .hero{
     padding:26px;
@@ -258,8 +245,6 @@ button{cursor:pointer}
     margin-right:4px;
 }
 
-/* TOOLBAR */
-
 .toolbar{
     display:flex;
     flex-wrap:wrap;
@@ -284,12 +269,6 @@ button{cursor:pointer}
     font-size:11px;
 }
 
-.select:focus{
-    border-color:#376c8d;
-}
-
-/* GRID */
-
 .grid{
     display:grid;
     grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
@@ -302,10 +281,7 @@ button{cursor:pointer}
     border-radius:10px;
     background:#0b131e;
     overflow:hidden;
-    transition:
-        transform .16s ease,
-        border-color .16s ease,
-        background .16s ease;
+    transition:transform .16s ease,border-color .16s ease,background .16s ease;
 }
 
 .game-card:hover{
@@ -367,9 +343,7 @@ button{cursor:pointer}
     font-weight:700;
 }
 
-.game-body{
-    padding:13px;
-}
+.game-body{padding:13px}
 
 .game-title{
     font-size:14px;
@@ -417,9 +391,7 @@ button{cursor:pointer}
     font-weight:700;
 }
 
-.play-btn:hover{
-    background:#17445f;
-}
+.play-btn:hover{background:#17445f}
 
 .info-btn{
     width:38px;
@@ -428,8 +400,6 @@ button{cursor:pointer}
     color:#7e8ea1;
     border-radius:6px;
 }
-
-/* EMPTY */
 
 .empty{
     display:none;
@@ -449,16 +419,12 @@ button{cursor:pointer}
     margin-bottom:7px;
 }
 
-/* LOADING */
-
 .loading{
     text-align:center;
     padding:70px;
     color:#6f8094;
     font-size:12px;
 }
-
-/* PLAYER MODAL */
 
 .modal{
     position:fixed;
@@ -517,11 +483,6 @@ button{cursor:pointer}
     font-size:10px;
 }
 
-.close:hover{
-    color:white;
-    background:#182536;
-}
-
 #game{
     flex:1;
     min-height:0;
@@ -563,46 +524,28 @@ button{cursor:pointer}
     font-size:12px;
 }
 
-/* MOBILE */
-
 @media(max-width:800px){
 
-    .sidebar{
-        display:none;
-    }
+    .sidebar{display:none}
 
-    .topbar{
-        padding:0 12px;
-    }
+    .topbar{padding:0 12px}
 
-    .content{
-        padding:14px;
-    }
+    .content{padding:14px}
 
-    .hero{
-        padding:20px;
-    }
+    .hero{padding:20px}
 
-    .hero-title{
-        font-size:23px;
-    }
+    .hero-title{font-size:23px}
 
     .grid{
         grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
         gap:9px;
     }
 
-    .game-body{
-        padding:10px;
-    }
+    .game-body{padding:10px}
 
-    .game-description{
-        display:none;
-    }
+    .game-description{display:none}
 
-    .top-actions .hide-mobile{
-        display:none;
-    }
+    .top-actions .hide-mobile{display:none}
 
     .player{
         width:100vw;
@@ -614,6 +557,7 @@ button{cursor:pointer}
     }
 }
 </style>
+
 </head>
 
 <body>
@@ -622,67 +566,38 @@ button{cursor:pointer}
 
 <aside class="sidebar">
 
-    <div class="logo">OBVYRIS</div>
+<div class="logo">OBVYRIS</div>
+<div class="logo-sub">GAMES // RETRO // PLAY</div>
 
-    <div class="logo-sub">
-        GAMES // RETRO // PLAY
-    </div>
+<div class="section-title">Library</div>
 
-    <div class="section-title">
-        Library
-    </div>
+<div class="nav">
 
-    <div class="nav">
+<button id="navAll" class="active" onclick="setPlatform('all')">
+All Games
+<span id="countAll" class="platform-count">0</span>
+</button>
 
-        <button id="navAll"
-                class="active"
-                onclick="setPlatform('all')">
-            All Games
-            <span id="countAll"
-                  class="platform-count">0</span>
-        </button>
+<button onclick="showFeatured()">Featured</button> <button onclick="randomGame()">Random Game</button>
 
-        <button onclick="showFeatured()">
-            Featured
-        </button>
+</div>
 
-        <button onclick="randomGame()">
-            Random Game
-        </button>
+<div class="section-title">Platforms</div>
+<div id="platformNav" class="nav"></div>
 
-    </div>
+<div class="section-title">Genres</div>
+<div id="genreNav" class="nav"></div>
 
-    <div class="section-title">
-        Platforms
-    </div>
+<div class="sidebar-status">
 
-    <div id="platformNav" class="nav"></div>
+<div class="status-line">
+<span id="statusDot" class="status-dot"></span>
+<span id="statusText">Connecting...</span>
+</div>
 
-    <div class="section-title">
-        Genres
-    </div>
+<div>Obvyris Games API</div>
 
-    <div id="genreNav" class="nav"></div>
-
-    <div class="sidebar-status">
-
-        <div class="status-line">
-
-            <span id="statusDot"
-                  class="status-dot">
-            </span>
-
-            <span id="statusText">
-                Connecting...
-            </span>
-
-        </div>
-
-        <div>
-            Obvyris Games API
-        </div>
-
-    </div>
+</div>
 
 </aside>
 
@@ -690,281 +605,190 @@ button{cursor:pointer}
 
 <header class="topbar">
 
-    <div class="search">
+<div class="search">
 
-        <span class="search-icon">
-            ⌕
-        </span>
+<span class="search-icon">⌕</span>
 
-        <input
-            id="searchInput"
-            type="search"
-            placeholder="Search games..."
-            oninput="applyFilters()">
+<input
+id="searchInput"
+type="search"
+placeholder="Search games..."
+oninput="applyFilters">
 
-    </div>
+</div>
 
-    <div class="top-actions">
+<div class="top-actions">
 
-        <button class="action hide-mobile"
-                onclick="loadAPI()">
-            Reload
-        </button>
+<button class="action hide-mobile" onclick="loadAPI()">Reload</button> <button class="action primary" onclick="randomGame()">Random</button>
 
-        <button class="action primary"
-                onclick="randomGame()">
-            Random
-        </button>
-
-    </div>
+</div>
 
 </header>
 
 <section class="content">
 
-    <div class="hero">
+<div class="hero">
 
-        <div class="hero-title">
-            OBVYRIS GAMES
-        </div>
+<div class="hero-title">OBVYRIS GAMES</div>
 
-        <div class="hero-text">
-            A living library of browser games,
-            retro systems and playable discoveries.
-            The catalog is broadcast directly from
-            the Obvyris Games backend.
-        </div>
+<div class="hero-text">
+A living library of browser games,
+retro systems and playable discoveries.
+The catalog is broadcast directly from
+the Obvyris Games backend.
+</div>
 
-        <div class="stats">
+<div class="stats">
 
-            <div class="stat">
-                <strong id="statGames">0</strong>
-                Games
-            </div>
+<div class="stat">
+<strong id="statGames">0</strong>
+Games
+</div>
 
-            <div class="stat">
-                <strong id="statPlatforms">0</strong>
-                Platforms
-            </div>
+<div class="stat">
+<strong id="statPlatforms">0</strong>
+Platforms
+</div>
 
-            <div class="stat">
-                <strong id="statGenres">0</strong>
-                Genres
-            </div>
+<div class="stat">
+<strong id="statGenres">0</strong>
+Genres
+</div>
 
-            <div class="stat">
-                <strong id="statSources">0</strong>
-                Sources
-            </div>
+<div class="stat">
+<strong id="statSources">0</strong>
+Sources
+</div>
 
-        </div>
+</div>
 
-    </div>
+</div>
 
-    <div class="toolbar">
+<div class="toolbar">
 
-        <div id="resultsTitle"
-             class="toolbar-title">
-            All Games
-        </div>
+<div id="resultsTitle" class="toolbar-title">
+All Games
+</div>
 
-        <select id="sortSelect"
-                class="select"
-                onchange="applyFilters()">
+<select id="sortSelect" class="select" onchange="applyFilters()">
+<option value="">Default</option>
+<option value="title">Title</option>
+<option value="newest">Newest</option>
+<option value="oldest">Oldest</option>
+<option value="year">Year</option>
+</select>
 
-            <option value="">Default</option>
-            <option value="title">Title</option>
-            <option value="newest">Newest</option>
-            <option value="oldest">Oldest</option>
-            <option value="year">Year</option>
+<select id="genreSelect" class="select" onchange="applyFilters()">
+<option value="">All Genres</option>
+</select>
 
-        </select>
+</div>
 
-        <select id="genreSelect"
-                class="select"
-                onchange="applyFilters()">
+<div id="loading" class="loading">
+Loading Obvyris Games...
+</div>
 
-            <option value="">
-                All Genres
-            </option>
+<div id="gameGrid" class="grid"></div>
 
-        </select>
+<div id="empty" class="empty">
 
-    </div>
+<div class="empty-title">No Games Found</div>
 
-    <div id="loading"
-         class="loading">
-        Loading Obvyris Games...
-    </div>
+<div>Try another search or filter.</div>
 
-    <div id="gameGrid"
-         class="grid">
-    </div>
-
-    <div id="empty"
-         class="empty">
-
-        <div class="empty-title">
-            No Games Found
-        </div>
-
-        <div>
-            Try another search or filter.
-        </div>
-
-    </div>
+</div>
 
 </section>
 
 </main>
 </div>
 
+<div id="modal" class="modal">
 
-<!-- PLAYER -->
+<div class="player">
 
-<div id="modal"
-     class="modal">
+<div class="player-head">
 
-    <div class="player">
+<div id="playerTitle" class="player-title">
+Obvyris Game
+</div>
 
-        <div class="player-head">
+<div id="playerPlatform" class="player-platform"></div>
 
-            <div id="playerTitle"
-                 class="player-title">
-                Obvyris Game
-            </div>
-
-            <div id="playerPlatform"
-                 class="player-platform">
-            </div>
-
-            <button class="close"
-                    onclick="closePlayer()">
-                CLOSE
-            </button>
-
-        </div>
-
-        <div id="game"></div>
-
-        <div id="playerMessage"
-             class="player-message">
-
-            <strong>
-                This game is not directly playable yet
-            </strong>
-
-            <p id="playerMessageText"></p>
-
-        </div>
-
-    </div>
+<button class="close" onclick="closePlayer()">CLOSE</button>
 
 </div>
 
+<div id="game"></div>
+
+<div id="playerMessage" class="player-message">
+
+<strong>This game is not directly playable yet</strong>
+
+<p id="playerMessageText"></p>
+
+</div>
+
+</div>
+
+</div>
 
 <script>
-
-/*******************************************************
- * API
- *******************************************************/
 
 const API_URL =
 "https://script.google.com/macros/s/AKfycbxDYk9W7QQLEn_FbyFu261mL0bQELvIh7TEMwFIYXwaCTWG4pqOjwfEtLbKZSgI2eNO/exec";
 
-
-/*******************************************************
- * DATA
- *******************************************************/
-
-let DATA = {
-    games: [],
-    platforms: [],
-    genres: [],
-    sources: [],
-    gameSources: [],
-    gameStats: [],
-    config: []
+let DATA={
+    games:[],
+    platforms:[],
+    genres:[],
+    sources:[],
+    gameSources:[],
+    gameStats:[],
+    config:[]
 };
 
-let activePlatform = "all";
-let featuredOnly = false;
+let activePlatform="all";
+let featuredOnly=false;
 
 
-/*******************************************************
- * LOAD API
- *******************************************************/
+/* =====================================================
+   API
+===================================================== */
 
 async function loadAPI(){
 
     setStatus("Connecting...","loading");
 
-    document.getElementById("loading").style.display =
-        "block";
+    document.getElementById("loading").style.display="block";
 
     try{
 
-        const response =
-            await fetch(
-                API_URL +
-                "?action=broadcast&ts=" +
-                Date.now(),
-                {
-                    method:"GET",
-                    cache:"no-store"
-                }
-            );
+        const response=await fetch(
+            API_URL+"?action=broadcast&ts="+Date.now(),
+            {
+                method:"GET",
+                cache:"no-store"
+            }
+        );
 
         if(!response.ok){
-            throw new Error(
-                "HTTP " + response.status
-            );
+            throw new Error("HTTP "+response.status);
         }
 
-        const json =
-            await response.json();
+        const json=await response.json();
 
         if(!json.success){
-            throw new Error(
-                json.error ||
-                "API returned an error"
-            );
+            throw new Error(json.error||"API returned an error");
         }
 
-        DATA.games =
-            Array.isArray(json.games)
-                ? json.games
-                : [];
-
-        DATA.platforms =
-            Array.isArray(json.platforms)
-                ? json.platforms
-                : [];
-
-        DATA.genres =
-            Array.isArray(json.genres)
-                ? json.genres
-                : [];
-
-        DATA.sources =
-            Array.isArray(json.sources)
-                ? json.sources
-                : [];
-
-        DATA.gameSources =
-            Array.isArray(json.gameSources)
-                ? json.gameSources
-                : [];
-
-        DATA.gameStats =
-            Array.isArray(json.gameStats)
-                ? json.gameStats
-                : [];
-
-        DATA.config =
-            Array.isArray(json.config)
-                ? json.config
-                : [];
+        DATA.games=Array.isArray(json.games)?json.games:[];
+        DATA.platforms=Array.isArray(json.platforms)?json.platforms:[];
+        DATA.genres=Array.isArray(json.genres)?json.genres:[];
+        DATA.sources=Array.isArray(json.sources)?json.sources:[];
+        DATA.gameSources=Array.isArray(json.gameSources)?json.gameSources:[];
+        DATA.gameStats=Array.isArray(json.gameStats)?json.gameStats:[];
+        DATA.config=Array.isArray(json.config)?json.config:[];
 
         buildPlatformNav();
         buildGenreNav();
@@ -976,277 +800,217 @@ async function loadAPI(){
 
     }catch(error){
 
-        console.error(
-            "Obvyris API error:",
-            error
-        );
+        console.error("Obvyris API error:",error);
 
         setStatus("API Error","error");
 
-        document.getElementById("loading")
-            .style.display = "none";
+        document.getElementById("loading").style.display="none";
 
-        showEmpty(
-            "Unable to load the Obvyris Games API."
-        );
+        showEmpty("Unable to load the Obvyris Games API.");
 
     }
 
 }
 
 
-/*******************************************************
- * STATUS
- *******************************************************/
+/* =====================================================
+   STATUS
+===================================================== */
 
 function setStatus(text,type){
 
-    const dot =
-        document.getElementById("statusDot");
+    const dot=document.getElementById("statusDot");
+    const label=document.getElementById("statusText");
 
-    const label =
-        document.getElementById("statusText");
+    label.textContent=text;
 
-    label.textContent = text;
+    dot.className="status-dot";
 
-    dot.className = "status-dot";
-
-    if(type === "online"){
+    if(type==="online"){
         dot.classList.add("online");
     }
 
-    if(type === "error"){
+    if(type==="error"){
         dot.classList.add("error");
     }
 
 }
 
 
-/*******************************************************
- * STATS
- *******************************************************/
+/* =====================================================
+   STATS
+===================================================== */
 
 function updateStats(){
 
-    document.getElementById("statGames")
-        .textContent = DATA.games.length;
-
-    document.getElementById("statPlatforms")
-        .textContent = DATA.platforms.length;
-
-    document.getElementById("statGenres")
-        .textContent = DATA.genres.length;
-
-    document.getElementById("statSources")
-        .textContent = DATA.sources.length;
-
-    document.getElementById("countAll")
-        .textContent = DATA.games.length;
+    document.getElementById("statGames").textContent=DATA.games.length;
+    document.getElementById("statPlatforms").textContent=DATA.platforms.length;
+    document.getElementById("statGenres").textContent=DATA.genres.length;
+    document.getElementById("statSources").textContent=DATA.sources.length;
+    document.getElementById("countAll").textContent=DATA.games.length;
 
 }
 
 
-/*******************************************************
- * PLATFORM NAV
- *******************************************************/
+/* =====================================================
+   PLATFORM NAV
+===================================================== */
 
 function buildPlatformNav(){
 
-    const nav =
-        document.getElementById("platformNav");
+    const nav=document.getElementById("platformNav");
 
-    nav.innerHTML = "";
+    nav.innerHTML="";
 
     DATA.platforms
-        .filter(function(platform){
+    .filter(function(platform){
 
-            return String(
-                platform.Enabled
-            ).toLowerCase() !== "false";
+        return String(platform.Enabled).toLowerCase()!=="false";
 
-        })
-        .sort(function(a,b){
+    })
+    .sort(function(a,b){
 
-            return Number(a.SortOrder || 999) -
-                   Number(b.SortOrder || 999);
+        return Number(a.SortOrder||999)-
+               Number(b.SortOrder||999);
 
-        })
-        .forEach(function(platform){
+    })
+    .forEach(function(platform){
 
-            const count =
-                DATA.games.filter(
-                    function(game){
+        const count=DATA.games.filter(function(game){
 
-                        return String(
-                            game.PlatformID
-                        ).toLowerCase() ===
-                        String(
-                            platform.PlatformID
-                        ).toLowerCase();
+            return String(game.PlatformID).toLowerCase()===
+                   String(platform.PlatformID).toLowerCase();
 
-                    }
-                ).length;
+        }).length;
 
-            const button =
-                document.createElement("button");
+        const button=document.createElement("button");
 
-            button.innerHTML =
-                escapeHTML(
-                    platform.ShortName ||
-                    platform.Name ||
-                    platform.PlatformID
-                ) +
-                '<span class="platform-count">' +
-                count +
-                '</span>';
+        button.innerHTML=
+            escapeHTML(
+                platform.ShortName||
+                platform.Name||
+                platform.PlatformID
+            )+
+            '<span class="platform-count">'+
+            count+
+            '</span>';
 
-            button.onclick =
-                function(){
+        button.dataset.platform=platform.PlatformID;
 
-                    setPlatform(
-                        platform.PlatformID
-                    );
+        button.onclick=function(){
 
-                };
+            setPlatform(platform.PlatformID);
 
-            button.dataset.platform =
-                platform.PlatformID;
+        };
 
-            nav.appendChild(button);
+        nav.appendChild(button);
 
-        });
+    });
 
 }
 
 
-/*******************************************************
- * GENRE NAV
- *******************************************************/
+/* =====================================================
+   GENRES
+===================================================== */
 
 function buildGenreNav(){
 
-    const nav =
-        document.getElementById("genreNav");
+    const nav=document.getElementById("genreNav");
 
-    nav.innerHTML = "";
+    nav.innerHTML="";
 
     DATA.genres
-        .filter(function(genre){
+    .filter(function(genre){
 
-            return String(
-                genre.Enabled
-            ).toLowerCase() !== "false";
+        return String(genre.Enabled).toLowerCase()!=="false";
 
-        })
-        .sort(function(a,b){
+    })
+    .sort(function(a,b){
 
-            return Number(a.SortOrder || 999) -
-                   Number(b.SortOrder || 999);
+        return Number(a.SortOrder||999)-
+               Number(b.SortOrder||999);
 
-        })
-        .slice(0,12)
-        .forEach(function(genre){
+    })
+    .slice(0,12)
+    .forEach(function(genre){
 
-            const button =
-                document.createElement("button");
+        const button=document.createElement("button");
 
-            button.textContent =
-                genre.Name ||
+        button.textContent=
+            genre.Name||
+            genre.GenreID;
+
+        button.onclick=function(){
+
+            document.getElementById("genreSelect").value=
                 genre.GenreID;
 
-            button.onclick =
-                function(){
+            applyFilters();
 
-                    document.getElementById(
-                        "genreSelect"
-                    ).value =
-                        genre.GenreID;
+        };
 
-                    applyFilters();
+        nav.appendChild(button);
 
-                };
-
-            nav.appendChild(button);
-
-        });
+    });
 
 }
 
-
-/*******************************************************
- * GENRE SELECT
- *******************************************************/
 
 function buildGenreSelect(){
 
-    const select =
-        document.getElementById("genreSelect");
+    const select=document.getElementById("genreSelect");
 
-    select.innerHTML =
-        '<option value="">All Genres</option>';
+    select.innerHTML='<option value="">All Genres</option>';
 
     DATA.genres
-        .filter(function(genre){
+    .filter(function(genre){
 
-            return String(
-                genre.Enabled
-            ).toLowerCase() !== "false";
+        return String(genre.Enabled).toLowerCase()!=="false";
 
-        })
-        .forEach(function(genre){
+    })
+    .forEach(function(genre){
 
-            const option =
-                document.createElement("option");
+        const option=document.createElement("option");
 
-            option.value =
-                genre.GenreID;
+        option.value=genre.GenreID;
 
-            option.textContent =
-                genre.Name ||
-                genre.GenreID;
+        option.textContent=
+            genre.Name||
+            genre.GenreID;
 
-            select.appendChild(option);
+        select.appendChild(option);
 
-        });
+    });
 
 }
 
 
-/*******************************************************
- * PLATFORM SELECTION
- *******************************************************/
+/* =====================================================
+   FILTERS
+===================================================== */
 
 function setPlatform(platform){
 
-    activePlatform = platform;
-    featuredOnly = false;
+    activePlatform=platform;
+    featuredOnly=false;
 
-    document.querySelectorAll(
-        ".nav button"
-    ).forEach(function(button){
+    document.querySelectorAll(".nav button").forEach(function(button){
 
         button.classList.remove("active");
 
     });
 
-    if(platform === "all"){
+    if(platform==="all"){
 
-        document.getElementById("navAll")
-            .classList.add("active");
+        document.getElementById("navAll").classList.add("active");
 
     }else{
 
-        document.querySelectorAll(
-            "#platformNav button"
-        ).forEach(function(button){
+        document.querySelectorAll("#platformNav button").forEach(function(button){
 
-            if(
-                button.dataset.platform ===
-                platform
-            ){
-
+            if(button.dataset.platform===platform){
                 button.classList.add("active");
-
             }
 
         });
@@ -1258,18 +1022,12 @@ function setPlatform(platform){
 }
 
 
-/*******************************************************
- * FEATURED
- *******************************************************/
-
 function showFeatured(){
 
-    activePlatform = "all";
-    featuredOnly = true;
+    activePlatform="all";
+    featuredOnly=true;
 
-    document.querySelectorAll(
-        ".nav button"
-    ).forEach(function(button){
+    document.querySelectorAll(".nav button").forEach(function(button){
 
         button.classList.remove("active");
 
@@ -1280,136 +1038,110 @@ function showFeatured(){
 }
 
 
-/*******************************************************
- * FILTER
- *******************************************************/
-
 function applyFilters(){
 
-    const search =
-        document.getElementById("searchInput")
+    const search=document.getElementById("searchInput")
         .value
         .trim()
         .toLowerCase();
 
-    const genre =
-        document.getElementById("genreSelect")
-        .value;
+    const genre=document.getElementById("genreSelect").value;
+    const sort=document.getElementById("sortSelect").value;
 
-    const sort =
-        document.getElementById("sortSelect")
-        .value;
+    let games=DATA.games.slice();
 
-    let games =
-        DATA.games.slice();
+    if(activePlatform!=="all"){
 
-    if(activePlatform !== "all"){
+        games=games.filter(function(game){
 
-        games =
-            games.filter(function(game){
+            return String(game.PlatformID||"").toLowerCase()===
+                   String(activePlatform).toLowerCase();
 
-                return String(
-                    game.PlatformID || ""
-                ).toLowerCase() ===
-                String(
-                    activePlatform
-                ).toLowerCase();
-
-            });
+        });
 
     }
 
     if(genre){
 
-        games =
-            games.filter(function(game){
+        games=games.filter(function(game){
 
-                return String(
-                    game.GenreID || ""
-                ).toLowerCase() ===
-                genre.toLowerCase();
+            return String(game.GenreID||"").toLowerCase()===
+                   genre.toLowerCase();
 
-            });
+        });
 
     }
 
     if(featuredOnly){
 
-        games =
-            games.filter(function(game){
+        games=games.filter(function(game){
 
-                return isTrue(game.Featured);
+            return isTrue(game.Featured);
 
-            });
+        });
 
     }
 
     if(search){
 
-        games =
-            games.filter(function(game){
+        games=games.filter(function(game){
 
-                const text = [
+            const text=[
+                game.Title,
+                game.Description,
+                game.Developer,
+                game.Publisher,
+                game.PlatformID,
+                game.GenreID,
+                game.GameType
+            ].join(" ").toLowerCase();
 
-                    game.Title,
-                    game.Description,
-                    game.Developer,
-                    game.Publisher,
-                    game.PlatformID,
-                    game.GenreID,
-                    game.GameType
-
-                ]
-                .join(" ")
-                .toLowerCase();
-
-                return text.includes(search);
-
-            });
-
-    }
-
-    if(sort === "title"){
-
-        games.sort(function(a,b){
-
-            return String(a.Title || "")
-                .localeCompare(
-                    String(b.Title || "")
-                );
+            return text.includes(search);
 
         });
 
     }
 
-    if(sort === "newest"){
+    if(sort==="title"){
 
         games.sort(function(a,b){
 
-            return new Date(b.Created || 0) -
-                   new Date(a.Created || 0);
+            return String(a.Title||"").localeCompare(
+                String(b.Title||"")
+            );
 
         });
 
     }
 
-    if(sort === "oldest"){
+    if(sort==="newest"){
 
         games.sort(function(a,b){
 
-            return new Date(a.Created || 0) -
-                   new Date(b.Created || 0);
+            return new Date(b.Created||0)-
+                   new Date(a.Created||0);
 
         });
 
     }
 
-    if(sort === "year"){
+    if(sort==="oldest"){
 
         games.sort(function(a,b){
 
-            return Number(a.Year || 0) -
-                   Number(b.Year || 0);
+            return new Date(a.Created||0)-
+                   new Date(b.Created||0);
+
+        });
+
+    }
+
+    if(sort==="year"){
+
+        games.sort(function(a,b){
+
+            return Number(a.Year||0)-
+                   Number(b.Year||0);
 
         });
 
@@ -1420,111 +1152,95 @@ function applyFilters(){
 }
 
 
-/*******************************************************
- * RENDER
- *******************************************************/
+/* =====================================================
+   RENDER
+===================================================== */
 
 function renderGames(games){
 
-    const grid =
-        document.getElementById("gameGrid");
+    const grid=document.getElementById("gameGrid");
 
-    document.getElementById("loading")
-        .style.display = "none";
+    document.getElementById("loading").style.display="none";
 
-    grid.innerHTML = "";
+    grid.innerHTML="";
 
-    document.getElementById("resultsTitle")
-        .textContent =
-            games.length +
-            " Game" +
-            (games.length === 1 ? "" : "s");
+    document.getElementById("resultsTitle").textContent=
+        games.length+
+        " Game"+
+        (games.length===1?"":"s");
 
     if(!games.length){
 
-        showEmpty(
-            "No games match the current filters."
-        );
+        showEmpty("No games match the current filters.");
 
         return;
 
     }
 
-    document.getElementById("empty")
-        .classList.remove("show");
+    document.getElementById("empty").classList.remove("show");
 
     games.forEach(function(game){
 
-        grid.appendChild(
-            createGameCard(game)
-        );
+        grid.appendChild(createGameCard(game));
 
     });
 
 }
 
 
-/*******************************************************
- * GAME CARD
- *******************************************************/
+/* =====================================================
+   GAME CARD
+===================================================== */
 
 function createGameCard(game){
 
-    const card =
-        document.createElement("article");
+    const card=document.createElement("article");
 
-    card.className = "game-card";
+    card.className="game-card";
 
-    const image =
-        game.Thumbnail ||
-        game["img link"] ||
+    const image=
+        game.Thumbnail||
+        game["img link"]||
         "";
 
-    const platform =
-        getPlatformName(game.PlatformID);
+    const platform=getPlatformName(game.PlatformID);
+    const genre=getGenreName(game.GenreID);
 
-    const genre =
-        getGenreName(game.GenreID);
+    const title=game.Title||"Untitled Game";
 
-    const title =
-        game.Title ||
-        "Untitled Game";
-
-    const description =
-        game.Description ||
+    const description=
+        game.Description||
         "No description available.";
 
-    const featured =
-        isTrue(game.Featured);
+    const featured=isTrue(game.Featured);
 
     let imageHTML;
 
     if(image){
 
-        imageHTML =
-            '<img src="' +
-            escapeAttribute(image) +
-            '" alt="' +
-            escapeAttribute(title) +
-            '" loading="lazy" ' +
+        imageHTML=
+            '<img src="'+
+            escapeAttribute(image)+
+            '" alt="'+
+            escapeAttribute(title)+
+            '" loading="lazy" '+
             'onerror="this.style.display=\'none\'">';
 
     }else{
 
-        imageHTML =
-            '<div class="no-image">GAME</div>';
+        imageHTML='<div class="no-image">GAME</div>';
 
     }
 
-    card.innerHTML =
+    card.innerHTML=
 
-        '<div class="game-image">' +
+        '<div class="game-image">'+
 
-            imageHTML +
+            imageHTML+
 
-            '<div class="badge">' +
-                escapeHTML(platform) +
-            '</div>' +
+            '<div class="badge">'+
+                escapeHTML(platform)+
+            '</div>'+
 
             (
                 featured
@@ -1532,134 +1248,108 @@ function createGameCard(game){
                 '<div class="featured">FEATURED</div>'
                 :
                 ''
-            ) +
+            )+
 
-        '</div>' +
+        '</div>'+
 
-        '<div class="game-body">' +
+        '<div class="game-body">'+
 
-            '<div class="game-title">' +
-                escapeHTML(title) +
-            '</div>' +
+            '<div class="game-title">'+
+                escapeHTML(title)+
+            '</div>'+
 
-            '<div class="game-meta">' +
+            '<div class="game-meta">'+
 
-                '<span class="meta">' +
-                    escapeHTML(genre) +
-                '</span>' +
+                '<span class="meta">'+
+                    escapeHTML(genre)+
+                '</span>'+
 
                 (
                     game.Year
                     ?
-                    '<span class="meta">• ' +
-                    escapeHTML(game.Year) +
+                    '<span class="meta">• '+
+                    escapeHTML(game.Year)+
                     '</span>'
                     :
                     ''
-                ) +
+                )+
 
                 (
                     game.Developer
                     ?
-                    '<span class="meta">• ' +
-                    escapeHTML(game.Developer) +
+                    '<span class="meta">• '+
+                    escapeHTML(game.Developer)+
                     '</span>'
                     :
                     ''
-                ) +
+                )+
 
-            '</div>' +
+            '</div>'+
 
-            '<div class="game-description">' +
-                escapeHTML(description) +
-            '</div>' +
+            '<div class="game-description">'+
+                escapeHTML(description)+
+            '</div>'+
 
-            '<div class="game-actions">' +
+            '<div class="game-actions">'+
 
-                '<button class="play-btn">' +
-                    'PLAY' +
-                '</button>' +
+                '<button class="play-btn">PLAY</button>'+
 
-                '<button class="info-btn" ' +
-                    'title="Game information">' +
-                    'i' +
-                '</button>' +
+                '<button class="info-btn" title="Game information">i</button>'+
 
-            '</div>' +
+            '</div>'+
 
         '</div>';
 
-    card.querySelector(".play-btn")
-        .onclick =
-        function(){
+    card.querySelector(".play-btn").onclick=function(){
 
-            launchGame(game);
+        launchGame(game);
 
-        };
+    };
 
-    card.querySelector(".info-btn")
-        .onclick =
-        function(){
+    card.querySelector(".info-btn").onclick=function(){
 
-            showGameInfo(game);
+        showGameInfo(game);
 
-        };
+    };
 
     return card;
 
 }
 
 
-/*******************************************************
- * LAUNCH GAME
- *******************************************************/
+/* =====================================================
+   LAUNCH
+===================================================== */
 
 function launchGame(game){
 
-    const modal =
-        document.getElementById("modal");
+    const modal=document.getElementById("modal");
+    const gameContainer=document.getElementById("game");
+    const message=document.getElementById("playerMessage");
 
-    const gameContainer =
-        document.getElementById("game");
+    document.getElementById("playerTitle").textContent=
+        game.Title||"Obvyris Game";
 
-    const message =
-        document.getElementById("playerMessage");
+    document.getElementById("playerPlatform").textContent=
+        getPlatformName(game.PlatformID);
 
-    const title =
-        document.getElementById("playerTitle");
-
-    const platform =
-        document.getElementById("playerPlatform");
-
-    title.textContent =
-        game.Title ||
-        "Obvyris Game";
-
-    platform.textContent =
-        getPlatformName(
-            game.PlatformID
-        );
-
-    gameContainer.innerHTML = "";
-
+    gameContainer.innerHTML="";
     message.classList.remove("show");
 
     modal.classList.add("open");
+
+    const gameType=
+        String(game.GameType||"").toLowerCase().trim();
 
     /*
      * HTML5 GAME
      */
 
-    if(
-        String(game.GameType || "")
-            .toLowerCase() === "html5"
-    ){
+    if(gameType==="html5"){
 
         if(game.PlayURL){
 
-            openURLInIframe(
-                game.PlayURL
-            );
+            openURLInIframe(game.PlayURL);
 
             return;
 
@@ -1673,15 +1363,11 @@ function launchGame(game){
 
     }
 
-
     /*
-     * ROM / EMULATOR GAME
+     * EMULATOR GAME
      */
 
-    if(
-        game.ROMURL &&
-        game.EmulatorCore
-    ){
+    if(game.ROMURL){
 
         startEmulator(game);
 
@@ -1689,16 +1375,13 @@ function launchGame(game){
 
     }
 
-
     /*
      * EXTERNAL PLAY URL
      */
 
     if(game.PlayURL){
 
-        openURLInIframe(
-            game.PlayURL
-        );
+        openURLInIframe(game.PlayURL);
 
         return;
 
@@ -1711,58 +1394,50 @@ function launchGame(game){
 }
 
 
-/*******************************************************
- * GENERIC IFRAME
- *******************************************************/
+/* =====================================================
+   NORMAL IFRAME
+===================================================== */
 
 function openURLInIframe(url){
 
-    const container =
-        document.getElementById("game");
+    const container=document.getElementById("game");
 
-    const iframe =
-        document.createElement("iframe");
+    const iframe=document.createElement("iframe");
 
-    iframe.src =
-        String(url);
+    iframe.src=String(url);
 
-    iframe.allow =
-        "fullscreen; autoplay; gamepad";
+    iframe.allow="fullscreen; autoplay; gamepad";
 
-    iframe.allowFullscreen = true;
+    iframe.setAttribute("allowfullscreen","");
 
-    iframe.title =
-        "Obvyris Game";
+    iframe.referrerPolicy="no-referrer";
 
-    container.innerHTML = "";
+    iframe.style.width="100%";
+    iframe.style.height="100%";
+    iframe.style.border="0";
+    iframe.style.display="block";
+    iframe.style.background="#000";
 
-    container.appendChild(
-        iframe
-    );
+    container.appendChild(iframe);
 
 }
 
 
-/*******************************************************
- * EMULATOR
- *
- * emulator.html is in the SAME DIRECTORY
- * as aaaa.html.
- *******************************************************/
+/* =====================================================
+   EMULATOR
+===================================================== */
 
 function startEmulator(game){
 
-    const container =
-        document.getElementById("game");
+    const container=document.getElementById("game");
 
-    const romURL =
-        String(
-            game.ROMURL || ""
-        ).trim();
+    let romURL=String(game.ROMURL||"").trim();
 
-    const core =
+    const core=
         String(
-            game.EmulatorCore || ""
+            game.EmulatorCore||
+            game.Core||
+            ""
         ).trim();
 
     if(!romURL){
@@ -1786,85 +1461,51 @@ function startEmulator(game){
     }
 
     /*
-     * Build URL to local emulator.html.
+     * IMPORTANT:
+     *
+     * Decode existing percent encoding first.
+     * This prevents:
+     *
+     * Legend%20of%20Zelda.nes
+     *
+     * becoming:
+     *
+     * Legend%2520of%2520Zelda.nes
      */
 
-    const emulatorURL =
+    romURL=normalizeURL(romURL);
+
+    /*
+     * emulator.html is in the SAME DIRECTORY
+     * as aaaa.html.
+     *
+     * Therefore use a relative URL.
+     */
+
+    const emulatorPage=
         new URL(
             "emulator.html",
             window.location.href
-        );
-
-    emulatorURL.searchParams.set(
-        "rom",
-        romURL
-    );
-
-    emulatorURL.searchParams.set(
-        "core",
-        core
-    );
-
-    emulatorURL.searchParams.set(
-        "title",
-        game.Title ||
-        "Obvyris Game"
-    );
+        ).href;
 
     /*
-     * Create emulator iframe.
+     * URLSearchParams performs the correct
+     * single encoding operation.
      */
 
-    const iframe =
-        document.createElement("iframe");
+    const params=new URLSearchParams();
 
-    iframe.src =
-        emulatorURL.href;
-
-    iframe.title =
-        game.Title ||
-        "Obvyris Emulator";
-
-    iframe.allow =
-        "fullscreen; autoplay; gamepad";
-
-    iframe.allowFullscreen = true;
-
-    iframe.style.width = "100%";
-    iframe.style.height = "100%";
-    iframe.style.border = "0";
-    iframe.style.display = "block";
-    iframe.style.background = "#000";
-
-    iframe.onload =
-        function(){
-
-            console.log(
-                "[OBVYRIS] Emulator loaded:",
-                emulatorURL.href
-            );
-
-        };
-
-    iframe.onerror =
-        function(error){
-
-            console.error(
-                "[OBVYRIS] Emulator iframe error:",
-                error
-            );
-
-            showPlayerMessage(
-                "Unable to load emulator.html."
-            );
-
-        };
-
-    container.innerHTML = "";
-
-    container.appendChild(
-        iframe
+    params.set("rom",romURL);
+    params.set("core",core);
+    params.set(
+        "title",
+        game.Title||"Obvyris Emulator"
     );
+
+    const emulatorURL=
+        emulatorPage+
+        "?"+
+        params.toString();
 
     console.log(
         "[OBVYRIS] Emulator:",
@@ -1876,18 +1517,114 @@ function startEmulator(game){
         romURL
     );
 
+    console.log(
+        "[OBVYRIS] Emulator URL:",
+        emulatorURL
+    );
+
+    const iframe=document.createElement("iframe");
+
+    iframe.src=emulatorURL;
+
+    iframe.title=
+        game.Title||
+        "Obvyris Emulator";
+
+    iframe.allow=
+        "fullscreen; autoplay; gamepad";
+
+    /*
+     * Do NOT use allowfullscreen together with
+     * an allow value containing fullscreen.
+     *
+     * This removes the browser warning:
+     *
+     * Allow attribute will take precedence
+     * over 'allowfullscreen'.
+     */
+
+    iframe.style.width="100%";
+    iframe.style.height="100%";
+    iframe.style.border="0";
+    iframe.style.display="block";
+    iframe.style.background="#000";
+
+    iframe.onload=function(){
+
+        console.log(
+            "[OBVYRIS] Emulator loaded:",
+            emulatorURL
+        );
+
+    };
+
+    iframe.onerror=function(){
+
+        console.error(
+            "[OBVYRIS] Emulator iframe failed:",
+            emulatorURL
+        );
+
+        showPlayerMessage(
+            "The emulator page could not be loaded."
+        );
+
+    };
+
+    container.appendChild(iframe);
+
 }
 
 
-/*******************************************************
- * PLAYER MESSAGE
- *******************************************************/
+/* =====================================================
+   URL NORMALIZATION
+===================================================== */
+
+function normalizeURL(url){
+
+    let result=String(url||"").trim();
+
+    /*
+     * Internet Archive URLs sometimes arrive already
+     * percent encoded.
+     *
+     * Decode repeatedly only while decoding is safe.
+     */
+
+    for(let i=0;i<3;i++){
+
+        try{
+
+            const decoded=decodeURIComponent(result);
+
+            if(decoded===result){
+                break;
+            }
+
+            result=decoded;
+
+        }catch(error){
+
+            break;
+
+        }
+
+    }
+
+    return result;
+
+}
+
+
+/* =====================================================
+   PLAYER MESSAGE
+===================================================== */
 
 function showPlayerMessage(text){
 
     document.getElementById(
         "playerMessageText"
-    ).textContent = text;
+    ).textContent=text;
 
     document.getElementById(
         "playerMessage"
@@ -1896,42 +1633,49 @@ function showPlayerMessage(text){
 }
 
 
-/*******************************************************
- * CLOSE PLAYER
- *******************************************************/
+/* =====================================================
+   CLOSE
+===================================================== */
 
 function closePlayer(){
 
-    const modal =
-        document.getElementById("modal");
-
-    const game =
-        document.getElementById("game");
-
-    game.innerHTML = "";
+    document.getElementById("game").innerHTML="";
 
     document.getElementById(
         "playerMessage"
     ).classList.remove("show");
 
-    modal.classList.remove("open");
+    document.getElementById(
+        "modal"
+    ).classList.remove("open");
 
 }
 
 
-/*******************************************************
- * ESCAPE
- *******************************************************/
+/* =====================================================
+   ESCAPE
+===================================================== */
 
-document.addEventListener(
-    "keydown",
+document.addEventListener("keydown",function(event){
+
+    if(
+        event.key==="Escape" &&
+        document.getElementById("modal")
+        .classList.contains("open")
+    ){
+
+        closePlayer();
+
+    }
+
+});
+
+
+document.getElementById("modal").addEventListener(
+    "click",
     function(event){
 
-        if(
-            event.key === "Escape" &&
-            document.getElementById("modal")
-                .classList.contains("open")
-        ){
+        if(event.target===this){
 
             closePlayer();
 
@@ -1941,28 +1685,9 @@ document.addEventListener(
 );
 
 
-/*******************************************************
- * MODAL BACKGROUND CLICK
- *******************************************************/
-
-document.getElementById("modal")
-    .addEventListener(
-        "click",
-        function(event){
-
-            if(event.target === this){
-
-                closePlayer();
-
-            }
-
-        }
-    );
-
-
-/*******************************************************
- * RANDOM GAME
- *******************************************************/
+/* =====================================================
+   RANDOM
+===================================================== */
 
 function randomGame(){
 
@@ -1970,31 +1695,22 @@ function randomGame(){
         return;
     }
 
-    const available =
-        DATA.games.filter(function(game){
+    const available=DATA.games.filter(function(game){
 
-            return (
-                activePlatform === "all" ||
-                String(
-                    game.PlatformID || ""
-                ).toLowerCase() ===
-                String(
-                    activePlatform
-                ).toLowerCase()
-            );
+        return (
+            activePlatform==="all"||
+            String(game.PlatformID||"").toLowerCase()===
+            String(activePlatform).toLowerCase()
+        );
 
-        });
+    });
 
-    const pool =
-        available.length
-            ? available
-            : DATA.games;
+    const pool=available.length?available:DATA.games;
 
-    const game =
+    const game=
         pool[
             Math.floor(
-                Math.random() *
-                pool.length
+                Math.random()*pool.length
             )
         ];
 
@@ -2003,91 +1719,77 @@ function randomGame(){
 }
 
 
-/*******************************************************
- * GAME INFO
- *******************************************************/
+/* =====================================================
+   INFO
+===================================================== */
 
 function showGameInfo(game){
 
-    const lines = [
+    const lines=[
 
-        game.Title || "Untitled",
+        game.Title||"Untitled",
 
         "",
 
-        "Platform: " +
-        getPlatformName(game.PlatformID),
+        "Platform: "+getPlatformName(game.PlatformID),
 
-        "Genre: " +
-        getGenreName(game.GenreID),
+        "Genre: "+getGenreName(game.GenreID),
 
         game.Year
-            ? "Year: " + game.Year
-            : "",
+            ?"Year: "+game.Year
+            :"",
 
         game.Developer
-            ? "Developer: " +
-              game.Developer
-            : "",
+            ?"Developer: "+game.Developer
+            :"",
 
         game.Publisher
-            ? "Publisher: " +
-              game.Publisher
-            : "",
+            ?"Publisher: "+game.Publisher
+            :"",
 
         game.SourceID
-            ? "Source: " +
-              game.SourceID
-            : "",
+            ?"Source: "+game.SourceID
+            :"",
 
         game.CacheStatus
-            ? "Cache: " +
-              game.CacheStatus
-            : "",
+            ?"Cache: "+game.CacheStatus
+            :"",
 
         "",
 
-        game.Description ||
-        "No description."
+        game.Description||"No description."
 
     ];
 
     alert(
         lines
-            .filter(Boolean)
-            .join("\n")
+        .filter(Boolean)
+        .join("\n")
     );
 
 }
 
 
-/*******************************************************
- * HELPERS
- *******************************************************/
+/* =====================================================
+   HELPERS
+===================================================== */
 
 function getPlatformName(id){
 
-    const platform =
-        DATA.platforms.find(
-            function(item){
+    const platform=DATA.platforms.find(function(item){
 
-                return String(
-                    item.PlatformID
-                ).toLowerCase() ===
-                String(
-                    id || ""
-                ).toLowerCase();
+        return String(item.PlatformID).toLowerCase()===
+               String(id||"").toLowerCase();
 
-            }
-        );
+    });
 
     if(!platform){
-        return id || "Unknown";
+        return id||"Unknown";
     }
 
     return (
-        platform.ShortName ||
-        platform.Name ||
+        platform.ShortName||
+        platform.Name||
         id
     );
 
@@ -2096,26 +1798,19 @@ function getPlatformName(id){
 
 function getGenreName(id){
 
-    const genre =
-        DATA.genres.find(
-            function(item){
+    const genre=DATA.genres.find(function(item){
 
-                return String(
-                    item.GenreID
-                ).toLowerCase() ===
-                String(
-                    id || ""
-                ).toLowerCase();
+        return String(item.GenreID).toLowerCase()===
+               String(id||"").toLowerCase();
 
-            }
-        );
+    });
 
     if(!genre){
-        return id || "Unknown";
+        return id||"Unknown";
     }
 
     return (
-        genre.Name ||
+        genre.Name||
         genre.GenreID
     );
 
@@ -2124,24 +1819,18 @@ function getGenreName(id){
 
 function isTrue(value){
 
-    if(
-        value === true ||
-        value === 1
-    ){
-
+    if(value===true||value===1){
         return true;
-
     }
 
-    const text =
-        String(value)
-            .toLowerCase()
-            .trim();
+    const text=String(value)
+        .toLowerCase()
+        .trim();
 
     return (
-        text === "true" ||
-        text === "yes" ||
-        text === "1"
+        text==="true"||
+        text==="yes"||
+        text==="1"
     );
 
 }
@@ -2149,16 +1838,12 @@ function isTrue(value){
 
 function escapeHTML(value){
 
-    return String(
-        value == null
-            ? ""
-            : value
-    )
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#039;");
+    return String(value==null?"":value)
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
 
 }
 
@@ -2172,24 +1857,20 @@ function escapeAttribute(value){
 
 function showEmpty(text){
 
-    document.getElementById("gameGrid")
-        .innerHTML = "";
+    document.getElementById("gameGrid").innerHTML="";
 
-    const empty =
-        document.getElementById("empty");
+    const empty=document.getElementById("empty");
 
-    empty.querySelector(
-        ".empty-title"
-    ).textContent = text;
+    empty.querySelector(".empty-title").textContent=text;
 
     empty.classList.add("show");
 
 }
 
 
-/*******************************************************
- * START
- *******************************************************/
+/* =====================================================
+   START
+===================================================== */
 
 loadAPI();
 
