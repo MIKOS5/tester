@@ -1429,16 +1429,17 @@ function openURLInIframe(url){
 
 function startEmulator(game){
 
-    const container=document.getElementById("game");
+    const container =
+        document.getElementById("game");
 
-    let romURL=String(game.ROMURL||"").trim();
+    const romURL =
+        String(game.ROMURL || "").trim();
 
-    const core=
-        String(
-            game.EmulatorCore||
-            game.Core||
-            ""
-        ).trim();
+    const core =
+        String(game.EmulatorCore || "").trim();
+
+    const title =
+        String(game.Title || "Obvyris Game").trim();
 
     if(!romURL){
 
@@ -1447,7 +1448,6 @@ function startEmulator(game){
         );
 
         return;
-
     }
 
     if(!core){
@@ -1457,54 +1457,24 @@ function startEmulator(game){
         );
 
         return;
-
     }
 
     /*
-     * IMPORTANT:
+     * Build emulator.html URL.
      *
-     * Decode existing percent encoding first.
-     * This prevents:
-     *
-     * Legend%20of%20Zelda.nes
-     *
-     * becoming:
-     *
-     * Legend%2520of%2520Zelda.nes
+     * URLSearchParams handles spaces and special
+     * characters correctly. Do NOT encode romURL
+     * manually before putting it into the query.
      */
 
-    romURL=normalizeURL(romURL);
+    const params = new URLSearchParams();
 
-    /*
-     * emulator.html is in the SAME DIRECTORY
-     * as aaaa.html.
-     *
-     * Therefore use a relative URL.
-     */
+    params.set("rom", romURL);
+    params.set("core", core);
+    params.set("title", title);
 
-    const emulatorPage=
-        new URL(
-            "emulator.html",
-            window.location.href
-        ).href;
-
-    /*
-     * URLSearchParams performs the correct
-     * single encoding operation.
-     */
-
-    const params=new URLSearchParams();
-
-    params.set("rom",romURL);
-    params.set("core",core);
-    params.set(
-        "title",
-        game.Title||"Obvyris Emulator"
-    );
-
-    const emulatorURL=
-        emulatorPage+
-        "?"+
+    const emulatorURL =
+        "emulator.html?" +
         params.toString();
 
     console.log(
@@ -1522,59 +1492,76 @@ function startEmulator(game){
         emulatorURL
     );
 
-    const iframe=document.createElement("iframe");
+    const iframe =
+        document.createElement("iframe");
 
-    iframe.src=emulatorURL;
+    iframe.src =
+        emulatorURL;
 
-    iframe.title=
-        game.Title||
-        "Obvyris Emulator";
+    iframe.title =
+        title + " Emulator";
 
-    iframe.allow=
+    iframe.allow =
         "fullscreen; autoplay; gamepad";
 
-    /*
-     * Do NOT use allowfullscreen together with
-     * an allow value containing fullscreen.
-     *
-     * This removes the browser warning:
-     *
-     * Allow attribute will take precedence
-     * over 'allowfullscreen'.
-     */
+    iframe.setAttribute(
+        "allowfullscreen",
+        ""
+    );
 
-    iframe.style.width="100%";
-    iframe.style.height="100%";
-    iframe.style.border="0";
-    iframe.style.display="block";
-    iframe.style.background="#000";
+    iframe.referrerPolicy =
+        "no-referrer";
 
-    iframe.onload=function(){
+    iframe.style.width =
+        "100%";
 
-        console.log(
-            "[OBVYRIS] Emulator loaded:",
-            emulatorURL
-        );
+    iframe.style.height =
+        "100%";
 
-    };
+    iframe.style.border =
+        "0";
 
-    iframe.onerror=function(){
+    iframe.style.display =
+        "block";
 
-        console.error(
-            "[OBVYRIS] Emulator iframe failed:",
-            emulatorURL
-        );
+    iframe.style.background =
+        "#000";
 
-        showPlayerMessage(
-            "The emulator page could not be loaded."
-        );
+    iframe.addEventListener(
+        "load",
+        function(){
 
-    };
+            console.log(
+                "[OBVYRIS] Emulator loaded:",
+                emulatorURL
+            );
 
-    container.appendChild(iframe);
+        }
+    );
+
+    iframe.addEventListener(
+        "error",
+        function(){
+
+            console.error(
+                "[OBVYRIS] Emulator iframe failed:",
+                emulatorURL
+            );
+
+            showPlayerMessage(
+                "The emulator page could not be loaded."
+            );
+
+        }
+    );
+
+    container.innerHTML = "";
+
+    container.appendChild(
+        iframe
+    );
 
 }
-
 
 /* =====================================================
    URL NORMALIZATION
