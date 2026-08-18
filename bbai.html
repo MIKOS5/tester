@@ -11,7 +11,8 @@
     box-sizing:border-box;
 }
 
-html,body{
+html,
+body{
     margin:0;
     padding:0;
     width:100%;
@@ -39,7 +40,6 @@ button{
     display:flex;
     min-height:100vh;
 }
-
 
 /* SIDEBAR */
 
@@ -144,7 +144,6 @@ button{
     background:#e45555;
 }
 
-
 /* MAIN */
 
 .main{
@@ -222,7 +221,6 @@ button{
     color:#6bc8ff;
 }
 
-
 /* CONTENT */
 
 .content{
@@ -278,7 +276,6 @@ button{
     margin-right:4px;
 }
 
-
 /* TOOLBAR */
 
 .toolbar{
@@ -305,11 +302,6 @@ button{
     font-size:11px;
 }
 
-.select:focus{
-    border-color:#376c8d;
-}
-
-
 /* GRID */
 
 .grid{
@@ -330,14 +322,12 @@ button{
     overflow:hidden;
     transition:
         transform .16s ease,
-        border-color .16s ease,
-        background .16s ease;
+        border-color .16s ease;
 }
 
 .game-card:hover{
     transform:translateY(-2px);
     border-color:#2d526c;
-    background:#0d1722;
 }
 
 .game-image{
@@ -378,7 +368,6 @@ button{
     padding:5px 7px;
     font-size:8px;
     font-weight:700;
-    letter-spacing:.7px;
 }
 
 .featured{
@@ -454,7 +443,6 @@ button{
     border-radius:6px;
 }
 
-
 /* EMPTY */
 
 .empty{
@@ -477,7 +465,6 @@ button{
     margin-bottom:7px;
 }
 
-
 /* LOADING */
 
 .loading{
@@ -487,7 +474,6 @@ button{
     font-size:12px;
 }
 
-
 /* PLAYER */
 
 .modal{
@@ -495,7 +481,7 @@ button{
     inset:0;
     z-index:100;
     display:none;
-    background:rgba(0,0,0,.88);
+    background:rgba(0,0,0,.92);
 }
 
 .modal.open{
@@ -546,17 +532,13 @@ button{
     font-size:10px;
 }
 
-.close:hover{
-    color:white;
-    background:#182536;
-}
-
 #game{
     flex:1;
     min-height:0;
     width:100%;
     height:100%;
     position:relative;
+    background:#000;
 }
 
 .player-message{
@@ -600,9 +582,51 @@ button{
     font-size:10px;
     text-align:left;
     overflow:auto;
-    max-height:130px;
+    max-height:160px;
 }
 
+/* PREPARING */
+
+.player-preparing{
+    display:none;
+    flex:1;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    background:#05080d;
+}
+
+.player-preparing.show{
+    display:flex;
+}
+
+.spinner{
+    width:34px;
+    height:34px;
+    border:3px solid #1b2b3d;
+    border-top-color:#48bfff;
+    border-radius:50%;
+    animation:spin .8s linear infinite;
+    margin-bottom:16px;
+}
+
+@keyframes spin{
+    to{
+        transform:rotate(360deg);
+    }
+}
+
+.preparing-title{
+    color:#dce5ef;
+    font-size:14px;
+    font-weight:700;
+}
+
+.preparing-text{
+    margin-top:7px;
+    color:#65758a;
+    font-size:11px;
+}
 
 /* RESPONSIVE */
 
@@ -734,7 +758,6 @@ button{
 
 </aside>
 
-
 <main class="main">
 
 <header class="topbar">
@@ -772,7 +795,6 @@ button{
 
 </header>
 
-
 <section class="content">
 
 <div class="hero">
@@ -784,8 +806,9 @@ button{
     <div class="hero-text">
         A living library of browser games,
         retro systems and playable discoveries.
-        The catalog is broadcast directly from
-        the Obvyris Games backend.
+        Cached retro ROMs are prepared by the
+        Obvyris backend and delivered directly
+        to the browser for playback.
     </div>
 
     <div class="stats">
@@ -814,7 +837,6 @@ button{
 
 </div>
 
-
 <div class="toolbar">
 
     <div
@@ -829,11 +851,27 @@ button{
         class="select"
         onchange="applyFilters()"
     >
-        <option value="">Default</option>
-        <option value="title">Title</option>
-        <option value="newest">Newest</option>
-        <option value="oldest">Oldest</option>
-        <option value="year">Year</option>
+
+        <option value="">
+            Default
+        </option>
+
+        <option value="title">
+            Title
+        </option>
+
+        <option value="newest">
+            Newest
+        </option>
+
+        <option value="oldest">
+            Oldest
+        </option>
+
+        <option value="year">
+            Year
+        </option>
+
     </select>
 
     <select
@@ -841,11 +879,14 @@ button{
         class="select"
         onchange="applyFilters()"
     >
-        <option value="">All Genres</option>
+
+        <option value="">
+            All Genres
+        </option>
+
     </select>
 
 </div>
-
 
 <div
     id="loading"
@@ -854,12 +895,10 @@ button{
     Loading Obvyris Games...
 </div>
 
-
 <div
     id="gameGrid"
     class="grid"
 ></div>
-
 
 <div
     id="empty"
@@ -881,7 +920,6 @@ button{
 </main>
 
 </div>
-
 
 <!-- PLAYER -->
 
@@ -915,9 +953,27 @@ button{
 
     </div>
 
+    <div
+        id="preparing"
+        class="player-preparing"
+    >
+
+        <div class="spinner"></div>
+
+        <div class="preparing-title">
+            Preparing Game...
+        </div>
+
+        <div
+            id="preparingText"
+            class="preparing-text"
+        >
+            Retrieving cached ROM
+        </div>
+
+    </div>
 
     <div id="game"></div>
-
 
     <div
         id="playerMessage"
@@ -941,11 +997,10 @@ button{
 
 </div>
 
-
 <script>
 
 /*******************************************************
- * OBVYRIS API
+ * OBVYRIS GAMES BACKEND
  *******************************************************/
 
 const API_URL =
@@ -968,20 +1023,25 @@ let DATA = {
 
 };
 
+
 let activePlatform = "all";
+
 let featuredOnly = false;
 
-
-/*******************************************************
- * EMULATOR STATE
- *******************************************************/
-
-let emulatorScript = null;
 let currentGame = null;
 
+let emulatorScript = null;
+
 
 /*******************************************************
- * LOAD API
+ * ROM STATE
+ *******************************************************/
+
+let currentROMURL = null;
+
+
+/*******************************************************
+ * LOAD CATALOG
  *******************************************************/
 
 async function loadAPI(){
@@ -993,16 +1053,27 @@ async function loadAPI(){
 
     document.getElementById(
         "loading"
-    ).style.display = "block";
+    ).style.display =
+        "block";
 
 
     try{
 
+        const url =
+            API_URL +
+            "?action=broadcast&ts=" +
+            Date.now();
+
+
+        console.log(
+            "[OBVYRIS] Loading catalog:",
+            url
+        );
+
+
         const response =
             await fetch(
-                API_URL +
-                "?action=broadcast&ts=" +
-                Date.now(),
+                url,
                 {
                     method:"GET",
                     cache:"no-store"
@@ -1022,6 +1093,12 @@ async function loadAPI(){
 
         const json =
             await response.json();
+
+
+        console.log(
+            "[OBVYRIS] Catalog:",
+            json
+        );
 
 
         if(!json.success){
@@ -1096,7 +1173,7 @@ async function loadAPI(){
     }catch(error){
 
         console.error(
-            "[OBVYRIS] API error:",
+            "[OBVYRIS] Catalog error:",
             error
         );
 
@@ -1109,7 +1186,8 @@ async function loadAPI(){
 
         document.getElementById(
             "loading"
-        ).style.display = "none";
+        ).style.display =
+            "none";
 
 
         showEmpty(
@@ -1149,7 +1227,6 @@ function setStatus(text,type){
     if(type === "online"){
         dot.classList.add("online");
     }
-
 
     if(type === "error"){
         dot.classList.add("error");
@@ -1208,7 +1285,8 @@ function buildPlatformNav(){
         );
 
 
-    nav.innerHTML = "";
+    nav.innerHTML =
+        "";
 
 
     DATA.platforms
@@ -1231,15 +1309,19 @@ function buildPlatformNav(){
         })
         .forEach(function(platform){
 
+            const id =
+                platform.PlatformID;
+
+
             const count =
                 DATA.games.filter(
                     function(game){
 
                         return String(
-                            game.PlatformID
+                            game.PlatformID || ""
                         ).toLowerCase() ===
                         String(
-                            platform.PlatformID
+                            id || ""
                         ).toLowerCase();
 
                     }
@@ -1256,28 +1338,31 @@ function buildPlatformNav(){
                 escapeHTML(
                     platform.ShortName ||
                     platform.Name ||
-                    platform.PlatformID
+                    id
                 ) +
+
                 '<span class="platform-count">' +
-                count +
+                    count +
                 '</span>';
+
+
+            button.dataset.platform =
+                id;
 
 
             button.onclick =
                 function(){
 
                     setPlatform(
-                        platform.PlatformID
+                        id
                     );
 
                 };
 
 
-            button.dataset.platform =
-                platform.PlatformID;
-
-
-            nav.appendChild(button);
+            nav.appendChild(
+                button
+            );
 
         });
 
@@ -1296,7 +1381,8 @@ function buildGenreNav(){
         );
 
 
-    nav.innerHTML = "";
+    nav.innerHTML =
+        "";
 
 
     DATA.genres
@@ -1339,12 +1425,15 @@ function buildGenreNav(){
                     ).value =
                         genre.GenreID;
 
+
                     applyFilters();
 
                 };
 
 
-            nav.appendChild(button);
+            nav.appendChild(
+                button
+            );
 
         });
 
@@ -1392,7 +1481,9 @@ function buildGenreSelect(){
                 genre.GenreID;
 
 
-            select.appendChild(option);
+            select.appendChild(
+                option
+            );
 
         });
 
@@ -1400,13 +1491,14 @@ function buildGenreSelect(){
 
 
 /*******************************************************
- * PLATFORM
+ * PLATFORM FILTER
  *******************************************************/
 
 function setPlatform(platform){
 
     activePlatform =
         platform;
+
 
     featuredOnly =
         false;
@@ -1438,8 +1530,12 @@ function setPlatform(platform){
         ).forEach(function(button){
 
             if(
-                button.dataset.platform ===
-                platform
+                String(
+                    button.dataset.platform
+                ).toLowerCase() ===
+                String(
+                    platform
+                ).toLowerCase()
             ){
 
                 button.classList.add(
@@ -1542,7 +1638,9 @@ function applyFilters(){
                 return String(
                     game.GenreID || ""
                 ).toLowerCase() ===
-                genre.toLowerCase();
+                String(
+                    genre
+                ).toLowerCase();
 
             });
 
@@ -1568,24 +1666,30 @@ function applyFilters(){
         games =
             games.filter(function(game){
 
-                const text = [
+                return [
 
                     game.Title,
+
                     game.Description,
+
                     game.Developer,
+
                     game.Publisher,
+
                     game.PlatformID,
+
                     game.GenreID,
-                    game.GameType
+
+                    game.GameType,
+
+                    game.GameID,
+
+                    game.EmulatorCore
 
                 ]
                 .join(" ")
-                .toLowerCase();
-
-
-                return text.includes(
-                    search
-                );
+                .toLowerCase()
+                .includes(search);
 
             });
 
@@ -1646,10 +1750,10 @@ function applyFilters(){
         games.sort(function(a,b){
 
             return Number(
-                a.Year || 0
+                b.Year || 0
             ) -
             Number(
-                b.Year || 0
+                a.Year || 0
             );
 
         });
@@ -1682,7 +1786,8 @@ function renderGames(games){
         "none";
 
 
-    grid.innerHTML = "";
+    grid.innerHTML =
+        "";
 
 
     document.getElementById(
@@ -1742,10 +1847,9 @@ function createGameCard(game){
         "game-card";
 
 
-    const image =
-        game.Thumbnail ||
-        game["img link"] ||
-        "";
+    const title =
+        game.Title ||
+        "Untitled Game";
 
 
     const platform =
@@ -1760,14 +1864,15 @@ function createGameCard(game){
         );
 
 
-    const title =
-        game.Title ||
-        "Untitled Game";
-
-
     const description =
         game.Description ||
         "No description available.";
+
+
+    const image =
+        game.Thumbnail ||
+        game["img link"] ||
+        "";
 
 
     const featured =
@@ -1784,12 +1889,9 @@ function createGameCard(game){
         imageHTML =
             '<img src="' +
             escapeAttribute(image) +
-            '" ' +
-            'alt="' +
+            '" alt="' +
             escapeAttribute(title) +
-            '" ' +
-            'loading="lazy" ' +
-            'onerror="this.style.display=\'none\'">';
+            '" loading="lazy" onerror="this.style.display=\'none\'">';
 
     }else{
 
@@ -1811,10 +1913,8 @@ function createGameCard(game){
 
             (
                 featured
-                ?
-                '<div class="featured">FEATURED</div>'
-                :
-                ''
+                    ? '<div class="featured">FEATURED</div>'
+                    : ''
             ) +
 
         '</div>' +
@@ -1833,22 +1933,10 @@ function createGameCard(game){
 
                 (
                     game.Year
-                    ?
-                    '<span class="meta">• ' +
-                    escapeHTML(game.Year) +
-                    '</span>'
-                    :
-                    ''
-                ) +
-
-                (
-                    game.Developer
-                    ?
-                    '<span class="meta">• ' +
-                    escapeHTML(game.Developer) +
-                    '</span>'
-                    :
-                    ''
+                        ? '<span class="meta">• ' +
+                          escapeHTML(game.Year) +
+                          '</span>'
+                        : ''
                 ) +
 
             '</div>' +
@@ -1863,7 +1951,7 @@ function createGameCard(game){
                     'PLAY' +
                 '</button>' +
 
-                '<button class="info-btn" title="Game information">' +
+                '<button class="info-btn">' +
                     'i' +
                 '</button>' +
 
@@ -1877,7 +1965,9 @@ function createGameCard(game){
     ).onclick =
         function(){
 
-            launchGame(game);
+            launchGame(
+                game
+            );
 
         };
 
@@ -1887,7 +1977,9 @@ function createGameCard(game){
     ).onclick =
         function(){
 
-            showGameInfo(game);
+            showGameInfo(
+                game
+            );
 
         };
 
@@ -1898,56 +1990,134 @@ function createGameCard(game){
 
 
 /*******************************************************
- * LAUNCH
+ * LAUNCH GAME
  *******************************************************/
 
 function launchGame(game){
 
-    currentGame = game;
+    currentGame =
+        game;
+
 
     const modal =
-        document.getElementById("modal");
+        document.getElementById(
+            "modal"
+        );
+
 
     const gameContainer =
-        document.getElementById("game");
+        document.getElementById(
+            "game"
+        );
+
 
     const message =
-        document.getElementById("playerMessage");
+        document.getElementById(
+            "playerMessage"
+        );
+
+
+    const preparing =
+        document.getElementById(
+            "preparing"
+        );
+
 
     const title =
-        document.getElementById("playerTitle");
+        document.getElementById(
+            "playerTitle"
+        );
+
 
     const platform =
-        document.getElementById("playerPlatform");
+        document.getElementById(
+            "playerPlatform"
+        );
+
 
     title.textContent =
-        game.Title || "Obvyris Game";
+        game.Title ||
+        "Obvyris Game";
+
 
     platform.textContent =
-        getPlatformName(game.PlatformID);
+        getPlatformName(
+            game.PlatformID
+        );
+
 
     cleanupEmulator();
 
-    gameContainer.innerHTML = "";
 
-    message.classList.remove("show");
+    gameContainer.innerHTML =
+        "";
 
-    modal.classList.add("open");
+
+    message.classList.remove(
+        "show"
+    );
+
+
+    preparing.classList.remove(
+        "show"
+    );
+
+
+    modal.classList.add(
+        "open"
+    );
+
 
     const type =
-        String(game.GameType || "")
-            .trim()
-            .toLowerCase();
+        String(
+            game.GameType || ""
+        )
+        .trim()
+        .toLowerCase();
 
-    console.log("[OBVYRIS] =========================");
-    console.log("[OBVYRIS] Launching Game");
-    console.log("[OBVYRIS] Title:", game.Title);
-    console.log("[OBVYRIS] Game ID:", game.GameID);
-    console.log("[OBVYRIS] Platform:", game.PlatformID);
-    console.log("[OBVYRIS] Type:", type);
-    console.log("[OBVYRIS] Emulator Core:", game.EmulatorCore);
-    console.log("[OBVYRIS] Play URL:", game.PlayURL || "");
-    console.log("[OBVYRIS] =========================");
+
+    const gameId =
+        game.GameID ||
+        game.gameId ||
+        "";
+
+
+    console.log(
+        "[OBVYRIS] ========================="
+    );
+
+    console.log(
+        "[OBVYRIS] Launching Game"
+    );
+
+    console.log(
+        "[OBVYRIS] Title:",
+        game.Title
+    );
+
+    console.log(
+        "[OBVYRIS] Game ID:",
+        gameId
+    );
+
+    console.log(
+        "[OBVYRIS] Platform:",
+        game.PlatformID
+    );
+
+    console.log(
+        "[OBVYRIS] Type:",
+        type
+    );
+
+    console.log(
+        "[OBVYRIS] Core:",
+        game.EmulatorCore || ""
+    );
+
+    console.log(
+        "[OBVYRIS] ========================="
+    );
 
 
     /*
@@ -1958,18 +2128,20 @@ function launchGame(game){
 
         if(game.PlayURL){
 
-            loadIframe(game.PlayURL);
+            loadIframe(
+                game.PlayURL
+            );
 
             return;
 
         }
 
+
         showPlayerMessage(
             "HTML5 game has no PlayURL.",
             {
-                GameID: game.GameID || "",
-                GameType: type,
-                PlayURL: game.PlayURL || ""
+                GameID:gameId,
+                GameType:type
             }
         );
 
@@ -1981,28 +2153,17 @@ function launchGame(game){
     /*
      * EMULATOR
      *
-     * Emulator games are now loaded through
-     * the Apps Script ROM endpoint.
+     * Backend prepares the ROM.
      */
 
-    if(type === "emulator" || game.EmulatorCore){
+    if(
+        type === "emulator" ||
+        game.EmulatorCore
+    ){
 
-        if(!game.GameID){
-
-            showPlayerMessage(
-                "This emulator game has no GameID.",
-                {
-                    Title: game.Title || "",
-                    Platform: game.PlatformID || "",
-                    Core: game.EmulatorCore || ""
-                }
-            );
-
-            return;
-
-        }
-
-        startEmulator(game);
+        startEmulator(
+            game
+        );
 
         return;
 
@@ -2010,12 +2171,14 @@ function launchGame(game){
 
 
     /*
-     * External playable URL
+     * External game.
      */
 
     if(game.PlayURL){
 
-        loadIframe(game.PlayURL);
+        loadIframe(
+            game.PlayURL
+        );
 
         return;
 
@@ -2025,20 +2188,23 @@ function launchGame(game){
     showPlayerMessage(
         "This game is not configured for browser playback.",
         {
-            GameID: game.GameID || "",
-            GameType: game.GameType || "",
-            EmulatorCore: game.EmulatorCore || "",
-            ROMURL: game.ROMURL || "",
-            PlayURL: game.PlayURL || ""
+            GameID:gameId,
+            GameType:type,
+            EmulatorCore:
+                game.EmulatorCore || "",
+            PlayURL:
+                game.PlayURL || ""
         }
     );
 
 }
+
+
 /*******************************************************
- * HTML5 / EXTERNAL IFRAME
+ * START EMULATOR
  *******************************************************/
 
-function loadIframe(url){
+async function startEmulator(game){
 
     const gameContainer =
         document.getElementById(
@@ -2046,83 +2212,61 @@ function loadIframe(url){
         );
 
 
-    const cleanURL =
-        String(url || "").trim();
-
-
-    if(!cleanURL){
-
-        showPlayerMessage(
-            "No playable URL was supplied."
+    const preparing =
+        document.getElementById(
+            "preparing"
         );
 
-        return;
 
-    }
+    const preparingText =
+        document.getElementById(
+            "preparingText"
+        );
 
 
-    console.log(
-        "[OBVYRIS] Loading iframe:",
-        cleanURL
-    );
+    const message =
+        document.getElementById(
+            "playerMessage"
+        );
+
+
+    cleanupEmulator();
 
 
     gameContainer.innerHTML =
-
-        '<iframe ' +
-        'src="' +
-        escapeAttribute(cleanURL) +
-        '" ' +
-        'style="width:100%;height:100%;border:0;background:#000" ' +
-        'allow="fullscreen; autoplay; gamepad; cross-origin-isolated" ' +
-        'allowfullscreen>' +
-        '</iframe>';
-
-}
+        "";
 
 
-/*******************************************************
- * EMULATORJS
- *******************************************************/
+    message.classList.remove(
+        "show"
+    );
 
-async function startEmulator(game){
-
-    const gameContainer =
-        document.getElementById("game");
-
-    gameContainer.innerHTML = "";
-
-    const core =
-        String(game.EmulatorCore || "")
-            .trim()
-            .toLowerCase();
 
     const gameId =
-        String(game.GameID || "")
-            .trim();
+        String(
+            game.GameID ||
+            game.gameId ||
+            ""
+        ).trim();
 
-    if(!core){
 
-        showPlayerMessage(
-            "No EmulatorJS core is configured.",
-            {
-                Game: game.Title || "",
-                GameID: gameId,
-                Core: ""
-            }
-        );
+    const core =
+        String(
+            game.EmulatorCore ||
+            ""
+        ).trim();
 
-        return;
-
-    }
 
     if(!gameId){
 
         showPlayerMessage(
-            "No GameID is configured.",
+            "This game has no Game ID.",
             {
-                Game: game.Title || "",
-                Core: core
+                Game:
+                    game.Title || "",
+
+                GameID:
+                    ""
             }
         );
 
@@ -2131,30 +2275,53 @@ async function startEmulator(game){
     }
 
 
-    console.log("[OBVYRIS] =========================");
-    console.log("[OBVYRIS] Requesting ROM");
-    console.log("[OBVYRIS] Game:", game.Title);
-    console.log("[OBVYRIS] Game ID:", gameId);
-    console.log("[OBVYRIS] Core:", core);
-    console.log("[OBVYRIS] =========================");
+    if(!core){
+
+        showPlayerMessage(
+            "This game has no EmulatorJS core.",
+            {
+                Game:
+                    game.Title || "",
+
+                GameID:
+                    gameId,
+
+                Core:
+                    ""
+            }
+        );
+
+        return;
+
+    }
+
+
+    preparing.classList.add(
+        "show"
+    );
+
+
+    preparingText.textContent =
+        "Retrieving cached ROM";
 
 
     try{
-
-        /*
-         * Ask Apps Script for the cached ROM.
-         *
-         * IMPORTANT:
-         * The parameter is "game", not "gameId".
-         */
 
         const url =
             API_URL +
             "?action=rom" +
             "&game=" +
-            encodeURIComponent(gameId) +
+            encodeURIComponent(
+                gameId
+            ) +
             "&ts=" +
             Date.now();
+
+
+        console.log(
+            "[OBVYRIS] Requesting ROM:",
+            gameId
+        );
 
 
         console.log(
@@ -2183,134 +2350,150 @@ async function startEmulator(game){
         }
 
 
-        const data =
+        preparingText.textContent =
+            "Receiving cached ROM";
+
+
+        const result =
             await response.json();
 
 
         console.log(
-            "[OBVYRIS] ROM API response:",
-            data
+            "[OBVYRIS] ROM API:",
+            result
         );
 
 
-        if(!data.success){
+        if(!result.success){
 
             throw new Error(
-                data.error ||
-                "ROM API returned an error"
+                result.error ||
+                "ROM API returned an error."
             );
 
         }
 
 
         /*
-         * New backend returns base64 ROM data.
+         * Backend must provide romBase64.
+         */
+
+        const base64 =
+            String(
+                result.romBase64 ||
+                ""
+            ).trim();
+
+
+        if(!base64){
+
+            throw new Error(
+                "Backend returned no romBase64."
+            );
+
+        }
+
+
+        console.log(
+            "[OBVYRIS] Base64 length:",
+            base64.length
+        );
+
+
+        preparingText.textContent =
+            "Decoding ROM";
+
+
+        const binary =
+            base64ToUint8Array(
+                base64
+            );
+
+
+        console.log(
+            "[OBVYRIS] ROM size:",
+            binary.length,
+            "bytes"
+        );
+
+
+        if(!binary.length){
+
+            throw new Error(
+                "Decoded ROM is empty."
+            );
+
+        }
+
+
+        /*
+         * Validate NES ROM.
          */
 
         if(
-            !data.romBase64 &&
-            !data.base64
+            core.toLowerCase() === "nes"
         ){
 
-            /*
-             * This catches the old response you were
-             * getting where the API only returned
-             * Drive metadata.
-             */
+            if(
+                binary.length < 16 ||
+                binary[0] !== 0x4E ||
+                binary[1] !== 0x45 ||
+                binary[2] !== 0x53 ||
+                binary[3] !== 0x1A
+            ){
 
-            throw new Error(
-                "ROM API returned metadata but no ROM binary data."
-            );
+                throw new Error(
+                    "ROM is not a valid NES file."
+                );
+
+            }
 
         }
 
 
-        const base64 =
-            data.romBase64 ||
-            data.base64;
+        preparingText.textContent =
+            "Preparing emulator";
 
-
-        console.log(
-            "[OBVYRIS] ROM received."
-        );
-
-        console.log(
-            "[OBVYRIS] File:",
-            data.fileName || ""
-        );
-
-        console.log(
-            "[OBVYRIS] Size:",
-            data.fileSize || ""
-        );
-
-
-        /*
-         * Convert base64 → Uint8Array
-         */
-
-        const binaryString =
-            atob(base64);
-
-        const length =
-            binaryString.length;
-
-        const bytes =
-            new Uint8Array(length);
-
-
-        for(
-            let i = 0;
-            i < length;
-            i++
-        ){
-
-            bytes[i] =
-                binaryString.charCodeAt(i);
-
-        }
-
-
-        /*
-         * Create an in-memory ROM.
-         *
-         * EmulatorJS will load this instead of
-         * attempting to download the Google Drive file.
-         */
 
         const blob =
             new Blob(
-                [bytes],
+                [binary],
                 {
                     type:
-                        data.mimeType ||
+                        result.mimeType ||
                         "application/octet-stream"
                 }
             );
 
 
-        const blobURL =
-            URL.createObjectURL(blob);
+        currentROMURL =
+            URL.createObjectURL(
+                blob
+            );
 
 
         console.log(
-            "[OBVYRIS] ROM Blob created:",
-            blobURL
+            "[OBVYRIS] Local ROM URL:",
+            currentROMURL
         );
 
 
         /*
-         * Store it so we can revoke it when the
-         * emulator closes.
+         * Hide preparation screen.
          */
 
-        game._obvyrisBlobURL =
-            blobURL;
+        preparing.classList.remove(
+            "show"
+        );
 
+
+        /*
+         * Start EmulatorJS.
+         */
 
         initializeEmulator(
             game,
-            blobURL,
+            currentROMURL,
             core
         );
 
@@ -2318,8 +2501,13 @@ async function startEmulator(game){
     }catch(error){
 
         console.error(
-            "[OBVYRIS] ROM loading failed:",
+            "[OBVYRIS] ROM error:",
             error
+        );
+
+
+        preparing.classList.remove(
+            "show"
         );
 
 
@@ -2336,7 +2524,8 @@ async function startEmulator(game){
                     core,
 
                 Error:
-                    error.message || String(error),
+                    error.message ||
+                    String(error),
 
                 API:
                     API_URL
@@ -2347,54 +2536,72 @@ async function startEmulator(game){
 
 }
 
+
 /*******************************************************
- * TEST ROM
+ * BASE64 DECODER
  *******************************************************/
 
-async function testROM(url){
+function base64ToUint8Array(base64){
 
-    try{
-
-        const response =
-            await fetch(
-                url,
-                {
-                    method:"HEAD",
-                    mode:"cors",
-                    cache:"no-store"
-                }
-            );
+    base64 =
+        String(
+            base64 || ""
+        )
+        .replace(
+            /\s/g,
+            ""
+        );
 
 
-        return {
+    /*
+     * Support accidental data URLs.
+     */
 
-            ok:response.ok,
+    if(
+        base64.includes(
+            "base64,"
+        )
+    ){
 
-            status:response.status,
-
-            type:
-                response.headers.get(
-                    "content-type"
-                ),
-
-            length:
-                response.headers.get(
-                    "content-length"
-                )
-
-        };
-
-    }catch(error){
-
-        throw error;
+        base64 =
+            base64.split(
+                "base64,"
+            )[1];
 
     }
+
+
+    const binary =
+        atob(
+            base64
+        );
+
+
+    const bytes =
+        new Uint8Array(
+            binary.length
+        );
+
+
+    for(
+        let i = 0;
+        i < binary.length;
+        i++
+    ){
+
+        bytes[i] =
+            binary.charCodeAt(i);
+
+    }
+
+
+    return bytes;
 
 }
 
 
 /*******************************************************
- * INITIALIZE EMULATOR
+ * INITIALIZE EMULATORJS
  *******************************************************/
 
 function initializeEmulator(
@@ -2407,47 +2614,21 @@ function initializeEmulator(
 
 
     const gameContainer =
-        document.getElementById("game");
+        document.getElementById(
+            "game"
+        );
 
 
-    gameContainer.innerHTML = "";
-
-
-    console.log(
-        "[OBVYRIS] ========================="
-    );
-
-    console.log(
-        "[OBVYRIS] Starting EmulatorJS"
-    );
-
-    console.log(
-        "[OBVYRIS] Game:",
-        game.Title
-    );
-
-    console.log(
-        "[OBVYRIS] Game ID:",
-        game.GameID
-    );
-
-    console.log(
-        "[OBVYRIS] Core:",
-        core
-    );
-
-    console.log(
-        "[OBVYRIS] ROM:",
-        romURL
-    );
-
-    console.log(
-        "[OBVYRIS] ========================="
-    );
+    gameContainer.innerHTML =
+        "";
 
 
     /*
-     * EmulatorJS configuration
+     * IMPORTANT:
+     *
+     * EmulatorJS gets the local Blob URL.
+     *
+     * It does NOT access Google Drive.
      */
 
     window.EJS_player =
@@ -2483,12 +2664,48 @@ function initializeEmulator(
         0.8;
 
 
-    /*
-     * Load EmulatorJS
-     */
+    window.EJS_color =
+        "#48bfff";
+
+
+    console.log(
+        "[OBVYRIS] ========================="
+    );
+
+    console.log(
+        "[OBVYRIS] EmulatorJS"
+    );
+
+    console.log(
+        "[OBVYRIS] Game:",
+        game.Title
+    );
+
+    console.log(
+        "[OBVYRIS] Game ID:",
+        game.GameID ||
+        game.gameId
+    );
+
+    console.log(
+        "[OBVYRIS] Core:",
+        core
+    );
+
+    console.log(
+        "[OBVYRIS] ROM:",
+        romURL
+    );
+
+    console.log(
+        "[OBVYRIS] ========================="
+    );
+
 
     emulatorScript =
-        document.createElement("script");
+        document.createElement(
+            "script"
+        );
 
 
     emulatorScript.src =
@@ -2503,7 +2720,7 @@ function initializeEmulator(
         function(){
 
             console.log(
-                "[OBVYRIS] EmulatorJS loaded."
+                "[OBVYRIS] EmulatorJS loader loaded."
             );
 
         };
@@ -2513,24 +2730,18 @@ function initializeEmulator(
         function(){
 
             console.error(
-                "[OBVYRIS] EmulatorJS failed to load."
+                "[OBVYRIS] EmulatorJS loader failed."
             );
 
 
             showPlayerMessage(
                 "EmulatorJS could not be loaded.",
                 {
-                    Game:
-                        game.Title || "",
-
-                    GameID:
-                        game.GameID || "",
-
                     Core:
                         core,
 
                     ROM:
-                        "Blob URL"
+                        romURL
                 }
             );
 
@@ -2545,93 +2756,49 @@ function initializeEmulator(
 
 
 /*******************************************************
- * CLEAN EMULATOR
+ * HTML5 / EXTERNAL
  *******************************************************/
 
-function cleanupEmulator(){
+function loadIframe(url){
 
-    /*
-     * Remove EmulatorJS loader.
-     */
-
-    document
-        .querySelectorAll(
-            'script[data-obvyris-emulator]'
-        )
-        .forEach(function(script){
-
-            script.remove();
-
-        });
+    const gameContainer =
+        document.getElementById(
+            "game"
+        );
 
 
-    emulatorScript =
-        null;
+    const cleanURL =
+        String(
+            url || ""
+        ).trim();
 
 
-    /*
-     * Revoke previous ROM Blob.
-     */
+    if(!cleanURL){
 
-    if(
-        currentGame &&
-        currentGame._obvyrisBlobURL
-    ){
+        showPlayerMessage(
+            "No playable URL was supplied."
+        );
 
-        try{
-
-            URL.revokeObjectURL(
-                currentGame._obvyrisBlobURL
-            );
-
-        }catch(error){
-
-            console.warn(
-                "[OBVYRIS] Blob cleanup failed:",
-                error
-            );
-
-        }
-
-
-        currentGame._obvyrisBlobURL =
-            null;
+        return;
 
     }
 
 
-    /*
-     * Clear EmulatorJS globals.
-     */
+    gameContainer.innerHTML =
 
-    try{
-        delete window.EJS_player;
-    }catch(e){}
+        '<iframe ' +
 
+        'src="' +
+            escapeAttribute(cleanURL) +
+        '" ' +
 
-    try{
-        delete window.EJS_core;
-    }catch(e){}
+        'style="width:100%;height:100%;border:0;background:#000" ' +
 
+        'allow="fullscreen; autoplay; gamepad" ' +
 
-    try{
-        delete window.EJS_gameUrl;
-    }catch(e){}
+        'allowfullscreen>' +
 
-
-    try{
-        delete window.EJS_gameName;
-    }catch(e){}
-
-
-    try{
-        delete window.EJS_pathtodata;
-    }catch(e){}
-
-
-    try{
-        delete window.EJS_startOnLoaded;
-    }catch(e){}
+        '</iframe>';
 
 }
 
@@ -2644,6 +2811,12 @@ function showPlayerMessage(
     text,
     debug
 ){
+
+    const preparing =
+        document.getElementById(
+            "preparing"
+        );
+
 
     const message =
         document.getElementById(
@@ -2661,6 +2834,11 @@ function showPlayerMessage(
         document.getElementById(
             "playerDebug"
         );
+
+
+    preparing.classList.remove(
+        "show"
+    );
 
 
     messageText.textContent =
@@ -2697,14 +2875,17 @@ function showPlayerMessage(
 
 function closePlayer(){
 
-    const modal =
-        document.getElementById(
-            "modal"
-        );
-
-
-    modal.classList.remove(
+    document.getElementById(
+        "modal"
+    ).classList.remove(
         "open"
+    );
+
+
+    document.getElementById(
+        "preparing"
+    ).classList.remove(
+        "show"
     );
 
 
@@ -2731,57 +2912,147 @@ function closePlayer(){
 
 
 /*******************************************************
- * ESCAPE KEY
+ * CLEAN EMULATOR
  *******************************************************/
 
-document.addEventListener(
-    "keydown",
-    function(event){
+function cleanupEmulator(){
 
-        if(
-            event.key === "Escape"
-        ){
+    document
+        .querySelectorAll(
+            'script[data-obvyris-emulator]'
+        )
+        .forEach(function(script){
 
-            closePlayer();
+            script.remove();
+
+        });
+
+
+    emulatorScript =
+        null;
+
+
+    /*
+     * Destroy old Blob URL.
+     */
+
+    if(currentROMURL){
+
+        try{
+
+            URL.revokeObjectURL(
+                currentROMURL
+            );
+
+        }catch(error){
+
+            console.warn(
+                "[OBVYRIS] Blob cleanup failed:",
+                error
+            );
 
         }
 
+        currentROMURL =
+            null;
+
     }
-);
+
+
+    /*
+     * Remove EmulatorJS globals.
+     */
+
+    const globals = [
+
+        "EJS_player",
+        "EJS_core",
+        "EJS_gameUrl",
+        "EJS_gameName",
+        "EJS_pathtodata",
+        "EJS_startOnLoaded",
+        "EJS_language",
+        "EJS_volume",
+        "EJS_color"
+
+    ];
+
+
+    globals.forEach(function(name){
+
+        try{
+
+            delete window[name];
+
+        }catch(error){}
+
+    });
+
+}
 
 
 /*******************************************************
- * RANDOM
+ * RANDOM GAME
  *******************************************************/
 
 function randomGame(){
 
     if(!DATA.games.length){
+
         return;
+
     }
 
 
-    const available =
-        DATA.games.filter(function(game){
+    let pool =
+        DATA.games.slice();
 
-            return (
-                !activePlatform ||
-                activePlatform === "all" ||
-                String(
+
+    if(activePlatform !== "all"){
+
+        pool =
+            pool.filter(function(game){
+
+                return String(
                     game.PlatformID || ""
                 ).toLowerCase() ===
                 String(
                     activePlatform
-                ).toLowerCase()
-            );
+                ).toLowerCase();
 
-        });
+            });
+
+    }
 
 
-    const pool =
-        available.length
-            ? available
-            : DATA.games;
+    if(featuredOnly){
+
+        const featured =
+            pool.filter(function(game){
+
+                return isTrue(
+                    game.Featured
+                );
+
+            });
+
+
+        if(featured.length){
+
+            pool =
+                featured;
+
+        }
+
+    }
+
+
+    if(!pool.length){
+
+        pool =
+            DATA.games.slice();
+
+    }
 
 
     const game =
@@ -2806,34 +3077,29 @@ function randomGame(){
 
 function showGameInfo(game){
 
-    const title =
-        game.Title ||
-        "Untitled";
-
-
-    const platform =
-        getPlatformName(
-            game.PlatformID
-        );
-
-
-    const genre =
-        getGenreName(
-            game.GenreID
-        );
-
-
     const lines = [
 
-        title,
+        game.Title ||
+        "Untitled Game",
 
         "",
 
+        "Game ID: " +
+        (
+            game.GameID ||
+            game.gameId ||
+            "Unknown"
+        ),
+
         "Platform: " +
-        platform,
+        getPlatformName(
+            game.PlatformID
+        ),
 
         "Genre: " +
-        genre,
+        getGenreName(
+            game.GenreID
+        ),
 
         game.Year
             ? "Year: " + game.Year
@@ -2849,9 +3115,9 @@ function showGameInfo(game){
               game.Publisher
             : "",
 
-        game.SourceID
-            ? "Source: " +
-              game.SourceID
+        game.GameType
+            ? "Type: " +
+              game.GameType
             : "",
 
         game.EmulatorCore
@@ -2882,12 +3148,12 @@ function showGameInfo(game){
 
 function getPlatformName(id){
 
-    const platform =
+    const item =
         DATA.platforms.find(
-            function(item){
+            function(platform){
 
                 return String(
-                    item.PlatformID
+                    platform.PlatformID || ""
                 ).toLowerCase() ===
                 String(
                     id || ""
@@ -2897,15 +3163,18 @@ function getPlatformName(id){
         );
 
 
-    if(!platform){
-        return id || "Unknown";
+    if(!item){
+
+        return id ||
+            "Unknown";
+
     }
 
 
     return (
-        platform.ShortName ||
-        platform.Name ||
-        id
+        item.ShortName ||
+        item.Name ||
+        item.PlatformID
     );
 
 }
@@ -2913,12 +3182,12 @@ function getPlatformName(id){
 
 function getGenreName(id){
 
-    const genre =
+    const item =
         DATA.genres.find(
-            function(item){
+            function(genre){
 
                 return String(
-                    item.GenreID
+                    genre.GenreID || ""
                 ).toLowerCase() ===
                 String(
                     id || ""
@@ -2928,14 +3197,17 @@ function getGenreName(id){
         );
 
 
-    if(!genre){
-        return id || "Unknown";
+    if(!item){
+
+        return id ||
+            "Unknown";
+
     }
 
 
     return (
-        genre.Name ||
-        genre.GenreID
+        item.Name ||
+        item.GenreID
     );
 
 }
@@ -2947,14 +3219,18 @@ function isTrue(value){
         value === true ||
         value === 1
     ){
+
         return true;
+
     }
 
 
     const text =
-        String(value)
-            .toLowerCase()
-            .trim();
+        String(
+            value || ""
+        )
+        .toLowerCase()
+        .trim();
 
 
     return (
@@ -3031,6 +3307,48 @@ function showEmpty(text){
     );
 
 }
+
+
+/*******************************************************
+ * ESCAPE KEY
+ *******************************************************/
+
+document.addEventListener(
+    "keydown",
+    function(event){
+
+        if(
+            event.key === "Escape"
+        ){
+
+            closePlayer();
+
+        }
+
+    }
+);
+
+
+/*******************************************************
+ * MODAL BACKGROUND
+ *******************************************************/
+
+document.getElementById(
+    "modal"
+).addEventListener(
+    "click",
+    function(event){
+
+        if(
+            event.target === this
+        ){
+
+            closePlayer();
+
+        }
+
+    }
+);
 
 
 /*******************************************************
