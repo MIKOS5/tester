@@ -51,12 +51,20 @@ body{
     background:#000;
     color:#718096;
     font-size:13px;
+    text-align:center;
+    padding:30px;
 }
 
 #loading strong{
     color:#e8edf5;
     font-size:18px;
     margin-bottom:8px;
+}
+
+#loadingStatus{
+    margin-top:8px;
+    color:#596a7e;
+    font-size:11px;
 }
 
 #error{
@@ -104,9 +112,11 @@ body{
         OBVYRIS
     </strong>
 
-    <span>
+    <span id="loadingText">
         Loading emulator...
     </span>
+
+    <span id="loadingStatus"></span>
 
 </div>
 
@@ -143,8 +153,16 @@ const title =
     "Obvyris Emulator";
 
 
+/*******************************************************
+ * DEBUG
+ *******************************************************/
+
 console.log(
-    "[OBVYRIS EMULATOR] ======================="
+    "[OBVYRIS EMULATOR] ==============================="
+);
+
+console.log(
+    "[OBVYRIS EMULATOR] Emulator page loaded"
 );
 
 console.log(
@@ -158,12 +176,17 @@ console.log(
 );
 
 console.log(
-    "[OBVYRIS EMULATOR] ROM:",
+    "[OBVYRIS EMULATOR] Decoded ROM:",
     rom
 );
 
 console.log(
-    "[OBVYRIS EMULATOR] ======================="
+    "[OBVYRIS EMULATOR] Page URL:",
+    window.location.href
+);
+
+console.log(
+    "[OBVYRIS EMULATOR] ==============================="
 );
 
 
@@ -186,9 +209,96 @@ if(!rom){
         "No ROM URL was supplied."
     );
 
+}else if(!core){
+
+    showError(
+        "No emulator core was supplied."
+    );
+
 }else{
 
-    startEmulator();
+    testROM();
+
+}
+
+
+/*******************************************************
+ * TEST ROM
+ *******************************************************/
+
+async function testROM(){
+
+    setLoading(
+        "Testing ROM...",
+        "Checking ROM accessibility"
+    );
+
+    console.log(
+        "[OBVYRIS EMULATOR] Testing ROM URL..."
+    );
+
+    console.log(
+        "[OBVYRIS EMULATOR] Fetching:",
+        rom
+    );
+
+    try{
+
+        const response =
+            await fetch(
+                rom,
+                {
+                    method:"GET",
+                    cache:"no-store"
+                }
+            );
+
+        console.log(
+            "[OBVYRIS EMULATOR] ROM response:",
+            response.status,
+            response.statusText
+        );
+
+        console.log(
+            "[OBVYRIS EMULATOR] Content-Type:",
+            response.headers.get("content-type")
+        );
+
+        console.log(
+            "[OBVYRIS EMULATOR] Content-Length:",
+            response.headers.get("content-length")
+        );
+
+        if(!response.ok){
+
+            throw new Error(
+                "ROM HTTP " +
+                response.status +
+                " " +
+                response.statusText
+            );
+
+        }
+
+        console.log(
+            "[OBVYRIS EMULATOR] ROM accessible"
+        );
+
+        startEmulator();
+
+    }catch(error){
+
+        console.error(
+            "[OBVYRIS EMULATOR] ROM fetch failed:",
+            error
+        );
+
+        showError(
+            "The ROM could not be accessed.\n\n" +
+            error.message
+        );
+
+    }
 
 }
 
@@ -199,8 +309,17 @@ if(!rom){
 
 function startEmulator(){
 
+    setLoading(
+        "Starting EmulatorJS...",
+        "Loading emulator engine"
+    );
+
+    console.log(
+        "[OBVYRIS EMULATOR] Starting EmulatorJS"
+    );
+
     /*
-     * EmulatorJS configuration.
+     * EmulatorJS configuration
      */
 
     window.EJS_player =
@@ -225,9 +344,10 @@ function startEmulator(){
         "#48bfff";
 
     /*
-     * Do not use threaded mode.
-     * GitHub Pages does not provide the required
-     * cross-origin isolation headers.
+     * Threads disabled.
+     *
+     * GitHub Pages does not provide the
+     * required cross-origin isolation headers.
      */
 
     window.EJS_threads =
@@ -235,8 +355,23 @@ function startEmulator(){
 
 
     console.log(
+        "[OBVYRIS EMULATOR] EJS_player:",
+        window.EJS_player
+    );
+
+    console.log(
+        "[OBVYRIS EMULATOR] EJS_core:",
+        window.EJS_core
+    );
+
+    console.log(
         "[OBVYRIS EMULATOR] EJS_gameUrl:",
         window.EJS_gameUrl
+    );
+
+    console.log(
+        "[OBVYRIS EMULATOR] EJS_pathtodata:",
+        window.EJS_pathtodata
     );
 
 
@@ -250,6 +385,9 @@ function startEmulator(){
     script.src =
         "https://cdn.emulatorjs.org/stable/data/loader.js";
 
+    script.async =
+        true;
+
     script.onload =
         function(){
 
@@ -257,23 +395,9 @@ function startEmulator(){
                 "[OBVYRIS EMULATOR] EmulatorJS loader loaded"
             );
 
-            setTimeout(
-                function(){
-
-                    const loading =
-                        document.getElementById(
-                            "loading"
-                        );
-
-                    if(loading){
-
-                        loading.style.display =
-                            "none";
-
-                    }
-
-                },
-                1500
+            setLoading(
+                "EmulatorJS loaded",
+                "Starting " + core.toUpperCase() + "..."
             );
 
         };
@@ -301,32 +425,106 @@ function startEmulator(){
 
 
 /*******************************************************
- * ERROR
+ * LOADING UI
  *******************************************************/
 
-function showError(message){
+function setLoading(
+    text,
+    status
+){
 
-    document.getElementById(
-        "loading"
-    ).style.display =
-        "none";
+    const loading =
+        document.getElementById(
+            "loading"
+        );
 
-    document.getElementById(
-        "errorText"
-    ).textContent =
-        message;
+    const loadingText =
+        document.getElementById(
+            "loadingText"
+        );
 
-    document.getElementById(
-        "error"
-    ).classList.add(
-        "show"
-    );
+    const loadingStatus =
+        document.getElementById(
+            "loadingStatus"
+        );
+
+    if(loading){
+
+        loading.style.display =
+            "flex";
+
+    }
+
+    if(loadingText){
+
+        loadingText.textContent =
+            text || "";
+
+    }
+
+    if(loadingStatus){
+
+        loadingStatus.textContent =
+            status || "";
+
+    }
 
 }
 
 
 /*******************************************************
- * DEBUG
+ * ERROR
+ *******************************************************/
+
+function showError(message){
+
+    console.error(
+        "[OBVYRIS EMULATOR] ERROR:",
+        message
+    );
+
+    const loading =
+        document.getElementById(
+            "loading"
+        );
+
+    if(loading){
+
+        loading.style.display =
+            "none";
+
+    }
+
+    const error =
+        document.getElementById(
+            "error"
+        );
+
+    const errorText =
+        document.getElementById(
+            "errorText"
+        );
+
+    if(errorText){
+
+        errorText.textContent =
+            message;
+
+    }
+
+    if(error){
+
+        error.classList.add(
+            "show"
+        );
+
+    }
+
+}
+
+
+/*******************************************************
+ * GLOBAL ERROR DEBUGGING
  *******************************************************/
 
 window.addEventListener(
@@ -336,12 +534,19 @@ window.addEventListener(
         console.error(
             "[OBVYRIS EMULATOR ERROR]",
             event.message,
+            event.filename,
+            event.lineno,
+            event.colno,
             event.error
         );
 
     }
 );
 
+
+/*******************************************************
+ * PROMISE ERROR DEBUGGING
+ *******************************************************/
 
 window.addEventListener(
     "unhandledrejection",
@@ -350,6 +555,37 @@ window.addEventListener(
         console.error(
             "[OBVYRIS EMULATOR PROMISE ERROR]",
             event.reason
+        );
+
+    }
+);
+
+
+/*******************************************************
+ * EMULATORJS DEBUG
+ *******************************************************/
+
+window.addEventListener(
+    "load",
+    function(){
+
+        console.log(
+            "[OBVYRIS EMULATOR] Window loaded"
+        );
+
+        console.log(
+            "[OBVYRIS EMULATOR] EJS_player:",
+            window.EJS_player
+        );
+
+        console.log(
+            "[OBVYRIS EMULATOR] EJS_core:",
+            window.EJS_core
+        );
+
+        console.log(
+            "[OBVYRIS EMULATOR] EJS_gameUrl:",
+            window.EJS_gameUrl
         );
 
     }
