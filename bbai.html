@@ -1903,7 +1903,8 @@ function createGameCard(game){
 
 function launchGame(game){
 
-    currentGame = game;
+    currentGame =
+        game;
 
 
     const modal =
@@ -1926,10 +1927,6 @@ function launchGame(game){
         document.getElementById("playerPlatform");
 
 
-    /*
-     * PLAYER HEADER
-     */
-
     title.textContent =
         game.Title ||
         "Obvyris Game";
@@ -1941,14 +1938,11 @@ function launchGame(game){
         );
 
 
-    /*
-     * CLEAN PREVIOUS GAME
-     */
-
     cleanupEmulator();
 
 
-    gameContainer.innerHTML = "";
+    gameContainer.innerHTML =
+        "";
 
 
     message.classList.remove(
@@ -1956,18 +1950,10 @@ function launchGame(game){
     );
 
 
-    /*
-     * OPEN PLAYER
-     */
-
     modal.classList.add(
         "open"
     );
 
-
-    /*
-     * GAME TYPE
-     */
 
     const type =
         String(
@@ -1992,10 +1978,7 @@ function launchGame(game){
 
     console.log(
         "[OBVYRIS] Game ID:",
-        game.GameID ||
-        game.gameId ||
-        game.ID ||
-        ""
+        game.GameID
     );
 
     console.log(
@@ -2010,14 +1993,12 @@ function launchGame(game){
 
     console.log(
         "[OBVYRIS] Emulator Core:",
-        game.EmulatorCore ||
-        ""
+        game.EmulatorCore
     );
 
     console.log(
         "[OBVYRIS] Play URL:",
-        game.PlayURL ||
-        ""
+        game.PlayURL || ""
     );
 
     console.log(
@@ -2031,10 +2012,7 @@ function launchGame(game){
 
     if(type === "html5"){
 
-        if(
-            game.PlayURL &&
-            String(game.PlayURL).trim()
-        ){
+        if(game.PlayURL){
 
             loadIframe(
                 game.PlayURL
@@ -2048,17 +2026,10 @@ function launchGame(game){
         showPlayerMessage(
             "HTML5 game has no PlayURL.",
             {
-                GameID:
-                    game.GameID ||
-                    game.gameId ||
-                    game.ID ||
-                    "",
-
+                Game:game.Title || "",
+                GameID:game.GameID || "",
                 GameType:type,
-
-                PlayURL:
-                    game.PlayURL ||
-                    ""
+                PlayURL:game.PlayURL || ""
             }
         );
 
@@ -2069,16 +2040,26 @@ function launchGame(game){
 
     /*
      * EMULATOR GAME
-     *
-     * ROM is retrieved from the
-     * Apps Script ROM cache when
-     * PLAY is pressed.
      */
 
-    if(
-        game.EmulatorCore &&
-        String(game.EmulatorCore).trim()
-    ){
+    if(type === "emulator"){
+
+        if(!game.EmulatorCore){
+
+            showPlayerMessage(
+                "Emulator game has no EmulatorJS core.",
+                {
+                    Game:game.Title || "",
+                    GameID:game.GameID || "",
+                    GameType:type,
+                    EmulatorCore:""
+                }
+            );
+
+            return;
+
+        }
+
 
         startEmulator(
             game
@@ -2090,13 +2071,27 @@ function launchGame(game){
 
 
     /*
-     * EXTERNAL PLAYABLE GAME
+     * Fallback:
+     * If an emulator core exists, treat it
+     * as an emulator game.
      */
 
-    if(
-        game.PlayURL &&
-        String(game.PlayURL).trim()
-    ){
+    if(game.EmulatorCore){
+
+        startEmulator(
+            game
+        );
+
+        return;
+
+    }
+
+
+    /*
+     * External playable URL
+     */
+
+    if(game.PlayURL){
 
         loadIframe(
             game.PlayURL
@@ -2108,46 +2103,18 @@ function launchGame(game){
 
 
     /*
-     * NOTHING CONFIGURED
+     * Nothing playable
      */
 
     showPlayerMessage(
         "This game is not configured for browser playback.",
         {
-            GameID:
-                game.GameID ||
-                game.gameId ||
-                game.ID ||
-                "",
-
-            Title:
-                game.Title ||
-                "",
-
-            GameType:
-                game.GameType ||
-                "",
-
-            Platform:
-                game.PlatformID ||
-                "",
-
-            EmulatorCore:
-                game.EmulatorCore ||
-                "",
-
-            PlayURL:
-                game.PlayURL ||
-                "",
-
-            ROMURL:
-                game.ROMURL ||
-                "",
-
-            Cached:
-                game.Cached ||
-                game.cached ||
-                false
+            Game:game.Title || "",
+            GameID:game.GameID || "",
+            GameType:game.GameType || "",
+            EmulatorCore:game.EmulatorCore || "",
+            ROMURL:game.ROMURL || "",
+            PlayURL:game.PlayURL || ""
         }
     );
 
@@ -2212,16 +2179,33 @@ async function startEmulator(game){
 
     gameContainer.innerHTML = "";
 
+    const gameId =
+        String(game.GameID || "").trim();
+
     const core =
         String(game.EmulatorCore || "").trim();
+
+    if(!gameId){
+
+        showPlayerMessage(
+            "Game is missing its GameID.",
+            {
+                Game: game.Title || "",
+                GameID: "",
+                Core: core
+            }
+        );
+
+        return;
+    }
 
     if(!core){
 
         showPlayerMessage(
-            "No EmulatorJS core is configured.",
+            "Game is missing its EmulatorJS core.",
             {
                 Game: game.Title || "",
-                Platform: game.PlatformID || "",
+                GameID: gameId,
                 Core: ""
             }
         );
@@ -2230,72 +2214,49 @@ async function startEmulator(game){
     }
 
 
-    /*
-     * Determine Game ID
-     */
-
-    const gameId =
-        String(
-            game.GameID ||
-            game.gameId ||
-            game.ID ||
-            game.Slug ||
-            ""
-        ).trim();
-
-
-    if(!gameId){
-
-        showPlayerMessage(
-            "This game does not have a GameID.",
-            game
-        );
-
-        return;
-    }
+    console.log("[OBVYRIS] =========================");
+    console.log("[OBVYRIS] Preparing Emulator Game");
+    console.log("[OBVYRIS] Game:", game.Title);
+    console.log("[OBVYRIS] Game ID:", gameId);
+    console.log("[OBVYRIS] Core:", core);
+    console.log("[OBVYRIS] =========================");
 
 
     /*
-     * Tell player we are retrieving the cached ROM.
+     * Show preparation message
      */
 
-    gameContainer.innerHTML =
+    gameContainer.innerHTML = `
+        <div style="
+            width:100%;
+            height:100%;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            flex-direction:column;
+            background:#000;
+            color:#8190a3;
+            font-family:Arial,sans-serif;
+            text-align:center;
+            padding:30px;
+        ">
+            <div style="
+                color:#dce5ef;
+                font-size:16px;
+                font-weight:700;
+                margin-bottom:10px;
+            ">
+                Preparing Game...
+            </div>
 
-        '<div style="' +
-        'width:100%;height:100%;' +
-        'display:flex;' +
-        'align-items:center;' +
-        'justify-content:center;' +
-        'flex-direction:column;' +
-        'color:#718095;' +
-        'font-family:Arial,sans-serif;' +
-        'background:#000;' +
-        '">' +
-
-            '<div style="' +
-            'font-size:16px;' +
-            'font-weight:bold;' +
-            'color:#dce5ef;' +
-            'margin-bottom:10px;' +
-            '">' +
-
-                'Preparing Game...' +
-
-            '</div>' +
-
-            '<div style="font-size:12px;">' +
-
-                'Retrieving cached ROM' +
-
-            '</div>' +
-
-        '</div>';
-
-
-    console.log(
-        "[OBVYRIS] Requesting ROM:",
-        gameId
-    );
+            <div style="
+                font-size:11px;
+                color:#63768a;
+            ">
+                Retrieving cached ROM
+            </div>
+        </div>
+    `;
 
 
     try{
@@ -2305,28 +2266,28 @@ async function startEmulator(game){
          */
 
         const url =
-    API_URL +
-    "?action=rom" +
-    "&game=" +
-    encodeURIComponent(gameId) +
-    "&ts=" +
-    Date.now();
+            API_URL +
+            "?action=rom" +
+            "&game=" +
+            encodeURIComponent(gameId) +
+            "&ts=" +
+            Date.now();
 
 
-console.log(
-    "[OBVYRIS] ROM request:",
-    url
-);
+        console.log(
+            "[OBVYRIS] ROM request:",
+            url
+        );
 
 
-const response =
-    await fetch(
-        url,
-        {
-            method:"GET",
-            cache:"no-store"
-        }
-    );
+        const response =
+            await fetch(
+                url,
+                {
+                    method:"GET",
+                    cache:"no-store"
+                }
+            );
 
 
         if(!response.ok){
@@ -2339,35 +2300,32 @@ const response =
         }
 
 
-        const result =
+        const rom =
             await response.json();
 
 
         console.log(
             "[OBVYRIS] ROM API:",
-            result
+            rom
         );
 
 
-        if(!result.success){
+        if(!rom.success){
 
             throw new Error(
-                result.error ||
-                result.message ||
-                "ROM request failed"
+                rom.error ||
+                "ROM API returned an error."
             );
 
         }
 
 
         /*
-         * Verify cache.
+         * Make sure the API actually returned
+         * a playable cached ROM.
          */
 
-        if(
-            result.cached !== true &&
-            String(result.cached).toLowerCase() !== "true"
-        ){
+        if(!rom.cached){
 
             throw new Error(
                 "ROM is not cached."
@@ -2376,23 +2334,10 @@ const response =
         }
 
 
-        /*
-         * Get the actual Google Drive download URL.
-         */
-
-        const romURL =
-            String(
-                result.driveURL ||
-                result.romURL ||
-                result.downloadURL ||
-                ""
-            ).trim();
-
-
-        if(!romURL){
+        if(!rom.driveURL){
 
             throw new Error(
-                "API did not return a ROM download URL."
+                "ROM API did not return driveURL."
             );
 
         }
@@ -2400,23 +2345,23 @@ const response =
 
         console.log(
             "[OBVYRIS] Cached ROM:",
-            result.fileName
+            rom.fileName
         );
 
 
         console.log(
             "[OBVYRIS] Drive URL:",
-            romURL
+            rom.driveURL
         );
 
 
         /*
-         * Start EmulatorJS.
+         * Start EmulatorJS using the cached ROM.
          */
 
         initializeEmulator(
             game,
-            romURL,
+            rom.driveURL,
             core
         );
 
@@ -2424,7 +2369,7 @@ const response =
     }catch(error){
 
         console.error(
-            "[OBVYRIS] ROM loading error:",
+            "[OBVYRIS] ROM preparation failed:",
             error
         );
 
@@ -2443,7 +2388,6 @@ const response =
     }
 
 }
-
 
 /*******************************************************
  * TEST ROM
@@ -2508,81 +2452,25 @@ function initializeEmulator(
         document.getElementById("game");
 
 
-    gameContainer.innerHTML = "";
+    gameContainer.innerHTML =
+        "";
 
 
     if(!romURL){
 
         showPlayerMessage(
-            "No cached ROM URL was returned."
-        );
-
-        return;
-
-    }
-
-
-    if(!core){
-
-        showPlayerMessage(
-            "No EmulatorJS core was specified."
-        );
-
-        return;
-
-    }
-
-
-    let absoluteURL;
-
-    try{
-
-        absoluteURL =
-            new URL(
-                romURL,
-                window.location.href
-            ).href;
-
-    }catch(error){
-
-        showPlayerMessage(
-            "The ROM URL is invalid.",
+            "No ROM URL was returned by the ROM API.",
             {
-                ROM: romURL,
-                Error: error.message
+                Game: game.Title || "",
+                GameID: game.GameID || "",
+                Core: core,
+                ROM:""
             }
         );
 
         return;
 
     }
-
-
-    console.log(
-        "[OBVYRIS] Starting EmulatorJS"
-    );
-
-    console.log(
-        "[OBVYRIS] Game:",
-        game.Title
-    );
-
-    console.log(
-        "[OBVYRIS] Game ID:",
-        game.GameID ||
-        game.gameId ||
-        game.ID
-    );
-
-    console.log(
-        "[OBVYRIS] Core:",
-        core
-    );
-
-    console.log(
-        "[OBVYRIS] ROM:",
-        absoluteURL
-    );
 
 
     /*
@@ -2598,7 +2486,7 @@ function initializeEmulator(
 
 
     window.EJS_gameUrl =
-        absoluteURL;
+        romURL;
 
 
     window.EJS_gameName =
@@ -2622,8 +2510,37 @@ function initializeEmulator(
         0.8;
 
 
-    window.EJS_color =
-        "#48bfff";
+    console.log(
+        "[OBVYRIS] ========================="
+    );
+
+    console.log(
+        "[OBVYRIS] Starting EmulatorJS"
+    );
+
+    console.log(
+        "[OBVYRIS] Game:",
+        game.Title
+    );
+
+    console.log(
+        "[OBVYRIS] Game ID:",
+        game.GameID
+    );
+
+    console.log(
+        "[OBVYRIS] Core:",
+        core
+    );
+
+    console.log(
+        "[OBVYRIS] ROM:",
+        romURL
+    );
+
+    console.log(
+        "[OBVYRIS] ========================="
+    );
 
 
     /*
@@ -2656,7 +2573,7 @@ function initializeEmulator(
         function(error){
 
             console.error(
-                "[OBVYRIS] EmulatorJS failed:",
+                "[OBVYRIS] EmulatorJS loader failed:",
                 error
             );
 
@@ -2664,8 +2581,10 @@ function initializeEmulator(
             showPlayerMessage(
                 "EmulatorJS could not be loaded.",
                 {
-                    Core: core,
-                    ROM: absoluteURL
+                    Game:game.Title || "",
+                    GameID:game.GameID || "",
+                    Core:core,
+                    ROM:romURL
                 }
             );
 
