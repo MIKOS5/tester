@@ -1053,187 +1053,126 @@ function showFeatured(){
 
 function applyFilters(){
 
-    const search=document.getElementById("searchInput")
-        .value
-        .trim()
-        .toLowerCase();
-
-    const letter=document.getElementById("letterSelect").value;
-    const sort=document.getElementById("sortSelect").value;
-
-    let games=DATA.games.slice();
-
-    /*
-     * PLATFORM FILTER
-     *
-     * This still searches ALL games.
-     */
-
-    if(activePlatform!=="all"){
-
-        games=games.filter(function(game){
-
-            return String(game.PlatformID||"").toLowerCase()===
-                   String(activePlatform).toLowerCase();
-
-        });
-
-    }
-
-    /*
-     * GENRE FILTER
-     */
-
-    if(genre){
-
-        games=games.filter(function(game){
-
-            return String(game.GenreID||"").toLowerCase()===
-                   genre.toLowerCase();
-
-        });
-
-    }
-
-    `/*
-
-LETTER / NUMBER FILTER
-*/
-
-if(letter){
-
-games=games.filter(function(game){
+const search = String(
+games = games.slice();
 
 
-    const title=String(game.Title||"").trim();
 
 
-    if(!title){
-        return false;
-    }
+if(sort === "title"){
 
 
-    const first=title.charAt(0).toUpperCase();
+    games.sort(function(a,b){
 
 
-    if(letter==="#"){
-        return /^[0-9]/.test(first);
-    }
-
-
-    return first===letter;
-
-
-});
-
-}`
-    
-    /*
-     * FEATURED FILTER
-     */
-
-    if(featuredOnly){
-
-        games=games.filter(function(game){
-
-            return isTrue(game.Featured);
-
-        });
-
-    }
-
-    /*
-     * SEARCH
-     *
-     * IMPORTANT:
-     * Search operates against the COMPLETE DATA.games
-     * before anything gets rendered.
-     */
-
-    if(search){
-
-        games=games.filter(function(game){
-
-            const text=[
-                game.Title,
-                game.Description,
-                game.Developer,
-                game.Publisher,
-                game.PlatformID,
-                game.GenreID,
-                game.GameType
-            ].join(" ").toLowerCase();
-
-            return text.includes(search);
-
-        });
-
-    }
-
-    /*
-     * SORT
-     */
-
-    if(sort==="title"){
-
-        games.sort(function(a,b){
-
-            return String(a.Title||"").localeCompare(
-                String(b.Title||"")
+        return String(a.Title || "")
+            .localeCompare(
+                String(b.Title || ""),
+                undefined,
+                {
+                    numeric:true,
+                    sensitivity:"base"
+                }
             );
 
-        });
 
-    }
+    });
 
-    if(sort==="newest"){
 
-        games.sort(function(a,b){
+}
 
-            return new Date(b.Created||0)-
-                   new Date(a.Created||0);
 
-        });
 
-    }
 
-    if(sort==="oldest"){
+if(sort === "newest"){
 
-        games.sort(function(a,b){
 
-            return new Date(a.Created||0)-
-                   new Date(b.Created||0);
+    games.sort(function(a,b){
 
-        });
 
-    }
+        const dateA =
+            new Date(a.Created || 0).getTime();
 
-    if(sort==="year"){
 
-        games.sort(function(a,b){
+        const dateB =
+            new Date(b.Created || 0).getTime();
 
-            return Number(a.Year||0)-
-                   Number(b.Year||0);
 
-        });
+        return dateB - dateA;
 
-    }
 
-    /*
-     * SAVE THE COMPLETE FILTERED RESULT.
-     *
-     * We DO NOT render all of it.
-     */
+    });
 
-    filteredGames=games;
 
-    /*
-     * Reset infinite scroll.
-     */
+}
 
-    renderedGameCount=0;
 
-    renderInitialGames();
+
+
+if(sort === "oldest"){
+
+
+    games.sort(function(a,b){
+
+
+        const dateA =
+            new Date(a.Created || 0).getTime();
+
+
+        const dateB =
+            new Date(b.Created || 0).getTime();
+
+
+        return dateA - dateB;
+
+
+    });
+
+
+}
+
+
+
+
+if(sort === "year"){
+
+
+    games.sort(function(a,b){
+
+
+        return (
+            Number(a.Year || 0) -
+            Number(b.Year || 0)
+        );
+
+
+    });
+
+
+}
+
+
+
+
+/*
+ * SAVE FILTERED RESULTS
+ */
+
+
+filteredGames = games;
+
+
+renderedGameCount = 0;
+
+
+
+
+/*
+ * RENDER FIRST BATCH
+ */
+
+
+renderInitialGames();
 
 }
 
