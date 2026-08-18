@@ -18,94 +18,262 @@ body {
     padding: 0;
     width: 100%;
     height: 100%;
-    background: #070b12;
-    color: #e8edf5;
-    font-family: Arial, sans-serif;
+    background: #05080d;
+    color: #e7edf5;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 body {
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
 .header {
-    height: 64px;
-    flex-shrink: 0;
+    height: 62px;
+    min-height: 62px;
     display: flex;
     align-items: center;
-    padding: 0 20px;
-    border-bottom: 1px solid #1d2938;
-    background: #0b111b;
+    padding: 0 18px;
+    background: #090f18;
+    border-bottom: 1px solid #1b2838;
 }
 
 .logo {
-    font-size: 21px;
+    font-size: 20px;
     font-weight: 800;
-    letter-spacing: 3px;
+    letter-spacing: 4px;
+}
+
+.title {
+    margin-left: 18px;
+    font-size: 12px;
+    color: #78879a;
+    letter-spacing: 1px;
 }
 
 .status {
     margin-left: auto;
-    font-size: 12px;
-    color: #8d9aae;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: #7f8da0;
 }
 
-.game-wrap {
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #e2a93b;
+}
+
+.dot.ready {
+    background: #43d17a;
+}
+
+.dot.error {
+    background: #e05252;
+}
+
+.game-area {
+    position: relative;
     flex: 1;
     min-height: 0;
+    background: #000;
     display: flex;
-    justify-content: center;
     align-items: center;
-    padding: 15px;
+    justify-content: center;
 }
 
 #game {
     width: 100%;
     height: 100%;
-    max-width: 1200px;
-    max-height: 800px;
 }
 
-.info {
-    height: 42px;
-    flex-shrink: 0;
+.loading {
+    position: absolute;
+    z-index: 20;
+    inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-top: 1px solid #1d2938;
-    background: #0b111b;
-    color: #758298;
+    background: #05080d;
+    transition: opacity .3s ease;
+}
+
+.loading.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.loading-box {
+    width: min(90%, 480px);
+    padding: 28px;
+    text-align: center;
+    border: 1px solid #202e40;
+    border-radius: 12px;
+    background: #0b121d;
+    box-shadow: 0 20px 60px rgba(0,0,0,.45);
+}
+
+.loading-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.loading-text {
     font-size: 12px;
+    line-height: 1.6;
+    color: #8290a3;
+}
+
+.spinner {
+    width: 30px;
+    height: 30px;
+    margin: 0 auto 18px;
+    border: 3px solid #263547;
+    border-top-color: #5cbcff;
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.error {
+    display: none;
+    position: absolute;
+    z-index: 30;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: min(92%, 600px);
+    padding: 24px;
+    background: #0b121d;
+    border: 1px solid #49303a;
+    border-radius: 12px;
+    box-shadow: 0 20px 70px rgba(0,0,0,.65);
+}
+
+.error.show {
+    display: block;
+}
+
+.error h2 {
+    margin: 0 0 12px;
+    font-size: 18px;
+}
+
+.error p {
+    margin: 8px 0;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #9ba8b8;
+}
+
+.error code {
+    display: block;
+    margin-top: 14px;
+    padding: 12px;
+    overflow-wrap: anywhere;
+    background: #060a10;
+    border: 1px solid #1d2a39;
+    border-radius: 7px;
+    color: #8dcfff;
+    font-size: 11px;
+}
+
+.footer {
+    height: 40px;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-top: 1px solid #1b2838;
+    background: #090f18;
+    color: #68778a;
+    font-size: 10px;
+    letter-spacing: .5px;
 }
 </style>
 
 <script>
 /*
-    EmulatorJS configuration
+    ============================================================
+    OBVYRIS NES TEST
+    ============================================================
+
+    IMPORTANT:
+
+    Direct Archive.org ROM loading can fail because of browser
+    cross-origin restrictions.
+
+    For a legally redistributable ROM, you can eventually change
+    ROM_URL to your own Cloudflare Worker/proxy URL.
+
+    Example:
+
+    const ROM_URL =
+        "https://your-worker.workers.dev/rom/game.nes";
+
+    ============================================================
 */
-
-EJS_player = "#game";
-
-/* NES system */
-EJS_core = "nes";
 
 /*
-    Test ROM
+    Original test ROM URL
 */
-EJS_gameUrl =
+const ROM_URL =
     "https://archive.org/download/nes-emulator_202404/Legend%20of%20Zelda.nes";
 
+
 /*
-    EmulatorJS data files
+    EmulatorJS
 */
+EJS_player = "#game";
+EJS_core = "nes";
+EJS_gameUrl = ROM_URL;
+
 EJS_pathtodata =
     "https://cdn.emulatorjs.org/latest/data/";
 
-/*
-    Optional settings
-*/
 EJS_startOnLoaded = true;
-EJS_color = "#00d4ff";
+
+/*
+    Optional visual setting
+*/
+EJS_color = "#4db8ff";
+
+/*
+    Disable unnecessary network multiplayer behavior
+*/
+EJS_netplay = false;
+
+
+/*
+    Debug information
+*/
+window.addEventListener("error", function(event) {
+
+    console.error(
+        "[OBVYRIS] Browser error:",
+        event.error || event.message
+    );
+
+});
+
+window.addEventListener("unhandledrejection", function(event) {
+
+    console.error(
+        "[OBVYRIS] Promise error:",
+        event.reason
+    );
+
+});
 </script>
 
 </head>
@@ -113,17 +281,227 @@ EJS_color = "#00d4ff";
 <body>
 
 <header class="header">
-    <div class="logo">OBVYRIS</div>
-    <div class="status">NES EMULATOR TEST</div>
+
+```
+<div class="logo">
+    OBVYRIS
+</div>
+
+<div class="title">
+    RETRO // NES TEST
+</div>
+
+<div class="status">
+    <span id="statusDot" class="dot"></span>
+    <span id="statusText">LOADING</span>
+</div>
+```
+
 </header>
 
-<main class="game-wrap">
-    <div id="game"></div>
+<main class="game-area">
+
+```
+<div id="game"></div>
+
+
+<div id="loading" class="loading">
+
+    <div class="loading-box">
+
+        <div class="spinner"></div>
+
+        <div class="loading-title">
+            INITIALIZING NES
+        </div>
+
+        <div class="loading-text">
+            Loading EmulatorJS and preparing the NES core...
+        </div>
+
+    </div>
+
+</div>
+
+
+<div id="error" class="error">
+
+    <h2>
+        ROM COULD NOT BE LOADED
+    </h2>
+
+    <p>
+        EmulatorJS loaded successfully, but the browser could
+        not fetch the remote ROM.
+    </p>
+
+    <p>
+        This commonly occurs when the remote server does not
+        permit cross-origin browser requests.
+    </p>
+
+    <code id="errorUrl"></code>
+
+</div>
+```
+
 </main>
 
-<footer class="info">
-    EmulatorJS • NES Test • Internet Archive ROM URL
+<footer class="footer">
+    EMULATORJS • NESTOPIA • OBVYRIS RETRO TEST
 </footer>
+
+<script>
+
+/*
+    UI helpers
+*/
+
+const loading =
+    document.getElementById("loading");
+
+const errorBox =
+    document.getElementById("error");
+
+const errorUrl =
+    document.getElementById("errorUrl");
+
+const statusText =
+    document.getElementById("statusText");
+
+const statusDot =
+    document.getElementById("statusDot");
+
+
+function setStatus(text, type) {
+
+    statusText.textContent = text;
+
+    statusDot.className = "dot";
+
+    if (type === "ready") {
+        statusDot.classList.add("ready");
+    }
+
+    if (type === "error") {
+        statusDot.classList.add("error");
+    }
+}
+
+
+/*
+    Give EmulatorJS some time to initialize.
+*/
+
+let emulatorStarted = false;
+
+const emulatorWatch =
+    setInterval(function() {
+
+        const canvas =
+            document.querySelector("#game canvas");
+
+        const iframe =
+            document.querySelector("#game iframe");
+
+        if (canvas || iframe) {
+
+            emulatorStarted = true;
+
+            clearInterval(emulatorWatch);
+
+            loading.classList.add("hidden");
+
+            setStatus(
+                "EMULATOR READY",
+                "ready"
+            );
+        }
+
+    }, 1000);
+
+
+/*
+    Detect network errors.
+
+    This does not replace EmulatorJS's own error handling;
+    it simply provides a clearer Obvyris interface.
+*/
+
+window.addEventListener("unhandledrejection", function(event) {
+
+    const message =
+        String(event.reason || "");
+
+    if (
+        message.includes("Failed to fetch") ||
+        message.includes("Network Error") ||
+        message.includes("Download failed")
+    ) {
+
+        showRomError();
+
+    }
+
+});
+
+
+window.addEventListener("error", function(event) {
+
+    const message =
+        String(event.message || "");
+
+    if (
+        message.includes("Failed to fetch") ||
+        message.includes("Network Error")
+    ) {
+
+        showRomError();
+
+    }
+
+});
+
+
+function showRomError() {
+
+    if (emulatorStarted) {
+        return;
+    }
+
+    loading.classList.add("hidden");
+
+    errorBox.classList.add("show");
+
+    errorUrl.textContent =
+        ROM_URL;
+
+    setStatus(
+        "ROM ERROR",
+        "error"
+    );
+
+}
+
+
+/*
+    Fallback timeout.
+
+    If the emulator never appears after 30 seconds,
+    display the diagnostic screen.
+*/
+
+setTimeout(function() {
+
+    if (!emulatorStarted) {
+
+        showRomError();
+
+    }
+
+}, 30000);
+
+</script>
 
 <script src="https://cdn.emulatorjs.org/latest/data/loader.js"></script>
 
