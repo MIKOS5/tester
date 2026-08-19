@@ -1050,7 +1050,6 @@ function showFeatured(){
 
 }
 
-
 function applyFilters(){
 
     const search=document.getElementById("searchInput")
@@ -1059,14 +1058,13 @@ function applyFilters(){
         .toLowerCase();
 
     const letter=document.getElementById("letterSelect").value;
+    const genre=document.getElementById("genreSelect").value;
     const sort=document.getElementById("sortSelect").value;
 
     let games=DATA.games.slice();
 
     /*
      * PLATFORM FILTER
-     *
-     * This still searches ALL games.
      */
 
     if(activePlatform!=="all"){
@@ -1089,45 +1087,42 @@ function applyFilters(){
         games=games.filter(function(game){
 
             return String(game.GenreID||"").toLowerCase()===
-                   genre.toLowerCase();
+                   String(genre).toLowerCase();
 
         });
 
     }
 
-    `/*
+    /*
+     * LETTER / NUMBER FILTER
+     */
 
-LETTER / NUMBER FILTER
-*/
+    if(letter){
 
-if(letter){
+        games=games.filter(function(game){
 
-games=games.filter(function(game){
+            const title=String(game.Title||"").trim();
 
+            if(!title){
+                return false;
+            }
 
-    const title=String(game.Title||"").trim();
+            const first=title.charAt(0).toUpperCase();
 
+            /*
+             * # = titles beginning with a number
+             */
 
-    if(!title){
-        return false;
+            if(letter==="#"){
+                return /^[0-9]/.test(first);
+            }
+
+            return first===letter;
+
+        });
+
     }
 
-
-    const first=title.charAt(0).toUpperCase();
-
-
-    if(letter==="#"){
-        return /^[0-9]/.test(first);
-    }
-
-
-    return first===letter;
-
-
-});
-
-}`
-    
     /*
      * FEATURED FILTER
      */
@@ -1144,10 +1139,6 @@ games=games.filter(function(game){
 
     /*
      * SEARCH
-     *
-     * IMPORTANT:
-     * Search operates against the COMPLETE DATA.games
-     * before anything gets rendered.
      */
 
     if(search){
@@ -1220,15 +1211,13 @@ games=games.filter(function(game){
     }
 
     /*
-     * SAVE THE COMPLETE FILTERED RESULT.
-     *
-     * We DO NOT render all of it.
+     * SAVE COMPLETE FILTERED RESULT
      */
 
     filteredGames=games;
 
     /*
-     * Reset infinite scroll.
+     * RESET INFINITE SCROLL
      */
 
     renderedGameCount=0;
