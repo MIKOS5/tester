@@ -1054,125 +1054,93 @@ function showFeatured(){
 function applyFilters(){
 
 const search = String(
-games = games.slice();
+    document.getElementById("searchInput").value || ""
+).toLowerCase().trim();
 
 
+const genre = String(
+    document.getElementById("genreSelect").value || ""
+).toLowerCase().trim();
 
 
-if(sort === "title"){
+const letter = String(
+    document.getElementById("letterSelect").value || ""
+).toUpperCase().trim();
 
 
-    games.sort(function(a,b){
-
-
-        return String(a.Title || "")
-            .localeCompare(
-                String(b.Title || ""),
-                undefined,
-                {
-                    numeric:true,
-                    sensitivity:"base"
-                }
-            );
-
-
-    });
-
-
-}
-
-
-
-
-if(sort === "newest"){
-
-
-    games.sort(function(a,b){
-
-
-        const dateA =
-            new Date(a.Created || 0).getTime();
-
-
-        const dateB =
-            new Date(b.Created || 0).getTime();
-
-
-        return dateB - dateA;
-
-
-    });
-
-
-}
-
-
-
-
-if(sort === "oldest"){
-
-
-    games.sort(function(a,b){
-
-
-        const dateA =
-            new Date(a.Created || 0).getTime();
-
-
-        const dateB =
-            new Date(b.Created || 0).getTime();
-
-
-        return dateA - dateB;
-
-
-    });
-
-
-}
-
-
-
-
-if(sort === "year"){
-
-
-    games.sort(function(a,b){
-
-
-        return (
-            Number(a.Year || 0) -
-            Number(b.Year || 0)
-        );
-
-
-    });
-
-
-}
+const sort = String(
+    document.getElementById("sortSelect").value || ""
+).toLowerCase().trim();
 
 
 
 
 /*
- * SAVE FILTERED RESULTS
+ * FILTER
  */
 
 
-filteredGames = games;
+let games = DATA.games.filter(function(game){
 
 
-renderedGameCount = 0;
+    const title = String(
+        game.Title || ""
+    ).trim();
+
+
+    const titleLower = title.toLowerCase();
+
+
+    const platformID = String(
+        game.PlatformID || ""
+    ).toLowerCase().trim();
+
+
+    const genreID = String(
+        game.GenreID || ""
+    ).toLowerCase().trim();
+
+
+    const gameGenreName = String(
+        getGenreName(game.GenreID) || ""
+    ).toLowerCase().trim();
+
+
+    /*
+     * SEARCH
+     *
+     * Search title, platform, genre,
+     * developer, publisher and description.
+     */
+
+
+    const searchable = [
+        game.Title,
+        game.Description,
+        game.Developer,
+        game.Publisher,
+        game.PlatformID,
+        getPlatformName(game.PlatformID),
+        game.GenreID,
+        getGenreName(game.GenreID),
+        game.SourceID
+    ]
+    .map(function(value){
+        return String(value || "").toLowerCase();
+    })
+    .join(" ");
+
+
+    if(
+        search &&
+        !searchable.includes(search)
+    ){
+        return false;
+    }
 
 
 
 
-/*
- * RENDER FIRST BATCH
- */
-
-
-renderInitialGames();
 
 }
 
