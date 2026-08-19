@@ -1053,234 +1053,187 @@ function showFeatured(){
 
 function applyFilters(){
 
+    const search=document.getElementById("searchInput")
+        .value
+        .trim()
+        .toLowerCase();
 
-const search = String(
-    document.getElementById("searchInput").value || ""
-).toLowerCase().trim();
+    const letter=document.getElementById("letterSelect").value;
+    const sort=document.getElementById("sortSelect").value;
 
-const genre = String(
-    document.getElementById("genreSelect").value || ""
-).toLowerCase().trim();
-
-const letter = String(
-    document.getElementById("letterSelect").value || ""
-).toUpperCase().trim();
-
-const sort = String(
-    document.getElementById("sortSelect").value || ""
-).toLowerCase().trim();
-
-/*
- * FILTER
- */
-
-let games = DATA.games.filter(function(game){
-
-    const title = String(
-        game.Title || ""
-    ).trim();
-
-    const titleLower = title.toLowerCase();
-
-    const platformID = String(
-        game.PlatformID || ""
-    ).toLowerCase().trim();
-
-    const genreID = String(
-        game.GenreID || ""
-    ).toLowerCase().trim();
-
-    const gameGenreName = String(
-        getGenreName(game.GenreID) || ""
-    ).toLowerCase().trim();
+    let games=DATA.games.slice();
 
     /*
-     * SEARCH
-     */
-
-    const searchable = [
-        game.Title,
-        game.Description,
-        game.Developer,
-        game.Publisher,
-        game.PlatformID,
-        getPlatformName(game.PlatformID),
-        game.GenreID,
-        getGenreName(game.GenreID),
-        game.SourceID
-    ]
-    .map(function(value){
-        return String(value || "").toLowerCase();
-    })
-    .join(" ");
-
-    if(
-        search &&
-        !searchable.includes(search)
-    ){
-        return false;
-    }
-
-    /*
-     * PLATFORM
-     */
-
-    if(
-        activePlatform !== "all" &&
-        platformID !== String(activePlatform).toLowerCase()
-    ){
-        return false;
-    }
-
-    /*
-     * FEATURED
-     */
-
-    if(
-        featuredOnly &&
-        !isTrue(game.Featured)
-    ){
-        return false;
-    }
-
-    /*
-     * GENRE
-     */
-
-    if(
-        genre &&
-        genreID !== genre &&
-        gameGenreName !== genre
-    ){
-        return false;
-    }
-
-    /*
-     * LETTER
+     * PLATFORM FILTER
      *
-     * # = titles beginning with a number
+     * This still searches ALL games.
      */
 
-    if(letter){
+    if(activePlatform!=="all"){
 
-        const firstChar = title.charAt(0).toUpperCase();
+        games=games.filter(function(game){
 
-        if(letter === "#"){
+            return String(game.PlatformID||"").toLowerCase()===
+                   String(activePlatform).toLowerCase();
 
-            if(!/^[0-9]/.test(firstChar)){
-                return false;
-            }
-
-        }else{
-
-            if(firstChar !== letter){
-                return false;
-            }
-
-        }
+        });
 
     }
 
-    return true;
+    /*
+     * GENRE FILTER
+     */
+
+    if(genre){
+
+        games=games.filter(function(game){
+
+            return String(game.GenreID||"").toLowerCase()===
+                   genre.toLowerCase();
+
+        });
+
+    }
+
+    `/*
+
+LETTER / NUMBER FILTER
+*/
+
+if(letter){
+
+games=games.filter(function(game){
+
+
+    const title=String(game.Title||"").trim();
+
+
+    if(!title){
+        return false;
+    }
+
+
+    const first=title.charAt(0).toUpperCase();
+
+
+    if(letter==="#"){
+        return /^[0-9]/.test(first);
+    }
+
+
+    return first===letter;
+
 
 });
 
-/*
- * SORT
- */
+}`
+    
+    /*
+     * FEATURED FILTER
+     */
 
-if(sort === "title"){
+    if(featuredOnly){
 
-    games.sort(function(a,b){
+        games=games.filter(function(game){
 
-        return String(a.Title || "")
-            .localeCompare(
-                String(b.Title || ""),
-                undefined,
-                {
-                    numeric:true,
-                    sensitivity:"base"
-                }
+            return isTrue(game.Featured);
+
+        });
+
+    }
+
+    /*
+     * SEARCH
+     *
+     * IMPORTANT:
+     * Search operates against the COMPLETE DATA.games
+     * before anything gets rendered.
+     */
+
+    if(search){
+
+        games=games.filter(function(game){
+
+            const text=[
+                game.Title,
+                game.Description,
+                game.Developer,
+                game.Publisher,
+                game.PlatformID,
+                game.GenreID,
+                game.GameType
+            ].join(" ").toLowerCase();
+
+            return text.includes(search);
+
+        });
+
+    }
+
+    /*
+     * SORT
+     */
+
+    if(sort==="title"){
+
+        games.sort(function(a,b){
+
+            return String(a.Title||"").localeCompare(
+                String(b.Title||"")
             );
 
-    });
+        });
 
-}else if(sort === "newest"){
+    }
 
-    games.sort(function(a,b){
+    if(sort==="newest"){
 
-        const aDate =
-            new Date(
-                a.Created ||
-                a.DateAdded ||
-                a.Updated ||
-                0
-            ).getTime();
+        games.sort(function(a,b){
 
-        const bDate =
-            new Date(
-                b.Created ||
-                b.DateAdded ||
-                b.Updated ||
-                0
-            ).getTime();
+            return new Date(b.Created||0)-
+                   new Date(a.Created||0);
 
-        return bDate-aDate;
+        });
 
-    });
+    }
 
-}else if(sort === "oldest"){
+    if(sort==="oldest"){
 
-    games.sort(function(a,b){
+        games.sort(function(a,b){
 
-        const aDate =
-            new Date(
-                a.Created ||
-                a.DateAdded ||
-                a.Updated ||
-                0
-            ).getTime();
+            return new Date(a.Created||0)-
+                   new Date(b.Created||0);
 
-        const bDate =
-            new Date(
-                b.Created ||
-                b.DateAdded ||
-                b.Updated ||
-                0
-            ).getTime();
+        });
 
-        return aDate-bDate;
+    }
 
-    });
+    if(sort==="year"){
 
-}else if(sort === "year"){
+        games.sort(function(a,b){
 
-    games.sort(function(a,b){
+            return Number(a.Year||0)-
+                   Number(b.Year||0);
 
-        const aYear =
-            parseInt(a.Year,10) || 9999;
+        });
 
-        const bYear =
-            parseInt(b.Year,10) || 9999;
+    }
 
-        return aYear-bYear;
+    /*
+     * SAVE THE COMPLETE FILTERED RESULT.
+     *
+     * We DO NOT render all of it.
+     */
 
-    });
+    filteredGames=games;
 
-}
+    /*
+     * Reset infinite scroll.
+     */
 
-/*
- * SAVE FILTERED RESULTS
- */
+    renderedGameCount=0;
 
-filteredGames = games;
-
-/*
- * RESET INFINITE SCROLL
- */
-
-renderInitialGames();
-
+    renderInitialGames();
 
 }
 
@@ -1584,14 +1537,13 @@ function launchGame(game){
      * EMULATOR GAME
      */
 
-    if(game.GameID){
+    if(game.ROMURL){
 
-startEmulator(game);
+        startEmulator(game);
 
+        return;
 
-return;
-
-}
+    }
 
     /*
      * EXTERNAL PLAY URL
@@ -1645,223 +1597,92 @@ function openURLInIframe(url){
    EMULATOR
 ===================================================== */
 
-async function startEmulator(game){
+function startEmulator(game){
 
     const container = document.getElementById("game");
 
-    const core = String(
-        game.EmulatorCore || ""
-    ).trim();
+    const romURL = String(game.ROMURL || "").trim();
+    const core = String(game.EmulatorCore || "").trim();
+    const title = String(game.Title || "Obvyris Game").trim();
 
-    const title = String(
-        game.Title || "Obvyris Game"
-    ).trim();
-
-    const gameID = String(
-        game.GameID || ""
-    ).trim();
-
-    if(!gameID){
-
-        showPlayerMessage(
-            "This game has no GameID."
-        );
-
+    if(!romURL){
+        showPlayerMessage("No ROM URL was supplied.");
         return;
     }
 
     if(!core){
-
-        showPlayerMessage(
-            "No emulator core was supplied."
-        );
-
+        showPlayerMessage("No emulator core was supplied.");
         return;
     }
 
-    container.innerHTML = "";
+    /*
+     * IMPORTANT:
+     *
+     * Do NOT use URLSearchParams here.
+     * Your ROM URL already contains %20.
+     *
+     * Encode the complete ROM URL ONCE.
+     */
 
-    showPlayerMessage(
-        "Loading ROM..."
-    );
+    const emulatorURL =
+        "emulator.html" +
+        "?rom=" +
+        encodeURIComponent(romURL) +
+        "&core=" +
+        encodeURIComponent(core) +
+        "&title=" +
+        encodeURIComponent(title);
 
-    console.log(
-        "[OBVYRIS] ROM request:",
-        gameID
-    );
+    console.log("[OBVYRIS] Emulator:", core);
+    console.log("[OBVYRIS] ROM:", romURL);
+    console.log("[OBVYRIS] Emulator URL:", emulatorURL);
 
-    try{
+    const iframe = document.createElement("iframe");
 
-        const response = await fetch(
-            API_URL +
-            "?action=rom&game=" +
-            encodeURIComponent(gameID) +
-            "&ts=" +
-            Date.now(),
-            {
-                method:"GET",
-                cache:"no-store"
-            }
-        );
+    iframe.src = emulatorURL;
 
-        if(!response.ok){
+    iframe.title = title + " Emulator";
 
-            throw new Error(
-                "HTTP " + response.status
-            );
+    /*
+     * Do NOT add allowfullscreen.
+     * The fullscreen permission is supplied through allow.
+     */
 
-        }
+    iframe.allow =
+        "fullscreen; autoplay; gamepad";
 
-        const data = await response.json();
+    iframe.style.width = "100%";
+    iframe.style.height = "100%";
+    iframe.style.border = "0";
+    iframe.style.display = "block";
+    iframe.style.background = "#000";
 
-        console.log(
-            "[OBVYRIS] ROM response:",
-            data
-        );
-
-        if(!data || data.success === false){
-
-            throw new Error(
-                data && data.error
-                    ? data.error
-                    : "ROM API returned an error."
-            );
-
-        }
-
-        /*
-         * Accept several possible ROM URL field names.
-         */
-
-        const romURL = normalizeURL(
-            data.romURL ||
-            data.ROMURL ||
-            data.url ||
-            data.URL ||
-            data.downloadURL ||
-            data.DownloadURL ||
-            ""
-        );
-
-        if(!romURL){
-
-            throw new Error(
-                "The ROM API did not return a ROM URL."
-            );
-
-        }
+    iframe.onload = function(){
 
         console.log(
-            "[OBVYRIS] ROM URL:",
-            romURL
+            "[OBVYRIS] Emulator loaded:",
+            emulatorURL
         );
 
-        /*
-         * EmulatorJS player
-         */
+    };
 
-        const player = document.createElement("div");
-
-        player.id = "emulatorjs-player";
-
-        player.style.width = "100%";
-        player.style.height = "100%";
-        player.style.position = "relative";
-        player.style.background = "#000";
-
-        container.innerHTML = "";
-
-        container.appendChild(player);
-
-        /*
-         * EmulatorJS configuration
-         */
-
-        window.EJS_player = "#emulatorjs-player";
-
-        window.EJS_core = core;
-
-        window.EJS_gameName = title;
-
-        window.EJS_gameUrl = romURL;
-
-        window.EJS_pathtodata =
-            "https://cdn.emulatorjs.org/stable/data/";
-
-        window.EJS_startOnLoaded = true;
-
-        /*
-         * Remove an existing EmulatorJS loader
-         * if one was previously created.
-         */
-
-        const oldScript =
-            document.getElementById(
-                "emulatorjs-loader"
-            );
-
-        if(oldScript){
-
-            oldScript.remove();
-
-        }
-
-        /*
-         * Load EmulatorJS.
-         */
-
-        const script =
-            document.createElement("script");
-
-        script.id =
-            "emulatorjs-loader";
-
-        script.src =
-            "https://cdn.emulatorjs.org/stable/data/loader.js";
-
-        script.onload=function(){
-
-            console.log(
-                "[OBVYRIS] EmulatorJS loaded:",
-                title
-            );
-
-        };
-
-        script.onerror=function(){
-
-            console.error(
-                "[OBVYRIS] Failed to load EmulatorJS."
-            );
-
-            container.innerHTML = "";
-
-            showPlayerMessage(
-                "EmulatorJS could not be loaded."
-            );
-
-        };
-
-        document.body.appendChild(script);
-
-    }catch(error){
+    iframe.onerror = function(){
 
         console.error(
-            "[OBVYRIS] Emulator error:",
-            error
+            "[OBVYRIS] Emulator iframe failed:",
+            emulatorURL
         );
-
-        container.innerHTML = "";
 
         showPlayerMessage(
-            "Unable to load this game: " +
-            error.message
+            "The emulator page could not be loaded."
         );
 
-    }
+    };
 
+    container.innerHTML = "";
+
+    container.appendChild(iframe);
 }
-    
 /* =====================================================
    URL NORMALIZATION
 ===================================================== */
@@ -1925,39 +1746,15 @@ function showPlayerMessage(text){
 
 function closePlayer(){
 
-const container =
-    document.getElementById("game");
+    document.getElementById("game").innerHTML="";
 
+    document.getElementById(
+        "playerMessage"
+    ).classList.remove("show");
 
-const iframe =
-    container.querySelector("iframe");
-
-
-if(
-    iframe &&
-    iframe.dataset.romBlobURL
-){
-
-
-    URL.revokeObjectURL(
-        iframe.dataset.romBlobURL
-    );
-
-
-}
-
-
-container.innerHTML = "";
-
-
-document
-    .getElementById("playerMessage")
-    .classList.remove("show");
-
-
-document
-    .getElementById("modal")
-    .classList.remove("open");
+    document.getElementById(
+        "modal"
+    ).classList.remove("open");
 
 }
 
