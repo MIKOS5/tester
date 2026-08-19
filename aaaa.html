@@ -1584,13 +1584,14 @@ function launchGame(game){
      * EMULATOR GAME
      */
 
-    if(game.ROMURL){
+    if(game.GameID){
 
-        startEmulator(game);
+startEmulator(game);
 
-        return;
 
-    }
+return;
+
+}
 
     /*
      * EXTERNAL PLAY URL
@@ -1644,92 +1645,97 @@ function openURLInIframe(url){
    EMULATOR
 ===================================================== */
 
-function startEmulator(game){
+async function startEmulator(game){
 
-    const container = document.getElementById("game");
+const container =
+    document.getElementById("game");
 
-    const romURL = String(game.ROMURL || "").trim();
-    const core = String(game.EmulatorCore || "").trim();
-    const title = String(game.Title || "Obvyris Game").trim();
 
-    if(!romURL){
-        showPlayerMessage("No ROM URL was supplied.");
-        return;
-    }
+const core =
+    String(game.EmulatorCore || "").trim();
 
-    if(!core){
-        showPlayerMessage("No emulator core was supplied.");
-        return;
-    }
 
-    /*
-     * IMPORTANT:
-     *
-     * Do NOT use URLSearchParams here.
-     * Your ROM URL already contains %20.
-     *
-     * Encode the complete ROM URL ONCE.
-     */
+const title =
+    String(game.Title || "Obvyris Game").trim();
 
-    const emulatorURL =
-        "emulator.html" +
-        "?rom=" +
-        encodeURIComponent(romURL) +
-        "&core=" +
-        encodeURIComponent(core) +
-        "&title=" +
-        encodeURIComponent(title);
 
-    console.log("[OBVYRIS] Emulator:", core);
-    console.log("[OBVYRIS] ROM:", romURL);
-    console.log("[OBVYRIS] Emulator URL:", emulatorURL);
+const gameID =
+    String(game.GameID || "").trim();
 
-    const iframe = document.createElement("iframe");
 
-    iframe.src = emulatorURL;
+if(!gameID){
 
-    iframe.title = title + " Emulator";
 
-    /*
-     * Do NOT add allowfullscreen.
-     * The fullscreen permission is supplied through allow.
-     */
+    showPlayerMessage(
+        "This game has no GameID."
+    );
 
-    iframe.allow =
-        "fullscreen; autoplay; gamepad";
 
-    iframe.style.width = "100%";
-    iframe.style.height = "100%";
-    iframe.style.border = "0";
-    iframe.style.display = "block";
-    iframe.style.background = "#000";
+    return;
 
-    iframe.onload = function(){
 
-        console.log(
-            "[OBVYRIS] Emulator loaded:",
-            emulatorURL
-        );
-
-    };
-
-    iframe.onerror = function(){
-
-        console.error(
-            "[OBVYRIS] Emulator iframe failed:",
-            emulatorURL
-        );
-
-        showPlayerMessage(
-            "The emulator page could not be loaded."
-        );
-
-    };
-
-    container.innerHTML = "";
-
-    container.appendChild(iframe);
 }
+
+
+if(!core){
+
+
+    showPlayerMessage(
+        "No emulator core was supplied."
+    );
+
+
+    return;
+
+
+}
+
+
+container.innerHTML = "";
+
+
+showPlayerMessage(
+    "Loading ROM..."
+);
+
+
+console.log("[OBVYRIS] ROM request:", gameID);
+
+
+try{
+
+
+    const response =
+        await fetch(
+            API_URL +
+            "?action=rom&game=" +
+            encodeURIComponent(gameID) +
+            "&ts=" +
+            Date.now(),
+            {
+                method:"GET",
+                cache:"no-store"
+            }
+        );
+
+
+    if(!response.ok){
+
+
+        throw new Error(
+            "HTTP " +
+            response.status
+        );
+
+
+    }
+
+
+    const data =
+
+}
+
+    
 /* =====================================================
    URL NORMALIZATION
 ===================================================== */
@@ -1793,15 +1799,39 @@ function showPlayerMessage(text){
 
 function closePlayer(){
 
-    document.getElementById("game").innerHTML="";
+const container =
+    document.getElementById("game");
 
-    document.getElementById(
-        "playerMessage"
-    ).classList.remove("show");
 
-    document.getElementById(
-        "modal"
-    ).classList.remove("open");
+const iframe =
+    container.querySelector("iframe");
+
+
+if(
+    iframe &&
+    iframe.dataset.romBlobURL
+){
+
+
+    URL.revokeObjectURL(
+        iframe.dataset.romBlobURL
+    );
+
+
+}
+
+
+container.innerHTML = "";
+
+
+document
+    .getElementById("playerMessage")
+    .classList.remove("show");
+
+
+document
+    .getElementById("modal")
+    .classList.remove("open");
 
 }
 
