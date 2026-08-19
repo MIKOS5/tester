@@ -1053,66 +1053,50 @@ function showFeatured(){
 
 function applyFilters(){
 
+
 const search = String(
     document.getElementById("searchInput").value || ""
 ).toLowerCase().trim();
-
 
 const genre = String(
     document.getElementById("genreSelect").value || ""
 ).toLowerCase().trim();
 
-
 const letter = String(
     document.getElementById("letterSelect").value || ""
 ).toUpperCase().trim();
-
 
 const sort = String(
     document.getElementById("sortSelect").value || ""
 ).toLowerCase().trim();
 
-
-
-
 /*
  * FILTER
  */
 
-
 let games = DATA.games.filter(function(game){
-
 
     const title = String(
         game.Title || ""
     ).trim();
 
-
     const titleLower = title.toLowerCase();
-
 
     const platformID = String(
         game.PlatformID || ""
     ).toLowerCase().trim();
 
-
     const genreID = String(
         game.GenreID || ""
     ).toLowerCase().trim();
-
 
     const gameGenreName = String(
         getGenreName(game.GenreID) || ""
     ).toLowerCase().trim();
 
-
     /*
      * SEARCH
-     *
-     * Search title, platform, genre,
-     * developer, publisher and description.
      */
-
 
     const searchable = [
         game.Title,
@@ -1130,7 +1114,6 @@ let games = DATA.games.filter(function(game){
     })
     .join(" ");
 
-
     if(
         search &&
         !searchable.includes(search)
@@ -1138,8 +1121,165 @@ let games = DATA.games.filter(function(game){
         return false;
     }
 
+    /*
+     * PLATFORM
+     */
 
+    if(
+        activePlatform !== "all" &&
+        platformID !== String(activePlatform).toLowerCase()
+    ){
+        return false;
+    }
 
+    /*
+     * FEATURED
+     */
+
+    if(
+        featuredOnly &&
+        !isTrue(game.Featured)
+    ){
+        return false;
+    }
+
+    /*
+     * GENRE
+     */
+
+    if(
+        genre &&
+        genreID !== genre &&
+        gameGenreName !== genre
+    ){
+        return false;
+    }
+
+    /*
+     * LETTER
+     *
+     * # = titles beginning with a number
+     */
+
+    if(letter){
+
+        const firstChar = title.charAt(0).toUpperCase();
+
+        if(letter === "#"){
+
+            if(!/^[0-9]/.test(firstChar)){
+                return false;
+            }
+
+        }else{
+
+            if(firstChar !== letter){
+                return false;
+            }
+
+        }
+
+    }
+
+    return true;
+
+});
+
+/*
+ * SORT
+ */
+
+if(sort === "title"){
+
+    games.sort(function(a,b){
+
+        return String(a.Title || "")
+            .localeCompare(
+                String(b.Title || ""),
+                undefined,
+                {
+                    numeric:true,
+                    sensitivity:"base"
+                }
+            );
+
+    });
+
+}else if(sort === "newest"){
+
+    games.sort(function(a,b){
+
+        const aDate =
+            new Date(
+                a.Created ||
+                a.DateAdded ||
+                a.Updated ||
+                0
+            ).getTime();
+
+        const bDate =
+            new Date(
+                b.Created ||
+                b.DateAdded ||
+                b.Updated ||
+                0
+            ).getTime();
+
+        return bDate-aDate;
+
+    });
+
+}else if(sort === "oldest"){
+
+    games.sort(function(a,b){
+
+        const aDate =
+            new Date(
+                a.Created ||
+                a.DateAdded ||
+                a.Updated ||
+                0
+            ).getTime();
+
+        const bDate =
+            new Date(
+                b.Created ||
+                b.DateAdded ||
+                b.Updated ||
+                0
+            ).getTime();
+
+        return aDate-bDate;
+
+    });
+
+}else if(sort === "year"){
+
+    games.sort(function(a,b){
+
+        const aYear =
+            parseInt(a.Year,10) || 9999;
+
+        const bYear =
+            parseInt(b.Year,10) || 9999;
+
+        return aYear-bYear;
+
+    });
+
+}
+
+/*
+ * SAVE FILTERED RESULTS
+ */
+
+filteredGames = games;
+
+/*
+ * RESET INFINITE SCROLL
+ */
+
+renderInitialGames();
 
 
 }
