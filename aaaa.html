@@ -1647,66 +1647,52 @@ function openURLInIframe(url){
 
 async function startEmulator(game){
 
-const container =
-    document.getElementById("game");
+    const container = document.getElementById("game");
 
+    const core = String(
+        game.EmulatorCore || ""
+    ).trim();
 
-const core =
-    String(game.EmulatorCore || "").trim();
+    const title = String(
+        game.Title || "Obvyris Game"
+    ).trim();
 
+    const gameID = String(
+        game.GameID || ""
+    ).trim();
 
-const title =
-    String(game.Title || "Obvyris Game").trim();
+    if(!gameID){
 
+        showPlayerMessage(
+            "This game has no GameID."
+        );
 
-const gameID =
-    String(game.GameID || "").trim();
+        return;
+    }
 
+    if(!core){
 
-if(!gameID){
+        showPlayerMessage(
+            "No emulator core was supplied."
+        );
 
+        return;
+    }
+
+    container.innerHTML = "";
 
     showPlayerMessage(
-        "This game has no GameID."
+        "Loading ROM..."
     );
 
-
-    return;
-
-
-}
-
-
-if(!core){
-
-
-    showPlayerMessage(
-        "No emulator core was supplied."
+    console.log(
+        "[OBVYRIS] ROM request:",
+        gameID
     );
 
+    try{
 
-    return;
-
-
-}
-
-
-container.innerHTML = "";
-
-
-showPlayerMessage(
-    "Loading ROM..."
-);
-
-
-console.log("[OBVYRIS] ROM request:", gameID);
-
-
-try{
-
-
-    const response =
-        await fetch(
+        const response = await fetch(
             API_URL +
             "?action=rom&game=" +
             encodeURIComponent(gameID) +
@@ -1718,23 +1704,163 @@ try{
             }
         );
 
+        if(!response.ok){
 
-    if(!response.ok){
+            throw new Error(
+                "HTTP " + response.status
+            );
 
+        }
 
-        throw new Error(
-            "HTTP " +
-            response.status
+        const data = await response.json();
+
+        console.log(
+            "[OBVYRIS] ROM response:",
+            data
         );
 
+        if(!data || data.success === false){
+
+            throw new Error(
+                data && data.error
+                    ? data.error
+                    : "ROM API returned an error."
+            );
+
+        }
+
+        /*
+         * Accept several possible ROM URL field names.
+         */
+
+        const romURL = normalizeURL(
+            data.romURL ||
+            data.ROMURL ||
+            data.url ||
+            data.URL ||
+            data.downloadURL ||
+            data.DownloadURL ||
+            ""
+        );
+
+        if(!romURL){
+
+            throw new Error(
+                "The ROM API did not return a ROM URL."
+            );
+
+        }
+
+        console.log(
+            "[OBVYRIS] ROM URL:",
+            romURL
+        );
+
+        /*
+         * EmulatorJS player
+         */
+
+        const player = document.createElement("div");
+
+        player.id = "emulatorjs-player";
+
+        player.style.width = "100%";
+        player.style.height = "100%";
+        player.style.position = "relative";
+        player.style.background = "#000";
+
+        container.innerHTML = "";
+
+        container.appendChild(player);
+
+        /*
+         * EmulatorJS configuration
+         */
+
+        window.EJS_player = "#emulatorjs-player";
+
+        window.EJS_core = core;
+
+        window.EJS_gameName = title;
+
+        window.EJS_gameUrl = romURL;
+
+        window.EJS_pathtodata =
+            "https://cdn.emulatorjs.org/stable/data/";
+
+        window.EJS_startOnLoaded = true;
+
+        /*
+         * Remove an existing EmulatorJS loader
+         * if one was previously created.
+         */
+
+        const oldScript =
+            document.getElementById(
+                "emulatorjs-loader"
+            );
+
+        if(oldScript){
+
+            oldScript.remove();
+
+        }
+
+        /*
+         * Load EmulatorJS.
+         */
+
+        const script =
+            document.createElement("script");
+
+        script.id =
+            "emulatorjs-loader";
+
+        script.src =
+            "https://cdn.emulatorjs.org/stable/data/loader.js";
+
+        script.onload=function(){
+
+            console.log(
+                "[OBVYRIS] EmulatorJS loaded:",
+                title
+            );
+
+        };
+
+        script.onerror=function(){
+
+            console.error(
+                "[OBVYRIS] Failed to load EmulatorJS."
+            );
+
+            container.innerHTML = "";
+
+            showPlayerMessage(
+                "EmulatorJS could not be loaded."
+            );
+
+        };
+
+        document.body.appendChild(script);
+
+    }catch(error){
+
+        console.error(
+            "[OBVYRIS] Emulator error:",
+            error
+        );
+
+        container.innerHTML = "";
+
+        showPlayerMessage(
+            "Unable to load this game: " +
+            error.message
+        );
 
     }
 
-
-    const data =
-
 }
-
     
 /* =====================================================
    URL NORMALIZATION
