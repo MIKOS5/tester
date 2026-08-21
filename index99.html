@@ -4612,52 +4612,74 @@ function resetShipInactivity(){
 
 function openFeaturedGame(){
 
+const modal = document.getElementById("featuredGameModal");
 
 
+const container = document.getElementById("featuredGamePlayer");
+
+
+if(!modal || !container){
+    console.error("[OBVYRIS] Featured game modal/player not found");
+    return;
+}
+
+
+const game = window.featuredGame;
+
+
+if(!game){
+    console.error("[OBVYRIS] No featured game available");
+    showGamePlayerMessage("Featured game is unavailable.");
+    return;
+}
+
+
+const emulatorURL =
+    game.emulatorURL ||
+    game.emulatorUrl ||
+    game.EmulatorURL ||
+    game.url ||
+    game.URL ||
+    game.gameURL ||
+    game.GameURL ||
+    "";
+
+
+if(!emulatorURL){
+    console.error("[OBVYRIS] No emulator URL found:", game);
+    showGamePlayerMessage("The emulator URL is missing.");
+    return;
+}
+
+
+const iframe = document.createElement("iframe");
+
+
+iframe.src = emulatorURL;
+iframe.width = "100%";
+iframe.height = "100%";
+
+
+iframe.style.width = "100%";
+iframe.style.height = "100%";
+iframe.style.border = "0";
+iframe.style.display = "block";
+iframe.style.background = "#000";
+
+
+iframe.setAttribute(
+    "allow",
+    "autoplay; fullscreen; gamepad"
 );
 
 
+iframe.setAttribute(
+    "allowfullscreen",
+    ""
+);
 
 
-iframe.style.width =
-    "100%";
-
-
-
-
-iframe.style.height =
-    "100%";
-
-
-
-
-iframe.style.border =
-    "0";
-
-
-
-
-iframe.style.display =
-    "block";
-
-
-
-
-iframe.style.background =
-    "#000";
-
-
-
-
-/*
-=================================
-LOAD
-=================================
-*/
-
-
-iframe.onload =
-function(){
+iframe.onload = function(){
 
 
     console.log(
@@ -4669,10 +4691,7 @@ function(){
 };
 
 
-
-
-iframe.onerror =
-function(){
+iframe.onerror = function(){
 
 
     console.error(
@@ -4689,44 +4708,13 @@ function(){
 };
 
 
-
-
-/*
-=================================
-CLEAR PREVIOUS GAME
-=================================
-*/
-
-
 container.innerHTML = "";
 
 
+container.appendChild(iframe);
 
 
-/*
-=================================
-ADD EMULATOR
-=================================
-*/
-
-
-container.appendChild(
-    iframe
-);
-
-
-
-
-/*
-=================================
-SHOW POPUP
-=================================
-*/
-
-
-modal.classList.add(
-    "open"
-);
+modal.classList.add("open");
 
 }
 
