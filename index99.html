@@ -2859,11 +2859,7 @@ border-radius:12px;
 display:none;
 ">
 
-<button
-type="button"
-class="gamePlayButton"
-id="featuredGamePlay"
-onclick="openFeaturedGame()"
+<button type="button" class="gamePlayButton" id="featuredGamePlay" onclick="openFeaturedGame()">
 
 🎮 Play Featured Game
 
@@ -3008,7 +3004,7 @@ const GAMES_API = "https://script.google.com/macros/s/AKfycbxDYk9W7QQLEn_FbyFu26
 let featuredGames = [];
 let gameIndex = 0;
 let gameTimer = null;
-
+let currentFeaturedGame = null;
 
 const NEWS_STORY_API =
 "https://script.google.com/macros/s/AKfycbyqVuqy0j6eABwQibAhZ9Bz87X6sDFPSgZYlzsmAhz4aocaVl8UN4arsGUXXHl8xTNYrg/exec?action=stories";
@@ -3641,78 +3637,118 @@ async function loadGames(){
 
 function showNextGame(){
 
-    if(!featuredGames.length){
-        return;
-    }
-
-    const game = featuredGames[gameIndex];
-
-    if(!game){
-        return;
-    }
+if(!featuredGames.length){
+    return;
+}
 
 
-    const title =
-        game.Title ||
-        game.title ||
-        game.Name ||
-        game.name ||
-        "Unknown Game";
+const game = featuredGames[gameIndex];
 
+
+if(!game){
+    return;
+}
+
+
+/* Save the game currently displayed */
+currentFeaturedGame = game;
+
+
+const title =
+    game.Title ||
+    game.title ||
+    game.Name ||
+    game.name ||
+    "Unknown Game";
+
+
+document.getElementById(
+    "featuredGame"
+).innerText = title;
+
+
+
+
+const description =
+    game.Description ||
+    game.description ||
+    "No description available.";
+
+
+document.getElementById(
+    "gameDescription"
+).innerText = description;
+
+
+
+
+const img =
     document.getElementById(
-        "featuredGame"
-    ).innerText = title;
-
-
-    const description =
-        game.Description ||
-        game.description ||
-        "No description available.";
-
-    document.getElementById("gameDescription").innerText = description;
-
-
-    const img = document.getElementById(
         "gameImage"
     );
 
-    const thumbnail =
-        game.Thumbnail ||
-        game.thumbnail ||
-        game.Image ||
-        game.image ||
-        game.Cover ||
-        game.cover ||
-        "";
 
 
-    if(thumbnail){
 
-        img.src = thumbnail;
-
-        img.style.display = "block";
-
-    }
-    else{
-
-        img.removeAttribute("src");
-
-        img.style.display = "none";
-
-    }
+const thumbnail =
+    game.Thumbnail ||
+    game.thumbnail ||
+    game.Image ||
+    game.image ||
+    game.Cover ||
+    game.cover ||
+    "";
 
 
-    gameIndex++;
 
 
-    if(gameIndex >= featuredGames.length){
+if(thumbnail){
 
-        featuredGames.sort(
-            () => Math.random() - 0.5
-        );
 
-        gameIndex = 0;
-    }
+    img.src = thumbnail;
+
+
+    img.style.display =
+        "block";
+
+
+}
+else{
+
+
+    img.removeAttribute("src");
+
+
+    img.style.display =
+        "none";
+
+
+}
+
+
+
+
+gameIndex++;
+
+
+
+
+if(
+    gameIndex >=
+    featuredGames.length
+){
+
+
+    featuredGames.sort(
+        () => Math.random() - 0.5
+    );
+
+
+    gameIndex = 0;
+
+
+}
+
 }
 
 
@@ -4252,14 +4288,23 @@ function openFeaturedGame(){
 if(!currentFeaturedGame){
 
 
+    console.error(
+        "No featured game selected."
+    );
+
+
     return;
 
 
 }
 
 
+
+
 const game =
     currentFeaturedGame;
+
+
 
 
 const params =
@@ -4334,6 +4379,23 @@ if(platform){
 
 
 }
+
+
+
+
+console.log(
+    "Opening featured game:",
+    game
+);
+
+
+
+
+console.log(
+    "Emulator URL:",
+    "emulator.html?" +
+    params.toString()
+);
 
 
 
