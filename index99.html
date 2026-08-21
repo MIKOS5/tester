@@ -2800,13 +2800,9 @@ Loading...
 
 <div class="status">
 
-Category:
+Game:
 
-<span id="gameCategory">
-
-Loading...
-
-</span>
+<span id="gameDescription"> Loading... </span>
 
 
 <br>
@@ -3512,359 +3508,173 @@ async function loadSports(){
 
 async function loadGames(){
 
+    const featuredElement = document.getElementById("featuredGame");
+    const categoryElement = document.getElementById("gameCategory");
+    const imageElement = document.getElementById("gameImage");
 
-const featuredElement =
-    document.getElementById("featuredGame");
+    try{
 
-const categoryElement =
-    document.getElementById("gameCategory");
-
-const votesElement =
-    document.getElementById("gameVotes");
-
-const imageElement =
-    document.getElementById("gameImage");
-
-
-try{
-
-    const response =
-        await fetch(
-            GAMES_API +
-            "?action=games&t=" +
-            Date.now(),
+        const response = await fetch(
+            GAMES_API + "?action=games&t=" + Date.now(),
             {
                 cache:"no-store"
             }
         );
 
+        if(!response.ok){
+            throw new Error("HTTP " + response.status);
+        }
 
-    if(!response.ok){
+        const data = await response.json();
 
-        throw new Error(
-            "HTTP " + response.status
-        );
+        console.log("Games API:", data);
 
-    }
+        if(!data || !Array.isArray(data.games)){
+            throw new Error("Invalid games API response");
+        }
 
-
-    const data =
-        await response.json();
-
-
-    console.log(
-        "Games API:",
-        data
-    );
-
-
-    if(
-        !data ||
-        !Array.isArray(data.games)
-    ){
-
-        throw new Error(
-            "Invalid games API response"
-        );
-
-    }
-
-
-    /*
-    =================================
-    FIND FEATURED GAMES
-    =================================
-    */
-
-    featuredGames =
-        data.games.filter(
+        featuredGames = data.games.filter(
             game =>
                 game.Featured === true ||
-                String(
-                    game.Featured
-                ).toLowerCase() === "true"
+                String(game.Featured).toLowerCase() === "true"
         );
 
+        if(!featuredGames.length){
+            featuredGames = data.games;
+        }
 
-    /*
-    If there are no featured games,
-    use all returned games.
-    */
+        if(!featuredGames.length){
 
-    if(!featuredGames.length){
+            featuredElement.innerText = "No games available.";
 
-        featuredGames =
-            data.games;
+            categoryElement.innerText = "-";
 
-    }
+            imageElement.style.display = "none";
 
+            return;
+        }
 
-    /*
-    No games returned
-    */
-
-    if(!featuredGames.length){
-
-        featuredElement.innerText =
-            "No games available.";
-
-        categoryElement.innerText =
-            "-";
-
-        votesElement.innerText =
-            "—";
-
-        imageElement.style.display =
-            "none";
-
-        return;
-
-    }
-
-
-    /*
-    =================================
-    RANDOM STARTING GAME
-    =================================
-    */
-
-    gameIndex =
-        Math.floor(
-            Math.random() *
-            featuredGames.length
+        gameIndex = Math.floor(
+            Math.random() * featuredGames.length
         );
 
+        showNextGame();
 
-    /*
-    =================================
-    SHOW GAME
-    =================================
-    */
+        if(!gameTimer){
 
-    showNextGame();
-
-
-    /*
-    =================================
-    START ROTATION ONLY ONCE
-    =================================
-    */
-
-    if(!gameTimer){
-
-        gameTimer =
-            setInterval(
+            gameTimer = setInterval(
                 showNextGame,
                 5000
             );
 
+        }
+
     }
+    catch(error){
 
-}
-catch(error){
+        console.error(
+            "Featured games API failed:",
+            error
+        );
 
-    console.error(
-        "Featured games API failed:",
-        error
-    );
+        featuredElement.innerHTML = `
+            <div style="
+                text-align:center;
+                padding:12px;
+                color:#93a4bb;
+            ">
+                Games unavailable
+                <br>
+                ${retryButton(
+                    "loadGames",
+                    "Retry Games"
+                )}
+            </div>
+        `;
 
+        categoryElement.innerText = "-";
 
-    featuredElement.innerHTML = `
-        <div style="
-            text-align:center;
-            padding:12px;
-            color:#93a4bb;
-        ">
-            ⚠️ Games unavailable
-
-            <br>
-
-            ${retryButton(
-                "loadGames",
-                "Retry Games"
-            )}
-        </div>
-    `;
-
-
-    categoryElement.innerText =
-        "-";
-
-
-    votesElement.innerText =
-        "—";
-
-
-    imageElement.style.display =
-        "none";
-
+        imageElement.style.display = "none";
+    }
 }
 
-
-}
 
 function showNextGame(){
 
+    if(!featuredGames.length){
+        return;
+    }
 
-if(!featuredGames.length){
+    const game = featuredGames[gameIndex];
 
-    return;
-
-}
-
-
-/*
-=================================
-GET CURRENT GAME
-=================================
-*/
-
-const game =
-    featuredGames[gameIndex];
+    if(!game){
+        return;
+    }
 
 
-if(!game){
+    const title =
+        game.Title ||
+        game.title ||
+        game.Name ||
+        game.name ||
+        "Unknown Game";
 
-    return;
-
-}
-
-
-/*
-=================================
-GAME TITLE
-=================================
-*/
-
-const title =
-    game.Title ||
-    game.title ||
-    game.Name ||
-    game.name ||
-    "Unknown Game";
-
-
-document.getElementById(
-    "featuredGame"
-).innerText =
-    title;
-
-
-/*
-=================================
-CATEGORY
-=================================
-*/
-
-const category =
-    game.Genre ||
-    game.genre ||
-    game.Category ||
-    game.category ||
-    game.Platform ||
-    game.platform ||
-    "Game";
-
-
-document.getElementById(
-    "gameCategory"
-).innerText =
-    category;
-
-
-/*
-=================================
-VOTES
-=================================
-*/
-
-const votes =
-    game.Votes ??
-    game.votes ??
-    game.Vote ??
-    game.vote ??
-    "—";
-
-
-document.getElementById(
-    "gameVotes"
-).innerText =
-    votes;
-
-
-/*
-=================================
-THUMBNAIL
-=================================
-*/
-
-const img =
     document.getElementById(
+        "featuredGame"
+    ).innerText = title;
+
+
+    const description =
+        game.Description ||
+        game.description ||
+        "No description available.";
+
+    document.getElementById(
+        "gameCategory"
+    ).innerText = description;
+
+
+    const img = document.getElementById(
         "gameImage"
     );
 
-
-const thumbnail =
-    game.Thumbnail ||
-    game.thumbnail ||
-    game.Image ||
-    game.image ||
-    game.Cover ||
-    game.cover ||
-    "";
-
-
-if(thumbnail){
-
-    img.src =
-        thumbnail;
-
-    img.style.display =
-        "block";
-
-}
-else{
-
-    img.removeAttribute(
-        "src"
-    );
-
-    img.style.display =
-        "none";
-
-}
+    const thumbnail =
+        game.Thumbnail ||
+        game.thumbnail ||
+        game.Image ||
+        game.image ||
+        game.Cover ||
+        game.cover ||
+        "";
 
 
-/*
-=================================
-NEXT GAME
-=================================
-*/
+    if(thumbnail){
 
-gameIndex++;
+        img.src = thumbnail;
 
+        img.style.display = "block";
 
-/*
-Shuffle after completing
-the current cycle.
-*/
+    }
+    else{
 
-if(
-    gameIndex >=
-    featuredGames.length
-){
+        img.removeAttribute("src");
 
-    featuredGames.sort(
-        () =>
-            Math.random() - 0.5
-    );
+        img.style.display = "none";
+
+    }
 
 
-    gameIndex = 0;
-
-}
+    gameIndex++;
 
 
+    if(gameIndex >= featuredGames.length){
+
+        featuredGames.sort(
+            () => Math.random() - 0.5
+        );
+
+        gameIndex = 0;
+    }
 }
 
 
