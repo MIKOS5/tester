@@ -2975,8 +2975,7 @@ Gets current Video Obvyris TV program
 const SPORTS_API =
 "https://script.google.com/macros/s/AKfycbx8S_l2TEHWwWAvpZSAR9CywTYVzp21kEZL8btVHKKKm8ucTVBRyZQb8IvpKfCDLLIG/exec";
 
-const GAMES_API =
-"https://script.google.com/macros/s/AKfycbz_NGVTztTuc81a5_1K839CTu1V4bcc9IWXkqlNBYSJN8WSqSUbH2YP8xjqZPE3c7fzNg/exec";
+const GAMES_API = "https://script.google.com/macros/s/AKfycbxDYk9W7QQLEn_FbyFu261mL0bQELvIh7TEMwFIYXwaCTWG4pqOjwfEtLbKZSgI2eNO/exec";
 
 
 let featuredGames = [];
@@ -3522,43 +3521,41 @@ async function loadSports(){
 
 async function loadGames(){
 
-    const callback =
-    "featuredGamesCallback_" + Date.now();
-
-
-    window[callback] = function(data){
-
-
-        delete window[callback];
-
-
-        console.log("Featured Games:",data);
+const featuredElement =
+    featuredGames =
+        data.games.filter(
+            game =>
+                game.Featured === true ||
+                String(game.Featured).toLowerCase() === "true"
+        );
 
 
 
-        if(
-            !data ||
-            !data.games ||
-            data.games.length === 0
-        ){
 
-            document.getElementById("featuredGame").innerText =
-            "Games unavailable";
+    /*
+    If this page contains no featured
+    games, use all returned games.
+    */
 
-            return;
 
-        }
-
+    if(!featuredGames.length){
 
 
         featuredGames =
-        data.games;
+            data.games;
+
+
+    }
 
 
 
-        // random start
 
-        gameIndex =
+    /*
+    Random starting game
+    */
+
+
+    gameIndex =
         Math.floor(
             Math.random() *
             featuredGames.length
@@ -3566,137 +3563,169 @@ async function loadGames(){
 
 
 
-        showNextGame();
+
+    showNextGame();
 
 
 
-        if(!gameTimer){
 
-            gameTimer =
+    /*
+    Start rotation only once
+    */
+
+
+    if(!gameTimer){
+
+
+        gameTimer =
             setInterval(
                 showNextGame,
                 5000
             );
 
-        }
+
+    }
 
 
-    };
+}
+catch(error){
 
-
-
-    const script =
-    document.createElement("script");
-
-
-    script.src =
-    GAMES_API +
-    "?callback=" +
-    callback +
-    "&action=featured&t=" +
-    Date.now();
-
-
-
-    script.onload=function(){
-
-        script.remove();
-
-    };
-
-
-
-    script.onerror=function(){
 
     console.error(
-        "Featured games API failed"
+        "Featured games API failed:",
+        error
     );
 
-    document.getElementById(
-        "featuredGame"
-    ).innerHTML = `
+
+    featuredElement.innerHTML = `
         ⚠️ Games unavailable
-        ${retryButton("loadGames", "Retry Games")}
+        ${retryButton(
+            "loadGames",
+            "Retry Games"
+        )}
     `;
 
-    script.remove();
 
-};
+    categoryElement.innerText =
+        "-";
 
 
+    votesElement.innerText =
+        "0";
 
-    document.body.appendChild(script);
 
+    imageElement.style.display =
+        "none";
+
+
+}
 
 }
 
 
 function showNextGame(){
 
-
-    if(!featuredGames.length){
-        return;
-    }
-
-
-    const game =
-    featuredGames[gameIndex];
-
-
-    document.getElementById(
-        "featuredGame"
-    ).innerText =
-    game.Name || "Unknown";
-
-
-    document.getElementById(
-        "gameCategory"
-    ).innerText =
-    game.Category || "-";
-
-
-    document.getElementById(
-        "gameVotes"
-    ).innerText =
-    game.TotalVotes || 0;
+if(!featuredGames.length){
 
 
 
-    const img =
+
+/*
+=================================
+VOTES
+=================================
+
+
+New API does not currently provide
+vote information.
+*/
+
+
+document.getElementById(
+    "gameVotes"
+).innerText =
+    "—";
+
+
+
+
+/*
+=================================
+THUMBNAIL
+=================================
+*/
+
+
+const img =
     document.getElementById(
         "gameImage"
     );
 
 
-    if(game.Image){
 
-        img.src =
-        game.Image;
 
-        img.style.display =
+if(game.Thumbnail){
+
+
+    img.src =
+        game.Thumbnail;
+
+
+    img.style.display =
         "block";
 
-    }
+
+}
+else{
+
+
+    img.removeAttribute("src");
+
+
+    img.style.display =
+        "none";
+
+
+}
 
 
 
-    gameIndex++;
+
+/*
+=================================
+NEXT GAME
+=================================
+*/
 
 
-    if(
-      gameIndex >= featuredGames.length
-    ){
-
-        // reshuffle after full cycle
-
-        featuredGames.sort(
-          ()=>Math.random()-0.5
-        );
+gameIndex++;
 
 
-        gameIndex=0;
 
-    }
+
+if(
+    gameIndex >= featuredGames.length
+){
+
+
+    /*
+    Shuffle featured games
+    after completing the cycle.
+    */
+
+
+    featuredGames.sort(
+        () =>
+            Math.random() - 0.5
+    );
+
+
+
+
+    gameIndex = 0;
+
+
+}
 
 }
 
