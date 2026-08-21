@@ -1753,96 +1753,100 @@ function closePlayer(){
 function checkWebGL(){
 
 const status = document.getElementById("webglStatus");
-
-
-if(!status){
-    console.error("[OBVYRIS] webglStatus element not found");
-    return;
-}
-
-
-status.textContent = "WebGL: Testing...";
-status.style.color = "#d7a83e";
-
-
-try{
-
-
-    const canvas = document.createElement("canvas");
-
-
-    let gl = null;
-
-
-    try{
-        gl = canvas.getContext("webgl2");
-    }catch(e){}
-
-
-    if(!gl){
-
-
-        try{
-            gl = canvas.getContext("webgl");
-        }catch(e){}
-
-
-    }
-
-
-    if(!gl){
-
-
-        try{
-            gl = canvas.getContext("experimental-webgl");
-        }catch(e){}
-
-
-    }
-
-
-    if(!gl){
-
-
-        status.textContent = "WebGL: Disabled";
-        status.style.color = "#e45555";
-
-
-        console.log("[OBVYRIS] WebGL unavailable");
-
-
-        return;
-    }
-
-
-    let renderer = "";
-
-
-    try{
-
-
-        const debug =
-            gl.getExtension(
-                "WEBGL_debug_renderer_info"
-            );
-
-
-        if(debug){
-
-
             renderer =
                 gl.getParameter(
-                    debug.UNMASKED_RENDERER_WEBGL
+                    debugInfo.UNMASKED_RENDERER_WEBGL
                 ) || "";
 
 
         }
 
 
-    }catch(e){
+    }catch(error){
 
 
         console.warn(
+            "[OBVYRIS] Could not read WebGL renderer:",
+            error
+        );
+
+
+    }
+
+
+    console.log(
+        "[OBVYRIS] WebGL available"
+    );
+
+
+    console.log(
+        "[OBVYRIS] WebGL renderer:",
+        renderer || "Unknown"
+    );
+
+
+    /*
+     * Detect common software renderers.
+     */
+
+
+    const software =
+        /swiftshader|software rasterizer|llvmpipe|mesa llvmpipe/i
+        .test(renderer);
+
+
+    if(software){
+
+
+        status.textContent =
+            "WebGL: Software renderer";
+
+
+        status.style.color =
+            "#d7a83e";
+
+
+    }else{
+
+
+        status.textContent =
+            "WebGL: Hardware accelerated";
+
+
+        status.style.color =
+            "#42d77d";
+
+
+    }
+
+
+    /*
+     * Release the test canvas.
+     */
+
+
+    canvas.width = 1;
+    canvas.height = 1;
+
+
+}catch(error){
+
+
+    console.error(
+        "[OBVYRIS] WebGL test failed:",
+        error
+    );
+
+
+    status.textContent =
+        "WebGL: Disabled";
+
+
+    status.style.color =
+        "#e45555";
+
+
+}
 
 }
 
@@ -2080,7 +2084,8 @@ window.addEventListener(
    START
 ===================================================== */
 
-loadAPI();
+checkWebGL();
+loadAPI();`
 
 </script>
 
