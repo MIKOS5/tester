@@ -1752,86 +1752,98 @@ function closePlayer(){
 
 function checkWebGL(){
 
-const status=document.getElementById("webglStatus");
+const status = document.getElementById("webglStatus");
 
-if(!status){
-    return;
-}
 
-let canvas=document.createElement("canvas");
+            renderer =
+                gl.getParameter(
+                    debug.UNMASKED_RENDERER_WEBGL
+                ) || "";
 
-let gl=
-    canvas.getContext("webgl2") ||
-    canvas.getContext("webgl") ||
-    canvas.getContext("experimental-webgl");
-
-if(!gl){
-
-    status.textContent="WebGL: Disabled";
-    status.style.color="#e45555";
-
-    return;
-
-}
-
-let debugInfo=
-    gl.getExtension("WEBGL_debug_renderer_info");
-
-if(debugInfo){
-
-    const renderer=
-        gl.getParameter(
-            debugInfo.UNMASKED_RENDERER_WEBGL
-        );
-
-    if(renderer){
-
-        const softwareRenderer=
-            /swiftshader|software rasterizer|llvmpipe|mesa llvmpipe/i
-            .test(renderer);
-
-        if(softwareRenderer){
-
-            status.textContent=
-                "WebGL: Software renderer";
-
-            status.style.color="#d7a83e";
-
-            console.log(
-                "[OBVYRIS] WebGL renderer:",
-                renderer
-            );
-
-            return;
 
         }
 
-        status.textContent=
-            "WebGL: Hardware accelerated";
 
-        status.style.color="#42d77d";
+    }catch(e){
 
-        console.log(
-            "[OBVYRIS] WebGL renderer:",
-            renderer
+
+        console.warn(
+            "[OBVYRIS] Could not read WebGL renderer",
+            e
         );
 
-        return;
 
     }
 
+
+    console.log(
+        "[OBVYRIS] WebGL available"
+    );
+
+
+    console.log(
+        "[OBVYRIS] WebGL renderer:",
+        renderer || "Unknown"
+    );
+
+
+    if(
+        renderer &&
+        /swiftshader|software rasterizer|llvmpipe|mesa llvmpipe/i
+        .test(renderer)
+    ){
+
+
+        status.textContent =
+            "WebGL: Software renderer";
+
+
+        status.style.color = "#d7a83e";
+
+
+    }else{
+
+
+        status.textContent =
+            "WebGL: Hardware accelerated";
+
+
+        status.style.color = "#42d77d";
+
+
+    }
+
+
+    /*
+     * Clean up the test context.
+     */
+
+
+    canvas.width = 1;
+    canvas.height = 1;
+
+
+}catch(error){
+
+
+    console.error(
+        "[OBVYRIS] WebGL test failed:",
+        error
+    );
+
+
+    status.textContent =
+        "WebGL: Disabled";
+
+
+    status.style.color =
+        "#e45555";
+
+
 }
 
-/*
- * WebGL works, but Chrome did not expose
- * the renderer information.
- */
+}`
 
-status.textContent=
-    "WebGL: Available";
-
-status.style.color="#42d77d";
-}
 /* =====================================================
    ESCAPE
 ===================================================== */
