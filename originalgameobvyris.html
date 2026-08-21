@@ -1,0 +1,1970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#09111d">
+
+<title>Games Obvyris</title>
+
+<link rel="icon" href="https://mikos5.github.io/tester/navicon.png">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+
+
+<style>
+
+:root{
+
+--bg:#09111d;
+--panel:#111827;
+--border:#253347;
+
+--blue:#2793ff;
+--blue-dark:#1869d9;
+
+--text:#fff;
+--muted:#93a4bb;
+
+}
+
+
+*{
+
+box-sizing:border-box;
+
+}
+
+
+html,body{
+
+width:100%;
+
+height:100%;
+
+overscroll-behavior:none;
+
+-webkit-tap-highlight-color:transparent;
+
+}
+
+
+body{
+
+margin:0;
+
+height:100vh;
+
+display:flex;
+
+overflow:hidden;
+
+background:var(--bg);
+
+color:var(--text);
+
+font-family:Inter,Arial;
+
+}
+
+
+/* SIDEBAR */
+
+#sidebar{
+
+width:180px;
+
+height:100vh;
+
+background:var(--panel);
+
+border-right:1px solid var(--border);
+
+display:flex;
+
+flex-direction:column;
+
+overflow-y:auto;
+
+flex-shrink:0;
+
+}
+
+
+.brand{
+
+padding:12px;
+
+cursor:pointer;
+
+}
+
+
+.logo{
+
+font-family:Orbitron;
+
+font-size:22px;
+
+font-weight:900;
+
+}
+
+
+.logo span{
+
+color:var(--blue);
+
+}
+
+
+.subtitle{
+
+font-size:11px;
+
+color:var(--muted);
+
+}
+
+
+/* SIDEBAR BUTTONS */
+
+.group{
+
+margin:6px;
+
+padding:10px;
+
+border-radius:10px;
+
+background:var(--bg);
+
+border:1px solid var(--border);
+
+cursor:pointer;
+
+font-size:13px;
+
+touch-action:manipulation;
+
+}
+
+
+.group:hover{
+
+border-color:var(--blue);
+
+background:#132238;
+
+}
+
+
+
+/* APP MENU */
+
+.app-menu{
+
+display:none;
+
+position:absolute;
+
+top:70px;
+
+left:15px;
+
+width:230px;
+
+background:var(--panel);
+
+border:1px solid var(--border);
+
+border-radius:14px;
+
+z-index:999;
+
+overflow:hidden;
+
+}
+
+
+.app-menu.open{
+
+display:block;
+
+}
+
+
+.app-menu div{
+
+padding:14px;
+
+cursor:pointer;
+
+font-weight:700;
+
+}
+
+
+.app-menu div:hover{
+
+background:var(--blue);
+
+}
+
+
+
+/* MAIN */
+
+#main{
+
+flex:1;
+
+min-width:0;
+
+height:100vh;
+
+overflow:auto;
+
+padding:20px;
+
+-webkit-overflow-scrolling:touch;
+
+}
+
+
+
+/* SEARCH */
+
+#search{
+
+width:100%;
+
+padding:12px;
+
+background:var(--panel);
+
+border:1px solid var(--border);
+
+border-radius:10px;
+
+color:white;
+
+margin-bottom:20px;
+
+outline:none;
+
+}
+
+
+#search::placeholder{
+
+color:var(--muted);
+
+}
+
+
+
+/* HEADER */
+
+h1{
+
+font-family:Orbitron;
+
+margin-top:0;
+
+}
+
+
+
+/* GAMES */
+
+#games{
+
+display:grid;
+
+grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+
+gap:18px;
+
+}
+
+
+.game{
+
+background:var(--panel);
+
+border:1px solid var(--border);
+
+border-radius:14px;
+
+overflow:hidden;
+
+transition:.2s;
+
+touch-action:manipulation;
+
+}
+
+
+.game:hover{
+
+transform:translateY(-5px);
+
+border-color:var(--blue);
+
+}
+
+
+.game img{
+
+width:100%;
+
+height:150px;
+
+object-fit:cover;
+
+background:#000;
+
+user-select:none;
+
+-webkit-user-drag:none;
+
+}
+
+
+.info{
+
+padding:14px;
+
+}
+
+
+.game h2{
+
+font-family:Orbitron;
+
+font-size:18px;
+
+margin:0 0 8px;
+
+}
+
+
+.game p{
+
+color:var(--muted);
+
+font-size:14px;
+
+}
+
+
+
+/* BUTTONS */
+
+button{
+
+width:100%;
+
+padding:11px;
+
+border:0;
+
+border-radius:10px;
+
+background:linear-gradient(180deg,var(--blue),var(--blue-dark));
+
+color:white;
+
+font-weight:800;
+
+cursor:pointer;
+
+touch-action:manipulation;
+
+}
+
+
+button:hover{
+
+filter:brightness(1.15);
+
+}
+
+
+#error{
+
+color:red;
+
+}
+
+
+
+/* GAME PLAYER */
+
+#gamePlayer{
+
+display:none;
+
+position:fixed;
+
+top:50%;
+
+left:50%;
+
+transform:translate(-50%,-50%);
+
+width:80vw;
+
+height:80vh;
+
+background:#000;
+
+border:2px solid var(--blue);
+
+border-radius:15px;
+
+z-index:5000;
+
+box-shadow:0 0 40px #000;
+
+resize:both;
+
+overflow:hidden;
+
+min-width:320px;
+
+min-height:240px;
+
+}
+
+
+.playerHeader{
+
+height:45px;
+
+background:var(--panel);
+
+display:flex;
+
+align-items:center;
+
+justify-content:space-between;
+
+padding:8px 12px;
+
+font-family:Orbitron;
+
+}
+
+
+.playerHeader button{
+
+width:auto;
+
+padding:6px 10px;
+
+margin-left:5px;
+
+}
+
+
+#gameFrame{
+
+width:100%;
+
+height:calc(100% - 45px);
+
+border:0;
+
+background:black;
+
+}
+
+
+
+/* FULLSCREEN */
+
+#gamePlayer:fullscreen{
+
+width:100vw;
+
+height:100vh;
+
+border:0;
+
+border-radius:0;
+
+}
+
+
+
+/* ANDROID MOBILE FIX */
+
+@media(max-width:700px){
+
+
+#sidebar{
+
+position:fixed;
+
+left:0;
+
+top:0;
+
+width:72px;
+
+height:100vh;
+
+z-index:1000;
+
+background:var(--panel);
+
+display:flex;
+
+flex-direction:column;
+
+align-items:center;
+
+overflow-y:auto;
+
+}
+
+
+
+#main{
+
+position:relative;
+
+margin-left:72px;
+
+width:calc(100% - 72px);
+
+height:100vh;
+
+padding:12px;
+
+overflow-y:auto;
+
+-webkit-overflow-scrolling:touch;
+
+}
+
+
+
+.logo{
+
+font-size:12px;
+
+line-height:1.2;
+
+text-align:center;
+
+}
+
+
+.subtitle{
+
+display:none;
+
+}
+
+
+
+/* FIXED ICON SIDEBAR BUTTONS */
+
+.group{
+
+width:56px;
+
+height:50px;
+
+margin:6px auto;
+
+padding:0;
+
+font-size:0;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+background:var(--bg);
+
+border:1px solid var(--border);
+
+border-radius:10px;
+
+position:relative;
+
+overflow:hidden;
+
+}
+
+
+.group::before{
+
+position:absolute;
+
+left:50%;
+
+top:50%;
+
+transform:translate(-50%,-50%);
+
+font-size:25px;
+
+line-height:1;
+
+}
+
+
+.group:nth-of-type(1)::before{
+
+content:"🎮";
+
+}
+
+
+.group:nth-of-type(2)::before{
+
+content:"⭐";
+
+}
+
+
+.group:nth-of-type(3)::before{
+
+content:"🕹";
+
+}
+
+
+
+.app-menu{
+
+left:75px;
+
+top:70px;
+
+width:230px;
+
+}
+
+#gamePlayer{
+transition:transform 0.3s ease;
+transform-origin:center center;
+}
+
+#gamePlayer.rotated{
+transform:translate(-50%,-50%) rotate(90deg);
+}
+
+/* MOBILE GAMES */
+
+#games{
+
+grid-template-columns:repeat(2,minmax(0,1fr));
+
+gap:10px;
+
+}
+
+
+.game img{
+
+height:110px;
+
+}
+
+
+.game h2{
+
+font-size:14px;
+
+}
+
+
+.game p{
+
+font-size:12px;
+
+}
+
+
+button{
+
+padding:12px;
+
+font-size:14px;
+
+}
+
+
+
+/* PLAYER */
+
+#gamePlayer{
+
+width:95vw;
+
+height:85vh;
+
+}
+
+
+.playerHeader{
+
+height:50px;
+
+}
+
+
+}
+
+.votes{
+
+margin-top:12px;
+
+}
+
+.score{
+
+text-align:center;
+
+font-size:13px;
+
+font-weight:bold;
+
+margin-bottom:8px;
+
+color:#ffd34d;
+
+}
+
+.voteButtons{
+
+display:flex;
+
+gap:8px;
+
+margin-bottom:10px;
+
+}
+
+.voteButtons button{
+
+flex:1;
+
+padding:8px;
+
+font-size:13px;
+
+}
+
+.voteUp{
+
+background:#1f9d55;
+
+}
+
+.voteDown{
+
+background:#c0392b;
+
+}
+
+
+#games{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+gap:18px;
+align-items:start;
+}
+
+.game{
+min-width:0;
+width:100%;
+}
+
+
+#games{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+gap:18px;
+align-items:start;
+}
+
+#games:empty{
+display:none;
+}
+
+.category{
+font-size:12px !important;
+width:160px !important;
+height:auto !important;
+padding:10px !important;
+}
+
+.category{
+
+margin:6px;
+
+padding:10px;
+
+border-radius:10px;
+
+background:var(--bg);
+
+border:1px solid var(--border);
+
+cursor:pointer;
+
+font-size:13px;
+
+}
+
+
+.category:hover{
+
+border-color:var(--blue);
+
+background:#132238;
+
+}
+
+/* HIDE SCROLLBARS BUT KEEP SCROLLING */
+
+html,
+body,
+#main,
+#sidebar,
+#categoryMenu{
+    scrollbar-width:none; /* Firefox */
+    -ms-overflow-style:none; /* IE/Edge */
+}
+
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+#main::-webkit-scrollbar,
+#sidebar::-webkit-scrollbar,
+#categoryMenu::-webkit-scrollbar{
+    display:none; /* Chrome, Safari, Android */
+}
+
+
+
+input,
+textarea,
+select,
+[contenteditable="true"]{
+
+-webkit-user-select:text;
+user-select:text;
+
+-webkit-touch-callout:default;
+
+pointer-events:auto;
+
+}
+
+#gameKeyboard{
+
+display:none;
+
+position:absolute;
+
+left:0;
+
+right:0;
+
+bottom:0;
+
+background:#111827;
+
+border-top:2px solid #2793ff;
+
+padding:6px;
+
+z-index:20;
+
+}
+
+#gameKeyboard.open{
+
+display:block;
+
+}
+
+.keyboardRow{
+
+display:flex;
+
+gap:4px;
+
+margin-bottom:4px;
+
+justify-content:center;
+
+}
+
+.keyboardRow button{
+
+width:auto;
+
+min-width:35px;
+
+height:38px;
+
+padding:4px 8px;
+
+font-size:13px;
+
+font-weight:800;
+
+border-radius:6px;
+
+}
+
+.keyboardRow .wideKey{
+
+flex:1;
+
+max-width:250px;
+
+}
+
+
+</style>
+
+</head>
+
+
+<body>
+
+
+
+<div id="sidebar">
+
+
+<div class="brand" onclick="toggleMenu()">
+
+
+<div class="logo">
+
+Games <span>Obvyris</span>
+
+</div>
+
+
+<div class="subtitle">
+
+Game Library
+
+</div>
+
+
+</div>
+
+
+
+<div id="appMenu" class="app-menu">
+    <div onclick="navigateApp('index99.html')">
+        🏠 Home
+    </div>
+
+    <div onclick="navigateApp('Radio_Obvyris.html')">
+        📻 Radio Obvyris
+    </div>
+  
+    <div onclick="navigateApp('Video_Obvyris.html')">
+        📺 Video Obvyris
+    </div>
+  
+    <div onclick="navigateApp('newschat.html')">
+        💬 Chat Obvyris
+    </div>
+
+    <div onclick="navigateApp('news.html')">
+        📰 News Obvyris
+    </div>
+
+</div>
+
+
+
+
+
+<div class="group" onclick="showAllGames()">
+🎮 Games
+</div>
+
+
+<div class="group" onclick="toggleCategories()">
+📂 Categories
+</div>
+
+
+<div id="categoryMenu"></div>
+
+
+
+</div>
+
+
+
+
+
+
+<div id="main">
+
+
+<h1>
+🎮 Game Library
+</h1>
+
+
+
+<input id="search"
+placeholder="Search games..."
+oninput="filterGames()">
+
+
+
+<div id="games"></div>
+
+
+
+<div id="error"></div>
+
+
+</div>
+
+
+
+<div id="gamePlayer">
+
+<div class="playerHeader">
+
+<span id="playerTitle">
+Game Player
+</span>
+
+<div>
+<button id="keyboardBtn" onclick="toggleKeyboard()">⌨</button>
+<button onclick="reloadGame()">🔄</button>
+<button onclick="fullscreenGame()">⛶</button>
+<button onclick="closeGame()">✖</button>
+</div>
+
+</div>
+
+
+<iframe 
+id="gameFrame"
+allowfullscreen>
+</iframe>
+
+<div id="gameKeyboard"> <div class="keyboardRow">
+
+<button onclick="sendGameKey('1')">1</button>
+<button onclick="sendGameKey('2')">2</button>
+<button onclick="sendGameKey('3')">3</button>
+<button onclick="sendGameKey('4')">4</button>
+<button onclick="sendGameKey('5')">5</button>
+<button onclick="sendGameKey('6')">6</button>
+<button onclick="sendGameKey('7')">7</button>
+<button onclick="sendGameKey('8')">8</button>
+<button onclick="sendGameKey('9')">9</button>
+<button onclick="sendGameKey('0')">0</button>
+
+</div> <div class="keyboardRow">
+
+<button onclick="sendGameKey('q')">Q</button>
+<button onclick="sendGameKey('w')">W</button>
+<button onclick="sendGameKey('e')">E</button>
+<button onclick="sendGameKey('r')">R</button>
+<button onclick="sendGameKey('t')">T</button>
+<button onclick="sendGameKey('y')">Y</button>
+<button onclick="sendGameKey('u')">U</button>
+<button onclick="sendGameKey('i')">I</button>
+<button onclick="sendGameKey('o')">O</button>
+<button onclick="sendGameKey('p')">P</button>
+
+</div> <div class="keyboardRow">
+
+<button onclick="sendGameKey('a')">A</button>
+<button onclick="sendGameKey('s')">S</button>
+<button onclick="sendGameKey('d')">D</button>
+<button onclick="sendGameKey('f')">F</button>
+<button onclick="sendGameKey('g')">G</button>
+<button onclick="sendGameKey('h')">H</button>
+<button onclick="sendGameKey('j')">J</button>
+<button onclick="sendGameKey('k')">K</button>
+<button onclick="sendGameKey('l')">L</button>
+
+</div> <div class="keyboardRow">
+
+<button onclick="sendGameKey('z')">Z</button>
+<button onclick="sendGameKey('x')">X</button>
+<button onclick="sendGameKey('c')">C</button>
+<button onclick="sendGameKey('v')">V</button>
+<button onclick="sendGameKey('b')">B</button>
+<button onclick="sendGameKey('n')">N</button>
+<button onclick="sendGameKey('m')">M</button>
+
+</div> <div class="keyboardRow">
+
+<button class="wideKey" onclick="sendGameKey(' ')">SPACE</button>
+<button onclick="sendGameKey('Backspace')">⌫</button>
+<button onclick="sendGameKey('Enter')">ENTER</button>
+
+</div> <div class="keyboardRow">
+
+<button onclick="sendGameKey('ArrowLeft')">←</button>
+<button onclick="sendGameKey('ArrowUp')">↑</button>
+<button onclick="sendGameKey('ArrowDown')">↓</button>
+<button onclick="sendGameKey('ArrowRight')">→</button>
+
+</div> </div>
+    
+</div>
+
+
+<script>
+
+
+const API =
+"https://script.google.com/macros/s/AKfycbz_NGVTztTuc81a5_1K839CTu1V4bcc9IWXkqlNBYSJN8WSqSUbH2YP8xjqZPE3c7fzNg/exec";
+
+
+let allGames = [];
+
+let start = 0;
+
+const PAGE_SIZE = 20;
+
+let loading = false;
+
+let finished = false;
+
+let categories = [];
+let activeCategory = "";
+
+// =============================
+// LOAD INITIAL DATA
+// =============================
+
+function loadMoreGames(){
+
+    if(loading || finished) return;
+
+
+    loading = true;
+
+
+    const callback =
+    "gamesCallback_" + Date.now();
+
+
+
+    window[callback] = function(data){
+
+        delete window[callback];
+
+
+        loading=false;
+
+
+        if(!data.games || data.games.length===0){
+
+            finished=true;
+
+            return;
+
+        }
+
+
+        allGames.push(...data.games);
+
+
+        renderGames(data.games,true);
+
+
+        if(data.categories){
+
+    categories = data.categories;
+
+    renderCategories();
+
+}
+
+
+        start += data.games.length;
+
+
+
+        if(
+            data.hasMore === false
+        ){
+
+            finished=true;
+
+        }
+
+
+    };
+
+
+
+    const script =
+    document.createElement("script");
+
+
+    script.src =
+API +
+"?callback=" +
+callback +
+"&offset=" +
+start +
+"&limit=" +
+PAGE_SIZE +
+(activeCategory
+?
+"&category="+encodeURIComponent(activeCategory)
+:
+"");
+
+
+
+    script.onload=function(){
+
+        script.remove();
+
+    };
+
+
+    document.body.appendChild(script);
+
+}
+
+
+
+
+// =============================
+// RENDER
+// =============================
+
+function renderGames(games,append=true){
+
+const container=document.getElementById("games");
+
+
+if(
+!append ||
+container.textContent.trim()==="Loading..."
+){
+
+container.innerHTML="";
+
+}
+
+
+
+
+games.forEach(game=>{
+
+
+container.insertAdjacentHTML(
+"beforeend",
+`
+
+<div class="game">
+
+
+<img src="${game.Image || ''}"
+onerror="this.src='https://mikos5.github.io/tester/navicon.png'">
+
+
+<div class="info">
+
+
+<h2>${escapeHTML(game.Name)}</h2>
+
+
+<p>
+🎮 ${escapeHTML(game.Category)}<br>
+🕹 ${escapeHTML(game.Type)}
+</p>
+
+
+<p>
+${escapeHTML(game.Description)}
+</p>
+
+
+
+<div class="votes">
+
+
+<div class="score">
+⭐ ${game.Score}
+</div>
+
+
+
+<div class="voteButtons">
+
+
+<button class="voteUp"
+onclick="vote('${game.ID}','up')">
+
+👍 ${game.VotesUp}
+
+</button>
+
+
+
+<button class="voteDown"
+onclick="vote('${game.ID}','down')">
+
+👎 ${game.VotesDown}
+
+</button>
+
+
+</div>
+
+
+
+<button onclick="playGame('${game.URL}','${escapeHTML(game.Name)}')">
+
+PLAY
+
+</button>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+`
+);
+
+
+});
+
+
+}
+
+
+
+// =============================
+// SEARCH
+// =============================
+
+function filterGames(){
+
+
+let q =
+document
+.getElementById("search")
+.value
+.toLowerCase();
+
+
+
+document.getElementById("games").innerHTML="";
+
+
+
+renderGames(
+
+allGames.filter(g=>
+
+String(g.Name)
+.toLowerCase()
+.includes(q)
+
+||
+
+String(g.Category)
+.toLowerCase()
+.includes(q)
+
+),
+
+true
+
+);
+
+
+}
+
+
+
+// =============================
+// VOTING
+// =============================
+
+function vote(id,type){
+
+
+const key =
+"vote_" + id;
+
+
+
+if(localStorage.getItem(key)){
+
+alert("You already voted for this game.");
+
+return;
+
+}
+
+
+
+const callback =
+"voteCallback_" + Date.now();
+
+
+
+window[callback]=function(data){
+
+
+delete window[callback];
+
+
+if(data.status==="success"){
+
+
+localStorage.setItem(key,type);
+
+
+
+const game =
+allGames.find(
+g=>String(g.ID)===String(id)
+);
+
+
+
+if(game){
+
+
+game.VotesUp =
+Number(data.VotesUp);
+
+
+game.VotesDown =
+Number(data.VotesDown);
+
+
+game.Score =
+Number(data.Score);
+
+
+}
+
+
+
+// redraw
+
+document.getElementById("games").innerHTML="";
+
+renderGames(allGames,false);
+
+
+
+}
+else{
+
+
+alert(data.message);
+
+}
+
+
+};
+
+
+
+const script =
+document.createElement("script");
+
+
+
+script.src =
+API+
+"?callback="+callback+
+"&action=vote"+
+"&id="+encodeURIComponent(id)+
+"&vote="+encodeURIComponent(type);
+
+
+
+script.onload=function(){
+
+script.remove();
+
+};
+
+
+
+document.body.appendChild(script);
+
+
+}
+
+function renderCategories(){
+
+let box =
+document.getElementById("categoryMenu");
+
+
+box.innerHTML="";
+
+
+categories.forEach(category=>{
+
+
+box.innerHTML += `
+
+<div class="category"
+onclick="filterCategory('${escapeHTML(category)}')">
+
+${escapeHTML(category)}
+
+</div>
+
+`;
+
+});
+
+
+}
+
+function showAllGames(){
+
+activeCategory="";
+
+document.getElementById("games").innerHTML="";
+
+renderGames(allGames,false);
+
+}
+
+function toggleCategories(){
+
+let menu =
+document.getElementById("categoryMenu");
+
+
+menu.style.display =
+menu.style.display==="none"
+?"block"
+:"none";
+
+}
+
+    
+function filterCategory(category){
+
+activeCategory = category;
+
+
+loading = true;
+finished = false;
+start = 0;
+
+allGames = [];
+
+
+document.getElementById("games").innerHTML =
+"Loading...";
+
+
+
+const callback =
+"categoryCallback_" + Date.now();
+
+
+
+window[callback] = function(data){
+
+
+delete window[callback];
+
+
+loading=false;
+
+
+
+allGames.push(...data.games);
+
+
+
+document.getElementById("games").innerHTML="";
+
+
+renderGames(data.games,false);
+
+
+
+start = data.games.length;
+
+
+
+finished =
+!data.hasMore;
+
+
+};
+
+
+
+const script =
+document.createElement("script");
+
+
+script.src =
+API+
+"?callback="+callback+
+"&category="+encodeURIComponent(category)+
+"&offset=0"+
+"&limit="+PAGE_SIZE;
+
+
+
+script.onload=function(){
+
+script.remove();
+
+};
+
+
+document.body.appendChild(script);
+
+
+}
+
+// =============================
+// GAME PLAYER
+// =============================
+
+function playGame(url,name){
+
+
+document
+.getElementById("gamePlayer")
+.style.display="block";
+
+
+
+document
+.getElementById("gameFrame")
+.src=url;
+
+
+
+document
+.getElementById("playerTitle")
+.innerHTML=name || "Game Player";
+
+
+}
+
+
+
+
+function closeGame(){
+
+
+document
+.getElementById("gamePlayer")
+.style.display="none";
+
+
+
+document
+.getElementById("gameFrame")
+.src="";
+
+
+}
+
+function reloadGame(){
+
+
+const frame =
+document.getElementById("gameFrame");
+
+
+
+frame.src =
+frame.src;
+
+
+}
+
+function toggleKeyboard(){
+
+const keyboard =
+    document.getElementById("gameKeyboard");
+
+const button =
+    document.getElementById("keyboardBtn");
+
+if(!keyboard) return;
+
+keyboard.classList.toggle("open");
+
+if(keyboard.classList.contains("open")){
+
+    button.textContent = "✖⌨";
+
+}else{
+
+    button.textContent = "⌨";
+
+}
+
+}
+
+function sendGameKey(key){
+
+const frame =
+    document.getElementById("gameFrame");
+
+if(!frame) return;
+
+frame.contentWindow.postMessage({
+
+    type:"gameKeyboard",
+
+    key:key
+
+},"*");
+
+}
+function keyboardGame(){
+
+const frame =
+    document.getElementById("gameFrame");
+
+if(!frame) return;
+
+frame.focus();
+
+try{
+
+    frame.contentWindow.focus();
+
+}catch(e){}
+
+}
+
+function rotateGameScreen(){
+
+const gamePlayer =
+    document.getElementById("gamePlayer");
+
+const button =
+    document.getElementById("rotateGameBtn");
+
+if(!gamePlayer) return;
+
+gamePlayer.classList.toggle("rotated");
+
+if(gamePlayer.classList.contains("rotated")){
+
+    button.textContent = "↺";
+
+}else{
+
+    button.textContent = "↻";
+
+}
+
+}
+    
+
+function fullscreenGame(){
+
+
+const player =
+document.getElementById("gamePlayer");
+
+
+
+if(player.requestFullscreen){
+
+player.requestFullscreen();
+
+}
+
+else if(player.webkitRequestFullscreen){
+
+player.webkitRequestFullscreen();
+
+}
+
+
+}
+
+
+
+
+// =============================
+// MENU
+// =============================
+
+function toggleMenu(){
+
+
+document
+.getElementById("appMenu")
+.classList
+.toggle("open");
+
+
+}
+
+
+
+
+function navigateApp(page){
+
+
+window.location.href=page;
+
+
+}
+
+
+
+
+// =============================
+// MOBILE BACK BUTTON
+// =============================
+
+window.addEventListener(
+"popstate",
+()=>{
+
+
+const player =
+document.getElementById("gamePlayer");
+
+
+
+if(
+player.style.display==="block"
+){
+
+closeGame();
+
+}
+
+
+});
+
+
+
+
+// =============================
+// INFINITE SCROLL
+// =============================
+
+document
+.getElementById("main")
+.addEventListener(
+"scroll",
+function(){
+
+
+if(
+this.scrollTop +
+this.clientHeight >=
+this.scrollHeight - 300
+){
+
+
+loadMoreGames();
+
+
+}
+
+
+});
+
+
+
+
+// =============================
+// HTML SECURITY
+// =============================
+
+function escapeHTML(text){
+
+
+return String(text || "")
+
+.replace(/&/g,"&amp;")
+
+.replace(/</g,"&lt;")
+
+.replace(/>/g,"&gt;")
+
+.replace(/"/g,"&quot;")
+
+.replace(/'/g,"&#039;");
+
+
+}
+
+
+
+// =============================
+// START APP
+// =============================
+
+loadMoreGames();
+
+
+window.addEventListener("message", function(event){
+
+if(!event.data) return;
+
+if(event.data.type !== "gameKeyboard") return;
+
+const key = event.data.key;
+
+const keyDown = new KeyboardEvent("keydown", {
+    key:key,
+    code:key === " " ? "Space" : "Key" + key.toUpperCase(),
+    bubbles:true,
+    cancelable:true
+});
+
+document.dispatchEvent(keyDown);
+
+});
+
+    
+</script>
+
+
+</body>
+</html>
