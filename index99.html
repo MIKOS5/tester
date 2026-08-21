@@ -4612,111 +4612,93 @@ function resetShipInactivity(){
 
 function openFeaturedGame(){
 
-    console.log("[OBVYRIS] Opening featured game");
+console.log("[OBVYRIS] Opening featured game");
+iframe.style.height =
+    "100%";
 
-    /*
-     * First try to use a real game object.
-     */
-    let game = window.featuredGame;
 
-    /*
-     * If featuredGame is actually the HTML element,
-     * find the game in DATA.games using its displayed title.
-     */
-    if(
-        game &&
-        (
-            game instanceof HTMLElement ||
-            game.nodeType === 1
-        )
-    ){
 
-        const title =
-            String(
-                game.textContent ||
-                game.innerText ||
-                ""
-            ).trim();
 
-        console.log(
-            "[OBVYRIS] Featured title:",
-            title
-        );
+iframe.style.border =
+    "0";
 
-        game = DATA.games.find(function(item){
 
-            return String(
-                item.Title || ""
-            ).trim().toLowerCase() ===
-            title.toLowerCase();
 
-        });
 
-    }
+iframe.style.display =
+    "block";
 
-    /*
-     * If window.featuredGame is not a game object,
-     * try the featured title element directly.
-     */
-    if(
-        !game ||
-        typeof game !== "object" ||
-        !game.Title
-    ){
 
-        const featuredElement =
-            document.getElementById("featuredGame");
 
-        if(featuredElement){
 
-            const title =
-                String(
-                    featuredElement.textContent ||
-                    ""
-                ).trim();
+iframe.style.background =
+    "#000";
 
-            game = DATA.games.find(function(item){
 
-                return String(
-                    item.Title || ""
-                ).trim().toLowerCase() ===
-                title.toLowerCase();
 
-            });
 
-        }
+/*
+=================================
+IFRAME LOADED
+=================================
+*/
 
-    }
 
-    /*
-     * Make sure we actually found the game.
-     */
-    if(!game){
+iframe.onload =
+function(){
 
-        console.error(
-            "[OBVYRIS] Featured game could not be found in DATA.games"
-        );
-
-        showPlayerMessage(
-            "Featured game is unavailable."
-        );
-
-        return;
-
-    }
 
     console.log(
-        "[OBVYRIS] Featured game object:",
-        game
+        "[OBVYRIS] Emulator loaded:",
+        emulatorURL
     );
 
-    /*
-     * Use the SAME launch system as the normal game cards.
-     *
-     * This is important because startEmulator()
-     * already builds the correct emulator.html URL.
-     */
-    launchGame(game);
+
+};
+
+
+
+
+/*
+=================================
+IFRAME ERROR
+=================================
+*/
+
+
+iframe.onerror =
+function(){
+
+
+    console.error(
+        "[OBVYRIS] Emulator iframe failed:",
+        emulatorURL
+    );
+
+
+    showGamePlayerMessage(
+        "The emulator page could not be loaded."
+    );
+
+
+};
+
+
+
+
+/*
+=================================
+INSERT EMULATOR
+=================================
+*/
+
+
+player.innerHTML = "";
+
+
+player.appendChild(
+    iframe
+);
 
 }
 
