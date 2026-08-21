@@ -1749,104 +1749,133 @@ function closePlayer(){
 
 }
 
-
 function checkWebGL(){
 
-const status = document.getElementById("webglStatus");
-            renderer =
-                gl.getParameter(
-                    debugInfo.UNMASKED_RENDERER_WEBGL
-                ) || "";
+    const status=document.getElementById("webglStatus");
 
+    if(!status){
+        return;
+    }
+
+    let canvas=null;
+    let gl=null;
+    let renderer="";
+
+    try{
+
+        /*
+         * Create a temporary WebGL canvas.
+         */
+
+        canvas=document.createElement("canvas");
+
+        gl=
+            canvas.getContext("webgl2") ||
+            canvas.getContext("webgl") ||
+            canvas.getContext("experimental-webgl");
+
+        /*
+         * WebGL unavailable.
+         */
+
+        if(!gl){
+
+            status.textContent="WebGL: Disabled";
+            status.style.color="#e45555";
+
+            console.warn(
+                "[OBVYRIS] WebGL is not available."
+            );
+
+            return;
+        }
+
+        /*
+         * Try to identify the GPU renderer.
+         */
+
+        try{
+
+            const debugInfo=
+                gl.getExtension(
+                    "WEBGL_debug_renderer_info"
+                );
+
+            if(debugInfo){
+
+                renderer=
+                    gl.getParameter(
+                        debugInfo.UNMASKED_RENDERER_WEBGL
+                    ) || "";
+
+            }
+
+        }catch(error){
+
+            console.warn(
+                "[OBVYRIS] Could not read WebGL renderer:",
+                error
+            );
 
         }
 
+        /*
+         * Detect common software renderers.
+         */
+
+        const software=
+            /swiftshader|software rasterizer|llvmpipe|mesa llvmpipe/i
+            .test(renderer);
+
+        if(software){
+
+            status.textContent=
+                "WebGL: Software renderer";
+
+            status.style.color="#d7a83e";
+
+        }else{
+
+            status.textContent=
+                "WebGL: Hardware accelerated";
+
+            status.style.color="#42d77d";
+
+        }
+
+        console.log(
+            "[OBVYRIS] WebGL available"
+        );
+
+        console.log(
+            "[OBVYRIS] WebGL renderer:",
+            renderer || "Unknown"
+        );
 
     }catch(error){
 
-
-        console.warn(
-            "[OBVYRIS] Could not read WebGL renderer:",
+        console.error(
+            "[OBVYRIS] WebGL test failed:",
             error
         );
 
+        status.textContent=
+            "WebGL: Disabled";
+
+        status.style.color="#e45555";
 
     }
-
-
-    console.log(
-        "[OBVYRIS] WebGL available"
-    );
-
-
-    console.log(
-        "[OBVYRIS] WebGL renderer:",
-        renderer || "Unknown"
-    );
-
-
-    /*
-     * Detect common software renderers.
-     */
-
-
-    const software =
-        /swiftshader|software rasterizer|llvmpipe|mesa llvmpipe/i
-        .test(renderer);
-
-
-    if(software){
-
-
-        status.textContent =
-            "WebGL: Software renderer";
-
-
-        status.style.color =
-            "#d7a83e";
-
-
-    }else{
-
-
-        status.textContent =
-            "WebGL: Hardware accelerated";
-
-
-        status.style.color =
-            "#42d77d";
-
-
-    }
-
 
     /*
      * Release the test canvas.
      */
 
+    if(canvas){
 
-    canvas.width = 1;
-    canvas.height = 1;
+        canvas.width=1;
+        canvas.height=1;
 
-
-}catch(error){
-
-
-    console.error(
-        "[OBVYRIS] WebGL test failed:",
-        error
-    );
-
-
-    status.textContent =
-        "WebGL: Disabled";
-
-
-    status.style.color =
-        "#e45555";
-
-
-}
+    }
 
 }
 
