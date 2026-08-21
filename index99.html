@@ -4622,6 +4622,10 @@ function openFeaturedGame(){
             "[OBVYRIS] No current featured game"
         );
 
+        showGamePlayerMessage(
+            "No featured game is currently available."
+        );
+
         return;
     }
 
@@ -4675,16 +4679,78 @@ function openFeaturedGame(){
 
     if(!romURL){
 
-        console.error(
-            "[OBVYRIS] No ROM URL"
-        );
-
         showGamePlayerMessage(
             "This game does not have a ROM URL."
         );
 
         return;
     }
+
+
+    /*
+    =================================
+    OPEN GAME WINDOW
+    =================================
+    */
+
+    const modal =
+        document.getElementById(
+            "featuredGameModal"
+        );
+
+    const player =
+        document.getElementById(
+            "featuredGamePlayer"
+        );
+
+    const titleElement =
+        document.getElementById(
+            "gamePlayerTitle"
+        );
+
+
+    if(!modal || !player){
+
+        console.error(
+            "[OBVYRIS] Game modal elements missing"
+        );
+
+        return;
+    }
+
+
+    /*
+    Set title
+    */
+
+    if(titleElement){
+
+        titleElement.innerText =
+            "🎮 " + title;
+
+    }
+
+
+    /*
+    Show loading screen
+    */
+
+    player.innerHTML = `
+
+        <div class="featuredGameLoading">
+
+            Loading ${escapeHTML(title)}...
+
+        </div>
+
+    `;
+
+
+    /*
+    Open modal
+    */
+
+    modal.classList.add("open");
 
 
     /*
@@ -4711,45 +4777,71 @@ function openFeaturedGame(){
 
     /*
     =================================
-    OPEN EMULATOR
+    LOAD EMULATOR INTO WINDOW
     =================================
     */
 
-    window.location.href =
-        emulatorURL;
+    setTimeout(() => {
+
+        player.innerHTML = `
+
+            <iframe
+                src="${emulatorURL}"
+                title="${escapeHTML(title)}"
+                style="
+                    width:100%;
+                    height:100%;
+                    border:0;
+                    display:block;
+                    background:#000;
+                "
+                allow="
+                    autoplay;
+                    fullscreen;
+                    gamepad;
+                    xr-spatial-tracking
+                "
+                allowfullscreen
+            ></iframe>
+
+        `;
+
+    }, 150);
 
 }
- 
+
 function closeFeaturedGame(){
 
-const modal =
-    document.getElementById(
-        "featuredGameModal"
-    );
+    const modal =
+        document.getElementById(
+            "featuredGameModal"
+        );
+
+    const player =
+        document.getElementById(
+            "featuredGamePlayer"
+        );
 
 
-const player =
-    document.getElementById(
-        "featuredGamePlayer"
-    );
+    /*
+    Destroy iframe.
+    This also stops the emulator.
+    */
+
+    player.innerHTML = `
+
+        <div class="featuredGameLoading">
+
+            Emulator closed.
+
+        </div>
+
+    `;
 
 
-
-player.innerHTML = `
-    <div class="featuredGameLoading">
-        Emulator closed.
-    </div>
-`;
-
-
-
-
-modal.classList.remove(
-    "open"
-);
+    modal.classList.remove("open");
 
 }
-
  
 function showGamePlayerMessage(text){
 
