@@ -1,21 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 
 <meta charset="UTF-8">
 
 <meta
     name="viewport"
-    content="width=device-width,initial-scale=1"
+    content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"
 >
 
 <title>Obvyris — Off World</title>
 
-<meta
-    name="theme-color"
-    content="#02060b"
->
+<meta name="theme-color" content="#02050a">
 
 <style>
 
@@ -26,183 +22,460 @@
 html,
 body{
     margin:0;
-    padding:0;
     width:100%;
-    min-height:100%;
-    background:#02060b;
-    color:#dcecff;
-    font-family:Arial,Helvetica,sans-serif;
+    height:100%;
     overflow:hidden;
+    background:#010308;
+    color:#d9efff;
+    font-family:Arial,Helvetica,sans-serif;
 }
 
-body{
-    min-height:100vh;
+button{
+    font:inherit;
 }
 
 
-/* =================================
-   SPACE BACKGROUND
-================================= */
+/* =========================================================
+   SPACE
+========================================================= */
 
-.space{
+#space{
+
+    position:fixed;
+    inset:0;
+    overflow:hidden;
+
+    background:
+        radial-gradient(
+            ellipse at center,
+            #071522 0%,
+            #020810 45%,
+            #010308 100%
+        );
+
+}
+
+
+#spaceCanvas{
+
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+
+}
+
+
+/* =========================================================
+   NEBULA
+========================================================= */
+
+.nebula{
+
+    position:absolute;
+
+    width:80vw;
+    height:60vw;
+
+    max-width:1100px;
+    max-height:800px;
+
+    border-radius:50%;
+
+    opacity:0;
+
+    filter:blur(35px);
+
+    pointer-events:none;
+
+    transition:
+        opacity 4s ease;
+
+}
+
+
+#nebula1{
+
+    left:-20%;
+    top:10%;
+
+    background:
+        radial-gradient(
+            ellipse,
+            rgba(35,120,190,.22),
+            rgba(20,50,120,.12),
+            transparent 70%
+        );
+
+}
+
+
+#nebula2{
+
+    right:-25%;
+    bottom:0;
+
+    background:
+        radial-gradient(
+            ellipse,
+            rgba(110,50,180,.18),
+            rgba(40,20,100,.1),
+            transparent 70%
+        );
+
+}
+
+
+/* =========================================================
+   PLANETS
+========================================================= */
+
+.planet{
+
+    position:absolute;
+
+    border-radius:50%;
+
+    pointer-events:none;
+
+    opacity:0;
+
+    transform:
+        translate(-50%,-50%)
+        scale(.2);
+
+    transition:
+        opacity 2s ease;
+
+}
+
+
+#planet{
+
+    width:180px;
+    height:180px;
+
+    left:72%;
+    top:48%;
+
+    background:
+
+        radial-gradient(
+            circle at 32% 28%,
+            #d9f6ff 0%,
+            #6a9eaf 18%,
+            #214e60 45%,
+            #081a25 78%,
+            #02060a 100%
+        );
+
+    box-shadow:
+
+        -30px -15px 45px
+        rgba(100,210,255,.16),
+
+        30px 20px 50px
+        rgba(0,0,0,.9);
+
+}
+
+
+#planet::after{
+
+    content:"";
+
+    position:absolute;
+
+    inset:-12px;
+
+    border-radius:50%;
+
+    border:
+        1px solid
+        rgba(100,210,255,.12);
+
+}
+
+
+/* =========================================================
+   DISTANT PLANET
+========================================================= */
+
+#smallPlanet{
+
+    width:70px;
+    height:70px;
+
+    left:25%;
+    top:30%;
+
+    background:
+
+        radial-gradient(
+            circle at 35% 30%,
+            #e9c9a0,
+            #8d6c4e 35%,
+            #32261f 70%,
+            #050608
+        );
+
+    box-shadow:
+        0 0 35px
+        rgba(220,160,100,.12);
+
+}
+
+
+/* =========================================================
+   ASTEROID
+========================================================= */
+
+.asteroid{
+
+    position:absolute;
+
+    width:18px;
+    height:14px;
+
+    border-radius:
+        48% 52% 45% 55%;
+
+    background:
+        linear-gradient(
+            135deg,
+            #78828a,
+            #2b3237
+        );
+
+    box-shadow:
+        -8px 4px 12px
+        rgba(0,0,0,.8);
+
+    opacity:0;
+
+    pointer-events:none;
+
+}
+
+
+/* =========================================================
+   COCKPIT
+========================================================= */
+
+#cockpit{
 
     position:fixed;
 
     inset:0;
 
-    background:
-
-        radial-gradient(
-            circle at 50% 45%,
-            rgba(25,80,120,.15),
-            transparent 40%
-        ),
-
-        radial-gradient(
-            circle at 20% 20%,
-            rgba(50,130,255,.08),
-            transparent 30%
-        ),
-
-        #02060b;
-
-    overflow:hidden;
+    pointer-events:none;
 
 }
 
 
-.stars{
+/* =========================================================
+   WINDOW FRAME
+========================================================= */
+
+.windowFrame{
 
     position:absolute;
 
     inset:0;
 
-    background-image:
+    border:
+        20px solid
+        rgba(7,13,20,.95);
 
-        radial-gradient(
-            1px 1px at 10% 20%,
-            rgba(255,255,255,.8),
-            transparent
-        ),
+    box-shadow:
 
-        radial-gradient(
-            1px 1px at 30% 80%,
-            rgba(255,255,255,.7),
-            transparent
-        ),
+        inset 0 0 70px
+        rgba(0,0,0,.9),
 
-        radial-gradient(
-            1px 1px at 70% 30%,
-            rgba(255,255,255,.7),
-            transparent
-        ),
-
-        radial-gradient(
-            1px 1px at 90% 70%,
-            rgba(255,255,255,.7),
-            transparent
-        );
-
-    background-size:
-        140px 140px,
-        190px 190px,
-        230px 230px,
-        170px 170px;
-
-    animation:
-        starDrift 30s linear infinite;
+        inset 0 0 15px
+        rgba(90,170,220,.12);
 
 }
 
 
-@keyframes starDrift{
+.windowFrame::before{
 
-    from{
-        transform:translate(0,0);
-    }
+    content:"";
 
-    to{
-        transform:translate(-100px,80px);
-    }
+    position:absolute;
+
+    inset:0;
+
+    border:
+        1px solid
+        rgba(130,200,240,.18);
 
 }
 
 
-/* =================================
-   SHIP INTERIOR
-================================= */
+.windowReflection{
 
-.ship{
+    position:absolute;
 
-    position:relative;
-
-    width:100vw;
-
-    height:100vh;
-
-    display:flex;
-
-    flex-direction:column;
+    inset:0;
 
     background:
 
         linear-gradient(
+            115deg,
+            transparent 35%,
+            rgba(255,255,255,.025) 42%,
+            transparent 48%
+        );
+
+    opacity:.6;
+
+}
+
+
+/* =========================================================
+   COCKPIT STRUCTURE
+========================================================= */
+
+.cockpitTop{
+
+    position:absolute;
+
+    left:0;
+    right:0;
+    top:0;
+
+    height:80px;
+
+    background:
+        linear-gradient(
             180deg,
-            rgba(5,14,23,.97),
-            rgba(2,7,12,.98)
+            rgba(3,8,14,.95),
+            rgba(3,8,14,.55),
+            transparent
         );
 
 }
 
 
-/* =================================
-   TOP SYSTEM BAR
-================================= */
+.cockpitBottom{
 
-.topbar{
+    position:absolute;
 
-    height:58px;
+    left:0;
+    right:0;
+    bottom:0;
 
-    flex-shrink:0;
+    height:105px;
+
+    background:
+        linear-gradient(
+            0deg,
+            rgba(3,8,14,.98),
+            rgba(3,8,14,.75),
+            transparent
+        );
+
+}
+
+
+/* =========================================================
+   SHIP LIGHTS
+========================================================= */
+
+.shipLight{
+
+    position:absolute;
+
+    width:5px;
+    height:5px;
+
+    border-radius:50%;
+
+    background:#56d7ff;
+
+    box-shadow:
+        0 0 12px
+        rgba(80,210,255,.8);
+
+}
+
+
+.shipLight.l1{
+
+    left:8%;
+    bottom:55px;
+
+}
+
+
+.shipLight.l2{
+
+    left:18%;
+    bottom:55px;
+
+}
+
+
+.shipLight.l3{
+
+    right:18%;
+    bottom:55px;
+
+}
+
+
+.shipLight.l4{
+
+    right:8%;
+    bottom:55px;
+
+}
+
+
+/* =========================================================
+   TOP HUD
+========================================================= */
+
+.topHud{
+
+    position:absolute;
+
+    left:40px;
+    right:40px;
+    top:25px;
 
     display:flex;
 
-    align-items:center;
-
     justify-content:space-between;
 
-    padding:0 22px;
+    align-items:center;
 
-    border-bottom:
-        1px solid
-        rgba(70,150,210,.25);
+    font-size:10px;
 
-    background:
-        rgba(4,12,20,.9);
+    letter-spacing:2px;
 
-    box-shadow:
-        0 4px 20px
-        rgba(0,0,0,.5);
+    color:#79b5d4;
 
 }
 
 
 .logo{
 
+    color:#7bd6ff;
+
     font-weight:900;
 
     letter-spacing:5px;
 
-    color:#68caff;
-
     text-shadow:
         0 0 15px
-        rgba(80,190,255,.5);
+        rgba(70,190,255,.5);
 
 }
 
 
-.status{
+.travelStatus{
 
     display:flex;
 
@@ -210,761 +483,448 @@ body{
 
     gap:8px;
 
-    color:#8fa9bf;
-
-    font-size:11px;
-
-    letter-spacing:2px;
-
 }
 
 
 .statusDot{
 
-    width:8px;
-
-    height:8px;
+    width:7px;
+    height:7px;
 
     border-radius:50%;
 
-    background:#45e6a2;
+    background:#49e3a0;
 
     box-shadow:
         0 0 10px
-        #45e6a2;
+        #49e3a0;
 
 }
 
 
-/* =================================
-   MAIN CABIN
-================================= */
+/* =========================================================
+   LOCATION HUD
+========================================================= */
 
-.cabin{
+.locationHud{
 
-    flex:1;
+    position:absolute;
 
-    min-height:0;
+    left:45px;
+    top:105px;
 
-    display:grid;
+    color:#74b6d7;
 
-    grid-template-columns:
-        220px
-        minmax(0,1fr)
-        220px;
+    font-size:9px;
 
-    gap:12px;
-
-    padding:12px;
-
-}
-
-
-/* =================================
-   PANELS
-================================= */
-
-.panel{
-
-    min-width:0;
-
-    border:
-        1px solid
-        rgba(65,130,170,.28);
-
-    background:
-        linear-gradient(
-            180deg,
-            rgba(10,24,36,.9),
-            rgba(5,14,22,.9)
-        );
-
-    box-shadow:
-        inset 0 0 25px
-        rgba(0,80,130,.06),
-        0 10px 30px
-        rgba(0,0,0,.35);
-
-}
-
-
-.panelTitle{
-
-    padding:12px;
-
-    border-bottom:
-        1px solid
-        rgba(65,130,170,.2);
-
-    color:#62c9ff;
-
-    font-size:10px;
+    line-height:1.8;
 
     letter-spacing:2px;
 
-    font-weight:bold;
-
-}
-
-
-.panelBody{
-
-    padding:12px;
-
-}
-
-
-/* =================================
-   LEFT SYSTEMS
-================================= */
-
-.systemItem{
-
-    margin-bottom:14px;
-
-}
-
-
-.systemLabel{
-
-    display:flex;
-
-    justify-content:space-between;
-
-    color:#7f98ad;
-
-    font-size:10px;
-
-    margin-bottom:5px;
-
-}
-
-
-.systemValue{
-
-    color:#dff4ff;
-
-    font-size:11px;
-
-}
-
-
-.meter{
-
-    height:4px;
-
-    background:#09131c;
-
-    overflow:hidden;
-
-}
-
-
-.meter span{
-
-    display:block;
-
-    height:100%;
-
-    background:#2ebcff;
-
-    box-shadow:
+    text-shadow:
         0 0 8px
-        rgba(46,188,255,.6);
+        rgba(50,160,220,.4);
 
 }
 
 
-/* =================================
-   VIEWPORT
-================================= */
-
-.viewport{
-
-    position:relative;
-
-    min-width:0;
-
-    overflow:hidden;
-
-    border:
-        1px solid
-        rgba(90,170,220,.4);
-
-    background:#02070c;
-
-    box-shadow:
-        inset 0 0 80px
-        rgba(0,0,0,.9),
-        0 0 30px
-        rgba(30,130,190,.08);
-
-}
-
-
-/* =================================
-   OFF WORLD SCENE
-================================= */
-
-.planetSky{
+.rightHud{
 
     position:absolute;
 
-    inset:0;
-
-    background:
-
-        radial-gradient(
-            circle at 65% 35%,
-            rgba(95,180,255,.45),
-            transparent 14%
-        ),
-
-        linear-gradient(
-            180deg,
-            #071a2a 0%,
-            #0c2940 48%,
-            #10212b 100%
-        );
-
-}
-
-
-.moon{
-
-    position:absolute;
-
-    width:130px;
-
-    height:130px;
-
-    right:17%;
-
-    top:16%;
-
-    border-radius:50%;
-
-    background:
-
-        radial-gradient(
-            circle at 35% 30%,
-            #d8f4ff,
-            #7292a5 55%,
-            #283c49
-        );
-
-    box-shadow:
-        0 0 40px
-        rgba(160,220,255,.35);
-
-}
-
-
-.horizon{
-
-    position:absolute;
-
-    left:-10%;
-
-    right:-10%;
-
-    bottom:-10%;
-
-    height:50%;
-
-    background:
-
-        linear-gradient(
-            175deg,
-            #09171c,
-            #020708
-        );
-
-    clip-path:
-        polygon(
-            0 35%,
-            15% 25%,
-            30% 38%,
-            48% 20%,
-            63% 35%,
-            78% 17%,
-            100% 30%,
-            100% 100%,
-            0 100%
-        );
-
-}
-
-
-.terrainGlow{
-
-    position:absolute;
-
-    left:0;
-
-    right:0;
-
-    bottom:0;
-
-    height:30%;
-
-    background:
-
-        radial-gradient(
-            ellipse at 50% 100%,
-            rgba(45,180,190,.2),
-            transparent 65%
-        );
-
-}
-
-
-/* =================================
-   ALIEN STRUCTURES
-================================= */
-
-.structure{
-
-    position:absolute;
-
-    bottom:27%;
-
-    width:30px;
-
-    background:
-        linear-gradient(
-            90deg,
-            #172c31,
-            #31545a,
-            #13252a
-        );
-
-    box-shadow:
-        0 0 15px
-        rgba(50,190,190,.15);
-
-}
-
-
-.structure:nth-child(1){
-
-    left:18%;
-
-    height:90px;
-
-}
-
-
-.structure:nth-child(2){
-
-    left:30%;
-
-    height:150px;
-
-    width:20px;
-
-}
-
-
-.structure:nth-child(3){
-
-    right:28%;
-
-    height:110px;
-
-    width:45px;
-
-}
-
-
-.structure:nth-child(4){
-
-    right:13%;
-
-    height:70px;
-
-    width:18px;
-
-}
-
-
-/* =================================
-   VIEWPORT HUD
-================================= */
-
-.viewportHud{
-
-    position:absolute;
-
-    inset:0;
-
-    pointer-events:none;
-
-}
-
-
-.scanlines{
-
-    position:absolute;
-
-    inset:0;
-
-    background:
-
-        repeating-linear-gradient(
-            0deg,
-            transparent 0px,
-            transparent 3px,
-            rgba(255,255,255,.018) 4px
-        );
-
-}
-
-
-.corner{
-
-    position:absolute;
-
-    width:35px;
-
-    height:35px;
-
-    border-color:
-        rgba(100,210,255,.7);
-
-}
-
-
-.corner.tl{
-
-    top:15px;
-    left:15px;
-
-    border-top:1px solid;
-    border-left:1px solid;
-
-}
-
-
-.corner.tr{
-
-    top:15px;
-    right:15px;
-
-    border-top:1px solid;
-    border-right:1px solid;
-
-}
-
-
-.corner.bl{
-
-    bottom:15px;
-    left:15px;
-
-    border-bottom:1px solid;
-    border-left:1px solid;
-
-}
-
-
-.corner.br{
-
-    bottom:15px;
-    right:15px;
-
-    border-bottom:1px solid;
-    border-right:1px solid;
-
-}
-
-
-.viewportText{
-
-    position:absolute;
-
-    left:25px;
-
-    top:25px;
-
-    color:#72d4ff;
-
-    font-size:10px;
-
-    letter-spacing:2px;
-
-}
-
-
-.distance{
-
-    position:absolute;
-
-    right:25px;
-
-    top:25px;
-
-    color:#9db5c6;
-
-    font-size:10px;
+    right:45px;
+    top:105px;
 
     text-align:right;
 
+    color:#74b6d7;
+
+    font-size:9px;
+
+    line-height:1.8;
+
+    letter-spacing:2px;
+
 }
 
 
-/* =================================
+/* =========================================================
    CENTER MESSAGE
-================================= */
+========================================================= */
 
-.contact{
+#eventMessage{
 
     position:absolute;
 
     left:50%;
-
     top:50%;
 
     transform:
         translate(-50%,-50%);
 
-    width:min(500px,80%);
+    width:
+        min(650px,80vw);
 
     text-align:center;
 
-    pointer-events:none;
+    opacity:0;
+
+    transition:
+        opacity 1s ease;
 
 }
 
 
-.contactTitle{
-
-    color:#dff7ff;
+#eventTitle{
 
     font-size:
         clamp(
             20px,
             3vw,
-            36px
+            38px
         );
 
     font-weight:900;
 
-    letter-spacing:5px;
+    letter-spacing:6px;
+
+    color:#dff7ff;
 
     text-shadow:
         0 0 25px
-        rgba(80,210,255,.6);
+        rgba(80,200,255,.7);
 
 }
 
 
-.contactSub{
+#eventSub{
 
     margin-top:12px;
 
-    color:#80a5ba;
-
-    font-size:11px;
+    font-size:10px;
 
     letter-spacing:3px;
+
+    color:#79a8be;
 
 }
 
 
-/* =================================
-   RIGHT DATA
-================================= */
+/* =========================================================
+   SHIP COMPUTER PANEL
+========================================================= */
 
-.dataRow{
+#computer{
+
+    position:absolute;
+
+    left:50%;
+
+    bottom:22px;
+
+    transform:
+        translateX(-50%)
+        translateY(130%);
+
+    width:
+        min(600px,85vw);
+
+    padding:12px 16px;
+
+    background:
+        rgba(4,14,22,.92);
+
+    border:
+        1px solid
+        rgba(70,170,220,.35);
+
+    box-shadow:
+        0 0 25px
+        rgba(0,0,0,.7);
+
+    transition:
+        transform .5s ease;
+
+    pointer-events:auto;
+
+}
+
+
+#computer.open{
+
+    transform:
+        translateX(-50%)
+        translateY(0);
+
+}
+
+
+.computerHeader{
 
     display:flex;
 
     justify-content:space-between;
 
-    gap:10px;
+    align-items:center;
 
-    padding:9px 0;
-
-    border-bottom:
-        1px solid
-        rgba(100,150,180,.1);
+    color:#68cfff;
 
     font-size:10px;
+
+    letter-spacing:2px;
+
+}
+
+
+.computerData{
+
+    margin-top:10px;
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(4,1fr);
+
+    gap:8px;
+
+}
+
+
+.dataBox{
+
+    padding:8px;
+
+    border:
+        1px solid
+        rgba(80,140,180,.16);
+
+    background:
+        rgba(10,25,35,.7);
 
 }
 
 
 .dataLabel{
 
-    color:#6e879a;
+    color:#66859a;
 
-}
-
-
-.dataValue{
-
-    color:#d8efff;
-
-    text-align:right;
-
-}
-
-
-/* =================================
-   FOOTER
-================================= */
-
-.footer{
-
-    height:70px;
-
-    flex-shrink:0;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    gap:12px;
-
-    border-top:
-        1px solid
-        rgba(65,130,170,.25);
-
-    background:
-        rgba(3,9,15,.95);
-
-}
-
-
-button{
-
-    border:
-        1px solid
-        rgba(80,170,220,.4);
-
-    background:
-        rgba(12,30,44,.9);
-
-    color:#bfeaff;
-
-    padding:10px 18px;
-
-    border-radius:6px;
-
-    cursor:pointer;
-
-    font-size:11px;
+    font-size:8px;
 
     letter-spacing:1px;
 
 }
 
 
-button:hover{
+.dataValue{
+
+    margin-top:4px;
+
+    color:#d8f3ff;
+
+    font-size:11px;
+
+}
+
+
+/* =========================================================
+   CONTROLS
+========================================================= */
+
+.controls{
+
+    position:absolute;
+
+    right:35px;
+
+    bottom:25px;
+
+    display:flex;
+
+    gap:8px;
+
+    pointer-events:auto;
+
+}
+
+
+.controlButton{
+
+    padding:
+        9px 13px;
+
+    border:
+        1px solid
+        rgba(90,170,215,.3);
 
     background:
-        rgba(30,70,95,.9);
+        rgba(4,13,20,.8);
+
+    color:#9ed6ef;
+
+    font-size:9px;
+
+    letter-spacing:1px;
+
+    border-radius:4px;
+
+    cursor:pointer;
+
+}
+
+
+.controlButton:hover{
 
     border-color:
         rgba(100,210,255,.7);
 
+    color:white;
+
 }
 
 
-button.primary{
+/* =========================================================
+   HYPERSPACE
+========================================================= */
+
+#hyperspace{
+
+    position:absolute;
+
+    inset:0;
+
+    opacity:0;
+
+    pointer-events:none;
 
     background:
-        rgba(24,105,145,.5);
+        radial-gradient(
+            ellipse at center,
+            transparent 0%,
+            rgba(20,120,200,.08) 30%,
+            rgba(0,0,0,.85) 100%
+        );
 
-    border-color:
-        rgba(80,200,255,.7);
+    transition:
+        opacity .3s ease;
 
 }
 
 
-/* =================================
+#hyperspace.active{
+
+    opacity:1;
+
+}
+
+
+.hyperLine{
+
+    position:absolute;
+
+    left:50%;
+    top:50%;
+
+    width:2px;
+
+    height:100px;
+
+    transform-origin:
+        center bottom;
+
+    background:
+        linear-gradient(
+            transparent,
+            rgba(150,230,255,.9)
+        );
+
+}
+
+
+/* =========================================================
+   SCREEN FLASH
+========================================================= */
+
+#flash{
+
+    position:absolute;
+
+    inset:0;
+
+    background:white;
+
+    opacity:0;
+
+    pointer-events:none;
+
+}
+
+
+/* =========================================================
    MOBILE
-================================= */
+========================================================= */
 
-@media(max-width:850px){
+@media(max-width:700px){
 
-    .cabin{
+    .windowFrame{
+
+        border-width:10px;
+
+    }
+
+
+    .topHud{
+
+        left:20px;
+        right:20px;
+
+        top:18px;
+
+    }
+
+
+    .locationHud{
+
+        left:22px;
+        top:75px;
+
+    }
+
+
+    .rightHud{
+
+        right:22px;
+        top:75px;
+
+    }
+
+
+    .cockpitBottom{
+
+        height:80px;
+
+    }
+
+
+    .controls{
+
+        left:50%;
+
+        right:auto;
+
+        transform:
+            translateX(-50%);
+
+        bottom:18px;
+
+        white-space:nowrap;
+
+    }
+
+
+    .computerData{
 
         grid-template-columns:
-            1fr;
-
-        overflow:auto;
-
-    }
-
-
-    .panel.left,
-    .panel.right{
-
-        display:none;
-
-    }
-
-
-    .viewport{
-
-        min-height:
-            calc(100vh - 140px);
-
-    }
-
-
-    .topbar{
-
-        padding:0 12px;
-
-    }
-
-
-    .logo{
-
-        font-size:13px;
-
-        letter-spacing:3px;
-
-    }
-
-
-    .status{
-
-        font-size:9px;
-
-    }
-
-}
-
-
-@media(max-width:500px){
-
-    .footer{
-
-        height:62px;
-
-    }
-
-
-    .footer button{
-
-        padding:9px 12px;
-
-        font-size:9px;
-
-    }
-
-
-    .moon{
-
-        width:90px;
-
-        height:90px;
+            repeat(2,1fr);
 
     }
 
@@ -974,418 +934,228 @@ button.primary{
 
 </head>
 
-
 <body>
 
 
-<div class="space">
+<div id="space">
 
-    <div class="stars"></div>
+    <canvas id="spaceCanvas"></canvas>
+
+    <div
+        class="nebula"
+        id="nebula1"
+    ></div>
+
+    <div
+        class="nebula"
+        id="nebula2"
+    ></div>
 
 
-    <div class="ship">
+    <div
+        class="planet"
+        id="planet"
+    ></div>
 
 
-        <!-- =================================
-             TOP BAR
-        ================================= -->
+    <div
+        class="planet"
+        id="smallPlanet"
+    ></div>
 
-        <div class="topbar">
+
+    <div
+        class="asteroid"
+        id="asteroid"
+    ></div>
+
+
+    <div id="hyperspace"></div>
+
+    <div id="flash"></div>
+
+
+    <div id="cockpit">
+
+
+        <div class="windowFrame"></div>
+
+        <div class="windowReflection"></div>
+
+        <div class="cockpitTop"></div>
+
+        <div class="cockpitBottom"></div>
+
+
+        <div class="shipLight l1"></div>
+        <div class="shipLight l2"></div>
+        <div class="shipLight l3"></div>
+        <div class="shipLight l4"></div>
+
+
+        <div class="topHud">
 
             <div class="logo">
                 OBVYRIS
             </div>
 
 
-            <div class="status">
+            <div class="travelStatus">
 
                 <span class="statusDot"></span>
 
-                OFF-WORLD LINK ACTIVE
+                OFF WORLD
 
             </div>
 
         </div>
 
 
+        <div class="locationHud">
 
-        <!-- =================================
-             CABIN
-        ================================= -->
+            FLIGHT STATUS<br>
 
-        <div class="cabin">
+            <span id="flightStatus">
+                CRUISING
+            </span>
 
+            <br><br>
 
-            <!-- =================================
-                 LEFT PANEL
-            ================================= -->
+            VECTOR<br>
 
-            <div class="panel left">
-
-                <div class="panelTitle">
-                    SHIP SYSTEMS
-                </div>
-
-
-                <div class="panelBody">
-
-
-                    <div class="systemItem">
-
-                        <div class="systemLabel">
-
-                            <span>
-                                POWER
-                            </span>
-
-                            <span>
-                                94%
-                            </span>
-
-                        </div>
-
-
-                        <div class="meter">
-
-                            <span style="width:94%"></span>
-
-                        </div>
-
-                    </div>
-
-
-
-                    <div class="systemItem">
-
-                        <div class="systemLabel">
-
-                            <span>
-                                HULL
-                            </span>
-
-                            <span>
-                                100%
-                            </span>
-
-                        </div>
-
-
-                        <div class="meter">
-
-                            <span style="width:100%"></span>
-
-                        </div>
-
-                    </div>
-
-
-
-                    <div class="systemItem">
-
-                        <div class="systemLabel">
-
-                            <span>
-                                PROPULSION
-                            </span>
-
-                            <span>
-                                87%
-                            </span>
-
-                        </div>
-
-
-                        <div class="meter">
-
-                            <span style="width:87%"></span>
-
-                        </div>
-
-                    </div>
-
-
-
-                    <div class="systemItem">
-
-                        <div class="systemLabel">
-
-                            <span>
-                                LIFE SUPPORT
-                            </span>
-
-                            <span>
-                                98%
-                            </span>
-
-                        </div>
-
-
-                        <div class="meter">
-
-                            <span style="width:98%"></span>
-
-                        </div>
-
-                    </div>
-
-
-
-                    <div class="systemItem">
-
-                        <div class="systemLabel">
-
-                            <span>
-                                SHIELD
-                            </span>
-
-                            <span>
-                                76%
-                            </span>
-
-                        </div>
-
-
-                        <div class="meter">
-
-                            <span style="width:76%"></span>
-
-                        </div>
-
-                    </div>
-
-
-                </div>
-
-            </div>
-
-
-
-            <!-- =================================
-                 VIEWPORT
-            ================================= -->
-
-            <div class="viewport">
-
-
-                <div class="planetSky"></div>
-
-
-                <div class="moon"></div>
-
-
-                <div class="structure"></div>
-
-                <div class="structure"></div>
-
-                <div class="structure"></div>
-
-                <div class="structure"></div>
-
-
-                <div class="horizon"></div>
-
-                <div class="terrainGlow"></div>
-
-
-                <!-- HUD -->
-
-                <div class="viewportHud">
-
-                    <div class="scanlines"></div>
-
-
-                    <div class="corner tl"></div>
-
-                    <div class="corner tr"></div>
-
-                    <div class="corner bl"></div>
-
-                    <div class="corner br"></div>
-
-
-                    <div class="viewportText">
-
-                        EXTERNAL VIEW
-
-                    </div>
-
-
-                    <div class="distance">
-
-                        LOCATION<br>
-
-                        UNKNOWN
-
-                    </div>
-
-
-                    <div class="contact">
-
-                        <div class="contactTitle">
-
-                            YOU ARE OFF WORLD
-
-                        </div>
-
-
-                        <div class="contactSub">
-
-                            OBVYRIS TRANSPORT SYSTEM
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-            </div>
-
-
-
-            <!-- =================================
-                 RIGHT PANEL
-            ================================= -->
-
-            <div class="panel right">
-
-                <div class="panelTitle">
-
-                    NAVIGATION
-
-                </div>
-
-
-                <div class="panelBody">
-
-
-                    <div class="dataRow">
-
-                        <span class="dataLabel">
-                            STATUS
-                        </span>
-
-                        <span class="dataValue">
-                            IN TRANSIT
-                        </span>
-
-                    </div>
-
-
-                    <div class="dataRow">
-
-                        <span class="dataLabel">
-                            SECTOR
-                        </span>
-
-                        <span class="dataValue">
-                            O-17
-                        </span>
-
-                    </div>
-
-
-                    <div class="dataRow">
-
-                        <span class="dataLabel">
-                            VECTOR
-                        </span>
-
-                        <span class="dataValue">
-                            042.7
-                        </span>
-
-                    </div>
-
-
-                    <div class="dataRow">
-
-                        <span class="dataLabel">
-                            DISTANCE
-                        </span>
-
-                        <span class="dataValue">
-                            4.82 AU
-                        </span>
-
-                    </div>
-
-
-                    <div class="dataRow">
-
-                        <span class="dataLabel">
-                            SIGNAL
-                        </span>
-
-                        <span class="dataValue">
-                            82%
-                        </span>
-
-                    </div>
-
-
-                    <div class="dataRow">
-
-                        <span class="dataLabel">
-                            ORIGIN
-                        </span>
-
-                        <span class="dataValue">
-                            EARTH
-                        </span>
-
-                    </div>
-
-
-                    <div class="dataRow">
-
-                        <span class="dataLabel">
-                            DESTINATION
-                        </span>
-
-                        <span class="dataValue">
-                            UNKNOWN
-                        </span>
-
-                    </div>
-
-
-                </div>
-
-            </div>
-
+            <span id="vector">
+                042.7
+            </span>
 
         </div>
 
 
+        <div class="rightHud">
 
-        <!-- =================================
-             FOOTER
-        ================================= -->
+            EXTERNAL VIEW<br>
 
-        <div class="footer">
+            ACTIVE
+
+            <br><br>
+
+            DISTANCE FROM EARTH<br>
+
+            <span id="distance">
+                4.82 AU
+            </span>
+
+        </div>
+
+
+        <div id="eventMessage">
+
+            <div id="eventTitle">
+                YOU ARE OFF WORLD
+            </div>
+
+            <div id="eventSub">
+                OBVYRIS TRANSPORT SYSTEM
+            </div>
+
+        </div>
+
+
+        <div id="computer">
+
+            <div class="computerHeader">
+
+                <span>
+                    SHIP COMPUTER
+                </span>
+
+                <span>
+                    ONLINE
+                </span>
+
+            </div>
+
+
+            <div class="computerData">
+
+
+                <div class="dataBox">
+
+                    <div class="dataLabel">
+                        POWER
+                    </div>
+
+                    <div class="dataValue">
+                        94%
+                    </div>
+
+                </div>
+
+
+                <div class="dataBox">
+
+                    <div class="dataLabel">
+                        HULL
+                    </div>
+
+                    <div class="dataValue">
+                        100%
+                    </div>
+
+                </div>
+
+
+                <div class="dataBox">
+
+                    <div class="dataLabel">
+                        VELOCITY
+                    </div>
+
+                    <div
+                        class="dataValue"
+                        id="velocity"
+                    >
+                        18.4 AU/h
+                    </div>
+
+                </div>
+
+
+                <div class="dataBox">
+
+                    <div class="dataLabel">
+                        SIGNAL
+                    </div>
+
+                    <div class="dataValue">
+                        82%
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+        <div class="controls">
+
+            <button
+                class="controlButton"
+                type="button"
+                onclick="toggleComputer()"
+            >
+                SHIP COMPUTER
+            </button>
 
 
             <button
+                class="controlButton"
                 type="button"
                 onclick="returnToHub()"
             >
-
-                ← RETURN TO HUB
-
+                RETURN TO HUB
             </button>
-
-
-            <button
-                type="button"
-                class="primary"
-                onclick="openShipComputer()"
-            >
-
-                SHIP COMPUTER
-
-            </button>
-
 
         </div>
 
@@ -1395,13 +1165,396 @@ button.primary{
 </div>
 
 
-
 <script>
 
+/* =========================================================
+   CANVAS STARFIELD
+========================================================= */
 
-/* =================================
-   RETURN TO HUB
-================================= */
+const canvas =
+    document.getElementById(
+        "spaceCanvas"
+    );
+
+const ctx =
+    canvas.getContext("2d");
+
+let width =
+    window.innerWidth;
+
+let height =
+    window.innerHeight;
+
+
+function resize(){
+
+    width =
+        window.innerWidth;
+
+    height =
+        window.innerHeight;
+
+    canvas.width =
+        width *
+        devicePixelRatio;
+
+    canvas.height =
+        height *
+        devicePixelRatio;
+
+    canvas.style.width =
+        width + "px";
+
+    canvas.style.height =
+        height + "px";
+
+    ctx.setTransform(
+        devicePixelRatio,
+        0,
+        0,
+        devicePixelRatio,
+        0,
+        0
+    );
+
+}
+
+
+resize();
+
+window.addEventListener(
+    "resize",
+    resize
+);
+
+
+/* =========================================================
+   STAR OBJECTS
+========================================================= */
+
+const stars = [];
+
+const STAR_COUNT =
+    window.innerWidth < 700
+    ? 180
+    : 420;
+
+
+function createStar(){
+
+    return {
+
+        x:
+            (Math.random() - .5)
+            * width,
+
+        y:
+            (Math.random() - .5)
+            * height,
+
+        z:
+            Math.random()
+            * width,
+
+        pz:0,
+
+        size:
+            Math.random()
+            * 1.5
+            + .2
+
+    };
+
+}
+
+
+for(
+    let i = 0;
+    i < STAR_COUNT;
+    i++
+){
+
+    const star =
+        createStar();
+
+    star.pz =
+        star.z;
+
+    stars.push(
+        star
+    );
+
+}
+
+
+/* =========================================================
+   TRAVEL SPEED
+========================================================= */
+
+let travelSpeed =
+    1.7;
+
+let hyperspaceMode =
+    false;
+
+
+function drawStars(){
+
+    ctx.fillStyle =
+        "rgba(1,4,8,.35)";
+
+    ctx.fillRect(
+        0,
+        0,
+        width,
+        height
+    );
+
+
+    const cx =
+        width / 2;
+
+    const cy =
+        height / 2;
+
+
+    for(
+        const star of stars
+    ){
+
+        star.pz =
+            star.z;
+
+        star.z -=
+            travelSpeed;
+
+
+        if(star.z <= 1){
+
+            star.x =
+                (Math.random() - .5)
+                * width;
+
+            star.y =
+                (Math.random() - .5)
+                * height;
+
+            star.z =
+                width;
+
+            star.pz =
+                star.z;
+
+        }
+
+
+        const sx =
+            cx +
+            star.x /
+            star.z *
+            width;
+
+
+        const sy =
+            cy +
+            star.y /
+            star.z *
+            width;
+
+
+        const px =
+            cx +
+            star.x /
+            star.pz *
+            width;
+
+
+        const py =
+            cy +
+            star.y /
+            star.pz *
+            width;
+
+
+        const size =
+            Math.max(
+                .3,
+                (
+                    1 -
+                    star.z /
+                    width
+                ) * 2.2
+            ) *
+            star.size;
+
+
+        if(
+            sx < -50 ||
+            sx > width + 50 ||
+            sy < -50 ||
+            sy > height + 50
+        ){
+
+            continue;
+
+        }
+
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            px,
+            py
+        );
+
+        ctx.lineTo(
+            sx,
+            sy
+        );
+
+
+        ctx.strokeStyle =
+            hyperspaceMode
+            ? "rgba(150,225,255,.9)"
+            : "rgba(190,225,245,.75)";
+
+
+        ctx.lineWidth =
+            hyperspaceMode
+            ? size * 2
+            : size;
+
+
+        ctx.stroke();
+
+    }
+
+
+    requestAnimationFrame(
+        drawStars
+    );
+
+}
+
+
+drawStars();
+
+
+/* =========================================================
+   UI ELEMENTS
+========================================================= */
+
+const eventMessage =
+    document.getElementById(
+        "eventMessage"
+    );
+
+const eventTitle =
+    document.getElementById(
+        "eventTitle"
+    );
+
+const eventSub =
+    document.getElementById(
+        "eventSub"
+    );
+
+
+function showMessage(
+    title,
+    subtitle,
+    duration = 3500
+){
+
+    eventTitle.textContent =
+        title;
+
+    eventSub.textContent =
+        subtitle;
+
+    eventMessage.style.opacity =
+        "1";
+
+
+    setTimeout(
+        function(){
+
+            eventMessage.style.opacity =
+                "0";
+
+        },
+        duration
+    );
+
+}
+
+
+/* =========================================================
+   NAVIGATION DATA
+========================================================= */
+
+const flightStatus =
+    document.getElementById(
+        "flightStatus"
+    );
+
+const vector =
+    document.getElementById(
+        "vector"
+    );
+
+const distance =
+    document.getElementById(
+        "distance"
+    );
+
+
+let distanceValue =
+    4.82;
+
+
+setInterval(
+    function(){
+
+        vector.textContent =
+            (
+                40 +
+                Math.random() * 8
+            ).toFixed(1);
+
+
+        if(!hyperspaceMode){
+
+            distanceValue +=
+                .005;
+
+            distance.textContent =
+                distanceValue.toFixed(2)
+                + " AU";
+
+        }
+
+    },
+    2000
+);
+
+
+/* =========================================================
+   COMPUTER
+========================================================= */
+
+function toggleComputer(){
+
+    document
+        .getElementById(
+            "computer"
+        )
+        .classList.toggle(
+            "open"
+        );
+
+}
+
 
 function returnToHub(){
 
@@ -1411,117 +1564,525 @@ function returnToHub(){
 }
 
 
-/* =================================
-   SHIP COMPUTER
-================================= */
+/* =========================================================
+   PLANET ENCOUNTER
+========================================================= */
 
-function openShipComputer(){
+function planetEncounter(){
 
-    window.location.href =
-        "shipcomputer.html";
+    const planet =
+        document.getElementById(
+            "planet"
+        );
+
+
+    planet.style.opacity =
+        "1";
+
+    planet.style.transform =
+        "translate(-50%,-50%) scale(1)";
+
+
+    showMessage(
+        "PLANETARY BODY DETECTED",
+        "UNKNOWN CLASSIFICATION"
+    );
+
+
+    flightStatus.textContent =
+        "OBSERVING";
+
+
+    setTimeout(
+        function(){
+
+            planet.style.opacity =
+                "0";
+
+            planet.style.transform =
+                "translate(-50%,-50%) scale(.2)";
+
+            flightStatus.textContent =
+                "CRUISING";
+
+        },
+        9000
+    );
 
 }
 
 
-/* =================================
-   RANDOM NAVIGATION DATA
-================================= */
+/* =========================================================
+   NEBULA ENCOUNTER
+========================================================= */
 
-function updateNavigation(){
+function nebulaEncounter(){
 
-    const values =
-        document.querySelectorAll(
-            ".dataValue"
+    const n1 =
+        document.getElementById(
+            "nebula1"
+        );
+
+    const n2 =
+        document.getElementById(
+            "nebula2"
         );
 
 
-    if(!values.length){
+    n1.style.opacity =
+        ".9";
+
+    n2.style.opacity =
+        ".65";
+
+
+    showMessage(
+        "ENTERING NEBULA",
+        "EXTERNAL VISIBILITY REDUCED"
+    );
+
+
+    flightStatus.textContent =
+        "NEBULA TRANSIT";
+
+
+    setTimeout(
+        function(){
+
+            n1.style.opacity =
+                "0";
+
+            n2.style.opacity =
+                "0";
+
+            flightStatus.textContent =
+                "CRUISING";
+
+        },
+        11000
+    );
+
+}
+
+
+/* =========================================================
+   ASTEROID ENCOUNTER
+========================================================= */
+
+function asteroidEncounter(){
+
+    const asteroid =
+        document.getElementById(
+            "asteroid"
+        );
+
+
+    asteroid.style.opacity =
+        "1";
+
+
+    const startY =
+        20 +
+        Math.random() *
+        60;
+
+
+    asteroid.style.top =
+        startY + "%";
+
+    asteroid.style.left =
+        "-50px";
+
+
+    asteroid.animate(
+
+        [
+
+            {
+                transform:
+                    "translate(0,0) rotate(0deg)"
+            },
+
+            {
+                transform:
+                    "translate(" +
+                    (
+                        window.innerWidth +
+                        150
+                    ) +
+                    "px,120px) rotate(360deg)"
+            }
+
+        ],
+
+        {
+
+            duration:
+                1800 +
+                Math.random() *
+                1500,
+
+            easing:
+                "linear"
+
+        }
+
+    );
+
+
+    showMessage(
+        "PROXIMITY ALERT",
+        "OBJECT PASSING SHIP"
+        ,
+        1800
+    );
+
+
+    setTimeout(
+        function(){
+
+            asteroid.style.opacity =
+                "0";
+
+        },
+        3500
+    );
+
+}
+
+
+/* =========================================================
+   UNKNOWN SIGNAL
+========================================================= */
+
+function signalEncounter(){
+
+    showMessage(
+        "UNKNOWN TRANSMISSION",
+        "SIGNAL SOURCE UNRESOLVED",
+        5000
+    );
+
+
+    flightStatus.textContent =
+        "SIGNAL LOCK";
+
+
+    setTimeout(
+        function(){
+
+            flightStatus.textContent =
+                "CRUISING";
+
+        },
+        5500
+    );
+
+}
+
+
+/* =========================================================
+   HYPERSPACE
+========================================================= */
+
+function hyperspaceJump(){
+
+    if(hyperspaceMode){
 
         return;
 
     }
 
 
-    /*
-    Slightly change navigation
-    telemetry so the ship feels alive.
-    */
-
-    const vector =
-        (
-            40 +
-            Math.random() * 10
-        ).toFixed(1);
+    hyperspaceMode =
+        true;
 
 
-    const distance =
-        (
-            4 +
-            Math.random() * .9
-        ).toFixed(2);
+    const overlay =
+        document.getElementById(
+            "hyperspace"
+        );
 
 
-    /*
-    Navigation rows:
-
-    0 = status
-    1 = sector
-    2 = vector
-    3 = distance
-    */
-
-    if(values[2]){
-
-        values[2].textContent =
-            vector;
-
-    }
-
-
-    if(values[3]){
-
-        values[3].textContent =
-            distance + " AU";
-
-    }
-
-}
-
-
-setInterval(
-    updateNavigation,
-    3000
-);
-
-
-/* =================================
-   VIEWPORT PULSE
-================================= */
-
-const viewport =
-    document.querySelector(
-        ".viewport"
+    overlay.classList.add(
+        "active"
     );
 
 
-if(viewport){
+    flightStatus.textContent =
+        "FTL DRIVE";
 
-    setInterval(function(){
 
-        viewport.style.boxShadow =
-            "inset 0 0 80px rgba(0,0,0,.9)," +
-            "0 0 30px rgba(30,130,190," +
-            (0.05 + Math.random() * .08) +
-            ")";
+    showMessage(
+        "FTL DRIVE ENGAGED",
+        "PREPARE FOR TRANSIT",
+        3000
+    );
 
-    },1200);
+
+    travelSpeed =
+        18;
+
+
+    setTimeout(
+        function(){
+
+            flightStatus.textContent =
+                "HYPERSPACE";
+
+        },
+        1000
+    );
+
+
+    setTimeout(
+        function(){
+
+            const flash =
+                document.getElementById(
+                    "flash"
+                );
+
+
+            flash.style.opacity =
+                ".9";
+
+
+            setTimeout(
+                function(){
+
+                    flash.style.opacity =
+                        "0";
+
+                },
+                120
+            );
+
+
+            travelSpeed =
+                2;
+
+
+            overlay.classList.remove(
+                "active"
+            );
+
+
+            hyperspaceMode =
+                false;
+
+
+            flightStatus.textContent =
+                "CRUISING";
+
+
+            showMessage(
+                "TRANSIT COMPLETE",
+                "NEW SECTOR REACHED",
+                3500
+            );
+
+
+        },
+        5500
+    );
 
 }
 
 
+/* =========================================================
+   RANDOM JOURNEY EVENTS
+========================================================= */
+
+const events = [
+
+    planetEncounter,
+
+    nebulaEncounter,
+
+    asteroidEncounter,
+
+    signalEncounter,
+
+    hyperspaceJump
+
+];
+
+
+function randomEvent(){
+
+    if(
+        hyperspaceMode
+    ){
+
+        return;
+
+    }
+
+
+    const event =
+        events[
+            Math.floor(
+                Math.random() *
+                events.length
+            )
+        ];
+
+
+    event();
+
+}
+
+
+/*
+First arrival message.
+*/
+
+setTimeout(
+    function(){
+
+        showMessage(
+            "YOU ARE OFF WORLD",
+            "OBVYRIS TRANSPORT SYSTEM",
+            5000
+        );
+
+    },
+    1000
+);
+
+
+/*
+Events occur at irregular intervals.
+*/
+
+function scheduleEvent(){
+
+    const delay =
+        12000 +
+        Math.random() *
+        22000;
+
+
+    setTimeout(
+        function(){
+
+            randomEvent();
+
+            scheduleEvent();
+
+        },
+        delay
+    );
+
+}
+
+
+scheduleEvent();
+
+
+/* =========================================================
+   OCCASIONAL COMPUTER PULSES
+========================================================= */
+
+setInterval(
+    function(){
+
+        if(
+            !document
+                .getElementById(
+                    "computer"
+                )
+                .classList.contains(
+                    "open"
+                )
+        ){
+
+            return;
+
+        }
+
+
+        const velocity =
+            document.getElementById(
+                "velocity"
+            );
+
+
+        if(velocity){
+
+            velocity.textContent =
+                (
+                    16 +
+                    Math.random() * 5
+                ).toFixed(1)
+                + " AU/h";
+
+        }
+
+    },
+    1500
+);
+
+
+/* =========================================================
+   SHIP VIBRATION
+========================================================= */
+
+setInterval(
+    function(){
+
+        if(
+            Math.random() < .15
+        ){
+
+            document
+                .getElementById(
+                    "cockpit"
+                )
+                .animate(
+
+                    [
+
+                        {
+                            transform:
+                                "translate(0,0)"
+                        },
+
+                        {
+                            transform:
+                                "translate(1px,-1px)"
+                        },
+
+                        {
+                            transform:
+                                "translate(-1px,1px)"
+                        },
+
+                        {
+                            transform:
+                                "translate(0,0)"
+                        }
+
+                    ],
+
+                    {
+
+                        duration:180,
+
+                        easing:"linear"
+
+                    }
+
+                );
+
+        }
+
+    },
+    3000
+);
+
 </script>
 
-
 </body>
-
 </html>
