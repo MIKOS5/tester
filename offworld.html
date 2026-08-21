@@ -1,0 +1,1527 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+>
+
+<title>Obvyris — Off World</title>
+
+<meta
+    name="theme-color"
+    content="#02060b"
+>
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+html,
+body{
+    margin:0;
+    padding:0;
+    width:100%;
+    min-height:100%;
+    background:#02060b;
+    color:#dcecff;
+    font-family:Arial,Helvetica,sans-serif;
+    overflow:hidden;
+}
+
+body{
+    min-height:100vh;
+}
+
+
+/* =================================
+   SPACE BACKGROUND
+================================= */
+
+.space{
+
+    position:fixed;
+
+    inset:0;
+
+    background:
+
+        radial-gradient(
+            circle at 50% 45%,
+            rgba(25,80,120,.15),
+            transparent 40%
+        ),
+
+        radial-gradient(
+            circle at 20% 20%,
+            rgba(50,130,255,.08),
+            transparent 30%
+        ),
+
+        #02060b;
+
+    overflow:hidden;
+
+}
+
+
+.stars{
+
+    position:absolute;
+
+    inset:0;
+
+    background-image:
+
+        radial-gradient(
+            1px 1px at 10% 20%,
+            rgba(255,255,255,.8),
+            transparent
+        ),
+
+        radial-gradient(
+            1px 1px at 30% 80%,
+            rgba(255,255,255,.7),
+            transparent
+        ),
+
+        radial-gradient(
+            1px 1px at 70% 30%,
+            rgba(255,255,255,.7),
+            transparent
+        ),
+
+        radial-gradient(
+            1px 1px at 90% 70%,
+            rgba(255,255,255,.7),
+            transparent
+        );
+
+    background-size:
+        140px 140px,
+        190px 190px,
+        230px 230px,
+        170px 170px;
+
+    animation:
+        starDrift 30s linear infinite;
+
+}
+
+
+@keyframes starDrift{
+
+    from{
+        transform:translate(0,0);
+    }
+
+    to{
+        transform:translate(-100px,80px);
+    }
+
+}
+
+
+/* =================================
+   SHIP INTERIOR
+================================= */
+
+.ship{
+
+    position:relative;
+
+    width:100vw;
+
+    height:100vh;
+
+    display:flex;
+
+    flex-direction:column;
+
+    background:
+
+        linear-gradient(
+            180deg,
+            rgba(5,14,23,.97),
+            rgba(2,7,12,.98)
+        );
+
+}
+
+
+/* =================================
+   TOP SYSTEM BAR
+================================= */
+
+.topbar{
+
+    height:58px;
+
+    flex-shrink:0;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    padding:0 22px;
+
+    border-bottom:
+        1px solid
+        rgba(70,150,210,.25);
+
+    background:
+        rgba(4,12,20,.9);
+
+    box-shadow:
+        0 4px 20px
+        rgba(0,0,0,.5);
+
+}
+
+
+.logo{
+
+    font-weight:900;
+
+    letter-spacing:5px;
+
+    color:#68caff;
+
+    text-shadow:
+        0 0 15px
+        rgba(80,190,255,.5);
+
+}
+
+
+.status{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    color:#8fa9bf;
+
+    font-size:11px;
+
+    letter-spacing:2px;
+
+}
+
+
+.statusDot{
+
+    width:8px;
+
+    height:8px;
+
+    border-radius:50%;
+
+    background:#45e6a2;
+
+    box-shadow:
+        0 0 10px
+        #45e6a2;
+
+}
+
+
+/* =================================
+   MAIN CABIN
+================================= */
+
+.cabin{
+
+    flex:1;
+
+    min-height:0;
+
+    display:grid;
+
+    grid-template-columns:
+        220px
+        minmax(0,1fr)
+        220px;
+
+    gap:12px;
+
+    padding:12px;
+
+}
+
+
+/* =================================
+   PANELS
+================================= */
+
+.panel{
+
+    min-width:0;
+
+    border:
+        1px solid
+        rgba(65,130,170,.28);
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(10,24,36,.9),
+            rgba(5,14,22,.9)
+        );
+
+    box-shadow:
+        inset 0 0 25px
+        rgba(0,80,130,.06),
+        0 10px 30px
+        rgba(0,0,0,.35);
+
+}
+
+
+.panelTitle{
+
+    padding:12px;
+
+    border-bottom:
+        1px solid
+        rgba(65,130,170,.2);
+
+    color:#62c9ff;
+
+    font-size:10px;
+
+    letter-spacing:2px;
+
+    font-weight:bold;
+
+}
+
+
+.panelBody{
+
+    padding:12px;
+
+}
+
+
+/* =================================
+   LEFT SYSTEMS
+================================= */
+
+.systemItem{
+
+    margin-bottom:14px;
+
+}
+
+
+.systemLabel{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    color:#7f98ad;
+
+    font-size:10px;
+
+    margin-bottom:5px;
+
+}
+
+
+.systemValue{
+
+    color:#dff4ff;
+
+    font-size:11px;
+
+}
+
+
+.meter{
+
+    height:4px;
+
+    background:#09131c;
+
+    overflow:hidden;
+
+}
+
+
+.meter span{
+
+    display:block;
+
+    height:100%;
+
+    background:#2ebcff;
+
+    box-shadow:
+        0 0 8px
+        rgba(46,188,255,.6);
+
+}
+
+
+/* =================================
+   VIEWPORT
+================================= */
+
+.viewport{
+
+    position:relative;
+
+    min-width:0;
+
+    overflow:hidden;
+
+    border:
+        1px solid
+        rgba(90,170,220,.4);
+
+    background:#02070c;
+
+    box-shadow:
+        inset 0 0 80px
+        rgba(0,0,0,.9),
+        0 0 30px
+        rgba(30,130,190,.08);
+
+}
+
+
+/* =================================
+   OFF WORLD SCENE
+================================= */
+
+.planetSky{
+
+    position:absolute;
+
+    inset:0;
+
+    background:
+
+        radial-gradient(
+            circle at 65% 35%,
+            rgba(95,180,255,.45),
+            transparent 14%
+        ),
+
+        linear-gradient(
+            180deg,
+            #071a2a 0%,
+            #0c2940 48%,
+            #10212b 100%
+        );
+
+}
+
+
+.moon{
+
+    position:absolute;
+
+    width:130px;
+
+    height:130px;
+
+    right:17%;
+
+    top:16%;
+
+    border-radius:50%;
+
+    background:
+
+        radial-gradient(
+            circle at 35% 30%,
+            #d8f4ff,
+            #7292a5 55%,
+            #283c49
+        );
+
+    box-shadow:
+        0 0 40px
+        rgba(160,220,255,.35);
+
+}
+
+
+.horizon{
+
+    position:absolute;
+
+    left:-10%;
+
+    right:-10%;
+
+    bottom:-10%;
+
+    height:50%;
+
+    background:
+
+        linear-gradient(
+            175deg,
+            #09171c,
+            #020708
+        );
+
+    clip-path:
+        polygon(
+            0 35%,
+            15% 25%,
+            30% 38%,
+            48% 20%,
+            63% 35%,
+            78% 17%,
+            100% 30%,
+            100% 100%,
+            0 100%
+        );
+
+}
+
+
+.terrainGlow{
+
+    position:absolute;
+
+    left:0;
+
+    right:0;
+
+    bottom:0;
+
+    height:30%;
+
+    background:
+
+        radial-gradient(
+            ellipse at 50% 100%,
+            rgba(45,180,190,.2),
+            transparent 65%
+        );
+
+}
+
+
+/* =================================
+   ALIEN STRUCTURES
+================================= */
+
+.structure{
+
+    position:absolute;
+
+    bottom:27%;
+
+    width:30px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #172c31,
+            #31545a,
+            #13252a
+        );
+
+    box-shadow:
+        0 0 15px
+        rgba(50,190,190,.15);
+
+}
+
+
+.structure:nth-child(1){
+
+    left:18%;
+
+    height:90px;
+
+}
+
+
+.structure:nth-child(2){
+
+    left:30%;
+
+    height:150px;
+
+    width:20px;
+
+}
+
+
+.structure:nth-child(3){
+
+    right:28%;
+
+    height:110px;
+
+    width:45px;
+
+}
+
+
+.structure:nth-child(4){
+
+    right:13%;
+
+    height:70px;
+
+    width:18px;
+
+}
+
+
+/* =================================
+   VIEWPORT HUD
+================================= */
+
+.viewportHud{
+
+    position:absolute;
+
+    inset:0;
+
+    pointer-events:none;
+
+}
+
+
+.scanlines{
+
+    position:absolute;
+
+    inset:0;
+
+    background:
+
+        repeating-linear-gradient(
+            0deg,
+            transparent 0px,
+            transparent 3px,
+            rgba(255,255,255,.018) 4px
+        );
+
+}
+
+
+.corner{
+
+    position:absolute;
+
+    width:35px;
+
+    height:35px;
+
+    border-color:
+        rgba(100,210,255,.7);
+
+}
+
+
+.corner.tl{
+
+    top:15px;
+    left:15px;
+
+    border-top:1px solid;
+    border-left:1px solid;
+
+}
+
+
+.corner.tr{
+
+    top:15px;
+    right:15px;
+
+    border-top:1px solid;
+    border-right:1px solid;
+
+}
+
+
+.corner.bl{
+
+    bottom:15px;
+    left:15px;
+
+    border-bottom:1px solid;
+    border-left:1px solid;
+
+}
+
+
+.corner.br{
+
+    bottom:15px;
+    right:15px;
+
+    border-bottom:1px solid;
+    border-right:1px solid;
+
+}
+
+
+.viewportText{
+
+    position:absolute;
+
+    left:25px;
+
+    top:25px;
+
+    color:#72d4ff;
+
+    font-size:10px;
+
+    letter-spacing:2px;
+
+}
+
+
+.distance{
+
+    position:absolute;
+
+    right:25px;
+
+    top:25px;
+
+    color:#9db5c6;
+
+    font-size:10px;
+
+    text-align:right;
+
+}
+
+
+/* =================================
+   CENTER MESSAGE
+================================= */
+
+.contact{
+
+    position:absolute;
+
+    left:50%;
+
+    top:50%;
+
+    transform:
+        translate(-50%,-50%);
+
+    width:min(500px,80%);
+
+    text-align:center;
+
+    pointer-events:none;
+
+}
+
+
+.contactTitle{
+
+    color:#dff7ff;
+
+    font-size:
+        clamp(
+            20px,
+            3vw,
+            36px
+        );
+
+    font-weight:900;
+
+    letter-spacing:5px;
+
+    text-shadow:
+        0 0 25px
+        rgba(80,210,255,.6);
+
+}
+
+
+.contactSub{
+
+    margin-top:12px;
+
+    color:#80a5ba;
+
+    font-size:11px;
+
+    letter-spacing:3px;
+
+}
+
+
+/* =================================
+   RIGHT DATA
+================================= */
+
+.dataRow{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    gap:10px;
+
+    padding:9px 0;
+
+    border-bottom:
+        1px solid
+        rgba(100,150,180,.1);
+
+    font-size:10px;
+
+}
+
+
+.dataLabel{
+
+    color:#6e879a;
+
+}
+
+
+.dataValue{
+
+    color:#d8efff;
+
+    text-align:right;
+
+}
+
+
+/* =================================
+   FOOTER
+================================= */
+
+.footer{
+
+    height:70px;
+
+    flex-shrink:0;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:12px;
+
+    border-top:
+        1px solid
+        rgba(65,130,170,.25);
+
+    background:
+        rgba(3,9,15,.95);
+
+}
+
+
+button{
+
+    border:
+        1px solid
+        rgba(80,170,220,.4);
+
+    background:
+        rgba(12,30,44,.9);
+
+    color:#bfeaff;
+
+    padding:10px 18px;
+
+    border-radius:6px;
+
+    cursor:pointer;
+
+    font-size:11px;
+
+    letter-spacing:1px;
+
+}
+
+
+button:hover{
+
+    background:
+        rgba(30,70,95,.9);
+
+    border-color:
+        rgba(100,210,255,.7);
+
+}
+
+
+button.primary{
+
+    background:
+        rgba(24,105,145,.5);
+
+    border-color:
+        rgba(80,200,255,.7);
+
+}
+
+
+/* =================================
+   MOBILE
+================================= */
+
+@media(max-width:850px){
+
+    .cabin{
+
+        grid-template-columns:
+            1fr;
+
+        overflow:auto;
+
+    }
+
+
+    .panel.left,
+    .panel.right{
+
+        display:none;
+
+    }
+
+
+    .viewport{
+
+        min-height:
+            calc(100vh - 140px);
+
+    }
+
+
+    .topbar{
+
+        padding:0 12px;
+
+    }
+
+
+    .logo{
+
+        font-size:13px;
+
+        letter-spacing:3px;
+
+    }
+
+
+    .status{
+
+        font-size:9px;
+
+    }
+
+}
+
+
+@media(max-width:500px){
+
+    .footer{
+
+        height:62px;
+
+    }
+
+
+    .footer button{
+
+        padding:9px 12px;
+
+        font-size:9px;
+
+    }
+
+
+    .moon{
+
+        width:90px;
+
+        height:90px;
+
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="space">
+
+    <div class="stars"></div>
+
+
+    <div class="ship">
+
+
+        <!-- =================================
+             TOP BAR
+        ================================= -->
+
+        <div class="topbar">
+
+            <div class="logo">
+                OBVYRIS
+            </div>
+
+
+            <div class="status">
+
+                <span class="statusDot"></span>
+
+                OFF-WORLD LINK ACTIVE
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================
+             CABIN
+        ================================= -->
+
+        <div class="cabin">
+
+
+            <!-- =================================
+                 LEFT PANEL
+            ================================= -->
+
+            <div class="panel left">
+
+                <div class="panelTitle">
+                    SHIP SYSTEMS
+                </div>
+
+
+                <div class="panelBody">
+
+
+                    <div class="systemItem">
+
+                        <div class="systemLabel">
+
+                            <span>
+                                POWER
+                            </span>
+
+                            <span>
+                                94%
+                            </span>
+
+                        </div>
+
+
+                        <div class="meter">
+
+                            <span style="width:94%"></span>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="systemItem">
+
+                        <div class="systemLabel">
+
+                            <span>
+                                HULL
+                            </span>
+
+                            <span>
+                                100%
+                            </span>
+
+                        </div>
+
+
+                        <div class="meter">
+
+                            <span style="width:100%"></span>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="systemItem">
+
+                        <div class="systemLabel">
+
+                            <span>
+                                PROPULSION
+                            </span>
+
+                            <span>
+                                87%
+                            </span>
+
+                        </div>
+
+
+                        <div class="meter">
+
+                            <span style="width:87%"></span>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="systemItem">
+
+                        <div class="systemLabel">
+
+                            <span>
+                                LIFE SUPPORT
+                            </span>
+
+                            <span>
+                                98%
+                            </span>
+
+                        </div>
+
+
+                        <div class="meter">
+
+                            <span style="width:98%"></span>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="systemItem">
+
+                        <div class="systemLabel">
+
+                            <span>
+                                SHIELD
+                            </span>
+
+                            <span>
+                                76%
+                            </span>
+
+                        </div>
+
+
+                        <div class="meter">
+
+                            <span style="width:76%"></span>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+
+
+            <!-- =================================
+                 VIEWPORT
+            ================================= -->
+
+            <div class="viewport">
+
+
+                <div class="planetSky"></div>
+
+
+                <div class="moon"></div>
+
+
+                <div class="structure"></div>
+
+                <div class="structure"></div>
+
+                <div class="structure"></div>
+
+                <div class="structure"></div>
+
+
+                <div class="horizon"></div>
+
+                <div class="terrainGlow"></div>
+
+
+                <!-- HUD -->
+
+                <div class="viewportHud">
+
+                    <div class="scanlines"></div>
+
+
+                    <div class="corner tl"></div>
+
+                    <div class="corner tr"></div>
+
+                    <div class="corner bl"></div>
+
+                    <div class="corner br"></div>
+
+
+                    <div class="viewportText">
+
+                        EXTERNAL VIEW
+
+                    </div>
+
+
+                    <div class="distance">
+
+                        LOCATION<br>
+
+                        UNKNOWN
+
+                    </div>
+
+
+                    <div class="contact">
+
+                        <div class="contactTitle">
+
+                            YOU ARE OFF WORLD
+
+                        </div>
+
+
+                        <div class="contactSub">
+
+                            OBVYRIS TRANSPORT SYSTEM
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- =================================
+                 RIGHT PANEL
+            ================================= -->
+
+            <div class="panel right">
+
+                <div class="panelTitle">
+
+                    NAVIGATION
+
+                </div>
+
+
+                <div class="panelBody">
+
+
+                    <div class="dataRow">
+
+                        <span class="dataLabel">
+                            STATUS
+                        </span>
+
+                        <span class="dataValue">
+                            IN TRANSIT
+                        </span>
+
+                    </div>
+
+
+                    <div class="dataRow">
+
+                        <span class="dataLabel">
+                            SECTOR
+                        </span>
+
+                        <span class="dataValue">
+                            O-17
+                        </span>
+
+                    </div>
+
+
+                    <div class="dataRow">
+
+                        <span class="dataLabel">
+                            VECTOR
+                        </span>
+
+                        <span class="dataValue">
+                            042.7
+                        </span>
+
+                    </div>
+
+
+                    <div class="dataRow">
+
+                        <span class="dataLabel">
+                            DISTANCE
+                        </span>
+
+                        <span class="dataValue">
+                            4.82 AU
+                        </span>
+
+                    </div>
+
+
+                    <div class="dataRow">
+
+                        <span class="dataLabel">
+                            SIGNAL
+                        </span>
+
+                        <span class="dataValue">
+                            82%
+                        </span>
+
+                    </div>
+
+
+                    <div class="dataRow">
+
+                        <span class="dataLabel">
+                            ORIGIN
+                        </span>
+
+                        <span class="dataValue">
+                            EARTH
+                        </span>
+
+                    </div>
+
+
+                    <div class="dataRow">
+
+                        <span class="dataLabel">
+                            DESTINATION
+                        </span>
+
+                        <span class="dataValue">
+                            UNKNOWN
+                        </span>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- =================================
+             FOOTER
+        ================================= -->
+
+        <div class="footer">
+
+
+            <button
+                type="button"
+                onclick="returnToHub()"
+            >
+
+                ← RETURN TO HUB
+
+            </button>
+
+
+            <button
+                type="button"
+                class="primary"
+                onclick="openShipComputer()"
+            >
+
+                SHIP COMPUTER
+
+            </button>
+
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+
+/* =================================
+   RETURN TO HUB
+================================= */
+
+function returnToHub(){
+
+    window.location.href =
+        "index.html";
+
+}
+
+
+/* =================================
+   SHIP COMPUTER
+================================= */
+
+function openShipComputer(){
+
+    window.location.href =
+        "shipcomputer.html";
+
+}
+
+
+/* =================================
+   RANDOM NAVIGATION DATA
+================================= */
+
+function updateNavigation(){
+
+    const values =
+        document.querySelectorAll(
+            ".dataValue"
+        );
+
+
+    if(!values.length){
+
+        return;
+
+    }
+
+
+    /*
+    Slightly change navigation
+    telemetry so the ship feels alive.
+    */
+
+    const vector =
+        (
+            40 +
+            Math.random() * 10
+        ).toFixed(1);
+
+
+    const distance =
+        (
+            4 +
+            Math.random() * .9
+        ).toFixed(2);
+
+
+    /*
+    Navigation rows:
+
+    0 = status
+    1 = sector
+    2 = vector
+    3 = distance
+    */
+
+    if(values[2]){
+
+        values[2].textContent =
+            vector;
+
+    }
+
+
+    if(values[3]){
+
+        values[3].textContent =
+            distance + " AU";
+
+    }
+
+}
+
+
+setInterval(
+    updateNavigation,
+    3000
+);
+
+
+/* =================================
+   VIEWPORT PULSE
+================================= */
+
+const viewport =
+    document.querySelector(
+        ".viewport"
+    );
+
+
+if(viewport){
+
+    setInterval(function(){
+
+        viewport.style.boxShadow =
+            "inset 0 0 80px rgba(0,0,0,.9)," +
+            "0 0 30px rgba(30,130,190," +
+            (0.05 + Math.random() * .08) +
+            ")";
+
+    },1200);
+
+}
+
+
+</script>
+
+
+</body>
+
+</html>
