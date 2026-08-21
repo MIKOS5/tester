@@ -4612,116 +4612,186 @@ function resetShipInactivity(){
 
 function openFeaturedGame(){
 
-console.log("[OBVYRIS] Opening featured game");
+    console.log("[OBVYRIS] Opening featured game");
+
+    const game = currentFeaturedGame;
+
+    if(!game){
+
+        console.error(
+            "[OBVYRIS] No current featured game"
+        );
+
+        showGamePlayerMessage(
+            "No featured game is currently selected."
+        );
+
+        return;
+    }
 
 
-const game = currentFeaturedGame;
+    const title =
+        game.Title ||
+        game.title ||
+        game.Name ||
+        game.name ||
+        "Obvyris Game";
 
 
-if(!game){
+    const romURL =
+        game.ROMURL ||
+        game.romURL ||
+        game.RomURL ||
+        game.rom ||
+        game.ROM ||
+        "";
 
 
-    console.error(
-        "[OBVYRIS] No current featured game"
+    const core =
+        game.EmulatorCore ||
+        game.emulatorCore ||
+        game.Core ||
+        game.core ||
+        game.PlatformID ||
+        "";
+
+
+    console.log(
+        "[OBVYRIS] Game:",
+        game
+    );
+
+    console.log(
+        "[OBVYRIS] Title:",
+        title
+    );
+
+    console.log(
+        "[OBVYRIS] ROM:",
+        romURL
+    );
+
+    console.log(
+        "[OBVYRIS] Core:",
+        core
     );
 
 
-    return;
-}
+    if(!romURL){
+
+        console.error(
+            "[OBVYRIS] No ROM URL"
+        );
+
+        showGamePlayerMessage(
+            "This game does not have a ROM URL."
+        );
+
+        return;
+    }
 
 
+    /*
+    =================================
+    BUILD EMULATOR URL
+    =================================
+    */
+
+    const emulatorURL =
+        "emulator.html" +
+        "?rom=" +
+        encodeURIComponent(romURL) +
+        "&core=" +
+        encodeURIComponent(core) +
+        "&title=" +
+        encodeURIComponent(title);
 
 
-const title =
-    game.Title ||
-    game.title ||
-    game.Name ||
-    game.name ||
-    "Obvyris Game";
-
-
-
-
-const romURL =
-    game.ROMURL ||
-    game.romURL ||
-    game.RomURL ||
-    "";
-
-
-
-
-const core =
-    game.EmulatorCore ||
-    game.emulatorCore ||
-    game.Core ||
-    game.core ||
-    "";
-
-
-
-
-console.log(
-    "[OBVYRIS] Game:",
-    game
-);
-
-
-
-
-console.log(
-    "[OBVYRIS] Title:",
-    title
-);
-
-
-
-
-console.log(
-    "[OBVYRIS] ROM:",
-    romURL
-);
-
-
-
-
-console.log(
-    "[OBVYRIS] Core:",
-    core
-);
-
-
-
-
-if(!romURL){
-
-    console.error(
-        "[OBVYRIS] No ROM URL"
+    console.log(
+        "[OBVYRIS] Emulator URL:",
+        emulatorURL
     );
 
-    showGamePlayerMessage(
-        "This game does not have a ROM URL."
-    );
 
-    return;
+    /*
+    =================================
+    SET MODAL TITLE
+    =================================
+    */
 
-}
-
-
-const emulatorURL =
-    "emulator.html" +
-    "?rom=" +
-    encodeURIComponent(romURL) +
-    "&core=" +
-    encodeURIComponent(core) +
-    "&title=" +
-    encodeURIComponent(title);
+    const titleElement =
+        document.getElementById(
+            "gamePlayerTitle"
+        );
 
 
-console.log(
-    "[OBVYRIS] Emulator URL:",
-    emulatorURL
-);
+    if(titleElement){
+
+        titleElement.innerText =
+            "🎮 " + title;
+
+    }
+
+
+    /*
+    =================================
+    GET PLAYER
+    =================================
+    */
+
+    const player =
+        document.getElementById(
+            "featuredGamePlayer"
+        );
+
+
+    if(!player){
+
+        console.error(
+            "[OBVYRIS] featuredGamePlayer not found"
+        );
+
+        return;
+    }
+
+
+    /*
+    =================================
+    OPEN MODAL
+    =================================
+    */
+
+    document
+        .getElementById("featuredGameModal")
+        .classList.add("open");
+
+
+    /*
+    =================================
+    LOAD EMULATOR
+    =================================
+    */
+
+    player.innerHTML = `
+
+        <iframe
+            src="${emulatorURL}"
+            style="
+                width:100%;
+                height:100%;
+                border:0;
+                display:block;
+                background:#000;
+            "
+            allow="
+                autoplay;
+                fullscreen;
+                gamepad;
+            "
+            allowfullscreen
+        ></iframe>
+
+    `;
 
 }
  
