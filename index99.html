@@ -2292,7 +2292,287 @@ min-width:100px;
 
 }
 
+.featuredGameModal{
 
+position:fixed;
+
+
+inset:0;
+
+
+z-index:99999;
+
+
+display:flex;
+
+
+align-items:center;
+
+
+justify-content:center;
+
+
+padding:15px;
+
+
+background:rgba(0,0,0,.88);
+
+
+opacity:0;
+
+
+visibility:hidden;
+
+
+pointer-events:none;
+
+
+transition:.2s ease;
+
+}
+
+.featuredGameModal.open{
+
+opacity:1;
+
+
+visibility:visible;
+
+
+pointer-events:auto;
+
+}
+
+.featuredGameWindow{
+
+width:min(
+    1200px,
+    100%
+);
+
+
+height:min(
+    850px,
+    95vh
+);
+
+
+display:flex;
+
+
+flex-direction:column;
+
+
+overflow:hidden;
+
+
+background:#000;
+
+
+border:1px solid #253347;
+
+
+border-radius:16px;
+
+
+box-shadow:
+    0 25px 80px
+    rgba(0,0,0,.7);
+
+}
+
+.featuredGameHeader{
+
+flex:0 0 52px;
+
+
+display:flex;
+
+
+align-items:center;
+
+
+justify-content:space-between;
+
+
+gap:15px;
+
+
+padding:0 14px;
+
+
+background:#111827;
+
+
+border-bottom:1px solid #253347;
+
+}
+
+.featuredGameTitle{
+
+min-width:0;
+
+
+overflow:hidden;
+
+
+text-overflow:ellipsis;
+
+
+white-space:nowrap;
+
+
+color:#fff;
+
+
+font-size:15px;
+
+
+font-weight:800;
+
+}
+
+.featuredGameClose{
+
+width:38px;
+
+
+height:38px;
+
+
+flex:0 0 38px;
+
+
+border:0;
+
+
+border-radius:9px;
+
+
+background:#253347;
+
+
+color:#fff;
+
+
+font-size:25px;
+
+
+line-height:1;
+
+
+cursor:pointer;
+
+}
+
+.featuredGameClose:hover{
+
+background:#334155;
+
+}
+
+.featuredGamePlayer{
+
+position:relative;
+
+
+flex:1;
+
+
+min-height:0;
+
+
+background:#000;
+
+}
+
+.featuredGamePlayer iframe{
+
+width:100%;
+
+
+height:100%;
+
+
+border:0;
+
+
+display:block;
+
+
+background:#000;
+
+}
+
+.featuredGameLoading{
+
+position:absolute;
+
+
+inset:0;
+
+
+display:flex;
+
+
+align-items:center;
+
+
+justify-content:center;
+
+
+color:#93a4bb;
+
+
+font-size:15px;
+
+}
+
+@media(max-width:700px){
+
+.featuredGameModal{
+
+
+    padding:0;
+
+
+}
+
+
+
+
+.featuredGameWindow{
+
+
+    width:100%;
+
+
+    height:100%;
+
+
+    max-height:none;
+
+
+    border:0;
+
+
+    border-radius:0;
+
+
+}
+
+
+
+
+.featuredGameHeader{
+
+
+    flex-basis:48px;
+
+
+}
+
+}
  
 </style>
 
@@ -2859,7 +3139,7 @@ border-radius:12px;
 display:none;
 ">
 
-<button type="button" class="gamePlayButton" id="featuredGamePlay" onclick="openFeaturedGame()">
+<button type="button" class="gamePlayButton" id="featuredGamePlay" onclick="event.stopPropagation(); openFeaturedGame();">
 
 🎮 Play Featured Game
 
@@ -2937,6 +3217,53 @@ Obvyris Platform © 2026
 📲 Install Obvyris Hub
 </button>
 
+<!-- ================================= FEATURED GAME EMULATOR ================================= -->
+
+<div id="featuredGameModal" class="featuredGameModal" >
+<div class="featuredGameWindow">
+
+
+    <div class="featuredGameHeader">
+
+
+        <div
+            id="gamePlayerTitle"
+            class="featuredGameTitle"
+        >
+            🎮 Obvyris Game
+        </div>
+
+
+        <button
+            type="button"
+            class="featuredGameClose"
+            onclick="closeFeaturedGame()"
+        >
+            ×
+        </button>
+
+
+    </div>
+
+
+
+
+    <div
+        id="featuredGamePlayer"
+        class="featuredGamePlayer"
+    >
+
+
+        <div class="featuredGameLoading">
+            Loading emulator...
+        </div>
+
+
+    </div>
+
+
+</div>
+</div>
 </footer>
 
 
@@ -4288,124 +4615,190 @@ function openFeaturedGame(){
 if(!currentFeaturedGame){
 
 
+
+
+iframe.referrerPolicy =
+    "no-referrer";
+
+
+
+
+iframe.style.width =
+    "100%";
+
+
+iframe.style.height =
+    "100%";
+
+
+iframe.style.border =
+    "0";
+
+
+iframe.style.display =
+    "block";
+
+
+iframe.style.background =
+    "#000";
+
+
+
+
+iframe.onload =
+function(){
+
+
+    console.log(
+        "[OBVYRIS] Emulator loaded:",
+        emulatorURL
+    );
+
+
+};
+
+
+
+
+iframe.onerror =
+function(){
+
+
     console.error(
-        "No featured game selected."
+        "[OBVYRIS] Emulator iframe failed:",
+        emulatorURL
     );
 
 
-    return;
-
-
-}
-
-
-
-
-const game =
-    currentFeaturedGame;
-
-
-
-
-const params =
-    new URLSearchParams();
-
-
-
-
-const gameId =
-    game.GameID ||
-    game.gameId ||
-    game.ID ||
-    game.id ||
-    "";
-
-
-
-
-const title =
-    game.Title ||
-    game.title ||
-    game.Name ||
-    game.name ||
-    "";
-
-
-
-
-const platform =
-    game.Platform ||
-    game.platform ||
-    "";
-
-
-
-
-if(gameId){
-
-
-    params.set(
-        "id",
-        gameId
+    showGamePlayerMessage(
+        "The emulator page could not be loaded."
     );
 
 
-}
+};
 
 
 
 
-if(title){
+/*
+Clear previous emulator.
+*/
 
 
-    params.set(
-        "title",
-        title
-    );
-
-
-}
+container.innerHTML = "";
 
 
 
 
-if(platform){
+/*
+Add emulator.
+*/
 
 
-    params.set(
-        "platform",
-        platform
-    );
-
-
-}
-
-
-
-
-console.log(
-    "Opening featured game:",
-    game
+container.appendChild(
+    iframe
 );
 
 
 
 
-console.log(
-    "Emulator URL:",
-    "emulator.html?" +
-    params.toString()
+/*
+Show popup.
+*/
+
+
+document.getElementById(
+    "featuredGameModal"
+).classList.add(
+    "open"
 );
-
-
-
-
-window.location.href =
-    "emulator.html?" +
-    params.toString();
 
 }
 
+function closeFeaturedGame(){
+
+const modal =
+    document.getElementById(
+        "featuredGameModal"
+    );
+
+
+const player =
+    document.getElementById(
+        "featuredGamePlayer"
+    );
+
+
+
+
+/*
+Remove iframe completely.
+
+
+This stops the emulator and releases
+the game when the popup closes.
+*/
+
+
+player.innerHTML = `
+    <div class="featuredGameLoading">
+        Emulator closed.
+    </div>
+`;
+
+
+
+
+modal.classList.remove(
+    "open"
+);
+
+}
+
+
+function showGamePlayerMessage(text){
+
+const player =
+    document.getElementById(
+        "featuredGamePlayer"
+    );
+
+
+player.innerHTML = `
+
+
+    <div style="
+        width:100%;
+        height:100%;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        padding:30px;
+        text-align:center;
+        color:#ff9b9b;
+        background:#000;
+    ">
+
+
+        ${escapeHTML(text)}
+
+
+    </div>
+
+
+`;
+
+
+
+
+document.getElementById(
+    "featuredGameModal"
+).classList.add(
+    "open"
+);
+
+}
+ 
 /*
 =================================
 LAUNCH SHIP
