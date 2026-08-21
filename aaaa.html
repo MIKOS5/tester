@@ -597,6 +597,8 @@ All Games
 
 <div>Obvyris Games API</div>
 
+<div id="webglStatus">WebGL: Checking...</div>
+
 </div>
 
 </aside>
@@ -1747,7 +1749,86 @@ function closePlayer(){
 
 }
 
+const status=document.getElementById("webglStatus");
 
+if(!status){
+    return;
+}
+
+let canvas=document.createElement("canvas");
+
+let gl=
+    canvas.getContext("webgl2") ||
+    canvas.getContext("webgl") ||
+    canvas.getContext("experimental-webgl");
+
+if(!gl){
+
+    status.textContent="WebGL: Disabled";
+    status.style.color="#e45555";
+
+    return;
+
+}
+
+let debugInfo=
+    gl.getExtension("WEBGL_debug_renderer_info");
+
+if(debugInfo){
+
+    const renderer=
+        gl.getParameter(
+            debugInfo.UNMASKED_RENDERER_WEBGL
+        );
+
+    if(renderer){
+
+        const softwareRenderer=
+            /swiftshader|software rasterizer|llvmpipe|mesa llvmpipe/i
+            .test(renderer);
+
+        if(softwareRenderer){
+
+            status.textContent=
+                "WebGL: Software renderer";
+
+            status.style.color="#d7a83e";
+
+            console.log(
+                "[OBVYRIS] WebGL renderer:",
+                renderer
+            );
+
+            return;
+
+        }
+
+        status.textContent=
+            "WebGL: Hardware accelerated";
+
+        status.style.color="#42d77d";
+
+        console.log(
+            "[OBVYRIS] WebGL renderer:",
+            renderer
+        );
+
+        return;
+
+    }
+
+}
+
+/*
+ * WebGL works, but Chrome did not expose
+ * the renderer information.
+ */
+
+status.textContent=
+    "WebGL: Available";
+
+status.style.color="#42d77d";
+    
 /* =====================================================
    ESCAPE
 ===================================================== */
