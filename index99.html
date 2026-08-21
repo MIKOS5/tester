@@ -3521,39 +3521,121 @@ async function loadSports(){
 
 async function loadGames(){
 
+
 const featuredElement =
-    featuredGames =
-        data.games.filter(
-            game =>
-                game.Featured === true ||
-                String(game.Featured).toLowerCase() === "true"
+    document.getElementById("featuredGame");
+
+const categoryElement =
+    document.getElementById("gameCategory");
+
+const votesElement =
+    document.getElementById("gameVotes");
+
+const imageElement =
+    document.getElementById("gameImage");
+
+
+try{
+
+    const response =
+        await fetch(
+            GAMES_API +
+            "?action=games&t=" +
+            Date.now(),
+            {
+                cache:"no-store"
+            }
         );
 
 
+    if(!response.ok){
 
-
-    /*
-    If this page contains no featured
-    games, use all returned games.
-    */
-
-
-    if(!featuredGames.length){
-
-
-        featuredGames =
-            data.games;
-
+        throw new Error(
+            "HTTP " + response.status
+        );
 
     }
 
 
+    const data =
+        await response.json();
+
+
+    console.log(
+        "Games API:",
+        data
+    );
+
+
+    if(
+        !data ||
+        !Array.isArray(data.games)
+    ){
+
+        throw new Error(
+            "Invalid games API response"
+        );
+
+    }
 
 
     /*
-    Random starting game
+    =================================
+    FIND FEATURED GAMES
+    =================================
     */
 
+    featuredGames =
+        data.games.filter(
+            game =>
+                game.Featured === true ||
+                String(
+                    game.Featured
+                ).toLowerCase() === "true"
+        );
+
+
+    /*
+    If there are no featured games,
+    use all returned games.
+    */
+
+    if(!featuredGames.length){
+
+        featuredGames =
+            data.games;
+
+    }
+
+
+    /*
+    No games returned
+    */
+
+    if(!featuredGames.length){
+
+        featuredElement.innerText =
+            "No games available.";
+
+        categoryElement.innerText =
+            "-";
+
+        votesElement.innerText =
+            "—";
+
+        imageElement.style.display =
+            "none";
+
+        return;
+
+    }
+
+
+    /*
+    =================================
+    RANDOM STARTING GAME
+    =================================
+    */
 
     gameIndex =
         Math.floor(
@@ -3562,20 +3644,22 @@ const featuredElement =
         );
 
 
-
+    /*
+    =================================
+    SHOW GAME
+    =================================
+    */
 
     showNextGame();
 
 
-
-
     /*
-    Start rotation only once
+    =================================
+    START ROTATION ONLY ONCE
+    =================================
     */
 
-
     if(!gameTimer){
-
 
         gameTimer =
             setInterval(
@@ -3583,13 +3667,10 @@ const featuredElement =
                 5000
             );
 
-
     }
-
 
 }
 catch(error){
-
 
     console.error(
         "Featured games API failed:",
@@ -3598,11 +3679,20 @@ catch(error){
 
 
     featuredElement.innerHTML = `
-        ⚠️ Games unavailable
-        ${retryButton(
-            "loadGames",
-            "Retry Games"
-        )}
+        <div style="
+            text-align:center;
+            padding:12px;
+            color:#93a4bb;
+        ">
+            ⚠️ Games unavailable
+
+            <br>
+
+            ${retryButton(
+                "loadGames",
+                "Retry Games"
+            )}
+        </div>
     `;
 
 
@@ -3611,42 +3701,104 @@ catch(error){
 
 
     votesElement.innerText =
-        "0";
+        "—";
 
 
     imageElement.style.display =
         "none";
 
-
 }
 
-}
 
+}
 
 function showNextGame(){
 
+
 if(!featuredGames.length){
 
+    return;
 
+}
+
+
+/*
+=================================
+GET CURRENT GAME
+=================================
+*/
+
+const game =
+    featuredGames[gameIndex];
+
+
+if(!game){
+
+    return;
+
+}
+
+
+/*
+=================================
+GAME TITLE
+=================================
+*/
+
+const title =
+    game.Title ||
+    game.title ||
+    game.Name ||
+    game.name ||
+    "Unknown Game";
+
+
+document.getElementById(
+    "featuredGame"
+).innerText =
+    title;
+
+
+/*
+=================================
+CATEGORY
+=================================
+*/
+
+const category =
+    game.Genre ||
+    game.genre ||
+    game.Category ||
+    game.category ||
+    game.Platform ||
+    game.platform ||
+    "Game";
+
+
+document.getElementById(
+    "gameCategory"
+).innerText =
+    category;
 
 
 /*
 =================================
 VOTES
 =================================
-
-
-New API does not currently provide
-vote information.
 */
+
+const votes =
+    game.Votes ??
+    game.votes ??
+    game.Vote ??
+    game.vote ??
+    "—";
 
 
 document.getElementById(
     "gameVotes"
 ).innerText =
-    "—";
-
-
+    votes;
 
 
 /*
@@ -3655,40 +3807,41 @@ THUMBNAIL
 =================================
 */
 
-
 const img =
     document.getElementById(
         "gameImage"
     );
 
 
+const thumbnail =
+    game.Thumbnail ||
+    game.thumbnail ||
+    game.Image ||
+    game.image ||
+    game.Cover ||
+    game.cover ||
+    "";
 
 
-if(game.Thumbnail){
-
+if(thumbnail){
 
     img.src =
-        game.Thumbnail;
-
+        thumbnail;
 
     img.style.display =
         "block";
 
-
 }
 else{
 
-
-    img.removeAttribute("src");
-
+    img.removeAttribute(
+        "src"
+    );
 
     img.style.display =
         "none";
 
-
 }
-
-
 
 
 /*
@@ -3697,22 +3850,18 @@ NEXT GAME
 =================================
 */
 
-
 gameIndex++;
 
 
-
+/*
+Shuffle after completing
+the current cycle.
+*/
 
 if(
-    gameIndex >= featuredGames.length
+    gameIndex >=
+    featuredGames.length
 ){
-
-
-    /*
-    Shuffle featured games
-    after completing the cycle.
-    */
-
 
     featuredGames.sort(
         () =>
@@ -3720,14 +3869,13 @@ if(
     );
 
 
-
-
     gameIndex = 0;
 
+}
+
 
 }
 
-}
 
     
 function showNextSportsGame(){
