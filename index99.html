@@ -4622,10 +4622,6 @@ function openFeaturedGame(){
             "[OBVYRIS] No current featured game"
         );
 
-        showGamePlayerMessage(
-            "No featured game is currently selected."
-        );
-
         return;
     }
 
@@ -4642,8 +4638,8 @@ function openFeaturedGame(){
         game.ROMURL ||
         game.romURL ||
         game.RomURL ||
-        game.rom ||
         game.ROM ||
+        game.rom ||
         "";
 
 
@@ -4653,7 +4649,7 @@ function openFeaturedGame(){
         game.Core ||
         game.core ||
         game.PlatformID ||
-        "";
+        "nes";
 
 
     console.log(
@@ -4715,83 +4711,12 @@ function openFeaturedGame(){
 
     /*
     =================================
-    SET MODAL TITLE
+    OPEN EMULATOR
     =================================
     */
 
-    const titleElement =
-        document.getElementById(
-            "gamePlayerTitle"
-        );
-
-
-    if(titleElement){
-
-        titleElement.innerText =
-            "🎮 " + title;
-
-    }
-
-
-    /*
-    =================================
-    GET PLAYER
-    =================================
-    */
-
-    const player =
-        document.getElementById(
-            "featuredGamePlayer"
-        );
-
-
-    if(!player){
-
-        console.error(
-            "[OBVYRIS] featuredGamePlayer not found"
-        );
-
-        return;
-    }
-
-
-    /*
-    =================================
-    OPEN MODAL
-    =================================
-    */
-
-    document
-        .getElementById("featuredGameModal")
-        .classList.add("open");
-
-
-    /*
-    =================================
-    LOAD EMULATOR
-    =================================
-    */
-
-    player.innerHTML = `
-
-        <iframe
-            src="${emulatorURL}"
-            style="
-                width:100%;
-                height:100%;
-                border:0;
-                display:block;
-                background:#000;
-            "
-            allow="
-                autoplay;
-                fullscreen;
-                gamepad;
-            "
-            allowfullscreen
-        ></iframe>
-
-    `;
+    window.location.href =
+        emulatorURL;
 
 }
  
