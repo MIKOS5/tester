@@ -123,6 +123,7 @@ button{
     flex-direction:column;
 
     overflow-y:auto;
+    overflow-x:visible;
 
     background:var(--panel);
 
@@ -430,7 +431,72 @@ button{
     color:#fff;
 }
 
+.brand{
+    position:relative;
 
+    width:100%;
+
+    cursor:pointer;
+
+    user-select:none;
+}
+
+.brand:hover .logo{
+    color:#62c5ff;
+}
+
+.app-menu{
+    position:fixed;
+
+    left:12px;
+    top:65px;
+
+    z-index:3000;
+
+    width:190px;
+
+    display:none;
+
+    padding:6px;
+
+    border:1px solid var(--border);
+
+    border-radius:10px;
+
+    background:var(--panel);
+
+    box-shadow:0 12px 30px rgba(0,0,0,.45);
+}
+
+.app-menu.open{
+    display:block;
+}
+
+.app-menu div{
+    padding:10px 11px;
+
+    border-radius:7px;
+
+    color:var(--muted);
+
+    font-size:11px;
+
+    cursor:pointer;
+
+    white-space:nowrap;
+
+    transition:
+        background .15s ease,
+        color .15s ease;
+}
+
+.app-menu div:hover{
+    background:#132238;
+
+    color:#fff;
+}
+
+    
 /* =====================================================
    CONTENT
 ===================================================== */
@@ -2729,6 +2795,73 @@ function checkWebGL(){
 
 }
 
+/* =====================================================
+   APP MENU
+===================================================== */
+
+function toggleMenu(){
+
+    const menu=document.getElementById("appMenu");
+
+    if(!menu){
+        return;
+    }
+
+    menu.classList.toggle("open");
+
+}
+
+
+function closeMenu(){
+
+    const menu=document.getElementById("appMenu");
+
+    if(!menu){
+        return;
+    }
+
+    menu.classList.remove("open");
+
+}
+
+
+function navigateApp(url){
+
+    closeMenu();
+
+    if(!url){
+        return;
+    }
+
+    window.location.href=url;
+
+}
+
+
+/*
+ * Close the menu when clicking anywhere outside it.
+ */
+
+document.addEventListener("click",function(event){
+
+    const brand=document.querySelector(".brand");
+    const menu=document.getElementById("appMenu");
+
+    if(!brand || !menu){
+        return;
+    }
+
+    if(
+        !brand.contains(event.target) &&
+        !menu.contains(event.target)
+    ){
+
+        closeMenu();
+
+    }
+
+});
+    
 /* =====================================================
    ESCAPE
 ===================================================== */
