@@ -4613,83 +4613,89 @@ function resetShipInactivity(){
 function openFeaturedGame(){
 
 console.log("[OBVYRIS] Opening featured game");
-iframe.style.height =
+gameIframe.setAttribute(
+    "allowfullscreen",
+    ""
+);
+
+
+
+
+gameIframe.style.width =
     "100%";
 
 
 
 
-iframe.style.border =
+gameIframe.style.height =
+    "100%";
+
+
+
+
+gameIframe.style.border =
     "0";
 
 
 
 
-iframe.style.display =
+gameIframe.style.display =
     "block";
 
 
 
 
-iframe.style.background =
+gameIframe.style.background =
     "#000";
 
 
 
 
 /*
-=================================
-IFRAME LOADED
-=================================
+Emulator loaded
 */
 
 
-iframe.onload =
-function(){
+gameIframe.onload =
+    function(){
 
 
-    console.log(
-        "[OBVYRIS] Emulator loaded:",
-        emulatorURL
-    );
+        console.log(
+            "[OBVYRIS] Emulator iframe loaded"
+        );
 
 
-};
+    };
 
 
 
 
 /*
-=================================
-IFRAME ERROR
-=================================
+Emulator failed
 */
 
 
-iframe.onerror =
-function(){
+gameIframe.onerror =
+    function(){
 
 
-    console.error(
-        "[OBVYRIS] Emulator iframe failed:",
-        emulatorURL
-    );
+        console.error(
+            "[OBVYRIS] Emulator iframe failed"
+        );
 
 
-    showGamePlayerMessage(
-        "The emulator page could not be loaded."
-    );
+        showGamePlayerMessage(
+            "The emulator could not be loaded."
+        );
 
 
-};
+    };
 
 
 
 
 /*
-=================================
-INSERT EMULATOR
-=================================
+Insert emulator
 */
 
 
@@ -4697,11 +4703,12 @@ player.innerHTML = "";
 
 
 player.appendChild(
-    iframe
+    gameIframe
 );
 
 }
 
+ 
 function closeFeaturedGame(){
 
 const modal =
