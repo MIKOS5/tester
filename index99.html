@@ -4613,98 +4613,91 @@ function resetShipInactivity(){
 function openFeaturedGame(){
 
 console.log("[OBVYRIS] Opening featured game");
-gameIframe.setAttribute(
-    "allowfullscreen",
-    ""
+
+
+const game = currentFeaturedGame;
+
+
+if(!game){
+
+
+    console.error(
+        "[OBVYRIS] No current featured game"
+    );
+
+
+    return;
+}
+
+
+
+
+const title =
+    game.Title ||
+    game.title ||
+    game.Name ||
+    game.name ||
+    "Obvyris Game";
+
+
+
+
+const romURL =
+    game.ROMURL ||
+    game.romURL ||
+    game.RomURL ||
+    "";
+
+
+
+
+const core =
+    game.EmulatorCore ||
+    game.emulatorCore ||
+    game.Core ||
+    game.core ||
+    "";
+
+
+
+
+console.log(
+    "[OBVYRIS] Game:",
+    game
 );
 
 
 
 
-gameIframe.style.width =
-    "100%";
-
-
-
-
-gameIframe.style.height =
-    "100%";
-
-
-
-
-gameIframe.style.border =
-    "0";
-
-
-
-
-gameIframe.style.display =
-    "block";
-
-
-
-
-gameIframe.style.background =
-    "#000";
-
-
-
-
-/*
-Emulator loaded
-*/
-
-
-gameIframe.onload =
-    function(){
-
-
-        console.log(
-            "[OBVYRIS] Emulator iframe loaded"
-        );
-
-
-    };
-
-
-
-
-/*
-Emulator failed
-*/
-
-
-gameIframe.onerror =
-    function(){
-
-
-        console.error(
-            "[OBVYRIS] Emulator iframe failed"
-        );
-
-
-        showGamePlayerMessage(
-            "The emulator could not be loaded."
-        );
-
-
-    };
-
-
-
-
-/*
-Insert emulator
-*/
-
-
-player.innerHTML = "";
-
-
-player.appendChild(
-    gameIframe
+console.log(
+    "[OBVYRIS] Title:",
+    title
 );
+
+
+
+
+console.log(
+    "[OBVYRIS] ROM:",
+    romURL
+);
+
+
+
+
+console.log(
+    "[OBVYRIS] Core:",
+    core
+);
+
+
+
+
+if(!romURL){
+
+
+    console.error(
+        "[OBVYRIS] No ROM URL"
 
 }
 
