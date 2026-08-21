@@ -2049,7 +2049,47 @@ padding:7px 8px;
 }
 
 
+#shipDataBeam {
+    position: fixed;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #27b7ff;
+    box-shadow:
+        0 0 8px #27b7ff,
+        0 0 18px #27b7ff,
+        0 0 35px #27b7ff;
+    pointer-events: none;
+    display: none;
+    z-index: 99998;
+}
 
+.shipDataWave {
+    position: fixed;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #27b7ff;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 99997;
+    animation: shipDataWave 900ms ease-out forwards;
+}
+
+@keyframes shipDataWave {
+
+    0% {
+        transform: translate(-50%, -50%) scale(.2);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(4);
+        opacity: 0;
+    }
+
+}
+
+ 
 /* TABLETS */
 
 @media(min-width:701px) and (max-width:1024px){
@@ -2621,7 +2661,7 @@ id="obvyrisShip"
 src="https://mikos5.github.io/tester/Oship.png"
 alt=""
 >
-
+<div id="shipDataBeam"></div>
 <header class="header">
 
  
@@ -4904,9 +4944,10 @@ LAUNCH SHIP
 
 function launchObvyrisShip(){
 
-
     /*
-    Random chance.
+    =================================
+    RANDOM CHANCE
+    =================================
 
     85% = ship appears
     15% = nothing happens
@@ -4930,32 +4971,52 @@ function launchObvyrisShip(){
     const directions = [
 
         "left",
-
         "right",
-
         "top",
-
         "bottom",
-
-        "diagonal"
+        "diagonal",
+        "data"
 
     ];
 
 
     /*
-    Mobile uses horizontal
-    directions more often.
+    =================================
+    SELECT DIRECTION
+    =================================
     */
 
     let direction;
 
 
+    /*
+    Mobile normally uses horizontal
+    flight patterns.
+
+    Allow the DATA pattern on mobile
+    too, but keep it less frequent.
+    */
+
     if(window.innerWidth <= 700){
 
-        direction =
-            Math.random() < .5
-            ? "left"
-            : "right";
+        const mobileRoll =
+            Math.random();
+
+        if(mobileRoll < 0.20){
+
+            direction = "data";
+
+        }
+        else if(mobileRoll < 0.60){
+
+            direction = "left";
+
+        }
+        else{
+
+            direction = "right";
+
+        }
 
     }
 
@@ -4974,16 +5035,40 @@ function launchObvyrisShip(){
 
     /*
     =================================
+    DATA FLIGHT
+    =================================
+
+    Handle this separately because
+    it uses the actual Hub logo
+    position rather than a fixed
+    CSS keyframe path.
+    */
+
+    if(direction === "data"){
+
+        launchShipDataFlight();
+
+        return;
+
+    }
+
+
+    /*
+    =================================
     RANDOM SPEED
     =================================
 
-    5–10 seconds
+    1.25–2.25 seconds
+
+    Your original comment said
+    5–10 seconds, but the original
+    calculation was actually 1.25–2.25.
     */
 
     const duration =
-    Math.floor(
-        Math.random() * 1001
-    ) + 1250;
+        Math.floor(
+            Math.random() * 1001
+        ) + 1250;
 
 
     /*
@@ -5047,6 +5132,9 @@ function launchObvyrisShip(){
     RESET
     =================================
     */
+
+    clearTimeout(shipTimer);
+
 
     obvyrisShip.style.animation =
         "none";
@@ -5207,12 +5295,8 @@ function launchObvyrisShip(){
     =================================
     */
 
-    clearTimeout(shipTimer);
-
-
     shipTimer =
         setTimeout(() => {
-
 
             obvyrisShip.style.display =
                 "none";
@@ -5235,6 +5319,576 @@ function launchObvyrisShip(){
 
 
         }, duration + 500);
+
+}
+
+
+/* =================================
+   SHIP → HUB DATA FLIGHT
+================================= */
+
+function launchShipDataFlight(){
+
+    clearTimeout(shipTimer);
+
+
+    const ship =
+        document.getElementById(
+            "obvyrisShip"
+        );
+
+
+    const logo =
+        document.querySelector(
+            ".logo"
+        );
+
+
+    const beam =
+        document.getElementById(
+            "shipDataBeam"
+        );
+
+
+    /*
+    =================================
+    SAFETY CHECK
+    =================================
+    */
+
+    if(!ship || !logo){
+
+        resetShipInactivity();
+
+        return;
+
+    }
+
+
+    /*
+    =================================
+    LOGO POSITION
+    =================================
+    */
+
+    const logoRect =
+        logo.getBoundingClientRect();
+
+
+    const targetX =
+        logoRect.left +
+        logoRect.width / 2;
+
+
+    const targetY =
+        logoRect.top +
+        logoRect.height / 2;
+
+
+    /*
+    =================================
+    RANDOM ENTRY SIDE
+    =================================
+    */
+
+    const fromLeft =
+        Math.random() < 0.5;
+
+
+    const startX =
+        fromLeft
+        ? -180
+        : window.innerWidth + 180;
+
+
+    const startY =
+        Math.floor(
+            Math.random() *
+            window.innerHeight
+        );
+
+
+    /*
+    =================================
+    SHIP SIZE
+    =================================
+    */
+
+    const size =
+        window.innerWidth <= 700
+        ? 65
+        : 105;
+
+
+    ship.style.width =
+        size + "px";
+
+
+    ship.style.opacity =
+        "1";
+
+
+    ship.style.display =
+        "block";
+
+
+    ship.style.animation =
+        "none";
+
+
+    /*
+    =================================
+    INITIAL POSITION
+    =================================
+    */
+
+    ship.style.left =
+        startX + "px";
+
+
+    ship.style.top =
+        startY + "px";
+
+
+    ship.style.transform =
+        fromLeft
+        ? "translateY(-50%)"
+        : "translateY(-50%) rotate(180deg)";
+
+
+    /*
+    Force position update
+    */
+
+    void ship.offsetWidth;
+
+
+    /*
+    =================================
+    FLIGHT TIMING
+    =================================
+
+    0–45%
+        Fly toward logo
+
+    45–55%
+        Approach
+
+    55–75%
+        Data transfer
+
+    75–100%
+        Fly away
+    */
+
+    const flightDuration =
+        window.innerWidth <= 700
+        ? 6500
+        : 7500;
+
+
+    /*
+    =================================
+    CREATE FLIGHT
+    =================================
+    */
+
+    const animation =
+        ship.animate(
+
+            [
+
+                /*
+                ENTRY
+                */
+
+                {
+                    left:
+                        startX + "px",
+
+                    top:
+                        startY + "px",
+
+                    transform:
+                        fromLeft
+                        ? "translateY(-50%)"
+                        : "translateY(-50%) rotate(180deg)",
+
+                    offset: 0
+
+                },
+
+
+                /*
+                APPROACH
+                */
+
+                {
+                    left:
+                        (targetX -
+                        (fromLeft ? 220 : -220)) +
+                        "px",
+
+                    top:
+                        (targetY - 120) +
+                        "px",
+
+                    transform:
+                        fromLeft
+                        ? "translateY(-50%) rotate(-8deg)"
+                        : "translateY(-50%) rotate(172deg)",
+
+                    offset: .42
+
+                },
+
+
+                /*
+                SLOW DOWN
+                */
+
+                {
+                    left:
+                        (targetX -
+                        (fromLeft ? 90 : -90)) +
+                        "px",
+
+                    top:
+                        (targetY - 35) +
+                        "px",
+
+                    transform:
+                        fromLeft
+                        ? "translateY(-50%) rotate(-3deg)"
+                        : "translateY(-50%) rotate(177deg)",
+
+                    offset: .52
+
+                },
+
+
+                /*
+                DATA POSITION
+                */
+
+                {
+                    left:
+                        (targetX -
+                        (fromLeft ? 45 : -45)) +
+                        "px",
+
+                    top:
+                        (targetY - 5) +
+                        "px",
+
+                    transform:
+                        fromLeft
+                        ? "translateY(-50%) rotate(0deg)"
+                        : "translateY(-50%) rotate(180deg)",
+
+                    offset: .58
+
+                },
+
+
+                /*
+                WAVE 1
+                */
+
+                {
+                    left:
+                        (targetX -
+                        (fromLeft ? 65 : -65)) +
+                        "px",
+
+                    top:
+                        (targetY - 25) +
+                        "px",
+
+                    transform:
+                        fromLeft
+                        ? "translateY(-50%) rotate(-8deg)"
+                        : "translateY(-50%) rotate(172deg)",
+
+                    offset: .64
+
+                },
+
+
+                /*
+                WAVE 2
+                */
+
+                {
+                    left:
+                        (targetX -
+                        (fromLeft ? 25 : -25)) +
+                        "px",
+
+                    top:
+                        (targetY + 20) +
+                        "px",
+
+                    transform:
+                        fromLeft
+                        ? "translateY(-50%) rotate(8deg)"
+                        : "translateY(-50%) rotate(188deg)",
+
+                    offset: .70
+
+                },
+
+
+                /*
+                WAVE 3
+                */
+
+                {
+                    left:
+                        (targetX -
+                        (fromLeft ? 55 : -55)) +
+                        "px",
+
+                    top:
+                        (targetY - 10) +
+                        "px",
+
+                    transform:
+                        fromLeft
+                        ? "translateY(-50%) rotate(-4deg)"
+                        : "translateY(-50%) rotate(176deg)",
+
+                    offset: .75
+
+                },
+
+
+                /*
+                DEPARTURE
+                */
+
+                {
+                    left:
+                        (
+                            fromLeft
+                            ? window.innerWidth + 220
+                            : -220
+                        ) + "px",
+
+                    top:
+                        (
+                            targetY - 120
+                        ) + "px",
+
+                    transform:
+                        fromLeft
+                        ? "translateY(-50%) rotate(5deg)"
+                        : "translateY(-50%) rotate(185deg)",
+
+                    offset: 1
+
+                }
+
+            ],
+
+            {
+
+                duration:
+                    flightDuration,
+
+                easing:
+                    "ease-in-out",
+
+                fill:
+                    "forwards"
+
+            }
+
+        );
+
+
+    /*
+    =================================
+    DATA TRANSMISSION
+    =================================
+    */
+
+    let waveTimer = null;
+
+
+    /*
+    Start transmitting when the
+    ship reaches the logo.
+    */
+
+    setTimeout(() => {
+
+        startShipDataTransmission(
+            targetX,
+            targetY,
+            beam
+        );
+
+    }, flightDuration * .55);
+
+
+    /*
+    =================================
+    CLEANUP
+    =================================
+    */
+
+    shipTimer =
+        setTimeout(() => {
+
+            if(waveTimer){
+
+                clearInterval(
+                    waveTimer
+                );
+
+            }
+
+
+            stopShipDataTransmission(
+                beam
+            );
+
+
+            ship.style.display =
+                "none";
+
+
+            ship.style.animation =
+                "none";
+
+
+            ship.style.opacity =
+                "1";
+
+
+            resetShipInactivity();
+
+
+        }, flightDuration + 300);
+
+}
+
+
+/* =================================
+   DATA TRANSMISSION
+================================= */
+
+function startShipDataTransmission(
+    targetX,
+    targetY,
+    beam
+){
+
+    if(beam){
+
+        beam.style.display =
+            "block";
+
+    }
+
+
+    /*
+    Create repeated data pulses.
+    */
+
+    const timer =
+        setInterval(() => {
+
+            createShipDataWave(
+                targetX,
+                targetY
+            );
+
+        }, 280);
+
+
+    /*
+    Stop after the transfer period.
+    */
+
+    setTimeout(() => {
+
+        clearInterval(timer);
+
+        stopShipDataTransmission(
+            beam
+        );
+
+    }, 1450);
+
+}
+
+
+/* =================================
+   STOP DATA TRANSMISSION
+================================= */
+
+function stopShipDataTransmission(
+    beam
+){
+
+    if(beam){
+
+        beam.style.display =
+            "none";
+
+    }
+
+
+    document
+        .querySelectorAll(
+            ".shipDataWave"
+        )
+        .forEach(
+            wave => wave.remove()
+        );
+
+}
+
+
+/* =================================
+   CREATE DATA WAVE
+================================= */
+
+function createShipDataWave(
+    x,
+    y
+){
+
+    const wave =
+        document.createElement(
+            "div"
+        );
+
+
+    wave.className =
+        "shipDataWave";
+
+
+    wave.style.left =
+        x + "px";
+
+
+    wave.style.top =
+        y + "px";
+
+
+    document.body.appendChild(
+        wave
+    );
+
+
+    setTimeout(() => {
+
+        wave.remove();
+
+    }, 1000);
 
 }
 
@@ -7605,6 +8259,277 @@ document.addEventListener(
     }
 );
 
+
+
+function launchShipDataFlight(){
+
+    const logo =
+        document.querySelector(".logo");
+
+    if(!logo){
+
+        launchObvyrisShip();
+
+        return;
+
+    }
+
+    const rect =
+        logo.getBoundingClientRect();
+
+    const targetX =
+        rect.left +
+        rect.width / 2;
+
+    const targetY =
+        rect.top +
+        rect.height / 2;
+
+
+    const startFromLeft =
+        Math.random() < .5;
+
+
+    const startX =
+        startFromLeft
+        ? -180
+        : window.innerWidth + 180;
+
+
+    const startY =
+        Math.random() *
+        window.innerHeight;
+
+
+    const ship =
+        obvyrisShip;
+
+
+    ship.style.display = "block";
+
+    ship.style.width =
+        window.innerWidth <= 700
+        ? "70px"
+        : "110px";
+
+    ship.style.left =
+        startX + "px";
+
+    ship.style.top =
+        startY + "px";
+
+    ship.style.animation =
+        "none";
+
+
+    void ship.offsetWidth;
+
+
+    const duration = 7000;
+
+
+    ship.animate(
+
+        [
+
+            {
+                left: startX + "px",
+                top: startY + "px",
+                transform:
+                    startFromLeft
+                    ? "translateY(-50%)"
+                    : "translateY(-50%) rotate(180deg)"
+            },
+
+            {
+                left:
+                    (targetX - 180) + "px",
+
+                top:
+                    (targetY - 100) + "px",
+
+                transform:
+                    startFromLeft
+                    ? "translateY(-50%) rotate(-10deg)"
+                    : "translateY(-50%) rotate(170deg)",
+
+                offset: .55
+            },
+
+            {
+                left:
+                    (targetX - 70) + "px",
+
+                top:
+                    (targetY - 20) + "px",
+
+                transform:
+                    "translateY(-50%) rotate(0deg)",
+
+                offset: .65
+            },
+
+            {
+                left:
+                    (targetX + 40) + "px",
+
+                top:
+                    (targetY + 15) + "px",
+
+                transform:
+                    "translateY(-50%) rotate(8deg)",
+
+                offset: .72
+            },
+
+            {
+                left:
+                    (targetX - 40) + "px",
+
+                top:
+                    (targetY - 20) + "px",
+
+                transform:
+                    "translateY(-50%) rotate(-8deg)",
+
+                offset: .78
+            },
+
+            {
+                left:
+                    (targetX + 30) + "px",
+
+                top:
+                    (targetY + 10) + "px",
+
+                transform:
+                    "translateY(-50%) rotate(5deg)",
+
+                offset: .84
+            },
+
+            {
+                left:
+                    startFromLeft
+                    ? window.innerWidth + 200
+                    : -200,
+
+                top:
+                    startY + "px",
+
+                transform:
+                    startFromLeft
+                    ? "translateY(-50%) rotate(0deg)"
+                    : "translateY(-50%) rotate(180deg)"
+            }
+
+        ],
+
+        {
+
+            duration: duration,
+
+            easing: "ease-in-out",
+
+            fill: "forwards"
+
+        }
+
+    );
+
+
+    /*
+    DATA TRANSMISSION
+    */
+
+    const beam =
+        document.getElementById(
+            "shipDataBeam"
+        );
+
+
+    if(beam){
+
+        beam.style.display =
+            "block";
+
+    }
+
+
+    /*
+    Send several data pulses
+    toward the logo.
+    */
+
+    const pulseTimer =
+        setInterval(() => {
+
+            createShipDataWave(
+                targetX,
+                targetY
+            );
+
+        }, 350);
+
+
+    setTimeout(() => {
+
+        clearInterval(pulseTimer);
+
+
+        if(beam){
+
+            beam.style.display =
+                "none";
+
+        }
+
+
+        ship.style.display =
+            "none";
+
+
+        ship.style.animation =
+            "none";
+
+
+        ship.style.opacity =
+            "1";
+
+
+        resetShipInactivity();
+
+    }, duration + 300);
+
+}
+
+function createShipDataWave(x, y){
+
+    const wave =
+        document.createElement("div");
+
+    wave.className =
+        "shipDataWave";
+
+    wave.style.left =
+        x + "px";
+
+    wave.style.top =
+        y + "px";
+
+
+    document.body.appendChild(
+        wave
+    );
+
+
+    setTimeout(() => {
+
+        wave.remove();
+
+    }, 1000);
+
+}
  
 /* =================================
    USE GPS LOCATION
