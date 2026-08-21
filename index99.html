@@ -4612,94 +4612,111 @@ function resetShipInactivity(){
 
 function openFeaturedGame(){
 
-const emulatorURL =
-iframe.src =
-    emulatorURL;
+    console.log("[OBVYRIS] Opening featured game");
 
+    /*
+     * First try to use a real game object.
+     */
+    let game = window.featuredGame;
 
-iframe.width =
-    "100%";
+    /*
+     * If featuredGame is actually the HTML element,
+     * find the game in DATA.games using its displayed title.
+     */
+    if(
+        game &&
+        (
+            game instanceof HTMLElement ||
+            game.nodeType === 1
+        )
+    ){
 
+        const title =
+            String(
+                game.textContent ||
+                game.innerText ||
+                ""
+            ).trim();
 
-iframe.height =
-    "100%";
+        console.log(
+            "[OBVYRIS] Featured title:",
+            title
+        );
 
+        game = DATA.games.find(function(item){
 
-iframe.style.width =
-    "100%";
+            return String(
+                item.Title || ""
+            ).trim().toLowerCase() ===
+            title.toLowerCase();
 
+        });
 
-iframe.style.height =
-    "100%";
+    }
 
+    /*
+     * If window.featuredGame is not a game object,
+     * try the featured title element directly.
+     */
+    if(
+        !game ||
+        typeof game !== "object" ||
+        !game.Title
+    ){
 
-iframe.style.border =
-    "0";
+        const featuredElement =
+            document.getElementById("featuredGame");
 
+        if(featuredElement){
 
-iframe.style.display =
-    "block";
+            const title =
+                String(
+                    featuredElement.textContent ||
+                    ""
+                ).trim();
 
+            game = DATA.games.find(function(item){
 
-iframe.style.background =
-    "#000";
+                return String(
+                    item.Title || ""
+                ).trim().toLowerCase() ===
+                title.toLowerCase();
 
+            });
 
-iframe.setAttribute(
-    "allow",
-    "autoplay; fullscreen; gamepad"
-);
+        }
 
+    }
 
-iframe.setAttribute(
-    "allowfullscreen",
-    ""
-);
+    /*
+     * Make sure we actually found the game.
+     */
+    if(!game){
 
+        console.error(
+            "[OBVYRIS] Featured game could not be found in DATA.games"
+        );
 
-iframe.onload =
-function(){
+        showPlayerMessage(
+            "Featured game is unavailable."
+        );
 
+        return;
+
+    }
 
     console.log(
-        "[OBVYRIS] Emulator loaded:",
-        emulatorURL
+        "[OBVYRIS] Featured game object:",
+        game
     );
 
-
-};
-
-
-iframe.onerror =
-function(){
-
-
-    console.error(
-        "[OBVYRIS] Emulator iframe failed:",
-        emulatorURL
-    );
-
-
-    showGamePlayerMessage(
-        "The emulator page could not be loaded."
-    );
-
-
-};
-
-
-container.innerHTML =
-    "";
-
-
-container.appendChild(
-    iframe
-);
-
-
-modal.classList.add(
-    "open"
-);
+    /*
+     * Use the SAME launch system as the normal game cards.
+     *
+     * This is important because startEmulator()
+     * already builds the correct emulator.html URL.
+     */
+    launchGame(game);
 
 }
 
@@ -4743,7 +4760,79 @@ modal.classList.remove(
 
 }
 
+function startEmulator(game){
 
+    const container = document.getElementById("game");
+
+    const romURL = String(game.ROMURL || "").trim();
+    const core = String(game.EmulatorCore || "").trim();
+    const title = String(game.Title || "Obvyris Game").trim();
+
+    if(!romURL){
+        showPlayerMessage("No ROM URL was supplied.");
+        return;
+    }
+
+    if(!core){
+        showPlayerMessage("No emulator core was supplied.");
+        return;
+    }
+
+    const emulatorURL =
+        "emulator.html" +
+        "?rom=" +
+        encodeURIComponent(romURL) +
+        "&core=" +
+        encodeURIComponent(core) +
+        "&title=" +
+        encodeURIComponent(title);
+
+    console.log("[OBVYRIS] Emulator:", core);
+    console.log("[OBVYRIS] ROM:", romURL);
+    console.log("[OBVYRIS] Emulator URL:", emulatorURL);
+
+    const iframe = document.createElement("iframe");
+
+    iframe.src = emulatorURL;
+
+    iframe.title = title + " Emulator";
+
+    iframe.allow =
+        "fullscreen; autoplay; gamepad";
+
+    iframe.style.width = "100%";
+    iframe.style.height = "100%";
+    iframe.style.border = "0";
+    iframe.style.display = "block";
+    iframe.style.background = "#000";
+
+    iframe.onload = function(){
+
+        console.log(
+            "[OBVYRIS] Emulator loaded:",
+            emulatorURL
+        );
+
+    };
+
+    iframe.onerror = function(){
+
+        console.error(
+            "[OBVYRIS] Emulator iframe failed:",
+            emulatorURL
+        );
+
+        showPlayerMessage(
+            "The emulator page could not be loaded."
+        );
+
+    };
+
+    container.innerHTML = "";
+
+    container.appendChild(iframe);
+}
+ 
 function showGamePlayerMessage(text){
 
 const player =
