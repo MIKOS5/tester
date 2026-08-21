@@ -1660,6 +1660,37 @@ padding:0 10px;
 
 }
 
+
+.gamePlayButton{
+margin-top:15px;
+width:100%;
+padding:12px 16px;
+border-radius:14px;
+border:1px solid rgba(39,147,255,.45);
+background:
+linear-gradient(
+145deg,
+rgba(39,147,255,.3),
+rgba(24,105,217,.55)
+);
+color:white;
+font-size:14px;
+font-weight:800;
+cursor:pointer;
+transition:.25s;
+}
+
+.gamePlayButton:hover{
+border-color:#4db3ff;
+box-shadow:
+0 10px 25px rgba(39,147,255,.25);
+transform:translateY(-2px);
+}
+
+.gamePlayButton:active{
+transform:scale(.97);
+}
+ 
 /* =================================
    WEATHER HUB BAR
 ================================= */
@@ -2828,7 +2859,16 @@ border-radius:12px;
 display:none;
 ">
 
+<button
+type="button"
+class="gamePlayButton"
+id="featuredGamePlay"
+onclick="openFeaturedGame()"
 
+🎮 Play Featured Game
+
+</button>
+ 
 </div>
 
 
@@ -4206,6 +4246,103 @@ function resetShipInactivity(){
 
 }
 
+
+function openFeaturedGame(){
+
+if(!currentFeaturedGame){
+
+
+    return;
+
+
+}
+
+
+const game =
+    currentFeaturedGame;
+
+
+const params =
+    new URLSearchParams();
+
+
+
+
+const gameId =
+    game.GameID ||
+    game.gameId ||
+    game.ID ||
+    game.id ||
+    "";
+
+
+
+
+const title =
+    game.Title ||
+    game.title ||
+    game.Name ||
+    game.name ||
+    "";
+
+
+
+
+const platform =
+    game.Platform ||
+    game.platform ||
+    "";
+
+
+
+
+if(gameId){
+
+
+    params.set(
+        "id",
+        gameId
+    );
+
+
+}
+
+
+
+
+if(title){
+
+
+    params.set(
+        "title",
+        title
+    );
+
+
+}
+
+
+
+
+if(platform){
+
+
+    params.set(
+        "platform",
+        platform
+    );
+
+
+}
+
+
+
+
+window.location.href =
+    "emulator.html?" +
+    params.toString();
+
+}
 
 /*
 =================================
