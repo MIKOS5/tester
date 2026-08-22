@@ -1,114 +1,93 @@
-<html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width,initial-scale=1"> <title>OBVYRIS // OFFWORLD</title> <style> @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&display=swap'); *{ box-sizing:border-box; } html, body{ margin:0; min-height:100%; background:#020308; color:#d9faff; font-family:Orbitron,sans-serif; overflow-x:hidden; } body{ background: radial-gradient( circle at 50% 35%, rgba(31,110,130,.18), transparent 35% ), radial-gradient( circle at 20% 80%, rgba(94,32,160,.12), transparent 35% ), #020308; } /* ================================ SPACE ================================ */ #space{ position:fixed; inset:0; overflow:hidden; pointer-events:none; } .star{ position:absolute; width:2px; height:2px; background:white; border-radius:50%; opacity:.7; animation: starMove linear infinite; } @keyframes starMove{ from{ transform:translateZ(0) scale(.5); } to{ transform: translateZ(0) scale(2); } } /* ================================ PLANET ================================ */ #planet{ position:fixed; width:55vw; height:55vw; max-width:650px; max-height:650px; min-width:280px; min-height:280px; border-radius:50%; right:-15vw; bottom:-25vw; background: radial-gradient( circle at 35% 30%, #3b8c8b, #183d4b 35%, #07131c 70%, #020308 ); box-shadow: inset -50px -30px 80px #000, 0 0 100px rgba(35,190,220,.18); opacity:.75; animation: planetRotate 80s linear infinite; } @keyframes planetRotate{ from{ transform:rotate(0deg); } to{ transform:rotate(360deg); } } /* ================================ MAIN ================================ */ #interface{ position:relative; z-index:5; min-height:100vh; padding:25px; display:flex; flex-direction:column; } /* ================================ TOP BAR ================================ */ .topbar{ display:flex; justify-content:space-between; align-items:center; gap:15px; padding:14px 18px; border: 1px solid rgba(87,225,255,.3); background: rgba(2,7,12,.75); backdrop-filter: blur(12px); box-shadow: 0 0 25px rgba(0,200,255,.08); } .system{ font-size:13px; color:#62eaff; letter-spacing:2px; } .status{ color:#7cff9b; font-size:11px; } /* ================================ SHIP WINDOW ================================ */ .window{ margin:25px auto; width:min(1200px,100%); height:330px; position:relative; overflow:hidden; border-radius:20px; border: 1px solid rgba(102,225,255,.5); background: radial-gradient( circle at center, rgba(26,91,120,.18), #010205 70% ); box-shadow: inset 0 0 80px #000, 0 0 50px rgba(0,190,255,.1); } /* window frame */ .window:before{ content:""; position:absolute; inset:0; border: 25px solid rgba(0,0,0,.65); border-radius:20px; z-index:10; pointer-events:none; } /* glass reflections */ .window:after{ content:""; position:absolute; inset:0; background: linear-gradient( 120deg, transparent 40%, rgba(255,255,255,.04) 50%, transparent 60% ); pointer-events:none; } #spaceView{ position:absolute; inset:0; } /* ================================ ALIEN SIGNAL ================================ */ .signal{ position:absolute; left:50%; top:50%; transform: translate(-50%,-50%); text-align:center; opacity:.8; } .signalSymbol{ font-size:55px; color:#63eaff; text-shadow: 0 0 20px #00eaff, 0 0 50px #00aaff; animation: signalPulse 2s infinite; } @keyframes signalPulse{ 0%,100%{ opacity:.35; transform:scale(.95); } 50%{ opacity:1; transform:scale(1.05); } } /* ================================ DATA AREA ================================ */ .grid{ width:min(1200px,100%); margin:auto; display:grid; grid-template-columns: 1fr 1fr; gap:20px; } .panel{ background: rgba(3,9,15,.82); border: 1px solid rgba(73,214,255,.25); padding:22px; box-shadow: 0 0 30px rgba(0,200,255,.05); } .panelTitle{ color:#60e8ff; font-size:12px; letter-spacing:2px; margin-bottom:18px; border-bottom: 1px solid rgba(96,232,255,.15); padding-bottom:10px; } .telemetry{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; } .telemetry div{ padding:12px; background: rgba(255,255,255,.025); border-left: 2px solid #287f96; } .telemetry span{ display:block; font-size:9px; color:#657f8c; margin-bottom:5px; } .telemetry strong{ font-size:13px; color:#c9f8ff; } /* ================================ ALIEN TEXT ================================ */ .alienText{ font-family:monospace; font-size:17px; line-height:1.8; color:#72edff; min-height:120px; text-shadow: 0 0 10px rgba(0,220,255,.4); } .translation{ margin-top:15px; color:#8b9da5; font-family:Arial,sans-serif; font-size:13px; line-height:1.6; } /* ================================ MEMORY ================================ */ .memory{ grid-column:1/-1; } .memoryTitle{ color:white; font-size:22px; margin-bottom:8px; } .memoryMeta{ color:#61dfff; font-size:10px; margin-bottom:18px; } .memoryText{ max-height:260px; overflow:auto; padding:18px; background:#02060a; border: 1px solid rgba(255,255,255,.08); font-family:Arial,sans-serif; color:#b9c9cf; line-height:1.7; } .memoryText::-webkit-scrollbar{ width:5px; } .memoryText::-webkit-scrollbar-thumb{ background:#236a7b; } /* ================================ BUTTONS ================================ */ .actions{ display:flex; gap:10px; flex-wrap:wrap; margin-top:18px; } button{ background:#082d3a; color:#7beaff; border: 1px solid #1c839c; padding:12px 18px; border-radius:7px; cursor:pointer; font-family:Orbitron,sans-serif; font-size:11px; transition:.2s; } button:hover{ background:#0d5063; box-shadow: 0 0 15px rgba(0,220,255,.25); } button.danger{ border-color:#8c304e; color:#ff7099; } /* ================================ CONSOLE ================================ */ .console{ margin-top:20px; background:#000; border: 1px solid #183642; padding:15px; height:130px; overflow:auto; font-family:monospace; font-size:11px; color:#54e5a0; } .console div{ margin-bottom:5px; } /* ================================ FOOTER ================================ */ .footer{ text-align:center; padding:35px 10px; color:#344d56; font-size:9px; letter-spacing:2px; } /* ================================ MOBILE ================================ */ @media(max-width:700px){ #interface{ padding:12px; } .window{ height:250px; } .grid{ grid-template-columns:1fr; } .memory{ grid-column:auto; } .telemetry{ grid-template-columns:1fr 1fr; } .topbar{ flex-direction:column; align-items:flex-start; } } </style> </head> <body> <div id="space"></div> <div id="planet"></div> <div id="interface">
-<div class="topbar">
+<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8">
 
+<meta
+name="viewport"
+content="width=device-width,initial-scale=1.0"
 
-            <button onclick="decodeSignal()">
-                DECODE SIGNAL
-            </button>
+<title> OBVYRIS // OFFWORLD </title> <style> @import url( 'https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&display=swap' ); *{ box-sizing:border-box; } html, body{ margin:0; width:100%; height:100%; overflow:hidden; background:#02040a; color:#dcecff; font-family: 'Orbitron', sans-serif; } /* ================================================= SPACE ================================================= */ .space{ position:fixed; inset:0; overflow:hidden; background: radial-gradient( ellipse at 50% 45%, rgba(72,35,130,.25), transparent 35% ), radial-gradient( ellipse at 20% 80%, rgba(20,80,150,.18), transparent 40% ), #02040a; } .stars{ position:absolute; inset:-100%; background-image: radial-gradient( white 1px, transparent 1px ); background-size: 90px 90px; opacity:.7; animation: starTravel 18s linear infinite; } .stars.two{ background-size: 170px 170px; opacity:.35; animation-duration: 28s; } .stars.three{ background-size: 260px 260px; opacity:.2; animation-duration: 40s; } @keyframes starTravel{ from{ transform: translate3d( 0, 0, 0 ) scale(1); } to{ transform: translate3d( 0, 700px, 0 ) scale(1.25); } } /* ================================================= DISTANT DESTINATION ================================================= */ .destination{ position:absolute; left:50%; top:43%; transform: translate(-50%,-50%); width:340px; height:340px; border-radius:50%; background: radial-gradient( circle at 35% 30%, #c9a9ff, #7041a8 25%, #26133f 55%, #080512 78% ); box-shadow: 0 0 30px #9b5cff, 0 0 90px rgba(126,55,255,.7), 0 0 180px rgba(92,30,200,.4); animation: destinationFloat 7s ease-in-out infinite; } .destination:before{ content:""; position:absolute; inset:-80px; border-radius:50%; border: 1px solid rgba(171,109,255,.3); box-shadow: 0 0 50px rgba(150,80,255,.2); animation: rotateRing 20s linear infinite; } .destination:after{ content:""; position:absolute; width:600px; height:2px; left:-130px; top:50%; background: linear-gradient( 90deg, transparent, rgba(167,106,255,.6), transparent ); transform: rotate(-12deg); } @keyframes destinationFloat{ 0%, 100%{ transform: translate(-50%,-50%) scale(1); } 50%{ transform: translate(-50%,-54%) scale(1.04); } } @keyframes rotateRing{ from{ transform: rotate(0deg); } to{ transform: rotate(360deg); } } /* ================================================= SHIP WINDOW ================================================= */ .window{ position:absolute; left:50%; top:50%; transform: translate(-50%,-50%); width:min( 900px, 92vw ); height:min( 650px, 88vh ); border: 2px solid rgba(112,184,255,.45); border-radius:50%; box-shadow: inset 0 0 80px rgba(0,0,0,.9), 0 0 40px rgba(45,125,255,.2); pointer-events:none; } /* ================================================= SHIP FRAME ================================================= */ .shipFrame{ position:fixed; inset:0; pointer-events:none; background: linear-gradient( 90deg, rgba(0,0,0,.9), transparent 18%, transparent 82%, rgba(0,0,0,.9) ), linear-gradient( 0deg, rgba(0,0,0,.95), transparent 20%, transparent 80%, rgba(0,0,0,.8) ); } /* ================================================= TOP HUD ================================================= */ .topHud{ position:fixed; top:0; left:0; right:0; height:58px; z-index:20; display:flex; align-items:center; justify-content:space-between; padding: 0 25px; background: rgba(2,5,12,.8); border-bottom: 1px solid rgba(78,160,255,.25); backdrop-filter: blur(8px); } .logo{ font-size:20px; font-weight:900; letter-spacing:4px; color:white; text-shadow: 0 0 15px #278fff; } .status{ font-size:11px; color:#69e5ff; letter-spacing:2px; } /* ================================================= LEFT COMPUTER ================================================= */ .computer{ position:fixed; left:25px; top:90px; width:290px; z-index:30; padding:18px; background: rgba(3,8,17,.85); border: 1px solid rgba(80,160,255,.35); border-radius:14px; box-shadow: 0 0 30px rgba(0,0,0,.7); backdrop-filter: blur(10px); } .computerTitle{ font-size:12px; letter-spacing:2px; color:#58d7ff; margin-bottom:15px; } .data{ font-family: monospace; font-size:11px; line-height:1.8; color:#8fa9c8; } .data strong{ color:#fff; } .progress{ height:4px; background:#101b2b; margin: 12px 0; overflow:hidden; } .progressBar{ width:72%; height:100%; background:#27b7ff; box-shadow: 0 0 10px #27b7ff; animation: scanProgress 4s ease-in-out infinite alternate; } @keyframes scanProgress{ from{ width:35%; } to{ width:96%; } } /* ================================================= RIGHT COMPUTER ================================================= */ .signal{ position:fixed; right:25px; top:90px; width:290px; z-index:30; padding:18px; background: rgba(3,8,17,.85); border: 1px solid rgba(160,80,255,.4); border-radius:14px; box-shadow: 0 0 30px rgba(0,0,0,.7); backdrop-filter: blur(10px); } .signalTitle{ font-size:12px; letter-spacing:2px; color:#c58cff; margin-bottom:12px; } .alien{ font-size:20px; line-height:1.8; color:#b67cff; word-break: break-all; text-shadow: 0 0 8px #7c35ff; } /* ================================================= BOTTOM CONSOLE ================================================= */ .console{ position:fixed; left:50%; bottom:20px; transform: translateX(-50%); z-index:40; width:min( 850px, 94vw ); padding:15px; background: rgba(2,6,13,.92); border: 1px solid rgba(90,170,255,.35); border-radius:15px; box-shadow: 0 0 40px rgba(0,0,0,.8); backdrop-filter: blur(10px); } .destinationName{ text-align:center; font-size:18px; font-weight:900; letter-spacing:3px; color:white; margin-bottom:5px; } .destinationSub{ text-align:center; font-size:10px; color:#7991ad; margin-bottom:14px; } .buttons{ display:flex; gap:8px; justify-content:center; flex-wrap:wrap; } button{ font-family: Orbitron, sans-serif; background: #101d32; border: 1px solid #28649a; color:#bde7ff; padding: 10px 14px; border-radius:8px; cursor:pointer; font-size:10px; letter-spacing:1px; } button:hover{ background:#173457; border-color:#55bfff; box-shadow: 0 0 15px rgba(50,170,255,.35); } button.danger{ border-color:#873caa; color:#d8a8ff; } button.danger:hover{ background:#301542; } /* ================================================= ALIEN OVERLAY ================================================= */ .alienScreen{ position:fixed; inset:0; z-index:100; display:none; align-items:center; justify-content:center; background: rgba(0,0,0,.88); backdrop-filter: blur(8px); } .alienPanel{ width:min( 800px, 90vw ); max-height: 80vh; overflow:auto; padding:30px; background: linear-gradient( 145deg, #080d19, #10091c ); border: 1px solid #7547b8; border-radius:20px; box-shadow: 0 0 60px rgba(110,50,200,.5); } .alienPanel h1{ color:#c58cff; font-size:22px; } .alienText{ font-family: monospace; font-size:13px; line-height:1.8; color:#9db4d0; white-space:pre-wrap; } /* ================================================= CHAPTER DATA ================================================= */ .chapterPanel{ position:fixed; inset:0; z-index:110; display:none; align-items:center; justify-content:center; background: rgba(0,0,0,.92); } .chapterInner{ width:min( 900px, 94vw ); height: 80vh; overflow:auto; padding:30px; background:#080d15; border: 1px solid #285b88; border-radius:18px; } .chapterInner h1{ color:#53c8ff; } .chapterText{ font-family: Arial, sans-serif; font-size:17px; line-height:1.8; color:#d8e4ef; } .character{ color:#7bcfff; font-family: Orbitron; font-weight:bold; margin-top:25px; } .close{ float:right; } /* ================================================= JUMP EFFECT ================================================= */ .jump{ position:fixed; inset:0; z-index:200; display:none; background:#fff; animation: jumpFlash 1.5s ease-out; } @keyframes jumpFlash{ 0%{ opacity:0; } 30%{ opacity:1; } 100%{ opacity:0; } } /* ================================================= MOBILE ================================================= */ @media(max-width:700px){ .computer, .signal{ display:none; } .destination{ width:220px; height:220px; } .console{ bottom:10px; } .logo{ font-size:15px; } .status{ font-size:8px; } } </style> </head> <body> <div class="space"> <div class="stars"></div> <div class="stars two"></div> <div class="stars three"></div> <div class="destination" id="destination" ></div> <div class="window"></div> </div> <div class="shipFrame"></div> <div class="topHud"> <div class="logo">
 
+OBVYRIS // OFFWORLD
 
-        </div>
+</div> <div class="status" id="flightStatus" >
 
+IN TRANSIT
 
-    </div>
+</div> </div> <div class="computer"> <div class="computerTitle">
 
+SHIP COMPUTER // NAVIGATION
 
+</div> <div class="data" id="navData" >
 
+INITIALIZING...
 
-    <div class="panel memory">
+</div> <div class="progress"> <div class="progressBar"></div> </div> <div class="data" id="computerStatus" >
 
+AWAITING TELEMETRY
 
-        <div class="panelTitle">
-            RECOVERED MEMORY
-        </div>
+</div> </div> <div class="signal"> <div class="signalTitle">
 
+UNKNOWN SIGNAL
 
-        <div
-            class="memoryTitle"
-            id="memoryTitle"
-        >
-            NO MEMORY SELECTED
-        </div>
+</div> <div class="alien" id="alienSignal" >
 
+⟟ ᚫ ◈ ϟ 𐌗 ◉
+<br>
+ᛝ ◇ ⟊ Ϟ 𐌂
+<br>
+◉ 𐌗 ⟟ ϟ ᚫ
+<br>
+⟊ ◈ ᛝ ◉ Ϟ
 
-        <div
-            class="memoryMeta"
-            id="memoryMeta"
-        >
-            WAITING FOR ARCHIVE SIGNAL
-        </div>
+</div> </div> <div class="console"> <div class="destinationName" id="destinationName" >
 
+SEARCHING...
 
-        <div
-            class="memoryText"
-            id="memoryText"
-        >
-            The system has detected a transmission originating from an unknown archive.
+</div> <div class="destinationSub" id="destinationSub" >
 
+ACQUIRING DESTINATION TELEMETRY
 
-            Memory extraction has not yet begun.
-        </div>
+</div> <div class="buttons"> <button onclick="scanDestination()">
 
+SCAN DESTINATION
 
-        <div class="actions">
+</button> <button onclick="decodeSignal()">
 
+DECODE SIGNAL
 
-            <button onclick="extractMemory()">
-                EXTRACT MEMORY
-            </button>
+</button> <button onclick="openMemory()">
 
+OPEN ARCHIVE MEMORY
 
-            <button onclick="openArchiveMemory()">
-                OPEN MEMORY
-            </button>
+</button>
 
+<button
+class="danger"
+onclick="jumpDestination()"
 
-            <button
-                class="danger"
-                onclick="returnToShip()"
-            >
-                RETURN TO SHIP
-            </button>
+JUMP DESTINATION
 
+</button> </div> </div> <div class="alienScreen" id="alienScreen" > <div class="alienPanel">
 
-        </div>
+<button
+class="close"
+onclick="closeAlien()"
 
+CLOSE
 
-    </div>
+</button> <h1>
 
+UNKNOWN COMMUNICATION
 
+</h1> <div class="alienText" id="alienText" ></div> </div> </div> <div class="chapterPanel" id="chapterPanel" > <div class="chapterInner">
 
+<button
+class="close"
+onclick="closeMemory()"
 
-    <div class="panel">
+CLOSE
 
+</button> <h1 id="chapterTitle">
 
-        <div class="panelTitle">
-            ALIEN CONSOLE
-        </div>
+ARCHIVE MEMORY
 
-
-        <div
-            class="console"
-            id="console"
-        ></div>
-
-
-    </div>
-
-
-
-
-</div>
-
-
-
-
-<div class="footer">
-
-
-    OBVYRIS OFFWORLD NODE // LOCATION UNKNOWN //
-    MEMORY NETWORK 00-NULL
-
-
-</div>
-</div> <script> /* ================================= OBVYRIS ARCHIVE CONNECTION ================================= */ const API_BASE = "https://script.google.com/macros/s/AKfycbwR9_-IIcd6yiJuQsrF9uDexBLTbYLw6sw2NlnFEGIlj83a6mY-K3x_F1czdIw3SEjX/exec"; const STORY_LIST_API = API_BASE + "?action=stories"; let chapters = []; let selectedMemory = null; /* ================================= STARS ================================= */ function createStars(){ const space = document.getElementById("space"); for(let i=0;i<180;i++){ const star = document.createElement("div"); star.className="star"; star.style.left = Math.random()*100+"%"; star.style.top = Math.random()*100+"%"; star.style.opacity = .2 + Math.random()*.8; star.style.animationDuration = (2 + Math.random()*8)+"s"; space.appendChild(star); } } createStars(); /* ================================= CONSOLE ================================= */ function log(message){ const consoleBox = document.getElementById("console"); const line = document.createElement("div"); const time = new Date() .toLocaleTimeString(); line.textContent = "["+time+"] "+message; consoleBox.appendChild(line); consoleBox.scrollTop = consoleBox.scrollHeight; } /* ================================= ALIEN DATA ================================= */ const alienMessages = [ "⟟∷⟁ 𐌗∷◈ ⟊𐌑∷", "𐌙∷⟁ 𐌑𐌗∷ 𐌚⟟◈", "⟁𐌑∷ 𐌗⟟𐌙∷", "◈∷⟁ 𐌚𐌑𐌗", "𐌗⟟∷𐌙 ⟁◈𐌑", "⟊𐌑𐌗∷ ⟁𐌙◈" ]; const translations = [ "Something is listening.", "The archive has crossed the boundary.", "Memory belongs to no world.", "You were not supposed to arrive here.", "The signal remembers you.", "Obvyris is not the origin point." ]; function randomSignal(){ const index = Math.floor( Math.random() * alienMessages.length ); document.getElementById( "alienText" ).textContent = alienMessages[index]; document.getElementById( "translation" ).textContent = translations[index]; } /* ================================= LOAD ARCHIVE ================================= */ async function loadArchive(){ log( "SEARCHING EXTERNAL MEMORY NETWORK..." ); try{ const response = await fetch( STORY_LIST_API + "&t=" + Date.now() ); const data = await response.json(); if( !data || data.status !== "success" || !Array.isArray(data.stories) ){ throw new Error( "Archive response invalid" ); } chapters = data.stories; document.getElementById( "status" ).textContent = "ARCHIVE SIGNAL ACQUIRED"; log( chapters.length + " MEMORY OBJECTS DETECTED" ); selectRandomMemory(); } catch(error){ console.error(error); document.getElementById( "status" ).textContent = "ARCHIVE SIGNAL LOST"; log( "MEMORY NETWORK CONNECTION FAILED" ); } } /* ================================= RANDOM MEMORY ================================= */ function selectRandomMemory(){ if(!chapters.length) return; const published = chapters.filter( item => !item.status || item.status === "Published" ); const source = published.length ? published : chapters; selectedMemory = source[ Math.floor( Math.random() * source.length ) ]; document.getElementById( "memoryTitle" ).textContent = selectedMemory.title || "UNKNOWN MEMORY"; document.getElementById( "memoryMeta" ).textContent = ( selectedMemory.storyId || "UNKNOWN-ID" ) + " // " + ( selectedMemory.chapter || "UNNUMBERED" ); document.getElementById( "memoryText" ).textContent = "MEMORY DETECTED.\n\n" + "Awaiting extraction."; log( "UNKNOWN MEMORY OBJECT SELECTED // " + ( selectedMemory.storyId || "UNKNOWN" ) ); } /* ================================= EXTRACT MEMORY ================================= */ async function extractMemory(){ if(!selectedMemory){ selectRandomMemory(); return; } log( "INITIATING MEMORY EXTRACTION..." ); document.getElementById( "memoryText" ).textContent = "EXTRACTING..."; try{ const response = await fetch( API_BASE + "?action=story&id=" + encodeURIComponent( selectedMemory.storyId ) + "&t=" + Date.now() ); const data = await response.json(); if( !data || data.status !== "success" ){ throw new Error( "Memory unavailable" ); } selectedMemory = data.story; document.getElementById( "memoryTitle" ).textContent = selectedMemory.title || "RECOVERED MEMORY"; document.getElementById( "memoryMeta" ).textContent = selectedMemory.storyId + " // MEMORY RECOVERED"; document.getElementById( "memoryText" ).textContent = selectedMemory.story || selectedMemory.text || "EMPTY MEMORY"; log( "MEMORY EXTRACTION COMPLETE" ); document.getElementById( "status" ).textContent = "MEMORY RECOVERED"; } catch(error){ log( "MEMORY EXTRACTION FAILED" ); document.getElementById( "memoryText" ).textContent = "The memory refused extraction."; } } /* ================================= OPEN ORIGINAL MEMORY ================================= */ function openArchiveMemory(){ if(!selectedMemory){ return; } /* Change this filename to your actual Archive HTML filename. */ window.location.href = "archive.html?id=" + encodeURIComponent( selectedMemory.storyId ); } /* ================================= WORLD SCAN ================================= */ function scanWorld(){ log( "SCANNING UNKNOWN PLANET..." ); document.getElementById( "atmosphere" ).textContent = "78% UNKNOWN"; document.getElementById( "world" ).textContent = "⟁-742"; document.getElementById( "sector" ).textContent = Math.floor( Math.random()*900 ) + ":" + Math.floor( Math.random()*999 ); document.getElementById( "orbit" ).textContent = "UNSTABLE"; document.getElementById( "threat" ).textContent = Math.random() > .7 ? "DETECTED" : "NONE"; log( "PLANETARY SCAN COMPLETE" ); } /* ================================= DECODE ================================= */ function decodeSignal(){ randomSignal(); log( "ALIEN TRANSMISSION PARTIALLY DECODED" ); } /* ================================= ALIEN CLOCK ================================= */ function updateAlienTime(){ const now = new Date(); const value = ( now.getHours()*97 + now.getMinutes()*13 + now.getSeconds() ) % 9999; document.getElementById( "alienTime" ).textContent = String(value) .padStart(4,"0"); } setInterval( updateAlienTime, 1000 ); updateAlienTime(); /* ================================= RETURN ================================= */ function returnToShip(){ window.history.back(); } /* ================================= INITIALIZATION ================================= */ randomSignal(); scanWorld(); loadArchive(); log( "OFFWORLD NODE INITIALIZED" ); log( "LOCAL COORDINATES UNKNOWN" ); log( "VESSEL CONNECTION: UNSTABLE" ); </script> </body> </html>
+</h1> <div class="chapterText" id="chapterText" ></div> </div> </div> <div class="jump" id="jump" ></div> <script> /* ================================================= OBVYRIS API ================================================= */ const API_BASE = "https://script.google.com/macros/s/AKfycbwR9_-IIcd6yiJuQsrF9uDexBLTbYLw6sw2NlnFEGIlj83a6mY-K3x_F1czdIw3SEjX/exec"; const STORY_LIST_API = API_BASE + "?action=stories"; const STORY_API = API_BASE + "?action=story&id="; /* ================================================= STATE ================================================= */ let chapters=[]; let currentDestination=null; /* ================================================= ALIEN SYMBOLS ================================================= */ const alienSymbols=[ "⟟", "ᚫ", "◈", "ϟ", "𐌗", "◉", "ᛝ", "◇", "⟊", "Ϟ", "𐌂", "⌬", "⊙", "⋔", "⟁", "𐍈" ]; function generateAlienSignal(){ let result=""; for(let i=0;i<30;i++){ result += alienSymbols[ Math.floor( Math.random() * alienSymbols.length ) ]; if(i%6===5){ result += "<br>"; } else{ result += " "; } } return result; } /* ================================================= LOAD ARCHIVE ================================================= */ async function loadArchive(){ try{ document.getElementById( "computerStatus" ).innerText = "CONNECTING TO ARCHIVE DATABASE"; const response = await fetch( STORY_LIST_API + "&t=" + Date.now(), { cache:"no-store" } ); const data = await response.json(); if( !data || data.status !== "success" || !Array.isArray(data.stories) ){ throw new Error( "Archive unavailable" ); } chapters = data.stories.filter( story => story && story.status === "Published" ); if(!chapters.length){ throw new Error( "No published memories" ); } selectDestination(); } catch(error){ console.error(error); document.getElementById( "computerStatus" ).innerText = "ARCHIVE CONNECTION FAILED"; document.getElementById( "destinationName" ).innerText = "UNKNOWN SPACE"; } } /* ================================================= SELECT DESTINATION ================================================= */ function selectDestination(){ currentDestination = chapters[ Math.floor( Math.random() * chapters.length ) ]; const story = currentDestination; const title = story.title || "UNKNOWN DESTINATION"; const chapter = story.chapter || "?"; document.getElementById( "destinationName" ).innerText = title .replace( "Episode Title:", "" ) .trim() .toUpperCase(); document.getElementById( "destinationSub" ).innerText = "OBVYRIS ARCHIVE // " + story.storyId + " // CHAPTER " + chapter; document.getElementById( "navData" ).innerHTML = "<strong>DESTINATION</strong><br>" + escapeHTML( title ) + "<br><br>" + "<strong>COORDINATE</strong><br>" + escapeHTML( story.storyId ) + "<br><br>" + "<strong>CHAPTER</strong><br>" + escapeHTML( String(chapter) ) + "<br><br>" + "<strong>ARCHIVE STATUS</strong><br>" + escapeHTML( story.status ); document.getElementById( "computerStatus" ).innerText = "DESTINATION TELEMETRY LOCKED"; document.getElementById( "flightStatus" ).innerText = "DESTINATION ACQUIRED"; document.getElementById( "alienSignal" ).innerHTML = generateAlienSignal(); } /* ================================================= SCAN ================================================= */ function scanDestination(){ if(!currentDestination) return; const text = currentDestination.story || ""; const characters = [ ...new Set( [ ...text.matchAll( /\[(.*?)\]/g ) ].map( match => match[1] ) ) ]; const words = text .trim() .split(/\s+/) .length; const anomalyList=[ "SUBSPACE RESONANCE", "UNKNOWN LIFEFORM", "NON-LINEAR TEMPORAL FIELD", "PRE-UNIVERSAL STRUCTURE", "UNKNOWN OBSERVER", "REALITY INSTABILITY", "EXTRADIMENSIONAL SIGNAL", "ARCHIVAL CONTAMINATION" ]; const anomaly = anomalyList[ Math.floor( Math.random() * anomalyList.length ) ]; document.getElementById( "computerStatus" ).innerHTML = "SCAN COMPLETE<br><br>" + "<strong>ANOMALY:</strong> " + anomaly + "<br>" + "<strong>CHARACTERS:</strong> " + characters.length + "<br>" + "<strong>TELEMETRY WORD COUNT:</strong> " + words + "<br>" + "<strong>ARCHIVE ID:</strong> " + currentDestination.storyId; } /* ================================================= DECODE ================================================= */ function decodeSignal(){ if(!currentDestination) return; const story = currentDestination.story || ""; const title = currentDestination.title || "UNKNOWN"; const characters = [ ...new Set( [ ...story.matchAll( /\[(.*?)\]/g ) ].map( match => match[1] ) ) ]; document.getElementById( "alienText" ).innerText = "TRANSLATION MATRIX ACTIVE\n\n" + "⟟ ϟ ◈ ᚫ 𐌗 ◉\n\n" + "ARCHIVE SIGNAL IDENTIFIED.\n\n" + "THE SIGNAL APPEARS TO BE\n" + "REFERENCING MEMORY NODE:\n\n" + currentDestination.storyId + "\n\n" + "DESIGNATION:\n" + title + "\n\n" + "OBSERVED ENTITIES:\n" + characters.join( "\n" ) + "\n\n" + "TRANSLATION CONFIDENCE:\n" + Math.floor( 55 + Math.random()*44 ) + "%\n\n" + "WARNING:\n" + "THE TRANSMISSION MAY NOT HAVE\n" + "ORIGINATED FROM THE DESTINATION.\n\n" + "IT MAY HAVE ORIGINATED FROM\n" + "THE OBSERVER."; document.getElementById( "alienScreen" ).style.display = "flex"; } /* ================================================= OPEN MEMORY ================================================= */ async function openMemory(){ if(!currentDestination) return; document.getElementById( "chapterPanel" ).style.display = "flex"; document.getElementById( "chapterTitle" ).innerText = "ACCESSING " + currentDestination.storyId; document.getElementById( "chapterText" ).innerHTML = "ACCESSING ARCHIVE MEMORY..."; try{ const response = await fetch( STORY_API + encodeURIComponent( currentDestination.storyId ) + "&t=" + Date.now() ); const data = await response.json(); if( !data || data.status !== "success" || !data.story ){ throw new Error( "Memory unavailable" ); } document.getElementById( "chapterTitle" ).innerText = data.story.title; document.getElementById( "chapterText" ).innerHTML = formatStory( data.story.story ); } catch(error){ document.getElementById( "chapterText" ).innerText = "MEMORY ACCESS ERROR\n\n" + error.message; } } /* ================================================= FORMAT STORY ================================================= */ function formatStory(text){ return String(text || "") .split("\n") .map( line => { if(!line.trim()){ return "<div style='height:18px'></div>"; } const tag = line.match( /^\[(.*?)\]/ ); if(tag){ return ` <div class="character"> ${escapeHTML(line)} </div> `; } return ` <div> ${escapeHTML(line)} </div> `; } ) .join(""); } /* ================================================= JUMP ================================================= */ function jumpDestination(){ if(!chapters.length) return; document.getElementById( "flightStatus" ).innerText = "JUMP INITIATED"; document.getElementById( "computerStatus" ).innerText = "SPACETIME CORRIDOR OPENING"; const jump = document.getElementById( "jump" ); jump.style.display = "block"; setTimeout( function(){ selectDestination(); jump.style.display = "none"; document.getElementById( "flightStatus" ).innerText = "DESTINATION ACQUIRED"; }, 1400 ); } /* ================================================= CLOSE WINDOWS ================================================= */ function closeAlien(){ document.getElementById( "alienScreen" ).style.display = "none"; } function closeMemory(){ document.getElementById( "chapterPanel" ).style.display = "none"; } /* ================================================= ESCAPE ================================================= */ function escapeHTML(value){ return String( value ?? "" ) .replace( /&/g, "&amp;" ) .replace( /</g, "&lt;" ) .replace( />/g, "&gt;" ) .replace( /"/g, "&quot;" ) .replace( /'/g, "&#039;" ); } /* ================================================= START ================================================= */ loadArchive(); </script> </body> </html>
