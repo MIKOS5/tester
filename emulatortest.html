@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"
+>
+
+<title>Games Obvyris</title>
+
+<link
+  href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Orbitron:wght@700;900&display=swap"
+  rel="stylesheet"
+>
+
+<style>
+
+:root{
+  --bg:#070d16;
+  --panel:#101927;
+  --panel2:#0b1320;
+  --line:#26364b;
+  --text:#ffffff;
+  --muted:#91a3ba;
+  --blue:#2793ff;
+  --blue2:#1869d9;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+html,
+body{
+  margin:0;
+  width:100%;
+  height:100%;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Inter,sans-serif;
+  overflow:hidden;
+}
+
+body{
+  display:flex;
+  flex-direction:column;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.header{
+
+  height:60px;
+  flex:none;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  padding:0 14px;
+
+  background:var(--panel);
+
+  border-bottom:1px solid var(--line);
+
+}
+
+.logo{
+
+  font-family:Orbitron;
+  font-weight:900;
+  font-size:18px;
+
+}
+
+.logo span{
+  color:var(--blue);
+}
+
+.game-title{
+
+  font-size:13px;
+  color:var(--muted);
+
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+
+  max-width:45vw;
+
+}
+
+/* =========================
+   MAIN
+========================= */
+
+.main{
+
+  flex:1;
+
+  display:flex;
+  flex-direction:column;
+
+  min-height:0;
+
+}
+
+/* =========================
+   EMULATOR
+========================= */
+
+.emulator-wrap{
+
+  flex:1;
+
+  min-height:0;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  background:#000;
+
+  position:relative;
+
+}
+
+#game{
+
+  width:100%;
+  height:100%;
+
+  border:none;
+
+  background:#000;
+
+}
+
+/*
+  Replace this iframe source with
+  your actual EmulatorJS player.
+*/
+
+.emulator-placeholder{
+
+  color:#596a80;
+
+  text-align:center;
+
+  padding:30px;
+
+}
+
+.emulator-placeholder strong{
+
+  display:block;
+
+  color:white;
+
+  font-family:Orbitron;
+
+  margin-bottom:10px;
+
+}
+
+/* =========================
+   BOTTOM BAR
+========================= */
+
+.bottom-bar{
+
+  height:58px;
+  flex:none;
+
+  display:flex;
+  align-items:center;
+
+  justify-content:space-between;
+
+  padding:8px 12px;
+
+  background:var(--panel);
+
+  border-top:1px solid var(--line);
+
+}
+
+.game-info{
+
+  min-width:0;
+
+}
+
+.game-name{
+
+  font-weight:800;
+  font-size:13px;
+
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+
+}
+
+.game-id{
+
+  font-size:11px;
+  color:var(--muted);
+
+}
+
+button{
+
+  border:none;
+
+  border-radius:10px;
+
+  padding:10px 14px;
+
+  background:linear-gradient(
+    180deg,
+    var(--blue),
+    var(--blue2)
+  );
+
+  color:white;
+
+  font-weight:800;
+
+  cursor:pointer;
+
+}
+
+button:active{
+
+  transform:scale(.97);
+
+}
+
+/* =========================
+   CHAT BUTTON
+========================= */
+
+#chatButton{
+
+  position:fixed;
+
+  right:16px;
+  bottom:74px;
+
+  width:56px;
+  height:56px;
+
+  border-radius:50%;
+
+  font-size:22px;
+
+  z-index:1000;
+
+  box-shadow:0 5px 25px rgba(0,0,0,.5);
+
+}
+
+/* =========================
+   CHAT WINDOW
+========================= */
+
+.chat{
+
+  position:fixed;
+
+  right:16px;
+  bottom:140px;
+
+  width:min(420px,calc(100vw - 24px));
+
+  height:min(600px,75vh);
+
+  display:flex;
+  flex-direction:column;
+
+  background:var(--panel);
+
+  border:1px solid var(--line);
+
+  border-radius:18px;
+
+  overflow:hidden;
+
+  z-index:2000;
+
+  box-shadow:0 20px 60px rgba(0,0,0,.6);
+
+}
+
+.chat.hidden{
+
+  display:none;
+
+}
+
+/* =========================
+   CHAT HEADER
+========================= */
+
+.chat-header{
+
+  height:52px;
+  flex:none;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:space-between;
+
+  padding:8px 12px;
+
+  background:var(--panel2);
+
+  border-bottom:1px solid var(--line);
+
+}
+
+.chat-room{
+
+  min-width:0;
+
+}
+
+.chat-room-title{
+
+  font-weight:800;
+
+  white-space:nowrap;
+
+  overflow:hidden;
+
+  text-overflow:ellipsis;
+
+}
+
+.chat-room-sub{
+
+  color:var(--muted);
+
+  font-size:10px;
+
+}
+
+/* =========================
+   MESSAGES
+========================= */
+
+.messages{
+
+  flex:1;
+
+  min-height:0;
+
+  overflow-y:auto;
+
+  padding:10px;
+
+}
+
+.message{
+
+  padding:8px 10px;
+
+  margin-bottom:7px;
+
+  border-radius:10px;
+
+  background:var(--panel2);
+
+  font-size:13px;
+
+  word-break:break-word;
+
+}
+
+.message-name{
+
+  color:var(--blue);
+
+  font-weight:800;
+
+  margin-right:5px;
+
+}
+
+/* =========================
+   CHAT INPUT
+========================= */
+
+.chat-input{
+
+  flex:none;
+
+  display:flex;
+
+  gap:6px;
+
+  padding:8px;
+
+  border-top:1px solid var(--line);
+
+  background:var(--panel);
+
+}
+
+.chat-input input{
+
+  min-width:0;
+
+  border:1px solid var(--line);
+
+  border-radius:9px;
+
+  background:var(--bg);
+
+  color:white;
+
+  padding:10px;
+
+  font-size:16px;
+
+}
+
+#name{
+
+  width:75px;
+  flex:none;
+
+}
+
+#message{
+
+  flex:1;
+
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width:700px){
+
+  .chat{
+
+    left:6px;
+    right:6px;
+
+    bottom:70px;
+
+    width:auto;
+
+    height:70vh;
+
+    border-radius:16px;
+
+  }
+
+  #chatButton{
+
+    bottom:66px;
+
+  }
+
+  .game-title{
+
+    max-width:35vw;
+
+  }
+
+}
+
+/* =========================
+   FULLSCREEN CHAT
+========================= */
+
+.chat.fullscreen{
+
+  inset:0;
+
+  width:100%;
+  height:100%;
+
+  border-radius:0;
+
+  bottom:auto;
+  right:auto;
+  left:auto;
+  top:auto;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- =========================
+     HEADER
+========================= -->
+
+<div class="header">
+
+  <div class="logo">
+    Games <span>Obvyris</span>
+  </div>
+
+  <div
+    id="gameTitle"
+    class="game-title"
+  >
+    Loading game...
+  </div>
+
+</div>
+
+
+<!-- =========================
+     MAIN
+========================= -->
+
+<div class="main">
+
+  <div class="emulator-wrap">
+
+    <!--
+      YOUR EMULATOR GOES HERE.
+
+      This container can be replaced
+      with your existing EmulatorJS code.
+    -->
+
+    <div
+      id="game"
+      class="emulator-placeholder"
+    >
+
+      <strong>OBVYRIS EMULATOR</strong>
+
+      Loading game...
+
+    </div>
+
+  </div>
+
+
+  <div class="bottom-bar">
+
+    <div class="game-info">
+
+      <div
+        id="bottomGameName"
+        class="game-name"
+      >
+        Loading...
+      </div>
+
+      <div
+        id="bottomGameId"
+        class="game-id"
+      >
+        GAME ID: -
+      </div>
+
+    </div>
+
+    <button onclick="toggleFullscreen()">
+      ⛶
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- =========================
+     CHAT BUTTON
+========================= -->
+
+<button
+  id="chatButton"
+  onclick="toggleChat()"
+>
+  💬
+</button>
+
+
+<!-- =========================
+     CHAT
+========================= -->
+
+<div
+  id="chat"
+  class="chat hidden"
+>
+
+  <div class="chat-header">
+
+    <div class="chat-room">
+
+      <div
+        id="chatRoomTitle"
+        class="chat-room-title"
+      >
+        Game Chat
+      </div>
+
+      <div
+        id="chatRoomSub"
+        class="chat-room-sub"
+      >
+        Loading...
+      </div>
+
+    </div>
+
+    <div style="display:flex;gap:5px;">
+
+      <button onclick="toggleChatFullscreen()">
+        ⛶
+      </button>
+
+      <button onclick="toggleChat()">
+        ✖
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <div
+    id="messages"
+    class="messages"
+  ></div>
+
+
+  <div class="chat-input">
+
+    <input
+      id="name"
+      placeholder="Name"
+      maxlength="10"
+    >
+
+    <input
+      id="message"
+      placeholder="Message"
+      maxlength="120"
+    >
+
+    <button onclick="sendMessage()">
+      Send
+    </button>
+
+  </div>
+
+</div>
+
+
+<script>
+
+/* =====================================================
+   CHAT BACKEND
+===================================================== */
+
+const API_URL =
+"https://script.google.com/macros/s/AKfycbzin84qDcZ9L1q4pTBtHZGKJSTDcZ_wnmgWmnmgPgf1jrc1nRprzbEBixKMSHcdkxiZBg/exec";
+
+
+/* =====================================================
+   GET GAME ID
+=====================================================
+
+   Supports:
+
+   Game_Emulator.html?gameid=12345
+
+   or:
+
+   Game_Emulator.html?id=12345
+
+===================================================== */
+
+const params = new URLSearchParams(
+  window.location.search
+);
+
+const GAME_ID =
+  params.get("gameid") ||
+  params.get("id") ||
+  "";
+
+
+/* =====================================================
+   GET GAME NAME
+===================================================== */
+
+const GAME_NAME =
+  params.get("name") ||
+  "Game";
+
+
+/* =====================================================
+   CREATE UNIQUE CHAT ROOM
+=====================================================
+
+   Example:
+
+   gameid = 12345
+
+   becomes:
+
+   game-12345
+
+===================================================== */
+
+const CHAT_ROOM =
+  "game-" + GAME_ID;
+
+
+/* =====================================================
+   INITIALIZE
+===================================================== */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  () => {
+
+    initializeGame();
+
+    initializeChat();
+
+  }
+);
+
+
+/* =====================================================
+   GAME UI
+===================================================== */
+
+function initializeGame(){
+
+  document.title =
+    GAME_NAME + " — Games Obvyris";
+
+  document.getElementById(
+    "gameTitle"
+  ).textContent = GAME_NAME;
+
+  document.getElementById(
+    "bottomGameName"
+  ).textContent = GAME_NAME;
+
+  document.getElementById(
+    "bottomGameId"
+  ).textContent =
+    "GAME ID: " + GAME_ID;
+
+}
+
+
+/* =====================================================
+   CHAT INITIALIZATION
+===================================================== */
+
+function initializeChat(){
+
+  document.getElementById(
+    "chatRoomTitle"
+  ).textContent =
+    "🎮 " + GAME_NAME;
+
+  document.getElementById(
+    "chatRoomSub"
+  ).textContent =
+    "Game ID: " + GAME_ID;
+
+  loadMessages();
+
+  setInterval(
+    loadMessages,
+    2000
+  );
+
+}
+
+
+/* =====================================================
+   OPEN / CLOSE CHAT
+===================================================== */
+
+function toggleChat(){
+
+  const chat =
+    document.getElementById("chat");
+
+  chat.classList.toggle("hidden");
+
+  if(
+    !chat.classList.contains("hidden")
+  ){
+
+    loadMessages();
+
+    setTimeout(
+      () => {
+
+        document.getElementById(
+          "message"
+        ).focus();
+
+      },
+      100
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   LOAD GAME CHAT
+===================================================== */
+
+async function loadMessages(){
+
+  if(
+    document
+      .getElementById("chat")
+      .classList
+      .contains("hidden")
+  ){
+
+    return;
+
+  }
+
+
+  try{
+
+    const response =
+      await fetch(
+        API_URL,
+        {
+          method:"POST",
+
+          body:JSON.stringify({
+
+            action:"get",
+
+            station:CHAT_ROOM
+
+          })
+
+        }
+      );
+
+
+    const data =
+      await response.json();
+
+
+    renderMessages(data);
+
+
+  }
+  catch(error){
+
+    console.error(
+      "Chat load failed:",
+      error
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   RENDER CHAT
+===================================================== */
+
+function renderMessages(data){
+
+  const box =
+    document.getElementById(
+      "messages"
+    );
+
+
+  if(!Array.isArray(data)){
+
+    return;
+
+  }
+
+
+  box.innerHTML =
+    data.map(
+      msg => {
+
+        return `
+
+          <div class="message">
+
+            <span class="message-name">
+              ${escapeHTML(msg.name || "Anon")}:
+            </span>
+
+            ${escapeHTML(msg.message || "")}
+
+          </div>
+
+        `;
+
+      }
+    ).join("");
+
+
+  box.scrollTop =
+    box.scrollHeight;
+
+}
+
+
+/* =====================================================
+   SEND MESSAGE
+===================================================== */
+
+async function sendMessage(){
+
+  const name =
+    document
+      .getElementById("name")
+      .value
+      .trim() ||
+    "Anon";
+
+
+  const input =
+    document.getElementById(
+      "message"
+    );
+
+
+  const message =
+    input.value.trim();
+
+
+  if(!message){
+
+    return;
+
+  }
+
+
+  try{
+
+    await fetch(
+      API_URL,
+      {
+
+        method:"POST",
+
+        body:JSON.stringify({
+
+          action:"send",
+
+          station:CHAT_ROOM,
+
+          stationName:GAME_NAME,
+
+          name:name,
+
+          message:message,
+
+          source:"games"
+
+        })
+
+      }
+    );
+
+
+    input.value = "";
+
+    loadMessages();
+
+  }
+  catch(error){
+
+    console.error(
+      "Message send failed:",
+      error
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   ENTER TO SEND
+===================================================== */
+
+document
+  .getElementById("message")
+  .addEventListener(
+    "keydown",
+    event => {
+
+      if(
+        event.key === "Enter"
+      ){
+
+        event.preventDefault();
+
+        sendMessage();
+
+      }
+
+    }
+  );
+
+
+/* =====================================================
+   FULLSCREEN EMULATOR
+===================================================== */
+
+function toggleFullscreen(){
+
+  const emulator =
+    document.querySelector(
+      ".emulator-wrap"
+    );
+
+
+  if(
+    !document.fullscreenElement
+  ){
+
+    emulator.requestFullscreen?.();
+
+  }
+  else{
+
+    document.exitFullscreen?.();
+
+  }
+
+}
+
+
+/* =====================================================
+   FULLSCREEN CHAT
+===================================================== */
+
+function toggleChatFullscreen(){
+
+  document
+    .getElementById("chat")
+    .classList
+    .toggle("fullscreen");
+
+}
+
+
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
+
+function escapeHTML(value){
+
+  return String(value)
+
+    .replaceAll("&","&amp;")
+
+    .replaceAll("<","&lt;")
+
+    .replaceAll(">","&gt;")
+
+    .replaceAll('"',"&quot;")
+
+    .replaceAll("'","&#039;");
+
+}
+
+</script>
+
+</body>
+</html>
