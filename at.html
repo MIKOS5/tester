@@ -1,125 +1,114 @@
-<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"> <title>ÆX-NULL // UNKNOWN NODE</title> <style> *{ box-sizing:border-box; } html, body{ margin:0; width:100%; height:100%; overflow:hidden; background:#020504; color:#b9ffe8; font-family:monospace; } body{ display:flex; align-items:center; justify-content:center; background: radial-gradient(circle at 50% 45%,#12352c 0%,#06120f 35%,#020504 75%); } /* ================================= STAR / PARTICLE FIELD ================================= */ .space{ position:fixed; inset:0; overflow:hidden; pointer-events:none; } .star{ position:absolute; width:2px; height:2px; background:#b9ffe8; border-radius:50%; opacity:.5; animation:drift linear infinite; } @keyframes drift{ from{ transform:translateY(0); opacity:.15; } 50%{ opacity:.8; } to{ transform:translateY(100vh); opacity:.05; } } /* ================================= TERMINAL ================================= */ .terminal{ position:relative; width:min(900px,94vw); height:min(720px,92vh); border:1px solid #3cffc4; background: linear-gradient( rgba(0,255,170,.035) 50%, transparent 50% ); background-size:100% 4px; box-shadow: 0 0 25px rgba(0,255,180,.15), inset 0 0 50px rgba(0,255,180,.04); overflow:hidden; } .terminal:before{ content:""; position:absolute; inset:0; background: repeating-linear-gradient( 0deg, transparent 0px, transparent 3px, rgba(255,255,255,.015) 4px ); pointer-events:none; } /* ================================= HEADER ================================= */ .header{ height:64px; display:flex; align-items:center; justify-content:space-between; padding:0 20px; border-bottom:1px solid rgba(60,255,196,.35); background:rgba(0,30,23,.7); } .logo{ font-size:18px; letter-spacing:4px; color:#63ffd1; } .status{ font-size:11px; color:#69ffbc; letter-spacing:2px; } /* ================================= CONTENT ================================= */ .content{ height:calc(100% - 64px); display:grid; grid-template-columns:190px 1fr; } /* ================================= NAV ================================= */ .nav{ border-right:1px solid rgba(60,255,196,.25); padding:15px; overflow:auto; } .navButton{ width:100%; margin-bottom:10px; padding:12px 8px; border:1px solid rgba(60,255,196,.25); background:rgba(0,255,170,.025); color:#75eac8; font-family:monospace; cursor:pointer; text-align:left; } .navButton:hover{ background:rgba(0,255,170,.1); border-color:#3cffc4; } .alien{ font-size:13px; letter-spacing:2px; } /* ================================= MAIN ================================= */ .main{ padding:25px; overflow:auto; } .warning{ border:1px solid #ff5577; color:#ff7993; padding:15px; margin-bottom:20px; box-shadow: 0 0 15px rgba(255,60,100,.08); } .title{ font-size:28px; letter-spacing:7px; margin-bottom:8px; color:#d2fff2; } .subtitle{ color:#5aa892; font-size:12px; margin-bottom:30px; } .dataGrid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; } .data{ border:1px solid rgba(60,255,196,.2); padding:15px; min-height:85px; background:rgba(0,255,170,.02); } .label{ font-size:10px; color:#4b9f89; margin-bottom:10px; letter-spacing:2px; } .value{ color:#baffea; font-size:14px; } /* ================================= CONSOLE ================================= */ .console{ margin-top:20px; min-height:170px; border:1px solid rgba(60,255,196,.2); padding:15px; background:#010807; color:#7dffcf; font-size:12px; line-height:1.7; overflow:auto; } .cursor{ display:inline-block; width:7px; height:13px; background:#69ffbc; animation:blink .8s infinite; } @keyframes blink{ 50%{ opacity:0; } } /* ================================= CONTROLS ================================= */ .controls{ display:flex; flex-wrap:wrap; gap:10px; margin-top:20px; } .control{ border:1px solid #2a9c7b; background:#03130f; color:#7dffcf; padding:12px 16px; font-family:monospace; cursor:pointer; } .control:hover{ background:#083126; border-color:#64ffd0; } /* ================================= MOBILE ================================= */ @media(max-width:650px){ .content{ grid-template-columns:1fr; } .nav{ display:flex; gap:8px; border-right:0; border-bottom:1px solid rgba(60,255,196,.25); height:70px; overflow-x:auto; } .navButton{ min-width:120px; margin:0; } .main{ padding:18px; } .dataGrid{ grid-template-columns:1fr; } .title{ font-size:20px; } } </style> </head> <body> <div class="space" id="space"></div> <div class="terminal">
-<div class="header">
-                    LOCAL TIME
-                </div>
+<html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width,initial-scale=1"> <title>OBVYRIS // OFFWORLD</title> <style> @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&display=swap'); *{ box-sizing:border-box; } html, body{ margin:0; min-height:100%; background:#020308; color:#d9faff; font-family:Orbitron,sans-serif; overflow-x:hidden; } body{ background: radial-gradient( circle at 50% 35%, rgba(31,110,130,.18), transparent 35% ), radial-gradient( circle at 20% 80%, rgba(94,32,160,.12), transparent 35% ), #020308; } /* ================================ SPACE ================================ */ #space{ position:fixed; inset:0; overflow:hidden; pointer-events:none; } .star{ position:absolute; width:2px; height:2px; background:white; border-radius:50%; opacity:.7; animation: starMove linear infinite; } @keyframes starMove{ from{ transform:translateZ(0) scale(.5); } to{ transform: translateZ(0) scale(2); } } /* ================================ PLANET ================================ */ #planet{ position:fixed; width:55vw; height:55vw; max-width:650px; max-height:650px; min-width:280px; min-height:280px; border-radius:50%; right:-15vw; bottom:-25vw; background: radial-gradient( circle at 35% 30%, #3b8c8b, #183d4b 35%, #07131c 70%, #020308 ); box-shadow: inset -50px -30px 80px #000, 0 0 100px rgba(35,190,220,.18); opacity:.75; animation: planetRotate 80s linear infinite; } @keyframes planetRotate{ from{ transform:rotate(0deg); } to{ transform:rotate(360deg); } } /* ================================ MAIN ================================ */ #interface{ position:relative; z-index:5; min-height:100vh; padding:25px; display:flex; flex-direction:column; } /* ================================ TOP BAR ================================ */ .topbar{ display:flex; justify-content:space-between; align-items:center; gap:15px; padding:14px 18px; border: 1px solid rgba(87,225,255,.3); background: rgba(2,7,12,.75); backdrop-filter: blur(12px); box-shadow: 0 0 25px rgba(0,200,255,.08); } .system{ font-size:13px; color:#62eaff; letter-spacing:2px; } .status{ color:#7cff9b; font-size:11px; } /* ================================ SHIP WINDOW ================================ */ .window{ margin:25px auto; width:min(1200px,100%); height:330px; position:relative; overflow:hidden; border-radius:20px; border: 1px solid rgba(102,225,255,.5); background: radial-gradient( circle at center, rgba(26,91,120,.18), #010205 70% ); box-shadow: inset 0 0 80px #000, 0 0 50px rgba(0,190,255,.1); } /* window frame */ .window:before{ content:""; position:absolute; inset:0; border: 25px solid rgba(0,0,0,.65); border-radius:20px; z-index:10; pointer-events:none; } /* glass reflections */ .window:after{ content:""; position:absolute; inset:0; background: linear-gradient( 120deg, transparent 40%, rgba(255,255,255,.04) 50%, transparent 60% ); pointer-events:none; } #spaceView{ position:absolute; inset:0; } /* ================================ ALIEN SIGNAL ================================ */ .signal{ position:absolute; left:50%; top:50%; transform: translate(-50%,-50%); text-align:center; opacity:.8; } .signalSymbol{ font-size:55px; color:#63eaff; text-shadow: 0 0 20px #00eaff, 0 0 50px #00aaff; animation: signalPulse 2s infinite; } @keyframes signalPulse{ 0%,100%{ opacity:.35; transform:scale(.95); } 50%{ opacity:1; transform:scale(1.05); } } /* ================================ DATA AREA ================================ */ .grid{ width:min(1200px,100%); margin:auto; display:grid; grid-template-columns: 1fr 1fr; gap:20px; } .panel{ background: rgba(3,9,15,.82); border: 1px solid rgba(73,214,255,.25); padding:22px; box-shadow: 0 0 30px rgba(0,200,255,.05); } .panelTitle{ color:#60e8ff; font-size:12px; letter-spacing:2px; margin-bottom:18px; border-bottom: 1px solid rgba(96,232,255,.15); padding-bottom:10px; } .telemetry{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; } .telemetry div{ padding:12px; background: rgba(255,255,255,.025); border-left: 2px solid #287f96; } .telemetry span{ display:block; font-size:9px; color:#657f8c; margin-bottom:5px; } .telemetry strong{ font-size:13px; color:#c9f8ff; } /* ================================ ALIEN TEXT ================================ */ .alienText{ font-family:monospace; font-size:17px; line-height:1.8; color:#72edff; min-height:120px; text-shadow: 0 0 10px rgba(0,220,255,.4); } .translation{ margin-top:15px; color:#8b9da5; font-family:Arial,sans-serif; font-size:13px; line-height:1.6; } /* ================================ MEMORY ================================ */ .memory{ grid-column:1/-1; } .memoryTitle{ color:white; font-size:22px; margin-bottom:8px; } .memoryMeta{ color:#61dfff; font-size:10px; margin-bottom:18px; } .memoryText{ max-height:260px; overflow:auto; padding:18px; background:#02060a; border: 1px solid rgba(255,255,255,.08); font-family:Arial,sans-serif; color:#b9c9cf; line-height:1.7; } .memoryText::-webkit-scrollbar{ width:5px; } .memoryText::-webkit-scrollbar-thumb{ background:#236a7b; } /* ================================ BUTTONS ================================ */ .actions{ display:flex; gap:10px; flex-wrap:wrap; margin-top:18px; } button{ background:#082d3a; color:#7beaff; border: 1px solid #1c839c; padding:12px 18px; border-radius:7px; cursor:pointer; font-family:Orbitron,sans-serif; font-size:11px; transition:.2s; } button:hover{ background:#0d5063; box-shadow: 0 0 15px rgba(0,220,255,.25); } button.danger{ border-color:#8c304e; color:#ff7099; } /* ================================ CONSOLE ================================ */ .console{ margin-top:20px; background:#000; border: 1px solid #183642; padding:15px; height:130px; overflow:auto; font-family:monospace; font-size:11px; color:#54e5a0; } .console div{ margin-bottom:5px; } /* ================================ FOOTER ================================ */ .footer{ text-align:center; padding:35px 10px; color:#344d56; font-size:9px; letter-spacing:2px; } /* ================================ MOBILE ================================ */ @media(max-width:700px){ #interface{ padding:12px; } .window{ height:250px; } .grid{ grid-template-columns:1fr; } .memory{ grid-column:auto; } .telemetry{ grid-template-columns:1fr 1fr; } .topbar{ flex-direction:column; align-items:flex-start; } } </style> </head> <body> <div id="space"></div> <div id="planet"></div> <div id="interface">
+<div class="topbar">
 
 
-                <div class="value" id="localTime">
-                    --:--:--
-                </div>
-
-
-            </div>
-
-
-            <div class="data">
-
-
-                <div class="label">
-                    ATMOSPHERE
-                </div>
-
-
-                <div class="value">
-                    71% ØR
-                </div>
-
-
-            </div>
-
-
-            <div class="data">
-
-
-                <div class="label">
-                    LIFE DETECTION
-                </div>
-
-
-                <div class="value" id="life">
-                    SCANNING
-                </div>
-
-
-            </div>
-
-
-        </div>
-
-
-        <div class="console" id="console">
-
-
-            > INITIALIZING NODE...
-
-
-            <br>
-
-
-            > ⟟⟟⟟ CONNECTION ESTABLISHED
-
-
-            <br>
-
-
-            > FOREIGN USER IDENTIFIED
-
-
-            <br>
-
-
-            > LANGUAGE: UNRECOGNIZED
-
-
-            <br>
-
-
-            > OBSERVATION PROTOCOL ACTIVE
-
-
-            <br>
-
-
-            > DO NOT LEAVE THE TERMINAL
-
-
-            <br><br>
-
-
-            > <span class="cursor"></span>
-
-
-        </div>
-
-
-        <div class="controls">
-
-
-            <button class="control" onclick="unknownFunction()">
-                ⟟ EXECUTE
-            </button>
-
-
-            <button class="control" onclick="listen()">
-                Ϟ LISTEN
-            </button>
-
-
-            <button class="control" onclick="changeReality()">
-                ◈ ALTER
-            </button>
-
-
-            <button class="control" onclick="returnToShip()">
-                ◇ RETURN
+            <button onclick="decodeSignal()">
+                DECODE SIGNAL
             </button>
 
 
         </div>
 
 
-    </main>
+    </div>
+
+
+
+
+    <div class="panel memory">
+
+
+        <div class="panelTitle">
+            RECOVERED MEMORY
+        </div>
+
+
+        <div
+            class="memoryTitle"
+            id="memoryTitle"
+        >
+            NO MEMORY SELECTED
+        </div>
+
+
+        <div
+            class="memoryMeta"
+            id="memoryMeta"
+        >
+            WAITING FOR ARCHIVE SIGNAL
+        </div>
+
+
+        <div
+            class="memoryText"
+            id="memoryText"
+        >
+            The system has detected a transmission originating from an unknown archive.
+
+
+            Memory extraction has not yet begun.
+        </div>
+
+
+        <div class="actions">
+
+
+            <button onclick="extractMemory()">
+                EXTRACT MEMORY
+            </button>
+
+
+            <button onclick="openArchiveMemory()">
+                OPEN MEMORY
+            </button>
+
+
+            <button
+                class="danger"
+                onclick="returnToShip()"
+            >
+                RETURN TO SHIP
+            </button>
+
+
+        </div>
+
+
+    </div>
+
+
+
+
+    <div class="panel">
+
+
+        <div class="panelTitle">
+            ALIEN CONSOLE
+        </div>
+
+
+        <div
+            class="console"
+            id="console"
+        ></div>
+
+
+    </div>
+
+
 
 
 </div>
-</div> <script> /* ================================= STAR FIELD ================================= */ const space = document.getElementById("space"); for(let i=0;i<100;i++){ const star = document.createElement("div"); star.className = "star"; star.style.left = Math.random()*100 + "%"; star.style.top = Math.random()*100 + "%"; star.style.animationDuration = (5 + Math.random()*15) + "s"; star.style.animationDelay = (-Math.random()*15) + "s"; space.appendChild(star); } /* ================================= RANDOM PLANET DATA ================================= */ const worlds = [ "XÆR-07", "VØL-NARA", "THAEL-9", "KÆR-441", "ØMN-V", "NUL-ÆX" ]; document.getElementById("origin").textContent = worlds[ Math.floor( Math.random()*worlds.length ) ]; /* ================================= TIME ================================= */ setInterval(()=>{ const now = new Date(); document.getElementById( "localTime" ).textContent = now.toLocaleTimeString(); },1000); /* ================================= LIFE DETECTION ================================= */ setTimeout(()=>{ const values = [ "1 SIGNAL", "UNKNOWN", "7 ENTITIES", "NONE", "YOU", "ERROR" ]; document.getElementById( "life" ).textContent = values[ Math.floor( Math.random()*values.length ) ]; },2500); /* ================================= CONSOLE ================================= */ function write(text){ const consoleBox = document.getElementById( "console" ); consoleBox.innerHTML += "<br>> " + text; consoleBox.scrollTop = consoleBox.scrollHeight; } /* ================================= SCAN ================================= */ function scan(){ write("⟟ VÆR"); setTimeout( ()=>write( "SCANNING OUTER PERIMETER..." ), 300 ); setTimeout( ()=>write( "OBJECT DETECTED." ), 900 ); setTimeout( ()=>write( "OBJECT IS WATCHING YOU." ), 1500 ); } /* ================================= MEMORY ================================= */ function memory(){ const memories = [ "MEMORY 004 // SKY WAS RED", "MEMORY 019 // THREE SUNS", "MEMORY 087 // VISITOR ARRIVED", "MEMORY 101 // VISITOR NEVER LEFT", "MEMORY ERROR // RECORD DELETED" ]; write( memories[ Math.floor( Math.random()*memories.length ) ] ); } /* ================================= TRANSLATOR ================================= */ function translateAlien(){ write( "Ϟ THAEL // TRANSLATION REQUEST" ); setTimeout(()=>{ const translations = [ "VÆR = OBSERVE", "KØR = MEMORY", "ZÆQ = TRANSMISSION", "OMN = RETURN", "NØR = YOU", "ÆX = UNKNOWN" ]; write( translations[ Math.floor( Math.random()* translations.length ) ] ); },700); } /* ================================= SIGNAL ================================= */ function signal(){ write( "⌁ SIGNAL ACQUIRED" ); setTimeout(()=>{ write( "SIGNAL ORIGIN: ABOVE" ); },500); setTimeout(()=>{ write( "SIGNAL ORIGIN: BELOW" ); },1100); setTimeout(()=>{ write( "SIGNAL ORIGIN: INSIDE TERMINAL" ); },1800); } /* ================================= WEIRD FUNCTION ================================= */ function unknownFunction(){ const messages = [ "COMMAND ACCEPTED", "COMMAND REJECTED", "YOU ARE NOT THE USER", "USER STATUS: IMPOSSIBLE", "TERMINAL HAS REMEMBERED YOU", "DO NOT PRESS THIS AGAIN", "WHY DID YOU DO THAT?", "RETURNING YOUR SIGNAL", "ERROR ϞϞϞ", "HELLO, OBSERVER" ]; write( messages[ Math.floor( Math.random()* messages.length ) ] ); } /* ================================= LISTEN ================================= */ function listen(){ write( "Ϟ LISTENING..." ); setTimeout(()=>{ write( "......" ); },700); setTimeout(()=>{ write( "WE CAN HEAR YOU." ); },1500); } /* ================================= ALTER ================================= */ function changeReality(){ document.body.style.transform = "rotate(" + (Math.random()*2-1) + "deg)"; document.body.style.filter = "hue-rotate(" + Math.floor( Math.random()*180 ) + "deg)"; write( "REALITY PARAMETERS MODIFIED" ); } /* ================================= RETURN ================================= */ function returnToShip(){ write( "◇ OMN // RETURN REQUEST" ); setTimeout(()=>{ window.location.href = "offworld.html"; },1000); } </script> </body> </html>
+
+
+
+
+<div class="footer">
+
+
+    OBVYRIS OFFWORLD NODE // LOCATION UNKNOWN //
+    MEMORY NETWORK 00-NULL
+
+
+</div>
+</div> <script> /* ================================= OBVYRIS ARCHIVE CONNECTION ================================= */ const API_BASE = "https://script.google.com/macros/s/AKfycbwR9_-IIcd6yiJuQsrF9uDexBLTbYLw6sw2NlnFEGIlj83a6mY-K3x_F1czdIw3SEjX/exec"; const STORY_LIST_API = API_BASE + "?action=stories"; let chapters = []; let selectedMemory = null; /* ================================= STARS ================================= */ function createStars(){ const space = document.getElementById("space"); for(let i=0;i<180;i++){ const star = document.createElement("div"); star.className="star"; star.style.left = Math.random()*100+"%"; star.style.top = Math.random()*100+"%"; star.style.opacity = .2 + Math.random()*.8; star.style.animationDuration = (2 + Math.random()*8)+"s"; space.appendChild(star); } } createStars(); /* ================================= CONSOLE ================================= */ function log(message){ const consoleBox = document.getElementById("console"); const line = document.createElement("div"); const time = new Date() .toLocaleTimeString(); line.textContent = "["+time+"] "+message; consoleBox.appendChild(line); consoleBox.scrollTop = consoleBox.scrollHeight; } /* ================================= ALIEN DATA ================================= */ const alienMessages = [ "⟟∷⟁ 𐌗∷◈ ⟊𐌑∷", "𐌙∷⟁ 𐌑𐌗∷ 𐌚⟟◈", "⟁𐌑∷ 𐌗⟟𐌙∷", "◈∷⟁ 𐌚𐌑𐌗", "𐌗⟟∷𐌙 ⟁◈𐌑", "⟊𐌑𐌗∷ ⟁𐌙◈" ]; const translations = [ "Something is listening.", "The archive has crossed the boundary.", "Memory belongs to no world.", "You were not supposed to arrive here.", "The signal remembers you.", "Obvyris is not the origin point." ]; function randomSignal(){ const index = Math.floor( Math.random() * alienMessages.length ); document.getElementById( "alienText" ).textContent = alienMessages[index]; document.getElementById( "translation" ).textContent = translations[index]; } /* ================================= LOAD ARCHIVE ================================= */ async function loadArchive(){ log( "SEARCHING EXTERNAL MEMORY NETWORK..." ); try{ const response = await fetch( STORY_LIST_API + "&t=" + Date.now() ); const data = await response.json(); if( !data || data.status !== "success" || !Array.isArray(data.stories) ){ throw new Error( "Archive response invalid" ); } chapters = data.stories; document.getElementById( "status" ).textContent = "ARCHIVE SIGNAL ACQUIRED"; log( chapters.length + " MEMORY OBJECTS DETECTED" ); selectRandomMemory(); } catch(error){ console.error(error); document.getElementById( "status" ).textContent = "ARCHIVE SIGNAL LOST"; log( "MEMORY NETWORK CONNECTION FAILED" ); } } /* ================================= RANDOM MEMORY ================================= */ function selectRandomMemory(){ if(!chapters.length) return; const published = chapters.filter( item => !item.status || item.status === "Published" ); const source = published.length ? published : chapters; selectedMemory = source[ Math.floor( Math.random() * source.length ) ]; document.getElementById( "memoryTitle" ).textContent = selectedMemory.title || "UNKNOWN MEMORY"; document.getElementById( "memoryMeta" ).textContent = ( selectedMemory.storyId || "UNKNOWN-ID" ) + " // " + ( selectedMemory.chapter || "UNNUMBERED" ); document.getElementById( "memoryText" ).textContent = "MEMORY DETECTED.\n\n" + "Awaiting extraction."; log( "UNKNOWN MEMORY OBJECT SELECTED // " + ( selectedMemory.storyId || "UNKNOWN" ) ); } /* ================================= EXTRACT MEMORY ================================= */ async function extractMemory(){ if(!selectedMemory){ selectRandomMemory(); return; } log( "INITIATING MEMORY EXTRACTION..." ); document.getElementById( "memoryText" ).textContent = "EXTRACTING..."; try{ const response = await fetch( API_BASE + "?action=story&id=" + encodeURIComponent( selectedMemory.storyId ) + "&t=" + Date.now() ); const data = await response.json(); if( !data || data.status !== "success" ){ throw new Error( "Memory unavailable" ); } selectedMemory = data.story; document.getElementById( "memoryTitle" ).textContent = selectedMemory.title || "RECOVERED MEMORY"; document.getElementById( "memoryMeta" ).textContent = selectedMemory.storyId + " // MEMORY RECOVERED"; document.getElementById( "memoryText" ).textContent = selectedMemory.story || selectedMemory.text || "EMPTY MEMORY"; log( "MEMORY EXTRACTION COMPLETE" ); document.getElementById( "status" ).textContent = "MEMORY RECOVERED"; } catch(error){ log( "MEMORY EXTRACTION FAILED" ); document.getElementById( "memoryText" ).textContent = "The memory refused extraction."; } } /* ================================= OPEN ORIGINAL MEMORY ================================= */ function openArchiveMemory(){ if(!selectedMemory){ return; } /* Change this filename to your actual Archive HTML filename. */ window.location.href = "archive.html?id=" + encodeURIComponent( selectedMemory.storyId ); } /* ================================= WORLD SCAN ================================= */ function scanWorld(){ log( "SCANNING UNKNOWN PLANET..." ); document.getElementById( "atmosphere" ).textContent = "78% UNKNOWN"; document.getElementById( "world" ).textContent = "⟁-742"; document.getElementById( "sector" ).textContent = Math.floor( Math.random()*900 ) + ":" + Math.floor( Math.random()*999 ); document.getElementById( "orbit" ).textContent = "UNSTABLE"; document.getElementById( "threat" ).textContent = Math.random() > .7 ? "DETECTED" : "NONE"; log( "PLANETARY SCAN COMPLETE" ); } /* ================================= DECODE ================================= */ function decodeSignal(){ randomSignal(); log( "ALIEN TRANSMISSION PARTIALLY DECODED" ); } /* ================================= ALIEN CLOCK ================================= */ function updateAlienTime(){ const now = new Date(); const value = ( now.getHours()*97 + now.getMinutes()*13 + now.getSeconds() ) % 9999; document.getElementById( "alienTime" ).textContent = String(value) .padStart(4,"0"); } setInterval( updateAlienTime, 1000 ); updateAlienTime(); /* ================================= RETURN ================================= */ function returnToShip(){ window.history.back(); } /* ================================= INITIALIZATION ================================= */ randomSignal(); scanWorld(); loadArchive(); log( "OFFWORLD NODE INITIALIZED" ); log( "LOCAL COORDINATES UNKNOWN" ); log( "VESSEL CONNECTION: UNSTABLE" ); </script> </body> </html>
