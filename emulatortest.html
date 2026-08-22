@@ -54,7 +54,6 @@ body{
 ========================= */
 
 .header{
-
   height:60px;
   flex:none;
 
@@ -65,17 +64,13 @@ body{
   padding:0 14px;
 
   background:var(--panel);
-
   border-bottom:1px solid var(--line);
-
 }
 
 .logo{
-
   font-family:Orbitron;
   font-weight:900;
   font-size:18px;
-
 }
 
 .logo span{
@@ -83,7 +78,6 @@ body{
 }
 
 .game-title{
-
   font-size:13px;
   color:var(--muted);
 
@@ -91,8 +85,7 @@ body{
   overflow:hidden;
   text-overflow:ellipsis;
 
-  max-width:45vw;
-
+  max-width:50vw;
 }
 
 /* =========================
@@ -100,14 +93,10 @@ body{
 ========================= */
 
 .main{
-
   flex:1;
-
   display:flex;
   flex-direction:column;
-
   min-height:0;
-
 }
 
 /* =========================
@@ -115,9 +104,7 @@ body{
 ========================= */
 
 .emulator-wrap{
-
   flex:1;
-
   min-height:0;
 
   display:flex;
@@ -127,45 +114,51 @@ body{
   background:#000;
 
   position:relative;
-
+  overflow:hidden;
 }
 
 #game{
-
   width:100%;
   height:100%;
-
   border:none;
+  background:#000;
+}
+
+#game canvas{
+  max-width:100%;
+  max-height:100%;
+}
+
+/* Emulator loading */
+
+.emulator-loading{
+  position:absolute;
+  inset:0;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  flex-direction:column;
 
   background:#000;
 
+  z-index:20;
 }
 
-/*
-  Replace this iframe source with
-  your actual EmulatorJS player.
-*/
-
-.emulator-placeholder{
-
-  color:#596a80;
-
-  text-align:center;
-
-  padding:30px;
-
+.emulator-loading.hidden{
+  display:none;
 }
 
-.emulator-placeholder strong{
-
-  display:block;
-
-  color:white;
-
+.emulator-loading strong{
   font-family:Orbitron;
-
+  font-size:20px;
   margin-bottom:10px;
+}
 
+.emulator-loading span{
+  color:var(--muted);
+  font-size:13px;
 }
 
 /* =========================
@@ -173,51 +166,39 @@ body{
 ========================= */
 
 .bottom-bar{
-
   height:58px;
   flex:none;
 
   display:flex;
   align-items:center;
-
   justify-content:space-between;
 
   padding:8px 12px;
 
   background:var(--panel);
-
   border-top:1px solid var(--line);
-
 }
 
 .game-info{
-
   min-width:0;
-
 }
 
 .game-name{
-
   font-weight:800;
   font-size:13px;
 
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
-
 }
 
 .game-id{
-
   font-size:11px;
   color:var(--muted);
-
 }
 
 button{
-
   border:none;
-
   border-radius:10px;
 
   padding:10px 14px;
@@ -231,15 +212,15 @@ button{
   color:white;
 
   font-weight:800;
-
   cursor:pointer;
-
 }
 
 button:active{
-
   transform:scale(.97);
+}
 
+button:disabled{
+  opacity:.5;
 }
 
 /* =========================
@@ -247,7 +228,6 @@ button:active{
 ========================= */
 
 #chatButton{
-
   position:fixed;
 
   right:16px;
@@ -263,7 +243,6 @@ button:active{
   z-index:1000;
 
   box-shadow:0 5px 25px rgba(0,0,0,.5);
-
 }
 
 /* =========================
@@ -271,14 +250,12 @@ button:active{
 ========================= */
 
 .chat{
-
   position:fixed;
 
   right:16px;
   bottom:140px;
 
   width:min(420px,calc(100vw - 24px));
-
   height:min(600px,75vh);
 
   display:flex;
@@ -287,7 +264,6 @@ button:active{
   background:var(--panel);
 
   border:1px solid var(--line);
-
   border-radius:18px;
 
   overflow:hidden;
@@ -295,13 +271,10 @@ button:active{
   z-index:2000;
 
   box-shadow:0 20px 60px rgba(0,0,0,.6);
-
 }
 
 .chat.hidden{
-
   display:none;
-
 }
 
 /* =========================
@@ -309,48 +282,34 @@ button:active{
 ========================= */
 
 .chat-header{
-
   height:52px;
   flex:none;
 
   display:flex;
-
   align-items:center;
-
   justify-content:space-between;
 
   padding:8px 12px;
 
   background:var(--panel2);
-
   border-bottom:1px solid var(--line);
-
 }
 
 .chat-room{
-
   min-width:0;
-
 }
 
 .chat-room-title{
-
   font-weight:800;
 
   white-space:nowrap;
-
   overflow:hidden;
-
   text-overflow:ellipsis;
-
 }
 
 .chat-room-sub{
-
   color:var(--muted);
-
   font-size:10px;
-
 }
 
 /* =========================
@@ -358,19 +317,15 @@ button:active{
 ========================= */
 
 .messages{
-
   flex:1;
-
   min-height:0;
 
   overflow-y:auto;
 
   padding:10px;
-
 }
 
 .message{
-
   padding:8px 10px;
 
   margin-bottom:7px;
@@ -382,17 +337,24 @@ button:active{
   font-size:13px;
 
   word-break:break-word;
-
 }
 
 .message-name{
-
   color:var(--blue);
-
   font-weight:800;
-
   margin-right:5px;
+}
 
+/* =========================
+   SYSTEM MESSAGE
+========================= */
+
+.system-message{
+  border:1px solid var(--blue);
+
+  background:rgba(39,147,255,.08);
+
+  color:var(--muted);
 }
 
 /* =========================
@@ -400,11 +362,9 @@ button:active{
 ========================= */
 
 .chat-input{
-
   flex:none;
 
   display:flex;
-
   gap:6px;
 
   padding:8px;
@@ -412,11 +372,9 @@ button:active{
   border-top:1px solid var(--line);
 
   background:var(--panel);
-
 }
 
 .chat-input input{
-
   min-width:0;
 
   border:1px solid var(--line);
@@ -424,26 +382,38 @@ button:active{
   border-radius:9px;
 
   background:var(--bg);
-
   color:white;
 
   padding:10px;
 
   font-size:16px;
-
 }
 
 #name{
-
   width:75px;
   flex:none;
-
 }
 
 #message{
-
   flex:1;
+}
 
+/* =========================
+   CHAT FULLSCREEN
+========================= */
+
+.chat.fullscreen{
+  inset:0;
+
+  width:100%;
+  height:100%;
+
+  border-radius:0;
+
+  top:0;
+  right:0;
+  bottom:0;
+  left:0;
 }
 
 /* =========================
@@ -453,7 +423,6 @@ button:active{
 @media(max-width:700px){
 
   .chat{
-
     left:6px;
     right:6px;
 
@@ -464,41 +433,33 @@ button:active{
     height:70vh;
 
     border-radius:16px;
-
   }
 
   #chatButton{
-
     bottom:66px;
-
   }
 
   .game-title{
+    max-width:40vw;
+  }
 
-    max-width:35vw;
+  .chat-input input{
+    min-height:44px;
+  }
 
+  .chat-input button{
+    min-height:44px;
   }
 
 }
 
 /* =========================
-   FULLSCREEN CHAT
+   EMULATOR FULLSCREEN
 ========================= */
 
-.chat.fullscreen{
-
-  inset:0;
-
-  width:100%;
-  height:100%;
-
-  border-radius:0;
-
-  bottom:auto;
-  right:auto;
-  left:auto;
-  top:auto;
-
+.emulator-wrap:fullscreen{
+  width:100vw;
+  height:100vh;
 }
 
 </style>
@@ -507,9 +468,9 @@ button:active{
 
 <body>
 
-<!-- =========================
+<!-- =====================================================
      HEADER
-========================= -->
+===================================================== -->
 
 <div class="header">
 
@@ -527,34 +488,42 @@ button:active{
 </div>
 
 
-<!-- =========================
+<!-- =====================================================
      MAIN
-========================= -->
+===================================================== -->
 
 <div class="main">
 
-  <div class="emulator-wrap">
-
-    <!--
-      YOUR EMULATOR GOES HERE.
-
-      This container can be replaced
-      with your existing EmulatorJS code.
-    -->
+  <div
+    id="emulatorWrap"
+    class="emulator-wrap"
+  >
 
     <div
       id="game"
-      class="emulator-placeholder"
+    ></div>
+
+    <div
+      id="emulatorLoading"
+      class="emulator-loading"
     >
 
-      <strong>OBVYRIS EMULATOR</strong>
+      <strong>
+        OBVYRIS EMULATOR
+      </strong>
 
-      Loading game...
+      <span id="loadingText">
+        Loading Baseball (Japan)...
+      </span>
 
     </div>
 
   </div>
 
+
+  <!-- =========================
+       BOTTOM BAR
+  ========================= -->
 
   <div class="bottom-bar">
 
@@ -564,19 +533,21 @@ button:active{
         id="bottomGameName"
         class="game-name"
       >
-        Loading...
+        Baseball (Japan)
       </div>
 
       <div
         id="bottomGameId"
         class="game-id"
       >
-        GAME ID: -
+        GAME ID: baseball-japan
       </div>
 
     </div>
 
-    <button onclick="toggleFullscreen()">
+    <button
+      onclick="toggleEmulatorFullscreen()"
+    >
       ⛶
     </button>
 
@@ -585,9 +556,9 @@ button:active{
 </div>
 
 
-<!-- =========================
+<!-- =====================================================
      CHAT BUTTON
-========================= -->
+===================================================== -->
 
 <button
   id="chatButton"
@@ -597,9 +568,9 @@ button:active{
 </button>
 
 
-<!-- =========================
-     CHAT
-========================= -->
+<!-- =====================================================
+     CHAT WINDOW
+===================================================== -->
 
 <div
   id="chat"
@@ -614,25 +585,31 @@ button:active{
         id="chatRoomTitle"
         class="chat-room-title"
       >
-        Game Chat
+        🎮 Baseball (Japan)
       </div>
 
       <div
         id="chatRoomSub"
         class="chat-room-sub"
       >
-        Loading...
+        Game ID: baseball-japan
       </div>
 
     </div>
 
-    <div style="display:flex;gap:5px;">
+    <div
+      style="display:flex;gap:5px;"
+    >
 
-      <button onclick="toggleChatFullscreen()">
+      <button
+        onclick="toggleChatFullscreen()"
+      >
         ⛶
       </button>
 
-      <button onclick="toggleChat()">
+      <button
+        onclick="toggleChat()"
+      >
         ✖
       </button>
 
@@ -653,15 +630,20 @@ button:active{
       id="name"
       placeholder="Name"
       maxlength="10"
+      autocomplete="off"
     >
 
     <input
       id="message"
       placeholder="Message"
       maxlength="120"
+      autocomplete="off"
     >
 
-    <button onclick="sendMessage()">
+    <button
+      id="sendButton"
+      onclick="sendMessage()"
+    >
       Send
     </button>
 
@@ -673,7 +655,7 @@ button:active{
 <script>
 
 /* =====================================================
-   CHAT BACKEND
+   CONFIG
 ===================================================== */
 
 const API_URL =
@@ -681,54 +663,79 @@ const API_URL =
 
 
 /* =====================================================
-   GET GAME ID
+   TEST GAME
+===================================================== */
+
+const TEST_GAME = {
+
+  id:
+    "baseball-japan",
+
+  name:
+    "Baseball (Japan)",
+
+  platform:
+    "nes",
+
+  rom:
+    "https://archive.org/download/BaseballJapan/Baseball%20%28Japan%29.zip/Baseball%20%28Japan%29.nes"
+
+};
+
+
+/* =====================================================
+   URL OVERRIDE
 =====================================================
 
-   Supports:
+   Later you can launch:
 
-   Game_Emulator.html?gameid=12345
-
-   or:
-
-   Game_Emulator.html?id=12345
+   Game_Emulator.html
+   ?gameid=123
+   &name=Zelda
+   &rom=https://...
 
 ===================================================== */
 
-const params = new URLSearchParams(
-  window.location.search
-);
+const params =
+  new URLSearchParams(
+    window.location.search
+  );
+
 
 const GAME_ID =
   params.get("gameid") ||
-  params.get("id") ||
-  "";
+  TEST_GAME.id;
 
-
-/* =====================================================
-   GET GAME NAME
-===================================================== */
 
 const GAME_NAME =
   params.get("name") ||
-  "Game";
+  TEST_GAME.name;
+
+
+const ROM_URL =
+  params.get("rom") ||
+  TEST_GAME.rom;
 
 
 /* =====================================================
-   CREATE UNIQUE CHAT ROOM
-=====================================================
-
-   Example:
-
-   gameid = 12345
-
-   becomes:
-
-   game-12345
-
+   CHAT ROOM
 ===================================================== */
 
 const CHAT_ROOM =
   "game-" + GAME_ID;
+
+
+/* =====================================================
+   STATE
+===================================================== */
+
+let lastChatHash = "";
+
+let chatTimer = null;
+
+let lastSendTime = 0;
+
+const SEND_COOLDOWN = 1500;
 
 
 /* =====================================================
@@ -739,9 +746,11 @@ document.addEventListener(
   "DOMContentLoaded",
   () => {
 
-    initializeGame();
+    initializeGameUI();
 
     initializeChat();
+
+    initializeEmulator();
 
   }
 );
@@ -751,49 +760,146 @@ document.addEventListener(
    GAME UI
 ===================================================== */
 
-function initializeGame(){
+function initializeGameUI(){
 
   document.title =
-    GAME_NAME + " — Games Obvyris";
+    GAME_NAME +
+    " — Games Obvyris";
 
   document.getElementById(
     "gameTitle"
-  ).textContent = GAME_NAME;
+  ).textContent =
+    GAME_NAME;
 
   document.getElementById(
     "bottomGameName"
-  ).textContent = GAME_NAME;
+  ).textContent =
+    GAME_NAME;
 
   document.getElementById(
     "bottomGameId"
   ).textContent =
-    "GAME ID: " + GAME_ID;
+    "GAME ID: " +
+    GAME_ID;
+
+  document.getElementById(
+    "chatRoomTitle"
+  ).textContent =
+    "🎮 " +
+    GAME_NAME;
+
+  document.getElementById(
+    "chatRoomSub"
+  ).textContent =
+    "Game ID: " +
+    GAME_ID;
 
 }
 
 
 /* =====================================================
-   CHAT INITIALIZATION
+   EMULATORJS
+===================================================== */
+
+function initializeEmulator(){
+
+  /*
+   * EmulatorJS configuration
+   */
+
+  window.EJS_player =
+    "#game";
+
+  window.EJS_core =
+    "nes";
+
+  window.EJS_gameName =
+    GAME_NAME;
+
+  window.EJS_gameUrl =
+    ROM_URL;
+
+  window.EJS_pathtodata =
+    "https://cdn.emulatorjs.org/stable/data/";
+
+  window.EJS_startOnLoaded =
+    true;
+
+  window.EJS_backgroundColor =
+    "#000000";
+
+  window.EJS_color =
+    "#2793ff";
+
+  window.EJS_language =
+    "en-US";
+
+  window.EJS_volume =
+    1;
+
+
+  /*
+   * Load EmulatorJS
+   */
+
+  const script =
+    document.createElement(
+      "script"
+    );
+
+  script.src =
+    "https://cdn.emulatorjs.org/stable/data/loader.js";
+
+  script.onload =
+    () => {
+
+      console.log(
+        "EmulatorJS loaded"
+      );
+
+      document
+        .getElementById(
+          "loadingText"
+        )
+        .textContent =
+        "Starting Baseball (Japan)...";
+
+    };
+
+
+  script.onerror =
+    () => {
+
+      document
+        .getElementById(
+          "loadingText"
+        )
+        .textContent =
+        "EmulatorJS failed to load.";
+
+    };
+
+
+  document
+    .body
+    .appendChild(script);
+
+}
+
+
+/* =====================================================
+   CHAT
 ===================================================== */
 
 function initializeChat(){
 
-  document.getElementById(
-    "chatRoomTitle"
-  ).textContent =
-    "🎮 " + GAME_NAME;
-
-  document.getElementById(
-    "chatRoomSub"
-  ).textContent =
-    "Game ID: " + GAME_ID;
-
   loadMessages();
 
-  setInterval(
-    loadMessages,
-    2000
-  );
+  chatTimer =
+    setInterval(
+      loadMessages,
+      2000
+    );
 
 }
 
@@ -805,12 +911,19 @@ function initializeChat(){
 function toggleChat(){
 
   const chat =
-    document.getElementById("chat");
+    document.getElementById(
+      "chat"
+    );
 
-  chat.classList.toggle("hidden");
+  chat.classList.toggle(
+    "hidden"
+  );
+
 
   if(
-    !chat.classList.contains("hidden")
+    !chat.classList.contains(
+      "hidden"
+    )
   ){
 
     loadMessages();
@@ -818,9 +931,11 @@ function toggleChat(){
     setTimeout(
       () => {
 
-        document.getElementById(
-          "message"
-        ).focus();
+        document
+          .getElementById(
+            "message"
+          )
+          .focus();
 
       },
       100
@@ -832,22 +947,10 @@ function toggleChat(){
 
 
 /* =====================================================
-   LOAD GAME CHAT
+   LOAD MESSAGES
 ===================================================== */
 
 async function loadMessages(){
-
-  if(
-    document
-      .getElementById("chat")
-      .classList
-      .contains("hidden")
-  ){
-
-    return;
-
-  }
-
 
   try{
 
@@ -855,13 +958,16 @@ async function loadMessages(){
       await fetch(
         API_URL,
         {
+
           method:"POST",
 
           body:JSON.stringify({
 
-            action:"get",
+            action:
+              "get",
 
-            station:CHAT_ROOM
+            station:
+              CHAT_ROOM
 
           })
 
@@ -869,12 +975,45 @@ async function loadMessages(){
       );
 
 
+    if(!response.ok){
+
+      throw new Error(
+        "HTTP " +
+        response.status
+      );
+
+    }
+
+
     const data =
       await response.json();
 
 
-    renderMessages(data);
+    if(!Array.isArray(data)){
 
+      return;
+
+    }
+
+
+    const hash =
+      JSON.stringify(data);
+
+
+    if(hash === lastChatHash){
+
+      return;
+
+    }
+
+
+    lastChatHash =
+      hash;
+
+
+    renderMessages(
+      data
+    );
 
   }
   catch(error){
@@ -890,7 +1029,7 @@ async function loadMessages(){
 
 
 /* =====================================================
-   RENDER CHAT
+   RENDER MESSAGES
 ===================================================== */
 
 function renderMessages(data){
@@ -901,7 +1040,24 @@ function renderMessages(data){
     );
 
 
-  if(!Array.isArray(data)){
+  if(!data.length){
+
+    box.innerHTML = `
+
+      <div
+        class="message system-message"
+      >
+
+        🎮 No messages yet.
+
+        <br>
+
+        Start the discussion
+        for this game.
+
+      </div>
+
+    `;
 
     return;
 
@@ -909,25 +1065,35 @@ function renderMessages(data){
 
 
   box.innerHTML =
-    data.map(
-      msg => {
+    data
+      .map(
+        msg => {
 
-        return `
+          return `
 
-          <div class="message">
+            <div class="message">
 
-            <span class="message-name">
-              ${escapeHTML(msg.name || "Anon")}:
-            </span>
+              <span class="message-name">
 
-            ${escapeHTML(msg.message || "")}
+                ${escapeHTML(
+                  msg.name ||
+                  "Anon"
+                )}:
 
-          </div>
+              </span>
 
-        `;
+              ${escapeHTML(
+                msg.message ||
+                ""
+              )}
 
-      }
-    ).join("");
+            </div>
+
+          `;
+
+        }
+      )
+      .join("");
 
 
   box.scrollTop =
@@ -942,9 +1108,26 @@ function renderMessages(data){
 
 async function sendMessage(){
 
+  const now =
+    Date.now();
+
+
+  if(
+    now -
+    lastSendTime <
+    SEND_COOLDOWN
+  ){
+
+    return;
+
+  }
+
+
   const name =
     document
-      .getElementById("name")
+      .getElementById(
+        "name"
+      )
       .value
       .trim() ||
     "Anon";
@@ -967,6 +1150,20 @@ async function sendMessage(){
   }
 
 
+  lastSendTime =
+    now;
+
+
+  const button =
+    document.getElementById(
+      "sendButton"
+    );
+
+
+  button.disabled =
+    true;
+
+
   try{
 
     await fetch(
@@ -977,17 +1174,23 @@ async function sendMessage(){
 
         body:JSON.stringify({
 
-          action:"send",
+          action:
+            "send",
 
-          station:CHAT_ROOM,
+          station:
+            CHAT_ROOM,
 
-          stationName:GAME_NAME,
+          stationName:
+            GAME_NAME,
 
-          name:name,
+          name:
+            name,
 
-          message:message,
+          message:
+            message,
 
-          source:"games"
+          source:
+            "games"
 
         })
 
@@ -995,9 +1198,15 @@ async function sendMessage(){
     );
 
 
-    input.value = "";
+    input.value =
+      "";
 
-    loadMessages();
+
+    lastChatHash =
+      "";
+
+
+    await loadMessages();
 
   }
   catch(error){
@@ -1009,6 +1218,17 @@ async function sendMessage(){
 
   }
 
+
+  setTimeout(
+    () => {
+
+      button.disabled =
+        false;
+
+    },
+    SEND_COOLDOWN
+  );
+
 }
 
 
@@ -1017,13 +1237,16 @@ async function sendMessage(){
 ===================================================== */
 
 document
-  .getElementById("message")
+  .getElementById(
+    "message"
+  )
   .addEventListener(
     "keydown",
     event => {
 
       if(
-        event.key === "Enter"
+        event.key ===
+        "Enter"
       ){
 
         event.preventDefault();
@@ -1037,14 +1260,14 @@ document
 
 
 /* =====================================================
-   FULLSCREEN EMULATOR
+   EMULATOR FULLSCREEN
 ===================================================== */
 
-function toggleFullscreen(){
+function toggleEmulatorFullscreen(){
 
   const emulator =
-    document.querySelector(
-      ".emulator-wrap"
+    document.getElementById(
+      "emulatorWrap"
     );
 
 
@@ -1052,12 +1275,24 @@ function toggleFullscreen(){
     !document.fullscreenElement
   ){
 
-    emulator.requestFullscreen?.();
+    if(
+      emulator.requestFullscreen
+    ){
+
+      emulator.requestFullscreen();
+
+    }
 
   }
   else{
 
-    document.exitFullscreen?.();
+    if(
+      document.exitFullscreen
+    ){
+
+      document.exitFullscreen();
+
+    }
 
   }
 
@@ -1065,15 +1300,19 @@ function toggleFullscreen(){
 
 
 /* =====================================================
-   FULLSCREEN CHAT
+   CHAT FULLSCREEN
 ===================================================== */
 
 function toggleChatFullscreen(){
 
   document
-    .getElementById("chat")
+    .getElementById(
+      "chat"
+    )
     .classList
-    .toggle("fullscreen");
+    .toggle(
+      "fullscreen"
+    );
 
 }
 
@@ -1086,17 +1325,57 @@ function escapeHTML(value){
 
   return String(value)
 
-    .replaceAll("&","&amp;")
+    .replaceAll(
+      "&",
+      "&amp;"
+    )
 
-    .replaceAll("<","&lt;")
+    .replaceAll(
+      "<",
+      "&lt;"
+    )
 
-    .replaceAll(">","&gt;")
+    .replaceAll(
+      ">",
+      "&gt;"
+    )
 
-    .replaceAll('"',"&quot;")
+    .replaceAll(
+      '"',
+      "&quot;"
+    )
 
-    .replaceAll("'","&#039;");
+    .replaceAll(
+      "'",
+      "&#039;"
+    );
 
 }
+
+
+/* =====================================================
+   DEBUG
+===================================================== */
+
+console.log(
+  "GAME ID:",
+  GAME_ID
+);
+
+console.log(
+  "GAME NAME:",
+  GAME_NAME
+);
+
+console.log(
+  "ROM:",
+  ROM_URL
+);
+
+console.log(
+  "CHAT ROOM:",
+  CHAT_ROOM
+);
 
 </script>
 
