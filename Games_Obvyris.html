@@ -2521,6 +2521,7 @@ function openURLInIframe(url){
    EMULATOR
 ===================================================== */
 
+
 function startEmulator(game){
 
     const container = document.getElementById("game");
@@ -2528,6 +2529,12 @@ function startEmulator(game){
     const romURL = String(game.ROMURL || "").trim();
     const core = String(game.EmulatorCore || "").trim();
     const title = String(game.Title || "Obvyris Game").trim();
+
+    /*
+     * GameID comes directly from column A
+     * of the Games Sheet.
+     */
+    const gameID = String(game.GameID || "").trim();
 
     if(!romURL){
         showPlayerMessage("No ROM URL was supplied.");
@@ -2539,14 +2546,28 @@ function startEmulator(game){
         return;
     }
 
+    if(!gameID){
+        showPlayerMessage(
+            "This game does not have a GameID configured."
+        );
+        console.error(
+            "[OBVYRIS] Missing GameID:",
+            game
+        );
+        return;
+    }
+
     /*
-     * IMPORTANT:
+     * Chat station ID:
      *
-     * Do NOT use URLSearchParams here.
-     * Your ROM URL already contains %20.
+     * GameID:
+     *     obvyris-game
      *
-     * Encode the complete ROM URL ONCE.
+     * becomes:
+     *     game-obvyris-game
      */
+    const chatStation =
+        "game-" + gameID;
 
     const emulatorURL =
         "emulatortest.html" +
@@ -2555,22 +2576,44 @@ function startEmulator(game){
         "&core=" +
         encodeURIComponent(core) +
         "&title=" +
-        encodeURIComponent(title);
+        encodeURIComponent(title) +
+        "&gameid=" +
+        encodeURIComponent(gameID) +
+        "&station=" +
+        encodeURIComponent(chatStation);
 
-    console.log("[OBVYRIS] Emulator:", core);
-    console.log("[OBVYRIS] ROM:", romURL);
-    console.log("[OBVYRIS] Emulator URL:", emulatorURL);
+    console.log(
+        "[OBVYRIS] Emulator Core:",
+        core
+    );
 
-    const iframe = document.createElement("iframe");
+    console.log(
+        "[OBVYRIS] ROM:",
+        romURL
+    );
+
+    console.log(
+        "[OBVYRIS] GameID:",
+        gameID
+    );
+
+    console.log(
+        "[OBVYRIS] Chat Station:",
+        chatStation
+    );
+
+    console.log(
+        "[OBVYRIS] Emulator URL:",
+        emulatorURL
+    );
+
+    const iframe =
+        document.createElement("iframe");
 
     iframe.src = emulatorURL;
 
-    iframe.title = title + " Emulator";
-
-    /*
-     * Do NOT add allowfullscreen.
-     * The fullscreen permission is supplied through allow.
-     */
+    iframe.title =
+        title + " Emulator";
 
     iframe.allow =
         "fullscreen; autoplay; gamepad";
@@ -2607,6 +2650,8 @@ function startEmulator(game){
 
     container.appendChild(iframe);
 }
+
+    
 /* =====================================================
    URL NORMALIZATION
 ===================================================== */
