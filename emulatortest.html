@@ -1,76 +1,1526 @@
-<html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"> <title>OBVYRIS Emulator</title> <style> html,body{ margin:0; padding:0; width:100%; height:100%; overflow:hidden; background:#000; color:#fff; font-family:Arial,sans-serif; } /* ========================================================= GAME ========================================================= */ #game{ position:absolute; inset:0; width:100%; height:100%; background:#000; } canvas{ image-rendering:auto; max-width:100%; max-height:100%; } /* ========================================================= STATUS ========================================================= */ #status{ position:absolute; top:0; left:0; right:0; z-index:1000; padding:10px 14px; background:rgba(0,0,0,.9); color:#fff; font-size:14px; pointer-events:none; } #status.hidden{ display:none; } /* ========================================================= LOADING ========================================================= */ #loading{ position:absolute; inset:0; z-index:900; display:flex; align-items:center; justify-content:center; background:#000; color:#fff; font-size:18px; text-align:center; } /* ========================================================= ERROR ========================================================= */ #error{ position:absolute; inset:0; z-index:2000; display:none; align-items:center; justify-content:center; background:#000; color:#fff; padding:30px; text-align:center; white-space:pre-wrap; } /* ========================================================= CHAT BUTTON ========================================================= */ #chatButton{ position:fixed; right:18px; bottom:18px; width:58px; height:58px; border-radius:50%; border:1px solid rgba(255,255,255,.25); background:linear-gradient( 180deg, #2793ff, #1869d9 ); color:#fff; font-size:25px; cursor:pointer; z-index:50000; box-shadow: 0 6px 25px rgba(0,0,0,.6); } #chatButton:active{ transform:scale(.94); } /* ========================================================= CHAT PANEL ========================================================= */ #chatPanel{ position:fixed; right:18px; bottom:88px; width:min(420px,calc(100vw - 24px)); height:min(600px,calc(100vh - 110px)); background:#111827; border:1px solid #253347; border-radius:18px; display:none; flex-direction:column; overflow:hidden; z-index:50001; box-shadow: 0 20px 60px rgba(0,0,0,.7); } #chatPanel.open{ display:flex; } /* ========================================================= CHAT HEADER ========================================================= */ #chatHeader{ height:52px; flex-shrink:0; display:flex; align-items:center; justify-content:space-between; padding:0 12px; background:#0b1220; border-bottom:1px solid #253347; } #chatHeaderInfo{ min-width:0; } #chatTitle{ font-weight:800; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } #chatRoomId{ color:#93a4bb; font-size:10px; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } #chatClose{ width:38px; height:38px; border:0; border-radius:10px; background:#253347; color:#fff; font-size:18px; cursor:pointer; } /* ========================================================= CHAT MESSAGES ========================================================= */ #chatMessages{ flex:1; min-height:0; overflow-y:auto; padding:12px; background:#09111d; } .chat-message{ margin-bottom:8px; padding:9px 10px; border-radius:10px; background:#111827; border:1px solid #1d2a3a; word-wrap:break-word; } .chat-name{ color:#2793ff; font-weight:800; margin-right:5px; } .chat-system{ color:#93a4bb; font-style:italic; } .chat-empty{ text-align:center; color:#93a4bb; padding:30px 10px; } /* ========================================================= CHAT INPUT ========================================================= */ #chatInputArea{ flex-shrink:0; display:flex; gap:6px; padding:8px; background:#111827; border-top:1px solid #253347; } #chatName{ width:70px; min-width:60px; border:1px solid #253347; border-radius:9px; background:#09111d; color:#fff; padding:10px 8px; outline:none; } #chatMessage{ flex:1; min-width:0; border:1px solid #253347; border-radius:9px; background:#09111d; color:#fff; padding:10px; outline:none; } #chatSend{ border:0; border-radius:9px; padding:0 13px; background:linear-gradient( 180deg, #2793ff, #1869d9 ); color:#fff; font-weight:800; cursor:pointer; } #chatSend:disabled{ opacity:.5; } /* ========================================================= CHAT STATUS ========================================================= */ #chatStatus{ min-height:16px; padding:0 10px 6px; background:#111827; color:#93a4bb; font-size:10px; } /* ========================================================= MOBILE ========================================================= */ @media(max-width:600px){ #chatPanel{ right:8px; left:8px; bottom:76px; width:auto; height:65vh; max-height:none; border-radius:16px; } #chatButton{ right:12px; bottom:12px; } #chatInputArea{ padding: 8px 8px calc(8px + env(safe-area-inset-bottom)); } } /* ========================================================= GLOBAL ========================================================= */ *{ touch-action:none; } #chatPanel, #chatPanel input, #chatPanel button, #chatMessages{ touch-action:auto; } </style> </head> <body> <div id="game"></div> <div id="loading">
-<div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
 
-    <div id="loadingText">
-        Loading ROM...
-    </div>
+<meta charset="UTF-8">
 
-</div>
-</div> <div id="status"></div> <div id="error"></div> <!-- ===================================================== CHAT BUTTON ===================================================== -->
+<meta
+    name="viewport"
+    content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"
+>
 
-<button id="chatButton" onclick="toggleGameChat()">
+<title>OBVYRIS Emulator</title>
 
-💬
-</button> <!-- ===================================================== GAME CHAT ===================================================== --> <div id="chatPanel">
-<div id="chatHeader">
+<style>
 
-    <div id="chatHeaderInfo">
+html,
+body{
+    margin:0;
+    padding:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#000;
+    color:#fff;
+    font-family:Arial,sans-serif;
+}
 
-        <div id="chatTitle">
-            🎮 Game Chat
+#game{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    background:#000;
+}
+
+/* ================================
+   STATUS
+================================ */
+
+#status{
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+    z-index:1000;
+
+    padding:10px 14px;
+
+    background:rgba(0,0,0,.85);
+
+    color:#fff;
+
+    font-size:13px;
+
+    pointer-events:none;
+}
+
+#status.hidden{
+    display:none;
+}
+
+/* ================================
+   LOADING
+================================ */
+
+#loading{
+    position:absolute;
+    inset:0;
+
+    z-index:900;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    background:#000;
+
+    color:#fff;
+
+    font-size:18px;
+
+    text-align:center;
+}
+
+/* ================================
+   ERROR
+================================ */
+
+#error{
+    position:absolute;
+    inset:0;
+
+    z-index:2000;
+
+    display:none;
+
+    align-items:center;
+    justify-content:center;
+
+    background:#000;
+
+    color:#fff;
+
+    padding:30px;
+
+    text-align:center;
+
+    white-space:pre-wrap;
+}
+
+/* ================================
+   GAME CHAT BUTTON
+================================ */
+
+#gameChatButton{
+
+    position:fixed;
+
+    right:15px;
+    bottom:15px;
+
+    z-index:10000;
+
+    width:58px;
+    height:58px;
+
+    border:none;
+    border-radius:50%;
+
+    background:#2793ff;
+
+    color:#fff;
+
+    font-size:24px;
+
+    cursor:pointer;
+
+    box-shadow:
+        0 4px 20px rgba(0,0,0,.5);
+}
+
+/* ================================
+   GAME CHAT
+================================ */
+
+#gameChat{
+
+    position:fixed;
+
+    right:15px;
+    bottom:85px;
+
+    width:min(420px,calc(100vw - 30px));
+
+    height:min(600px,calc(100vh - 110px));
+
+    z-index:9999;
+
+    display:flex;
+
+    flex-direction:column;
+
+    background:#111827;
+
+    border:1px solid #253347;
+
+    border-radius:16px;
+
+    overflow:hidden;
+
+    box-shadow:
+        0 20px 60px rgba(0,0,0,.65);
+}
+
+#gameChat.hidden{
+    display:none;
+}
+
+/* ================================
+   CHAT HEADER
+================================ */
+
+.game-chat-header{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    padding:12px 14px;
+
+    background:#0b1220;
+
+    border-bottom:1px solid #253347;
+}
+
+.game-chat-title{
+
+    font-weight:800;
+
+    font-size:14px;
+}
+
+.game-chat-subtitle{
+
+    margin-top:3px;
+
+    color:#93a4bb;
+
+    font-size:11px;
+}
+
+.game-chat-close{
+
+    border:none;
+
+    background:transparent;
+
+    color:#fff;
+
+    font-size:20px;
+
+    cursor:pointer;
+}
+
+/* ================================
+   CHAT LOG
+================================ */
+
+#gameChatMessages{
+
+    flex:1;
+
+    overflow-y:auto;
+
+    padding:12px;
+
+    font-size:13px;
+}
+
+.game-chat-msg{
+
+    margin-bottom:8px;
+
+    padding:8px 10px;
+
+    border-radius:10px;
+
+    background:#0b1220;
+
+    border:1px solid #1d2a3b;
+
+    line-height:1.4;
+}
+
+.game-chat-name{
+
+    color:#2793ff;
+
+    font-weight:800;
+
+    margin-right:5px;
+}
+
+/* ================================
+   CHAT INPUT
+================================ */
+
+.game-chat-input{
+
+    display:flex;
+
+    gap:6px;
+
+    padding:8px;
+
+    background:#111827;
+
+    border-top:1px solid #253347;
+}
+
+.game-chat-input input{
+
+    min-width:0;
+
+    border:1px solid #253347;
+
+    border-radius:9px;
+
+    background:#09111d;
+
+    color:#fff;
+
+    padding:10px;
+
+    font-size:16px;
+}
+
+#gameChatName{
+
+    width:65px;
+
+    flex:0 0 65px;
+}
+
+#gameChatMessage{
+
+    flex:1;
+}
+
+.game-chat-input button{
+
+    border:none;
+
+    border-radius:9px;
+
+    padding:10px 12px;
+
+    background:#2793ff;
+
+    color:#fff;
+
+    font-weight:700;
+
+    cursor:pointer;
+}
+
+/* ================================
+   MOBILE
+================================ */
+
+@media(max-width:600px){
+
+    #gameChat{
+
+        right:0;
+        bottom:0;
+
+        width:100%;
+        height:100dvh;
+
+        border-radius:0;
+    }
+
+    #gameChatButton{
+
+        right:12px;
+        bottom:12px;
+    }
+
+}
+
+/* ================================
+   EMULATOR
+================================ */
+
+canvas{
+
+    image-rendering:auto;
+
+    max-width:100%;
+    max-height:100%;
+}
+
+*{
+    touch-action:none;
+}
+
+#gameChat,
+#gameChat input,
+#gameChat button,
+#gameChatMessages{
+
+    touch-action:auto;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div id="game"></div>
+
+<div id="loading">
+
+    <div>
+
+        <div id="loadingText">
+            Loading ROM...
         </div>
 
-        <div id="chatRoomId">
-            loading...
+    </div>
+
+</div>
+
+<div id="status"></div>
+
+<div id="error"></div>
+
+
+<!-- ================================
+     GAME CHAT BUTTON
+================================ -->
+
+<button
+    id="gameChatButton"
+    onclick="toggleGameChat()"
+>
+    💬
+</button>
+
+
+<!-- ================================
+     GAME CHAT
+================================ -->
+
+<div
+    id="gameChat"
+    class="hidden"
+>
+
+    <div class="game-chat-header">
+
+        <div>
+
+            <div
+                id="gameChatTitle"
+                class="game-chat-title"
+            >
+                Game Chat
+            </div>
+
+            <div
+                id="gameChatSubtitle"
+                class="game-chat-subtitle"
+            >
+                Loading...
+            </div>
+
         </div>
 
+        <button
+            class="game-chat-close"
+            onclick="toggleGameChat()"
+        >
+            ✕
+        </button>
+
     </div>
 
-    <button id="chatClose"
-            onclick="toggleGameChat()">
 
-        ✕
-
-    </button>
-
-</div>
+    <div id="gameChatMessages"></div>
 
 
-<div id="chatMessages">
+    <div class="game-chat-input">
 
-    <div class="chat-empty">
-        Loading chat...
+        <input
+            id="gameChatName"
+            placeholder="name"
+            maxlength="10"
+        >
+
+        <input
+            id="gameChatMessage"
+            placeholder="message"
+            maxlength="120"
+        >
+
+        <button
+            onclick="sendGameChatMessage()"
+        >
+            Send
+        </button>
+
     </div>
 
 </div>
 
 
-<div id="chatStatus"></div>
+<script>
+
+"use strict";
 
 
-<div id="chatInputArea">
+/* =========================================================
+   IMPORTANT GLOBAL STATE
+   These MUST be declared before any chat functions.
+========================================================= */
 
-    <input
-        id="chatName"
-        maxlength="10"
-        placeholder="Name"
-        autocomplete="off"
-    >
+let gameChatOpen = false;
 
-    <input
-        id="chatMessage"
-        maxlength="120"
-        placeholder="Message..."
-        autocomplete="off"
-    >
+let gameChatTimer = null;
 
-    <button
-        id="chatSend"
-        onclick="sendGameChat()">
+let gameChatLastHash = "";
 
-        Send
+let gameChatLastSend = 0;
 
-    </button>
+const GAME_CHAT_COOLDOWN = 1500;
 
-</div>
-</div> <script> "use strict"; console.log( "[OBVYRIS EMULATOR] ===============================" ); console.log( "[OBVYRIS EMULATOR] Emulator page loaded" ); /* ========================================================= URL PARAMETERS ========================================================= */ const params = new URLSearchParams(location.search); const originalRom = params.get("rom"); const requestedCore = (params.get("core") || "nes") .toLowerCase(); const title = params.get("title") || "OBVYRIS GAME"; /* ========================================================= GAME ID ========================================================= */ /* THIS IS THE IMPORTANT PART. game_obvyris.html should launch: Emulator.html? rom=... core=nes title=Baseball gameid=baseball-japan Chat room becomes: station = baseball-japan */ const gameId = params.get("gameid") || slugify(title); function slugify(text){ return String(text) .toLowerCase() .replace(/[^a-z0-9]+/g,"-") .replace(/^-+|-+$/g,"") .slice(0,80); } console.log( "[OBVYRIS EMULATOR] Game ID:", gameId ); /* ========================================================= CORE MAP ========================================================= */ const CORE_MAP = { nes: "nes", snes: "snes", genesis: "genesis_plus_gx", megadrive: "genesis_plus_gx", sega_genesis: "genesis_plus_gx", genesis_plus_gx: "genesis_plus_gx" }; const core = CORE_MAP[requestedCore] || requestedCore; console.log( "[OBVYRIS EMULATOR] Requested Core:", requestedCore ); console.log( "[OBVYRIS EMULATOR] EmulatorJS Core:", core ); console.log( "[OBVYRIS EMULATOR] Title:", title ); console.log( "[OBVYRIS EMULATOR] ROM:", originalRom ); /* ========================================================= DOM ========================================================= */ const loading = document.getElementById("loading"); const loadingText = document.getElementById("loadingText"); const errorBox = document.getElementById("error"); const status = document.getElementById("status"); /* ========================================================= LOGGING ========================================================= */ function log(message){ console.log( "[OBVYRIS EMULATOR]", message ); status.textContent = message; } /* ========================================================= ERROR ========================================================= */ function fail(message){ console.error( "[OBVYRIS EMULATOR]", message ); loading.style.display = "none"; errorBox.style.display = "flex"; errorBox.textContent = "Emulator Error\n\n" + message; } /* ========================================================= LOADING ========================================================= */ function setLoading(message){ loadingText.textContent = message; console.log( "[OBVYRIS EMULATOR]", message ); } /* ========================================================= ROM CHECK ========================================================= */ if(!originalRom){ fail( "No ROM was supplied." ); throw new Error( "Missing ROM" ); } /* ========================================================= ROM PROXY ========================================================= */ const PROXY_BASE = "https://obvyris-rom-proxy.vercel.app/api/rom"; const proxyURL = PROXY_BASE + "?url=" + encodeURIComponent( originalRom ); /* ========================================================= CHAT ENGINE ========================================================= */ const CHAT_API = "https://script.google.com/macros/s/AKfycbzin84qDcZ9L1q4pTBtHZGKJSTDcZ_wnmgWmnmgPgf1jrc1nRprzbEBixKMSHcdkxiZBg/exec"; let gameChatOpen = false; let gameChatTimer = null; let lastGameChatHash = ""; let gameChatLoading = false; let gameChatSendTime = 0; const CHAT_COOLDOWN = 1500; /* ========================================================= CHAT DOM ========================================================= */ const chatPanel = document.getElementById( "chatPanel" ); const chatMessages = document.getElementById( "chatMessages" ); const chatTitle = document.getElementById( "chatTitle" ); const chatRoomId = document.getElementById( "chatRoomId" ); const chatStatus = document.getElementById( "chatStatus" ); const chatName = document.getElementById( "chatName" ); const chatMessage = document.getElementById( "chatMessage" ); const chatSend = document.getElementById( "chatSend" ); /* ========================================================= INITIAL CHAT INFORMATION ========================================================= */ chatTitle.textContent = "🎮 " + title; chatRoomId.textContent = "#" + gameId; /* ========================================================= ESCAPE HTML ========================================================= */ function escapeHTML(value){ return String(value ?? "") .replace(/&/g,"&amp;") .replace(/</g,"&lt;") .replace(/>/g,"&gt;") .replace(/"/g,"&quot;") .replace(/'/g,"&#039;"); } /* ========================================================= OPEN / CLOSE CHAT ========================================================= */ function toggleGameChat(){ gameChatOpen = !gameChatOpen; if(gameChatOpen){ chatPanel.classList.add( "open" ); loadGameChat(); clearInterval( gameChatTimer ); gameChatTimer = setInterval( loadGameChat, 2000 ); setTimeout( () => { chatMessage.focus(); }, 100 ); }else{ chatPanel.classList.remove( "open" ); clearInterval( gameChatTimer ); } } /* ========================================================= LOAD GAME CHAT ========================================================= */ async function loadGameChat(){ if(!gameChatOpen){ return; } if(gameChatLoading){ return; } gameChatLoading = true; try{ chatStatus.textContent = "Updating..."; const response = await fetch( CHAT_API, { method:"POST", body:JSON.stringify({ action:"get", station:gameId }) } ); if(!response.ok){ throw new Error( "HTTP " + response.status ); } const data = await response.json(); const hash = JSON.stringify(data); /* Do not rebuild the chat unless something changed. */ if(hash === lastGameChatHash){ chatStatus.textContent = "Live"; return; } lastGameChatHash = hash; renderGameChat( data ); chatStatus.textContent = "Live"; }catch(error){ console.error( "[GAME CHAT]", error ); chatStatus.textContent = "Chat unavailable"; }finally{ gameChatLoading = false; } } /* ========================================================= RENDER CHAT ========================================================= */ function renderGameChat(data){ if(!Array.isArray(data) || data.length === 0){ chatMessages.innerHTML = ` <div class="chat-empty"> No messages yet.<br> Start the conversation for this game. </div> `; return; } /* Your existing Chat Obvyris backend treats the first record as the pinned/header message. */ const header = data[0]; const messages = data.slice(1); let html = ""; /* PINNED GAME HEADER */ if(header){ html += ` <div class="chat-message" style=" border-color:#2793ff; background:#0b1220; " > <span class="chat-name"> 📌 ${escapeHTML( header.name || "Game" )} </span> ${escapeHTML( header.message || "" )} </div> `; } /* NORMAL CHAT */ for(const message of messages){ if(!message){ continue; } const name = escapeHTML( message.name || "Anon" ); const text = escapeHTML( message.message || "" ); html += ` <div class="chat-message"> <span class="chat-name"> ${name}: </span> ${text} </div> `; } chatMessages.innerHTML = html; /* Always move to bottom when the user is already near the bottom. */ const distance = chatMessages.scrollHeight - chatMessages.scrollTop - chatMessages.clientHeight; if(distance < 150){ chatMessages.scrollTop = chatMessages.scrollHeight; } } /* ========================================================= SEND CHAT MESSAGE ========================================================= */ async function sendGameChat(){ const now = Date.now(); if( now - gameChatSendTime < CHAT_COOLDOWN ){ return; } const name = chatName.value.trim() || "Anon"; const message = chatMessage.value.trim(); if(!message){ return; } gameChatSendTime = now; chatSend.disabled = true; try{ chatStatus.textContent = "Sending..."; await fetch( CHAT_API, { method:"POST", body:JSON.stringify({ action:"send", station:gameId, stationName:title, name:name, message:message }) } ); chatMessage.value = ""; await loadGameChat(); }catch(error){ console.error( "[GAME CHAT SEND]", error ); chatStatus.textContent = "Send failed"; } setTimeout( () => { chatSend.disabled = false; }, CHAT_COOLDOWN ); } /* ========================================================= ENTER TO SEND ========================================================= */ chatMessage.addEventListener( "keydown", function(event){ if( event.key === "Enter" && !event.shiftKey ){ event.preventDefault(); sendGameChat(); } } ); /* ========================================================= ROM DOWNLOAD ========================================================= */ async function downloadROM(){ try{ setLoading( "Downloading ROM..." ); log( "Fetching ROM through Vercel proxy..." ); const response = await fetch( proxyURL, { method:"GET", mode:"cors", cache:"no-store" } ); console.log( "[OBVYRIS EMULATOR] Proxy response:", response.status, response.statusText ); if(!response.ok){ let text = ""; try{ text = await response.text(); }catch(e){} throw new Error( "Proxy returned HTTP " + response.status + "\n" + text ); } setLoading( "Reading ROM..." ); const buffer = await response.arrayBuffer(); console.log( "[OBVYRIS EMULATOR] ROM downloaded:", buffer.byteLength, "bytes" ); if( !buffer || buffer.byteLength < 16 ){ throw new Error( "ROM data is empty or too small." ); } /* ================================================= NES HEADER ================================================= */ if(core === "nes"){ const bytes = new Uint8Array( buffer ); const validNES = bytes.length >= 4 && bytes[0] === 0x4E && bytes[1] === 0x45 && bytes[2] === 0x53 && bytes[3] === 0x1A; if(!validNES){ throw new Error( "The downloaded file is not a valid NES ROM.\n" + "First bytes: " + Array.from( bytes.slice(0,8) ) .map( x => x.toString(16) .padStart(2,"0") ) .join(" ") ); } } const blob = new Blob( [buffer], { type: "application/octet-stream" } ); const blobURL = URL.createObjectURL( blob ); return blobURL; }catch(error){ console.error( "[OBVYRIS EMULATOR] ROM download error:", error ); throw error; } } /* ========================================================= START EMULATORJS ========================================================= */ function startEmulator(blobURL){ return new Promise( (resolve,reject)=>{ try{ setLoading( "Preparing EmulatorJS..." ); window.EJS_player = "#game"; window.EJS_core = core; window.EJS_gameUrl = blobURL; window.EJS_gameName = title; window.EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/"; window.EJS_startOnLoaded = true; window.EJS_disableAutoLang = true; window.EJS_color = "#111111"; window.EJS_backgroundColor = "#000000"; window.EJS_gameID = "obvyris-" + gameId; /* Game started */ window.EJS_onGameStart = function(){ console.log( "[OBVYRIS EMULATOR] GAME STARTED" ); loading.style.display = "none"; status.classList.add( "hidden" ); resolve(); }; window.EJS_onLoad = function(){ console.log( "[OBVYRIS EMULATOR] EmulatorJS loaded" ); }; window.EJS_onSaveState = function(){ console.log( "[OBVYRIS EMULATOR] Save state" ); }; window.EJS_onLoadState = function(){ console.log( "[OBVYRIS EMULATOR] Load state" ); }; setLoading( "Loading EmulatorJS..." ); const script = document.createElement( "script" ); script.src = "https://cdn.emulatorjs.org/stable/data/loader.js"; script.async = true; script.onload = function(){ console.log( "[OBVYRIS EMULATOR] EmulatorJS loader loaded" ); setLoading( "Starting " + requestedCore.toUpperCase() + "..." ); let attempts = 0; const maxAttempts = 150; const checkCanvas = setInterval( function(){ attempts++; const canvas = document.querySelector( "#game canvas" ); if(canvas){ clearInterval( checkCanvas ); console.log( "[OBVYRIS EMULATOR] Canvas detected:", canvas.width, "x", canvas.height ); return; } if( attempts >= maxAttempts ){ clearInterval( checkCanvas ); console.warn( "[OBVYRIS EMULATOR] Canvas was not detected." ); } }, 100 ); }; script.onerror = function(){ reject( new Error( "EmulatorJS loader could not be loaded." ) ); }; document.head.appendChild( script ); }catch(error){ reject(error); } } ); } /* ========================================================= MAIN ========================================================= */ async function main(){ try{ console.log( "[OBVYRIS EMULATOR] Starting:", title ); console.log( "[OBVYRIS EMULATOR] GAME ID:", gameId ); const blobURL = await downloadROM(); await startEmulator( blobURL ); console.log( "[OBVYRIS EMULATOR]", title, "— EmulatorJS running" ); }catch(error){ console.error( "[OBVYRIS EMULATOR] FATAL:", error ); fail( error && error.message ? error.message : String(error) ); } } /* ========================================================= GLOBAL ERRORS ========================================================= */ window.addEventListener( "error", function(event){ console.error( "[OBVYRIS EMULATOR] Window error:", event.error || event.message ); } ); window.addEventListener( "unhandledrejection", function(event){ console.error( "[OBVYRIS EMULATOR] Promise error:", event.reason ); } ); /* ========================================================= START ========================================================= */ main(); </script> </body> </html>
+
+/* =========================================================
+   URL PARAMETERS
+========================================================= */
+
+const params =
+    new URLSearchParams(
+        window.location.search
+    );
+
+
+/*
+    Example:
+
+    emulatortest.html
+        ?gameid=baseball-japan
+        &rom=https%3A%2F%2Farchive.org%2F...
+        &core=nes
+        &title=Baseball%20Japan
+*/
+
+const gameId =
+    params.get("gameid") ||
+    "obvyris-game";
+
+
+const originalRom =
+    params.get("rom");
+
+
+const requestedCore =
+    (
+        params.get("core") ||
+        "nes"
+    ).toLowerCase();
+
+
+const title =
+    params.get("title") ||
+    "OBVYRIS GAME";
+
+
+/* =========================================================
+   CHAT API
+========================================================= */
+
+const CHAT_API =
+    "https://script.google.com/macros/s/AKfycbzin84qDcZ9L1q4pTBtHZGKJSTDcZ_wnmgWmnmgPgf1jrc1nRprzbEBixKMSHcdkxiZBg/exec";
+
+
+/* =========================================================
+   CORE MAP
+========================================================= */
+
+const CORE_MAP = {
+
+    nes:
+        "nes",
+
+    snes:
+        "snes",
+
+    genesis:
+        "genesis_plus_gx",
+
+    megadrive:
+        "genesis_plus_gx",
+
+    sega_genesis:
+        "genesis_plus_gx",
+
+    genesis_plus_gx:
+        "genesis_plus_gx"
+
+};
+
+
+const core =
+    CORE_MAP[requestedCore] ||
+    requestedCore;
+
+
+/* =========================================================
+   DOM
+========================================================= */
+
+const loading =
+    document.getElementById("loading");
+
+
+const loadingText =
+    document.getElementById("loadingText");
+
+
+const errorBox =
+    document.getElementById("error");
+
+
+const status =
+    document.getElementById("status");
+
+
+/* =========================================================
+   LOGGING
+========================================================= */
+
+function log(message){
+
+    console.log(
+        "[OBVYRIS EMULATOR]",
+        message
+    );
+
+    status.textContent =
+        message;
+}
+
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+function fail(message){
+
+    console.error(
+        "[OBVYRIS EMULATOR]",
+        message
+    );
+
+    loading.style.display =
+        "none";
+
+    errorBox.style.display =
+        "flex";
+
+    errorBox.textContent =
+        "Emulator Error\n\n" +
+        message;
+}
+
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+function setLoading(message){
+
+    loadingText.textContent =
+        message;
+
+    console.log(
+        "[OBVYRIS EMULATOR]",
+        message
+    );
+}
+
+
+/* =========================================================
+   DEBUG
+========================================================= */
+
+console.log(
+    "[OBVYRIS EMULATOR] Game ID:",
+    gameId
+);
+
+console.log(
+    "[OBVYRIS EMULATOR] Requested Core:",
+    requestedCore
+);
+
+console.log(
+    "[OBVYRIS EMULATOR] EmulatorJS Core:",
+    core
+);
+
+console.log(
+    "[OBVYRIS EMULATOR] Title:",
+    title
+);
+
+console.log(
+    "[OBVYRIS EMULATOR] ROM:",
+    originalRom
+);
+
+
+/* =========================================================
+   CHAT ROOM ID
+=========================================================
+
+   IMPORTANT:
+
+   The game ID IS the chat room ID.
+
+   Example:
+
+   gameid = baseball-japan
+
+   Chat station = baseball-japan
+
+   Every player opening that game
+   joins the exact same room.
+========================================================= */
+
+const gameChatRoom =
+    gameId;
+
+
+/* =========================================================
+   INITIALIZE CHAT UI
+========================================================= */
+
+document.getElementById(
+    "gameChatTitle"
+).textContent =
+    "💬 " + title;
+
+
+document.getElementById(
+    "gameChatSubtitle"
+).textContent =
+    "Game Chat • " + gameId;
+
+
+/* =========================================================
+   TOGGLE CHAT
+========================================================= */
+
+function toggleGameChat(){
+
+    const chat =
+        document.getElementById(
+            "gameChat"
+        );
+
+
+    gameChatOpen =
+        !gameChatOpen;
+
+
+    if(gameChatOpen){
+
+        chat.classList.remove(
+            "hidden"
+        );
+
+
+        loadGameChat();
+
+
+        clearInterval(
+            gameChatTimer
+        );
+
+
+        gameChatTimer =
+            setInterval(
+                loadGameChat,
+                2000
+            );
+
+
+    }else{
+
+        chat.classList.add(
+            "hidden"
+        );
+
+
+        clearInterval(
+            gameChatTimer
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   LOAD GAME CHAT
+========================================================= */
+
+async function loadGameChat(){
+
+    if(!gameChatOpen){
+        return;
+    }
+
+
+    try{
+
+        const response =
+            await fetch(
+                CHAT_API,
+                {
+                    method:"POST",
+
+                    body:
+                        JSON.stringify({
+
+                            action:"get",
+
+                            station:
+                                gameChatRoom
+
+                        })
+                }
+            );
+
+
+        if(!response.ok){
+
+            throw new Error(
+                "Chat HTTP " +
+                response.status
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if(!Array.isArray(data)){
+            return;
+        }
+
+
+        const hash =
+            JSON.stringify(data);
+
+
+        if(hash === gameChatLastHash){
+            return;
+        }
+
+
+        gameChatLastHash =
+            hash;
+
+
+        renderGameChat(
+            data
+        );
+
+
+    }catch(error){
+
+        console.error(
+            "[OBVYRIS GAME CHAT]",
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   RENDER GAME CHAT
+========================================================= */
+
+function renderGameChat(data){
+
+    const container =
+        document.getElementById(
+            "gameChatMessages"
+        );
+
+
+    if(!data.length){
+
+        container.innerHTML = `
+            <div style="
+                text-align:center;
+                color:#93a4bb;
+                padding:30px;
+            ">
+                No messages yet.<br>
+                Start the conversation.
+            </div>
+        `;
+
+        return;
+    }
+
+
+    container.innerHTML =
+        data.map(
+            message => {
+
+                const name =
+                    escapeHTML(
+                        message.name ||
+                        "Anon"
+                    );
+
+
+                const text =
+                    escapeHTML(
+                        message.message ||
+                        ""
+                    );
+
+
+                return `
+
+                    <div class="game-chat-msg">
+
+                        <span class="game-chat-name">
+                            ${name}:
+                        </span>
+
+                        ${text}
+
+                    </div>
+
+                `;
+
+            }
+        ).join("");
+
+
+    container.scrollTop =
+        container.scrollHeight;
+
+}
+
+
+/* =========================================================
+   SEND GAME CHAT
+========================================================= */
+
+async function sendGameChatMessage(){
+
+    const now =
+        Date.now();
+
+
+    if(
+        now -
+        gameChatLastSend
+        <
+        GAME_CHAT_COOLDOWN
+    ){
+
+        return;
+
+    }
+
+
+    const name =
+        document.getElementById(
+            "gameChatName"
+        ).value.trim()
+        ||
+        "Anon";
+
+
+    const input =
+        document.getElementById(
+            "gameChatMessage"
+        );
+
+
+    const message =
+        input.value.trim();
+
+
+    if(!message){
+        return;
+    }
+
+
+    gameChatLastSend =
+        now;
+
+
+    const sendButton =
+        document.querySelector(
+            ".game-chat-input button"
+        );
+
+
+    sendButton.disabled =
+        true;
+
+
+    try{
+
+        await fetch(
+            CHAT_API,
+            {
+
+                method:"POST",
+
+                body:
+                    JSON.stringify({
+
+                        action:"send",
+
+                        /*
+                         * THIS IS THE IMPORTANT PART
+                         *
+                         * The game ID becomes
+                         * the chat station.
+                         */
+
+                        station:
+                            gameChatRoom,
+
+                        stationName:
+                            title,
+
+                        name:
+                            name,
+
+                        message:
+                            message
+
+                    })
+
+            }
+        );
+
+
+        input.value = "";
+
+
+        await loadGameChat();
+
+
+    }catch(error){
+
+        console.error(
+            "[OBVYRIS GAME CHAT]",
+            error
+        );
+
+    }
+
+
+    setTimeout(
+        () => {
+
+            sendButton.disabled =
+                false;
+
+        },
+        GAME_CHAT_COOLDOWN
+    );
+
+}
+
+
+/* =========================================================
+   ENTER TO SEND
+========================================================= */
+
+document
+    .getElementById(
+        "gameChatMessage"
+    )
+    .addEventListener(
+        "keydown",
+        function(event){
+
+            if(
+                event.key === "Enter"
+            ){
+
+                event.preventDefault();
+
+                sendGameChatMessage();
+
+            }
+
+        }
+    );
+
+
+/* =========================================================
+   HTML ESCAPE
+========================================================= */
+
+function escapeHTML(value){
+
+    return String(value)
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+/* =========================================================
+   ROM REQUIRED
+========================================================= */
+
+if(!originalRom){
+
+    fail(
+        "No ROM was supplied.\n\n" +
+
+        "Open the emulator with:\n\n" +
+
+        "?gameid=GAME-ID" +
+        "&rom=ROM-URL" +
+        "&core=nes" +
+        "&title=GAME-TITLE"
+    );
+
+}else{
+
+
+    /* =====================================================
+       ROM PROXY
+    ===================================================== */
+
+    const PROXY_BASE =
+        "https://obvyris-rom-proxy.vercel.app/api/rom";
+
+
+    const proxyURL =
+        PROXY_BASE +
+        "?url=" +
+        encodeURIComponent(
+            originalRom
+        );
+
+
+    /* =====================================================
+       DOWNLOAD ROM
+    ===================================================== */
+
+    async function downloadROM(){
+
+        setLoading(
+            "Downloading ROM..."
+        );
+
+
+        log(
+            "Fetching ROM through proxy..."
+        );
+
+
+        const response =
+            await fetch(
+                proxyURL,
+                {
+                    method:"GET",
+                    mode:"cors",
+                    cache:"no-store"
+                }
+            );
+
+
+        if(!response.ok){
+
+            let text = "";
+
+            try{
+
+                text =
+                    await response.text();
+
+            }catch(e){}
+
+
+            throw new Error(
+                "Proxy returned HTTP " +
+                response.status +
+                "\n" +
+                text
+            );
+
+        }
+
+
+        setLoading(
+            "Reading ROM..."
+        );
+
+
+        const buffer =
+            await response.arrayBuffer();
+
+
+        console.log(
+            "[OBVYRIS EMULATOR] ROM size:",
+            buffer.byteLength
+        );
+
+
+        if(
+            !buffer ||
+            buffer.byteLength < 16
+        ){
+
+            throw new Error(
+                "ROM data is empty or too small."
+            );
+
+        }
+
+
+        /* ===============================================
+           NES HEADER
+        =============================================== */
+
+        if(core === "nes"){
+
+            const bytes =
+                new Uint8Array(
+                    buffer
+                );
+
+
+            const validNES =
+                bytes.length >= 4 &&
+
+                bytes[0] === 0x4E &&
+                bytes[1] === 0x45 &&
+                bytes[2] === 0x53 &&
+                bytes[3] === 0x1A;
+
+
+            if(!validNES){
+
+                throw new Error(
+                    "Downloaded file is not a valid NES ROM."
+                );
+
+            }
+
+        }
+
+
+        const blob =
+            new Blob(
+                [buffer],
+                {
+                    type:
+                        "application/octet-stream"
+                }
+            );
+
+
+        return URL.createObjectURL(
+            blob
+        );
+
+    }
+
+
+    /* =====================================================
+       START EMULATORJS
+    ===================================================== */
+
+    function startEmulator(
+        blobURL
+    ){
+
+        return new Promise(
+            (resolve,reject) => {
+
+                try{
+
+                    setLoading(
+                        "Preparing EmulatorJS..."
+                    );
+
+
+                    window.EJS_player =
+                        "#game";
+
+
+                    window.EJS_core =
+                        core;
+
+
+                    window.EJS_gameUrl =
+                        blobURL;
+
+
+                    window.EJS_gameName =
+                        title;
+
+
+                    window.EJS_pathtodata =
+                        "https://cdn.emulatorjs.org/stable/data/";
+
+
+                    window.EJS_startOnLoaded =
+                        true;
+
+
+                    window.EJS_disableAutoLang =
+                        true;
+
+
+                    window.EJS_color =
+                        "#111111";
+
+
+                    window.EJS_backgroundColor =
+                        "#000000";
+
+
+                    /*
+                     * Use actual game ID.
+                     */
+
+                    window.EJS_gameID =
+                        "obvyris-" +
+                        gameId;
+
+
+                    window.EJS_onGameStart =
+                        function(){
+
+                            console.log(
+                                "[OBVYRIS EMULATOR] GAME STARTED"
+                            );
+
+
+                            loading.style.display =
+                                "none";
+
+
+                            status.classList.add(
+                                "hidden"
+                            );
+
+                        };
+
+
+                    window.EJS_onLoad =
+                        function(){
+
+                            console.log(
+                                "[OBVYRIS EMULATOR] EmulatorJS loaded"
+                            );
+
+                        };
+
+
+                    setLoading(
+                        "Loading EmulatorJS..."
+                    );
+
+
+                    const script =
+                        document.createElement(
+                            "script"
+                        );
+
+
+                    script.src =
+                        "https://cdn.emulatorjs.org/stable/data/loader.js";
+
+
+                    script.async =
+                        true;
+
+
+                    script.onload =
+                        function(){
+
+                            console.log(
+                                "[OBVYRIS EMULATOR] EmulatorJS loader loaded"
+                            );
+
+
+                            setLoading(
+                                "Starting " +
+                                requestedCore.toUpperCase() +
+                                "..."
+                            );
+
+                        };
+
+
+                    script.onerror =
+                        function(){
+
+                            reject(
+                                new Error(
+                                    "EmulatorJS loader could not be loaded."
+                                )
+                            );
+
+                        };
+
+
+                    document.head.appendChild(
+                        script
+                    );
+
+
+                }catch(error){
+
+                    reject(error);
+
+                }
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       MAIN
+    ===================================================== */
+
+    async function main(){
+
+        try{
+
+            console.log(
+                "[OBVYRIS EMULATOR] Starting..."
+            );
+
+
+            console.log(
+                "[OBVYRIS EMULATOR] Game ID:",
+                gameId
+            );
+
+
+            console.log(
+                "[OBVYRIS EMULATOR] Chat Room:",
+                gameChatRoom
+            );
+
+
+            const blobURL =
+                await downloadROM();
+
+
+            await startEmulator(
+                blobURL
+            );
+
+
+        }catch(error){
+
+            console.error(
+                "[OBVYRIS EMULATOR] FATAL:",
+                error
+            );
+
+
+            fail(
+                error &&
+                error.message
+                    ? error.message
+                    : String(error)
+            );
+
+        }
+
+    }
+
+
+    main();
+
+}
+
+
+/* =========================================================
+   GLOBAL ERRORS
+========================================================= */
+
+window.addEventListener(
+    "error",
+    function(event){
+
+        console.error(
+            "[OBVYRIS EMULATOR] Window error:",
+            event.error ||
+            event.message
+        );
+
+    }
+);
+
+
+window.addEventListener(
+    "unhandledrejection",
+    function(event){
+
+        console.error(
+            "[OBVYRIS EMULATOR] Promise error:",
+            event.reason
+        );
+
+    }
+);
+
+</script>
+
+</body>
+</html>
