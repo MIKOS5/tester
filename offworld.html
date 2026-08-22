@@ -3,861 +3,509 @@
 <head>
 
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta
-    name="viewport"
-    content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"
->
-
-<title>Obvyris — Off World</title>
-
-<meta name="theme-color" content="#02050a">
+<title>OBVYRIS // EXTRASOLAR INTERFACE</title>
 
 <style>
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&display=swap');
 
 *{
     box-sizing:border-box;
 }
 
-html,
-body{
+html,body{
     margin:0;
     width:100%;
     height:100%;
     overflow:hidden;
-    background:#010308;
-    color:#d9efff;
-    font-family:Arial,Helvetica,sans-serif;
+    background:#020308;
+    color:#d8ecff;
+    font-family:Orbitron,sans-serif;
 }
 
-button{
-    font:inherit;
+body{
+    position:relative;
 }
-
 
 /* =========================================================
    SPACE
 ========================================================= */
 
-#space{
-
-    position:fixed;
+.space{
+    position:absolute;
     inset:0;
     overflow:hidden;
-
     background:
         radial-gradient(
             ellipse at center,
-            #071522 0%,
-            #020810 45%,
-            #010308 100%
+            #111d35 0%,
+            #050814 38%,
+            #010207 75%
         );
-
 }
 
-
-#spaceCanvas{
-
+.star-layer{
     position:absolute;
-    inset:0;
-    width:100%;
-    height:100%;
-
+    inset:-100%;
+    background-image:
+        radial-gradient(circle,#fff 0 1px,transparent 1.5px),
+        radial-gradient(circle,#9ddcff 0 1px,transparent 1.5px),
+        radial-gradient(circle,#fff 0 .7px,transparent 1px);
+    background-size:
+        170px 170px,
+        290px 290px,
+        97px 97px;
+    opacity:.55;
+    animation:stars 35s linear infinite;
 }
 
+.star-layer.two{
+    opacity:.3;
+    transform:scale(1.4);
+    animation-duration:22s;
+}
 
-/* =========================================================
-   NEBULA
-========================================================= */
+.star-layer.three{
+    opacity:.2;
+    transform:scale(1.8);
+    animation-duration:12s;
+}
+
+@keyframes stars{
+    from{
+        transform:translate3d(0,0,0) scale(1);
+    }
+    to{
+        transform:translate3d(700px,400px,0) scale(1.05);
+    }
+}
 
 .nebula{
-
     position:absolute;
-
-    width:80vw;
-    height:60vw;
-
-    max-width:1100px;
-    max-height:800px;
-
+    width:70vw;
+    height:45vw;
+    left:15%;
+    top:20%;
     border-radius:50%;
-
-    opacity:0;
-
+    background:
+        radial-gradient(
+            ellipse,
+            rgba(102,40,255,.18),
+            rgba(20,120,255,.08) 35%,
+            transparent 70%
+        );
     filter:blur(35px);
-
-    pointer-events:none;
-
-    transition:
-        opacity 4s ease;
-
+    animation:nebulaMove 18s ease-in-out infinite alternate;
 }
 
-
-#nebula1{
-
-    left:-20%;
-    top:10%;
-
-    background:
-        radial-gradient(
-            ellipse,
-            rgba(35,120,190,.22),
-            rgba(20,50,120,.12),
-            transparent 70%
-        );
-
+@keyframes nebulaMove{
+    from{
+        transform:translate(-5%,-3%) rotate(-5deg);
+    }
+    to{
+        transform:translate(8%,5%) rotate(8deg);
+    }
 }
-
-
-#nebula2{
-
-    right:-25%;
-    bottom:0;
-
-    background:
-        radial-gradient(
-            ellipse,
-            rgba(110,50,180,.18),
-            rgba(40,20,100,.1),
-            transparent 70%
-        );
-
-}
-
-
-/* =========================================================
-   PLANETS
-========================================================= */
-
-.planet{
-
-    position:absolute;
-
-    border-radius:50%;
-
-    pointer-events:none;
-
-    opacity:0;
-
-    transform:
-        translate(-50%,-50%)
-        scale(.2);
-
-    transition:
-        opacity 2s ease;
-
-}
-
-
-#planet{
-
-    width:180px;
-    height:180px;
-
-    left:72%;
-    top:48%;
-
-    background:
-
-        radial-gradient(
-            circle at 32% 28%,
-            #d9f6ff 0%,
-            #6a9eaf 18%,
-            #214e60 45%,
-            #081a25 78%,
-            #02060a 100%
-        );
-
-    box-shadow:
-
-        -30px -15px 45px
-        rgba(100,210,255,.16),
-
-        30px 20px 50px
-        rgba(0,0,0,.9);
-
-}
-
-
-#planet::after{
-
-    content:"";
-
-    position:absolute;
-
-    inset:-12px;
-
-    border-radius:50%;
-
-    border:
-        1px solid
-        rgba(100,210,255,.12);
-
-}
-
 
 /* =========================================================
    DISTANT PLANET
 ========================================================= */
 
-#smallPlanet{
-
-    width:70px;
-    height:70px;
-
-    left:25%;
-    top:30%;
-
-    background:
-
-        radial-gradient(
-            circle at 35% 30%,
-            #e9c9a0,
-            #8d6c4e 35%,
-            #32261f 70%,
-            #050608
-        );
-
-    box-shadow:
-        0 0 35px
-        rgba(220,160,100,.12);
-
-}
-
-
-/* =========================================================
-   ASTEROID
-========================================================= */
-
-.asteroid{
-
+.planet{
     position:absolute;
-
-    width:18px;
-    height:14px;
-
-    border-radius:
-        48% 52% 45% 55%;
-
-    background:
-        linear-gradient(
-            135deg,
-            #78828a,
-            #2b3237
-        );
-
-    box-shadow:
-        -8px 4px 12px
-        rgba(0,0,0,.8);
-
-    opacity:0;
-
-    pointer-events:none;
-
-}
-
-
-/* =========================================================
-   COCKPIT
-========================================================= */
-
-#cockpit{
-
-    position:fixed;
-
-    inset:0;
-
-    pointer-events:none;
-
-}
-
-
-/* =========================================================
-   WINDOW FRAME
-========================================================= */
-
-.windowFrame{
-
-    position:absolute;
-
-    inset:0;
-
-    border:
-        20px solid
-        rgba(7,13,20,.95);
-
-    box-shadow:
-
-        inset 0 0 70px
-        rgba(0,0,0,.9),
-
-        inset 0 0 15px
-        rgba(90,170,220,.12);
-
-}
-
-
-.windowFrame::before{
-
-    content:"";
-
-    position:absolute;
-
-    inset:0;
-
-    border:
-        1px solid
-        rgba(130,200,240,.18);
-
-}
-
-
-.windowReflection{
-
-    position:absolute;
-
-    inset:0;
-
-    background:
-
-        linear-gradient(
-            115deg,
-            transparent 35%,
-            rgba(255,255,255,.025) 42%,
-            transparent 48%
-        );
-
-    opacity:.6;
-
-}
-
-
-/* =========================================================
-   COCKPIT STRUCTURE
-========================================================= */
-
-.cockpitTop{
-
-    position:absolute;
-
-    left:0;
-    right:0;
-    top:0;
-
-    height:80px;
-
-    background:
-        linear-gradient(
-            180deg,
-            rgba(3,8,14,.95),
-            rgba(3,8,14,.55),
-            transparent
-        );
-
-}
-
-
-.cockpitBottom{
-
-    position:absolute;
-
-    left:0;
-    right:0;
-    bottom:0;
-
-    height:105px;
-
-    background:
-        linear-gradient(
-            0deg,
-            rgba(3,8,14,.98),
-            rgba(3,8,14,.75),
-            transparent
-        );
-
-}
-
-
-/* =========================================================
-   SHIP LIGHTS
-========================================================= */
-
-.shipLight{
-
-    position:absolute;
-
-    width:5px;
-    height:5px;
-
-    border-radius:50%;
-
-    background:#56d7ff;
-
-    box-shadow:
-        0 0 12px
-        rgba(80,210,255,.8);
-
-}
-
-
-.shipLight.l1{
-
-    left:8%;
-    bottom:55px;
-
-}
-
-
-.shipLight.l2{
-
-    left:18%;
-    bottom:55px;
-
-}
-
-
-.shipLight.l3{
-
-    right:18%;
-    bottom:55px;
-
-}
-
-
-.shipLight.l4{
-
+    width:240px;
+    height:240px;
     right:8%;
-    bottom:55px;
-
-}
-
-
-/* =========================================================
-   TOP HUD
-========================================================= */
-
-.topHud{
-
-    position:absolute;
-
-    left:40px;
-    right:40px;
-    top:25px;
-
-    display:flex;
-
-    justify-content:space-between;
-
-    align-items:center;
-
-    font-size:10px;
-
-    letter-spacing:2px;
-
-    color:#79b5d4;
-
-}
-
-
-.logo{
-
-    color:#7bd6ff;
-
-    font-weight:900;
-
-    letter-spacing:5px;
-
-    text-shadow:
-        0 0 15px
-        rgba(70,190,255,.5);
-
-}
-
-
-.travelStatus{
-
-    display:flex;
-
-    align-items:center;
-
-    gap:8px;
-
-}
-
-
-.statusDot{
-
-    width:7px;
-    height:7px;
-
+    top:14%;
     border-radius:50%;
-
-    background:#49e3a0;
-
+    background:
+        radial-gradient(
+            circle at 32% 28%,
+            #d7efff,
+            #5d7da6 18%,
+            #263754 48%,
+            #080d19 75%
+        );
     box-shadow:
-        0 0 10px
-        #49e3a0;
-
+        -30px 20px 70px rgba(0,0,0,.9),
+        0 0 80px rgba(92,160,255,.18);
+    animation:planetDrift 12s ease-in-out infinite alternate;
 }
 
+.planet:after{
+    content:"";
+    position:absolute;
+    inset:-20px;
+    border-radius:50%;
+    border:1px solid rgba(125,195,255,.15);
+    transform:rotate(-18deg) scaleY(.35);
+}
+
+@keyframes planetDrift{
+    from{transform:translate(0,0);}
+    to{transform:translate(-35px,20px);}
+}
 
 /* =========================================================
-   LOCATION HUD
+   SHIP WINDOW
 ========================================================= */
 
-.locationHud{
-
+.window{
     position:absolute;
+    left:5%;
+    right:5%;
+    top:6%;
+    bottom:7%;
+    border-radius:45px;
+    border:2px solid rgba(91,173,255,.42);
+    box-shadow:
+        inset 0 0 80px rgba(0,0,0,.8),
+        0 0 50px rgba(39,147,255,.08);
+    pointer-events:none;
+}
 
-    left:45px;
-    top:105px;
+.window:before{
+    content:"";
+    position:absolute;
+    inset:0;
+    border-radius:43px;
+    border:1px solid rgba(255,255,255,.08);
+}
 
-    color:#74b6d7;
+.window-glare{
+    position:absolute;
+    inset:0;
+    border-radius:43px;
+    background:
+        linear-gradient(
+            125deg,
+            rgba(255,255,255,.07),
+            transparent 18%,
+            transparent 75%,
+            rgba(80,170,255,.04)
+        );
+}
 
-    font-size:9px;
+/* =========================================================
+   HUD
+========================================================= */
 
-    line-height:1.8;
+.hud{
+    position:absolute;
+    inset:0;
+    padding:28px;
+    pointer-events:none;
+}
 
-    letter-spacing:2px;
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:20px;
+}
 
+.brand{
+    font-size:18px;
+    font-weight:900;
+    letter-spacing:4px;
+    color:#fff;
     text-shadow:
-        0 0 8px
-        rgba(50,160,220,.4);
-
+        0 0 10px #2793ff,
+        0 0 25px #2793ff;
 }
 
-
-.rightHud{
-
-    position:absolute;
-
-    right:45px;
-    top:105px;
-
-    text-align:right;
-
-    color:#74b6d7;
-
+.subbrand{
+    margin-top:5px;
     font-size:9px;
-
-    line-height:1.8;
-
     letter-spacing:2px;
-
+    color:#6f8ca8;
 }
 
+.status{
+    text-align:right;
+    font-size:10px;
+    letter-spacing:2px;
+    color:#67ffbf;
+}
+
+.status span{
+    display:block;
+    margin-top:6px;
+    color:#c8eaff;
+}
 
 /* =========================================================
-   CENTER MESSAGE
+   TELEMETRY PANELS
 ========================================================= */
 
-#eventMessage{
-
+.panel{
     position:absolute;
+    background:rgba(2,7,15,.68);
+    border:1px solid rgba(78,154,218,.35);
+    backdrop-filter:blur(8px);
+    box-shadow:
+        inset 0 0 30px rgba(20,100,180,.04),
+        0 0 20px rgba(0,0,0,.4);
+}
 
+.panel-title{
+    padding:9px 12px;
+    border-bottom:1px solid rgba(78,154,218,.25);
+    font-size:9px;
+    letter-spacing:2px;
+    color:#68bfff;
+}
+
+.telemetry{
+    left:28px;
+    bottom:30px;
+    width:250px;
+}
+
+.telemetry-body{
+    padding:12px;
+}
+
+.row{
+    display:flex;
+    justify-content:space-between;
+    margin:7px 0;
+    font-size:9px;
+}
+
+.row span:first-child{
+    color:#667f98;
+}
+
+.row span:last-child{
+    color:#d7edff;
+}
+
+.value{
+    color:#66ffd0 !important;
+}
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+.navigation{
+    right:28px;
+    bottom:30px;
+    width:285px;
+}
+
+.nav-body{
+    padding:15px;
+}
+
+.coordinate{
+    font-size:13px;
+    color:white;
+    letter-spacing:2px;
+    margin-bottom:12px;
+}
+
+.coordinate span{
+    color:#7bc9ff;
+}
+
+.scanline{
+    height:2px;
+    background:#152d43;
+    overflow:hidden;
+    position:relative;
+}
+
+.scanline:after{
+    content:"";
+    position:absolute;
+    left:-30%;
+    top:0;
+    width:30%;
+    height:100%;
+    background:#27b7ff;
+    box-shadow:0 0 10px #27b7ff;
+    animation:scan 2s linear infinite;
+}
+
+@keyframes scan{
+    to{left:130%;}
+}
+
+/* =========================================================
+   CENTER SYSTEM
+========================================================= */
+
+.center{
+    position:absolute;
     left:50%;
     top:50%;
-
-    transform:
-        translate(-50%,-50%);
-
-    width:
-        min(650px,80vw);
-
+    transform:translate(-50%,-50%);
     text-align:center;
-
-    opacity:0;
-
-    transition:
-        opacity 1s ease;
-
+    width:min(700px,80vw);
 }
 
+.system-ring{
+    width:150px;
+    height:150px;
+    margin:auto;
+    border-radius:50%;
+    border:1px solid rgba(39,183,255,.25);
+    position:relative;
+    animation:ringSpin 15s linear infinite;
+}
 
-#eventTitle{
+.system-ring:before,
+.system-ring:after{
+    content:"";
+    position:absolute;
+    inset:20px;
+    border-radius:50%;
+    border:1px dashed rgba(123,201,255,.3);
+}
 
-    font-size:
-        clamp(
-            20px,
-            3vw,
-            38px
-        );
+.system-ring:after{
+    inset:45px;
+    border:2px solid rgba(102,255,208,.4);
+}
 
+@keyframes ringSpin{
+    to{transform:rotate(360deg);}
+}
+
+.core{
+    position:absolute;
+    width:18px;
+    height:18px;
+    border-radius:50%;
+    background:#fff;
+    box-shadow:
+        0 0 15px #27b7ff,
+        0 0 35px #27b7ff;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+}
+
+.center-title{
+    margin-top:22px;
+    font-size:25px;
     font-weight:900;
-
-    letter-spacing:6px;
-
-    color:#dff7ff;
-
-    text-shadow:
-        0 0 25px
-        rgba(80,200,255,.7);
-
+    letter-spacing:5px;
+    color:white;
+    text-shadow:0 0 20px rgba(39,183,255,.7);
 }
 
-
-#eventSub{
-
+.center-message{
     margin-top:12px;
-
     font-size:10px;
-
-    letter-spacing:3px;
-
-    color:#79a8be;
-
+    line-height:1.9;
+    color:#7d98b3;
+    letter-spacing:2px;
 }
 
+.alert{
+    margin-top:22px;
+    padding:10px;
+    border:1px solid rgba(255,92,122,.35);
+    background:rgba(90,10,30,.16);
+    color:#ff8fa8;
+    font-size:9px;
+    letter-spacing:2px;
+}
 
 /* =========================================================
-   SHIP COMPUTER PANEL
+   ALIEN TRANSMISSION
 ========================================================= */
 
-#computer{
-
+.transmission{
     position:absolute;
-
+    top:115px;
     left:50%;
-
-    bottom:22px;
-
-    transform:
-        translateX(-50%)
-        translateY(130%);
-
-    width:
-        min(600px,85vw);
-
-    padding:12px 16px;
-
-    background:
-        rgba(4,14,22,.92);
-
-    border:
-        1px solid
-        rgba(70,170,220,.35);
-
-    box-shadow:
-        0 0 25px
-        rgba(0,0,0,.7);
-
-    transition:
-        transform .5s ease;
-
-    pointer-events:auto;
-
+    transform:translateX(-50%);
+    width:min(520px,75vw);
+    padding:12px;
+    text-align:center;
+    border-top:1px solid rgba(142,97,255,.4);
+    border-bottom:1px solid rgba(142,97,255,.4);
+    background:rgba(30,10,60,.12);
 }
 
-
-#computer.open{
-
-    transform:
-        translateX(-50%)
-        translateY(0);
-
+.alien{
+    font-size:16px;
+    letter-spacing:7px;
+    color:#b88cff;
+    text-shadow:0 0 15px #8a2be2;
 }
 
-
-.computerHeader{
-
-    display:flex;
-
-    justify-content:space-between;
-
-    align-items:center;
-
-    color:#68cfff;
-
-    font-size:10px;
-
-    letter-spacing:2px;
-
-}
-
-
-.computerData{
-
-    margin-top:10px;
-
-    display:grid;
-
-    grid-template-columns:
-        repeat(4,1fr);
-
-    gap:8px;
-
-}
-
-
-.dataBox{
-
-    padding:8px;
-
-    border:
-        1px solid
-        rgba(80,140,180,.16);
-
-    background:
-        rgba(10,25,35,.7);
-
-}
-
-
-.dataLabel{
-
-    color:#66859a;
-
+.translation{
+    margin-top:7px;
     font-size:8px;
-
-    letter-spacing:1px;
-
+    color:#66728b;
+    letter-spacing:2px;
 }
-
-
-.dataValue{
-
-    margin-top:4px;
-
-    color:#d8f3ff;
-
-    font-size:11px;
-
-}
-
 
 /* =========================================================
-   CONTROLS
+   BUTTONS
 ========================================================= */
 
 .controls{
-
     position:absolute;
-
-    right:35px;
-
-    bottom:25px;
-
-    display:flex;
-
-    gap:8px;
-
-    pointer-events:auto;
-
-}
-
-
-.controlButton{
-
-    padding:
-        9px 13px;
-
-    border:
-        1px solid
-        rgba(90,170,215,.3);
-
-    background:
-        rgba(4,13,20,.8);
-
-    color:#9ed6ef;
-
-    font-size:9px;
-
-    letter-spacing:1px;
-
-    border-radius:4px;
-
-    cursor:pointer;
-
-}
-
-
-.controlButton:hover{
-
-    border-color:
-        rgba(100,210,255,.7);
-
-    color:white;
-
-}
-
-
-/* =========================================================
-   HYPERSPACE
-========================================================= */
-
-#hyperspace{
-
-    position:absolute;
-
-    inset:0;
-
-    opacity:0;
-
-    pointer-events:none;
-
-    background:
-        radial-gradient(
-            ellipse at center,
-            transparent 0%,
-            rgba(20,120,200,.08) 30%,
-            rgba(0,0,0,.85) 100%
-        );
-
-    transition:
-        opacity .3s ease;
-
-}
-
-
-#hyperspace.active{
-
-    opacity:1;
-
-}
-
-
-.hyperLine{
-
-    position:absolute;
-
     left:50%;
-    top:50%;
-
-    width:2px;
-
-    height:100px;
-
-    transform-origin:
-        center bottom;
-
-    background:
-        linear-gradient(
-            transparent,
-            rgba(150,230,255,.9)
-        );
-
+    bottom:12px;
+    transform:translateX(-50%);
+    display:flex;
+    gap:8px;
+    pointer-events:auto;
 }
 
+button{
+    font-family:Orbitron,sans-serif;
+    background:rgba(8,20,35,.85);
+    border:1px solid #27577d;
+    color:#bce5ff;
+    padding:9px 13px;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:8px;
+    letter-spacing:1px;
+}
+
+button:hover{
+    background:#102b44;
+    border-color:#55bfff;
+    box-shadow:0 0 15px rgba(39,183,255,.25);
+}
 
 /* =========================================================
-   SCREEN FLASH
+   EVENT LOG
 ========================================================= */
 
-#flash{
-
+.log{
     position:absolute;
-
-    inset:0;
-
-    background:white;
-
-    opacity:0;
-
-    pointer-events:none;
-
+    left:28px;
+    top:105px;
+    width:270px;
+    max-height:170px;
+    overflow:hidden;
+    font-size:8px;
+    line-height:1.8;
+    color:#607891;
 }
 
+.log div{
+    border-left:2px solid #18344e;
+    padding-left:8px;
+    margin:5px 0;
+}
+
+.log .important{
+    color:#7ecbff;
+    border-color:#27b7ff;
+}
 
 /* =========================================================
    MOBILE
@@ -865,69 +513,71 @@ button{
 
 @media(max-width:700px){
 
-    .windowFrame{
-
-        border-width:10px;
-
+    .window{
+        left:2%;
+        right:2%;
+        top:2%;
+        bottom:3%;
+        border-radius:25px;
     }
 
-
-    .topHud{
-
-        left:20px;
-        right:20px;
-
-        top:18px;
-
+    .hud{
+        padding:15px;
     }
 
-
-    .locationHud{
-
-        left:22px;
-        top:75px;
-
+    .brand{
+        font-size:13px;
     }
 
-
-    .rightHud{
-
-        right:22px;
-        top:75px;
-
+    .telemetry{
+        left:15px;
+        bottom:15px;
+        width:190px;
     }
 
-
-    .cockpitBottom{
-
-        height:80px;
-
+    .navigation{
+        right:15px;
+        bottom:15px;
+        width:190px;
     }
 
+    .log{
+        display:none;
+    }
+
+    .planet{
+        width:130px;
+        height:130px;
+        right:4%;
+        top:18%;
+    }
+
+    .center{
+        width:90vw;
+    }
+
+    .center-title{
+        font-size:17px;
+        letter-spacing:3px;
+    }
+
+    .system-ring{
+        width:110px;
+        height:110px;
+    }
+
+    .transmission{
+        top:90px;
+    }
 
     .controls{
-
-        left:50%;
-
-        right:auto;
-
-        transform:
-            translateX(-50%);
-
-        bottom:18px;
-
-        white-space:nowrap;
-
+        bottom:3px;
     }
 
-
-    .computerData{
-
-        grid-template-columns:
-            repeat(2,1fr);
-
+    button{
+        padding:7px 8px;
+        font-size:7px;
     }
-
 }
 
 </style>
@@ -936,231 +586,237 @@ button{
 
 <body>
 
+<div class="space">
 
-<div id="space">
+    <div class="star-layer"></div>
+    <div class="star-layer two"></div>
+    <div class="star-layer three"></div>
 
-    <canvas id="spaceCanvas"></canvas>
+    <div class="nebula"></div>
 
-    <div
-        class="nebula"
-        id="nebula1"
-    ></div>
+    <div class="planet"></div>
 
-    <div
-        class="nebula"
-        id="nebula2"
-    ></div>
+</div>
 
 
-    <div
-        class="planet"
-        id="planet"
-    ></div>
+<div class="window">
+    <div class="window-glare"></div>
+</div>
 
 
-    <div
-        class="planet"
-        id="smallPlanet"
-    ></div>
+<div class="hud">
 
 
-    <div
-        class="asteroid"
-        id="asteroid"
-    ></div>
+    <!-- TOP -->
 
+    <div class="topbar">
 
-    <div id="hyperspace"></div>
+        <div>
 
-    <div id="flash"></div>
-
-
-    <div id="cockpit">
-
-
-        <div class="windowFrame"></div>
-
-        <div class="windowReflection"></div>
-
-        <div class="cockpitTop"></div>
-
-        <div class="cockpitBottom"></div>
-
-
-        <div class="shipLight l1"></div>
-        <div class="shipLight l2"></div>
-        <div class="shipLight l3"></div>
-        <div class="shipLight l4"></div>
-
-
-        <div class="topHud">
-
-            <div class="logo">
+            <div class="brand">
                 OBVYRIS
             </div>
 
-
-            <div class="travelStatus">
-
-                <span class="statusDot"></span>
-
-                OFF WORLD
-
+            <div class="subbrand">
+                EXTRASOLAR TRANSPORT // OBSERVER CLASS
             </div>
 
         </div>
 
 
-        <div class="locationHud">
+        <div class="status">
 
-            FLIGHT STATUS<br>
+            SHIP STATUS
 
-            <span id="flightStatus">
-                CRUISING
-            </span>
-
-            <br><br>
-
-            VECTOR<br>
-
-            <span id="vector">
-                042.7
+            <span id="shipStatus">
+                NOMINAL
             </span>
 
         </div>
-
-
-        <div class="rightHud">
-
-            EXTERNAL VIEW<br>
-
-            ACTIVE
-
-            <br><br>
-
-            DISTANCE FROM EARTH<br>
-
-            <span id="distance">
-                4.82 AU
-            </span>
-
-        </div>
-
-
-        <div id="eventMessage">
-
-            <div id="eventTitle">
-                YOU ARE OFF WORLD
-            </div>
-
-            <div id="eventSub">
-                OBVYRIS TRANSPORT SYSTEM
-            </div>
-
-        </div>
-
-
-        <div id="computer">
-
-            <div class="computerHeader">
-
-                <span>
-                    SHIP COMPUTER
-                </span>
-
-                <span>
-                    ONLINE
-                </span>
-
-            </div>
-
-
-            <div class="computerData">
-
-
-                <div class="dataBox">
-
-                    <div class="dataLabel">
-                        POWER
-                    </div>
-
-                    <div class="dataValue">
-                        94%
-                    </div>
-
-                </div>
-
-
-                <div class="dataBox">
-
-                    <div class="dataLabel">
-                        HULL
-                    </div>
-
-                    <div class="dataValue">
-                        100%
-                    </div>
-
-                </div>
-
-
-                <div class="dataBox">
-
-                    <div class="dataLabel">
-                        VELOCITY
-                    </div>
-
-                    <div
-                        class="dataValue"
-                        id="velocity"
-                    >
-                        18.4 AU/h
-                    </div>
-
-                </div>
-
-
-                <div class="dataBox">
-
-                    <div class="dataLabel">
-                        SIGNAL
-                    </div>
-
-                    <div class="dataValue">
-                        82%
-                    </div>
-
-                </div>
-
-
-            </div>
-
-        </div>
-
-
-        <div class="controls">
-
-            <button
-                class="controlButton"
-                type="button"
-                onclick="toggleComputer()"
-            >
-                SHIP COMPUTER
-            </button>
-
-
-            <button
-                class="controlButton"
-                type="button"
-                onclick="returnToHub()"
-            >
-                RETURN TO HUB
-            </button>
-
-        </div>
-
 
     </div>
+
+
+    <!-- ALIEN TRANSMISSION -->
+
+    <div class="transmission">
+
+        <div
+            class="alien"
+            id="alienText"
+        >
+            ⟟ ◈ ϟ ⟁ 𐌗 ◉ ⌬
+        </div>
+
+        <div
+            class="translation"
+            id="translation"
+        >
+            UNKNOWN SIGNAL // TRANSLATION LAYER 63%
+        </div>
+
+    </div>
+
+
+    <!-- EVENT LOG -->
+
+    <div
+        class="log"
+        id="eventLog"
+    >
+
+        <div>
+            BOOTING EXTRASOLAR NAVIGATION...
+        </div>
+
+        <div>
+            INITIALIZING OBSERVER TELEMETRY...
+        </div>
+
+        <div>
+            SEARCHING FOR LOCAL REALITY...
+        </div>
+
+    </div>
+
+
+    <!-- CENTER -->
+
+    <div class="center">
+
+        <div class="system-ring">
+
+            <div class="core"></div>
+
+        </div>
+
+
+        <div class="center-title">
+            EXTRASOLAR TRANSIT
+        </div>
+
+
+        <div
+            class="center-message"
+            id="centerMessage"
+        >
+
+            THE SHIP IS BETWEEN KNOWN COORDINATES.<br>
+
+            DESTINATION ACQUISITION IN PROGRESS.
+
+        </div>
+
+
+        <div
+            class="alert"
+            id="alert"
+        >
+
+            CAUTION // LOCAL SPACE DOES NOT MATCH ARCHIVE RECORDS
+
+        </div>
+
+    </div>
+
+
+    <!-- TELEMETRY -->
+
+    <div class="panel telemetry">
+
+        <div class="panel-title">
+            FLIGHT TELEMETRY
+        </div>
+
+        <div class="telemetry-body">
+
+            <div class="row">
+                <span>VELOCITY</span>
+                <span id="velocity" class="value">0.004c</span>
+            </div>
+
+            <div class="row">
+                <span>DISTANCE</span>
+                <span id="distance">8.731 LY</span>
+            </div>
+
+            <div class="row">
+                <span>HULL</span>
+                <span id="hull" class="value">98.4%</span>
+            </div>
+
+            <div class="row">
+                <span>CORE</span>
+                <span class="value">STABLE</span>
+            </div>
+
+            <div class="row">
+                <span>REALITY INDEX</span>
+                <span id="reality">0.997</span>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- NAVIGATION -->
+
+    <div class="panel navigation">
+
+        <div class="panel-title">
+            NAVIGATION MATRIX
+        </div>
+
+        <div class="nav-body">
+
+            <div class="coordinate">
+                X:
+                <span id="coordX">00.000</span>
+            </div>
+
+            <div class="coordinate">
+                Y:
+                <span id="coordY">∞.427</span>
+            </div>
+
+            <div class="coordinate">
+                Z:
+                <span id="coordZ">NULL</span>
+            </div>
+
+            <div class="coordinate">
+                DEST:
+                <span id="destination">
+                    UNKNOWN
+                </span>
+            </div>
+
+            <div class="scanline"></div>
+
+        </div>
+
+    </div>
+
+
+    <!-- CONTROLS -->
+
+    <div class="controls">
+
+        <button onclick="scanSpace()">
+            SCAN SPACE
+        </button>
+
+        <button onclick="accessArchive()">
+            ACCESS ARCHIVE
+        </button>
+
+        <button onclick="jump()">
+            INITIATE JUMP
+        </button>
+
+    </div>
+
 
 </div>
 
@@ -1168,919 +824,628 @@ button{
 <script>
 
 /* =========================================================
-   CANVAS STARFIELD
+   OBVYRIS API
 ========================================================= */
 
-const canvas =
+const API_BASE =
+"https://script.google.com/macros/s/AKfycbwR9_-IIcd6yiJuQsrF9uDexBLTbYLw6sw2NlnFEGIlj83a6mY-K3x_F1czdIw3SEjX/exec";
+
+const STORY_LIST_API =
+API_BASE + "?action=stories";
+
+const VOICE_API =
+API_BASE + "?action=voices";
+
+
+/* =========================================================
+   STATE
+========================================================= */
+
+let stories = [];
+
+let latestStory = null;
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function random(min,max){
+
+    return Math.random() *
+        (max-min) + min;
+
+}
+
+
+function addLog(text,important=false){
+
+    const log =
+        document.getElementById(
+            "eventLog"
+        );
+
+    const entry =
+        document.createElement("div");
+
+    if(important){
+        entry.className =
+            "important";
+    }
+
+    entry.textContent =
+        text;
+
+    log.prepend(entry);
+
+}
+
+
+/* =========================================================
+   LOAD STORY DATABASE
+========================================================= */
+
+async function loadArchiveData(){
+
+    try{
+
+        addLog(
+            "CONTACTING MEMORY ARCHIVE..."
+        );
+
+        const response =
+            await fetch(
+                STORY_LIST_API +
+                "&t=" +
+                Date.now(),
+                {
+                    cache:"no-store"
+                }
+            );
+
+        if(!response.ok){
+
+            throw new Error(
+                "HTTP " +
+                response.status
+            );
+
+        }
+
+        const data =
+            await response.json();
+
+        if(
+            !data ||
+            data.status !== "success" ||
+            !Array.isArray(data.stories)
+        ){
+
+            throw new Error(
+                "Invalid archive response"
+            );
+
+        }
+
+        stories =
+            data.stories;
+
+        stories.sort(
+            (a,b)=>
+                Number(b.chapter || 0) -
+                Number(a.chapter || 0)
+        );
+
+        latestStory =
+            stories[0] || null;
+
+
+        addLog(
+            "ARCHIVE CONTACT ESTABLISHED",
+            true
+        );
+
+        addLog(
+            stories.length +
+            " MEMORY OBJECTS DETECTED"
+        );
+
+
+        if(latestStory){
+
+            processStory(
+                latestStory
+            );
+
+        }
+
+    }
+    catch(error){
+
+        console.error(
+            "ARCHIVE ERROR",
+            error
+        );
+
+        addLog(
+            "ARCHIVE SIGNAL CORRUPTED"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   INTERPRET STORY
+========================================================= */
+
+function processStory(story){
+
+    const title =
+        story.title ||
+        "UNKNOWN MEMORY";
+
+    const chapter =
+        story.chapter ||
+        "NULL";
+
+    const id =
+        story.storyId ||
+        "UNKNOWN";
+
+
     document.getElementById(
-        "spaceCanvas"
+        "destination"
+    ).textContent =
+        id;
+
+
+    document.getElementById(
+        "centerMessage"
+    ).innerHTML =
+
+        "MEMORY OBJECT ACQUIRED.<br>" +
+
+        "CHAPTER " +
+        chapter +
+        " // " +
+        title;
+
+
+    addLog(
+        "MEMORY OBJECT: " + id,
+        true
     );
 
-const ctx =
-    canvas.getContext("2d");
 
-let width =
-    window.innerWidth;
-
-let height =
-    window.innerHeight;
-
-
-function resize(){
-
-    width =
-        window.innerWidth;
-
-    height =
-        window.innerHeight;
-
-    canvas.width =
-        width *
-        devicePixelRatio;
-
-    canvas.height =
-        height *
-        devicePixelRatio;
-
-    canvas.style.width =
-        width + "px";
-
-    canvas.style.height =
-        height + "px";
-
-    ctx.setTransform(
-        devicePixelRatio,
-        0,
-        0,
-        devicePixelRatio,
-        0,
-        0
+    analyzeStory(
+        story.story || ""
     );
 
 }
 
 
-resize();
+/* =========================================================
+   STORY ANALYSIS
+========================================================= */
 
-window.addEventListener(
-    "resize",
-    resize
+function analyzeStory(text){
+
+    const lower =
+        text.toLowerCase();
+
+
+    const anomalies = [
+
+        {
+            term:"prime progenitor",
+            message:
+            "PRIME PROGENITOR SIGNATURE DETECTED"
+        },
+
+        {
+            term:"higher-dimensional",
+            message:
+            "HIGHER-DIMENSIONAL STRUCTURE DETECTED"
+        },
+
+        {
+            term:"first coordinate",
+            message:
+            "FIRST COORDINATE REFERENCE DETECTED"
+        },
+
+        {
+            term:"pre-universal",
+            message:
+            "PRE-UNIVERSAL MATERIAL DETECTED"
+        },
+
+        {
+            term:"unknown observer",
+            message:
+            "OBSERVER CLASS ENTITY DETECTED"
+        },
+
+        {
+            term:"void",
+            message:
+            "VOID SIGNATURE DETECTED"
+        }
+
+    ];
+
+
+    let found = 0;
+
+
+    anomalies.forEach(
+        anomaly => {
+
+            if(
+                lower.includes(
+                    anomaly.term
+                )
+            ){
+
+                addLog(
+                    anomaly.message,
+                    true
+                );
+
+                found++;
+
+            }
+
+        }
+    );
+
+
+    document.getElementById(
+        "alert"
+    ).textContent =
+
+        found
+
+        ?
+
+        "ANOMALIES DETECTED // " +
+        found +
+        " ACTIVE SIGNATURES"
+
+        :
+
+        "LOCAL SPACE APPEARS NOMINAL";
+
+
+    document.getElementById(
+        "reality"
+    ).textContent =
+
+        (
+            .997 -
+            found * .012
+        ).toFixed(3);
+
+}
+
+
+/* =========================================================
+   FLIGHT TELEMETRY
+========================================================= */
+
+setInterval(
+    function(){
+
+        document.getElementById(
+            "velocity"
+        ).textContent =
+
+            (
+                .004 +
+                random(0,.002)
+            ).toFixed(4) +
+            "c";
+
+
+        document.getElementById(
+            "distance"
+        ).textContent =
+
+            random(
+                8.700,
+                8.900
+            ).toFixed(3) +
+            " LY";
+
+
+        document.getElementById(
+            "hull"
+        ).textContent =
+
+            random(
+                97.9,
+                99.1
+            ).toFixed(1) +
+            "%";
+
+
+        document.getElementById(
+            "coordX"
+        ).textContent =
+
+            random(
+                -9,
+                9
+            ).toFixed(3);
+
+
+        document.getElementById(
+            "coordY"
+        ).textContent =
+
+            random(
+                0,
+                999
+            ).toFixed(3);
+
+
+    },
+    1200
 );
 
 
 /* =========================================================
-   STAR OBJECTS
+   ALIEN SIGNAL
 ========================================================= */
 
-const stars = [];
+const alienSequences = [
 
-const STAR_COUNT =
-    window.innerWidth < 700
-    ? 180
-    : 420;
+    "⟟ ◈ ϟ ⟁ 𐌗 ◉ ⌬",
 
+    "◉ ⟁ 𐌗 ϟ ⟟ ◈",
 
-function createStar(){
+    "𐌗 ⌬ ◉ ◈ ϟ ⟁",
 
-    return {
+    "⟁ ⟁ ◈ 𐌗 ⟟ ◉",
 
-        x:
-            (Math.random() - .5)
-            * width,
+    "ϟ ◉ ⟟ ⌬ 𐌗 ◈"
 
-        y:
-            (Math.random() - .5)
-            * height,
-
-        z:
-            Math.random()
-            * width,
-
-        pz:0,
-
-        size:
-            Math.random()
-            * 1.5
-            + .2
-
-    };
-
-}
-
-
-for(
-    let i = 0;
-    i < STAR_COUNT;
-    i++
-){
-
-    const star =
-        createStar();
-
-    star.pz =
-        star.z;
-
-    stars.push(
-        star
-    );
-
-}
-
-
-/* =========================================================
-   TRAVEL SPEED
-========================================================= */
-
-let travelSpeed =
-    1.7;
-
-let hyperspaceMode =
-    false;
-
-
-function drawStars(){
-
-    ctx.fillStyle =
-        "rgba(1,4,8,.35)";
-
-    ctx.fillRect(
-        0,
-        0,
-        width,
-        height
-    );
-
-
-    const cx =
-        width / 2;
-
-    const cy =
-        height / 2;
-
-
-    for(
-        const star of stars
-    ){
-
-        star.pz =
-            star.z;
-
-        star.z -=
-            travelSpeed;
-
-
-        if(star.z <= 1){
-
-            star.x =
-                (Math.random() - .5)
-                * width;
-
-            star.y =
-                (Math.random() - .5)
-                * height;
-
-            star.z =
-                width;
-
-            star.pz =
-                star.z;
-
-        }
-
-
-        const sx =
-            cx +
-            star.x /
-            star.z *
-            width;
-
-
-        const sy =
-            cy +
-            star.y /
-            star.z *
-            width;
-
-
-        const px =
-            cx +
-            star.x /
-            star.pz *
-            width;
-
-
-        const py =
-            cy +
-            star.y /
-            star.pz *
-            width;
-
-
-        const size =
-            Math.max(
-                .3,
-                (
-                    1 -
-                    star.z /
-                    width
-                ) * 2.2
-            ) *
-            star.size;
-
-
-        if(
-            sx < -50 ||
-            sx > width + 50 ||
-            sy < -50 ||
-            sy > height + 50
-        ){
-
-            continue;
-
-        }
-
-
-        ctx.beginPath();
-
-        ctx.moveTo(
-            px,
-            py
-        );
-
-        ctx.lineTo(
-            sx,
-            sy
-        );
-
-
-        ctx.strokeStyle =
-            hyperspaceMode
-            ? "rgba(150,225,255,.9)"
-            : "rgba(190,225,245,.75)";
-
-
-        ctx.lineWidth =
-            hyperspaceMode
-            ? size * 2
-            : size;
-
-
-        ctx.stroke();
-
-    }
-
-
-    requestAnimationFrame(
-        drawStars
-    );
-
-}
-
-
-drawStars();
-
-
-/* =========================================================
-   UI ELEMENTS
-========================================================= */
-
-const eventMessage =
-    document.getElementById(
-        "eventMessage"
-    );
-
-const eventTitle =
-    document.getElementById(
-        "eventTitle"
-    );
-
-const eventSub =
-    document.getElementById(
-        "eventSub"
-    );
-
-
-function showMessage(
-    title,
-    subtitle,
-    duration = 3500
-){
-
-    eventTitle.textContent =
-        title;
-
-    eventSub.textContent =
-        subtitle;
-
-    eventMessage.style.opacity =
-        "1";
-
-
-    setTimeout(
-        function(){
-
-            eventMessage.style.opacity =
-                "0";
-
-        },
-        duration
-    );
-
-}
-
-
-/* =========================================================
-   NAVIGATION DATA
-========================================================= */
-
-const flightStatus =
-    document.getElementById(
-        "flightStatus"
-    );
-
-const vector =
-    document.getElementById(
-        "vector"
-    );
-
-const distance =
-    document.getElementById(
-        "distance"
-    );
-
-
-let distanceValue =
-    4.82;
+];
 
 
 setInterval(
     function(){
 
-        vector.textContent =
-            (
-                40 +
-                Math.random() * 8
-            ).toFixed(1);
+        const text =
+            alienSequences[
+                Math.floor(
+                    Math.random() *
+                    alienSequences.length
+                )
+            ];
 
-
-        if(!hyperspaceMode){
-
-            distanceValue +=
-                .005;
-
-            distance.textContent =
-                distanceValue.toFixed(2)
-                + " AU";
-
-        }
+        document.getElementById(
+            "alienText"
+        ).textContent =
+            text;
 
     },
-    2000
+    2800
 );
 
 
 /* =========================================================
-   COMPUTER
+   SPACE SCAN
 ========================================================= */
 
-function toggleComputer(){
+function scanSpace(){
 
-    document
-        .getElementById(
-            "computer"
-        )
-        .classList.toggle(
-            "open"
-        );
-
-}
-
-
-function returnToHub(){
-
-    window.location.href =
-        "index.html";
-
-}
-
-
-/* =========================================================
-   PLANET ENCOUNTER
-========================================================= */
-
-function planetEncounter(){
-
-    const planet =
-        document.getElementById(
-            "planet"
-        );
-
-
-    planet.style.opacity =
-        "1";
-
-    planet.style.transform =
-        "translate(-50%,-50%) scale(1)";
-
-
-    showMessage(
-        "PLANETARY BODY DETECTED",
-        "UNKNOWN CLASSIFICATION"
+    addLog(
+        "BEGINNING DEEP SPACE SCAN..."
     );
 
 
-    flightStatus.textContent =
-        "OBSERVING";
+    document.getElementById(
+        "shipStatus"
+    ).textContent =
+        "SCANNING";
 
 
     setTimeout(
         function(){
 
-            planet.style.opacity =
-                "0";
+            const results = [
 
-            planet.style.transform =
-                "translate(-50%,-50%) scale(.2)";
+                "NO CONVENTIONAL LIFE DETECTED",
 
-            flightStatus.textContent =
-                "CRUISING";
+                "UNKNOWN STRUCTURE DETECTED",
+
+                "GRAVITATIONAL ANOMALY DETECTED",
+
+                "NON-BARYONIC OBJECT DETECTED",
+
+                "SIGNAL ORIGIN: UNKNOWN",
+
+                "OBSERVATION EVENT DETECTED"
+
+            ];
+
+
+            const result =
+                results[
+                    Math.floor(
+                        Math.random() *
+                        results.length
+                    )
+                ];
+
+
+            addLog(
+                result,
+                true
+            );
+
+
+            document.getElementById(
+                "shipStatus"
+            ).textContent =
+                "NOMINAL";
 
         },
-        9000
+        1500
     );
 
 }
 
 
 /* =========================================================
-   NEBULA ENCOUNTER
+   ARCHIVE
 ========================================================= */
 
-function nebulaEncounter(){
+function accessArchive(){
 
-    const n1 =
-        document.getElementById(
-            "nebula1"
-        );
-
-    const n2 =
-        document.getElementById(
-            "nebula2"
-        );
-
-
-    n1.style.opacity =
-        ".9";
-
-    n2.style.opacity =
-        ".65";
-
-
-    showMessage(
-        "ENTERING NEBULA",
-        "EXTERNAL VISIBILITY REDUCED"
+    addLog(
+        "OPENING MEMORY ARCHIVE...",
+        true
     );
-
-
-    flightStatus.textContent =
-        "NEBULA TRANSIT";
 
 
     setTimeout(
         function(){
 
-            n1.style.opacity =
-                "0";
-
-            n2.style.opacity =
-                "0";
-
-            flightStatus.textContent =
-                "CRUISING";
+            window.location.href =
+                "archive.html";
 
         },
-        11000
+        800
     );
 
 }
 
 
 /* =========================================================
-   ASTEROID ENCOUNTER
+   JUMP
 ========================================================= */
 
-function asteroidEncounter(){
+function jump(){
 
-    const asteroid =
-        document.getElementById(
-            "asteroid"
-        );
-
-
-    asteroid.style.opacity =
-        "1";
+    document.getElementById(
+        "shipStatus"
+    ).textContent =
+        "JUMP PREPARATION";
 
 
-    const startY =
-        20 +
-        Math.random() *
-        60;
-
-
-    asteroid.style.top =
-        startY + "%";
-
-    asteroid.style.left =
-        "-50px";
-
-
-    asteroid.animate(
-
-        [
-
-            {
-                transform:
-                    "translate(0,0) rotate(0deg)"
-            },
-
-            {
-                transform:
-                    "translate(" +
-                    (
-                        window.innerWidth +
-                        150
-                    ) +
-                    "px,120px) rotate(360deg)"
-            }
-
-        ],
-
-        {
-
-            duration:
-                1800 +
-                Math.random() *
-                1500,
-
-            easing:
-                "linear"
-
-        }
-
-    );
-
-
-    showMessage(
-        "PROXIMITY ALERT",
-        "OBJECT PASSING SHIP"
-        ,
-        1800
+    addLog(
+        "NAVIGATION CORE ALIGNING..."
     );
 
 
     setTimeout(
         function(){
 
-            asteroid.style.opacity =
-                "0";
+            addLog(
+                "REALITY VECTOR LOCKED",
+                true
+            );
 
-        },
-        3500
-    );
-
-}
-
-
-/* =========================================================
-   UNKNOWN SIGNAL
-========================================================= */
-
-function signalEncounter(){
-
-    showMessage(
-        "UNKNOWN TRANSMISSION",
-        "SIGNAL SOURCE UNRESOLVED",
-        5000
-    );
+            document.getElementById(
+                "destination"
+            ).textContent =
+                "UNKNOWN";
 
 
-    flightStatus.textContent =
-        "SIGNAL LOCK";
+            document.getElementById(
+                "alert"
+            ).textContent =
+                "WARNING // DESTINATION EXISTS OUTSIDE ARCHIVE INDEX";
 
 
-    setTimeout(
-        function(){
-
-            flightStatus.textContent =
-                "CRUISING";
-
-        },
-        5500
-    );
-
-}
+            document.getElementById(
+                "shipStatus"
+            ).textContent =
+                "TRANSIT";
 
 
-/* =========================================================
-   HYPERSPACE
-========================================================= */
-
-function hyperspaceJump(){
-
-    if(hyperspaceMode){
-
-        return;
-
-    }
-
-
-    hyperspaceMode =
-        true;
-
-
-    const overlay =
-        document.getElementById(
-            "hyperspace"
-        );
-
-
-    overlay.classList.add(
-        "active"
-    );
-
-
-    flightStatus.textContent =
-        "FTL DRIVE";
-
-
-    showMessage(
-        "FTL DRIVE ENGAGED",
-        "PREPARE FOR TRANSIT",
-        3000
-    );
-
-
-    travelSpeed =
-        18;
-
-
-    setTimeout(
-        function(){
-
-            flightStatus.textContent =
-                "HYPERSPACE";
-
-        },
-        1000
-    );
-
-
-    setTimeout(
-        function(){
-
-            const flash =
-                document.getElementById(
-                    "flash"
-                );
-
-
-            flash.style.opacity =
-                ".9";
+            document.body.style.filter =
+                "brightness(2)";
 
 
             setTimeout(
                 function(){
 
-                    flash.style.opacity =
-                        "0";
+                    document.body.style.filter =
+                        "";
+
+                    document.getElementById(
+                        "shipStatus"
+                    ).textContent =
+                        "NOMINAL";
+
+                    addLog(
+                        "TRANSIT COMPLETE",
+                        true
+                    );
 
                 },
-                120
+                500
             );
-
-
-            travelSpeed =
-                2;
-
-
-            overlay.classList.remove(
-                "active"
-            );
-
-
-            hyperspaceMode =
-                false;
-
-
-            flightStatus.textContent =
-                "CRUISING";
-
-
-            showMessage(
-                "TRANSIT COMPLETE",
-                "NEW SECTOR REACHED",
-                3500
-            );
-
 
         },
-        5500
+        2000
     );
 
 }
 
 
 /* =========================================================
-   RANDOM JOURNEY EVENTS
+   RANDOM EVENTS
 ========================================================= */
 
-const events = [
+setInterval(
+    function(){
 
-    planetEncounter,
+        const events = [
 
-    nebulaEncounter,
+            "DISTANT OBJECT PASSED SENSOR RANGE",
 
-    asteroidEncounter,
+            "STARFIELD DISTORTION DETECTED",
 
-    signalEncounter,
+            "MICRO-WORMHOLE COLLAPSED",
 
-    hyperspaceJump
+            "UNKNOWN SIGNAL RECEIVED",
 
-];
+            "TEMPORAL FLUCTUATION DETECTED",
 
+            "NAVIGATION COMPUTER CORRECTED VECTOR",
 
-function randomEvent(){
+            "NONSTANDARD PARTICLE CLOUD DETECTED"
 
-    if(
-        hyperspaceMode
-    ){
-
-        return;
-
-    }
-
-
-    const event =
-        events[
-            Math.floor(
-                Math.random() *
-                events.length
-            )
         ];
 
 
-    event();
+        const event =
+            events[
+                Math.floor(
+                    Math.random() *
+                    events.length
+                )
+            ];
 
-}
 
-
-/*
-First arrival message.
-*/
-
-setTimeout(
-    function(){
-
-        showMessage(
-            "YOU ARE OFF WORLD",
-            "OBVYRIS TRANSPORT SYSTEM",
-            5000
-        );
+        addLog(event);
 
     },
-    1000
-);
-
-
-/*
-Events occur at irregular intervals.
-*/
-
-function scheduleEvent(){
-
-    const delay =
-        12000 +
-        Math.random() *
-        22000;
-
-
-    setTimeout(
-        function(){
-
-            randomEvent();
-
-            scheduleEvent();
-
-        },
-        delay
-    );
-
-}
-
-
-scheduleEvent();
-
-
-/* =========================================================
-   OCCASIONAL COMPUTER PULSES
-========================================================= */
-
-setInterval(
-    function(){
-
-        if(
-            !document
-                .getElementById(
-                    "computer"
-                )
-                .classList.contains(
-                    "open"
-                )
-        ){
-
-            return;
-
-        }
-
-
-        const velocity =
-            document.getElementById(
-                "velocity"
-            );
-
-
-        if(velocity){
-
-            velocity.textContent =
-                (
-                    16 +
-                    Math.random() * 5
-                ).toFixed(1)
-                + " AU/h";
-
-        }
-
-    },
-    1500
+    7000
 );
 
 
 /* =========================================================
-   SHIP VIBRATION
+   INITIALIZE
 ========================================================= */
 
-setInterval(
-    function(){
-
-        if(
-            Math.random() < .15
-        ){
-
-            document
-                .getElementById(
-                    "cockpit"
-                )
-                .animate(
-
-                    [
-
-                        {
-                            transform:
-                                "translate(0,0)"
-                        },
-
-                        {
-                            transform:
-                                "translate(1px,-1px)"
-                        },
-
-                        {
-                            transform:
-                                "translate(-1px,1px)"
-                        },
-
-                        {
-                            transform:
-                                "translate(0,0)"
-                        }
-
-                    ],
-
-                    {
-
-                        duration:180,
-
-                        easing:"linear"
-
-                    }
-
-                );
-
-        }
-
-    },
-    3000
-);
+loadArchiveData();
 
 </script>
 
