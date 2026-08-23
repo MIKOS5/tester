@@ -1,261 +1,936 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Video Obvyris Pluto Player</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<title>OBVYRIS // HTML EDITOR</title>
 
 <style>
-body{
-    background:#111;
-    color:white;
-    font-family:Arial;
+* {
+    box-sizing: border-box;
 }
 
-#channels{
-    display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
-    gap:10px;
+html,
+body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+    background: #1d1d1d;
+    color: #fff;
 }
 
-.card{
-    background:#222;
-    padding:15px;
-    border-radius:8px;
-    cursor:pointer;
+/* =========================
+   TOP BAR
+========================= */
+
+#topbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 54px;
+    background: #111;
+    border-bottom: 1px solid #333;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    z-index: 10;
 }
 
-.card:hover{
-    background:#333;
+.logo {
+    font-weight: bold;
+    letter-spacing: 2px;
+    font-size: 16px;
+    margin-right: 10px;
+    white-space: nowrap;
 }
 
-video{
-    width:100%;
-    max-height:500px;
-    background:black;
+button {
+    border: 0;
+    border-radius: 5px;
+    padding: 8px 14px;
+    font-size: 14px;
+    cursor: pointer;
+    background: #333;
+    color: #fff;
 }
 
-.status{
-    margin:10px;
-    color:#0f0;
+button:hover {
+    background: #444;
 }
+
+#runBtn {
+    background: #04aa6d;
+    font-weight: bold;
+}
+
+#runBtn:hover {
+    background: #059862;
+}
+
+#themeBtn {
+    margin-left: auto;
+}
+
+/* =========================
+   MAIN
+========================= */
+
+#container {
+    position: absolute;
+    top: 54px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    display: flex;
+    flex-direction: row;
+
+    background: #222;
+}
+
+/* =========================
+   EDITOR
+========================= */
+
+#editorPane {
+    width: 50%;
+    height: 100%;
+    padding: 8px 4px 8px 8px;
+}
+
+#editorWrapper {
+    width: 100%;
+    height: 100%;
+    background: #111;
+    border: 1px solid #333;
+    overflow: hidden;
+}
+
+#textareaCode {
+    width: 100%;
+    height: 100%;
+
+    resize: none;
+    border: 0;
+    outline: 0;
+
+    padding: 12px;
+
+    background: #111;
+    color: #eee;
+
+    font-family:
+        Consolas,
+        "Courier New",
+        monospace;
+
+    font-size: 15px;
+    line-height: 1.5;
+
+    tab-size: 4;
+}
+
+/* =========================
+   DIVIDER
+========================= */
+
+#dragbar {
+    width: 6px;
+    height: 100%;
+
+    background: #333;
+
+    cursor: col-resize;
+
+    flex-shrink: 0;
+    z-index: 5;
+}
+
+#dragbar:hover {
+    background: #555;
+}
+
+/* =========================
+   PREVIEW
+========================= */
+
+#previewPane {
+    width: 50%;
+    height: 100%;
+    padding: 8px 8px 8px 4px;
+}
+
+#previewWrapper {
+    width: 100%;
+    height: 100%;
+
+    background: #fff;
+    border: 1px solid #333;
+
+    overflow: hidden;
+}
+
+#iframeResult {
+    width: 100%;
+    height: 100%;
+
+    border: 0;
+    display: block;
+
+    background: #fff;
+}
+
+/* =========================
+   STATUS
+========================= */
+
+#status {
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+
+    padding: 5px 9px;
+
+    background: rgba(0,0,0,.65);
+    color: #aaa;
+
+    border-radius: 4px;
+
+    font-family: monospace;
+    font-size: 12px;
+
+    pointer-events: none;
+
+    z-index: 20;
+}
+
+/* =========================
+   VERTICAL MODE
+========================= */
+
+#container.vertical {
+    flex-direction: column;
+}
+
+#container.vertical #editorPane {
+    width: 100%;
+    height: 50%;
+    padding: 8px 8px 4px 8px;
+}
+
+#container.vertical #previewPane {
+    width: 100%;
+    height: 50%;
+    padding: 4px 8px 8px 8px;
+}
+
+#container.vertical #dragbar {
+    width: 100%;
+    height: 6px;
+    cursor: row-resize;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 768px) {
+
+    #topbar {
+        height: 50px;
+    }
+
+    #container {
+        top: 50px;
+    }
+
+    .logo {
+        font-size: 13px;
+        margin-right: 2px;
+    }
+
+    button {
+        padding: 7px 10px;
+        font-size: 13px;
+    }
+
+    #themeBtn {
+        margin-left: 0;
+    }
+
+    #container {
+        flex-direction: column;
+    }
+
+    #editorPane {
+        width: 100%;
+        height: 50%;
+        padding: 6px 6px 3px 6px;
+    }
+
+    #previewPane {
+        width: 100%;
+        height: 50%;
+        padding: 3px 6px 6px 6px;
+    }
+
+    #dragbar {
+        width: 100%;
+        height: 6px;
+        cursor: row-resize;
+    }
+}
+
+/* =========================
+   LIGHT MODE
+========================= */
+
+body.light {
+    background: #e7e9eb;
+    color: #111;
+}
+
+body.light #topbar {
+    background: #e7e9eb;
+    border-bottom-color: #ccc;
+}
+
+body.light #container {
+    background: #e7e9eb;
+}
+
+body.light #editorWrapper {
+    background: #fff;
+    border-color: #ccc;
+}
+
+body.light #textareaCode {
+    background: #fff;
+    color: #111;
+}
+
+body.light #dragbar {
+    background: #aaa;
+}
+
+body.light #dragbar:hover {
+    background: #888;
+}
+
+body.light button {
+    background: #ccc;
+    color: #111;
+}
+
+body.light button:hover {
+    background: #bbb;
+}
+
+/* =========================
+   HIDE STATUS
+========================= */
+
+.status-hidden {
+    display: none;
+}
+</style>
+</head>
+
+<body>
+
+<!-- =========================
+     TOP BAR
+========================= -->
+
+<div id="topbar">
+
+    <div class="logo">
+        OBVYRIS // EDITOR
+    </div>
+
+    <button id="runBtn" onclick="runCode()">
+        RUN ▶
+    </button>
+
+    <button onclick="toggleLayout()">
+        ↔
+    </button>
+
+    <button onclick="clearCode()">
+        CLEAR
+    </button>
+
+    <button onclick="downloadCode()">
+        SAVE
+    </button>
+
+    <button id="themeBtn" onclick="toggleTheme()">
+        ☾
+    </button>
+
+</div>
+
+
+<!-- =========================
+     MAIN CONTAINER
+========================= -->
+
+<div id="container">
+
+    <!-- EDITOR -->
+
+    <div id="editorPane">
+
+        <div id="editorWrapper">
+
+<textarea id="textareaCode" spellcheck="false"><!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>OBVYRIS Test</title>
+
+<style>
+
+body {
+    margin: 0;
+    min-height: 100vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #111;
+    color: white;
+
+    font-family: Arial;
+}
+
+.box {
+    text-align: center;
+}
+
+h1 {
+    color: #04aa6d;
+}
+
+button {
+    padding: 10px 20px;
+    border: 0;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
 </style>
 
 </head>
 
 <body>
 
+<div class="box">
 
-<h1>Video Obvyris</h1>
+    <h1>OBVYRIS</h1>
 
-<div class="status" id="status">
-Loading channels...
+    <p>HTML editor is working.</p>
+
+    <button onclick="hello()">
+        TEST
+    </button>
+
+</div>
+
+<script>
+
+function hello() {
+    alert("OBVYRIS is working!");
+}
+
+<\/script>
+
+</body>
+
+</html></textarea>
+
+        </div>
+
+    </div>
+
+
+    <!-- DRAG BAR -->
+
+    <div id="dragbar"></div>
+
+
+    <!-- PREVIEW -->
+
+    <div id="previewPane">
+
+        <div id="previewWrapper">
+
+            <iframe
+                id="iframeResult"
+                title="Live Preview"
+                allowfullscreen>
+            </iframe>
+
+        </div>
+
+    </div>
+
 </div>
 
 
-<video id="video" controls autoplay></video>
-
-
-<h2>Channels</h2>
-
-<div id="channels"></div>
-
+<div id="status">
+    Ready
+</div>
 
 
 <script>
 
+/* ==========================================================
+   ELEMENTS
+========================================================== */
 
-const API =
-"https://script.google.com/macros/s/AKfycbwBAaTs5v5taswwxQBJIpxW-jgG-ZbyY1zFVjN5W0bMcdFup9exPK-wquqRQIRU-Aqpow/exec";
+const container =
+    document.getElementById("container");
 
+const editor =
+    document.getElementById("textareaCode");
 
-const video =
-document.getElementById("video");
+const iframe =
+    document.getElementById("iframeResult");
 
+const dragbar =
+    document.getElementById("dragbar");
 
-let hls;
-
-
-
-async function loadChannels(){
-
-
-    const res =
-    await fetch(
-        API+"?action=list&t="+Date.now()
-    );
+const status =
+    document.getElementById("status");
 
 
-    const data =
-    await res.json();
+/* ==========================================================
+   RUN CODE
+========================================================== */
+
+function runCode() {
+
+    const code = editor.value;
+
+    const doc =
+        iframe.contentDocument ||
+        iframe.contentWindow.document;
+
+    doc.open();
+
+    doc.write(code);
+
+    doc.close();
+
+    status.textContent =
+        "Preview updated";
+
+    setTimeout(() => {
+        status.textContent = "Ready";
+    }, 1500);
+}
 
 
+/* ==========================================================
+   AUTO RUN
+========================================================== */
 
-    console.log(data);
+editor.addEventListener("keydown", function(event) {
 
+    /*
+       Ctrl + Enter
+    */
 
+    if (event.ctrlKey && event.key === "Enter") {
 
-    const box =
-    document.getElementById("channels");
+        event.preventDefault();
 
+        runCode();
+    }
 
-    box.innerHTML="";
-
-
-    data.streams.forEach(stream=>{
-
-
-        let div =
-        document.createElement("div");
-
-
-        div.className="card";
+});
 
 
-        div.innerHTML=
-        `
-        <b>${stream.name}</b><br>
-        <small>${stream.status}</small>
-        `;
+/* ==========================================================
+   TAB KEY
+========================================================== */
+
+editor.addEventListener("keydown", function(event) {
+
+    if (event.key === "Tab") {
+
+        event.preventDefault();
+
+        const start =
+            editor.selectionStart;
+
+        const end =
+            editor.selectionEnd;
+
+        editor.value =
+            editor.value.substring(0, start) +
+            "    " +
+            editor.value.substring(end);
+
+        editor.selectionStart =
+            editor.selectionEnd =
+                start + 4;
+    }
+
+});
 
 
+/* ==========================================================
+   CLEAR
+========================================================== */
 
-        div.onclick=()=>playStream(stream);
+function clearCode() {
+
+    if (!confirm("Clear the editor?")) {
+        return;
+    }
+
+    editor.value = "";
+
+    runCode();
+}
 
 
-        box.appendChild(div);
+/* ==========================================================
+   SAVE HTML
+========================================================== */
+
+function downloadCode() {
+
+    const code = editor.value;
+
+    const blob =
+        new Blob(
+            [code],
+            {
+                type: "text/html"
+            }
+        );
+
+    const url =
+        URL.createObjectURL(blob);
+
+    const link =
+        document.createElement("a");
+
+    link.href = url;
+
+    link.download =
+        "obvyris.html";
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    link.remove();
+
+    URL.revokeObjectURL(url);
+
+    status.textContent =
+        "Saved obvyris.html";
+
+    setTimeout(() => {
+        status.textContent = "Ready";
+    }, 1500);
+}
 
 
+/* ==========================================================
+   LAYOUT
+========================================================== */
 
-    });
+function toggleLayout() {
 
-
-
-    document.getElementById("status").innerText =
-    data.streams.length+
-    " channels loaded";
-
+    container.classList.toggle("vertical");
 
 }
 
 
+/* ==========================================================
+   THEME
+========================================================== */
 
-function playStream(stream){
+function toggleTheme() {
+
+    document.body.classList.toggle("light");
+
+    if (
+        document.body.classList.contains("light")
+    ) {
+
+        localStorage.setItem(
+            "obvyrisEditorTheme",
+            "light"
+        );
+
+        document.getElementById(
+            "themeBtn"
+        ).textContent = "☀";
+
+    } else {
+
+        localStorage.setItem(
+            "obvyrisEditorTheme",
+            "dark"
+        );
+
+        document.getElementById(
+            "themeBtn"
+        ).textContent = "☾";
+    }
+
+}
 
 
-    console.log(
-        "Playing:",
-        stream.name
-    );
+/* ==========================================================
+   RESTORE THEME
+========================================================== */
+
+if (
+    localStorage.getItem(
+        "obvyrisEditorTheme"
+    ) === "light"
+) {
+
+    document.body.classList.add("light");
+
+    document.getElementById(
+        "themeBtn"
+    ).textContent = "☀";
+}
 
 
-    document.getElementById("status").innerText =
-    "Loading "+stream.name;
+/* ==========================================================
+   DRAG RESIZER
+========================================================== */
+
+let dragging = false;
 
 
+/* ----------------------------------------------------------
+   START DRAG
+---------------------------------------------------------- */
 
-    let proxy =
-    API+
-    "?action=proxy&url="+
-    encodeURIComponent(
-        stream.source
-    )
-    +"&t="+Date.now();
+function startDrag(event) {
 
+    event.preventDefault();
 
+    dragging = true;
 
-    console.log(
-        "Proxy URL:",
-        proxy
-    );
+    document.body.style.userSelect =
+        "none";
+}
 
 
+/* ----------------------------------------------------------
+   MOVE
+---------------------------------------------------------- */
 
-    if(hls){
+function moveDrag(event) {
 
-        hls.destroy();
+    if (!dragging) {
+        return;
+    }
+
+    const rect =
+        container.getBoundingClientRect();
+
+    const isVertical =
+        container.classList.contains("vertical");
+
+
+    /* ======================================
+       SIDE BY SIDE
+    ====================================== */
+
+    if (!isVertical) {
+
+        let x =
+            event.clientX - rect.left;
+
+        let percentage =
+            (x / rect.width) * 100;
+
+
+        /*
+           Minimum editor size
+        */
+
+        if (percentage < 10) {
+            percentage = 10;
+        }
+
+
+        /*
+           Maximum editor size
+        */
+
+        if (percentage > 90) {
+            percentage = 90;
+        }
+
+
+        document.getElementById(
+            "editorPane"
+        ).style.width =
+            percentage + "%";
+
+
+        document.getElementById(
+            "previewPane"
+        ).style.width =
+            (100 - percentage) + "%";
 
     }
 
 
-
-    if(Hls.isSupported()){
-
-
-        hls =
-        new Hls({
-
-            enableWorker:true,
-
-            lowLatencyMode:false
-
-        });
-
-
-
-        hls.loadSource(proxy);
-
-
-        hls.attachMedia(video);
-
-
-
-        hls.on(
-            Hls.Events.MANIFEST_PARSED,
-            ()=>{
-
-                video.play();
-
-                document.getElementById("status").innerText =
-                "Playing "+stream.name;
-
-            }
-        );
-
-
-
-        hls.on(
-            Hls.Events.ERROR,
-            (event,data)=>{
-
-
-                console.error(
-                    "HLS ERROR",
-                    data
-                );
-
-
-                if(data.fatal){
-
-                    document.getElementById("status").innerText =
-                    "Stream error";
-
-                }
-
-            }
-        );
-
-
-    }
+    /* ======================================
+       TOP / BOTTOM
+    ====================================== */
 
     else {
 
-        video.src=proxy;
+        let y =
+            event.clientY - rect.top;
 
-        video.play();
+        let percentage =
+            (y / rect.height) * 100;
 
+
+        if (percentage < 10) {
+            percentage = 10;
+        }
+
+
+        if (percentage > 90) {
+            percentage = 90;
+        }
+
+
+        document.getElementById(
+            "editorPane"
+        ).style.height =
+            percentage + "%";
+
+
+        document.getElementById(
+            "previewPane"
+        ).style.height =
+            (100 - percentage) + "%";
     }
-
 
 }
 
 
-loadChannels();
+/* ----------------------------------------------------------
+   END DRAG
+---------------------------------------------------------- */
+
+function endDrag() {
+
+    dragging = false;
+
+    document.body.style.userSelect =
+        "";
+}
 
 
+/* ==========================================================
+   MOUSE EVENTS
+========================================================== */
+
+dragbar.addEventListener(
+    "mousedown",
+    startDrag
+);
+
+window.addEventListener(
+    "mousemove",
+    moveDrag
+);
+
+window.addEventListener(
+    "mouseup",
+    endDrag
+);
+
+
+/* ==========================================================
+   TOUCH EVENTS
+========================================================== */
+
+dragbar.addEventListener(
+    "touchstart",
+    function(event) {
+
+        event.preventDefault();
+
+        dragging = true;
+
+    },
+    {
+        passive: false
+    }
+);
+
+
+window.addEventListener(
+    "touchmove",
+    function(event) {
+
+        if (!dragging) {
+            return;
+        }
+
+        event.preventDefault();
+
+        const touch =
+            event.touches[0];
+
+        moveDrag(touch);
+
+    },
+    {
+        passive: false
+    }
+);
+
+
+window.addEventListener(
+    "touchend",
+    endDrag
+);
+
+
+/* ==========================================================
+   INITIAL RUN
+========================================================== */
+
+window.addEventListener(
+    "load",
+    function() {
+
+        runCode();
+
+    }
+);
 
 </script>
-
 
 </body>
 </html>
