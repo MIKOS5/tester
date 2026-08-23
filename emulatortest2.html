@@ -111,7 +111,6 @@ body{
 
 /* =========================================================
    GAME CHAT BUTTON
-   Barely visible / transparent
    ========================================================= */
 
 #gameChatButton{
@@ -196,18 +195,27 @@ body{
     width:min(220px,calc(100vw - 36px));
     height:min(300px,calc(100vh - 120px));
     z-index:99999;
+
     display:flex;
     flex-direction:column;
+
     overflow:hidden;
+
     border:1px solid rgba(255,255,255,.16);
     border-radius:18px;
+
     background:rgba(5,12,22,.46);
+
     backdrop-filter:blur(12px);
     -webkit-backdrop-filter:blur(12px);
+
     box-shadow:0 15px 45px rgba(0,0,0,.5);
+
     opacity:0;
     transform:translateY(12px) scale(.97);
+
     pointer-events:none;
+
     transition:
         opacity .18s ease,
         transform .18s ease;
@@ -225,12 +233,17 @@ body{
 
 #gameChatHeader{
     min-height:28px;
+
     display:flex;
     align-items:center;
     justify-content:space-between;
+
     padding:0 10px 0 14px;
+
     background:rgba(5,12,22,.45);
+
     border-bottom:1px solid rgba(255,255,255,.12);
+
     flex-shrink:0;
 }
 
@@ -241,6 +254,7 @@ body{
 #gameChatName{
     font-size:10px;
     font-weight:800;
+
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;
@@ -248,8 +262,11 @@ body{
 
 #gameChatRoom{
     margin-top:2px;
+
     color:rgba(255,255,255,.55);
+
     font-size:7px;
+
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;
@@ -258,11 +275,16 @@ body{
 #gameChatClose{
     width:34px;
     height:34px;
+
     border:0;
     border-radius:10px;
+
     background:rgba(255,255,255,.08);
+
     color:#fff;
+
     font-size:10px;
+
     cursor:pointer;
 }
 
@@ -273,9 +295,13 @@ body{
 #gameChatMessages{
     flex:1;
     min-height:0;
+
     overflow-y:auto;
+
     padding:10px;
+
     scrollbar-width:thin;
+
     scrollbar-color:
         rgba(255,255,255,.25)
         transparent;
@@ -296,25 +322,315 @@ body{
 
 .game-chat-message{
     margin-bottom:7px;
+
     padding:7px 9px;
+
     border-radius:10px;
+
     background:rgba(0,0,0,.32);
+
     border:1px solid rgba(255,255,255,.06);
+
     font-size:10px;
     line-height:1.35;
+
     word-break:break-word;
 }
 
 .game-chat-name{
     color:#4da3ff;
+
     font-weight:800;
+
     margin-right:4px;
 }
 
 .game-chat-system{
     color:rgba(255,255,255,.5);
+
     font-style:italic;
+
     text-align:center;
+}
+
+.game-chat-gif{
+    max-width:100%;
+    max-height:160px;
+
+    display:block;
+
+    margin-top:5px;
+
+    border-radius:8px;
+
+    object-fit:contain;
+}
+
+/* =========================================================
+   GIF PICKER
+   ========================================================= */
+
+#gameGifPicker{
+    position:absolute;
+
+    left:6px;
+    right:6px;
+
+    bottom:51px;
+
+    height:190px;
+
+    z-index:20;
+
+    display:none;
+
+    flex-direction:column;
+
+    overflow:hidden;
+
+    border:1px solid rgba(255,255,255,.14);
+
+    border-radius:12px;
+
+    background:rgba(5,12,22,.94);
+
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+
+    box-shadow:
+        0 12px 35px rgba(0,0,0,.55);
+}
+
+#gameGifPicker.open{
+    display:flex;
+}
+
+/* =========================================================
+   GIF SEARCH
+   ========================================================= */
+
+#gameGifSearchBar{
+    display:flex;
+
+    gap:5px;
+
+    padding:7px;
+
+    flex-shrink:0;
+
+    border-bottom:
+        1px solid
+        rgba(255,255,255,.1);
+}
+
+#gameGifSearch{
+    flex:1;
+
+    min-width:0;
+
+    height:28px;
+
+    box-sizing:border-box;
+
+    padding:
+        0 9px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.15);
+
+    border-radius:8px;
+
+    outline:none;
+
+    background:
+        rgba(0,0,0,.45);
+
+    color:#fff;
+
+    font-size:10px;
+}
+
+#gameGifSearch::placeholder{
+    color:
+        rgba(255,255,255,.4);
+}
+
+#gameGifSearchButton{
+    width:34px;
+    height:28px;
+
+    border:0;
+
+    border-radius:8px;
+
+    background:
+        rgba(39,147,255,.72);
+
+    color:#fff;
+
+    cursor:pointer;
+
+    font-size:12px;
+}
+
+/* =========================================================
+   GIF RESULTS
+   ========================================================= */
+
+#gameGifResults{
+    flex:1;
+
+    min-height:0;
+
+    overflow-y:auto;
+
+    padding:6px;
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(3,1fr);
+
+    gap:5px;
+
+    scrollbar-width:thin;
+
+    scrollbar-color:
+        rgba(255,255,255,.2)
+        transparent;
+}
+
+#gameGifResults::-webkit-scrollbar{
+    width:4px;
+}
+
+#gameGifResults::-webkit-scrollbar-track{
+    background:transparent;
+}
+
+#gameGifResults::-webkit-scrollbar-thumb{
+    background:
+        rgba(255,255,255,.2);
+
+    border-radius:10px;
+}
+
+.game-gif-result{
+    position:relative;
+
+    width:100%;
+
+    aspect-ratio:1/1;
+
+    overflow:hidden;
+
+    border:0;
+
+    border-radius:7px;
+
+    padding:0;
+
+    background:#111;
+
+    cursor:pointer;
+}
+
+.game-gif-result img{
+    width:100%;
+    height:100%;
+
+    display:block;
+
+    object-fit:cover;
+}
+
+.game-gif-result:hover{
+    outline:
+        1px solid
+        rgba(39,147,255,.8);
+}
+
+.game-gif-loading{
+    grid-column:
+        1 / -1;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    min-height:80px;
+
+    color:
+        rgba(255,255,255,.55);
+
+    font-size:10px;
+}
+
+.game-gif-empty{
+    grid-column:
+        1 / -1;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    min-height:80px;
+
+    color:
+        rgba(255,255,255,.45);
+
+    font-size:10px;
+
+    text-align:center;
+}
+
+/* =========================================================
+   GIF BUTTON
+   ========================================================= */
+
+#gameChatGif{
+    width:34px;
+    height:28px;
+
+    flex-shrink:0;
+
+    border:1px solid
+        rgba(255,255,255,.14);
+
+    border-radius:9px;
+
+    background:
+        rgba(255,255,255,.06);
+
+    color:
+        rgba(255,255,255,.8);
+
+    font-size:9px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+}
+
+#gameChatGif:hover{
+    background:
+        rgba(39,147,255,.18);
+
+    border-color:
+        rgba(39,147,255,.35);
+}
+
+#gameChatGif.active{
+    background:
+        rgba(39,147,255,.3);
+
+    border-color:
+        rgba(39,147,255,.55);
 }
 
 /* =========================================================
@@ -322,49 +638,82 @@ body{
    ========================================================= */
 
 #gameChatInputBar{
+    position:relative;
+
     display:flex;
+
     gap:5px;
+
     padding:8px;
-    background:rgba(5,12,22,.48);
-    border-top:1px solid rgba(255,255,255,.1);
+
+    background:
+        rgba(5,12,22,.48);
+
+    border-top:
+        1px solid
+        rgba(255,255,255,.1);
+
     flex-shrink:0;
 }
 
 #gameChatNameInput{
     width:58px;
+
     flex-shrink:0;
 }
 
 #gameChatMessageInput{
     flex:1;
+
     min-width:0;
 }
 
 #gameChatInputBar input{
     height:28px;
+
     box-sizing:border-box;
-    padding:0 9px;
-    border:1px solid rgba(255,255,255,.16);
+
+    padding:
+        0 9px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.16);
+
     border-radius:9px;
+
     outline:none;
-    background:rgba(0,0,0,.38);
+
+    background:
+        rgba(0,0,0,.38);
+
     color:#fff;
+
     font-size:10px;
 }
 
 #gameChatInputBar input::placeholder{
-    color:rgba(255,255,255,.45);
+    color:
+        rgba(255,255,255,.45);
 }
 
 #gameChatSend{
     width:42px;
     height:28px;
+
     flex-shrink:0;
+
     border:0;
+
     border-radius:9px;
-    background:rgba(39,147,255,.72);
+
+    background:
+        rgba(39,147,255,.72);
+
     color:#fff;
+
     font-size:15px;
+
     cursor:pointer;
 }
 
@@ -385,16 +734,26 @@ body{
     #gameChatButton{
         right:12px;
         bottom:12px;
+
         width:44px;
         height:44px;
+
         font-size:19px;
     }
 
     #gameChat{
         right:10px;
         bottom:64px;
-        width:calc(100vw - 20px);
-        height:min(390px,calc(100vh - 90px));
+
+        width:
+            calc(100vw - 20px);
+
+        height:
+            min(
+                390px,
+                calc(100vh - 90px)
+            );
+
         border-radius:16px;
     }
 
@@ -404,6 +763,21 @@ body{
 
     #gameChatSend{
         height:42px;
+    }
+
+    #gameChatGif{
+        height:42px;
+        width:40px;
+    }
+
+    #gameGifPicker{
+        bottom:59px;
+        height:220px;
+    }
+
+    #gameGifResults{
+        grid-template-columns:
+            repeat(3,1fr);
     }
 
 }
@@ -425,6 +799,7 @@ input{
 
 <div id="game"></div>
 
+
 <div id="loading">
 
     <div>
@@ -437,9 +812,12 @@ input{
 
 </div>
 
+
 <div id="status"></div>
 
+
 <div id="error"></div>
+
 
 <!-- =======================================================
      GAME CHAT BUTTON
@@ -459,6 +837,7 @@ input{
     </span>
 
 </button>
+
 
 <!-- =======================================================
      GAME CHAT
@@ -490,9 +869,50 @@ input{
 
     </div>
 
+
     <div id="gameChatMessages"></div>
 
+
     <div id="gameChatInputBar">
+
+        <!-- =================================================
+             GIPHY PICKER
+             ================================================= -->
+
+        <div id="gameGifPicker">
+
+            <div id="gameGifSearchBar">
+
+                <input
+                    id="gameGifSearch"
+                    type="text"
+                    maxlength="80"
+                    placeholder="Search GIFs..."
+                    autocomplete="off"
+                >
+
+                <button
+                    id="gameGifSearchButton"
+                    type="button"
+                    onclick="searchGiphy()"
+                >
+                    🔍
+                </button>
+
+            </div>
+
+            <div id="gameGifResults">
+
+                <div class="game-gif-empty">
+
+                    Search GIPHY
+
+                </div>
+
+            </div>
+
+        </div>
+
 
         <input
             id="gameChatNameInput"
@@ -501,12 +921,24 @@ input{
             autocomplete="off"
         >
 
+
         <input
             id="gameChatMessageInput"
             maxlength="120"
             placeholder="Chat..."
             autocomplete="off"
         >
+
+
+        <button
+            id="gameChatGif"
+            type="button"
+            onclick="toggleGifPicker()"
+            aria-label="GIF"
+        >
+            GIF
+        </button>
+
 
         <button
             id="gameChatSend"
@@ -520,32 +952,50 @@ input{
 
 </div>
 
+
 <script>
 
 "use strict";
+
 
 /* =========================================================
    URL PARAMETERS
    ========================================================= */
 
 const params =
-    new URLSearchParams(location.search);
+    new URLSearchParams(
+        location.search
+    );
+
 
 const originalRom =
     params.get("rom");
 
+
 const requestedCore =
-    (params.get("core") || "nes").toLowerCase();
+    (
+        params.get("core") ||
+        "nes"
+    ).toLowerCase();
+
 
 const title =
-    params.get("title") || "OBVYRIS GAME";
+    params.get("title") ||
+    "OBVYRIS GAME";
+
 
 const gameID =
-    params.get("gameid") || "";
+    params.get("gameid") ||
+    "";
+
 
 const chatStation =
     params.get("station") ||
-    (gameID ? "game-" + gameID : "");
+    (
+        gameID
+            ? "game-" + gameID
+            : ""
+    );
 
 
 /* =========================================================
@@ -610,9 +1060,11 @@ const CORE_MAP = {
 
 };
 
+
 const core =
     CORE_MAP[requestedCore] ||
     requestedCore;
+
 
 console.log(
     "[OBVYRIS EMULATOR] EmulatorJS Core:",
@@ -625,16 +1077,27 @@ console.log(
    ========================================================= */
 
 const loading =
-    document.getElementById("loading");
+    document.getElementById(
+        "loading"
+    );
+
 
 const loadingText =
-    document.getElementById("loadingText");
+    document.getElementById(
+        "loadingText"
+    );
+
 
 const errorBox =
-    document.getElementById("error");
+    document.getElementById(
+        "error"
+    );
+
 
 const status =
-    document.getElementById("status");
+    document.getElementById(
+        "status"
+    );
 
 
 /* =========================================================
@@ -723,6 +1186,7 @@ if(!originalRom){
 
 }
 
+
 if(!gameID){
 
     console.warn(
@@ -739,12 +1203,14 @@ if(!gameID){
 const PROXY_BASE =
     "https://obvyris-rom-proxy.vercel.app/api/rom";
 
+
 const proxyURL =
     PROXY_BASE +
     "?url=" +
     encodeURIComponent(
         originalRom
     );
+
 
 console.log(
     "[OBVYRIS EMULATOR] Proxy ROM:",
@@ -768,6 +1234,7 @@ async function downloadROM(){
             "Fetching ROM..."
         );
 
+
         const response =
             await fetch(
                 proxyURL,
@@ -778,11 +1245,13 @@ async function downloadROM(){
                 }
             );
 
+
         console.log(
             "[OBVYRIS EMULATOR] Proxy response:",
             response.status,
             response.statusText
         );
+
 
         if(!response.ok){
 
@@ -795,6 +1264,7 @@ async function downloadROM(){
 
             }catch(e){}
 
+
             throw new Error(
 
                 "Proxy returned HTTP " +
@@ -806,18 +1276,22 @@ async function downloadROM(){
 
         }
 
+
         setLoading(
             "Reading ROM..."
         );
 
+
         const buffer =
             await response.arrayBuffer();
+
 
         console.log(
             "[OBVYRIS EMULATOR] ROM downloaded:",
             buffer.byteLength,
             "bytes"
         );
+
 
         if(
             !buffer ||
@@ -842,6 +1316,7 @@ async function downloadROM(){
                     buffer
                 );
 
+
             const validNES =
                 bytes.length >= 4 &&
                 bytes[0] === 0x4E &&
@@ -849,12 +1324,14 @@ async function downloadROM(){
                 bytes[2] === 0x53 &&
                 bytes[3] === 0x1A;
 
+
             console.log(
                 "[OBVYRIS EMULATOR] NES header:",
                 validNES
                     ? "VALID"
                     : "INVALID"
             );
+
 
             if(!validNES){
 
@@ -894,17 +1371,21 @@ async function downloadROM(){
                 }
             );
 
+
         const blobURL =
             URL.createObjectURL(
                 blob
             );
+
 
         console.log(
             "[OBVYRIS EMULATOR] Local ROM Blob:",
             blobURL
         );
 
+
         return blobURL;
+
 
     }catch(error){
 
@@ -935,29 +1416,38 @@ function startEmulator(blobURL){
                     "Preparing EmulatorJS..."
                 );
 
+
                 window.EJS_player =
                     "#game";
+
 
                 window.EJS_core =
                     core;
 
+
                 window.EJS_gameUrl =
                     blobURL;
+
 
                 window.EJS_gameName =
                     title;
 
+
                 window.EJS_pathtodata =
                     "https://cdn.emulatorjs.org/stable/data/";
+
 
                 window.EJS_startOnLoaded =
                     true;
 
+
                 window.EJS_disableAutoLang =
                     true;
 
+
                 window.EJS_color =
                     "#2793ff";
+
 
                 window.EJS_backgroundColor =
                     "#000000";
@@ -969,7 +1459,11 @@ function startEmulator(blobURL){
 
                 window.EJS_gameID =
                     "obvyris-" +
-                    (gameID || "game");
+                    (
+                        gameID ||
+                        "game"
+                    );
+
 
                 console.log(
                     "[OBVYRIS EMULATOR] EJS_gameID:",
@@ -988,13 +1482,16 @@ function startEmulator(blobURL){
                             "[OBVYRIS EMULATOR] GAME STARTED"
                         );
 
+
                         loading.classList.add(
                             "hidden"
                         );
 
+
                         status.classList.add(
                             "hidden"
                         );
+
 
                         resolve();
 
@@ -1051,16 +1548,20 @@ function startEmulator(blobURL){
                     "Loading EmulatorJS..."
                 );
 
+
                 const script =
                     document.createElement(
                         "script"
                     );
 
+
                 script.src =
                     "https://cdn.emulatorjs.org/stable/data/loader.js";
 
+
                 script.async =
                     true;
+
 
                 script.onload =
                     function(){
@@ -1069,17 +1570,21 @@ function startEmulator(blobURL){
                             "[OBVYRIS EMULATOR] EmulatorJS loader loaded"
                         );
 
+
                         setLoading(
                             "Starting " +
                             requestedCore.toUpperCase() +
                             "..."
                         );
 
+
                         let attempts =
                             0;
 
+
                         const maxAttempts =
                             200;
+
 
                         const checkCanvas =
                             setInterval(
@@ -1087,10 +1592,12 @@ function startEmulator(blobURL){
 
                                     attempts++;
 
+
                                     const canvas =
                                         document.querySelector(
                                             "#game canvas"
                                         );
+
 
                                     if(canvas){
 
@@ -1098,13 +1605,16 @@ function startEmulator(blobURL){
                                             checkCanvas
                                         );
 
+
                                         console.log(
                                             "[OBVYRIS EMULATOR] Canvas detected"
                                         );
 
+
                                         return;
 
                                     }
+
 
                                     if(
                                         attempts >=
@@ -1114,6 +1624,7 @@ function startEmulator(blobURL){
                                         clearInterval(
                                             checkCanvas
                                         );
+
 
                                         console.warn(
                                             "[OBVYRIS EMULATOR] Canvas not detected"
@@ -1144,6 +1655,7 @@ function startEmulator(blobURL){
                     script
                 );
 
+
             }catch(error){
 
                 reject(
@@ -1171,12 +1683,15 @@ async function main(){
             gameID
         );
 
+
         const blobURL =
             await downloadROM();
+
 
         await startEmulator(
             blobURL
         );
+
 
         console.log(
             "[OBVYRIS EMULATOR]",
@@ -1184,12 +1699,14 @@ async function main(){
             "running"
         );
 
+
     }catch(error){
 
         console.error(
             "[OBVYRIS EMULATOR] FATAL:",
             error
         );
+
 
         fail(
             error &&
@@ -1220,6 +1737,7 @@ window.addEventListener(
     }
 );
 
+
 window.addEventListener(
     "unhandledrejection",
     function(event){
@@ -1242,22 +1760,64 @@ const CHAT_API =
 
 
 /* =========================================================
+   GIPHY CONFIGURATION
+   ========================================================= */
+
+/*
+   PUT YOUR GIPHY API KEY HERE.
+
+   Example:
+
+   const GIPHY_API_KEY =
+       "abc123456789";
+
+*/
+
+const GIPHY_API_KEY =
+    "Jj5LhUt9MgP8OQYtxGukhQVwZuR6YJ4j";
+
+
+const GIPHY_SEARCH_URL =
+    "https://api.giphy.com/v1/gifs/search";
+
+
+const GIPHY_TRENDING_URL =
+    "https://api.giphy.com/v1/gifs/trending";
+
+
+const GIPHY_LIMIT =
+    18;
+
+
+/* =========================================================
    CHAT STATE
    ========================================================= */
 
 let gameChatOpen =
     false;
 
+
 let gameChatRefreshTimer =
     null;
+
 
 let gameChatLastHash =
     "";
 
+
 let gameChatLastCount =
     0;
 
+
 let gameChatSending =
+    false;
+
+
+let gifPickerOpen =
+    false;
+
+
+let giphySearching =
     false;
 
 
@@ -1268,6 +1828,7 @@ let gameChatSending =
 const GAME_CHAT_STATION =
     chatStation;
 
+
 const GAME_CHAT_NAME =
     title;
 
@@ -1277,10 +1838,12 @@ console.log(
     GAME_CHAT_STATION
 );
 
+
 console.log(
     "[OBVYRIS CHAT] Game ID:",
     gameID
 );
+
 
 console.log(
     "[OBVYRIS CHAT] Game:",
@@ -1297,34 +1860,64 @@ const gameChat =
         "gameChat"
     );
 
+
 const gameChatButton =
     document.getElementById(
         "gameChatButton"
     );
+
 
 const gameChatMessages =
     document.getElementById(
         "gameChatMessages"
     );
 
+
 const gameChatRoom =
     document.getElementById(
         "gameChatRoom"
     );
+
 
 const gameChatNameInput =
     document.getElementById(
         "gameChatNameInput"
     );
 
+
 const gameChatMessageInput =
     document.getElementById(
         "gameChatMessageInput"
     );
 
+
 const gameChatUnread =
     document.getElementById(
         "gameChatUnread"
+    );
+
+
+const gameChatGif =
+    document.getElementById(
+        "gameChatGif"
+    );
+
+
+const gameGifPicker =
+    document.getElementById(
+        "gameGifPicker"
+    );
+
+
+const gameGifSearch =
+    document.getElementById(
+        "gameGifSearch"
+    );
+
+
+const gameGifResults =
+    document.getElementById(
+        "gameGifResults"
     );
 
 
@@ -1353,6 +1946,7 @@ function toggleGameChat(){
 
     gameChatOpen =
         !gameChatOpen;
+
 
     if(gameChatOpen){
 
@@ -1383,39 +1977,49 @@ function openGameChat(){
 
     }
 
+
     console.log(
         "[OBVYRIS EMULATOR] Opening chat:",
         chatStation
     );
 
+
     gameChatOpen =
         true;
+
 
     gameChat.classList.add(
         "open"
     );
 
+
     gameChatButton.classList.add(
         "chat-open"
     );
 
+
     gameChatUnread.style.display =
         "none";
+
 
     gameChatUnread.textContent =
         "0";
 
+
     loadGameChat();
+
 
     clearInterval(
         gameChatRefreshTimer
     );
+
 
     gameChatRefreshTimer =
         setInterval(
             loadGameChat,
             2500
         );
+
 
     setTimeout(
         function(){
@@ -1438,17 +2042,24 @@ function closeGameChat(){
     gameChatOpen =
         false;
 
+
     gameChat.classList.remove(
         "open"
     );
+
 
     gameChatButton.classList.remove(
         "chat-open"
     );
 
+
+    closeGifPicker();
+
+
     clearInterval(
         gameChatRefreshTimer
     );
+
 
     gameChatRefreshTimer =
         null;
@@ -1468,12 +2079,14 @@ async function loadGameChat(){
 
     }
 
+
     try{
 
         const response =
             await fetch(
                 CHAT_API,
                 {
+
                     method:"POST",
 
                     body:
@@ -1490,6 +2103,7 @@ async function loadGameChat(){
                 }
             );
 
+
         if(!response.ok){
 
             throw new Error(
@@ -1499,14 +2113,17 @@ async function loadGameChat(){
 
         }
 
+
         const data =
             await response.json();
+
 
         if(!Array.isArray(data)){
 
             return;
 
         }
+
 
         const hash =
             JSON.stringify(
@@ -1535,10 +2152,12 @@ async function loadGameChat(){
                 data.length -
                 gameChatLastCount;
 
+
             gameChatUnread.textContent =
                 difference > 9
                     ? "9+"
                     : difference;
+
 
             gameChatUnread.style.display =
                 "flex";
@@ -1549,12 +2168,15 @@ async function loadGameChat(){
         gameChatLastHash =
             hash;
 
+
         gameChatLastCount =
             data.length;
+
 
         renderGameChat(
             data
         );
+
 
     }catch(error){
 
@@ -1595,6 +2217,7 @@ function renderGameChat(data){
     const oldScroll =
         gameChatMessages.scrollTop;
 
+
     const wasNearBottom =
         gameChatMessages.scrollHeight -
         gameChatMessages.scrollTop -
@@ -1615,6 +2238,7 @@ function renderGameChat(data){
         const m =
             data[i];
 
+
         if(!m){
 
             continue;
@@ -1627,6 +2251,7 @@ function renderGameChat(data){
                 m.name ||
                 "Anon"
             );
+
 
         const message =
             escapeHTML(
@@ -1655,6 +2280,10 @@ function renderGameChat(data){
         }
 
 
+        /* =================================================
+           GIF MESSAGE
+           ================================================= */
+
         if(
             m.message &&
             m.message.startsWith(
@@ -1668,7 +2297,9 @@ function renderGameChat(data){
                         "[GIF]",
                         ""
                     )
+                    .trim()
                 );
+
 
             html += `
 
@@ -1681,19 +2312,17 @@ function renderGameChat(data){
                     </span>
 
                     <img
+                        class="game-chat-gif"
                         src="${gifURL}"
-                        style="
-                            max-width:220px;
-                            max-height:160px;
-                            display:block;
-                            margin-top:5px;
-                            border-radius:8px;
-                        "
+                        loading="lazy"
+                        alt="GIF"
+                        onerror="this.style.display='none'"
                     >
 
                 </div>
 
             `;
+
 
         }else{
 
@@ -1765,6 +2394,7 @@ async function sendGameChat(){
         gameChatNameInput.value.trim() ||
         "Anon";
 
+
     const message =
         gameChatMessageInput.value.trim();
 
@@ -1784,6 +2414,7 @@ async function sendGameChat(){
         document.getElementById(
             "gameChatSend"
         );
+
 
     sendButton.disabled =
         true;
@@ -1824,7 +2455,9 @@ async function sendGameChat(){
         gameChatMessageInput.value =
             "";
 
+
         await loadGameChat();
+
 
         gameChatMessageInput.focus();
 
@@ -1845,6 +2478,7 @@ async function sendGameChat(){
             gameChatSending =
                 false;
 
+
             sendButton.disabled =
                 false;
 
@@ -1853,6 +2487,631 @@ async function sendGameChat(){
     );
 
 }
+
+
+/* =========================================================
+   GIPHY PICKER
+   ========================================================= */
+
+function toggleGifPicker(){
+
+    if(
+        gifPickerOpen
+    ){
+
+        closeGifPicker();
+
+    }else{
+
+        openGifPicker();
+
+    }
+
+}
+
+
+/* =========================================================
+   OPEN GIPHY
+   ========================================================= */
+
+function openGifPicker(){
+
+    gifPickerOpen =
+        true;
+
+
+    gameGifPicker.classList.add(
+        "open"
+    );
+
+
+    gameChatGif.classList.add(
+        "active"
+    );
+
+
+    setTimeout(
+        function(){
+
+            gameGifSearch.focus();
+
+        },
+        50
+    );
+
+
+    if(
+        !gameGifResults.dataset.loaded
+    ){
+
+        loadTrendingGiphy();
+
+    }
+
+}
+
+
+/* =========================================================
+   CLOSE GIPHY
+   ========================================================= */
+
+function closeGifPicker(){
+
+    gifPickerOpen =
+        false;
+
+
+    gameGifPicker.classList.remove(
+        "open"
+    );
+
+
+    gameChatGif.classList.remove(
+        "active"
+    );
+
+}
+
+
+/* =========================================================
+   LOAD TRENDING
+   ========================================================= */
+
+async function loadTrendingGiphy(){
+
+    if(
+        !GIPHY_API_KEY ||
+        GIPHY_API_KEY ===
+        "YOUR_GIPHY_API_KEY"
+    ){
+
+        gameGifResults.innerHTML = `
+
+            <div class="game-gif-empty">
+
+                Add your GIPHY API key
+                to enable GIF search.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    gameGifResults.innerHTML = `
+
+        <div class="game-gif-loading">
+
+            Loading GIFs...
+
+        </div>
+
+    `;
+
+
+    try{
+
+        const url =
+            GIPHY_TRENDING_URL +
+            "?api_key=" +
+            encodeURIComponent(
+                GIPHY_API_KEY
+            ) +
+            "&limit=" +
+            GIPHY_LIMIT +
+            "&rating=pg-13";
+
+
+        const response =
+            await fetch(
+                url
+            );
+
+
+        if(!response.ok){
+
+            throw new Error(
+                "GIPHY HTTP " +
+                response.status
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        renderGiphyResults(
+            data.data || []
+        );
+
+
+        gameGifResults.dataset.loaded =
+            "true";
+
+
+    }catch(error){
+
+        console.error(
+            "[OBVYRIS GIPHY] Trending failed:",
+            error
+        );
+
+
+        gameGifResults.innerHTML = `
+
+            <div class="game-gif-empty">
+
+                Unable to load GIPHY.
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+/* =========================================================
+   SEARCH GIPHY
+   ========================================================= */
+
+async function searchGiphy(){
+
+    if(giphySearching){
+
+        return;
+
+    }
+
+
+    const query =
+        gameGifSearch.value.trim();
+
+
+    if(!query){
+
+        loadTrendingGiphy();
+
+        return;
+
+    }
+
+
+    if(
+        !GIPHY_API_KEY ||
+        GIPHY_API_KEY ===
+        "YOUR_GIPHY_API_KEY"
+    ){
+
+        gameGifResults.innerHTML = `
+
+            <div class="game-gif-empty">
+
+                Add your GIPHY API key
+                to enable GIF search.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    giphySearching =
+        true;
+
+
+    gameGifResults.innerHTML = `
+
+        <div class="game-gif-loading">
+
+            Searching GIPHY...
+
+        </div>
+
+    `;
+
+
+    try{
+
+        const url =
+            GIPHY_SEARCH_URL +
+            "?api_key=" +
+            encodeURIComponent(
+                GIPHY_API_KEY
+            ) +
+            "&q=" +
+            encodeURIComponent(
+                query
+            ) +
+            "&limit=" +
+            GIPHY_LIMIT +
+            "&rating=pg-13" +
+            "&lang=en";
+
+
+        console.log(
+            "[OBVYRIS GIPHY] Search:",
+            query
+        );
+
+
+        const response =
+            await fetch(
+                url
+            );
+
+
+        if(!response.ok){
+
+            throw new Error(
+                "GIPHY HTTP " +
+                response.status
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        renderGiphyResults(
+            data.data || []
+        );
+
+
+    }catch(error){
+
+        console.error(
+            "[OBVYRIS GIPHY] Search failed:",
+            error
+        );
+
+
+        gameGifResults.innerHTML = `
+
+            <div class="game-gif-empty">
+
+                GIPHY search failed.
+
+            </div>
+
+        `;
+
+    }
+
+
+    giphySearching =
+        false;
+
+}
+
+
+/* =========================================================
+   RENDER GIPHY RESULTS
+   ========================================================= */
+
+function renderGiphyResults(gifs){
+
+    gameGifResults.innerHTML =
+        "";
+
+
+    if(
+        !gifs ||
+        !gifs.length
+    ){
+
+        gameGifResults.innerHTML = `
+
+            <div class="game-gif-empty">
+
+                No GIFs found.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    for(
+        let i = 0;
+        i < gifs.length;
+        i++
+    ){
+
+        const gif =
+            gifs[i];
+
+
+        if(!gif){
+
+            continue;
+
+        }
+
+
+        const images =
+            gif.images || {};
+
+
+        const preview =
+            images.fixed_width_small ||
+            images.fixed_width ||
+            images.downsized_small ||
+            images.original;
+
+
+        const original =
+            images.original ||
+            images.downsized ||
+            images.fixed_width;
+
+
+        if(
+            !preview ||
+            !original ||
+            !original.url
+        ){
+
+            continue;
+
+        }
+
+
+        const button =
+            document.createElement(
+                "button"
+            );
+
+
+        button.type =
+            "button";
+
+
+        button.className =
+            "game-gif-result";
+
+
+        button.title =
+            gif.title ||
+            "Send GIF";
+
+
+        const img =
+            document.createElement(
+                "img"
+            );
+
+
+        img.src =
+            preview.url;
+
+
+        img.alt =
+            gif.title ||
+            "GIF";
+
+
+        img.loading =
+            "lazy";
+
+
+        button.appendChild(
+            img
+        );
+
+
+        button.addEventListener(
+            "click",
+            function(){
+
+                sendGiphyGIF(
+                    original.url
+                );
+
+            }
+        );
+
+
+        gameGifResults.appendChild(
+            button
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   SEND GIPHY GIF
+   ========================================================= */
+
+async function sendGiphyGIF(gifURL){
+
+    if(gameChatSending){
+
+        return;
+
+    }
+
+
+    if(!GAME_CHAT_STATION){
+
+        return;
+
+    }
+
+
+    if(!gifURL){
+
+        return;
+
+    }
+
+
+    const name =
+        gameChatNameInput.value.trim() ||
+        "Anon";
+
+
+    gameChatSending =
+        true;
+
+
+    gameChatGif.disabled =
+        true;
+
+
+    const sendButton =
+        document.getElementById(
+            "gameChatSend"
+        );
+
+
+    sendButton.disabled =
+        true;
+
+
+    try{
+
+        console.log(
+            "[OBVYRIS GIPHY] Sending GIF:",
+            gifURL
+        );
+
+
+        await fetch(
+            CHAT_API,
+            {
+
+                method:"POST",
+
+                body:
+                    JSON.stringify({
+
+                        action:
+                            "send",
+
+                        station:
+                            GAME_CHAT_STATION,
+
+                        stationName:
+                            GAME_CHAT_NAME,
+
+                        name:
+                            name,
+
+                        message:
+                            "[GIF]" +
+                            gifURL
+
+                    })
+
+            }
+        );
+
+
+        closeGifPicker();
+
+
+        await loadGameChat();
+
+
+    }catch(error){
+
+        console.error(
+            "[OBVYRIS GIPHY] Send failed:",
+            error
+        );
+
+    }
+
+
+    setTimeout(
+        function(){
+
+            gameChatSending =
+                false;
+
+
+            gameChatGif.disabled =
+                false;
+
+
+            sendButton.disabled =
+                false;
+
+        },
+        700
+    );
+
+}
+
+
+/* =========================================================
+   GIF ENTER TO SEARCH
+   ========================================================= */
+
+gameGifSearch.addEventListener(
+    "keydown",
+    function(event){
+
+        if(
+            event.key ===
+            "Enter"
+        ){
+
+            event.preventDefault();
+
+            searchGiphy();
+
+        }
+
+
+        if(
+            event.key ===
+            "Escape"
+        ){
+
+            closeGifPicker();
+
+        }
+
+    }
+);
 
 
 /* =========================================================
@@ -1871,6 +3130,28 @@ gameChatMessageInput.addEventListener(
             event.preventDefault();
 
             sendGameChat();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   ESCAPE TO CLOSE GIF PICKER
+   ========================================================= */
+
+document.addEventListener(
+    "keydown",
+    function(event){
+
+        if(
+            event.key ===
+            "Escape" &&
+            gifPickerOpen
+        ){
+
+            closeGifPicker();
 
         }
 
@@ -1949,19 +3230,27 @@ console.log(
     "[OBVYRIS CHAT] Game chat initialized"
 );
 
+
 console.log(
     "[OBVYRIS CHAT] Game ID:",
     gameID
 );
+
 
 console.log(
     "[OBVYRIS CHAT] Station:",
     chatStation
 );
 
+
 console.log(
     "[OBVYRIS CHAT] Game:",
     title
+);
+
+
+console.log(
+    "[OBVYRIS GIPHY] GIF picker initialized"
 );
 
 
