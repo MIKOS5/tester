@@ -2,430 +2,920 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 
-<title>OBVYRIS // HTML EDITOR</title>
+<title>OBVYRIS // CODE</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
-* {
-    box-sizing: border-box;
+
+*{
+    box-sizing:border-box;
 }
 
 html,
-body {
-    margin: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    font-family: Arial, sans-serif;
-    background: #1d1d1d;
-    color: #fff;
+body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#03070a;
+    color:#dceff1;
+    font-family:Inter,Arial,sans-serif;
 }
 
-/* =========================
+/* =========================================================
+   BACKGROUND
+========================================================= */
+
+body{
+    background:
+        radial-gradient(
+            circle at 50% -20%,
+            rgba(0,255,190,.10),
+            transparent 38%
+        ),
+        radial-gradient(
+            circle at 100% 100%,
+            rgba(0,180,255,.06),
+            transparent 35%
+        ),
+        #03070a;
+}
+
+body:before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    opacity:.18;
+
+    background-image:
+        linear-gradient(
+            rgba(0,255,190,.035) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(0,255,190,.035) 1px,
+            transparent 1px
+        );
+
+    background-size:40px 40px;
+
+    mask-image:linear-gradient(
+        to bottom,
+        black,
+        transparent 90%
+    );
+}
+
+/* =========================================================
    TOP BAR
-========================= */
+========================================================= */
 
-#topbar {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 54px;
-    background: #111;
-    border-bottom: 1px solid #333;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 7px 10px;
-    z-index: 10;
+#topbar{
+
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+
+    height:58px;
+
+    display:flex;
+    align-items:center;
+
+    padding:0 12px;
+
+    gap:7px;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(7,18,22,.98),
+            rgba(3,10,13,.98)
+        );
+
+    border-bottom:1px solid rgba(0,255,190,.18);
+
+    box-shadow:
+        0 5px 25px rgba(0,0,0,.45);
+
+    z-index:100;
 }
 
-.logo {
-    font-weight: bold;
-    letter-spacing: 2px;
-    font-size: 16px;
-    margin-right: 10px;
-    white-space: nowrap;
+/* =========================================================
+   BRAND
+========================================================= */
+
+.logo{
+
+    font-family:Orbitron,sans-serif;
+
+    font-size:14px;
+    font-weight:700;
+
+    letter-spacing:3px;
+
+    color:#cffff6;
+
+    white-space:nowrap;
+
+    text-shadow:
+        0 0 10px rgba(0,255,190,.35);
+
+    margin-right:12px;
 }
 
-button {
-    border: 0;
-    border-radius: 5px;
-    padding: 8px 14px;
-    font-size: 14px;
-    cursor: pointer;
-    background: #333;
-    color: #fff;
+.logo span{
+    color:#00ffb7;
 }
 
-button:hover {
-    background: #444;
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+button{
+
+    appearance:none;
+
+    border:1px solid rgba(0,255,190,.14);
+
+    border-radius:4px;
+
+    padding:7px 12px;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(17,34,38,.95),
+            rgba(8,18,22,.95)
+        );
+
+    color:#91aeb2;
+
+    font-family:Inter,sans-serif;
+
+    font-size:11px;
+    font-weight:600;
+
+    letter-spacing:1px;
+
+    cursor:pointer;
+
+    transition:
+        .15s ease;
+
+    box-shadow:
+        inset 0 0 10px rgba(0,255,190,.015);
 }
 
-#runBtn {
-    background: #04aa6d;
-    font-weight: bold;
+button:hover{
+
+    color:#dffff8;
+
+    border-color:rgba(0,255,190,.4);
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(18,48,49,.95),
+            rgba(7,27,28,.95)
+        );
+
+    box-shadow:
+        0 0 12px rgba(0,255,190,.08);
 }
 
-#runBtn:hover {
-    background: #059862;
+#runBtn{
+
+    color:#00130d;
+
+    background:#00d99b;
+
+    border-color:#00ffb7;
+
+    font-family:Orbitron,sans-serif;
+
+    font-size:10px;
+    font-weight:700;
+
+    letter-spacing:1.5px;
+
+    box-shadow:
+        0 0 14px rgba(0,255,183,.16);
 }
 
-#themeBtn {
-    margin-left: auto;
+#runBtn:hover{
+
+    color:#00130d;
+
+    background:#00ffb7;
+
+    box-shadow:
+        0 0 20px rgba(0,255,183,.28);
 }
 
-/* =========================
+#themeBtn{
+    margin-left:auto;
+}
+
+/* =========================================================
    MAIN
-========================= */
+========================================================= */
 
-#container {
-    position: absolute;
-    top: 54px;
-    bottom: 0;
-    left: 0;
-    right: 0;
+#container{
 
-    display: flex;
-    flex-direction: row;
+    position:absolute;
 
-    background: #222;
+    top:58px;
+    bottom:0;
+    left:0;
+    right:0;
+
+    display:flex;
+    flex-direction:row;
+
+    padding:8px;
+
+    gap:0;
+
+    background:transparent;
 }
 
-/* =========================
-   EDITOR
-========================= */
+/* =========================================================
+   PANELS
+========================================================= */
 
-#editorPane {
-    width: 50%;
-    height: 100%;
-    padding: 8px 4px 8px 8px;
+#editorPane,
+#previewPane{
+
+    position:relative;
+
+    width:50%;
+    height:100%;
+
+    min-width:0;
+    min-height:0;
 }
 
-#editorWrapper {
-    width: 100%;
-    height: 100%;
-    background: #111;
-    border: 1px solid #333;
-    overflow: hidden;
+/* =========================================================
+   PANEL HEADER
+========================================================= */
+
+#editorPane:before,
+#previewPane:before{
+
+    position:absolute;
+
+    top:0;
+    left:10px;
+
+    height:24px;
+
+    display:flex;
+    align-items:center;
+
+    font-family:Orbitron,sans-serif;
+
+    font-size:8px;
+    letter-spacing:2px;
+
+    color:#4c777b;
+
+    z-index:5;
+
+    pointer-events:none;
 }
 
-#textareaCode {
-    width: 100%;
-    height: 100%;
+#editorPane:before{
+    content:"SOURCE // HTML";
+}
 
-    resize: none;
-    border: 0;
-    outline: 0;
+#previewPane:before{
+    content:"OUTPUT // LIVE";
+}
 
-    padding: 12px;
+/* =========================================================
+   EDITOR WRAPPER
+========================================================= */
 
-    background: #111;
-    color: #eee;
+#editorWrapper{
+
+    width:100%;
+    height:100%;
+
+    overflow:hidden;
+
+    position:relative;
+
+    padding-top:24px;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(6,17,21,.98),
+            rgba(3,10,13,.98)
+        );
+
+    border:1px solid rgba(0,255,190,.15);
+
+    border-radius:6px;
+
+    box-shadow:
+        inset 0 0 35px rgba(0,255,190,.018),
+        0 10px 30px rgba(0,0,0,.35);
+}
+
+/* =========================================================
+   EDITOR TOP LINE
+========================================================= */
+
+#editorWrapper:after{
+
+    content:"";
+
+    position:absolute;
+
+    left:10px;
+    right:10px;
+    top:25px;
+
+    height:1px;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(0,255,190,.22),
+            transparent
+        );
+
+    pointer-events:none;
+}
+
+/* =========================================================
+   TEXTAREA
+========================================================= */
+
+#textareaCode{
+
+    width:100%;
+    height:calc(100% - 1px);
+
+    resize:none;
+
+    outline:none;
+    border:0;
+
+    padding:14px;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(0,255,190,.018),
+            transparent 80px
+        ),
+        #050d10;
+
+    color:#b9d4d5;
 
     font-family:
         Consolas,
         "Courier New",
         monospace;
 
-    font-size: 15px;
-    line-height: 1.5;
+    font-size:14px;
 
-    tab-size: 4;
+    line-height:1.55;
+
+    tab-size:4;
+
+    caret-color:#00ffb7;
+
+    scrollbar-color:
+        #173437
+        transparent;
 }
 
-/* =========================
-   DIVIDER
-========================= */
-
-#dragbar {
-    width: 6px;
-    height: 100%;
-
-    background: #333;
-
-    cursor: col-resize;
-
-    flex-shrink: 0;
-    z-index: 5;
+#textareaCode::selection{
+    background:rgba(0,255,190,.18);
 }
 
-#dragbar:hover {
-    background: #555;
-}
-
-/* =========================
+/* =========================================================
    PREVIEW
-========================= */
+========================================================= */
 
-#previewPane {
-    width: 50%;
-    height: 100%;
-    padding: 8px 8px 8px 4px;
+#previewWrapper{
+
+    width:100%;
+    height:100%;
+
+    position:relative;
+
+    overflow:hidden;
+
+    background:#fff;
+
+    border:1px solid rgba(0,255,190,.15);
+
+    border-radius:6px;
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,.4);
 }
 
-#previewWrapper {
-    width: 100%;
-    height: 100%;
+#iframeResult{
 
-    background: #fff;
-    border: 1px solid #333;
+    width:100%;
+    height:100%;
 
-    overflow: hidden;
+    display:block;
+
+    border:0;
+
+    background:#fff;
 }
 
-#iframeResult {
-    width: 100%;
-    height: 100%;
+/* =========================================================
+   DIVIDER
+========================================================= */
 
-    border: 0;
-    display: block;
+#dragbar{
 
-    background: #fff;
+    width:7px;
+    height:100%;
+
+    flex-shrink:0;
+
+    cursor:col-resize;
+
+    position:relative;
+
+    background:transparent;
+
+    z-index:20;
 }
 
-/* =========================
+#dragbar:after{
+
+    content:"";
+
+    position:absolute;
+
+    top:50%;
+
+    left:50%;
+
+    transform:translate(-50%,-50%);
+
+    width:3px;
+    height:70px;
+
+    border-radius:3px;
+
+    background:
+        linear-gradient(
+            180deg,
+            transparent,
+            #245255,
+            transparent
+        );
+
+    transition:.15s ease;
+}
+
+#dragbar:hover:after{
+
+    height:100px;
+
+    background:
+        linear-gradient(
+            180deg,
+            transparent,
+            #00cfa0,
+            transparent
+        );
+
+    box-shadow:
+        0 0 12px rgba(0,255,190,.25);
+}
+
+/* =========================================================
    STATUS
-========================= */
+========================================================= */
 
-#status {
-    position: absolute;
-    bottom: 15px;
-    left: 15px;
+#status{
 
-    padding: 5px 9px;
+    position:absolute;
 
-    background: rgba(0,0,0,.65);
-    color: #aaa;
+    bottom:15px;
+    left:18px;
 
-    border-radius: 4px;
+    padding:4px 8px;
 
-    font-family: monospace;
-    font-size: 12px;
+    background:rgba(2,10,12,.9);
 
-    pointer-events: none;
+    border:1px solid rgba(0,255,190,.12);
 
-    z-index: 20;
+    border-radius:3px;
+
+    color:#507276;
+
+    font-family:monospace;
+
+    font-size:9px;
+
+    letter-spacing:1px;
+
+    pointer-events:none;
+
+    z-index:50;
 }
 
-/* =========================
+#status:before{
+
+    content:"●";
+
+    color:#00d99b;
+
+    margin-right:6px;
+
+    text-shadow:
+        0 0 7px #00ffb7;
+}
+
+/* =========================================================
    VERTICAL MODE
-========================= */
+========================================================= */
 
-#container.vertical {
-    flex-direction: column;
+#container.vertical{
+
+    flex-direction:column;
 }
 
-#container.vertical #editorPane {
-    width: 100%;
-    height: 50%;
-    padding: 8px 8px 4px 8px;
+#container.vertical #editorPane{
+
+    width:100%;
+    height:50%;
 }
 
-#container.vertical #previewPane {
-    width: 100%;
-    height: 50%;
-    padding: 4px 8px 8px 8px;
+#container.vertical #previewPane{
+
+    width:100%;
+    height:50%;
 }
 
-#container.vertical #dragbar {
-    width: 100%;
-    height: 6px;
-    cursor: row-resize;
+#container.vertical #dragbar{
+
+    width:100%;
+    height:7px;
+
+    cursor:row-resize;
 }
 
-/* =========================
+#container.vertical #dragbar:after{
+
+    width:70px;
+    height:3px;
+}
+
+#container.vertical #dragbar:hover:after{
+
+    width:100px;
+    height:3px;
+}
+
+/* =========================================================
    MOBILE
-========================= */
+========================================================= */
 
-@media (max-width: 768px) {
+@media(max-width:768px){
 
-    #topbar {
-        height: 50px;
+    #topbar{
+
+        height:52px;
+
+        padding:0 7px;
+
+        gap:4px;
     }
 
-    #container {
-        top: 50px;
+    #container{
+
+        top:52px;
+
+        padding:5px;
     }
 
-    .logo {
-        font-size: 13px;
-        margin-right: 2px;
+    .logo{
+
+        font-size:10px;
+        letter-spacing:2px;
+
+        margin-right:3px;
     }
 
-    button {
-        padding: 7px 10px;
-        font-size: 13px;
+    button{
+
+        padding:7px 8px;
+
+        font-size:9px;
+
+        letter-spacing:.5px;
     }
 
-    #themeBtn {
-        margin-left: 0;
+    #runBtn{
+
+        padding-left:9px;
+        padding-right:9px;
     }
 
-    #container {
-        flex-direction: column;
+    #container{
+
+        flex-direction:column;
     }
 
-    #editorPane {
-        width: 100%;
-        height: 50%;
-        padding: 6px 6px 3px 6px;
+    #editorPane{
+
+        width:100%;
+        height:50%;
     }
 
-    #previewPane {
-        width: 100%;
-        height: 50%;
-        padding: 3px 6px 6px 6px;
+    #previewPane{
+
+        width:100%;
+        height:50%;
     }
 
-    #dragbar {
-        width: 100%;
-        height: 6px;
-        cursor: row-resize;
+    #dragbar{
+
+        width:100%;
+        height:7px;
+
+        cursor:row-resize;
+    }
+
+    #dragbar:after{
+
+        width:65px;
+        height:3px;
+    }
+
+    #textareaCode{
+
+        font-size:13px;
+    }
+
+    #themeBtn{
+
+        margin-left:0;
     }
 }
 
-/* =========================
+/* =========================================================
+   VERY SMALL SCREENS
+========================================================= */
+
+@media(max-width:430px){
+
+    .logo{
+        display:none;
+    }
+
+    #topbar{
+        justify-content:flex-start;
+    }
+
+    #themeBtn{
+        margin-left:auto;
+    }
+
+}
+
+/* =========================================================
+   SCANLINE EFFECT
+========================================================= */
+
+#container:after{
+
+    content:"";
+
+    position:absolute;
+
+    inset:0;
+
+    pointer-events:none;
+
+    background:
+        repeating-linear-gradient(
+            0deg,
+            rgba(255,255,255,.008) 0px,
+            rgba(255,255,255,.008) 1px,
+            transparent 1px,
+            transparent 4px
+        );
+
+    opacity:.18;
+
+    z-index:30;
+}
+
+/* =========================================================
    LIGHT MODE
-========================= */
+========================================================= */
 
-body.light {
-    background: #e7e9eb;
-    color: #111;
+body.light{
+
+    background:#dce5e6;
+    color:#172426;
 }
 
-body.light #topbar {
-    background: #e7e9eb;
-    border-bottom-color: #ccc;
+body.light #topbar{
+
+    background:#edf4f4;
+
+    border-bottom-color:
+        rgba(0,100,90,.2);
 }
 
-body.light #container {
-    background: #e7e9eb;
+body.light #container{
+    background:#dce5e6;
 }
 
-body.light #editorWrapper {
-    background: #fff;
-    border-color: #ccc;
+body.light #editorWrapper{
+
+    background:#fff;
+
+    border-color:
+        rgba(0,100,90,.2);
 }
 
-body.light #textareaCode {
-    background: #fff;
-    color: #111;
+body.light #textareaCode{
+
+    background:#fff;
+
+    color:#193033;
 }
 
-body.light #dragbar {
-    background: #aaa;
+body.light button{
+
+    background:#e2ebeb;
+
+    color:#315054;
+
+    border-color:#b8cecf;
 }
 
-body.light #dragbar:hover {
-    background: #888;
+body.light #dragbar:after{
+
+    background:
+        linear-gradient(
+            180deg,
+            transparent,
+            #78999b,
+            transparent
+        );
 }
 
-body.light button {
-    background: #ccc;
-    color: #111;
+body.light #status{
+
+    background:rgba(240,250,250,.9);
+
+    color:#527276;
 }
 
-body.light button:hover {
-    background: #bbb;
-}
-
-/* =========================
-   HIDE STATUS
-========================= */
-
-.status-hidden {
-    display: none;
-}
 </style>
 </head>
 
 <body>
 
-<!-- =========================
+<!-- =======================================================
      TOP BAR
-========================= -->
+======================================================= -->
 
 <div id="topbar">
 
     <div class="logo">
-        OBVYRIS // EDITOR
+        OBVYRIS <span>//</span> CODE
     </div>
 
-    <button id="runBtn" onclick="runCode()">
+    <button
+        id="runBtn"
+        onclick="runCode()">
         RUN ▶
     </button>
 
-    <button onclick="toggleLayout()">
-        ↔
+    <button
+        onclick="toggleLayout()"
+        title="Change layout">
+        ⇄
     </button>
 
-    <button onclick="clearCode()">
+    <button
+        onclick="clearCode()">
         CLEAR
     </button>
 
-    <button onclick="downloadCode()">
+    <button
+        onclick="downloadCode()">
         SAVE
     </button>
 
-    <button id="themeBtn" onclick="toggleTheme()">
+    <button
+        id="themeBtn"
+        onclick="toggleTheme()">
         ☾
     </button>
 
 </div>
 
 
-<!-- =========================
-     MAIN CONTAINER
-========================= -->
+<!-- =======================================================
+     EDITOR / PREVIEW
+======================================================= -->
 
 <div id="container">
-
-    <!-- EDITOR -->
 
     <div id="editorPane">
 
         <div id="editorWrapper">
 
-<textarea id="textareaCode" spellcheck="false"><!DOCTYPE html>
+<textarea
+id="textareaCode"
+spellcheck="false"
+autocomplete="off"><!DOCTYPE html>
 <html>
 
 <head>
 
 <meta charset="UTF-8">
 
-<title>OBVYRIS Test</title>
+<meta name="viewport"
+content="width=device-width,initial-scale=1.0">
+
+<title>OBVYRIS</title>
 
 <style>
 
-body {
-    margin: 0;
-    min-height: 100vh;
+body{
+    margin:0;
+    min-height:100vh;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display:flex;
+    align-items:center;
+    justify-content:center;
 
-    background: #111;
-    color: white;
+    background:#050b0d;
 
-    font-family: Arial;
+    color:#dffff8;
+
+    font-family:Arial,sans-serif;
+
+    text-align:center;
 }
 
-.box {
-    text-align: center;
+.box{
+    padding:40px;
 }
 
-h1 {
-    color: #04aa6d;
+h1{
+
+    font-family:Arial,sans-serif;
+
+    letter-spacing:8px;
+
+    color:#00ffb7;
+
+    text-shadow:
+        0 0 20px rgba(0,255,183,.5);
 }
 
-button {
-    padding: 10px 20px;
-    border: 0;
-    border-radius: 5px;
-    cursor: pointer;
+p{
+    color:#79979a;
+}
+
+button{
+
+    padding:12px 24px;
+
+    border:1px solid #00b98a;
+
+    background:#061714;
+
+    color:#00ffb7;
+
+    cursor:pointer;
+
+    border-radius:4px;
+}
+
+button:hover{
+    background:#00ffb7;
+    color:#00130d;
 }
 
 </style>
@@ -436,20 +926,22 @@ button {
 
 <div class="box">
 
-    <h1>OBVYRIS</h1>
+<h1>OBVYRIS</h1>
 
-    <p>HTML editor is working.</p>
+<p>LIVE HTML ENVIRONMENT</p>
 
-    <button onclick="hello()">
-        TEST
-    </button>
+<button onclick="testObvyris()">
+TEST SYSTEM
+</button>
 
 </div>
 
 <script>
 
-function hello() {
-    alert("OBVYRIS is working!");
+function testObvyris(){
+
+    alert("OBVYRIS SYSTEM ONLINE");
+
 }
 
 <\/script>
@@ -463,12 +955,8 @@ function hello() {
     </div>
 
 
-    <!-- DRAG BAR -->
-
     <div id="dragbar"></div>
 
-
-    <!-- PREVIEW -->
 
     <div id="previewPane">
 
@@ -476,7 +964,7 @@ function hello() {
 
             <iframe
                 id="iframeResult"
-                title="Live Preview"
+                title="OBVYRIS Live Preview"
                 allowfullscreen>
             </iframe>
 
@@ -488,15 +976,15 @@ function hello() {
 
 
 <div id="status">
-    Ready
+    READY
 </div>
 
 
 <script>
 
-/* ==========================================================
+/* =========================================================
    ELEMENTS
-========================================================== */
+========================================================= */
 
 const container =
     document.getElementById("container");
@@ -514,11 +1002,11 @@ const status =
     document.getElementById("status");
 
 
-/* ==========================================================
+/* =========================================================
    RUN CODE
-========================================================== */
+========================================================= */
 
-function runCode() {
+function runCode(){
 
     const code = editor.value;
 
@@ -533,41 +1021,52 @@ function runCode() {
     doc.close();
 
     status.textContent =
-        "Preview updated";
+        "OUTPUT UPDATED";
 
-    setTimeout(() => {
-        status.textContent = "Ready";
-    }, 1500);
+    setTimeout(function(){
+
+        status.textContent =
+            "READY";
+
+    },1200);
+
 }
 
 
-/* ==========================================================
-   AUTO RUN
-========================================================== */
+/* =========================================================
+   CTRL + ENTER
+========================================================= */
 
-editor.addEventListener("keydown", function(event) {
+editor.addEventListener(
+    "keydown",
+    function(event){
 
-    /*
-       Ctrl + Enter
-    */
+        if(
+            event.ctrlKey &&
+            event.key === "Enter"
+        ){
 
-    if (event.ctrlKey && event.key === "Enter") {
+            event.preventDefault();
 
-        event.preventDefault();
+            runCode();
 
-        runCode();
+        }
+
     }
+);
 
-});
 
+/* =========================================================
+   TAB SUPPORT
+========================================================= */
 
-/* ==========================================================
-   TAB KEY
-========================================================== */
+editor.addEventListener(
+    "keydown",
+    function(event){
 
-editor.addEventListener("keydown", function(event) {
-
-    if (event.key === "Tab") {
+        if(event.key !== "Tab"){
+            return;
+        }
 
         event.preventDefault();
 
@@ -578,47 +1077,55 @@ editor.addEventListener("keydown", function(event) {
             editor.selectionEnd;
 
         editor.value =
-            editor.value.substring(0, start) +
+            editor.value.substring(
+                0,
+                start
+            ) +
             "    " +
-            editor.value.substring(end);
+            editor.value.substring(
+                end
+            );
 
         editor.selectionStart =
             editor.selectionEnd =
                 start + 4;
+
     }
+);
 
-});
 
-
-/* ==========================================================
+/* =========================================================
    CLEAR
-========================================================== */
+========================================================= */
 
-function clearCode() {
+function clearCode(){
 
-    if (!confirm("Clear the editor?")) {
+    if(
+        !confirm(
+            "Clear the editor?"
+        )
+    ){
         return;
     }
 
     editor.value = "";
 
     runCode();
+
 }
 
 
-/* ==========================================================
-   SAVE HTML
-========================================================== */
+/* =========================================================
+   SAVE
+========================================================= */
 
-function downloadCode() {
-
-    const code = editor.value;
+function downloadCode(){
 
     const blob =
         new Blob(
-            [code],
+            [editor.value],
             {
-                type: "text/html"
+                type:"text/html"
             }
         );
 
@@ -642,91 +1149,88 @@ function downloadCode() {
     URL.revokeObjectURL(url);
 
     status.textContent =
-        "Saved obvyris.html";
+        "FILE SAVED";
 
-    setTimeout(() => {
-        status.textContent = "Ready";
-    }, 1500);
+    setTimeout(function(){
+
+        status.textContent =
+            "READY";
+
+    },1200);
+
 }
 
 
-/* ==========================================================
+/* =========================================================
    LAYOUT
-========================================================== */
+========================================================= */
 
-function toggleLayout() {
+function toggleLayout(){
 
-    container.classList.toggle("vertical");
+    container.classList.toggle(
+        "vertical"
+    );
 
 }
 
 
-/* ==========================================================
+/* =========================================================
    THEME
-========================================================== */
+========================================================= */
 
-function toggleTheme() {
+function toggleTheme(){
 
-    document.body.classList.toggle("light");
+    document.body.classList.toggle(
+        "light"
+    );
 
-    if (
-        document.body.classList.contains("light")
-    ) {
-
-        localStorage.setItem(
-            "obvyrisEditorTheme",
+    const light =
+        document.body.classList.contains(
             "light"
         );
 
-        document.getElementById(
-            "themeBtn"
-        ).textContent = "☀";
+    localStorage.setItem(
+        "obvyrisEditorTheme",
+        light ? "light" : "dark"
+    );
 
-    } else {
-
-        localStorage.setItem(
-            "obvyrisEditorTheme",
-            "dark"
-        );
-
-        document.getElementById(
-            "themeBtn"
-        ).textContent = "☾";
-    }
+    document.getElementById(
+        "themeBtn"
+    ).textContent =
+        light ? "☀" : "☾";
 
 }
 
 
-/* ==========================================================
+/* =========================================================
    RESTORE THEME
-========================================================== */
+========================================================= */
 
-if (
+if(
     localStorage.getItem(
         "obvyrisEditorTheme"
     ) === "light"
-) {
+){
 
-    document.body.classList.add("light");
+    document.body.classList.add(
+        "light"
+    );
 
     document.getElementById(
         "themeBtn"
     ).textContent = "☀";
+
 }
 
 
-/* ==========================================================
+/* =========================================================
    DRAG RESIZER
-========================================================== */
+========================================================= */
 
 let dragging = false;
 
 
-/* ----------------------------------------------------------
-   START DRAG
----------------------------------------------------------- */
-
-function startDrag(event) {
+function startDrag(event){
 
     event.preventDefault();
 
@@ -734,62 +1238,49 @@ function startDrag(event) {
 
     document.body.style.userSelect =
         "none";
+
 }
 
 
-/* ----------------------------------------------------------
-   MOVE
----------------------------------------------------------- */
+function moveDrag(event){
 
-function moveDrag(event) {
-
-    if (!dragging) {
+    if(!dragging){
         return;
     }
 
     const rect =
         container.getBoundingClientRect();
 
-    const isVertical =
-        container.classList.contains("vertical");
+    const vertical =
+        container.classList.contains(
+            "vertical"
+        );
 
 
-    /* ======================================
-       SIDE BY SIDE
-    ====================================== */
+    /* SIDE BY SIDE */
 
-    if (!isVertical) {
+    if(!vertical){
 
         let x =
-            event.clientX - rect.left;
+            event.clientX -
+            rect.left;
 
         let percentage =
             (x / rect.width) * 100;
 
-
-        /*
-           Minimum editor size
-        */
-
-        if (percentage < 10) {
-            percentage = 10;
-        }
-
-
-        /*
-           Maximum editor size
-        */
-
-        if (percentage > 90) {
-            percentage = 90;
-        }
-
+        percentage =
+            Math.max(
+                10,
+                Math.min(
+                    90,
+                    percentage
+                )
+            );
 
         document.getElementById(
             "editorPane"
         ).style.width =
             percentage + "%";
-
 
         document.getElementById(
             "previewPane"
@@ -799,60 +1290,54 @@ function moveDrag(event) {
     }
 
 
-    /* ======================================
-       TOP / BOTTOM
-    ====================================== */
+    /* TOP / BOTTOM */
 
-    else {
+    else{
 
         let y =
-            event.clientY - rect.top;
+            event.clientY -
+            rect.top;
 
         let percentage =
             (y / rect.height) * 100;
 
-
-        if (percentage < 10) {
-            percentage = 10;
-        }
-
-
-        if (percentage > 90) {
-            percentage = 90;
-        }
-
+        percentage =
+            Math.max(
+                10,
+                Math.min(
+                    90,
+                    percentage
+                )
+            );
 
         document.getElementById(
             "editorPane"
         ).style.height =
             percentage + "%";
 
-
         document.getElementById(
             "previewPane"
         ).style.height =
             (100 - percentage) + "%";
+
     }
 
 }
 
 
-/* ----------------------------------------------------------
-   END DRAG
----------------------------------------------------------- */
-
-function endDrag() {
+function endDrag(){
 
     dragging = false;
 
     document.body.style.userSelect =
         "";
+
 }
 
 
-/* ==========================================================
-   MOUSE EVENTS
-========================================================== */
+/* =========================================================
+   MOUSE
+========================================================= */
 
 dragbar.addEventListener(
     "mousedown",
@@ -870,13 +1355,13 @@ window.addEventListener(
 );
 
 
-/* ==========================================================
-   TOUCH EVENTS
-========================================================== */
+/* =========================================================
+   TOUCH
+========================================================= */
 
 dragbar.addEventListener(
     "touchstart",
-    function(event) {
+    function(event){
 
         event.preventDefault();
 
@@ -884,16 +1369,16 @@ dragbar.addEventListener(
 
     },
     {
-        passive: false
+        passive:false
     }
 );
 
 
 window.addEventListener(
     "touchmove",
-    function(event) {
+    function(event){
 
-        if (!dragging) {
+        if(!dragging){
             return;
         }
 
@@ -906,7 +1391,7 @@ window.addEventListener(
 
     },
     {
-        passive: false
+        passive:false
     }
 );
 
@@ -917,13 +1402,13 @@ window.addEventListener(
 );
 
 
-/* ==========================================================
-   INITIAL RUN
-========================================================== */
+/* =========================================================
+   INITIALIZE
+========================================================= */
 
 window.addEventListener(
     "load",
-    function() {
+    function(){
 
         runCode();
 
