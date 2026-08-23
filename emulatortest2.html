@@ -1,0 +1,3688 @@
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"
+>
+
+<meta
+    name="theme-color"
+    content="#05080d"
+>
+
+<title>OBVYRIS Emulator</title>
+
+<style>
+
+/* =========================================================
+   ROOT
+========================================================= */
+
+:root{
+    --obv-blue:#2793ff;
+    --obv-blue-soft:rgba(39,147,255,.18);
+    --obv-panel:rgba(5,12,22,.72);
+    --obv-border:rgba(255,255,255,.12);
+    --obv-text:rgba(255,255,255,.94);
+    --obv-muted:rgba(255,255,255,.52);
+    --safe-top:env(safe-area-inset-top,0px);
+    --safe-right:env(safe-area-inset-right,0px);
+    --safe-bottom:env(safe-area-inset-bottom,0px);
+    --safe-left:env(safe-area-inset-left,0px);
+}
+
+*{
+    box-sizing:border-box;
+}
+
+html,
+body{
+    margin:0;
+    padding:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#000;
+    color:#fff;
+    font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    touch-action:none;
+    overscroll-behavior:none;
+    -webkit-user-select:none;
+    user-select:none;
+}
+
+body{
+    position:fixed;
+    inset:0;
+}
+
+/* =========================================================
+   EMULATOR
+========================================================= */
+
+#game{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    background:#000;
+    overflow:hidden;
+    touch-action:none;
+    overscroll-behavior:none;
+}
+
+#game canvas{
+    display:block;
+    max-width:100%;
+    max-height:100%;
+    image-rendering:auto;
+    touch-action:none;
+}
+
+/* =========================================================
+   LOADING SCREEN
+========================================================= */
+
+#loading{
+    position:fixed;
+    inset:0;
+    z-index:90000;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(39,147,255,.08),
+            rgba(0,0,0,.98) 55%
+        );
+
+    color:#fff;
+    text-align:center;
+
+    transition:
+        opacity .25s ease,
+        visibility .25s ease;
+}
+
+#loading.hidden{
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+}
+
+.loading-card{
+    width:min(360px,calc(100vw - 40px));
+    padding:28px 24px;
+
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:20px;
+
+    background:rgba(5,10,18,.78);
+
+    box-shadow:
+        0 20px 60px rgba(0,0,0,.65),
+        inset 0 1px 0 rgba(255,255,255,.04);
+
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+}
+
+.loading-logo{
+    width:46px;
+    height:46px;
+
+    margin:0 auto 18px;
+
+    border-radius:50%;
+
+    border:2px solid rgba(39,147,255,.25);
+    border-top-color:var(--obv-blue);
+
+    animation:obvSpin .8s linear infinite;
+}
+
+@keyframes obvSpin{
+    to{
+        transform:rotate(360deg);
+    }
+}
+
+.loading-title{
+    font-size:13px;
+    font-weight:900;
+    letter-spacing:2px;
+}
+
+#loadingText{
+    margin-top:9px;
+    color:var(--obv-muted);
+    font-size:12px;
+    line-height:1.5;
+}
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+#status{
+    position:fixed;
+
+    top:
+        calc(
+            10px +
+            var(--safe-top)
+        );
+
+    left:50%;
+
+    z-index:85000;
+
+    max-width:
+        calc(
+            100vw -
+            32px -
+            var(--safe-left) -
+            var(--safe-right)
+        );
+
+    padding:7px 11px;
+
+    transform:translateX(-50%);
+
+    border:
+        1px solid
+        rgba(255,255,255,.10);
+
+    border-radius:9px;
+
+    background:rgba(0,0,0,.65);
+
+    color:rgba(255,255,255,.72);
+
+    font-size:11px;
+
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+
+    pointer-events:none;
+
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+
+    transition:
+        opacity .25s ease,
+        transform .25s ease;
+}
+
+#status.hidden{
+    opacity:0;
+    transform:
+        translateX(-50%)
+        translateY(-5px);
+}
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+#error{
+    position:fixed;
+    inset:0;
+
+    z-index:100000;
+
+    display:none;
+
+    align-items:center;
+    justify-content:center;
+
+    padding:
+        calc(24px + var(--safe-top))
+        calc(24px + var(--safe-right))
+        calc(24px + var(--safe-bottom))
+        calc(24px + var(--safe-left));
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(255,60,60,.08),
+            #000 60%
+        );
+
+    color:#fff;
+    text-align:center;
+}
+
+.error-card{
+    width:min(460px,100%);
+
+    padding:26px;
+
+    border:
+        1px solid
+        rgba(255,80,80,.18);
+
+    border-radius:18px;
+
+    background:
+        rgba(12,5,7,.84);
+
+    box-shadow:
+        0 20px 60px rgba(0,0,0,.65);
+
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+}
+
+.error-icon{
+    font-size:30px;
+    margin-bottom:12px;
+}
+
+.error-title{
+    font-size:15px;
+    font-weight:900;
+    margin-bottom:10px;
+}
+
+#errorMessage{
+    color:rgba(255,255,255,.68);
+    font-size:12px;
+    line-height:1.55;
+    white-space:pre-wrap;
+    word-break:break-word;
+}
+
+.error-button{
+    margin-top:18px;
+
+    height:40px;
+    padding:0 18px;
+
+    border:0;
+    border-radius:10px;
+
+    background:var(--obv-blue);
+    color:#fff;
+
+    font-weight:800;
+    cursor:pointer;
+
+    touch-action:manipulation;
+}
+
+/* =========================================================
+   TOP GAME INFO
+========================================================= */
+
+#gameInfo{
+    position:fixed;
+
+    top:
+        calc(
+            12px +
+            var(--safe-top)
+        );
+
+    left:
+        calc(
+            12px +
+            var(--safe-left)
+        );
+
+    z-index:80000;
+
+    max-width:calc(100vw - 24px);
+
+    padding:8px 11px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.09);
+
+    border-radius:10px;
+
+    background:rgba(0,0,0,.48);
+
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+
+    pointer-events:none;
+
+    transition:
+        opacity .25s ease,
+        transform .25s ease;
+}
+
+#gameInfo.hidden{
+    opacity:0;
+    transform:translateY(-5px);
+}
+
+#gameTitle{
+    max-width:260px;
+
+    font-size:12px;
+    font-weight:800;
+
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+#gamePlatform{
+    margin-top:2px;
+
+    color:rgba(255,255,255,.42);
+
+    font-size:9px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+}
+
+/* =========================================================
+   ACTION BUTTONS
+========================================================= */
+
+#obvControls{
+    position:fixed;
+
+    top:
+        calc(
+            12px +
+            var(--safe-top)
+        );
+
+    right:
+        calc(
+            12px +
+            var(--safe-right)
+        );
+
+    z-index:100000;
+
+    display:flex;
+    gap:7px;
+
+    pointer-events:auto;
+}
+
+.obv-action{
+    width:38px;
+    height:38px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border:
+        1px solid
+        rgba(255,255,255,.14);
+
+    border-radius:11px;
+
+    background:
+        rgba(5,12,22,.62);
+
+    color:#fff;
+
+    font-size:16px;
+
+    cursor:pointer;
+
+    box-shadow:
+        0 5px 18px rgba(0,0,0,.35);
+
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+
+    touch-action:manipulation;
+
+    transition:
+        background .15s ease,
+        transform .15s ease;
+}
+
+.obv-action:hover{
+    background:rgba(39,147,255,.35);
+}
+
+.obv-action:active{
+    transform:scale(.92);
+}
+
+/* =========================================================
+   CONTROLLER STATUS
+========================================================= */
+
+#controllerStatus{
+    position:fixed;
+
+    left:50%;
+
+    bottom:
+        calc(
+            14px +
+            var(--safe-bottom)
+        );
+
+    z-index:79000;
+
+    transform:translateX(-50%);
+
+    padding:5px 9px;
+
+    border-radius:7px;
+
+    background:rgba(0,0,0,.45);
+
+    color:rgba(255,255,255,.48);
+
+    font-size:9px;
+
+    letter-spacing:.5px;
+
+    pointer-events:none;
+
+    opacity:0;
+
+    transition:opacity .25s ease;
+}
+
+#controllerStatus.visible{
+    opacity:1;
+}
+
+/* =========================================================
+   GAME CHAT BUTTON
+========================================================= */
+
+#gameChatButton{
+    position:fixed;
+
+    right:
+        calc(
+            18px +
+            var(--safe-right)
+        );
+
+    bottom:
+        calc(
+            18px +
+            var(--safe-bottom)
+        );
+
+    width:48px;
+    height:48px;
+
+    z-index:110000;
+
+    border:
+        1px solid
+        rgba(255,255,255,.20);
+
+    border-radius:50%;
+
+    background:
+        rgba(10,18,30,.58);
+
+    color:#fff;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:20px;
+
+    cursor:pointer;
+
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+
+    box-shadow:
+        0 6px 22px rgba(0,0,0,.42);
+
+    transition:
+        transform .15s,
+        background .15s;
+
+    touch-action:manipulation;
+}
+
+#gameChatButton:hover{
+    background:rgba(39,147,255,.65);
+}
+
+#gameChatButton:active{
+    transform:scale(.92);
+}
+
+#gameChatButton.chat-open{
+    background:rgba(39,147,255,.78);
+}
+
+/* =========================================================
+   CHAT UNREAD
+========================================================= */
+
+#gameChatUnread{
+    position:absolute;
+
+    right:-2px;
+    top:-2px;
+
+    min-width:17px;
+    height:17px;
+
+    padding:0 4px;
+
+    border-radius:20px;
+
+    background:#ff3b30;
+    color:#fff;
+
+    font-size:10px;
+    font-weight:900;
+
+    display:none;
+
+    align-items:center;
+    justify-content:center;
+}
+
+/* =========================================================
+   CHAT WINDOW
+========================================================= */
+
+#gameChat{
+    position:fixed;
+
+    right:
+        calc(
+            18px +
+            var(--safe-right)
+        );
+
+    bottom:
+        calc(
+            76px +
+            var(--safe-bottom)
+        );
+
+    width:min(
+        350px,
+        calc(
+            100vw -
+            36px -
+            var(--safe-left) -
+            var(--safe-right)
+        )
+    );
+
+    height:min(
+        440px,
+        calc(
+            100vh -
+            120px -
+            var(--safe-top) -
+            var(--safe-bottom)
+        )
+    );
+
+    z-index:109999;
+
+    display:flex;
+    flex-direction:column;
+
+    overflow:hidden;
+
+    border:
+        1px solid
+        rgba(255,255,255,.15);
+
+    border-radius:18px;
+
+    background:
+        rgba(5,12,22,.72);
+
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+
+    box-shadow:
+        0 20px 60px rgba(0,0,0,.58);
+
+    opacity:0;
+
+    transform:
+        translateY(12px)
+        scale(.97);
+
+    pointer-events:none;
+
+    transition:
+        opacity .18s ease,
+        transform .18s ease;
+}
+
+#gameChat.open{
+    opacity:1;
+
+    transform:
+        translateY(0)
+        scale(1);
+
+    pointer-events:auto;
+}
+
+/* =========================================================
+   CHAT HEADER
+========================================================= */
+
+#gameChatHeader{
+    min-height:54px;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    padding:0 10px 0 14px;
+
+    background:
+        rgba(5,12,22,.52);
+
+    border-bottom:
+        1px solid
+        rgba(255,255,255,.10);
+
+    flex-shrink:0;
+}
+
+#gameChatTitle{
+    min-width:0;
+}
+
+#gameChatName{
+    font-size:14px;
+    font-weight:900;
+
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+#gameChatRoom{
+    margin-top:2px;
+
+    color:rgba(255,255,255,.46);
+
+    font-size:9px;
+
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+#gameChatClose{
+    width:34px;
+    height:34px;
+
+    border:0;
+    border-radius:10px;
+
+    background:rgba(255,255,255,.08);
+
+    color:#fff;
+
+    font-size:16px;
+
+    cursor:pointer;
+
+    touch-action:manipulation;
+}
+
+/* =========================================================
+   CHAT MESSAGES
+========================================================= */
+
+#gameChatMessages{
+    flex:1;
+
+    min-height:0;
+
+    overflow-y:auto;
+    overflow-x:hidden;
+
+    padding:10px;
+
+    scrollbar-width:thin;
+
+    scrollbar-color:
+        rgba(255,255,255,.24)
+        transparent;
+
+    -webkit-overflow-scrolling:touch;
+
+    touch-action:pan-y;
+}
+
+#gameChatMessages::-webkit-scrollbar{
+    width:5px;
+}
+
+#gameChatMessages::-webkit-scrollbar-track{
+    background:transparent;
+}
+
+#gameChatMessages::-webkit-scrollbar-thumb{
+    background:rgba(255,255,255,.20);
+    border-radius:10px;
+}
+
+.game-chat-message{
+    margin-bottom:7px;
+
+    padding:8px 9px;
+
+    border-radius:10px;
+
+    background:
+        rgba(0,0,0,.30);
+
+    border:
+        1px solid
+        rgba(255,255,255,.055);
+
+    font-size:12px;
+    line-height:1.4;
+
+    word-break:break-word;
+}
+
+.game-chat-name{
+    color:#4da3ff;
+    font-weight:900;
+    margin-right:4px;
+}
+
+.game-chat-system{
+    color:rgba(255,255,255,.48);
+    font-style:italic;
+    text-align:center;
+}
+
+/* =========================================================
+   CHAT INPUT
+========================================================= */
+
+#gameChatInputBar{
+    display:flex;
+
+    gap:5px;
+
+    padding:8px;
+
+    background:
+        rgba(5,12,22,.54);
+
+    border-top:
+        1px solid
+        rgba(255,255,255,.09);
+
+    flex-shrink:0;
+}
+
+#gameChatNameInput{
+    width:62px;
+    flex-shrink:0;
+}
+
+#gameChatMessageInput{
+    flex:1;
+    min-width:0;
+}
+
+#gameChatInputBar input{
+    height:40px;
+
+    box-sizing:border-box;
+
+    padding:0 9px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.14);
+
+    border-radius:9px;
+
+    outline:none;
+
+    background:
+        rgba(0,0,0,.38);
+
+    color:#fff;
+
+    font-size:14px;
+
+    touch-action:manipulation;
+}
+
+#gameChatInputBar input:focus{
+    border-color:
+        rgba(39,147,255,.55);
+}
+
+#gameChatInputBar input::placeholder{
+    color:rgba(255,255,255,.42);
+}
+
+#gameChatSend{
+    width:43px;
+    height:40px;
+
+    flex-shrink:0;
+
+    border:0;
+    border-radius:9px;
+
+    background:
+        rgba(39,147,255,.76);
+
+    color:#fff;
+
+    font-size:15px;
+
+    cursor:pointer;
+
+    touch-action:manipulation;
+}
+
+#gameChatSend:disabled{
+    opacity:.45;
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media(max-width:600px){
+
+    #gameInfo{
+        top:
+            calc(
+                8px +
+                var(--safe-top)
+            );
+
+        left:
+            calc(
+                8px +
+                var(--safe-left)
+            );
+    }
+
+    #obvControls{
+        top:
+            calc(
+                8px +
+                var(--safe-top)
+            );
+
+        right:
+            calc(
+                8px +
+                var(--safe-right)
+            );
+    }
+
+    .obv-action{
+        width:36px;
+        height:36px;
+    }
+
+    #gameChatButton{
+        right:
+            calc(
+                12px +
+                var(--safe-right)
+            );
+
+        bottom:
+            calc(
+                12px +
+                var(--safe-bottom)
+            );
+
+        width:45px;
+        height:45px;
+
+        font-size:19px;
+    }
+
+    #gameChat{
+        right:
+            calc(
+                10px +
+                var(--safe-right)
+            );
+
+        bottom:
+            calc(
+                66px +
+                var(--safe-bottom)
+            );
+
+        width:
+            calc(
+                100vw -
+                20px -
+                var(--safe-left) -
+                var(--safe-right)
+            );
+
+        height:
+            min(
+                400px,
+                calc(
+                    100vh -
+                    92px -
+                    var(--safe-top) -
+                    var(--safe-bottom)
+                )
+            );
+
+        border-radius:16px;
+    }
+
+    #gameChatInputBar input{
+        height:42px;
+    }
+
+    #gameChatSend{
+        height:42px;
+    }
+}
+
+/* =========================================================
+   TOUCH SAFETY
+========================================================= */
+
+button,
+input{
+    touch-action:manipulation;
+}
+
+#game,
+#game canvas{
+    -webkit-touch-callout:none;
+}
+
+/* =========================================================
+   EMULATORJS VIRTUAL GAMEPAD FIX
+========================================================= */
+
+/*
+    IMPORTANT:
+
+    EmulatorJS currently has a mobile issue where touching
+    an empty area inside the virtual-gamepad container can
+    generate pointer movement that reaches the bottom toolbar.
+
+    These rules keep controller containers isolated from
+    normal page interaction.
+*/
+
+#ejs_virtualGamepad_left,
+#ejs_virtualGamepad_right{
+
+    z-index:50000 !important;
+
+    touch-action:none !important;
+
+    -webkit-user-select:none !important;
+    user-select:none !important;
+
+    -webkit-touch-callout:none !important;
+}
+
+/*
+    Do not allow child elements to create browser gestures.
+*/
+
+#ejs_virtualGamepad_left *,
+#ejs_virtualGamepad_right *{
+
+    touch-action:none !important;
+
+    -webkit-user-select:none !important;
+    user-select:none !important;
+}
+
+/*
+    Keep controller above the game canvas but below
+    Obvyris UI.
+*/
+
+#ejs_virtualGamepad_left,
+#ejs_virtualGamepad_right,
+#ejs_virtualGamepad_left *,
+#ejs_virtualGamepad_right *{
+    pointer-events:auto !important;
+}
+
+/* =========================================================
+   FULLSCREEN
+========================================================= */
+
+:fullscreen{
+    background:#000;
+}
+
+:-webkit-full-screen{
+    background:#000;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- =======================================================
+     GAME
+======================================================= -->
+
+<div id="game"></div>
+
+
+<!-- =======================================================
+     LOADING
+======================================================= -->
+
+<div id="loading">
+
+    <div class="loading-card">
+
+        <div class="loading-logo"></div>
+
+        <div class="loading-title">
+            OBVYRIS EMULATOR
+        </div>
+
+        <div id="loadingText">
+            Preparing game...
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =======================================================
+     GAME INFO
+======================================================= -->
+
+<div id="gameInfo">
+
+    <div id="gameTitle">
+        OBVYRIS GAME
+    </div>
+
+    <div id="gamePlatform">
+        EMULATOR
+    </div>
+
+</div>
+
+
+<!-- =======================================================
+     ACTION BUTTONS
+======================================================= -->
+
+<div id="obvControls">
+
+    <button
+        id="fullscreenButton"
+        class="obv-action"
+        type="button"
+        aria-label="Fullscreen"
+        title="Fullscreen"
+    >
+        ⛶
+    </button>
+
+</div>
+
+
+<!-- =======================================================
+     STATUS
+======================================================= -->
+
+<div id="status"></div>
+
+
+<!-- =======================================================
+     CONTROLLER STATUS
+======================================================= -->
+
+<div id="controllerStatus">
+    TOUCH CONTROLLER
+</div>
+
+
+<!-- =======================================================
+     ERROR
+======================================================= -->
+
+<div id="error">
+
+    <div class="error-card">
+
+        <div class="error-icon">
+            ⚠
+        </div>
+
+        <div class="error-title">
+            Emulator Error
+        </div>
+
+        <div id="errorMessage"></div>
+
+        <button
+            id="errorReload"
+            class="error-button"
+            type="button"
+        >
+            Reload Game
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =======================================================
+     GAME CHAT BUTTON
+======================================================= -->
+
+<button
+    id="gameChatButton"
+    type="button"
+    aria-label="Game Chat"
+    title="Game Chat"
+>
+
+    💬
+
+    <span id="gameChatUnread">
+        0
+    </span>
+
+</button>
+
+
+<!-- =======================================================
+     GAME CHAT
+======================================================= -->
+
+<div id="gameChat">
+
+    <div id="gameChatHeader">
+
+        <div id="gameChatTitle">
+
+            <div id="gameChatName">
+                💬 Game Chat
+            </div>
+
+            <div id="gameChatRoom">
+                Loading room...
+            </div>
+
+        </div>
+
+        <button
+            id="gameChatClose"
+            type="button"
+            aria-label="Close chat"
+        >
+            ✕
+        </button>
+
+    </div>
+
+
+    <div id="gameChatMessages"></div>
+
+
+    <div id="gameChatInputBar">
+
+        <input
+            id="gameChatNameInput"
+            maxlength="10"
+            placeholder="Name"
+            autocomplete="off"
+            spellcheck="false"
+        >
+
+        <input
+            id="gameChatMessageInput"
+            maxlength="120"
+            placeholder="Chat..."
+            autocomplete="off"
+            spellcheck="false"
+        >
+
+        <button
+            id="gameChatSend"
+            type="button"
+            aria-label="Send message"
+        >
+            ➤
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+"use strict";
+
+/* =========================================================
+   URL PARAMETERS
+========================================================= */
+
+const params =
+    new URLSearchParams(location.search);
+
+const originalRom =
+    params.get("rom");
+
+const requestedCore =
+    (
+        params.get("core") ||
+        "nes"
+    ).toLowerCase();
+
+const title =
+    params.get("title") ||
+    "OBVYRIS GAME";
+
+const gameID =
+    params.get("gameid") ||
+    params.get("gameId") ||
+    "";
+
+const chatStation =
+    params.get("station") ||
+    (
+        gameID
+            ? "game-" + gameID
+            : ""
+    );
+
+
+/* =========================================================
+   LOG PARAMETERS
+========================================================= */
+
+console.log(
+    "[OBVYRIS EMULATOR] Game ID:",
+    gameID
+);
+
+console.log(
+    "[OBVYRIS EMULATOR] Chat Station:",
+    chatStation
+);
+
+console.log(
+    "[OBVYRIS EMULATOR] Requested Core:",
+    requestedCore
+);
+
+console.log(
+    "[OBVYRIS EMULATOR] Title:",
+    title
+);
+
+console.log(
+    "[OBVYRIS EMULATOR] ROM:",
+    originalRom
+);
+
+
+/* =========================================================
+   CORE MAP
+========================================================= */
+
+const CORE_MAP = {
+
+    nes:
+        "nes",
+
+    snes:
+        "snes",
+
+    gba:
+        "mgba",
+
+    gbc:
+        "gambatte",
+
+    gb:
+        "gambatte",
+
+    genesis:
+        "genesis_plus_gx",
+
+    megadrive:
+        "genesis_plus_gx",
+
+    sega_genesis:
+        "genesis_plus_gx",
+
+    genesis_plus_gx:
+        "genesis_plus_gx"
+
+};
+
+const core =
+    CORE_MAP[requestedCore] ||
+    requestedCore;
+
+
+/* =========================================================
+   CONTROL SCHEME MAP
+========================================================= */
+
+const CONTROL_SCHEME_MAP = {
+
+    nes:
+        "nes",
+
+    snes:
+        "snes",
+
+    gba:
+        "gba",
+
+    gbc:
+        "gb",
+
+    gb:
+        "gb",
+
+    genesis:
+        "segaMD",
+
+    megadrive:
+        "segaMD",
+
+    sega_genesis:
+        "segaMD",
+
+    genesis_plus_gx:
+        "segaMD"
+
+};
+
+const controlScheme =
+    CONTROL_SCHEME_MAP[requestedCore] ||
+    requestedCore;
+
+
+/* =========================================================
+   DOM
+========================================================= */
+
+const loading =
+    document.getElementById(
+        "loading"
+    );
+
+const loadingText =
+    document.getElementById(
+        "loadingText"
+    );
+
+const errorBox =
+    document.getElementById(
+        "error"
+    );
+
+const errorMessage =
+    document.getElementById(
+        "errorMessage"
+    );
+
+const status =
+    document.getElementById(
+        "status"
+    );
+
+const gameInfo =
+    document.getElementById(
+        "gameInfo"
+    );
+
+const gameTitle =
+    document.getElementById(
+        "gameTitle"
+    );
+
+const gamePlatform =
+    document.getElementById(
+        "gamePlatform"
+    );
+
+const controllerStatus =
+    document.getElementById(
+        "controllerStatus"
+    );
+
+
+/* =========================================================
+   DISPLAY GAME INFO
+========================================================= */
+
+gameTitle.textContent =
+    title;
+
+gamePlatform.textContent =
+    requestedCore.toUpperCase();
+
+
+/* =========================================================
+   LOG
+========================================================= */
+
+function log(message){
+
+    console.log(
+        "[OBVYRIS EMULATOR]",
+        message
+    );
+
+    status.textContent =
+        message;
+
+}
+
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+function setLoading(message){
+
+    loadingText.textContent =
+        message;
+
+    console.log(
+        "[OBVYRIS EMULATOR]",
+        message
+    );
+
+}
+
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+function fail(message){
+
+    console.error(
+        "[OBVYRIS EMULATOR]",
+        message
+    );
+
+    loading.classList.add(
+        "hidden"
+    );
+
+    errorBox.style.display =
+        "flex";
+
+    errorMessage.textContent =
+        message;
+
+}
+
+
+/* =========================================================
+   TOUCH DEVICE
+========================================================= */
+
+function isTouchDevice(){
+
+    return (
+        "ontouchstart" in window ||
+        navigator.maxTouchPoints > 0 ||
+        navigator.msMaxTouchPoints > 0
+    );
+
+}
+
+
+/* =========================================================
+   ANDROID DEVICE
+========================================================= */
+
+function isAndroid(){
+
+    return /Android/i.test(
+        navigator.userAgent
+    );
+
+}
+
+
+/* =========================================================
+   ROM CHECK
+========================================================= */
+
+if(!originalRom){
+
+    fail(
+        "No ROM was supplied.\n\n" +
+
+        "Example:\n" +
+
+        "?gameid=zelda" +
+
+        "&core=nes" +
+
+        "&title=The%20Legend%20of%20Zelda" +
+
+        "&rom=ROM_URL"
+    );
+
+}
+
+
+/* =========================================================
+   CHAT CHECK
+========================================================= */
+
+if(!chatStation){
+
+    console.warn(
+        "[OBVYRIS EMULATOR] " +
+        "No chat station available."
+    );
+
+}
+
+
+/* =========================================================
+   ROM PROXY
+========================================================= */
+
+const PROXY_BASE =
+    "https://obvyris-rom-proxy.vercel.app/api/rom";
+
+const proxyURL =
+    PROXY_BASE +
+    "?url=" +
+    encodeURIComponent(
+        originalRom || ""
+    );
+
+console.log(
+    "[OBVYRIS EMULATOR] Proxy ROM:",
+    proxyURL
+);
+
+
+/* =========================================================
+   ROM DOWNLOAD TIMEOUT
+========================================================= */
+
+const ROM_TIMEOUT =
+    30000;
+
+
+/* =========================================================
+   ROM VALIDATION
+========================================================= */
+
+function validateROM(
+    buffer
+){
+
+    if(
+        !buffer ||
+        buffer.byteLength < 16
+    ){
+
+        throw new Error(
+            "ROM data is empty or too small."
+        );
+
+    }
+
+
+    const bytes =
+        new Uint8Array(
+            buffer
+        );
+
+
+    /* =====================================================
+       NES
+    ===================================================== */
+
+    if(core === "nes"){
+
+        const validNES =
+            bytes.length >= 4 &&
+
+            bytes[0] === 0x4E &&
+
+            bytes[1] === 0x45 &&
+
+            bytes[2] === 0x53 &&
+
+            bytes[3] === 0x1A;
+
+
+        console.log(
+            "[OBVYRIS EMULATOR] NES header:",
+            validNES
+                ? "VALID"
+                : "INVALID"
+        );
+
+
+        if(!validNES){
+
+            throw new Error(
+
+                "The downloaded file is not " +
+                "a valid NES ROM.\n\n" +
+
+                "First bytes: " +
+
+                Array.from(
+                    bytes.slice(0,8)
+                )
+                .map(
+                    x =>
+                        x
+                        .toString(16)
+                        .padStart(2,"0")
+                )
+                .join(" ")
+
+            );
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   DOWNLOAD ROM
+========================================================= */
+
+async function downloadROM(){
+
+    if(!originalRom){
+
+        throw new Error(
+            "Missing ROM URL."
+        );
+
+    }
+
+
+    const controller =
+        new AbortController();
+
+
+    const timeout =
+        setTimeout(
+            function(){
+
+                controller.abort();
+
+            },
+            ROM_TIMEOUT
+        );
+
+
+    try{
+
+        setLoading(
+            "Downloading ROM..."
+        );
+
+        log(
+            "Fetching ROM..."
+        );
+
+
+        const response =
+            await fetch(
+                proxyURL,
+                {
+                    method:"GET",
+                    mode:"cors",
+                    cache:"no-store",
+                    signal:
+                        controller.signal
+                }
+            );
+
+
+        console.log(
+            "[OBVYRIS EMULATOR] " +
+            "Proxy response:",
+            response.status,
+            response.statusText
+        );
+
+
+        if(!response.ok){
+
+            let text = "";
+
+            try{
+
+                text =
+                    await response.text();
+
+            }catch(error){
+
+                console.warn(
+                    "Could not read proxy error.",
+                    error
+                );
+
+            }
+
+
+            throw new Error(
+
+                "Proxy returned HTTP " +
+
+                response.status +
+
+                "\n" +
+
+                text
+
+            );
+
+        }
+
+
+        setLoading(
+            "Reading ROM..."
+        );
+
+
+        const buffer =
+            await response.arrayBuffer();
+
+
+        console.log(
+            "[OBVYRIS EMULATOR] " +
+            "ROM downloaded:",
+            buffer.byteLength,
+            "bytes"
+        );
+
+
+        validateROM(
+            buffer
+        );
+
+
+        const blob =
+            new Blob(
+                [buffer],
+                {
+                    type:
+                        "application/octet-stream"
+                }
+            );
+
+
+        const blobURL =
+            URL.createObjectURL(
+                blob
+            );
+
+
+        console.log(
+            "[OBVYRIS EMULATOR] " +
+            "Local ROM Blob:",
+            blobURL
+        );
+
+
+        return blobURL;
+
+
+    }catch(error){
+
+        if(
+            error &&
+            error.name ===
+            "AbortError"
+        ){
+
+            throw new Error(
+                "ROM download timed out after " +
+                (ROM_TIMEOUT / 1000) +
+                " seconds."
+            );
+
+        }
+
+
+        console.error(
+            "[OBVYRIS EMULATOR] " +
+            "ROM download error:",
+            error
+        );
+
+
+        throw error;
+
+
+    }finally{
+
+        clearTimeout(
+            timeout
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE CONTROLLER STATE
+========================================================= */
+
+let mobileControlsReady =
+    false;
+
+let controllerWatchTimer =
+    null;
+
+
+/* =========================================================
+   CONTROLLER EVENT PROTECTION
+========================================================= */
+
+function protectVirtualGamepad(
+    container,
+    name
+){
+
+    if(!container){
+
+        return;
+
+    }
+
+
+    if(
+        container.dataset
+            .obvyrisProtected ===
+        "true"
+    ){
+
+        return;
+
+    }
+
+
+    container.dataset
+        .obvyrisProtected =
+        "true";
+
+
+    /*
+        Critical Android fix.
+
+        EmulatorJS currently has a bug where
+        empty areas inside the virtual gamepad
+        can generate pointer movement that reaches
+        the bottom toolbar.
+
+        We prevent the touch event at the
+        controller container itself.
+    */
+
+    const stopTouch =
+        function(event){
+
+            event.preventDefault();
+
+        };
+
+
+    const stopPointer =
+        function(event){
+
+            if(
+                event.pointerType ===
+                "touch"
+            ){
+
+                event.preventDefault();
+
+            }
+
+        };
+
+
+    container.addEventListener(
+        "touchstart",
+        stopTouch,
+        {
+            passive:false,
+            capture:true
+        }
+    );
+
+
+    container.addEventListener(
+        "touchmove",
+        stopTouch,
+        {
+            passive:false,
+            capture:true
+        }
+    );
+
+
+    container.addEventListener(
+        "touchend",
+        function(event){
+
+            event.preventDefault();
+
+        },
+        {
+            passive:false,
+            capture:true
+        }
+    );
+
+
+    container.addEventListener(
+        "touchcancel",
+        function(event){
+
+            event.preventDefault();
+
+        },
+        {
+            passive:false,
+            capture:true
+        }
+    );
+
+
+    container.addEventListener(
+        "pointerdown",
+        stopPointer,
+        {
+            passive:false,
+            capture:true
+        }
+    );
+
+
+    container.addEventListener(
+        "pointermove",
+        stopPointer,
+        {
+            passive:false,
+            capture:true
+        }
+    );
+
+
+    container.addEventListener(
+        "pointerup",
+        stopPointer,
+        {
+            passive:false,
+            capture:true
+        }
+    );
+
+
+    container.addEventListener(
+        "pointercancel",
+        stopPointer,
+        {
+            passive:false,
+            capture:true
+        }
+    );
+
+
+    console.log(
+        "[OBVYRIS EMULATOR]",
+        name,
+        "virtual gamepad protected"
+    );
+
+}
+
+
+/* =========================================================
+   FIND VIRTUAL CONTROLLERS
+========================================================= */
+
+function checkVirtualControllers(){
+
+    if(!isTouchDevice()){
+
+        return false;
+
+    }
+
+
+    const left =
+        document.querySelector(
+            "#ejs_virtualGamepad_left"
+        );
+
+    const right =
+        document.querySelector(
+            "#ejs_virtualGamepad_right"
+        );
+
+
+    protectVirtualGamepad(
+        left,
+        "Left"
+    );
+
+
+    protectVirtualGamepad(
+        right,
+        "Right"
+    );
+
+
+    const found =
+        !!left ||
+        !!right;
+
+
+    if(found){
+
+        if(!mobileControlsReady){
+
+            mobileControlsReady =
+                true;
+
+
+            controllerStatus.textContent =
+                "TOUCH CONTROLLER READY";
+
+            controllerStatus.classList.add(
+                "visible"
+            );
+
+
+            setTimeout(
+                function(){
+
+                    controllerStatus.classList.remove(
+                        "visible"
+                    );
+
+                },
+                2200
+            );
+
+
+            console.log(
+                "[OBVYRIS EMULATOR] " +
+                "Virtual controller READY"
+            );
+
+        }
+
+    }
+
+
+    return found;
+
+}
+
+
+/* =========================================================
+   CONTROLLER WATCHER
+========================================================= */
+
+function startControllerWatcher(){
+
+    if(!isTouchDevice()){
+
+        console.log(
+            "[OBVYRIS EMULATOR] " +
+            "Desktop device detected"
+        );
+
+        return;
+
+    }
+
+
+    console.log(
+        "[OBVYRIS EMULATOR] " +
+        "Touch device detected"
+    );
+
+
+    if(controllerWatchTimer){
+
+        clearInterval(
+            controllerWatchTimer
+        );
+
+    }
+
+
+    let attempts = 0;
+
+    const maxAttempts =
+        300;
+
+
+    controllerWatchTimer =
+        setInterval(
+            function(){
+
+                attempts++;
+
+
+                const found =
+                    checkVirtualControllers();
+
+
+                if(
+                    found &&
+                    attempts > 30
+                ){
+
+                    clearInterval(
+                        controllerWatchTimer
+                    );
+
+                    controllerWatchTimer =
+                        null;
+
+                    return;
+
+                }
+
+
+                if(
+                    attempts >=
+                    maxAttempts
+                ){
+
+                    clearInterval(
+                        controllerWatchTimer
+                    );
+
+                    controllerWatchTimer =
+                        null;
+
+
+                    if(
+                        !mobileControlsReady
+                    ){
+
+                        console.warn(
+                            "[OBVYRIS EMULATOR] " +
+                            "Virtual controller " +
+                            "was not detected."
+                        );
+
+                    }
+
+                }
+
+            },
+            100
+        );
+
+}
+
+
+/* =========================================================
+   MUTATION OBSERVER
+========================================================= */
+
+function startControllerObserver(){
+
+    if(!isTouchDevice()){
+
+        return;
+
+    }
+
+
+    const observer =
+        new MutationObserver(
+            function(){
+
+                checkVirtualControllers();
+
+            }
+        );
+
+
+    observer.observe(
+        document.body,
+        {
+            childList:true,
+            subtree:true
+        }
+    );
+
+}
+
+
+/* =========================================================
+   START EMULATORJS
+========================================================= */
+
+function startEmulator(
+    blobURL
+){
+
+    return new Promise(
+        function(resolve,reject){
+
+            try{
+
+                setLoading(
+                    "Preparing EmulatorJS..."
+                );
+
+
+                /* =========================================
+                   CORE
+                ========================================= */
+
+                window.EJS_player =
+                    "#game";
+
+
+                window.EJS_core =
+                    core;
+
+
+                window.EJS_gameUrl =
+                    blobURL;
+
+
+                window.EJS_gameName =
+                    title;
+
+
+                window.EJS_pathtodata =
+                    "https://cdn.emulatorjs.org/stable/data/";
+
+
+                window.EJS_startOnLoaded =
+                    true;
+
+
+                window.EJS_disableAutoLang =
+                    true;
+
+
+                /* =========================================
+                   PLATFORM CONTROL SCHEME
+                ========================================= */
+
+                window.EJS_controlScheme =
+                    controlScheme;
+
+
+                /* =========================================
+                   VIRTUAL GAMEPAD
+                ========================================= */
+
+                window.EJS_virtualGamepad =
+                    isTouchDevice();
+
+
+                /* =========================================
+                   VISUAL
+                ========================================= */
+
+                window.EJS_color =
+                    "#2793ff";
+
+
+                window.EJS_backgroundColor =
+                    "#000000";
+
+
+                /* =========================================
+                   UNIQUE GAME ID
+                ========================================= */
+
+                window.EJS_gameID =
+                    "obvyris-" +
+                    (
+                        gameID ||
+                        "game"
+                    );
+
+
+                console.log(
+                    "[OBVYRIS EMULATOR] " +
+                    "EJS_gameID:",
+                    window.EJS_gameID
+                );
+
+
+                console.log(
+                    "[OBVYRIS EMULATOR] " +
+                    "Control Scheme:",
+                    controlScheme
+                );
+
+
+                console.log(
+                    "[OBVYRIS EMULATOR] " +
+                    "Virtual Gamepad:",
+                    window.EJS_virtualGamepad
+                        ? "ENABLED"
+                        : "DISABLED"
+                );
+
+
+                /* =========================================
+                   GAME START
+                ========================================= */
+
+                window.EJS_onGameStart =
+                    function(){
+
+                        console.log(
+                            "[OBVYRIS EMULATOR] " +
+                            "GAME STARTED"
+                        );
+
+
+                        loading.classList.add(
+                            "hidden"
+                        );
+
+
+                        status.classList.add(
+                            "hidden"
+                        );
+
+
+                        gameInfo.classList.add(
+                            "hidden"
+                        );
+
+
+                        startControllerWatcher();
+
+
+                        checkVirtualControllers();
+
+
+                        resolve();
+
+                    };
+
+
+                /* =========================================
+                   LOAD
+                ========================================= */
+
+                window.EJS_onLoad =
+                    function(){
+
+                        console.log(
+                            "[OBVYRIS EMULATOR] " +
+                            "EmulatorJS loaded"
+                        );
+
+
+                        startControllerWatcher();
+
+                    };
+
+
+                /* =========================================
+                   SAVE
+                ========================================= */
+
+                window.EJS_onSaveState =
+                    function(){
+
+                        console.log(
+                            "[OBVYRIS EMULATOR] " +
+                            "Save state"
+                        );
+
+                    };
+
+
+                /* =========================================
+                   LOAD STATE
+                ========================================= */
+
+                window.EJS_onLoadState =
+                    function(){
+
+                        console.log(
+                            "[OBVYRIS EMULATOR] " +
+                            "Load state"
+                        );
+
+                    };
+
+
+                /* =========================================
+                   SCRIPT
+                ========================================= */
+
+                setLoading(
+                    "Loading EmulatorJS..."
+                );
+
+
+                const script =
+                    document.createElement(
+                        "script"
+                    );
+
+
+                script.src =
+                    "https://cdn.emulatorjs.org/stable/data/loader.js";
+
+
+                script.async =
+                    true;
+
+
+                script.onload =
+                    function(){
+
+                        console.log(
+                            "[OBVYRIS EMULATOR] " +
+                            "EmulatorJS loader loaded"
+                        );
+
+
+                        setLoading(
+                            "Starting " +
+                            requestedCore.toUpperCase() +
+                            "..."
+                        );
+
+
+                        startControllerWatcher();
+
+
+                        startControllerObserver();
+
+
+                        let attempts = 0;
+
+                        const maxAttempts =
+                            300;
+
+
+                        const checkCanvas =
+                            setInterval(
+                                function(){
+
+                                    attempts++;
+
+
+                                    const canvas =
+                                        document.querySelector(
+                                            "#game canvas"
+                                        );
+
+
+                                    const virtualGamepad =
+                                        document.querySelector(
+                                            "#ejs_virtualGamepad_left," +
+                                            "#ejs_virtualGamepad_right"
+                                        );
+
+
+                                    if(canvas){
+
+                                        console.log(
+                                            "[OBVYRIS EMULATOR] " +
+                                            "Canvas detected"
+                                        );
+
+                                    }
+
+
+                                    if(virtualGamepad){
+
+                                        checkVirtualControllers();
+
+                                    }
+
+
+                                    if(
+                                        canvas &&
+                                        (
+                                            !isTouchDevice() ||
+                                            virtualGamepad
+                                        )
+                                    ){
+
+                                        clearInterval(
+                                            checkCanvas
+                                        );
+
+                                    }
+
+
+                                    if(
+                                        attempts >=
+                                        maxAttempts
+                                    ){
+
+                                        clearInterval(
+                                            checkCanvas
+                                        );
+
+
+                                        console.warn(
+                                            "[OBVYRIS EMULATOR] " +
+                                            "Initialization timeout"
+                                        );
+
+                                    }
+
+                                },
+                                100
+                            );
+
+                    };
+
+
+                script.onerror =
+                    function(){
+
+                        reject(
+                            new Error(
+                                "EmulatorJS loader " +
+                                "could not be loaded."
+                            )
+                        );
+
+                    };
+
+
+                document.head.appendChild(
+                    script
+                );
+
+
+            }catch(error){
+
+                reject(
+                    error
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   FULLSCREEN
+========================================================= */
+
+async function toggleFullscreen(){
+
+    try{
+
+        if(
+            document.fullscreenElement ||
+            document.webkitFullscreenElement
+        ){
+
+            if(
+                document.exitFullscreen
+            ){
+
+                await document.exitFullscreen();
+
+            }else if(
+                document.webkitExitFullscreen
+            ){
+
+                await document.webkitExitFullscreen();
+
+            }
+
+            return;
+
+        }
+
+
+        const element =
+            document.documentElement;
+
+
+        if(
+            element.requestFullscreen
+        ){
+
+            await element.requestFullscreen();
+
+        }else if(
+            element.webkitRequestFullscreen
+        ){
+
+            await element.webkitRequestFullscreen();
+
+        }else{
+
+            console.warn(
+                "[OBVYRIS EMULATOR] " +
+                "Fullscreen API unavailable."
+            );
+
+        }
+
+    }catch(error){
+
+        console.warn(
+            "[OBVYRIS EMULATOR] " +
+            "Fullscreen failed:",
+            error
+        );
+
+    }
+
+}
+
+
+document
+    .getElementById(
+        "fullscreenButton"
+    )
+    .addEventListener(
+        "click",
+        toggleFullscreen
+    );
+
+
+/* =========================================================
+   FULLSCREEN BUTTON STATE
+========================================================= */
+
+function updateFullscreenButton(){
+
+    const button =
+        document.getElementById(
+            "fullscreenButton"
+        );
+
+
+    const fullscreen =
+        !!(
+            document.fullscreenElement ||
+            document.webkitFullscreenElement
+        );
+
+
+    button.textContent =
+        fullscreen
+            ? "×"
+            : "⛶";
+
+}
+
+
+document.addEventListener(
+    "fullscreenchange",
+    updateFullscreenButton
+);
+
+document.addEventListener(
+    "webkitfullscreenchange",
+    updateFullscreenButton
+);
+
+
+/* =========================================================
+   ERROR RELOAD
+========================================================= */
+
+document
+    .getElementById(
+        "errorReload"
+    )
+    .addEventListener(
+        "click",
+        function(){
+
+            location.reload();
+
+        }
+    );
+
+
+/* =========================================================
+   MAIN
+========================================================= */
+
+async function main(){
+
+    try{
+
+        console.log(
+            "[OBVYRIS EMULATOR] " +
+            "Starting game:",
+            gameID
+        );
+
+
+        console.log(
+            "[OBVYRIS EMULATOR] " +
+            "Chat station:",
+            chatStation
+        );
+
+
+        console.log(
+            "[OBVYRIS EMULATOR] " +
+            "Android:",
+            isAndroid()
+        );
+
+
+        console.log(
+            "[OBVYRIS EMULATOR] " +
+            "Touch device:",
+            isTouchDevice()
+        );
+
+
+        if(!originalRom){
+
+            return;
+
+        }
+
+
+        const blobURL =
+            await downloadROM();
+
+
+        await startEmulator(
+            blobURL
+        );
+
+
+        console.log(
+            "[OBVYRIS EMULATOR]",
+            title,
+            "running"
+        );
+
+
+    }catch(error){
+
+        console.error(
+            "[OBVYRIS EMULATOR] FATAL:",
+            error
+        );
+
+
+        fail(
+            error &&
+            error.message
+                ? error.message
+                : String(error)
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   GLOBAL ERRORS
+========================================================= */
+
+window.addEventListener(
+    "error",
+    function(event){
+
+        console.error(
+            "[OBVYRIS EMULATOR] " +
+            "Window error:",
+            event.error ||
+            event.message
+        );
+
+    }
+);
+
+
+window.addEventListener(
+    "unhandledrejection",
+    function(event){
+
+        console.error(
+            "[OBVYRIS EMULATOR] " +
+            "Promise error:",
+            event.reason
+        );
+
+    }
+);
+
+
+/* =========================================================
+   GAME CHAT ENGINE
+========================================================= */
+
+const CHAT_API =
+    "https://script.google.com/macros/s/AKfycbzin84qDcZ9L1q4pTBtHZGKJSTDcZ_wnmgWmnmgPgf1jrc1nRprzbEBixKMSHcdkxiZBg/exec";
+
+
+let gameChatOpen =
+    false;
+
+let gameChatRefreshTimer =
+    null;
+
+let gameChatLastHash =
+    "";
+
+let gameChatLastCount =
+    0;
+
+let gameChatSending =
+    false;
+
+
+const GAME_CHAT_STATION =
+    chatStation;
+
+
+const GAME_CHAT_NAME =
+    title;
+
+
+/* =========================================================
+   CHAT DOM
+========================================================= */
+
+const gameChat =
+    document.getElementById(
+        "gameChat"
+    );
+
+const gameChatButton =
+    document.getElementById(
+        "gameChatButton"
+    );
+
+const gameChatMessages =
+    document.getElementById(
+        "gameChatMessages"
+    );
+
+const gameChatRoom =
+    document.getElementById(
+        "gameChatRoom"
+    );
+
+const gameChatNameInput =
+    document.getElementById(
+        "gameChatNameInput"
+    );
+
+const gameChatMessageInput =
+    document.getElementById(
+        "gameChatMessageInput"
+    );
+
+const gameChatUnread =
+    document.getElementById(
+        "gameChatUnread"
+    );
+
+
+/* =========================================================
+   CHAT ROOM
+========================================================= */
+
+if(GAME_CHAT_STATION){
+
+    gameChatRoom.textContent =
+        GAME_CHAT_STATION;
+
+}else{
+
+    gameChatRoom.textContent =
+        "No game room";
+
+}
+
+
+/* =========================================================
+   TOGGLE CHAT
+========================================================= */
+
+function toggleGameChat(){
+
+    if(!GAME_CHAT_STATION){
+
+        console.error(
+            "[OBVYRIS EMULATOR] " +
+            "No chat station available."
+        );
+
+        return;
+
+    }
+
+
+    gameChatOpen =
+        !gameChatOpen;
+
+
+    if(gameChatOpen){
+
+        openGameChat();
+
+    }else{
+
+        closeGameChat();
+
+    }
+
+}
+
+
+/* =========================================================
+   OPEN CHAT
+========================================================= */
+
+function openGameChat(){
+
+    if(!GAME_CHAT_STATION){
+
+        return;
+
+    }
+
+
+    gameChatOpen =
+        true;
+
+
+    gameChat.classList.add(
+        "open"
+    );
+
+
+    gameChatButton.classList.add(
+        "chat-open"
+    );
+
+
+    gameChatUnread.style.display =
+        "none";
+
+
+    gameChatUnread.textContent =
+        "0";
+
+
+    loadGameChat();
+
+
+    clearInterval(
+        gameChatRefreshTimer
+    );
+
+
+    gameChatRefreshTimer =
+        setInterval(
+            loadGameChat,
+            2500
+        );
+
+
+    setTimeout(
+        function(){
+
+            gameChatMessageInput.focus();
+
+        },
+        120
+    );
+
+}
+
+
+/* =========================================================
+   CLOSE CHAT
+========================================================= */
+
+function closeGameChat(){
+
+    gameChatOpen =
+        false;
+
+
+    gameChat.classList.remove(
+        "open"
+    );
+
+
+    gameChatButton.classList.remove(
+        "chat-open"
+    );
+
+
+    clearInterval(
+        gameChatRefreshTimer
+    );
+
+
+    gameChatRefreshTimer =
+        null;
+
+}
+
+
+/* =========================================================
+   LOAD CHAT
+========================================================= */
+
+async function loadGameChat(){
+
+    if(!GAME_CHAT_STATION){
+
+        return;
+
+    }
+
+
+    try{
+
+        const response =
+            await fetch(
+                CHAT_API,
+                {
+                    method:"POST",
+
+                    body:
+                        JSON.stringify(
+                            {
+                                action:"get",
+
+                                station:
+                                    GAME_CHAT_STATION
+                            }
+                        )
+                }
+            );
+
+
+        if(!response.ok){
+
+            throw new Error(
+                "Chat HTTP " +
+                response.status
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if(!Array.isArray(data)){
+
+            return;
+
+        }
+
+
+        const hash =
+            JSON.stringify(
+                data
+            );
+
+
+        if(
+            hash ===
+            gameChatLastHash
+        ){
+
+            return;
+
+        }
+
+
+        if(
+            !gameChatOpen &&
+            gameChatLastCount > 0 &&
+            data.length >
+                gameChatLastCount
+        ){
+
+            const difference =
+                data.length -
+                gameChatLastCount;
+
+
+            gameChatUnread.textContent =
+                difference > 9
+                    ? "9+"
+                    : difference;
+
+
+            gameChatUnread.style.display =
+                "flex";
+
+        }
+
+
+        gameChatLastHash =
+            hash;
+
+
+        gameChatLastCount =
+            data.length;
+
+
+        renderGameChat(
+            data
+        );
+
+
+    }catch(error){
+
+        console.warn(
+            "[OBVYRIS CHAT] " +
+            "Load failed:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   RENDER CHAT
+========================================================= */
+
+function renderGameChat(
+    data
+){
+
+    if(!data.length){
+
+        gameChatMessages.innerHTML =
+            `
+            <div class="game-chat-message game-chat-system">
+                No messages yet. Start the conversation.
+            </div>
+            `;
+
+        return;
+
+    }
+
+
+    const oldScroll =
+        gameChatMessages.scrollTop;
+
+
+    const wasNearBottom =
+        gameChatMessages.scrollHeight -
+        gameChatMessages.scrollTop -
+        gameChatMessages.clientHeight
+        < 80;
+
+
+    let html =
+        "";
+
+
+    for(
+        let i = 0;
+        i < data.length;
+        i++
+    ){
+
+        const m =
+            data[i];
+
+
+        if(!m){
+
+            continue;
+
+        }
+
+
+        const name =
+            escapeHTML(
+                m.name ||
+                "Anon"
+            );
+
+
+        const message =
+            escapeHTML(
+                m.message ||
+                ""
+            );
+
+
+        if(
+            name.toLowerCase() ===
+            "system"
+        ){
+
+            html +=
+                `
+                <div class="game-chat-message game-chat-system">
+                    ${message}
+                </div>
+                `;
+
+            continue;
+
+        }
+
+
+        if(
+            m.message &&
+            m.message.startsWith(
+                "[GIF]"
+            )
+        ){
+
+            const gifURL =
+                escapeAttribute(
+                    m.message.replace(
+                        "[GIF]",
+                        ""
+                    )
+                );
+
+
+            html +=
+                `
+                <div class="game-chat-message">
+
+                    <span class="game-chat-name">
+                        ${name}:
+                    </span>
+
+                    <img
+                        src="${gifURL}"
+                        alt="GIF"
+                        style="
+                            max-width:220px;
+                            max-height:160px;
+                            display:block;
+                            margin-top:5px;
+                            border-radius:8px;
+                        "
+                    >
+
+                </div>
+                `;
+
+        }else{
+
+            html +=
+                `
+                <div class="game-chat-message">
+
+                    <span class="game-chat-name">
+                        ${name}:
+                    </span>
+
+                    ${message}
+
+                </div>
+                `;
+
+        }
+
+    }
+
+
+    gameChatMessages.innerHTML =
+        html;
+
+
+    if(wasNearBottom){
+
+        gameChatMessages.scrollTop =
+            gameChatMessages.scrollHeight;
+
+    }else{
+
+        gameChatMessages.scrollTop =
+            oldScroll;
+
+    }
+
+}
+
+
+/* =========================================================
+   SEND CHAT
+========================================================= */
+
+async function sendGameChat(){
+
+    if(gameChatSending){
+
+        return;
+
+    }
+
+
+    if(!GAME_CHAT_STATION){
+
+        return;
+
+    }
+
+
+    const name =
+        gameChatNameInput.value.trim() ||
+        "Anon";
+
+
+    const message =
+        gameChatMessageInput.value.trim();
+
+
+    if(!message){
+
+        return;
+
+    }
+
+
+    gameChatSending =
+        true;
+
+
+    const sendButton =
+        document.getElementById(
+            "gameChatSend"
+        );
+
+
+    sendButton.disabled =
+        true;
+
+
+    try{
+
+        await fetch(
+            CHAT_API,
+            {
+                method:"POST",
+
+                body:
+                    JSON.stringify(
+                        {
+                            action:"send",
+
+                            station:
+                                GAME_CHAT_STATION,
+
+                            stationName:
+                                GAME_CHAT_NAME,
+
+                            name:
+                                name,
+
+                            message:
+                                message
+                        }
+                    )
+            }
+        );
+
+
+        gameChatMessageInput.value =
+            "";
+
+
+        await loadGameChat();
+
+
+        gameChatMessageInput.focus();
+
+
+    }catch(error){
+
+        console.error(
+            "[OBVYRIS CHAT] " +
+            "Send failed:",
+            error
+        );
+
+    }
+
+
+    setTimeout(
+        function(){
+
+            gameChatSending =
+                false;
+
+            sendButton.disabled =
+                false;
+
+        },
+        700
+    );
+
+}
+
+
+/* =========================================================
+   CHAT EVENTS
+========================================================= */
+
+gameChatButton.addEventListener(
+    "click",
+    toggleGameChat
+);
+
+
+document
+    .getElementById(
+        "gameChatClose"
+    )
+    .addEventListener(
+        "click",
+        closeGameChat
+    );
+
+
+document
+    .getElementById(
+        "gameChatSend"
+    )
+    .addEventListener(
+        "click",
+        sendGameChat
+    );
+
+
+gameChatMessageInput.addEventListener(
+    "keydown",
+    function(event){
+
+        if(
+            event.key ===
+            "Enter"
+        ){
+
+            event.preventDefault();
+
+            sendGameChat();
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   HTML ESCAPING
+========================================================= */
+
+function escapeHTML(
+    value
+){
+
+    return String(
+        value
+    )
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+    .replace(
+        /</g,
+        "&lt;"
+    )
+    .replace(
+        />/g,
+        "&gt;"
+    )
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+    .replace(
+        /'/g,
+        "&#039;"
+    );
+
+}
+
+
+function escapeAttribute(
+    value
+){
+
+    return String(
+        value
+    )
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+    .replace(
+        /</g,
+        "&lt;"
+    )
+    .replace(
+        />/g,
+        "&gt;"
+    );
+
+}
+
+
+/* =========================================================
+   CHAT INITIALIZATION
+========================================================= */
+
+console.log(
+    "[OBVYRIS CHAT] " +
+    "Game chat initialized"
+);
+
+console.log(
+    "[OBVYRIS CHAT] Game ID:",
+    gameID
+);
+
+console.log(
+    "[OBVYRIS CHAT] Station:",
+    GAME_CHAT_STATION
+);
+
+console.log(
+    "[OBVYRIS CHAT] Game:",
+    GAME_CHAT_NAME
+);
+
+
+/* =========================================================
+   START
+========================================================= */
+
+main();
+
+</script>
+
+</body>
+</html>
