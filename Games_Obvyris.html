@@ -2417,76 +2417,87 @@ function createGameCard(game){
 
 function launchGame(game){
 
-    const modal=document.getElementById("modal");
-    const gameContainer=document.getElementById("game");
-    const message=document.getElementById("playerMessage");
+const modal=document.getElementById("modal");
+const gameContainer=document.getElementById("game");
+const message=document.getElementById("playerMessage");
 
-    document.getElementById("playerTitle").textContent=
-        game.Title||"Obvyris Game";
+document.getElementById("playerTitle").textContent=
+    game.Title||"Obvyris Game";
 
-    document.getElementById("playerPlatform").textContent=
-        getPlatformName(game.PlatformID);
+document.getElementById("playerPlatform").textContent=
+    getPlatformName(game.PlatformID);
 
-    gameContainer.innerHTML="";
-    message.classList.remove("show");
+gameContainer.innerHTML="";
+message.classList.remove("show");
 
-    modal.classList.add("open");
+modal.classList.add("open");
 
-    const gameType=
-        String(game.GameType||"").toLowerCase().trim();
+/*
+ * Normalize URLs before using them.
+ */
+const playURL=
+    normalizeURL(game.PlayURL||"");
 
-    /*
-     * HTML5 GAME
-     */
+const romURL=
+    normalizeURL(game.ROMURL||"");
 
-    if(gameType==="html5"){
+const gameType=
+    String(game.GameType||"").toLowerCase().trim();
 
-        if(game.PlayURL){
+/*
+ * HTML5 GAME
+ */
+if(gameType==="html5"){
 
-            openURLInIframe(game.PlayURL);
+    if(playURL){
 
-            return;
-
-        }
-
-        showPlayerMessage(
-            "This HTML5 game has no PlayURL."
-        );
-
-        return;
-
-    }
-
-    /*
-     * EMULATOR GAME
-     */
-
-    if(game.ROMURL){
-
-        startEmulator(game);
-
-        return;
-
-    }
-
-    /*
-     * EXTERNAL PLAY URL
-     */
-
-    if(game.PlayURL){
-
-        openURLInIframe(game.PlayURL);
+        openURLInIframe(playURL);
 
         return;
 
     }
 
     showPlayerMessage(
-        "This game does not currently have a playable URL or ROM configured."
+        "This HTML5 game has no PlayURL."
     );
+
+    return;
 
 }
 
+/*
+ * EMULATOR GAME
+ */
+if(romURL){
+
+    /*
+     * Pass the normalized ROM URL to the emulator.
+     */
+    startEmulator({
+        ...game,
+        ROMURL:romURL
+    });
+
+    return;
+
+}
+
+/*
+ * EXTERNAL PLAY URL
+ */
+if(playURL){
+
+    openURLInIframe(playURL);
+
+    return;
+
+}
+
+showPlayerMessage(
+    "This game does not currently have a playable URL or ROM configured."
+);
+
+}
 
 /* =====================================================
    NORMAL IFRAME
@@ -2515,8 +2526,43 @@ function openURLInIframe(url){
     container.appendChild(iframe);
 
 }
+/* =====================================================
+   DEFAULT EMULATOR CORE
+===================================================== */
+function getDefaultEmulatorCore(platformID){
 
+    const cores={
 
+        nes:"fceumm",
+
+        snes:"snes9x",
+
+        gb:"gambatte",
+
+        gbc:"gambatte",
+
+        gba:"mgba",
+
+        genesis:"genesis_plus_gx",
+
+        sms:"genesis_plus_gx",
+
+        gamegear:"genesis_plus_gx",
+
+        turbografx16:"mednafen_pce_fast",
+
+        atari7800:"prosystem"
+
+    };
+
+    return cores[
+        String(platformID||"")
+        .trim()
+        .toLowerCase()
+    ] || "";
+
+}
+    
 /* =====================================================
    EMULATOR
 ===================================================== */
@@ -2526,8 +2572,17 @@ function startEmulator(game){
 
     const container = document.getElementById("game");
 
-    const romURL = String(game.ROMURL || "").trim();
-    const core = String(game.EmulatorCore || "").trim();
+    const romURL = normalizeURL(game.ROMURL || "");
+    const platformID=
+    String(game.PlatformID||"")
+    .trim()
+    .toLowerCase();
+
+const core=
+    String(
+        game.EmulatorCore ||
+        getDefaultEmulatorCore(platformID)
+    ).trim();
     const title = String(game.Title || "Obvyris Game").trim();
 
     /*
