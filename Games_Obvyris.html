@@ -1171,6 +1171,7 @@ letter-spacing:-1.2px;
         border-right:1px solid var(--border);
         overflow-y:auto;
         overflow-x:hidden;
+        transition: transform .25s ease, opacity .25s ease;
     }
 
     .logo{
@@ -1274,6 +1275,23 @@ letter-spacing:-1.2px;
     .main{
         width:calc(100% - 136px);
         margin-left:136px;
+        transition: width .25s ease, margin-left .25s ease;
+    }
+
+    /* WHEN GAME IS OPEN - HIDE SIDEBAR */
+    body.game-open .sidebar{
+        transform: translateX(-100%);
+        opacity:0;
+        pointer-events:none;
+    }
+
+    body.game-open .main{
+        width:100% !important;
+        margin-left:0 !important;
+    }
+
+    body.game-open .topbar{
+        display:none;
     }
 
     .topbar{
@@ -1332,7 +1350,11 @@ letter-spacing:-1.2px;
     }
 
     .grid{
-        grid-template-columns: repeat(2, minmax(0,1fr));
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0,1fr)
+            );
         gap:10px;
     }
 
@@ -1373,11 +1395,13 @@ letter-spacing:-1.2px;
 
     .modal{
         padding:0;
+        z-index:2000;
     }
 
     .player{
         width:100vw;
         height:100vh;
+        height:100dvh;
         border:0;
         border-radius:0;
     }
@@ -1386,7 +1410,9 @@ letter-spacing:-1.2px;
         height:50px;
         min-height:50px;
     }
+
 }
+
 
 /* =====================================================
    SMALL PHONES
@@ -1402,6 +1428,11 @@ letter-spacing:-1.2px;
     .main{
         width:calc(100% - 118px);
         margin-left:118px;
+    }
+
+    body.game-open .main{
+        width:100% !important;
+        margin-left:0 !important;
     }
 
     .grid{
@@ -1424,6 +1455,7 @@ letter-spacing:-1.2px;
         display:grid;
         grid-template-columns:1fr 1fr;
     }
+
 }
 
 </style>
@@ -2406,6 +2438,8 @@ message.classList.remove("show");
 
 modal.classList.add("open");
 
+document.body.classList.add("game-open");
+
 /*
  * Normalize URLs before using them.
  */
@@ -2753,6 +2787,8 @@ function closePlayer(){
     document.getElementById(
         "modal"
     ).classList.remove("open");
+
+    document.body.classList.remove("game-open");
 
 }
 
