@@ -6,33 +6,120 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box}body{margin:0;padding:20px;font-family:Inter,sans-serif;background:#0f172a;color:white}
-.inventory-header{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:18px;flex-wrap:wrap}
-.inventory-header h1{margin:0;font-size:26px}.inventory-header p{color:#94a3b8;margin-top:6px;font-size:13px}
-.search-box{flex:1;max-width:520px;position:relative}
+.inventory-header{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:18px;flex-wrap:wrap;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px;backdrop-filter:blur(18px)}
+.inventory-header h1{margin:0;font-size:26px;letter-spacing:-.02em}.inventory-header p{color:#94a3b8;margin-top:6px;font-size:13px}
+.header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.count-badge{background:#2563eb;padding:10px 16px;border-radius:999px;font-weight:700;font-size:13px;box-shadow:0 8px 20px rgba(37,99,235,.3)}
+.search-box{flex:1;max-width:520px;position:relative;min-width:260px}
 #searchInput{width:100%;padding:14px 18px 14px 40px;background:#1e293b;color:white;border:1px solid rgba(255,255,255,.1);border-radius:14px;font-size:15px;outline:none}
 #searchInput:focus{border-color:#2563eb;box-shadow:0 0 0 4px rgba(37,99,235,.2)}
 #inventoryList{display:flex;flex-direction:column;gap:12px;margin-top:16px}
 .item-row{background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:16px;overflow:hidden;box-shadow:0 10px 25px rgba(0,0,0,.25);transition:.2s}
-.item-header{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;background:linear-gradient(135deg,#1e293b,#172554);cursor:pointer}
-.item-header:hover{background:#1e40af}.badge{background:rgba(255,255,255,.1);padding:4px 8px;border-radius:999px;font-size:11px;margin-left:8px}
-.expand-button{background:#2563eb;border:none;color:white;padding:8px 14px;border-radius:10px;cursor:pointer;font-weight:600}
-.item-details{display:grid;grid-template-rows:0fr;transition:grid-template-rows.25s ease}
-.item-details.open{grid-template-rows:1fr}.inner{overflow:hidden}
+.item-header{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;background:linear-gradient(135deg,#1e293b,#172554);cursor:pointer;gap:12px}
+.item-header:hover{background:#1e40af}
+.badge{background:rgba(255,255,255,.1);padding:4px 8px;border-radius:999px;font-size:11px;font-weight:600}
+.badge.green{background:#166534;color:#bbf7d0}.badge.blue{background:rgba(37,99,235,.2);color:#bfdbfe;border:1px solid rgba(37,99,235,.3)}
+.expand-button{background:#2563eb;border:none;color:white;padding:8px 14px;border-radius:10px;cursor:pointer;font-weight:600;white-space:nowrap}
+.item-details{display:grid;grid-template-rows:0fr;transition:grid-template-rows .28s ease}
+.item-details.open{grid-template-rows:1fr}
+.inner{overflow:hidden}
 .details-grid{padding:18px;background:#0b1220;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:2px}
-.detail-row{padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06);display:flex;gap:10px}
-.key{color:#60a5fa;font-weight:700;min-width:140px;font-size:12px}.value{color:#e5e7eb;flex:1;font-size:13px}
+.detail-row{padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06);display:flex;gap:10px;flex-wrap:wrap}
+.key{color:#60a5fa;font-weight:700;min-width:140px;font-size:12px;text-transform:uppercase;letter-spacing:.03em}.value{color:#e5e7eb;flex:1;font-size:13px;word-break:break-word}
+#status{text-align:center;color:#94a3b8;padding:40px}
+@media(max-width:700px){body{padding:12px}.item-header{flex-direction:column;align-items:flex-start}}
 </style>
 </head>
 <body>
-<div class="inventory-header"><div><h1>📦 Gear Inventory</h1><p>Browse, search, and manage restored equipment</p></div><div class="search-box"><span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);opacity:.5">🔍</span><input id="searchInput" placeholder="Search inventory... name, brand, category"></div></div>
-<div id="status" style="text-align:center;color:#94a3b8;padding:24px">Loading inventory...</div><div id="inventoryList"></div>
+<div class="inventory-header">
+  <div><h1>📦 Gear Inventory</h1><p>Browse, search, and manage restored equipment — JSON backend</p></div>
+  <div class="header-right"><div class="count-badge" id="count">0 Items</div><div class="search-box"><span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);opacity:.5">🔍</span><input id="searchInput" placeholder="Search inventory... name, brand, SKU, category"></div></div>
+</div>
+<div id="status">Loading from new backend...</div>
+<div id="inventoryList"></div>
+
 <script>
-const csvFilePath='https://script.google.com/macros/s/AKfycbzDCfZokdDHryVxtuVOuvTb6XUfnMR66_8Xwym3QzaSWgKooI0865_JPtTi0hJ_GDQr/exec';
-const headers=["Timestamp","Item Name","Category","Brand","Model/Series","SKU","Condition","Description","Purchase Date","Source","Purchase Price","Unique ID","Restoration Costs","Restoration Date","Technician","Repairs","Stock","Location","Date","Promo","Weight","Notes","Selling Price","Date Sold","Sales Channel","Customer","Transaction ID","Payment","Special Notes"];
-function parseCSVRow(r){let res=[],cur="",q=false;for(let ch of r){if(ch=='"')q=!q;else if(ch==','&&!q){res.push(cur);cur="";}else cur+=ch;}res.push(cur);return res;}
-function parseCSV(data){const rows=data.split(/\r?\n/),list=document.getElementById("inventoryList");list.innerHTML="";rows.slice(1).forEach(row=>{const cols=parseCSVRow(row);if(cols.length>1){let name=(cols[1]||"Unnamed").replace(/"/g,'').trim();let brand=(cols[3]||"").replace(/"/g,'');let cat=(cols[2]||"").replace(/"/g,'');const item=document.createElement("div");item.className="item-row";item.dataset.search=`${cols.join(" ").toLowerCase()}`;item.innerHTML=`<div class="item-header"><span>${name}<span class="badge">${brand}</span><span class="badge">${cat.split("//").pop()||cat}</span></span><button class="expand-button">Expand ▼</button></div><div class="item-details"><div class="inner"><div class="details-grid">${cols.map((c,i)=>headers[i]?`<div class="detail-row"><div class="key">${headers[i]}</div><div class="value">${c.replace(/"/g,'').trim()}</div></div>`:"").join("")}</div></div></div>`;const hdr=item.querySelector(".item-header"),det=item.querySelector(".item-details"),btn=item.querySelector("button");hdr.onclick=()=>{const open=det.classList.contains("open");det.classList.toggle("open",!open);btn.textContent=open?"Expand ▼":"Collapse ▲";};list.appendChild(item);}});document.getElementById("status").style.display="none";}
-document.getElementById("searchInput").addEventListener("input",function(){let f=this.value.toLowerCase();document.querySelectorAll(".item-row").forEach(r=>{r.style.display=r.dataset.search.includes(f)?"":"none";});});
-fetch(csvFilePath).then(r=>r.text()).then(parseCSV).catch(()=>document.getElementById("status").innerHTML="❌ Failed loading inventory");
+const API_URL="https://script.google.com/macros/s/AKfycbzDCfZokdDHryVxtuVOuvTb6XUfnMR66_8Xwym3QzaSWgKooI0865_JPtTi0hJ_GDQr/exec";
+let allItems=[];
+
+async function loadInventory(){
+  try{
+    const res=await fetch(API_URL+"?action=read");
+    const json=await res.json();
+    allItems=json.data||[];
+    render(allItems);
+    document.getElementById("count").textContent=allItems.length+" Items";
+    document.getElementById("status").style.display="none";
+  }catch(err){
+    console.error(err);
+    document.getElementById("status").innerHTML="❌ Failed loading. Check Web App is deployed as Anyone.<br><small>"+err+"</small>";
+  }
+}
+
+function render(items){
+  const list=document.getElementById("inventoryList");
+  list.innerHTML="";
+  items.forEach(item=>{
+    const name=item["Item Name"]||"Unnamed";
+    const brand=item["Brand"]||"";
+    const cat=(item["Category"]||"").split("//").pop()||item["Category"]||"";
+    const sku=item["SKU/Item Number"]||"";
+    const price=item["Purchase Price"]||0;
+    const stock=item["Stock Level"]||0;
+    const uid=item["Unique ID"]||"";
+    const cond=item["Condition"]||"";
+    
+    const row=document.createElement("div");
+    row.className="item-row";
+    row.dataset.search=`${JSON.stringify(item).toLowerCase()}`;
+    
+    // Build detail rows for ALL 30 fields
+    let detailsHtml="";
+    Object.keys(item).forEach(k=>{
+      if(!k) return;
+      let v=item[k];
+      if(v instanceof Date) v=v.toLocaleString();
+      if(typeof v==="string" && v.startsWith("20") && v.includes("T")){ try{ v=new Date(v).toLocaleString(); }catch(e){} }
+      detailsHtml+=`<div class="detail-row"><div class="key">${k}</div><div class="value">${v||"—"}</div></div>`;
+    });
+
+    row.innerHTML=`
+      <div class="item-header">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;flex:1;min-width:0">
+          <span style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${name}</span>
+          <span class="badge blue">${brand}</span>
+          <span class="badge">${cat}</span>
+          <span class="badge green">$${Number(price).toFixed(0)}</span>
+          <span class="badge">${cond}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:11px;color:#94a3b8">${uid}</span>
+          <button class="expand-button">Expand ▼</button>
+        </div>
+      </div>
+      <div class="item-details"><div class="inner"><div class="details-grid">${detailsHtml}</div></div></div>
+    `;
+    const header=row.querySelector(".item-header");
+    const det=row.querySelector(".item-details");
+    const btn=row.querySelector(".expand-button");
+    header.addEventListener("click",()=>{
+      const open=det.classList.contains("open");
+      det.classList.toggle("open",!open);
+      btn.textContent=open?"Expand ▼":"Collapse ▲";
+    });
+    list.appendChild(row);
+  });
+}
+
+document.getElementById("searchInput").addEventListener("input",function(){
+  const q=this.value.toLowerCase();
+  if(!q){ render(allItems); return; }
+  const filtered=allItems.filter(item=> JSON.stringify(item).toLowerCase().includes(q));
+  render(filtered);
+  document.getElementById("count").textContent=filtered.length+" / "+allItems.length+" Items";
+});
+
+loadInventory();
 </script>
 </body>
 </html>
