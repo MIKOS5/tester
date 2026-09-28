@@ -6,11 +6,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box}body{margin:0;font-family:Inter,sans-serif;background:#0f172a;color:white;display:flex;height:100vh;overflow:hidden}
-.sidebar{width:260px;background:#111827;border-right:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;padding:20px 14px;flex-shrink:0}
+.sidebar{width:270px;background:#111827;border-right:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;padding:20px 14px;flex-shrink:0;overflow:auto}
 .logo{font-size:20px;font-weight:800;letter-spacing:-.02em;display:flex;align-items:center;gap:10px;margin-bottom:20px}
 .logo span{width:32px;height:32px;background:#2563eb;border-radius:8px;display:grid;place-items:center}
 .nav{display:flex;flex-direction:column;gap:6px;flex:1}
-.nav-btn{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;border:1px solid transparent;background:transparent;color:#94a3b8;font-weight:600;font-size:13px;cursor:pointer;text-align:left;transition:.2s;width:100%}
+.nav-section{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#475569;font-weight:700;margin:14px 0 6px 8px}
+.nav-btn{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:10px;border:1px solid transparent;background:transparent;color:#94a3b8;font-weight:600;font-size:13px;cursor:pointer;text-align:left;transition:.2s;width:100%}
 .nav-btn.active,.nav-btn:hover{background:rgba(37,99,235,.15);border-color:rgba(37,99,235,.25);color:white}
 .nav-btn.active{background:#2563eb;color:white}
 .badge{margin-left:auto;background:rgba(255,255,255,.1);padding:3px 8px;border-radius:999px;font-size:11px}
@@ -30,7 +31,7 @@
 iframe{width:100%;height:100%;border:0;background:#0f172a}
 .config-bar{background:#0b1220;border-top:1px solid rgba(255,255,255,.06);padding:10px 20px;font-size:11px;color:#64748b;display:flex;gap:16px;flex-wrap:wrap}
 .config-bar b{color:#94a3b8}
-@media(max-width:900px){.sidebar{width:72px;padding:12px 8px}.sidebar.label-text,.sidebar.badge{display:none}.logo{justify-content:center}.logo.text{display:none}}
+@media(max-width:900px){.sidebar{width:72px;padding:12px 8px}.sidebar.label-text,.sidebar.badge,.nav-section{display:none}.logo{justify-content:center}.logo.text{display:none}}
 </style>
 </head>
 <body>
@@ -38,18 +39,27 @@ iframe{width:100%;height:100%;border:0;background:#0f172a}
   <div class="logo"><span>⚙️</span><div class="text">Gear Hub</div></div>
   <div class="nav">
     <button class="nav-btn active" data-page="dashboard"><span>📊</span><span class="label-text">Dashboard</span><span class="badge blue" id="dashCount">—</span></button>
+
+    <div class="nav-section">Storefront</div>
     <button class="nav-btn" data-page="front"><span>🏷️</span><span class="label-text">For Sale</span></button>
+
+    <div class="nav-section">Inventory</div>
     <button class="nav-btn" data-page="inventory"><span>📦</span><span class="label-text">Gear Inventory</span></button>
-    <button class="nav-btn" data-page="details"><span>📋</span><span class="label-text">Inventory Details</span></button>
+    <button class="nav-btn" data-page="details"><span>📋</span><span class="label-text">Details (Editable)</span></button>
+    <button class="nav-btn" data-page="images"><span>🖼️</span><span class="label-text">Image Manager</span></button>
     <button class="nav-btn" data-page="input"><span>➕</span><span class="label-text">New Product</span></button>
+
+    <div class="nav-section">Operations</div>
+    <button class="nav-btn" data-page="restoration"><span>🔧</span><span class="label-text">Workshop</span></button>
     <button class="nav-btn" data-page="sales"><span>💰</span><span class="label-text">Sales POS</span></button>
+    <button class="nav-btn" data-page="analytics"><span>📈</span><span class="label-text">Analytics</span></button>
   </div>
-  <div style="font-size:11px;color:#475569;padding:10px">v3.0 • JSON backend<br>AKfycbzD…</div>
+  <div style="font-size:11px;color:#475569;padding:10px">v4.0 • JSON + Images<br>AKfycbzD… • 8 pages</div>
 </div>
 
 <div class="main">
   <div class="topbar">
-    <div><h2 id="pageTitle">Dashboard</h2><p id="pageSub">Live stats from new backend</p></div>
+    <div><h2 id="pageTitle">Dashboard</h2><p id="pageSub">Live stats from new backend v4.0</p></div>
     <div class="api-status"><div class="dot"></div><span id="apiStatus">Connected to new backend</span></div>
   </div>
 
@@ -58,17 +68,17 @@ iframe{width:100%;height:100%;border:0;background:#0f172a}
       <div class="stat-card"><div class="label">Total Items</div><div class="value" id="statTotal">—</div><div class="sub" id="statTotalSub">Loading...</div></div>
       <div class="stat-card"><div class="label">Total Value</div><div class="value" id="statValue" style="color:#22c55e">$—</div><div class="sub">Sum of Purchase Price</div></div>
       <div class="stat-card"><div class="label">In Stock</div><div class="value" id="statStock">—</div><div class="sub">Stock Level > 0</div></div>
-      <div class="stat-card"><div class="label">Categories</div><div class="value" id="statCats">—</div><div class="sub" id="statCatsSub">Unique groups</div></div>
+      <div class="stat-card"><div class="label">Missing Images</div><div class="value" id="statMiss" style="color:#ef4444">—</div><div class="sub" id="statMissSub">Need photos</div></div>
     </div>
     <div style="padding:0 20px 20px;display:grid;grid-template-columns:1fr 1fr;gap:16px">
       <div style="background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px"><div style="font-weight:700;margin-bottom:10px">Recent Imports</div><div id="recentList" style="font-size:12px;color:#94a3b8;display:flex;flex-direction:column;gap:8px">Loading...</div></div>
-      <div style="background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px"><div style="font-weight:700;margin-bottom:10px">Backend</div><div style="font-size:12px;line-height:1.7;color:#cbd5e1"><b>API:</b> script.google.com<br><b>ID:</b> AKfycbzD...<br><b>Endpoints:</b><br>•?action=read → JSON<br>•?action=readCsv → legacy<br>•?action=create → POST<br>•?action=update → POST<br>•?action=delete → POST<br>•?action=categories<br><br><span style="color:#22c55e">● Live</span> 26 items</div></div>
+      <div style="background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px"><div style="font-weight:700;margin-bottom:10px">Backend v4.0</div><div style="font-size:12px;line-height:1.7;color:#cbd5e1"><b>API:</b> script.google.com<br><b>ID:</b> AKfycbzD...<br><b>Endpoints:</b><br>•?action=read<br>•?action=create / update / delete<br>•?action=uploadImage / setImageUrl<br>•?action=stats / categories<br>•?action=setup<br><br><span style="color:#22c55e">● Live</span> 8 pages connected</div></div>
     </div>
   </div>
 
   <div class="iframe-wrap" id="iframeWrap" style="display:none"><iframe id="pageFrame" src=""></iframe></div>
 
-  <div class="config-bar"><span><b>API_URL:</b> <span id="apiUrlText"></span></span><span><b>Mode:</b> JSON v3.0</span><span><b>Auth:</b> Anyone with link</span></div>
+  <div class="config-bar"><span><b>API_URL:</b> <span id="apiUrlText"></span></span><span><b>Mode:</b> JSON v4.0 + Drive Images</span><span><b>Auth:</b> Anyone with link</span></div>
 </div>
 
 <script>
@@ -80,7 +90,10 @@ const PAGES={
   inventory:"inventory.html",
   details:"inventorydetails.html",
   input:"input_items.html",
-  sales:"sales.html"
+  sales:"sales.html",
+  restoration:"restoration.html",
+  analytics:"analytics.html",
+  images:"image_manager.html"
 };
 
 let allData=[];
@@ -92,15 +105,15 @@ async function loadStats(){
     const total=allData.length;
     const totalValue=allData.reduce((s,p)=>s+Number(p["Purchase Price"]||0),0);
     const inStock=allData.filter(p=>Number(p["Stock Level"]||0)>0).length;
-    const cats=[...new Set(allData.map(p=> (p.Category||"").split("//")[0] ))].length;
+    const missing=allData.filter(p=>!(p["Image"]||"").trim()).length;
     document.getElementById("statTotal").textContent=total;
     document.getElementById("statTotalSub").textContent=total+" records in Inventory sheet";
     document.getElementById("statValue").textContent="$"+totalValue.toLocaleString(undefined,{minimumFractionDigits:2});
     document.getElementById("statStock").textContent=inStock;
-    document.getElementById("statCats").textContent=cats;
-    document.getElementById("statCatsSub").textContent=cats+" main groups";
+    document.getElementById("statMiss").textContent=missing;
+    document.getElementById("statMissSub").textContent=missing+" need photos";
     document.getElementById("dashCount").textContent=total;
-    document.getElementById("apiStatus").textContent="Connected • "+total+" items";
+    document.getElementById("apiStatus").textContent="Connected • "+total+" items • "+(total-missing)+" with images";
     const recent=allData.slice(0,6);
     document.getElementById("recentList").innerHTML=recent.map(p=>`<div style="display:flex;justify-content:space-between;gap:10px"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p["Item Name"]}</span><span style="color:#22c55e">$${Number(p["Purchase Price"]||0).toFixed(0)}</span></div>`).join("");
   }catch(e){
@@ -115,13 +128,22 @@ function showPage(key){
     document.getElementById("dashboardView").style.display="block";
     document.getElementById("iframeWrap").style.display="none";
     document.getElementById("pageTitle").textContent="Dashboard";
-    document.getElementById("pageSub").textContent="Live stats from new backend";
+    document.getElementById("pageSub").textContent="Live stats from new backend v4.0";
     loadStats();
   }else{
     document.getElementById("dashboardView").style.display="none";
     document.getElementById("iframeWrap").style.display="block";
     document.getElementById("pageFrame").src=PAGES[key]||"";
-    const titles={front:"For Sale",inventory:"Gear Inventory",details:"Inventory Details (Editable)",input:"New Product Input",sales:"Sales POS"};
+    const titles={
+      front:"For Sale — Storefront",
+      inventory:"Gear Inventory — Cards",
+      details:"Inventory Details — Editable Table",
+      input:"New Product Input",
+      sales:"Sales POS — Checkout",
+      restoration:"Restoration Workshop — Kanban",
+      analytics:"Profit Analytics — ROI",
+      images:"Image Manager — Drive Upload"
+    };
     document.getElementById("pageTitle").textContent=titles[key]||key;
     document.getElementById("pageSub").textContent=PAGES[key]||"";
   }
