@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Labels + Bin Map — Gear Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;padding:18px;font-family:Inter,sans-serif;background:#0f172a;color:white;min-height:100vh}
+.header{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.header h1{margin:0;font-size:26px}.header p{color:#94a3b8;font-size:12px;margin-top:4px}
+.layout{display:grid;grid-template-columns:280px 1fr;gap:14px} @media(max-width:1000px){.layout{grid-template-columns:1fr}}
+.sidebar{background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:14px;height:fit-content;position:sticky;top:18px}
+.sidebar h3{margin:0 0 10px;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8}
+.bin{padding:8px 10px;border-radius:10px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;border:1px solid transparent;margin-bottom:6px;background:rgba(255,255,255,.04)}
+.bin.active{background:#2563eb;border-color:#2563eb;color:white}
+.bin.count{background:rgba(0,0,0,.3);padding:2px 7px;border-radius:999px;font-size:11px}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+#search{padding:11px 14px 11px 38px;background:#1e293b;border:1px solid rgba(255,255,255,.1);border-radius:10px;color:white;min-width:280px}
+.btn{padding:10px 14px;border-radius:10px;border:none;font-weight:700;font-size:12px;cursor:pointer}
+.btn-primary{background:#2563eb;color:white}.btn-ghost{background:rgba(255,255,255,.06);color:#cbd5e1;border:1px solid rgba(255,255,255,.1)}
+.labels{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.label-card{background:white;color:black;border-radius:10px;padding:10px;display:flex;gap:10px;align-items:center;border:2px solid transparent;position:relative;break-inside:avoid}
+.label-card.selected{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.3)}
+.label-card input[type=checkbox]{position:absolute;top:6px;right:6px}
+.qr{width:80px;height:80px;flex-shrink:0;background:white;display:grid;place-items:center}
+.info{flex:1;min-width:0}
+.info.name{font-weight:800;font-size:13px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.info.sub{font-size:11px;color:#475569;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.info.uid{font-family:monospace;font-size:10px;color:#2563eb;margin-top:3px}
+.info.loc{font-size:10px;font-weight:700;margin-top:4px;padding:2px 6px;border-radius:999px;background:#0f172a;color:white;display:inline-block}
+.edit-loc{font-size:10px;color:#2563eb;cursor:pointer;margin-left:6px;text-decoration:underline}
+.map-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.shelf{background:#0b1220;border:1px dashed rgba(255,255,255,.15);border-radius:10px;padding:10px;min-height:90px}
+.shelf h4{margin:0 0 6px;font-size:11px;color:#60a5fa}
+.shelf-item{font-size:10px;background:rgba(255,255,255,.06);padding:3px 6px;border-radius:6px;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media print{
+  body{background:white;padding:0}
+ .no-print{display:none!important}
+ .layout{grid-template-columns:1fr}
+ .sidebar{display:none}
+ .labels{grid-template-columns:repeat(3,1fr);gap:0}
+ .label-card{border:1px solid #ddd;border-radius:0;height:1in;page-break-inside:avoid}
+}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#22c55e;color:white;padding:10px 16px;border-radius:999px;font-weight:700;display:none;z-index:200}.toast.show{display:block}
+</style>
+</head>
+<body>
+<div class="header no-print"><div><h1>🏷️ Labels + Bin Map</h1><p>QR = Unique ID • Print on Avery 5160 (3x10) • Click location to set • Scan QR with phone → Front.html?id=GH-...</p></div>
+<div style="display:flex;gap:8px"><button class="btn btn-ghost" onclick="selectAll()">Select All</button><button class="btn btn-primary" onclick="window.print()">🖨️ Print Selected (30/sheet)</button></div></div>
+
+<div class="layout">
+<div class="sidebar no-print">
+<h3>📍 Bin Map</h3>
+<div id="binList"></div>
+<div class="map-grid" id="shelfMap"></div>
+<div style="margin-top:14px"><h3>Quick Set Location</h3>
+<div style="display:flex;gap:6px"><input id="newLoc" placeholder="A1, Ready Shelf, Garage Rack" style="flex:1;padding:8px 10px;background:#1e293b;border:1px solid rgba(255,255,255,.1);border-radius:8px;color:white;font-size:12px"><button class="btn btn-primary" onclick="bulkSetLoc()">Set for Selected</button></div>
+<p style="font-size:11px;color:#64748b;margin-top:8px">Select cards → type A1 / B2 / Ready Shelf → bulk updates sheet Location col.</p></div>
+</div>
+
+<div>
+<div class="controls no-print"><div style="position:relative"><span style="position:absolute;left:10px;top:50%;transform:translateY(-50%)">🔍</span><input id="search" placeholder="Search GH-..., brand, sku, item"><span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:11px;color:#64748b" id="countText"></span></div>
+<button class="btn btn-ghost" onclick="filterLoc('')">All Locations</button>
+<button class="btn btn-ghost" onclick="filterLoc('empty')">No Location</button>
+</div>
+<div class="labels" id="labels"></div>
+</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const API_URL="https://script.google.com/macros/s/AKfycbzDCfZokdDHryVxtuVOuvTb6XUfnMR66_8Xwym3QzaSWgKooI0865_JPtTi0hJ_GDQr/exec";
+let all=[], filtered=[], selected=new Set(), activeBin="";
+
+async function load(){
+  let res=await fetch(API_URL+"?action=read");
+  let j=await res.json();
+  all=j.data||[];
+  renderBins();
+  renderLabels();
+}
+
+function renderBins(){
+  let locCount={};
+  all.forEach(o=>{
+    let loc=(o["Location"]||"").trim()||"No Location";
+    locCount[loc]=(locCount[loc]||0)+1;
+  });
+  let bins=Object.entries(locCount).sort((a,b)=>b[1]-a[1]);
+  document.getElementById("binList").innerHTML=bins.map(([loc,c])=>`<div class="bin ${activeBin===loc?'active':''}" onclick="filterLoc('${loc.replace(/'/g,"\\'")}')"><span>${loc}</span><span class="count">${c}</span></div>`).join("");
+
+  // shelf visual
+  let shelves=["A1","A2","A3","B1","B2","Ready Shelf","Garage","No Location"];
+  document.getElementById("shelfMap").innerHTML=shelves.map(s=>{
+    let items=all.filter(o=>(o["Location"]||"No Location").includes(s) || (!o["Location"] && s==="No Location")).slice(0,4);
+    return `<div class="shelf"><h4>${s} (${all.filter(o=>(o["Location"]||"No Location")===s || (!o["Location"] && s==="No Location")).length})</h4>${items.map(i=>`<div class="shelf-item">${(i["Item Name"]||"").slice(0,18)}</div>`).join("")}</div>`;
+  }).join("");
+}
+
+function renderLabels(){
+  let q=document.getElementById("search").value.toLowerCase();
+  filtered=all.filter(o=>{
+    if(activeBin){
+      if(activeBin==="No Location" && (o["Location"]||"").trim()!=="") return false;
+      if(activeBin!=="No Location" && activeBin!=="" && (o["Location"]||"")!==activeBin && activeBin!=="empty") return false;
+      if(activeBin==="empty" && (o["Location"]||"").trim()!=="") return false;
+    }
+    if(!q) return true;
+    return JSON.stringify(o).toLowerCase().indexOf(q)>-1;
+  });
+  document.getElementById("countText").textContent=filtered.length+" / "+all.length;
+  let grid=document.getElementById("labels");
+  grid.innerHTML="";
+  filtered.forEach(item=>{
+    let uid=item["Unique ID"]||"";
+    let card=document.createElement("div");
+    card.className="label-card"+(selected.has(uid)?" selected":"");
+    card.innerHTML=`<input type="checkbox" ${selected.has(uid)?"checked":""}><div class="qr" id="qr-${uid.replace(/[^a-zA-Z0-9]/g,"")}"></div><div class="info"><div class="name">${item["Item Name"]||""}</div><div class="sub">${item["Brand"]||""} • ${item["SKU/Item Number"]||""}</div><div class="uid">${uid}</div><div class="sub">$${Number(item["Purchase Price"]||0).toFixed(0)} → $${Number(item["Selling Price"]||(Number(item["Purchase Price"]||0)*1.6)).toFixed(0)}</div><div style="margin-top:4px"><span class="loc">${item["Location"]||"No Loc"}</span><span class="edit-loc" onclick="editLoc('${uid}')">edit</span></div></div>`;
+    card.querySelector("input").addEventListener("change",e=>{
+      if(e.target.checked) selected.add(uid); else selected.delete(uid);
+      card.classList.toggle("selected", e.target.checked);
+    });
+    card.addEventListener("click",e=>{
+      if(e.target.tagName==="INPUT"||e.target.classList.contains("edit-loc")) return;
+      let cb=card.querySelector("input");
+      cb.checked=!cb.checked;
+      if(cb.checked) selected.add(uid); else selected.delete(uid);
+      card.classList.toggle("selected", cb.checked);
+    });
+    grid.appendChild(card);
+  });
+  // generate QRs after DOM
+  setTimeout(()=>{
+    filtered.forEach(item=>{
+      let uid=item["Unique ID"]||"";
+      let elId="qr-"+uid.replace(/[^a-zA-Z0-9]/g,"");
+      let el=document.getElementById(elId);
+      if(el){
+        el.innerHTML="";
+        new QRCode(el,{text: uid, width:76, height:76, correctLevel: QRCode.CorrectLevel.L});
+      }
+    });
+  },50);
+}
+
+function filterLoc(loc){
+  if(loc==="empty") activeBin="empty";
+  else if(activeBin===loc) activeBin="";
+  else activeBin=loc;
+  renderBins(); renderLabels();
+}
+function selectAll(){
+  filtered.forEach(o=>selected.add(o["Unique ID"]));
+  renderLabels();
+  showToast("Selected "+filtered.length);
+}
+async function editLoc(uid){
+  let item=all.find(o=>String(o["Unique ID"])===String(uid));
+  let newLoc=prompt("Set Location for "+(item["Item Name"]||uid), item["Location"]||"A1");
+  if(newLoc===null) return;
+  await saveLoc(uid,newLoc);
+}
+async function bulkSetLoc(){
+  let loc=document.getElementById("newLoc").value.trim();
+  if(!loc){ alert("Type location like A1, B2, Ready Shelf"); return; }
+  if(selected.size===0){ alert("Select cards first"); return; }
+  showToast("Updating "+selected.size+" items → "+loc);
+  for(let uid of selected){
+    await saveLoc(uid, loc);
+  }
+  showToast("Updated "+selected.size+" → "+loc);
+}
+async function saveLoc(uid, loc){
+  let payload={action:"update","Unique ID":uid,"Location":loc};
+  try{
+    let res=await fetch(API_URL+"?action=update",{method:"POST",body:JSON.stringify(payload),headers:{"Content-Type":"text/plain;charset=utf-8"}});
+    let j=await res.json();
+    let item=all.find(o=>String(o["Unique ID"])===String(uid));
+    if(item) item["Location"]=loc;
+  }catch(e){ console.error(e); }
+  renderBins(); renderLabels();
+}
+document.getElementById("search").addEventListener("input",renderLabels);
+function showToast(m){ let t=document.getElementById("toast"); t.textContent=m; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),2500); }
+load();
+</script>
+</body>
+</html>
