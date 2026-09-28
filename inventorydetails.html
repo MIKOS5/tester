@@ -2,41 +2,117 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Inventory Details</title>
+<title>Inventory Details — Complete Database</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box}body{margin:0;padding:20px;font-family:Inter,sans-serif;background:#0f172a;color:white}
-.page-title{display:flex;justify-content:space-between;align-items:end;gap:16px;margin-bottom:16px;flex-wrap:wrap}
-.page-title h1{margin:0;font-size:26px;letter-spacing:-.02em}.page-title p{color:#94a3b8;margin-top:6px;font-size:13px}
-.stats{display:flex;gap:10px;flex-wrap:wrap}.stat{background:#111827;border:1px solid rgba(255,255,255,.08);padding:8px 12px;border-radius:10px;font-size:12px;color:#cbd5e1}
-.search-area{position:relative;margin-bottom:14px}
-#searchInput{width:100%;padding:13px 16px 13px 40px;background:#1e293b;border:1px solid rgba(255,255,255,.1);border-radius:12px;color:white;font-size:14px;outline:none}
+.page-header{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px;backdrop-filter:blur(18px)}
+.page-header h1{margin:0;font-size:26px;letter-spacing:-.02em}.page-header p{color:#94a3b8;margin-top:6px;font-size:13px}
+.header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.count-badge{background:#2563eb;padding:10px 16px;border-radius:999px;font-weight:700;font-size:13px}
+#searchInput{padding:12px 16px 12px 40px;background:#1e293b;border:1px solid rgba(255,255,255,.1);border-radius:12px;color:white;font-size:14px;min-width:320px;outline:none}
 #searchInput:focus{border-color:#2563eb;box-shadow:0 0 0 4px rgba(37,99,235,.2)}
-.table-box{background:#111827;border-radius:16px;border:1px solid rgba(255,255,255,.08);overflow:auto;max-height:calc(100vh - 180px);box-shadow:0 15px 40px rgba(0,0,0,.35)}
-table{width:max-content;min-width:100%;border-collapse:collapse;font-size:13px}
-thead th{position:sticky;top:0;background:#1e293b;color:#60a5fa;padding:12px;text-align:left;border-bottom:1px solid rgba(255,255,255,.1);z-index:2;white-space:nowrap}
-tbody td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.06);color:#e5e7eb;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-tbody tr:nth-child(even){background:#0b1220}tbody tr:hover{background:#172554}
-.thumbnail-img{width:52px;height:52px;object-fit:cover;border-radius:8px;cursor:pointer;border:1px solid rgba(255,255,255,.1)}
-button{background:#2563eb;border:none;color:white;padding:7px 10px;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px}button:hover{background:#3b82f6}
-#status{text-align:center;padding:24px;color:#94a3b8}
+.search-wrap{position:relative}
+.table-wrap{background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:18px;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,.35)}
+.table-scroll{overflow:auto;max-height:75vh}
+table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:1200px}
+thead th{position:sticky;top:0;background:#1e293b;color:#60a5fa;text-transform:uppercase;letter-spacing:.04em;font-size:11px;padding:12px 10px;text-align:left;z-index:2;border-bottom:1px solid rgba(255,255,255,.1);white-space:nowrap;cursor:pointer}
+thead th:hover{color:white}
+tbody td{padding:10px;border-bottom:1px solid rgba(255,255,255,.06);color:#cbd5e1;white-space:nowrap;max-width:260px;overflow:hidden;text-overflow:ellipsis}
+tbody tr:hover{background:rgba(37,99,235,.08)}
+.badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:600}
+.badge.green{background:#166534;color:#bbf7d0}.badge.blue{background:rgba(37,99,235,.2);color:#bfdbfe;border:1px solid rgba(37,99,235,.3)}
+#status{text-align:center;padding:40px;color:#94a3b8}
+@media(max-width:900px){body{padding:12px}#searchInput{min-width:220px}}
 </style>
 </head>
 <body>
-<div class="page-title"><div><h1>📋 Inventory Details</h1><p>Complete equipment database — 31 fields, searchable</p></div><div class="stats"><div class="stat" id="countStat">0 items</div><div class="stat" id="filteredStat">0 filtered</div></div></div>
-<div class="search-area"><span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);opacity:.5">🔍</span><input id="searchInput" placeholder="Search name, brand, model, SKU, location..."></div>
-<div id="status">Loading inventory...</div>
-<div class="table-box"><table id="inventoryTable"><thead><tr>
-<th>Timestamp</th><th>Item Name</th><th>Category</th><th>Brand</th><th>Model</th><th>SKU</th><th>Condition</th><th>Description</th><th>Purchase Date</th><th>Source</th><th>Purchase Price</th><th>Unique ID</th><th>Restoration Costs</th><th>Restoration Date</th><th>Technician</th><th>Repairs</th><th>Stock</th><th>Location</th><th>Date</th><th>Promo</th><th>Weight</th><th>Notes</th><th>Selling Price</th><th>Date Sold</th><th>Sales Channel</th><th>Customer</th><th>Transaction ID</th><th>Payment</th><th>Special Notes</th><th>Image</th><th>Search</th>
-</tr></thead><tbody></tbody></table></div>
+<div class="page-header"><div><h1>📋 Inventory Details</h1><p>Complete equipment database — 30 columns, live from JSON backend</p></div><div class="header-right"><div class="count-badge" id="count">0 Items</div><div class="search-wrap"><span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);opacity:.5">🔍</span><input id="searchInput" placeholder="Search any field... name, SKU, ID, category"></div></div></div>
+<div id="status">Loading complete database...</div>
+<div class="table-wrap"><div class="table-scroll"><table id="inventoryTable"><thead><tr id="theadRow"></tr></thead><tbody></tbody></table></div></div>
+
 <script>
-const csvFilePath='https://script.google.com/macros/s/AKfycbzDCfZokdDHryVxtuVOuvTb6XUfnMR66_8Xwym3QzaSWgKooI0865_JPtTi0hJ_GDQr/exec';
-function parseCSVRow(row){let r=[],c="",q=false;for(let ch of row){if(ch=='"')q=!q;else if(ch==','&&!q){r.push(c);c="";}else c+=ch;}r.push(c);return r;}
-function formatDate(v){let d=new Date(v);if(isNaN(d))return v;return `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}/${String(d.getFullYear()).slice(-2)}`;}
-const tbody=document.querySelector("#inventoryTable tbody"),countStat=document.getElementById("countStat"),filteredStat=document.getElementById("filteredStat");
-function render(data){const rows=data.split(/\r?\n/);tbody.innerHTML="";let total=0;rows.slice(1).forEach(row=>{let cols=parseCSVRow(row);if(cols.length>2){total++;let tr=document.createElement("tr");cols.forEach((cell,i)=>{let td=document.createElement("td");cell=cell.replace(/^"|"$/g,"").trim();if(i===0||i===8)td.textContent=formatDate(cell);else if(i===29&&cell){let img=document.createElement("img");img.src=cell;img.className="thumbnail-img";img.onclick=()=>window.open(cell,'_blank');td.appendChild(img);}else td.textContent=cell;tr.appendChild(td);});let btnCell=document.createElement("td");let btn=document.createElement("button");btn.textContent="🔍 Image";btn.onclick=()=>{let q=`${cols[1]} ${cols[2]} ${cols[3]} ${cols[4]}`;window.open("https://www.google.com/search?tbm=isch&q="+encodeURIComponent(q),"_blank");};btnCell.appendChild(btn);tr.appendChild(btnCell);tbody.appendChild(tr);}});countStat.textContent=`${total} items`;filteredStat.textContent=`${total} filtered`;document.getElementById("status").style.display="none";}
-let debounce;document.getElementById("searchInput").addEventListener("input",function(){clearTimeout(debounce);let v=this.value.toLowerCase();debounce=setTimeout(()=>{let vis=0;document.querySelectorAll("#inventoryTable tbody tr").forEach(r=>{let show=r.textContent.toLowerCase().includes(v);r.style.display=show?"":"none";if(show)vis++;});filteredStat.textContent=`${vis} filtered`;},150);});
-fetch(csvFilePath).then(r=>r.text()).then(render).catch(()=>document.getElementById("status").textContent="❌ Failed loading inventory");
+const API_URL="https://script.google.com/macros/s/AKfycbzDCfZokdDHryVxtuVOuvTb6XUfnMR66_8Xwym3QzaSWgKooI0865_JPtTi0hJ_GDQr/exec";
+let allData=[]; let sortKey=""; let sortAsc=true;
+
+const KEY_COLS=["Timestamp","Item Name","Category","Brand","Model/Series","SKU/Item Number","Condition","Purchase Price","Stock Level","Unique ID","Source","Description"];
+
+async function load(){
+  try{
+    const res=await fetch(API_URL+"?action=read");
+    const json=await res.json();
+    allData=json.data||[];
+    buildHeader(allData[0]||{});
+    render(allData);
+    document.getElementById("count").textContent=allData.length+" Items";
+    document.getElementById("status").style.display="none";
+  }catch(e){
+    console.error(e);
+    document.getElementById("status").innerHTML="❌ Failed loading. Make sure Web App is Anyone.<br><small>"+e+"</small>";
+  }
+}
+
+function buildHeader(sample){
+  const thead=document.getElementById("theadRow");
+  // Use your 30 headers in order, but prioritize KEY_COLS first
+  const headers=Object.keys(sample);
+  const ordered=[...KEY_COLS.filter(k=>headers.includes(k)),...headers.filter(h=>!KEY_COLS.includes(h))];
+  thead.innerHTML=ordered.map(h=>`<th data-key="${h}">${h} ↕</th>`).join("");
+  thead.querySelectorAll("th").forEach(th=>{
+    th.addEventListener("click",()=>{
+      const k=th.dataset.key;
+      if(sortKey===k) sortAsc=!sortAsc; else { sortKey=k; sortAsc=true; }
+      sortAndRender();
+    });
+  });
+}
+
+function sortAndRender(){
+  if(!sortKey){ render(allData); return; }
+  const sorted=[...allData].sort((a,b)=>{
+    let va=a[sortKey]; let vb=b[sortKey];
+    if(typeof va==="string") va=va.toLowerCase();
+    if(typeof vb==="string") vb=vb.toLowerCase();
+    if(va<vb) return sortAsc?-1:1;
+    if(va>vb) return sortAsc?1:-1;
+    return 0;
+  });
+  render(sorted);
+}
+
+function render(data){
+  const tbody=document.querySelector("#inventoryTable tbody");
+  tbody.innerHTML="";
+  const headers=[...document.querySelectorAll("#theadRow th")].map(th=>th.dataset.key);
+  data.forEach(item=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=headers.map(k=>{
+      let v=item[k];
+      if(v===undefined||v===null||v==="") return `<td style="color:#475569">—</td>`;
+      if(k.toLowerCase().includes("timestamp")||k.toLowerCase().includes("date")){
+        try{ const d=new Date(v); if(!isNaN(d)) v=d.toLocaleDateString(); }catch(e){}
+      }
+      if(k==="Purchase Price"||k==="Selling Price"){ v="$"+Number(v).toFixed(2); return `<td><span class="badge green">${v}</span></td>`; }
+      if(k==="Category"){ const leaf=String(v).split("//").pop(); return `<td title="${v}">${leaf}</td>`; }
+      if(k==="Condition"){ return `<td><span class="badge blue">${v}</span></td>`; }
+      return `<td title="${String(v).replace(/"/g,'')}">${String(v).slice(0,120)}</td>`;
+    }).join("");
+    tbody.appendChild(tr);
+  });
+  if(!data.length){
+    tbody.innerHTML=`<tr><td colspan="100" style="text-align:center;padding:30px;color:#94a3b8">No matching records</td></tr>`;
+  }
+}
+
+document.getElementById("searchInput").addEventListener("input",function(){
+  const q=this.value.toLowerCase();
+  if(!q){ render(allData); document.getElementById("count").textContent=allData.length+" Items"; return; }
+  const filtered=allData.filter(o=> JSON.stringify(o).toLowerCase().includes(q));
+  render(filtered);
+  document.getElementById("count").textContent=filtered.length+" / "+allData.length+" Items";
+});
+
+load();
 </script>
 </body>
 </html>
