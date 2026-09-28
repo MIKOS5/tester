@@ -2,61 +2,124 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>New Product Input</title>
+<title>New Product Input — Gear Hub</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box}body{margin:0;padding:24px;font-family:Inter,sans-serif;background:#0f172a;color:white}
-.form-wrap{max-width:840px;margin:0 auto;background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:24px;box-shadow:0 20px 40px rgba(0,0,0,.35)}
-h1{margin:0 0 6px;font-size:26px}.sub{color:#94a3b8;font-size:13px;margin-bottom:20px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px} @media(max-width:700px){.grid{grid-template-columns:1fr}}
-label{display:block;margin:4px 0 6px;font-weight:600;font-size:12px;color:#cbd5e1;text-transform:uppercase;letter-spacing:.04em}
-input,textarea,select{width:100%;padding:12px 14px;background:#1e293b;border:1px solid rgba(255,255,255,.1);border-radius:12px;color:white;font-size:14px;outline:none}
-input:focus,textarea:focus,select:focus{border-color:#2563eb;box-shadow:0 0 0 4px rgba(37,99,235,.2)}
-.combo{position:relative}.combo-dropdown{position:absolute;top:100%;left:0;right:0;max-height:320px;overflow:auto;background:#1e293b;border:1px solid rgba(255,255,255,.15);border-radius:12px;margin-top:6px;z-index:50;display:none}
-.combo-dropdown.open{display:block}.opt{padding:10px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid rgba(255,255,255,.05)}.opt:hover,.opt.active{background:#2563eb;color:white}.group-label{padding:8px 14px;font-weight:700;color:#60a5fa;background:#0b1220;font-size:11px;text-transform:uppercase;position:sticky;top:0}
-.pills{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 14px}.pill{padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);font-size:12px;cursor:pointer}.pill.active{background:#2563eb;border-color:#2563eb;color:white}
-button.submit{width:100%;margin-top:18px;padding:14px;background:#2563eb;border:none;color:white;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer}button.submit:hover{background:#3b82f6}
+*{box-sizing:border-box}body{margin:0;padding:20px;font-family:Inter,sans-serif;background:#0f172a;color:white}
+.wrap{max-width:960px;margin:0 auto}
+.hdr{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.hdr h1{margin:0;font-size:28px;letter-spacing:-.02em}.hdr p{color:#94a3b8;margin-top:6px;font-size:13px}
+.card{background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:24px;box-shadow:0 20px 40px rgba(0,0,0,.35)}
+label{display:block;margin:0 0 6px;font-weight:600;font-size:11px;color:#cbd5e1;text-transform:uppercase;letter-spacing:.04em}
+input,textarea,select{width:100%;padding:12px 14px;background:#1e293b;border:1px solid rgba(255,255,255,.1);border-radius:12px;color:white;font-size:14px;outline:none;transition:.2s}
+input:focus,textarea:focus{border-color:#2563eb;box-shadow:0 0 0 4px rgba(37,99,235,.2)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px} @media(max-width:700px){.grid{grid-template-columns:1fr}body{padding:12px}}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 12px}
+.pill{padding:7px 12px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);font-size:12px;font-weight:600;cursor:pointer;color:#cbd5e1;transition:.2s}
+.pill.active{background:#2563eb;border-color:#2563eb;color:white}
+.combo{position:relative}
+.combo-input{padding-right:40px}
+.combo-dropdown{position:absolute;top:100%;left:0;right:0;max-height:360px;overflow:auto;background:#1e293b;border:1px solid rgba(255,255,255,.15);border-radius:12px;margin-top:6px;z-index:50;display:none;box-shadow:0 20px 40px rgba(0,0,0,.5)}
+.combo-dropdown.open{display:block}
+.group-label{padding:10px 14px;font-weight:700;color:#60a5fa;background:#0b1220;font-size:11px;text-transform:uppercase;position:sticky;top:0;letter-spacing:.05em}
+.opt{padding:10px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;justify-content:space-between;gap:10px}
+.opt:hover{background:#2563eb;color:white}.opt small{opacity:.6;font-size:11px}
+.chip{display:inline-flex;align-items:center;gap:8px;background:rgba(37,99,235,.15);border:1px solid rgba(37,99,235,.35);color:#bfdbfe;padding:8px 12px;border-radius:999px;font-size:12px;font-weight:600;margin-top:8px}
+.chip button{background:transparent;border:none;color:inherit;cursor:pointer;font-weight:700}
+.seg{display:flex;background:#1e293b;border:1px solid rgba(255,255,255,.1);border-radius:12px;overflow:hidden}
+.seg button{flex:1;background:transparent;border:none;color:#94a3b8;padding:12px;font-weight:600;font-size:13px;cursor:pointer;transition:.2s}
+.seg button.active{background:#2563eb;color:white}
+.submit{width:100%;margin-top:18px;padding:14px;background:#2563eb;border:none;color:white;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;transition:.2s}
+.submit:hover{background:#3b82f6;transform:translateY(-1px)}.submit:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#22c55e;color:white;padding:12px 18px;border-radius:999px;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.4);display:none;z-index:100}.toast.show{display:block}.toast.err{background:#dc2626}
 </style>
 </head>
 <body>
-<div class="form-wrap">
-<h1>New Product Input</h1><div class="sub">Add restored equipment — searchable category now</div>
-<form id="newProductForm" action="https://script.google.com/macros/s/AKfycbzDCfZokdDHryVxtuVOuvTb6XUfnMR66_8Xwym3QzaSWgKooI0865_JPtTi0hJ_GDQr/exec" method="POST">
+<div class="wrap">
+<div class="hdr"><div><h1>➕ New Product Input</h1><p>Now wired to new backend — auto Unique ID, auto log</p></div><div style="font-size:12px;color:#94a3b8">API: AKfycbzD… • JSON mode</div></div>
+<div class="card">
+<form id="newProductForm">
 <div class="grid">
-<div><label>Item Name</label><input name="Item Name" required placeholder="e.g. 1950s Emerson Fan"></div>
-<div><label>Brand</label><input name="Brand" required></div>
+<div><label>Item Name *</label><input name="Item Name" id="itemName" required placeholder="1950s Emerson Fan"></div>
+<div><label>Brand *</label><input name="Brand" required placeholder="Emerson"></div>
+<div><label>Model/Series *</label><input name="Model/Series" required placeholder="79648-AK"></div>
+<div><label>SKU/Item Number *</label><input name="SKU/Item Number" required placeholder="EMR-79648-001"></div>
 </div>
-<label style="margin-top:14px">Category</label>
+
+<label style="margin-top:16px">Condition *</label>
+<div class="seg" id="condSeg">
+<button type="button" data-v="New">New</button><button type="button" data-v="Used - Like New">Like New</button><button type="button" data-v="Used - Good" class="active">Good</button><button type="button" data-v="Used - Fair">Fair</button>
+</div>
+<input type="hidden" id="condValue" value="Used - Good">
+
+<label style="margin-top:16px">Category * — searchable (160+ options)</label>
 <div class="pills" id="groupPills"></div>
-<div class="combo"><input id="categorySearch" placeholder="Type to search categories... e.g. Tools, Fans, Kitchen" autocomplete="off"><input type="hidden" name="category" id="categoryValue" required><div class="combo-dropdown" id="catDropdown"></div></div>
-<div class="grid" style="margin-top:14px">
-<div><label>Model/Series</label><input name="Model/Series"></div>
-<div><label>SKU/Item Number</label><input name="SKU/Item Number"></div>
-<div><label>Condition</label><select name="Condition"><option>New</option><option>Used - Like New</option><option>Used - Good</option><option>Used - Fair</option></select></div>
-<div><label>Purchase Price</label><input type="number" step="0.01" name="Purchase Price"></div>
-<div><label>Purchase Date</label><input type="date" name="Purchase Date"></div>
-<div><label>Source</label><input name="Source"></div>
+<div class="combo">
+<input id="categorySearch" class="combo-input" placeholder="Type to search... e.g. Fans, Power Tools, Kitchen" autocomplete="off">
+<input type="hidden" id="categoryValue" required>
+<div class="combo-dropdown" id="catDropdown"></div>
 </div>
-<label style="margin-top:14px">Description</label><textarea name="Description" rows="4"></textarea>
-<button class="submit" type="submit">Submit Product</button>
+<div id="selectedChip"></div>
+
+<div class="grid" style="margin-top:16px">
+<div><label>Purchase Date *</label><input type="date" name="Purchase Date" required></div>
+<div><label>Purchase Price *</label><input type="number" step="0.01" name="Purchase Price" required placeholder="45.00"></div>
+<div><label>Source *</label><input name="Source" required placeholder="Estate sale, eBay, Reverb"></div>
+<div><label>Stock Level</label><input type="number" name="Stock Level" value="1" min="0"></div>
+<div><label>Image URL</label><input name="Image" placeholder="https://..."></div>
+<div><label>Weight</label><input name="Weight" placeholder="10lbs"></div>
+</div>
+
+<label style="margin-top:16px">Description *</label>
+<textarea name="Description" rows="4" required placeholder="Condition details, restoration notes..."></textarea>
+
+<button class="submit" type="submit" id="submitBtn">Submit to Inventory →</button>
+<div style="margin-top:10px;font-size:11px;color:#64748b;text-align:center">Auto-generates Unique ID • Logs to Logs sheet • Shows in Front + Inventory instantly</div>
 </form>
 </div>
+</div>
+<div class="toast" id="toast">Product added! ✓</div>
+
 <script>
-// Simplified category data grouped
-const allCats=[
-"Antiques & Collectibles//Antique & Collectible Appliances//Fans & Air Conditioners","Antiques & Collectibles//Antique & Collectible Appliances//Refrigerators & Freezers","Antiques & Collectibles//Antique & Collectible Decorative Arts//Lamps","Antiques & Collectibles//Antique & Collectible Kitchenware//Small Appliances",
-"Tools & Home Improvement//Hand Tools","Tools & Home Improvement//Power Tools","Tools & Home Improvement//Electrical","Tools & Home Improvement//Lighting & Ceiling Fans","Tools & Home Improvement//Home Improvement","Tools & Home Improvement//Building Materials",
-"Electronics//Audio & Headphones","Electronics//Cameras & Photography","Electronics//TV & Video","Home & Kitchen//Small Appliances","Home & Kitchen//Kitchen & Dining","Furniture//Living Room Furniture","Sporting Goods//Camping & Hiking"
- // add your full list here — JS will handle search
+const API_URL="https://script.google.com/macros/s/AKfycbzDCfZokdDHryVxtuVOuvTb6XUfnMR66_8Xwym3QzaSWgKooI0865_JPtTi0hJ_GDQr/exec";
+const CATEGORIES=[
+"Antiques & Collectibles//Antique & Collectible Appliances//Fans & Air Conditioners","Antiques & Collectibles//Antique & Collectible Appliances//Refrigerators & Freezers","Antiques & Collectibles//Antique & Collectible Appliances//Stoves & Ovens","Antiques & Collectibles//Antique & Collectible Appliances//Washers & Dryers","Antiques & Collectibles//Antique & Collectible Appliances//Water Coolers","Antiques & Collectibles//Antique & Collectible Appliances//Other Antique & Collectible Appliances","Antiques & Collectibles//Antique & Collectible Decorative Arts//Art Glass","Antiques & Collectibles//Antique & Collectible Decorative Arts//Ceramics & Porcelain","Antiques & Collectibles//Antique & Collectible Decorative Arts//Clocks","Antiques & Collectibles//Antique & Collectible Decorative Arts//Lamps","Antiques & Collectibles//Antique & Collectible Decorative Arts//Metalware","Antiques & Collectibles//Antique & Collectible Decorative Arts//Paintings & Drawings","Antiques & Collectibles//Antique & Collectible Decorative Arts//Sculptures","Antiques & Collectibles//Antique & Collectible Decorative Arts//Textiles","Antiques & Collectibles//Antique & Collectible Decorative Arts//Other Antique & Collectible Decorative Arts","Antiques & Collectibles//Antique & Collectible Kitchenware & Cookware//Bakeware","Antiques & Collectibles//Antique & Collectible Kitchenware & Cookware//Cups & Saucers","Antiques & Collectibles//Antique & Collectible Kitchenware & Cookware//Dishes & Plates","Antiques & Collectibles//Antique & Collectible Kitchenware & Cookware//Flatware & Silverware","Antiques & Collectibles//Antique & Collectible Kitchenware & Cookware//Glassware","Antiques & Collectibles//Antique & Collectible Kitchenware & Cookware//Small Appliances","Antiques & Collectibles//Antique & Collectible Kitchenware & Cookware//Other Antique & Collectible Kitchenware & Cookware","Arts & Crafts//Beading & Jewelry Making//Beads","Arts & Crafts//Beading & Jewelry Making//Charms & Pendants","Arts & Crafts//Beading & Jewelry Making//Jewelry Findings","Arts & Crafts//Beading & Jewelry Making//Jewelry Kits & Beading Supplies","Arts & Crafts//Beading & Jewelry Making//Wire & Cord","Arts & Crafts//Drawing & Painting Supplies//Art Paints","Arts & Crafts//Drawing & Painting Supplies//Brushes & Tools","Arts & Crafts//Drawing & Painting Supplies//Drawing & Lettering Aids","Arts & Crafts//Drawing & Painting Supplies//Drawing & Painting Surfaces","Arts & Crafts//Drawing & Painting Supplies//Markers & Pens","Arts & Crafts//Sewing & Needlecrafts//Appliques & Embellishments","Arts & Crafts//Sewing & Needlecrafts//Fabrics","Arts & Crafts//Sewing & Needlecrafts//Needles & Pins","Arts & Crafts//Sewing & Needlecrafts//Patterns & Instructions","Arts & Crafts//Sewing & Needlecrafts//Sewing Machines & Sergers","Auto Parts & Accessories//Auto Body Parts & Mirrors","Auto Parts & Accessories//Auto Electrical & Lighting Parts","Auto Parts & Accessories//Auto Exterior Parts & Accessories","Auto Parts & Accessories//Auto Interior Parts & Accessories","Auto Parts & Accessories//Automotive Tools & Equipment","Auto Parts & Accessories//Car Electronics & GPS","Auto Parts & Accessories//Car Maintenance & Care","Auto Parts & Accessories//Car Parts & Accessories","Auto Parts & Accessories//Performance Parts & Accessories","Auto Parts & Accessories//Tires & Wheels","Baby Products//Baby Bathing","Baby Products//Baby Bedding & Linens","Baby Products//Baby Carriers & Slings","Baby Products//Baby Clothing & Shoes","Baby Products//Baby Feeding","Baby Products//Baby Gear","Baby Products//Baby Health & Safety","Baby Products//Baby Monitors","Baby Products//Baby Nursery Furniture","Baby Products//Baby Shoes","Bags & Luggage//Backpacks","Bags & Luggage//Briefcases","Bags & Luggage//Duffel Bags","Bags & Luggage//Luggage Sets","Bags & Luggage//Messenger Bags","Bags & Luggage//Purses","Bags & Luggage//Travel Accessories","Books, Movies & Music//Books","Books, Movies & Music//Movies & TV","Books, Movies & Music//Music","Cell Phones & Accessories//Cell Phones","Cell Phones & Accessories//Cell Phone Cases & Covers","Cell Phones & Accessories//Cell Phone Chargers & Cables","Cell Phones & Accessories//Cell Phone Holders & Stands","Cell Phones & Accessories//Cell Phone Screen Protectors","Cell Phones & Accessories//Headsets","Clothing, Shoes & Accessories//Clothing","Clothing, Shoes & Accessories//Jewelry & Watches","Clothing, Shoes & Accessories//Shoes","Clothing, Shoes & Accessories//Sunglasses & Eyewear","Electronics//Audio & Headphones","Electronics//Cameras & Photography","Electronics//Computers & Laptops","Electronics//Consumer Electronics","Electronics//GPS & Navigation","Electronics//Home Audio & Theater","Electronics//Mobile & Cell Phones","Electronics//TV & Video","Electronics//Wearable Technology","Furniture//Bedroom Furniture","Furniture//Dining Room Furniture","Furniture//Living Room Furniture","Furniture//Office Furniture","Furniture//Outdoor Furniture","Furniture//Storage & Organization","Health & Beauty//Health Care","Health & Beauty//Makeup","Health & Beauty//Massage & Relaxation","Health & Beauty//Nail Care & Tools","Health & Beauty//Personal Care","Health & Beauty//Skin Care","Home & Kitchen//Bedding","Home & Kitchen//Furniture","Home & Kitchen//Home Décor","Home & Kitchen//Kitchen & Dining","Home & Kitchen//Mattresses & Box Springs","Home & Kitchen//Small Appliances","Jewelry & Watches//Fine Jewelry","Jewelry & Watches//Fashion Jewelry","Jewelry & Watches//Watches","Musical Instruments//Guitars & Basses","Musical Instruments//Keyboards & MIDI","Musical Instruments//Percussion","Musical Instruments//Pro Audio Equipment","Musical Instruments//String Instruments","Musical Instruments//Wind & Woodwind Instruments","Musical Instruments//Accessories","Office Supplies//Binders & Binding Systems","Office Supplies//Desk Accessories & Workspace Organizers","Office Supplies//File Cabinets & Storage","Office Supplies//Office Furniture","Office Supplies//Paper & Printer Supplies","Patio & Garden//Furniture","Patio & Garden//Garden Décor","Patio & Garden//Lawn & Garden","Patio & Garden//Outdoor Cooking & Eating","Patio & Garden//Outdoor Storage","Patio & Garden//Pools & Spas","Patio & Garden//Planters & Gardening Pots","Patio & Garden//Storage & Organization","Pet Supplies//Bird Supplies","Pet Supplies//Cat Supplies","Pet Supplies//Dog Supplies","Pet Supplies//Fish & Aquatic Supplies","Pet Supplies//Reptile Supplies","Sporting Goods//Camping & Hiking","Sporting Goods//Cycling","Sporting Goods//Fitness & Exercise","Sporting Goods//Outdoor Sports","Sporting Goods//Sports Fan Shop","Sporting Goods//Team Sports","Tools & Home Improvement//Building Materials","Tools & Home Improvement//Electrical","Tools & Home Improvement//Hand Tools","Tools & Home Improvement//Home Improvement","Tools & Home Improvement//Lighting & Ceiling Fans","Tools & Home Improvement//Power Tools","Tools & Home Improvement//Safety & Security","Toys & Games//Action Figures & Statues","Toys & Games//Arts & Crafts for Kids","Toys & Games//Building Sets & Blocks","Toys & Games//Dolls & Action Figures","Toys & Games//Games & Puzzles","Toys & Games//Learning & Education","Toys & Games//Pretend Play","Toys & Games//Stuffed Animals & Plush Toys","Video Games & Consoles//Console Video Games","Video Games & Consoles//Gaming Consoles","Video Games & Consoles//Handheld Video Games","Video Games & Consoles//PC Gaming","Video Games & Consoles//Video Game Accessories"
 ];
-const groups=[...new Set(allCats.map(c=>c.split("//")[0]))];
-const pills=document.getElementById("groupPills"),search=document.getElementById("categorySearch"),dropdown=document.getElementById("catDropdown"),hidden=document.getElementById("categoryValue");
-let activeGroup=null,filtered=allCats;
-function renderPills(){pills.innerHTML=groups.map(g=>`<div class="pill ${activeGroup===g?'active':''}" data-g="${g}">${g}</div>`).join("");pills.querySelectorAll(".pill").forEach(p=>p.onclick=()=>{activeGroup=p.dataset.g===activeGroup?null:p.dataset.g;renderPills();filterCats();});}
-function filterCats(){let q=search.value.toLowerCase();filtered=allCats.filter(c=>{let ok=true;if(activeGroup)ok=c.startsWith(activeGroup);if(q)ok=ok&&c.toLowerCase().includes(q);return ok;});renderDropdown();}
-function renderDropdown(){dropdown.innerHTML="";if(!filtered.length){dropdown.innerHTML='<div class="opt">No matches</div>';return;}let byGroup={};filtered.forEach(c=>{let g=c.split("//")[0];(byGroup[g]=byGroup[g]||[]).push(c);});Object.entries(byGroup).forEach(([g,items])=>{let gl=document.createElement("div");gl.className="group-label";gl.textContent=g;dropdown.appendChild(gl);items.forEach(v=>{let d=document.createElement("div");d.className="opt";d.textContent=v;d.onclick=()=>{search.value=v;hidden.value=v;dropdown.classList.remove("open");};dropdown.appendChild(d);});});}
+const groups=[...new Set(CATEGORIES.map(c=>c.split("//")[0]))].sort();
+const pills=document.getElementById("groupPills"),search=document.getElementById("categorySearch"),dropdown=document.getElementById("catDropdown"),hidden=document.getElementById("categoryValue"),chipBox=document.getElementById("selectedChip");
+let activeGroup=null;
+function renderPills(){pills.innerHTML='<div class="pill '+(activeGroup===null?'active':'')+'" data-g="">All</div>'+groups.map(g=>`<div class="pill ${activeGroup===g?'active':''}" data-g="${g}">${g}</div>`).join("");pills.querySelectorAll(".pill").forEach(p=>p.onclick=()=>{activeGroup=p.dataset.g||null;renderPills();filterCats();});}
+function filterCats(){let q=search.value.toLowerCase();let filtered=CATEGORIES.filter(c=>{let ok=true;if(activeGroup)ok=c.startsWith(activeGroup);if(q)ok=ok&&c.toLowerCase().includes(q);return ok;});renderDropdown(filtered);}
+function renderDropdown(list){dropdown.innerHTML="";if(!list.length){dropdown.innerHTML='<div class="opt">No matches</div>';return;}let byGroup={};list.forEach(c=>{let g=c.split("//")[0];(byGroup[g]=byGroup[g]||[]).push(c);});Object.entries(byGroup).forEach(([g,items])=>{let gl=document.createElement("div");gl.className="group-label";gl.textContent=g;dropdown.appendChild(gl);items.forEach(full=>{let parts=full.split("//");let leaf=parts[parts.length-1];let mid=parts.slice(1,-1).join(" › ");let row=document.createElement("div");row.className="opt";row.innerHTML=`<span><b>${leaf}</b></span><small>${mid}</small>`;row.onclick=()=>selectCat(full);dropdown.appendChild(row);});});}
+function selectCat(full){search.value=full;hidden.value=full;dropdown.classList.remove("open");chipBox.innerHTML=`<div class="chip">${full} <button type="button" onclick="clearCat()">✕</button></div>`;}
+window.clearCat=()=>{search.value="";hidden.value="";chipBox.innerHTML="";dropdown.classList.add("open");filterCats();}
 search.addEventListener("focus",()=>{dropdown.classList.add("open");filterCats();});search.addEventListener("input",filterCats);
 document.addEventListener("click",e=>{if(!e.target.closest(".combo"))dropdown.classList.remove("open");});
+document.querySelectorAll("#condSeg button").forEach(b=>b.onclick=()=>{document.querySelectorAll("#condSeg button").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.getElementById("condValue").value=b.dataset.v;});
+
+const form=document.getElementById("newProductForm"),btn=document.getElementById("submitBtn"),toast=document.getElementById("toast");
+form.addEventListener("submit",async(e)=>{
+  e.preventDefault();
+  if(!hidden.value){ toast.textContent="Please select a category"; toast.classList.add("show","err"); setTimeout(()=>toast.classList.remove("show","err"),2500); search.focus(); return; }
+  btn.disabled=true; btn.textContent="Submitting...";
+  const fd=new FormData(form);
+  const payload={action:"create"};
+  fd.forEach((v,k)=>payload[k]=v);
+  payload["Condition"]=document.getElementById("condValue").value;
+  payload["Category"]=hidden.value;
+  payload["category"]=hidden.value; // backend accepts both
+  try{
+    const res=await fetch(API_URL+"?action=create",{method:"POST",body:JSON.stringify(payload),headers:{"Content-Type":"text/plain;charset=utf-8"}});
+    const j=await res.json();
+    if(j.ok){
+      toast.textContent="Added! ID: "+j.id+" ✓"; toast.classList.remove("err"); toast.classList.add("show");
+      form.reset(); clearCat(); document.querySelectorAll("#condSeg button").forEach((b,i)=>b.classList.toggle("active",i===2)); document.getElementById("condValue").value="Used - Good";
+      setTimeout(()=>toast.classList.remove("show"),3500);
+    }else{ throw new Error(j.error||"Failed"); }
+  }catch(err){
+    toast.textContent="Error: "+err.message; toast.classList.add("show","err"); setTimeout(()=>toast.classList.remove("show","err"),4000);
+  }finally{ btn.disabled=false; btn.textContent="Submit to Inventory →"; }
+});
 renderPills();filterCats();
 </script>
 </body>
