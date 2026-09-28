@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Restoration Workshop — Gear Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}body{margin:0;padding:18px;font-family:Inter,sans-serif;background:#0f172a;color:white;min-height:100vh}
+.header{display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.header h1{margin:0;font-size:28px;letter-spacing:-.02em}.header p{color:#94a3b8;font-size:13px;margin-top:6px}
+.stats{display:flex;gap:10px;flex-wrap:wrap}
+.stat{background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px 14px;min-width:130px}
+.stat.l{font-size:10px;text-transform:uppercase;color:#94a3b8;font-weight:700;letter-spacing:.05em}.stat.v{font-size:18px;font-weight:800;margin-top:4px}
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+#search{padding:12px 14px 12px 40px;background:#1e293b;border:1px solid rgba(255,255,255,.1);border-radius:12px;color:white;min-width:300px;outline:none}
+#search:focus{border-color:#2563eb}
+.board{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;align-items:start} @media(max-width:1100px){.board{grid-template-columns:repeat(2,1fr)}} @media(max-width:640px){.board{grid-template-columns:1fr}}
+.col{background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;min-height:520px}
+.col-head{padding:14px 14px 12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,.06);position:sticky;top:0;background:#111827;z-index:2}
+.col-head h3{margin:0;font-size:13px;text-transform:uppercase;letter-spacing:.05em;display:flex;align-items:center;gap:8px}
+.count{padding:3px 8px;border-radius:999px;font-size:11px;font-weight:700;background:rgba(255,255,255,.1)}
+.col[data-status="Needs Work"].count{background:#7c3aed}.col[data-status="In Progress"].count{background:#2563eb}.col[data-status="Testing"].count{background:#d97706}.col[data-status="Ready to Sell"].count{background:#16a34a}
+.col-body{padding:10px;display:flex;flex-direction:column;gap:10px;flex:1;overflow:auto;min-height:400px}
+.card{background:#0b1220;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:12px;cursor:grab;transition:.15s}
+.card:active{cursor:grabbing;transform:rotate(2deg) scale(1.02)}
+.card.dragging{opacity:.4}
+.card-title{font-weight:700;font-size:13px;color:white;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-meta{font-size:11px;color:#94a3b8;margin-top:4px;display:flex;gap:8px;flex-wrap:wrap}
+.card-foot{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.badge{padding:3px 7px;border-radius:999px;font-size:10px;font-weight:700;background:rgba(255,255,255,.08)}.badge.green{background:#166534;color:#bbf7d0}.badge.blue{background:rgba(37,99,235,.2);color:#bfdbfe}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(10px);display:none;place-items:center;z-index:100;padding:20px}
+.modal.open{display:grid}
+.modal-box{background:#111827;border:1px solid rgba(255,255,255,.1);border-radius:18px;max-width:640px;width:100%;padding:20px;max-height:90vh;overflow:auto}
+label{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#94a3b8;font-weight:600;margin-bottom:6px;display:block}
+input,textarea,select{width:100%;padding:11px 12px;background:#1e293b;border:1px solid rgba(255,255,255,.1);border-radius:10px;color:white;font-size:13px;outline:none}
+input:focus,textarea:focus,select:focus{border-color:#2563eb}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px} @media(max-width:600px){.grid2{grid-template-columns:1fr}}
+.btn{padding:11px 16px;border-radius:10px;border:none;font-weight:700;cursor:pointer}
+.btn-save{background:#2563eb;color:white}.btn-ghost{background:rgba(255,255,255,.06);color:#cbd5e1;border:1px solid rgba(255,255,255,.1)}
+.drop-hover{outline:2px dashed #2563eb;outline-offset:-4px;background:rgba(37,99,235,.08)}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#22c55e;color:white;padding:12px 18px;border-radius:999px;font-weight:700;display:none;z-index:200}.toast.show{display:block}
+</style>
+</head>
+<body>
+<div class="header">
+<div><h1>🔧 Restoration Workshop</h1><p>Kanban: drag to change status • Saves Technician / Costs / Date / Notes → Inventory sheet</p></div>
+<div class="stats"><div class="stat"><div class="l">Needs Work</div><div class="v" id="sNeed">0</div></div><div class="stat"><div class="l">In Progress</div><div class="v" id="sProg">0</div></div><div class="stat"><div class="l">Total Invested</div><div class="v" id="sInvest">$0</div></div><div class="stat"><div class="l">Ready to Sell</div><div class="v" id="sReady" style="color:#22c55e">0</div></div></div>
+</div>
+
+<div class="controls">
+<div style="position:relative"><span style="position:absolute;left:12px;top:50%;transform:translateY(-50%)">🔍</span><input id="search" placeholder="Search amp, brand, SKU, GH-..."></div>
+<div style="font-size:11px;color:#64748b;align-self:center">Status stored in Promo column • Drag cards between columns</div>
+</div>
+
+<div class="board" id="board">
+<div class="col" data-status="Needs Work"><div class="col-head"><h3>🔴 Needs Work</h3><span class="count" id="cNeed">0</span></div><div class="col-body" data-drop="Needs Work"></div></div>
+<div class="col" data-status="In Progress"><div class="col-head"><h3>🔵 In Progress</h3><span class="count" id="cProg">0</span></div><div class="col-body" data-drop="In Progress"></div></div>
+<div class="col" data-status="Testing"><div class="col-head"><h3>🟡 Testing</h3><span class="count" id="cTest">0</span></div><div class="col-body" data-drop="Testing"></div></div>
+<div class="col" data-status="Ready to Sell"><div class="col-head"><h3>🟢 Ready to Sell</h3><span class="count" id="cReady">0</span></div><div class="col-body" data-drop="Ready to Sell"></div></div>
+</div>
+
+<div class="modal" id="modal"><div class="modal-box">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><h3 style="margin:0" id="mTitle">Edit Restoration</h3><button class="btn btn-ghost" onclick="closeModal()">✕</button></div>
+<form id="editForm">
+<div class="grid2"><div><label>Item</label><input id="mItem" disabled></div><div><label>Unique ID</label><input id="mId" disabled></div></div>
+<div class="grid2" style="margin-top:12px"><div><label>Technician / Restorer *</label><input name="Technician/Restorer" id="mTech" placeholder="You, Mike,..."></div><div><label>Restoration Costs ($)</label><input type="number" step="0.01" name="Restoration Costs" id="mCost" placeholder="25.00"></div></div>
+<div class="grid2" style="margin-top:12px"><div><label>Restoration Date</label><input type="date" name="Restoration Date" id="mDate"></div><div><label>Status (Promo)</label><select name="Promo" id="mStatus"><option>Needs Work</option><option>In Progress</option><option>Testing</option><option>Ready to Sell</option></select></div></div>
+<div style="margin-top:12px"><label>Notes on Modifications or Repairs</label><textarea name="Notes on Modifications or Repairs" id="mNotes" rows="4" placeholder="Replaced speaker, cleaned pots, biased..."></textarea></div>
+<div style="display:flex;gap:10px;margin-top:16px;justify-content:flex-end"><button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button><button type="submit" class="btn btn-save" id="saveBtn">Save to Sheet →</button></div>
+</form>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const API_URL="https://script.google.com/macros/s/AKfycbzDCfZokdDHryVxtuVOuvTb6XUfnMR66_8Xwym3QzaSWgKooI0865_JPtTi0hJ_GDQr/exec";
+var all=[], current=null;
+
+function getStatus(item){
+  var p=(item["Promo"]||"").trim();
+  if(["Needs Work","In Progress","Testing","Ready to Sell"].indexOf(p)>-1) return p;
+  var tech=item["Technician/Restorer"]||"";
+  var date=item["Restoration Date"]||"";
+  var cost=item["Restoration Costs"]||"";
+  if(date && cost) return "Ready to Sell";
+  if(date) return "Testing";
+  if(tech) return "In Progress";
+  return "Needs Work";
+}
+
+async function load(){
+  var res=await fetch(API_URL+"?action=read");
+  var j=await res.json();
+  all=j.data||[];
+  render();
+}
+
+function render(){
+  var q=document.getElementById("search").value.toLowerCase();
+  var filtered=all.filter(function(o){ if(!q) return true; return JSON.stringify(o).toLowerCase().indexOf(q)>-1; });
+  document.querySelectorAll(".col-body").forEach(function(b){ b.innerHTML=""; });
+  var counts={ "Needs Work":0,"In Progress":0,"Testing":0,"Ready to Sell":0 };
+  var invested=0;
+  filtered.forEach(function(item){
+    var st=getStatus(item);
+    counts[st]=(counts[st]||0)+1;
+    invested+= (Number(item["Purchase Price"])||0) + (Number(item["Restoration Costs"])||0);
+    var col=document.querySelector('.col-body[data-drop="'+st+'"]');
+    if(!col) col=document.querySelector('.col-body[data-drop="Needs Work"]');
+    var card=document.createElement("div");
+    card.className="card"; card.draggable=true; card.dataset.id=item["Unique ID"];
+    card.innerHTML='<div class="card-title">'+(item["Item Name"]||"")+'</div><div class="card-meta"><span>'+(item["Brand"]||"")+'</span><span>'+(item["SKU/Item Number"]||"")+'</span><span style="color:#60a5fa">'+(item["Unique ID"]||"")+'</span></div><div class="card-meta" style="margin-top:6px"><span class="badge green">$'+(Number(item["Purchase Price"])||0).toFixed(0)+' + $'+(Number(item["Restoration Costs"])||0).toFixed(0)+'</span><span class="badge">'+(item["Technician/Restorer"]||"No tech")+'</span></div><div class="card-foot"><span class="badge blue">'+(item["Condition"]||"")+'</span><span style="font-size:11px;color:#64748b">'+((item["Notes on Modifications or Repairs"]||"").slice(0,28))+'</span></div>';
+    card.addEventListener("dragstart",function(e){ e.dataTransfer.setData("text/plain", item["Unique ID"]); card.classList.add("dragging"); });
+    card.addEventListener("dragend",function(){ card.classList.remove("dragging"); });
+    card.addEventListener("click",function(){ openModal(item); });
+    col.appendChild(card);
+  });
+  document.getElementById("cNeed").textContent=counts["Needs Work"];
+  document.getElementById("cProg").textContent=counts["In Progress"];
+  document.getElementById("cTest").textContent=counts["Testing"];
+  document.getElementById("cReady").textContent=counts["Ready to Sell"];
+  document.getElementById("sNeed").textContent=counts["Needs Work"];
+  document.getElementById("sProg").textContent=counts["In Progress"];
+  document.getElementById("sReady").textContent=counts["Ready to Sell"];
+  document.getElementById("sInvest").textContent="$"+invested.toFixed(0);
+}
+
+// drag & drop
+document.querySelectorAll(".col-body").forEach(function(body){
+  body.addEventListener("dragover",function(e){ e.preventDefault(); body.classList.add("drop-hover"); });
+  body.addEventListener("dragleave",function(){ body.classList.remove("drop-hover"); });
+  body.addEventListener("drop",async function(e){
+    e.preventDefault(); body.classList.remove("drop-hover");
+    var uid=e.dataTransfer.getData("text/plain");
+    var newStatus=body.dataset.drop;
+    var item=all.find(function(x){ return String(x["Unique ID"])===String(uid); });
+    if(!item) return;
+    // update Promo to new status
+    var payload={action:"update","Unique ID":uid,"Promo":newStatus};
+    if(newStatus==="In Progress" &&!item["Technician/Restorer"]){ openModal(item); document.getElementById("mStatus").value=newStatus; return; }
+    if(newStatus==="Testing" || newStatus==="Ready to Sell"){ if(!item["Restoration Date"]) payload["Restoration Date"]=new Date().toISOString().slice(0,10); }
+    await saveUpdate(payload, false);
+    item["Promo"]=newStatus;
+    if(payload["Restoration Date"]) item["Restoration Date"]=payload["Restoration Date"];
+    render();
+    showToast("Moved to "+newStatus+" ✓");
+  });
+});
+
+function openModal(item){
+  current=item;
+  document.getElementById("mItem").value=item["Item Name"]||"";
+  document.getElementById("mId").value=item["Unique ID"]||"";
+  document.getElementById("mTech").value=item["Technician/Restorer"]||"";
+  document.getElementById("mCost").value=item["Restoration Costs"]||"";
+  document.getElementById("mDate").value=item["Restoration Date"]? new Date(item["Restoration Date"]).toISOString().slice(0,10) : "";
+  document.getElementById("mNotes").value=item["Notes on Modifications or Repairs"]||"";
+  document.getElementById("mStatus").value=getStatus(item);
+  document.getElementById("modal").classList.add("open");
+}
+function closeModal(){ document.getElementById("modal").classList.remove("open"); current=null; }
+
+document.getElementById("editForm").addEventListener("submit",async function(e){
+  e.preventDefault();
+  if(!current) return;
+  var fd=new FormData(e.target);
+  var payload={action:"update","Unique ID":current["Unique ID"]};
+  fd.forEach(function(v,k){ payload[k]=v; });
+  await saveUpdate(payload, true);
+});
+
+async function saveUpdate(payload, closeAfter){
+  var btn=document.getElementById("saveBtn"); btn.disabled=true; btn.textContent="Saving...";
+  try{
+    var res=await fetch(API_URL+"?action=update",{method:"POST",body:JSON.stringify(payload),headers:{"Content-Type":"text/plain;charset=utf-8"}});
+    var j=await res.json();
+    if(!j.ok) throw new Error(j.error||"Failed");
+    // update local
+    var item=all.find(function(x){ return String(x["Unique ID"])===String(payload["Unique ID"]); });
+    if(item) Object.assign(item, payload);
+    render();
+    if(closeAfter) closeModal();
+    showToast("Saved! ✓");
+  }catch(err){ showToast("Error: "+err.message,true); }
+  finally{ btn.disabled=false; btn.textContent="Save to Sheet →"; }
+}
+
+document.getElementById("search").addEventListener("input",render);
+function showToast(m,isErr){ var t=document.getElementById("toast"); t.textContent=m; t.style.background=isErr?"#dc2626":"#22c55e"; t.classList.add("show"); setTimeout(function(){ t.classList.remove("show"); },3000); }
+
+load();
+</script>
+</body>
+</html>
