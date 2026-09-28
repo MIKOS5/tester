@@ -40,13 +40,13 @@ input{width:100%;padding:11px 12px;background:#1e293b;border:1px solid rgba(255,
 </style>
 </head>
 <body>
-<div class="header"><div><h1>🖼️ Image Manager</h1><p>Missing Image = empty Image col • Upload → Drive folder "Gear Hub Images" → auto-links to Front.html</p></div>
+<div class="header"><div><h1>🖼 Image Manager v4.2</h1><p>Auto-fixes uc?export=view → thumbnail → works in Front.html • Drive folder "Gear Hub Images"</p></div>
 <div class="stats"><div class="stat"><div class="l">Total</div><div class="v" id="sTotal">0</div></div><div class="stat"><div class="l">With Images</div><div class="v" id="sWith" style="color:#22c55e">0</div></div><div class="stat"><div class="l">Missing</div><div class="v" id="sMiss" style="color:#ef4444">0</div></div><div class="stat"><div class="l">Coverage</div><div class="v" id="sPct">0%</div></div></div>
 </div>
 
-<div class="drop" id="bulkDrop"><b>📥 Bulk Drop</b> — drop images named with GH-ID or SKU (e.g., GH-XXXXX.jpg) — auto-matches and uploads<br><span style="font-size:11px;color:#64748b">Or click to select multiple files</span><input type="file" id="bulkFiles" multiple accept="image/*" style="display:none"></div>
+<div class="drop" id="bulkDrop"><b>📥 Bulk Drop</b> — drop GH-B9B981BD.jpg named files → auto-match<br><span style="font-size:11px;color:#64748b">Click to select multiple</span><input type="file" id="bulkFiles" multiple accept="image/*" style="display:none"></div>
 
-<div class="controls"><div style="position:relative"><span style="position:absolute;left:12px;top:50%;transform:translateY(-50%)">🔍</span><input id="search" placeholder="Search Item, Brand, GH-..."></div><button class="filter active" data-f="all">All</button><button class="filter" data-f="missing">Missing Only</button><button class="filter" data-f="with">With Images</button></div>
+<div class="controls"><div style="position:relative"><span style="position:absolute;left:12px;top:50%;transform:translateY(-50%)">🔍</span><input id="search" placeholder="Search GH-..., Line 6, Fender..."></div><button class="filter active" data-f="all">All</button><button class="filter" data-f="missing">Missing Only</button><button class="filter" data-f="with">With Images</button><button class="filter" onclick="fixAllOldUrls()">Fix All Old URLs</button></div>
 
 <div class="grid" id="grid"><div style="color:#475569;padding:20px">Loading...</div></div>
 
@@ -57,7 +57,6 @@ input{width:100%;padding:11px 12px;background:#1e293b;border:1px solid rgba(255,
 <div style="margin-top:12px"><label>Select Image File</label><input type="file" id="fileInput" accept="image/*"></div>
 <div style="margin-top:12px"><label>Or Paste Image URL</label><input id="urlInput" placeholder="https://..."></div>
 <div style="display:flex;gap:10px;margin-top:16px"><button class="btn" style="flex:1;background:rgba(255,255,255,.06);color:#cbd5e1" onclick="closeModal()">Cancel</button><button class="btn btn-up" style="flex:2" id="uploadBtn">Upload to Drive → Link</button></div>
-<div style="font-size:11px;color:#64748b;margin-top:8px">File → Drive "Gear Hub Images" (anyone with link) → Image col = drive url</div>
 </div></div>
 <div class="toast" id="toast"></div>
 
@@ -65,10 +64,22 @@ input{width:100%;padding:11px 12px;background:#1e293b;border:1px solid rgba(255,
 const API_URL="https://script.google.com/macros/s/AKfycbzDCfZokdDHryVxtuVOuvTb6XUfnMR66_8Xwym3QzaSWgKooI0865_JPtTi0hJ_GDQr/exec";
 let all=[], current=null, filter="all";
 
+function toThumb(url){
+  if(!url) return url;
+  // Convert any Drive uc?export=view or drive.google.com/file/d/ or lh3... to thumbnail
+  let m = url.match(/id=([^&]+)/);
+  if(m) return "https://drive.google.com/thumbnail?id="+m[1]+"&sz=w1000";
+  let m2 = url.match(/\/d\/([^\/]+)/);
+  if(m2) return "https://drive.google.com/thumbnail?id="+m2[1]+"&sz=w1000";
+  return url;
+}
+
 async function load(){
   let res=await fetch(API_URL+"?action=read");
   let j=await res.json();
   all=j.data||[];
+  // auto-fix display urls
+  all.forEach(o=>{ if(o["Image"]) o["Image"]=toThumb(o["Image"]); });
   render();
 }
 
@@ -90,9 +101,10 @@ function render(){
   grid.innerHTML="";
   list.forEach(item=>{
     let has=(item["Image"]||"").trim()!=="";
+    let disp=has? toThumb(item["Image"]) : "";
     let div=document.createElement("div");
     div.className="card";
-    div.innerHTML='<div class="thumb '+(has?'':'empty')+'">'+(has?'<img src="'+item["Image"]+'" onerror="this.parentElement.innerHTML=\'❌ Broken URL\'">':"📷 No Image")+'</div><div class="info"><div class="title">'+(item["Item Name"]||"")+'</div><div class="meta">'+(item["Brand"]||"")+' • '+(item["Unique ID"]||"")+'</div><div class="meta">'+(item["SKU/Item Number"]||"")+'</div><div class="actions"><button class="btn btn-up">📤 Upload</button><button class="btn btn-url">🔗 URL</button></div></div>';
+    div.innerHTML='<div class="thumb '+(has?'':'empty')+'">'+(has?'<img src="'+disp+'" onerror="this.parentElement.innerHTML=\'❌ Broken URL<br><span style=\\\'font-size:9px\\\'\\>'+disp.slice(0,30)+'</span>\'">' :"📷 No Image")+'</div><div class="info"><div class="title">'+(item["Item Name"]||"")+'</div><div class="meta">'+(item["Brand"]||"")+' • '+(item["Unique ID"]||"")+'</div><div class="meta">'+(item["SKU/Item Number"]||"")+'</div><div class="actions"><button class="btn btn-up">📤 Upload</button><button class="btn btn-url">🔗 URL</button></div></div>';
     div.querySelector(".btn-up").onclick=()=>openModal(item,false);
     div.querySelector(".btn-url").onclick=()=>openModal(item,true);
     grid.appendChild(div);
@@ -103,9 +115,10 @@ let pendingFile=null;
 function openModal(item, focusUrl){
   current=item;
   document.getElementById("mTitle").textContent=item["Item Name"]||"Upload";
-  document.getElementById("mMeta").textContent=(item["Brand"]||"")+" • "+(item["Unique ID"]||"")+" • Current: "+((item["Image"]||"").slice(0,40)||"none");
-  document.getElementById("preview").innerHTML= item["Image"]? '<img src="'+item["Image"]+'">' : '<span style="color:#475569;font-size:12px">No preview</span>';
-  document.getElementById("urlInput").value=item["Image"]||"";
+  document.getElementById("mMeta").textContent=(item["Brand"]||"")+" • "+(item["Unique ID"]||"")+" • Current: "+((item["Image"]||"").slice(0,50)||"none");
+  let curThumb = item["Image"]? toThumb(item["Image"]) : "";
+  document.getElementById("preview").innerHTML= curThumb? '<img src="'+curThumb+'">' : '<span style="color:#475569;font-size:12px">No preview</span>';
+  document.getElementById("urlInput").value=curThumb||"";
   document.getElementById("fileInput").value="";
   pendingFile=null;
   document.getElementById("modal").classList.add("open");
@@ -122,23 +135,24 @@ document.getElementById("fileInput").addEventListener("change",function(e){
 });
 
 document.getElementById("urlInput").addEventListener("input",function(){
-  let url=this.value.trim();
+  let url=toThumb(this.value.trim());
   if(url) document.getElementById("preview").innerHTML='<img src="'+url+'" onerror="this.parentElement.innerHTML=\'Invalid URL\'">';
 });
 
 document.getElementById("uploadBtn").addEventListener("click",async function(){
   if(!current) return;
-  let urlInput=document.getElementById("urlInput").value.trim();
+  let urlInput=toThumb(document.getElementById("urlInput").value.trim());
   let btn=this; btn.disabled=true; btn.textContent="Uploading...";
   try{
     if(pendingFile){
       let b64=await fileToBase64(pendingFile);
-      let payload={action:"uploadImage","Unique ID":current["Unique ID"],fileName:pendingFile.name,mimeType:pendingFile.type,data:b64};
+      let payload={action:"uploadImage","Unique ID":current["Unique ID"],fileName:pendingFile.name,mimeType:pendingFile.type,data:[STRIPPED]
       let res=await fetch(API_URL+"?action=uploadImage",{method:"POST",body:JSON.stringify(payload),headers:{"Content-Type":"text/plain;charset=utf-8"}});
       let j=await res.json();
       if(!j.ok) throw new Error(j.error||"Upload failed");
-      current["Image"]=j.url;
-      showToast("Uploaded! ✓");
+      let finalUrl=toThumb(j.url||j.viewUrl||"");
+      current["Image"]=finalUrl;
+      showToast("Uploaded! ✓ "+finalUrl.slice(0,30));
     }else if(urlInput){
       let payload={action:"setImageUrl","Unique ID":current["Unique ID"],url:urlInput};
       let res=await fetch(API_URL+"?action=setImageUrl",{method:"POST",body:JSON.stringify(payload),headers:{"Content-Type":"text/plain;charset=utf-8"}});
@@ -161,7 +175,6 @@ function fileToBase64(file){
   });
 }
 
-// bulk
 document.getElementById("bulkDrop").addEventListener("click",()=>document.getElementById("bulkFiles").click());
 document.getElementById("bulkDrop").addEventListener("dragover",e=>{ e.preventDefault(); e.currentTarget.classList.add("dragover"); });
 document.getElementById("bulkDrop").addEventListener("dragleave",e=>e.currentTarget.classList.remove("dragover"));
@@ -175,23 +188,35 @@ async function handleBulk(fileList){
   let files=Array.from(fileList);
   showToast("Bulk uploading "+files.length+" files...");
   for(let f of files){
-    // try to match by Unique ID in filename
     let name=f.name.toLowerCase();
     let matched=all.find(o=> name.includes(String(o["Unique ID"]||"").toLowerCase()) || name.includes(String(o["SKU/Item Number"]||"").toLowerCase()));
     if(!matched){ console.log("No match for",f.name); continue; }
     let b64=await fileToBase64(f);
-    let payload={action:"uploadImage","Unique ID":matched["Unique ID"],fileName:f.name,mimeType:f.type,data:b64};
+    let payload={action:"uploadImage","Unique ID":matched["Unique ID"],fileName:f.name,mimeType:f.type,data:[STRIPPED]
     try{
       let res=await fetch(API_URL+"?action=uploadImage",{method:"POST",body:JSON.stringify(payload),headers:{"Content-Type":"text/plain;charset=utf-8"}});
       let j=await res.json();
-      if(j.ok) matched["Image"]=j.url;
+      if(j.ok) matched["Image"]=toThumb(j.url);
     }catch(err){ console.error(err); }
   }
   render(); showToast("Bulk done! ✓");
 }
 
+async function fixAllOldUrls(){
+  let old=all.filter(o=> (o["Image"]||"").includes("uc?export=view"));
+  if(old.length===0){ showToast("No old URLs"); return; }
+  showToast("Fixing "+old.length+" old URLs...");
+  for(let o of old){
+    let fixed=toThumb(o["Image"]);
+    let payload={action:"setImageUrl","Unique ID":o["Unique ID"],url:fixed};
+    await fetch(API_URL+"?action=setImageUrl",{method:"POST",body:JSON.stringify(payload),headers:{"Content-Type":"text/plain;charset=utf-8"}});
+    o["Image"]=fixed;
+  }
+  render(); showToast("Fixed "+old.length+" URLs ✓");
+}
+
 document.getElementById("search").addEventListener("input",render);
-document.querySelectorAll(".filter").forEach(b=>b.addEventListener("click",function(){ document.querySelectorAll(".filter").forEach(x=>x.classList.remove("active")); this.classList.add("active"); filter=this.dataset.f; render(); }));
+document.querySelectorAll(".filter").forEach(b=>b.addEventListener("click",function(){ if(this.textContent.includes("Fix")) return; document.querySelectorAll(".filter").forEach(x=>{ if(!x.textContent.includes("Fix")) x.classList.remove("active"); }); this.classList.add("active"); filter=this.dataset.f; render(); }));
 function showToast(m,isErr){ let t=document.getElementById("toast"); t.textContent=m; t.className="toast show"+(isErr?" err":""); setTimeout(()=>t.classList.remove("show"),3000); }
 
 load();
