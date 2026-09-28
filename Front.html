@@ -23,8 +23,7 @@
 .products{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:18px}
 .card{background:#111827;border-radius:18px;border:1px solid rgba(255,255,255,.08);overflow:hidden;box-shadow:0 15px 35px rgba(0,0,0,.3);transition:.25s;display:flex;flex-direction:column}
 .card:hover{transform:translateY(-5px);box-shadow:0 25px 50px rgba(0,0,0,.45);border-color:rgba(37,99,235,.25)}
-.product-img{width:100%;height:170px;object-fit:cover;background:linear-gradient(135deg,#0b1220,#1e293b);display:block;transition:transform.4s}
-.card:hover.product-img{transform:scale(1.04)}
+.product-img{width:100%;height:170px;object-fit:cover;background:linear-gradient(135deg,#0b1220,#1e293b);display:block}
 .img-wrap{overflow:hidden;background:#020617;position:relative}
 .img-wrap::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(0,0,0,.4))}
 .card-content{padding:18px;display:flex;flex-direction:column;flex:1}
@@ -35,7 +34,6 @@
 .meta{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
 .stock{display:inline-flex;align-items:center;gap:6px;background:#166534;padding:6px 10px;border-radius:8px;font-size:12px;font-weight:700}
 .stock.out{background:#991b1b}
-.weight{background:rgba(255,255,255,.06);padding:6px 10px;border-radius:8px;font-size:11px}
 .promo{background:#dc2626;padding:8px 10px;border-radius:8px;text-align:center;font-weight:700;margin-top:10px;font-size:12px;letter-spacing:.02em}
 .card-buttons{display:flex;gap:10px;margin-top:auto;padding-top:16px}
 .card-buttons a{text-decoration:none;text-align:center;padding:11px;border-radius:10px;font-weight:700;color:white;font-size:13px;flex:1;transition:.2s}
@@ -50,56 +48,98 @@
 </style>
 </head>
 <body>
-<div class="store-header"><div><h1>🏷 Gear Store</h1><p>Used & restored equipment marketplace — search, filter, and sell</p></div><div class="header-right"><div class="count-badge" id="count">0 Items</div><button class="view-btn active" id="gridBtn">Grid</button><button class="view-btn" id="listBtn">List</button></div></div>
+<div class="store-header"><div><h1>🏷 Gear Store</h1><p>Used & restored equipment marketplace — now on JSON backend</p></div><div class="header-right"><div class="count-badge" id="count">0 Items</div><button class="view-btn active" id="gridBtn">Grid</button><button class="view-btn" id="listBtn">List</button></div></div>
 <div class="controls"><div class="search-wrap"><span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);opacity:.5">🔍</span><input id="searchInput" placeholder="Search gear... name, brand, category, model"></div><select id="sortSelect"><option value="name-asc">Name A-Z</option><option value="price-asc">Price ↑ Low-High</option><option value="price-desc">Price ↓ High-Low</option><option value="stock-desc">Stock High-Low</option><option value="newest">Newest</option></select></div>
 <div class="filters" id="filters"><div class="pill active" data-filter="all">All</div><div class="pill" data-filter="instock">In Stock</div><div class="pill" data-filter="promo">Promo</div><div class="pill" data-filter="under100">Under $100</div></div>
-<div id="status">Loading inventory...</div>
+<div id="status">Loading inventory from new backend...</div>
 <div id="productsContainer" class="products"></div>
 <div class="modal" id="modal"><div class="modal-box" id="modalBox"></div></div>
+
 <script>
-const csvFilePath='https://script.google.com/macros/s/AKfycbzDCfZokdDHryVxtuVOuvTb6XUfnMR66_8Xwym3QzaSWgKooI0865_JPtTi0hJ_GDQr/exec';
+const API_URL="https://script.google.com/macros/s/AKfycbzDCfZokdDHryVxtuVOuvTb6XUfnMR66_8Xwym3QzaSWgKooI0865_JPtTi0hJ_GDQr/exec";
 let products=[],filtered=[],activeFilter='all';
-function csvSplit(row){let r=[],c="",q=false;for(let ch of row){if(ch=='"')q=!q;else if(ch==','&&!q){r.push(c);c="";}else c+=ch;}r.push(c);return r;}
-function parseCSV(data){
- products=[]; data.split(/\r?\n/).slice(1).forEach(row=>{ if(!row.trim()) return; let c=csvSplit(row); products.push({itemName:(c[1]||"Unnamed").replace(/"/g,""),category:c[2]||"",brand:c[3]||"",model:c[4]||"",condition:c[6]||"",description:c[7]||"",stock:Number(c[16])||0,promo:c[19]||"",weight:c[20]||"",price:Number(c[22])||0,image:c[29]||"",raw:c}); });
- applyFilters();
+
+async function loadFromBackend(){
+  document.getElementById("productsContainer").innerHTML='<div class="skeleton"></div><div class="skeleton"></div>';
+  try{
+    const res=await fetch(API_URL+"?action=read",{method:"GET"});
+    const json=await res.json();
+    // New backend returns {data:[{Timestamp, "Item Name", Category, Brand...}]}
+    products=json.data.map(p=>({
+      itemName: p["Item Name"] || "Unnamed",
+      category: p["Category"] || "",
+      brand: p["Brand"] || "",
+      model: p["Model/Series"] || "",
+      condition: p["Condition"] || "",
+      description: p["Description"] || "",
+      stock: Number(p["Stock Level"]||0),
+      promo: p["Promo"] || "",
+      weight: p["Weight"] || "",
+      price: Number(p["Purchase Price"]||p["Selling Price"]||0),
+      image: p["Image"] || "",
+      sku: p["SKU/Item Number"] || "",
+      uniqueId: p["Unique ID"] || "",
+      raw: p
+    }));
+    applyFilters();
+    document.getElementById("status").style.display="none";
+  }catch(err){
+    console.error(err);
+    document.getElementById("status").innerHTML="❌ Failed loading from new backend. Check Web App deployed as Anyone.<br><small>"+err+"</small>";
+  }
 }
+
 function applyFilters(){
- let q=document.getElementById("searchInput").value.toLowerCase();
- filtered=products.filter(p=>{
-   let matchSearch=!q||`${p.itemName} ${p.brand} ${p.category} ${p.model}`.toLowerCase().includes(q);
-   if(!matchSearch) return false;
-   if(activeFilter==='instock') return p.stock>0;
-   if(activeFilter==='promo') return!!p.promo;
-   if(activeFilter==='under100') return p.price>0&&p.price<100;
-   return true;
- });
- sortAndDisplay();
+  const q=document.getElementById("searchInput").value.toLowerCase();
+  filtered=products.filter(p=>{
+    const matchSearch=!q || `${p.itemName} ${p.brand} ${p.category} ${p.model} ${p.sku}`.toLowerCase().includes(q);
+    if(!matchSearch) return false;
+    if(activeFilter==='instock') return p.stock>0;
+    if(activeFilter==='promo') return !!p.promo;
+    if(activeFilter==='under100') return p.price>0 && p.price<100;
+    return true;
+  });
+  sortAndDisplay();
 }
+
 function sortAndDisplay(){
- let [type][order]=document.getElementById("sortSelect").value.split("-");
- let list=[...filtered];
- if(type==='name') list.sort((a,b)=>a.itemName.localeCompare(b.itemName));
- if(type==='price') list.sort((a,b)=>order==='asc'?a.price-b.price:b.price-a.price);
- if(type==='stock') list.sort((a,b)=>b.stock-a.stock);
- displayProducts(list);
+  const val=document.getElementById("sortSelect").value;
+  const [type,order]=val.split("-");
+  let list=[...filtered];
+  if(type==='name') list.sort((a,b)=> order==='asc' ? a.itemName.localeCompare(b.itemName) : b.itemName.localeCompare(a.itemName));
+  if(type==='price') list.sort((a,b)=> order==='asc' ? a.price-b.price : b.price-a.price);
+  if(type==='stock') list.sort((a,b)=> b.stock-a.stock);
+  if(type==='newest') list.sort((a,b)=> (b.raw.Timestamp||"").localeCompare(a.raw.Timestamp||""));
+  displayProducts(list);
 }
+
 function displayProducts(list){
- let container=document.getElementById("productsContainer"); container.innerHTML="";
- document.getElementById("count").textContent=list.length+" Items";
- document.getElementById("status").style.display=list.length?"none":"block";
- if(!list.length&&products.length) document.getElementById("status").textContent="No matches — try different search";
- list.forEach((p,i)=>{
-  let card=document.createElement("div"); card.className="card";
-  card.innerHTML=`<div class="img-wrap">${p.image?`<img class="product-img" src="${p.image}" onerror="this.style.display='none'" loading="lazy">`:`<div style="height:170px;display:grid;place-items:center;color:#475569">No Image</div>`}</div><div class="card-content"><h3>${p.itemName}</h3><div class="info"><b>Brand:</b> ${p.brand||'—'} · <b>Model:</b> ${p.model||'—'}<br><b>Category:</b> ${(p.category||'').split("//").pop()||p.category}<br><b>Condition:</b> ${p.condition||'—'}</div><div class="desc">${p.description||'No description available'}</div><div class="price">${p.price?`$${p.price.toFixed(2)}`:'Contact'}</div><div class="meta"><span class="stock ${p.stock?'':'out'}">${p.stock?`In Stock: ${p.stock}`:'Out of Stock'}</span>${p.weight?`<span class="weight">${p.weight}</span>`:''}</div>${p.promo?`<div class="promo">🔥 ${p.promo}</div>`:''}<div class="card-buttons"><a class="google-btn" target="_blank" href="https://www.google.com/search?tbm=isch&q=${encodeURIComponent(p.itemName+' '+p.brand)}">🔍 Images</a><a class="fb-btn" target="_blank" href="https://www.facebook.com/marketplace/la/search/?query=${encodeURIComponent(p.itemName)}">f</a></div></div>`;
-  card.onclick=(e)=>{ if(e.target.tagName==='A') return; openModal(p); };
-  container.appendChild(card);
- });
+  const container=document.getElementById("productsContainer");
+  container.innerHTML="";
+  document.getElementById("count").textContent=list.length+" Items";
+  document.getElementById("status").style.display=list.length?"none":"block";
+  if(!list.length && products.length) document.getElementById("status").textContent="No matches — try different search";
+  list.forEach(p=>{
+    const card=document.createElement("div"); card.className="card";
+    card.innerHTML=`<div class="img-wrap">${p.image?`<img class="product-img" src="${p.image}" onerror="this.parentElement.innerHTML='<div style=\\'height:170px;display:grid;place-items:center;color:#475569\\'>No Image</div>'" loading="lazy">`:`<div style="height:170px;display:grid;place-items:center;color:#475569">No Image</div>`}</div>
+    <div class="card-content">
+      <h3>${p.itemName}</h3>
+      <div class="info"><b>Brand:</b> ${p.brand||'—'} · <b>Model:</b> ${p.model||'—'}<br><b>Category:</b> ${(p.category||'').split("//").pop()||p.category}<br><b>SKU:</b> ${p.sku||'—'} · <b>Condition:</b> ${p.condition||'—'}</div>
+      <div class="desc">${p.description||'No description available'}</div>
+      <div class="price">${p.price?`$${p.price.toFixed(2)}`:'Contact'}</div>
+      <div class="meta"><span class="stock ${p.stock?'':'out'}">${p.stock?`In Stock: ${p.stock}`:'Out of Stock'}</span>${p.weight?`<span class="weight" style="background:rgba(255,255,255,.06);padding:6px 10px;border-radius:8px;font-size:11px">${p.weight}</span>`:''}</div>
+      ${p.promo?`<div class="promo">🔥 ${p.promo}</div>`:''}
+      <div class="card-buttons"><a class="google-btn" target="_blank" href="https://www.google.com/search?tbm=isch&q=${encodeURIComponent(p.itemName+' '+p.brand)}">🔍 Images</a><a class="fb-btn" target="_blank" href="https://www.facebook.com/marketplace/la/search/?query=${encodeURIComponent(p.itemName)}">f</a></div>
+    </div>`;
+    card.addEventListener("click",(e)=>{ if(e.target.tagName==='A') return; openModal(p); });
+    container.appendChild(card);
+  });
 }
+
 function openModal(p){
- const m=document.getElementById("modal"),box=document.getElementById("modalBox");
- box.innerHTML=`<div style="padding:20px"><div style="display:flex;justify-content:space-between;align-items:start;gap:12px"><h2 style="margin:0;color:#60a5fa">${p.itemName}</h2><button onclick="document.getElementById('modal').classList.remove('open')" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.1);color:white;border-radius:8px;padding:8px 12px;cursor:pointer">✕</button></div><div style="margin:12px 0">${p.image?`<img src="${p.image}" style="width:100%;max-height:320px;object-fit:cover;border-radius:12px">`:''}</div><p style="color:#cbd5e1;line-height:1.6">${p.description||''}</p><div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px;color:#94a3b8"><div><b style="color:white">Brand</b><br>${p.brand}</div><div><b style="color:white">Model</b><br>${p.model}</div><div><b style="color:white">Condition</b><br>${p.condition}</div><div><b style="color:white">Price</b><br><span style="color:#22c55e;font-weight:800;font-size:18px">$${p.price.toFixed(2)}</span></div></div></div>`;
- m.classList.add("open");
+  const m=document.getElementById("modal"),box=document.getElementById("modalBox");
+  box.innerHTML=`<div style="padding:20px"><div style="display:flex;justify-content:space-between;align-items:start;gap:12px"><h2 style="margin:0;color:#60a5fa;line-height:1.2">${p.itemName}</h2><button onclick="document.getElementById('modal').classList.remove('open')" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.1);color:white;border-radius:8px;padding:8px 12px;cursor:pointer">✕</button></div><div style="margin:12px 0">${p.image?`<img src="${p.image}" style="width:100%;max-height:320px;object-fit:cover;border-radius:12px">`:''}</div><p style="color:#cbd5e1;line-height:1.6">${p.description||''}</p><div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px;color:#94a3b8"><div><b style="color:white">Brand</b><br>${p.brand}</div><div><b style="color:white">Model</b><br>${p.model}</div><div><b style="color:white">Condition</b><br>${p.condition}</div><div><b style="color:white">Price</b><br><span style="color:#22c55e;font-weight:800;font-size:18px">$${p.price.toFixed(2)}</span></div><div><b style="color:white">Unique ID</b><br>${p.uniqueId}</div><div><b style="color:white">SKU</b><br>${p.sku}</div></div></div>`;
+  m.classList.add("open");
 }
 document.getElementById("modal").onclick=(e)=>{ if(e.target.id==='modal') e.target.classList.remove("open"); };
 document.getElementById("searchInput").addEventListener("input",applyFilters);
@@ -107,9 +147,8 @@ document.getElementById("sortSelect").addEventListener("change",sortAndDisplay);
 document.querySelectorAll(".pill").forEach(p=>p.addEventListener("click",function(){ document.querySelectorAll(".pill").forEach(x=>x.classList.remove("active")); this.classList.add("active"); activeFilter=this.dataset.filter; applyFilters(); }));
 document.getElementById("gridBtn").onclick=()=>{ document.getElementById("productsContainer").style.gridTemplateColumns="repeat(auto-fill,minmax(270px,1fr))"; document.getElementById("gridBtn").classList.add("active"); document.getElementById("listBtn").classList.remove("active"); };
 document.getElementById("listBtn").onclick=()=>{ document.getElementById("productsContainer").style.gridTemplateColumns="1fr"; document.getElementById("listBtn").classList.add("active"); document.getElementById("gridBtn").classList.remove("active"); };
-// skeleton
-document.getElementById("productsContainer").innerHTML='<div class="skeleton"></div><div class="skeleton"></div>';
-fetch(csvFilePath).then(r=>r.text()).then(parseCSV).catch(()=>{ document.getElementById("status").innerHTML="❌ Failed loading — using demo data"; parseCSV(`a,Test Fan,Tools//Fans,Emerson,1950,N/A,Good,Restored fan,2023,Source,50,ID,10,2024,Tech,None,5,LA,2024,,10lbs,Notes,120,,,,,,https://via.placeholder.com/400`); });
+
+loadFromBackend();
 </script>
 </body>
 </html>
