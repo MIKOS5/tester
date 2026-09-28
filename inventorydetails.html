@@ -2,40 +2,56 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Inventory Details — Complete Database</title>
+<title>Inventory Details — Editable</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box}body{margin:0;padding:20px;font-family:Inter,sans-serif;background:#0f172a;color:white}
-.page-header{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px;backdrop-filter:blur(18px)}
-.page-header h1{margin:0;font-size:26px;letter-spacing:-.02em}.page-header p{color:#94a3b8;margin-top:6px;font-size:13px}
-.header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.page-header{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px}
+.page-header h1{margin:0;font-size:26px}.page-header p{color:#94a3b8;margin-top:6px;font-size:13px}
 .count-badge{background:#2563eb;padding:10px 16px;border-radius:999px;font-weight:700;font-size:13px}
-#searchInput{padding:12px 16px 12px 40px;background:#1e293b;border:1px solid rgba(255,255,255,.1);border-radius:12px;color:white;font-size:14px;min-width:320px;outline:none}
+#searchInput{padding:12px 16px 12px 40px;background:#1e293b;border:1px solid rgba(255,255,255,.1);border-radius:12px;color:white;font-size:14px;min-width:300px;outline:none}
 #searchInput:focus{border-color:#2563eb;box-shadow:0 0 0 4px rgba(37,99,235,.2)}
 .search-wrap{position:relative}
-.table-wrap{background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:18px;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,.35)}
-.table-scroll{overflow:auto;max-height:75vh}
-table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:1200px}
-thead th{position:sticky;top:0;background:#1e293b;color:#60a5fa;text-transform:uppercase;letter-spacing:.04em;font-size:11px;padding:12px 10px;text-align:left;z-index:2;border-bottom:1px solid rgba(255,255,255,.1);white-space:nowrap;cursor:pointer}
-thead th:hover{color:white}
-tbody td{padding:10px;border-bottom:1px solid rgba(255,255,255,.06);color:#cbd5e1;white-space:nowrap;max-width:260px;overflow:hidden;text-overflow:ellipsis}
+.table-wrap{background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:18px;overflow:hidden}
+.table-scroll{overflow:auto;max-height:70vh}
+table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:1500px}
+thead th{position:sticky;top:0;background:#1e293b;color:#60a5fa;text-transform:uppercase;font-size:11px;padding:12px 10px;text-align:left;z-index:2;border-bottom:1px solid rgba(255,255,255,.1);white-space:nowrap;cursor:pointer}
+tbody td{padding:10px;border-bottom:1px solid rgba(255,255,255,.06);color:#cbd5e1;white-space:nowrap;max-width:240px;overflow:hidden;text-overflow:ellipsis}
 tbody tr:hover{background:rgba(37,99,235,.08)}
-.badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:600}
-.badge.green{background:#166534;color:#bbf7d0}.badge.blue{background:rgba(37,99,235,.2);color:#bfdbfe;border:1px solid rgba(37,99,235,.3)}
+.badge{padding:4px 8px;border-radius:999px;font-size:11px;font-weight:600}.badge.green{background:#166534;color:#bbf7d0}.badge.blue{background:rgba(37,99,235,.2);color:#bfdbfe;border:1px solid rgba(37,99,235,.3)}
+.edit-btn{background:#2563eb;border:none;color:white;padding:6px 12px;border-radius:8px;font-weight:700;cursor:pointer;font-size:11px}
+.edit-btn:hover{background:#3b82f6}
 #status{text-align:center;padding:40px;color:#94a3b8}
-@media(max-width:900px){body{padding:12px}#searchInput{min-width:220px}}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(10px);display:none;place-items:center;z-index:100;padding:20px}
+.modal.open{display:grid}
+.modal-box{background:#111827;border:1px solid rgba(255,255,255,.1);border-radius:18px;max-width:900px;width:100%;max-height:90vh;overflow:auto;padding:22px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px} @media(max-width:700px){.grid{grid-template-columns:1fr}}
+label{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#94a3b8;font-weight:600;margin-bottom:4px;display:block}
+input,textarea,select{width:100%;padding:11px 12px;background:#1e293b;border:1px solid rgba(255,255,255,.1);border-radius:10px;color:white;font-size:13px;outline:none}
+input:focus,textarea:focus{border-color:#2563eb}
+.actions{display:flex;gap:10px;margin-top:16px;justify-content:flex-end}
+.btn{padding:12px 18px;border-radius:10px;font-weight:700;border:none;cursor:pointer}
+.btn-save{background:#2563eb;color:white}.btn-cancel{background:rgba(255,255,255,.08);color:#cbd5e1;border:1px solid rgba(255,255,255,.1)}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#22c55e;color:white;padding:12px 18px;border-radius:999px;font-weight:700;display:none;z-index:200}
+.toast.show{display:block}.toast.err{background:#dc2626}
 </style>
 </head>
 <body>
-<div class="page-header"><div><h1>📋 Inventory Details</h1><p>Complete equipment database — 30 columns, live from JSON backend</p></div><div class="header-right"><div class="count-badge" id="count">0 Items</div><div class="search-wrap"><span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);opacity:.5">🔍</span><input id="searchInput" placeholder="Search any field... name, SKU, ID, category"></div></div></div>
-<div id="status">Loading complete database...</div>
+<div class="page-header"><div><h1>📋 Inventory Details — Editable</h1><p>Click Edit to update • Saves to Google Sheet instantly</p></div><div style="display:flex;gap:10px;align-items:center"><div class="count-badge" id="count">0 Items</div><div class="search-wrap"><span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);opacity:.5">🔍</span><input id="searchInput" placeholder="Search..."></div></div></div>
+<div id="status">Loading editable database...</div>
 <div class="table-wrap"><div class="table-scroll"><table id="inventoryTable"><thead><tr id="theadRow"></tr></thead><tbody></tbody></table></div></div>
+
+<div class="modal" id="editModal"><div class="modal-box">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><h3 style="margin:0">Edit Item</h3><button class="btn btn-cancel" onclick="closeModal()">✕</button></div>
+<form id="editForm"><div class="grid" id="editGrid"></div><div class="actions"><button type="button" class="btn btn-cancel" onclick="closeModal()">Cancel</button><button type="submit" class="btn btn-save" id="saveBtn">Save Changes →</button></div></form>
+<div style="margin-top:12px;font-size:11px;color:#64748b">Unique ID is locked • Timestamp auto-preserved</div>
+</div></div>
+<div class="toast" id="toast"></div>
 
 <script>
 const API_URL="https://script.google.com/macros/s/AKfycbzDCfZokdDHryVxtuVOuvTb6XUfnMR66_8Xwym3QzaSWgKooI0865_JPtTi0hJ_GDQr/exec";
-let allData=[]; let sortKey=""; let sortAsc=true;
-
-const KEY_COLS=["Timestamp","Item Name","Category","Brand","Model/Series","SKU/Item Number","Condition","Purchase Price","Stock Level","Unique ID","Source","Description"];
+let allData=[], currentEdit=null;
+const EDITABLE=["Item Name","Category","Brand","Model/Series","SKU/Item Number","Condition","Description","Purchase Date","Source","Purchase Price","Stock Level","Location","Promo","Weight","Notes","Selling Price","Date Sold","Sales Channel","Image","Special Notes"];
 
 async function load(){
   try{
@@ -46,72 +62,84 @@ async function load(){
     render(allData);
     document.getElementById("count").textContent=allData.length+" Items";
     document.getElementById("status").style.display="none";
-  }catch(e){
-    console.error(e);
-    document.getElementById("status").innerHTML="❌ Failed loading. Make sure Web App is Anyone.<br><small>"+e+"</small>";
-  }
+  }catch(e){ document.getElementById("status").innerHTML="❌ Failed loading<br><small>"+e+"</small>"; }
 }
-
 function buildHeader(sample){
   const thead=document.getElementById("theadRow");
-  // Use your 30 headers in order, but prioritize KEY_COLS first
-  const headers=Object.keys(sample);
-  const ordered=[...KEY_COLS.filter(k=>headers.includes(k)),...headers.filter(h=>!KEY_COLS.includes(h))];
-  thead.innerHTML=ordered.map(h=>`<th data-key="${h}">${h} ↕</th>`).join("");
-  thead.querySelectorAll("th").forEach(th=>{
-    th.addEventListener("click",()=>{
-      const k=th.dataset.key;
-      if(sortKey===k) sortAsc=!sortAsc; else { sortKey=k; sortAsc=true; }
-      sortAndRender();
-    });
-  });
+  const headers=["","Item Name","Brand","Model/Series","SKU/Item Number","Category","Condition","Purchase Price","Stock Level","Unique ID","Source"];
+  thead.innerHTML=headers.map(h=>h===""?`<th>Action</th>`:`<th data-key="${h}">${h} ↕</th>`).join("");
 }
-
-function sortAndRender(){
-  if(!sortKey){ render(allData); return; }
-  const sorted=[...allData].sort((a,b)=>{
-    let va=a[sortKey]; let vb=b[sortKey];
-    if(typeof va==="string") va=va.toLowerCase();
-    if(typeof vb==="string") vb=vb.toLowerCase();
-    if(va<vb) return sortAsc?-1:1;
-    if(va>vb) return sortAsc?1:-1;
-    return 0;
-  });
-  render(sorted);
-}
-
 function render(data){
   const tbody=document.querySelector("#inventoryTable tbody");
   tbody.innerHTML="";
-  const headers=[...document.querySelectorAll("#theadRow th")].map(th=>th.dataset.key);
   data.forEach(item=>{
     const tr=document.createElement("tr");
-    tr.innerHTML=headers.map(k=>{
-      let v=item[k];
-      if(v===undefined||v===null||v==="") return `<td style="color:#475569">—</td>`;
-      if(k.toLowerCase().includes("timestamp")||k.toLowerCase().includes("date")){
-        try{ const d=new Date(v); if(!isNaN(d)) v=d.toLocaleDateString(); }catch(e){}
-      }
-      if(k==="Purchase Price"||k==="Selling Price"){ v="$"+Number(v).toFixed(2); return `<td><span class="badge green">${v}</span></td>`; }
-      if(k==="Category"){ const leaf=String(v).split("//").pop(); return `<td title="${v}">${leaf}</td>`; }
-      if(k==="Condition"){ return `<td><span class="badge blue">${v}</span></td>`; }
-      return `<td title="${String(v).replace(/"/g,'')}">${String(v).slice(0,120)}</td>`;
-    }).join("");
+    tr.innerHTML=`
+      <td><button class="edit-btn" onclick='openEdit(${JSON.stringify(item["Unique ID"])})'>✏️ Edit</button></td>
+      <td><b style="color:white">${(item["Item Name"]||"").slice(0,40)}</b></td>
+      <td>${item["Brand"]||""}</td>
+      <td>${item["Model/Series"]||""}</td>
+      <td>${item["SKU/Item Number"]||""}</td>
+      <td title="${item["Category"]||""}">${(item["Category"]||"").split("//").pop()||""}</td>
+      <td><span class="badge blue">${item["Condition"]||""}</span></td>
+      <td><span class="badge green">$${Number(item["Purchase Price"]||0).toFixed(2)}</span></td>
+      <td>${item["Stock Level"]||0}</td>
+      <td style="font-size:11px;color:#60a5fa">${item["Unique ID"]||""}</td>
+      <td>${item["Source"]||""}</td>
+    `;
     tbody.appendChild(tr);
   });
-  if(!data.length){
-    tbody.innerHTML=`<tr><td colspan="100" style="text-align:center;padding:30px;color:#94a3b8">No matching records</td></tr>`;
-  }
 }
+window.openEdit=(uid)=>{
+  const item=allData.find(x=>String(x["Unique ID"])===String(uid));
+  if(!item) return;
+  currentEdit=item;
+  const grid=document.getElementById("editGrid");
+  grid.innerHTML="";
+  EDITABLE.forEach(k=>{
+    const v=item[k]||"";
+    grid.innerHTML+=`<div><label>${k}</label>${k==="Description"||k==="Special Notes"||k==="Notes"?`<textarea name="${k}" rows="2">${v}</textarea>`:`<input name="${k}" value="${String(v).replace(/"/g,'&quot;')}">`}</div>`;
+  });
+  grid.innerHTML+=`<div><label>Unique ID (locked)</label><input value="${item["Unique ID"]}" disabled></div>`;
+  document.getElementById("editModal").classList.add("open");
+};
+window.closeModal=()=>{ document.getElementById("editModal").classList.remove("open"); currentEdit=null; };
 
-document.getElementById("searchInput").addEventListener("input",function(){
-  const q=this.value.toLowerCase();
-  if(!q){ render(allData); document.getElementById("count").textContent=allData.length+" Items"; return; }
-  const filtered=allData.filter(o=> JSON.stringify(o).toLowerCase().includes(q));
-  render(filtered);
-  document.getElementById("count").textContent=filtered.length+" / "+allData.length+" Items";
+document.getElementById("editForm").addEventListener("submit",async(e)=>{
+  e.preventDefault();
+  if(!currentEdit) return;
+  const fd=new FormData(e.target);
+  const payload={action:"update","Unique ID":currentEdit["Unique ID"]};
+  fd.forEach((v,k)=>payload[k]=v);
+  // parse numbers
+  if(payload["Purchase Price"]) payload["Purchase Price"]=parseFloat(payload["Purchase Price"])||0;
+  if(payload["Stock Level"]) payload["Stock Level"]=parseInt(payload["Stock Level"])||0;
+
+  const btn=document.getElementById("saveBtn"); btn.disabled=true; btn.textContent="Saving...";
+  try{
+    const res=await fetch(API_URL+"?action=update",{method:"POST",body:JSON.stringify(payload),headers:{"Content-Type":"text/plain;charset=utf-8"}});
+    const j=await res.json();
+    if(j.ok){
+      showToast("Saved! ✓");
+      // update local
+      Object.assign(currentEdit,payload);
+      render(filteredData());
+      closeModal();
+    }else throw new Error(j.error||"Failed");
+  }catch(err){ showToast("Error: "+err.message,true); }
+  finally{ btn.disabled=false; btn.textContent="Save Changes →"; }
 });
 
+function filteredData(){
+  const q=document.getElementById("searchInput").value.toLowerCase();
+  if(!q) return allData;
+  return allData.filter(o=> JSON.stringify(o).toLowerCase().includes(q));
+}
+document.getElementById("searchInput").addEventListener("input",()=>render(filteredData()));
+function showToast(msg,isErr){
+  const t=document.getElementById("toast"); t.textContent=msg; t.classList.toggle("err",!!isErr); t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),3000);
+}
+document.getElementById("editModal").addEventListener("click",(e)=>{ if(e.target.id==="editModal") closeModal(); });
 load();
 </script>
 </body>
