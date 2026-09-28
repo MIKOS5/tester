@@ -1,839 +1,115 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Gear Store</title>
-
-
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gear Store — For Sale</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-
-*{
-box-sizing:border-box;
-}
-
-
-body{
-
-margin:0;
-padding:20px;
-
-font-family:Inter,Arial,sans-serif;
-
-background:#0f172a;
-
-color:white;
-
-}
-
-
-/* Header */
-
-.store-header{
-
-display:flex;
-
-justify-content:space-between;
-
-align-items:center;
-
-margin-bottom:20px;
-
-background:rgba(255,255,255,.05);
-
-border:1px solid rgba(255,255,255,.08);
-
-border-radius:18px;
-
-padding:20px;
-
-}
-
-
-.store-header h1{
-
-margin:0;
-
-font-size:26px;
-
-}
-
-
-.store-header p{
-
-margin:6px 0 0;
-
-color:#94a3b8;
-
-}
-
-
-
-.count-badge{
-
-background:#2563eb;
-
-padding:10px 16px;
-
-border-radius:999px;
-
-font-weight:bold;
-
-}
-
-
-
-/* Controls */
-
-.controls{
-
-display:flex;
-
-gap:10px;
-
-flex-wrap:wrap;
-
-margin-bottom:20px;
-
-}
-
-
-#searchInput{
-
-flex:1;
-
-min-width:220px;
-
-background:#1e293b;
-
-border:1px solid rgba(255,255,255,.1);
-
-border-radius:12px;
-
-padding:13px 16px;
-
-color:white;
-
-font-size:14px;
-
-outline:none;
-
-}
-
-
-
-#searchInput:focus{
-
-border-color:#2563eb;
-
-}
-
-
-
-button{
-
-background:#2563eb;
-
-border:none;
-
-color:white;
-
-padding:10px 14px;
-
-border-radius:10px;
-
-font-weight:600;
-
-cursor:pointer;
-
-transition:.2s;
-
-}
-
-
-button:hover{
-
-background:#3b82f6;
-
-transform:translateY(-2px);
-
-}
-
-
-
-/* Grid */
-
-.products{
-
-display:grid;
-
-grid-template-columns:
-
-repeat(auto-fill,minmax(270px,1fr));
-
-gap:18px;
-
-}
-
-
-
-/* Card */
-
-
-.card{
-
-background:#111827;
-
-border-radius:18px;
-
-border:1px solid rgba(255,255,255,.08);
-
-overflow:hidden;
-
-box-shadow:0 15px 35px rgba(0,0,0,.3);
-
-transition:.25s;
-
-}
-
-
-.card:hover{
-
-transform:translateY(-5px);
-
-}
-
-
-
-.card-content{
-
-padding:18px;
-
-}
-
-
-
-.product-img{
-
-width:100%;
-
-height:170px;
-
-object-fit:cover;
-
-background:#020617;
-
-}
-
-
-
-.card h3{
-
-margin:0 0 12px;
-
-color:#60a5fa;
-
-font-size:19px;
-
-}
-
-
-
-.info{
-
-color:#cbd5e1;
-
-font-size:14px;
-
-line-height:1.5;
-
-}
-
-
-
-.price{
-
-font-size:24px;
-
-font-weight:700;
-
-color:#22c55e;
-
-margin:15px 0;
-
-}
-
-
-
-.stock{
-
-display:inline-block;
-
-background:#166534;
-
-padding:6px 10px;
-
-border-radius:8px;
-
-font-size:13px;
-
-font-weight:bold;
-
-}
-
-
-.out{
-
-background:#991b1b;
-
-}
-
-
-
-.promo{
-
-background:#dc2626;
-
-padding:8px;
-
-border-radius:8px;
-
-text-align:center;
-
-font-weight:bold;
-
-margin-top:12px;
-
-}
-
-
-
-/* Buttons */
-
-
-.card-buttons{
-
-display:flex;
-
-gap:10px;
-
-margin-top:18px;
-
-}
-
-
-.card-buttons a{
-
-text-decoration:none;
-
-text-align:center;
-
-padding:11px;
-
-border-radius:10px;
-
-font-weight:bold;
-
-color:white;
-
-}
-
-
-
-.google-btn{
-
-flex:1;
-
-background:#2563eb;
-
-}
-
-
-
-.fb-btn{
-
-background:#1877f2;
-
-padding-left:18px!important;
-
-padding-right:18px!important;
-
-}
-
-
-
-#status{
-
-text-align:center;
-
-padding:25px;
-
-color:#94a3b8;
-
-}
-
-
-
-/* Mobile */
-
-
-@media(max-width:700px){
-
-
-body{
-
-padding:12px;
-
-}
-
-
-.store-header{
-
-flex-direction:column;
-
-align-items:flex-start;
-
-gap:15px;
-
-}
-
-
-.controls{
-
-flex-direction:column;
-
-}
-
-
-button{
-
-width:100%;
-
-}
-
-
-}
-
+*{box-sizing:border-box}body{margin:0;padding:20px;font-family:Inter,sans-serif;background:#0f172a;color:white}
+.store-header{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px;backdrop-filter:blur(18px)}
+.store-header h1{margin:0;font-size:26px;letter-spacing:-.02em}.store-header p{margin:6px 0 0;color:#94a3b8;font-size:13px}
+.header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.count-badge{background:#2563eb;padding:10px 16px;border-radius:999px;font-weight:700;font-size:13px;box-shadow:0 8px 20px rgba(37,99,235,.3)}
+.view-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:#cbd5e1;padding:8px 12px;border-radius:10px;cursor:pointer;font-weight:600;font-size:13px}
+.view-btn.active{background:#2563eb;color:white;border-color:#2563eb}
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;align-items:center}
+.search-wrap{flex:1;min-width:260px;position:relative}
+#searchInput{width:100%;background:#1e293b;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:13px 16px 13px 40px;color:white;font-size:14px;outline:none}
+#searchInput:focus{border-color:#2563eb;box-shadow:0 0 0 4px rgba(37,99,235,.2)}
+#sortSelect{background:#1e293b;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px 14px;color:white;font-size:13px;font-weight:600;outline:none;cursor:pointer}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.pill{padding:7px 12px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);font-size:12px;font-weight:600;cursor:pointer;transition:.2s;color:#cbd5e1}
+.pill.active,.pill:hover{background:#2563eb;color:white;border-color:#2563eb}
+.products{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:18px}
+.card{background:#111827;border-radius:18px;border:1px solid rgba(255,255,255,.08);overflow:hidden;box-shadow:0 15px 35px rgba(0,0,0,.3);transition:.25s;display:flex;flex-direction:column}
+.card:hover{transform:translateY(-5px);box-shadow:0 25px 50px rgba(0,0,0,.45);border-color:rgba(37,99,235,.25)}
+.product-img{width:100%;height:170px;object-fit:cover;background:linear-gradient(135deg,#0b1220,#1e293b);display:block;transition:transform.4s}
+.card:hover.product-img{transform:scale(1.04)}
+.img-wrap{overflow:hidden;background:#020617;position:relative}
+.img-wrap::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(0,0,0,.4))}
+.card-content{padding:18px;display:flex;flex-direction:column;flex:1}
+.card h3{margin:0 0 10px;color:#60a5fa;font-size:18px;line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.info{color:#94a3b8;font-size:12.5px;line-height:1.6}.info b{color:#cbd5e1;font-weight:600}
+.desc{color:#cbd5e1;font-size:13px;line-height:1.5;margin:10px 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:40px}
+.price{font-size:24px;font-weight:800;color:#22c55e;margin:12px 0 8px;letter-spacing:-.02em}
+.meta{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.stock{display:inline-flex;align-items:center;gap:6px;background:#166534;padding:6px 10px;border-radius:8px;font-size:12px;font-weight:700}
+.stock.out{background:#991b1b}
+.weight{background:rgba(255,255,255,.06);padding:6px 10px;border-radius:8px;font-size:11px}
+.promo{background:#dc2626;padding:8px 10px;border-radius:8px;text-align:center;font-weight:700;margin-top:10px;font-size:12px;letter-spacing:.02em}
+.card-buttons{display:flex;gap:10px;margin-top:auto;padding-top:16px}
+.card-buttons a{text-decoration:none;text-align:center;padding:11px;border-radius:10px;font-weight:700;color:white;font-size:13px;flex:1;transition:.2s}
+.google-btn{background:#2563eb}.google-btn:hover{background:#3b82f6;transform:translateY(-1px)}
+.fb-btn{background:#1877f2;padding-left:14px!important;padding-right:14px!important}
+#status{text-align:center;padding:40px;color:#94a3b8}
+.skeleton{background:linear-gradient(90deg,#111827 25%,#1e293b 50%,#111827 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:18px;height:340px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);display:none;place-items:center;z-index:100;padding:20px}
+.modal.open{display:grid}.modal-box{background:#111827;border:1px solid rgba(255,255,255,.1);border-radius:20px;max-width:720px;width:100%;max-height:90vh;overflow:auto}
+@media(max-width:700px){body{padding:12px}.store-header{flex-direction:column;align-items:flex-start}.controls{flex-direction:column;align-items:stretch}}
 </style>
-
 </head>
-
-
 <body>
-
-
-
-<div class="store-header">
-
-<div>
-
-<h1>🏷️ Gear Store</h1>
-
-<p>Used & restored equipment marketplace</p>
-
-</div>
-
-
-<div class="count-badge" id="count">
-
-0 Items
-
-</div>
-
-
-</div>
-
-
-
-
-<div class="controls">
-
-
-<input 
-id="searchInput"
-placeholder="Search gear..."
->
-
-
-
-<button onclick="sortProducts('name','asc')">
-A-Z
-</button>
-
-
-<button onclick="sortProducts('price','asc')">
-Price ↑
-</button>
-
-
-<button onclick="sortProducts('price','desc')">
-Price ↓
-</button>
-
-
-<button onclick="sortProducts('stock','desc')">
-Stock
-</button>
-
-
-</div>
-
-
-
-<div id="status">
-Loading inventory...
-</div>
-
-
-
+<div class="store-header"><div><h1>🏷 Gear Store</h1><p>Used & restored equipment marketplace — search, filter, and sell</p></div><div class="header-right"><div class="count-badge" id="count">0 Items</div><button class="view-btn active" id="gridBtn">Grid</button><button class="view-btn" id="listBtn">List</button></div></div>
+<div class="controls"><div class="search-wrap"><span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);opacity:.5">🔍</span><input id="searchInput" placeholder="Search gear... name, brand, category, model"></div><select id="sortSelect"><option value="name-asc">Name A-Z</option><option value="price-asc">Price ↑ Low-High</option><option value="price-desc">Price ↓ High-Low</option><option value="stock-desc">Stock High-Low</option><option value="newest">Newest</option></select></div>
+<div class="filters" id="filters"><div class="pill active" data-filter="all">All</div><div class="pill" data-filter="instock">In Stock</div><div class="pill" data-filter="promo">Promo</div><div class="pill" data-filter="under100">Under $100</div></div>
+<div id="status">Loading inventory...</div>
 <div id="productsContainer" class="products"></div>
-
-
-
-
+<div class="modal" id="modal"><div class="modal-box" id="modalBox"></div></div>
 <script>
-
-
-const csvFilePath =
-'https://script.google.com/macros/s/AKfycbw2ygas7GeNtrOUSVo2L8xMe3pHHyYZmHS936xmude6D70z6byyFnIaQtd1aOqSPl-ueg/exec';
-
-
-
-let products=[];
-
-
-
-function csvSplit(row){
-
-let result=[];
-
-let current="";
-
-let quote=false;
-
-
-for(let c of row){
-
-if(c=='"'){
-
-quote=!quote;
-
-}
-
-else if(c=="," && !quote){
-
-result.push(current);
-
-current="";
-
-}
-
-else{
-
-current+=c;
-
-}
-
-}
-
-
-result.push(current);
-
-return result;
-
-}
-
-
-
-
+const csvFilePath='https://script.google.com/macros/s/AKfycbw2ygas7GeNtrOUSVo2L8xMe3pHHyYZmHS936xmude6D70z6byyFnIaQtd1aOqSPl-ueg/exec';
+let products=[],filtered=[],activeFilter='all';
+function csvSplit(row){let r=[],c="",q=false;for(let ch of row){if(ch=='"')q=!q;else if(ch==','&&!q){r.push(c);c="";}else c+=ch;}r.push(c);return r;}
 function parseCSV(data){
-
-
-products=[];
-
-
-data.split(/\r?\n/).slice(1).forEach(row=>{
-
-
-if(!row.trim()) return;
-
-
-let c=csvSplit(row);
-
-
-products.push({
-
-itemName:(c[1]||"Unnamed Item").replace(/"/g,""),
-
-category:c[2]||"",
-
-brand:c[3]||"",
-
-model:c[4]||"",
-
-condition:c[6]||"",
-
-description:c[7]||"",
-
-stock:Number(c[16])||0,
-
-promo:c[19]||"",
-
-weight:c[20]||"",
-
-price:Number(c[22])||0,
-
-image:c[29]||""
-
-});
-
-
-});
-
-
-displayProducts(products);
-
-
+ products=[]; data.split(/\r?\n/).slice(1).forEach(row=>{ if(!row.trim()) return; let c=csvSplit(row); products.push({itemName:(c[1]||"Unnamed").replace(/"/g,""),category:c[2]||"",brand:c[3]||"",model:c[4]||"",condition:c[6]||"",description:c[7]||"",stock:Number(c[16])||0,promo:c[19]||"",weight:c[20]||"",price:Number(c[22])||0,image:c[29]||"",raw:c}); });
+ applyFilters();
 }
-
-
-
-
+function applyFilters(){
+ let q=document.getElementById("searchInput").value.toLowerCase();
+ filtered=products.filter(p=>{
+   let matchSearch=!q||`${p.itemName} ${p.brand} ${p.category} ${p.model}`.toLowerCase().includes(q);
+   if(!matchSearch) return false;
+   if(activeFilter==='instock') return p.stock>0;
+   if(activeFilter==='promo') return!!p.promo;
+   if(activeFilter==='under100') return p.price>0&&p.price<100;
+   return true;
+ });
+ sortAndDisplay();
+}
+function sortAndDisplay(){
+ let [type][order]=document.getElementById("sortSelect").value.split("-");
+ let list=[...filtered];
+ if(type==='name') list.sort((a,b)=>a.itemName.localeCompare(b.itemName));
+ if(type==='price') list.sort((a,b)=>order==='asc'?a.price-b.price:b.price-a.price);
+ if(type==='stock') list.sort((a,b)=>b.stock-a.stock);
+ displayProducts(list);
+}
 function displayProducts(list){
-
-
-let container=
-document.getElementById("productsContainer");
-
-
-container.innerHTML="";
-
-
-document.getElementById("count").innerHTML=
-list.length+" Items";
-
-
-
-list.forEach(p=>{
-
-
-let card=document.createElement("div");
-
-card.className="card";
-
-
-
-card.innerHTML=
-
-`
-
-${p.image ?
-
-`<img class="product-img" src="${p.image}" onerror="this.style.display='none'">`
-
-:
-
-""
-
+ let container=document.getElementById("productsContainer"); container.innerHTML="";
+ document.getElementById("count").textContent=list.length+" Items";
+ document.getElementById("status").style.display=list.length?"none":"block";
+ if(!list.length&&products.length) document.getElementById("status").textContent="No matches — try different search";
+ list.forEach((p,i)=>{
+  let card=document.createElement("div"); card.className="card";
+  card.innerHTML=`<div class="img-wrap">${p.image?`<img class="product-img" src="${p.image}" onerror="this.style.display='none'" loading="lazy">`:`<div style="height:170px;display:grid;place-items:center;color:#475569">No Image</div>`}</div><div class="card-content"><h3>${p.itemName}</h3><div class="info"><b>Brand:</b> ${p.brand||'—'} · <b>Model:</b> ${p.model||'—'}<br><b>Category:</b> ${(p.category||'').split("//").pop()||p.category}<br><b>Condition:</b> ${p.condition||'—'}</div><div class="desc">${p.description||'No description available'}</div><div class="price">${p.price?`$${p.price.toFixed(2)}`:'Contact'}</div><div class="meta"><span class="stock ${p.stock?'':'out'}">${p.stock?`In Stock: ${p.stock}`:'Out of Stock'}</span>${p.weight?`<span class="weight">${p.weight}</span>`:''}</div>${p.promo?`<div class="promo">🔥 ${p.promo}</div>`:''}<div class="card-buttons"><a class="google-btn" target="_blank" href="https://www.google.com/search?tbm=isch&q=${encodeURIComponent(p.itemName+' '+p.brand)}">🔍 Images</a><a class="fb-btn" target="_blank" href="https://www.facebook.com/marketplace/la/search/?query=${encodeURIComponent(p.itemName)}">f</a></div></div>`;
+  card.onclick=(e)=>{ if(e.target.tagName==='A') return; openModal(p); };
+  container.appendChild(card);
+ });
 }
-
-
-<div class="card-content">
-
-
-<h3>${p.itemName}</h3>
-
-
-<div class="info">
-
-<b>Category:</b> ${p.category}<br>
-
-<b>Brand:</b> ${p.brand}<br>
-
-<b>Model:</b> ${p.model}<br>
-
-<b>Condition:</b> ${p.condition}
-
-</div>
-
-
-
-<p>
-
-${p.description || "No description available"}
-
-</p>
-
-
-
-<div class="price">
-
-${p.price ? "$"+p.price.toFixed(2) : "Contact"}
-
-</div>
-
-
-
-<span class="stock ${p.stock?'':'out'}">
-
-${p.stock ? "In Stock: "+p.stock : "Out of Stock"}
-
-</span>
-
-
-
-${p.promo ?
-
-`<div class="promo">${p.promo}</div>`
-
-:
-
-""
-
+function openModal(p){
+ const m=document.getElementById("modal"),box=document.getElementById("modalBox");
+ box.innerHTML=`<div style="padding:20px"><div style="display:flex;justify-content:space-between;align-items:start;gap:12px"><h2 style="margin:0;color:#60a5fa">${p.itemName}</h2><button onclick="document.getElementById('modal').classList.remove('open')" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.1);color:white;border-radius:8px;padding:8px 12px;cursor:pointer">✕</button></div><div style="margin:12px 0">${p.image?`<img src="${p.image}" style="width:100%;max-height:320px;object-fit:cover;border-radius:12px">`:''}</div><p style="color:#cbd5e1;line-height:1.6">${p.description||''}</p><div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px;color:#94a3b8"><div><b style="color:white">Brand</b><br>${p.brand}</div><div><b style="color:white">Model</b><br>${p.model}</div><div><b style="color:white">Condition</b><br>${p.condition}</div><div><b style="color:white">Price</b><br><span style="color:#22c55e;font-weight:800;font-size:18px">$${p.price.toFixed(2)}</span></div></div></div>`;
+ m.classList.add("open");
 }
-
-
-
-<div class="card-buttons">
-
-
-<a class="google-btn"
-target="_blank"
-href="https://www.google.com/search?tbm=isch&q=${encodeURIComponent(p.itemName)}">
-
-🔍 Images
-
-</a>
-
-
-<a class="fb-btn"
-target="_blank"
-href="https://www.facebook.com/marketplace/la/search/?query=${encodeURIComponent(p.itemName)}">
-
-F
-
-</a>
-
-
-</div>
-
-
-</div>
-
-`;
-
-
-
-container.appendChild(card);
-
-
-});
-
-
-document.getElementById("status").style.display="none";
-
-
-}
-
-
-
-
-function sortProducts(type,order){
-
-
-let sorted=[...products];
-
-
-if(type==="name")
-
-sorted.sort((a,b)=>
-
-order==="asc"?
-
-a.itemName.localeCompare(b.itemName):
-
-b.itemName.localeCompare(a.itemName)
-
-);
-
-
-
-if(type==="price")
-
-sorted.sort((a,b)=>
-
-order==="asc"?
-
-a.price-b.price:
-
-b.price-a.price
-
-);
-
-
-
-if(type==="stock")
-
-sorted.sort((a,b)=>b.stock-a.stock);
-
-
-
-displayProducts(sorted);
-
-
-}
-
-
-
-
-document
-.getElementById("searchInput")
-.addEventListener("input",function(){
-
-
-let s=this.value.toLowerCase();
-
-
-displayProducts(
-
-products.filter(p=>
-
-p.itemName.toLowerCase().includes(s)||
-
-p.brand.toLowerCase().includes(s)||
-
-p.category.toLowerCase().includes(s)
-
-)
-
-);
-
-
-});
-
-
-
-
-fetch(csvFilePath)
-
-.then(r=>r.text())
-
-.then(parseCSV)
-
-.catch(()=>{
-
-document.getElementById("status").innerHTML=
-"❌ Failed loading store";
-
-});
-
-
+document.getElementById("modal").onclick=(e)=>{ if(e.target.id==='modal') e.target.classList.remove("open"); };
+document.getElementById("searchInput").addEventListener("input",applyFilters);
+document.getElementById("sortSelect").addEventListener("change",sortAndDisplay);
+document.querySelectorAll(".pill").forEach(p=>p.addEventListener("click",function(){ document.querySelectorAll(".pill").forEach(x=>x.classList.remove("active")); this.classList.add("active"); activeFilter=this.dataset.filter; applyFilters(); }));
+document.getElementById("gridBtn").onclick=()=>{ document.getElementById("productsContainer").style.gridTemplateColumns="repeat(auto-fill,minmax(270px,1fr))"; document.getElementById("gridBtn").classList.add("active"); document.getElementById("listBtn").classList.remove("active"); };
+document.getElementById("listBtn").onclick=()=>{ document.getElementById("productsContainer").style.gridTemplateColumns="1fr"; document.getElementById("listBtn").classList.add("active"); document.getElementById("gridBtn").classList.remove("active"); };
+// skeleton
+document.getElementById("productsContainer").innerHTML='<div class="skeleton"></div><div class="skeleton"></div>';
+fetch(csvFilePath).then(r=>r.text()).then(parseCSV).catch(()=>{ document.getElementById("status").innerHTML="❌ Failed loading — using demo data"; parseCSV(`a,Test Fan,Tools//Fans,Emerson,1950,N/A,Good,Restored fan,2023,Source,50,ID,10,2024,Tech,None,5,LA,2024,,10lbs,Notes,120,,,,,,https://via.placeholder.com/400`); });
 </script>
-
-
 </body>
-
 </html>
