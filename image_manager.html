@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Image Manager — Gear Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}body{margin:0;padding:18px;font-family:Inter,sans-serif;background:#0f172a;color:white;min-height:100vh}
+.header{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.header h1{margin:0;font-size:28px}.header p{color:#94a3b8;font-size:13px;margin-top:6px}
+.stats{display:flex;gap:10px;flex-wrap:wrap}
+.stat{background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:12px 16px;min-width:140px}
+.stat.l{font-size:10px;text-transform:uppercase;color:#94a3b8;font-weight:700}.stat.v{font-size:22px;font-weight:800;margin-top:4px}
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+#search{padding:12px 14px 12px 40px;background:#1e293b;border:1px solid rgba(255,255,255,.1);border-radius:12px;color:white;min-width:300px}
+.filter{padding:8px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);color:#cbd5e1;font-weight:600;font-size:12px;cursor:pointer}
+.filter.active{background:#2563eb;border-color:#2563eb;color:white}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.card{background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;transition:.15s}
+.card:hover{border-color:#2563eb;transform:translateY(-2px)}
+.thumb{height:160px;background:#0b1220;display:grid;place-items:center;overflow:hidden;position:relative}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.thumb.empty{color:#475569;font-size:12px}
+.info{padding:12px}
+.title{font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:white}
+.meta{font-size:11px;color:#94a3b8;margin-top:4px}
+.actions{display:flex;gap:6px;margin-top:10px}
+.btn{flex:1;padding:8px 10px;border-radius:8px;border:none;font-weight:700;font-size:11px;cursor:pointer}
+.btn-up{background:#2563eb;color:white}.btn-url{background:rgba(255,255,255,.08);color:#cbd5e1;border:1px solid rgba(255,255,255,.1)}
+.drop{border:2px dashed rgba(255,255,255,.15);border-radius:16px;padding:24px;text-align:center;background:rgba(255,255,255,.02);margin-bottom:14px;transition:.2s}
+.drop.dragover{border-color:#22c55e;background:rgba(34,197,94,.08)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(10px);display:none;place-items:center;z-index:100;padding:20px}
+.modal.open{display:grid}
+.modal-box{background:#111827;border:1px solid rgba(255,255,255,.1);border-radius:18px;max-width:540px;width:100%;padding:20px}
+label{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#94a3b8;font-weight:600;margin-bottom:6px;display:block}
+input{width:100%;padding:11px 12px;background:#1e293b;border:1px solid rgba(255,255,255,.1);border-radius:10px;color:white;outline:none}
+.preview{margin-top:12px;border-radius:12px;overflow:hidden;max-height:300px;background:#0b1220;display:grid;place-items:center}
+.preview img{max-width:100%;max-height:300px;object-fit:contain}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#22c55e;color:white;padding:12px 18px;border-radius:999px;font-weight:700;display:none;z-index:200}.toast.show{display:block}.toast.err{background:#dc2626}
+</style>
+</head>
+<body>
+<div class="header"><div><h1>🖼️ Image Manager</h1><p>Missing Image = empty Image col • Upload → Drive folder "Gear Hub Images" → auto-links to Front.html</p></div>
+<div class="stats"><div class="stat"><div class="l">Total</div><div class="v" id="sTotal">0</div></div><div class="stat"><div class="l">With Images</div><div class="v" id="sWith" style="color:#22c55e">0</div></div><div class="stat"><div class="l">Missing</div><div class="v" id="sMiss" style="color:#ef4444">0</div></div><div class="stat"><div class="l">Coverage</div><div class="v" id="sPct">0%</div></div></div>
+</div>
+
+<div class="drop" id="bulkDrop"><b>📥 Bulk Drop</b> — drop images named with GH-ID or SKU (e.g., GH-XXXXX.jpg) — auto-matches and uploads<br><span style="font-size:11px;color:#64748b">Or click to select multiple files</span><input type="file" id="bulkFiles" multiple accept="image/*" style="display:none"></div>
+
+<div class="controls"><div style="position:relative"><span style="position:absolute;left:12px;top:50%;transform:translateY(-50%)">🔍</span><input id="search" placeholder="Search Item, Brand, GH-..."></div><button class="filter active" data-f="all">All</button><button class="filter" data-f="missing">Missing Only</button><button class="filter" data-f="with">With Images</button></div>
+
+<div class="grid" id="grid"><div style="color:#475569;padding:20px">Loading...</div></div>
+
+<div class="modal" id="modal"><div class="modal-box">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><h3 style="margin:0" id="mTitle">Upload Image</h3><button onclick="closeModal()" style="background:transparent;border:none;color:#94a3b8;font-size:18px;cursor:pointer">✕</button></div>
+<div style="font-size:12px;color:#94a3b8;margin-bottom:10px" id="mMeta"></div>
+<div class="preview" id="preview"><span style="color:#475569;font-size:12px">No preview</span></div>
+<div style="margin-top:12px"><label>Select Image File</label><input type="file" id="fileInput" accept="image/*"></div>
+<div style="margin-top:12px"><label>Or Paste Image URL</label><input id="urlInput" placeholder="https://..."></div>
+<div style="display:flex;gap:10px;margin-top:16px"><button class="btn" style="flex:1;background:rgba(255,255,255,.06);color:#cbd5e1" onclick="closeModal()">Cancel</button><button class="btn btn-up" style="flex:2" id="uploadBtn">Upload to Drive → Link</button></div>
+<div style="font-size:11px;color:#64748b;margin-top:8px">File → Drive "Gear Hub Images" (anyone with link) → Image col = drive url</div>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const API_URL="https://script.google.com/macros/s/AKfycbzDCfZokdDHryVxtuVOuvTb6XUfnMR66_8Xwym3QzaSWgKooI0865_JPtTi0hJ_GDQr/exec";
+let all=[], current=null, filter="all";
+
+async function load(){
+  let res=await fetch(API_URL+"?action=read");
+  let j=await res.json();
+  all=j.data||[];
+  render();
+}
+
+function render(){
+  let q=document.getElementById("search").value.toLowerCase();
+  let list=all.filter(o=>{
+    if(filter==="missing" && (o["Image"]||"").trim()!=="") return false;
+    if(filter==="with" && (o["Image"]||"").trim()==="") return false;
+    if(!q) return true;
+    return JSON.stringify(o).toLowerCase().indexOf(q)>-1;
+  });
+  let withCount=all.filter(o=>(o["Image"]||"").trim()!=="").length;
+  document.getElementById("sTotal").textContent=all.length;
+  document.getElementById("sWith").textContent=withCount;
+  document.getElementById("sMiss").textContent=all.length-withCount;
+  document.getElementById("sPct").textContent=all.length? Math.round(withCount/all.length*100)+"%":"0%";
+
+  let grid=document.getElementById("grid");
+  grid.innerHTML="";
+  list.forEach(item=>{
+    let has=(item["Image"]||"").trim()!=="";
+    let div=document.createElement("div");
+    div.className="card";
+    div.innerHTML='<div class="thumb '+(has?'':'empty')+'">'+(has?'<img src="'+item["Image"]+'" onerror="this.parentElement.innerHTML=\'❌ Broken URL\'">':"📷 No Image")+'</div><div class="info"><div class="title">'+(item["Item Name"]||"")+'</div><div class="meta">'+(item["Brand"]||"")+' • '+(item["Unique ID"]||"")+'</div><div class="meta">'+(item["SKU/Item Number"]||"")+'</div><div class="actions"><button class="btn btn-up">📤 Upload</button><button class="btn btn-url">🔗 URL</button></div></div>';
+    div.querySelector(".btn-up").onclick=()=>openModal(item,false);
+    div.querySelector(".btn-url").onclick=()=>openModal(item,true);
+    grid.appendChild(div);
+  });
+}
+
+let pendingFile=null;
+function openModal(item, focusUrl){
+  current=item;
+  document.getElementById("mTitle").textContent=item["Item Name"]||"Upload";
+  document.getElementById("mMeta").textContent=(item["Brand"]||"")+" • "+(item["Unique ID"]||"")+" • Current: "+((item["Image"]||"").slice(0,40)||"none");
+  document.getElementById("preview").innerHTML= item["Image"]? '<img src="'+item["Image"]+'">' : '<span style="color:#475569;font-size:12px">No preview</span>';
+  document.getElementById("urlInput").value=item["Image"]||"";
+  document.getElementById("fileInput").value="";
+  pendingFile=null;
+  document.getElementById("modal").classList.add("open");
+  if(focusUrl) setTimeout(()=>document.getElementById("urlInput").focus(),100);
+}
+function closeModal(){ document.getElementById("modal").classList.remove("open"); current=null; pendingFile=null; }
+
+document.getElementById("fileInput").addEventListener("change",function(e){
+  let f=e.target.files[0]; if(!f) return;
+  pendingFile=f;
+  let reader=new FileReader();
+  reader.onload=function(ev){ document.getElementById("preview").innerHTML='<img src="'+ev.target.result+'">'; };
+  reader.readAsDataURL(f);
+});
+
+document.getElementById("urlInput").addEventListener("input",function(){
+  let url=this.value.trim();
+  if(url) document.getElementById("preview").innerHTML='<img src="'+url+'" onerror="this.parentElement.innerHTML=\'Invalid URL\'">';
+});
+
+document.getElementById("uploadBtn").addEventListener("click",async function(){
+  if(!current) return;
+  let urlInput=document.getElementById("urlInput").value.trim();
+  let btn=this; btn.disabled=true; btn.textContent="Uploading...";
+  try{
+    if(pendingFile){
+      let b64=await fileToBase64(pendingFile);
+      let payload={action:"uploadImage","Unique ID":current["Unique ID"],fileName:pendingFile.name,mimeType:pendingFile.type,data:b64};
+      let res=await fetch(API_URL+"?action=uploadImage",{method:"POST",body:JSON.stringify(payload),headers:{"Content-Type":"text/plain;charset=utf-8"}});
+      let j=await res.json();
+      if(!j.ok) throw new Error(j.error||"Upload failed");
+      current["Image"]=j.url;
+      showToast("Uploaded! ✓");
+    }else if(urlInput){
+      let payload={action:"setImageUrl","Unique ID":current["Unique ID"],url:urlInput};
+      let res=await fetch(API_URL+"?action=setImageUrl",{method:"POST",body:JSON.stringify(payload),headers:{"Content-Type":"text/plain;charset=utf-8"}});
+      let j=await res.json();
+      if(!j.ok) throw new Error(j.error||"Failed");
+      current["Image"]=urlInput;
+      showToast("URL Linked! ✓");
+    }else{ throw new Error("Select file or paste URL"); }
+    closeModal(); render();
+  }catch(err){ showToast(err.message,true); }
+  finally{ btn.disabled=false; btn.textContent="Upload to Drive → Link"; }
+});
+
+function fileToBase64(file){
+  return new Promise((resolve,reject)=>{
+    let r=new FileReader();
+    r.onload=()=>resolve(r.result);
+    r.onerror=reject;
+    r.readAsDataURL(file);
+  });
+}
+
+// bulk
+document.getElementById("bulkDrop").addEventListener("click",()=>document.getElementById("bulkFiles").click());
+document.getElementById("bulkDrop").addEventListener("dragover",e=>{ e.preventDefault(); e.currentTarget.classList.add("dragover"); });
+document.getElementById("bulkDrop").addEventListener("dragleave",e=>e.currentTarget.classList.remove("dragover"));
+document.getElementById("bulkDrop").addEventListener("drop",async e=>{
+  e.preventDefault(); e.currentTarget.classList.remove("dragover");
+  let files=e.dataTransfer.files; if(files.length) handleBulk(files);
+});
+document.getElementById("bulkFiles").addEventListener("change",e=>{ if(e.target.files.length) handleBulk(e.target.files); });
+
+async function handleBulk(fileList){
+  let files=Array.from(fileList);
+  showToast("Bulk uploading "+files.length+" files...");
+  for(let f of files){
+    // try to match by Unique ID in filename
+    let name=f.name.toLowerCase();
+    let matched=all.find(o=> name.includes(String(o["Unique ID"]||"").toLowerCase()) || name.includes(String(o["SKU/Item Number"]||"").toLowerCase()));
+    if(!matched){ console.log("No match for",f.name); continue; }
+    let b64=await fileToBase64(f);
+    let payload={action:"uploadImage","Unique ID":matched["Unique ID"],fileName:f.name,mimeType:f.type,data:b64};
+    try{
+      let res=await fetch(API_URL+"?action=uploadImage",{method:"POST",body:JSON.stringify(payload),headers:{"Content-Type":"text/plain;charset=utf-8"}});
+      let j=await res.json();
+      if(j.ok) matched["Image"]=j.url;
+    }catch(err){ console.error(err); }
+  }
+  render(); showToast("Bulk done! ✓");
+}
+
+document.getElementById("search").addEventListener("input",render);
+document.querySelectorAll(".filter").forEach(b=>b.addEventListener("click",function(){ document.querySelectorAll(".filter").forEach(x=>x.classList.remove("active")); this.classList.add("active"); filter=this.dataset.f; render(); }));
+function showToast(m,isErr){ let t=document.getElementById("toast"); t.textContent=m; t.className="toast show"+(isErr?" err":""); setTimeout(()=>t.classList.remove("show"),3000); }
+
+load();
+</script>
+</body>
+</html>
