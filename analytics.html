@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profit Analytics — Gear Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;padding:18px;font-family:Inter,sans-serif;background:#0f172a;color:white;min-height:100vh}
+.header{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.header h1{margin:0;font-size:28px;letter-spacing:-.02em}.header p{color:#94a3b8;font-size:13px;margin-top:6px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px}
+.kpi.l{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;font-weight:700}
+.kpi.v{font-size:26px;font-weight:800;margin-top:6px;letter-spacing:-.02em}
+.kpi.s{font-size:11px;color:#64748b;margin-top:4px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px} @media(max-width:1100px){.grid{grid-template-columns:1fr}}
+.card{background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:16px}
+.card h3{margin:0 0 12px;font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:#cbd5e1}
+.table{width:100%;border-collapse:collapse;font-size:12px}
+.table th{color:#60a5fa;text-align:left;padding:8px 6px;text-transform:uppercase;font-size:10px;letter-spacing:.04em;border-bottom:1px solid rgba(255,255,255,.08)}
+.table td{padding:8px 6px;border-bottom:1px solid rgba(255,255,255,.05);color:#cbd5e1}
+.badge{padding:3px 8px;border-radius:999px;font-size:11px;font-weight:600}.badge.green{background:#166534;color:#bbf7d0}.badge.red{background:#7f1d1d;color:#fecaca}
+canvas{max-height:320px}
+</style>
+</head>
+<body>
+<div class="header"><div><h1>📈 Profit Analytics</h1><p>Live from Inventory sheet — Purchase + Restoration vs Selling</p></div><div style="font-size:11px;color:#475569">26 items • Auto-calculated</div></div>
+
+<div class="kpis">
+<div class="kpi"><div class="l">Total Invested</div><div class="v" id="kInvest">$0</div><div class="s">Purchase + Restoration</div></div>
+<div class="kpi"><div class="l">Total Value (Cost)</div><div class="v" id="kValue">$0</div><div class="s">Sum Purchase Price</div></div>
+<div class="kpi"><div class="l">Potential Profit (60% markup)</div><div class="v" id="kPotential" style="color:#60a5fa">$0</div><div class="s">If sold @ 1.6x cost</div></div>
+<div class="kpi"><div class="l">Actual Profit (Sold)</div><div class="v" id="kActual" style="color:#22c55e">$0</div><div class="s">From Date Sold items</div></div>
+<div class="kpi"><div class="l">Avg Margin</div><div class="v" id="kMargin">0%</div><div class="s">Selling vs Buy</div></div>
+<div class="kpi"><div class="l">Best Brand ROI</div><div class="v" id="kBest" style="font-size:18px">—</div><div class="s" id="kBestSub">By avg profit</div></div>
+</div>
+
+<div class="grid">
+<div class="card"><h3>Profit by Brand (Purchase vs Potential Sell @1.6x)</h3><canvas id="brandChart"></canvas></div>
+<div class="card"><h3>Value by Category (Main Group)</h3><canvas id="catChart"></canvas></div>
+<div class="card"><h3>Source Performance — Where you buy matters</h3><canvas id="sourceChart"></canvas></div>
+<div class="card"><h3>Condition vs Avg Cost</h3><canvas id="condChart"></canvas></div>
+</div>
+
+<div class="grid" style="margin-top:14px">
+<div class="card"><h3>Top 10 Most Expensive (Invested)</h3><table class="table" id="topTable"><thead><tr><th>Item</th><th>Brand</th><th>Buy</th><th>Restore</th><th>Total</th></tr></thead><tbody></tbody></table></div>
+<div class="card"><h3>Source ROI Table</h3><table class="table" id="sourceTable"><thead><tr><th>Source</th><th>Count</th><th>Avg Buy</th><th>Total Spent</th><th>Est. Profit @1.6x</th></tr></thead><tbody></tbody></table></div>
+</div>
+
+<script>
+const API_URL="https://script.google.com/macros/s/AKfycbzDCfZokdDHryVxtuVOuvTb6XUfnMR66_8Xwym3QzaSWgKooI0865_JPtTi0hJ_GDQr/exec";
+let all=[];
+
+async function load(){
+  let res=await fetch(API_URL+"?action=read");
+  let j=await res.json();
+  all=j.data||[];
+  calc();
+}
+
+function calc(){
+  let totalBuy=0, totalRestore=0, totalSell=0, actualProfit=0;
+  all.forEach(o=>{
+    totalBuy+=Number(o["Purchase Price"])||0;
+    totalRestore+=Number(o["Restoration Costs"])||0;
+    let sell=Number(o["Selling Price"])||0;
+    if(sell>0) totalSell+=sell;
+    if(o["Date Sold"] && sell>0){
+      actualProfit+= sell - (Number(o["Purchase Price"])||0) - (Number(o["Restoration Costs"])||0);
+    }
+  });
+  let invested=totalBuy+totalRestore;
+  let potential=totalBuy*0.6; // 60% markup estimate
+  document.getElementById("kInvest").textContent="$"+invested.toFixed(0);
+  document.getElementById("kValue").textContent="$"+totalBuy.toFixed(0);
+  document.getElementById("kPotential").textContent="$"+potential.toFixed(0);
+  document.getElementById("kActual").textContent="$"+actualProfit.toFixed(0);
+  let margin = totalSell>0? ((totalSell-totalBuy)/totalBuy*100) : 60;
+  document.getElementById("kMargin").textContent=margin.toFixed(1)+"%";
+
+  // Brand aggregation
+  let byBrand={};
+  all.forEach(o=>{
+    let b=(o["Brand"]||"Unknown").trim()||"Unknown";
+    if(!byBrand[b]) byBrand[b]={count:0,buy:0,restore:0};
+    byBrand[b].count++; byBrand[b].buy+=Number(o["Purchase Price"])||0; byBrand[b].restore+=Number(o["Restoration Costs"])||0;
+  });
+  let brandLabels=Object.keys(byBrand).sort((a,b)=>byBrand[b].buy-byBrand[a].buy).slice(0,10);
+  let brandBuy=brandLabels.map(l=>byBrand[l].buy);
+  let brandPotential=brandLabels.map(l=>byBrand[l].buy*1.6);
+  let best=brandLabels.reduce((best,cur)=> byBrand[cur].buy/byBrand[cur].count > (byBrand[best]?byBrand[best].buy/byBrand[best].count:0)? cur : best, brandLabels[0]||"—");
+  document.getElementById("kBest").textContent=best||"—";
+  document.getElementById("kBestSub").textContent=best? byBrand[best].count+" items • avg $"+(byBrand[best].buy/byBrand[best].count).toFixed(0) : "";
+
+  // Category
+  let byCat={};
+  all.forEach(o=>{
+    let cat=(o["Category"]||"").split("//")[0]||"Other";
+    if(!byCat[cat]) byCat[cat]={count:0,buy:0};
+    byCat[cat].count++; byCat[cat].buy+=Number(o["Purchase Price"])||0;
+  });
+
+  // Source
+  let bySource={};
+  all.forEach(o=>{
+    let s=(o["Source"]||"Unknown").trim()||"Unknown";
+    if(s==="?" ) s="Unknown /?";
+    if(!bySource[s]) bySource[s]={count:0,buy:0};
+    bySource[s].count++; bySource[s].buy+=Number(o["Purchase Price"])||0;
+  });
+
+  // Condition
+  let byCond={};
+  all.forEach(o=>{
+    let c=o["Condition"]||"Unknown";
+    if(!byCond[c]) byCond[c]={count:0,buy:0};
+    byCond[c].count++; byCond[c].buy+=Number(o["Purchase Price"])||0;
+  });
+
+  // Charts
+  new Chart(document.getElementById("brandChart"),{
+    type:"bar",
+    data:{labels:brandLabels,datasets:[{label:"Buy",data:brandBuy,backgroundColor:"#2563eb"},{label:"Potential Sell @1.6x",data:brandPotential,backgroundColor:"#22c55e"}]},
+    options:{responsive:true,plugins:{legend:{labels:{color:"#cbd5e1"}}},scales:{x:{ticks:{color:"#94a3b8"}},y:{ticks:{color:"#94a3b8"}}}}
+  });
+
+  new Chart(document.getElementById("catChart"),{
+    type:"doughnut",
+    data:{labels:Object.keys(byCat),datasets:[{data:Object.keys(byCat).map(k=>byCat[k].buy),backgroundColor:["#2563eb","#22c55e","#eab308","#7c3aed","#ef4444","#06b6d4","#f97316"]}]},
+    options:{responsive:true,plugins:{legend:{position:"bottom",labels:{color:"#cbd5e1"}}}}
+  });
+
+  let sourceLabels=Object.keys(bySource).sort((a,b)=>bySource[b].count-bySource[a].count).slice(0,8);
+  new Chart(document.getElementById("sourceChart"),{
+    type:"bar",
+    data:{labels:sourceLabels,datasets:[{label:"Count",data:sourceLabels.map(l=>bySource[l].count),backgroundColor:"#7c3aed",yAxisID:"y"},{label:"Avg Buy $",data:sourceLabels.map(l=>bySource[l].buy/bySource[l].count),backgroundColor:"#eab308",type:"line",yAxisID:"y1"}]},
+    options:{responsive:true,plugins:{legend:{labels:{color:"#cbd5e1"}}},scales:{x:{ticks:{color:"#94a3b8"}},y:{ticks:{color:"#94a3b8"}},y1:{position:"right",ticks:{color:"#eab308"},grid:{drawOnChartArea:false}}}}
+  });
+
+  new Chart(document.getElementById("condChart"),{
+    type:"bar",
+    data:{labels:Object.keys(byCond),datasets:[{label:"Avg Buy",data:Object.keys(byCond).map(k=>byCond[k].buy/byCond[k].count),backgroundColor:"#06b6d4"}]},
+    options:{responsive:true,plugins:{legend:{labels:{color:"#cbd5e1"}}},scales:{x:{ticks:{color:"#94a3b8"}},y:{ticks:{color:"#94a3b8"}}}}
+  });
+
+  // Tables
+  let topSorted=[...all].sort((a,b)=>(Number(b["Purchase Price"])||0)-(Number(a["Purchase Price"])||0)).slice(0,10);
+  document.querySelector("#topTable tbody").innerHTML=topSorted.map(o=>`<tr><td style="white-space:nowrap;overflow:hidden;max-width:200px;text-overflow:ellipsis">${o["Item Name"]||""}</td><td>${o["Brand"]||""}</td><td>$${(Number(o["Purchase Price"])||0).toFixed(0)}</td><td>$${(Number(o["Restoration Costs"])||0).toFixed(0)}</td><td><b>$${((Number(o["Purchase Price"])||0)+(Number(o["Restoration Costs"])||0)).toFixed(0)}</b></td></tr>`).join("");
+
+  let sourceSorted=Object.entries(bySource).sort((a,b)=>b[1].buy-a[1].buy);
+  document.querySelector("#sourceTable tbody").innerHTML=sourceSorted.map(([s,d])=>`<tr><td>${s}</td><td>${d.count}</td><td>$${(d.buy/d.count).toFixed(0)}</td><td>$${d.buy.toFixed(0)}</td><td style="color:#22c55e">$${(d.buy*0.6).toFixed(0)}</td></tr>`).join("");
+}
+
+load();
+</script>
+</body>
+</html>
