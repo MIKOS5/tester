@@ -23,14 +23,14 @@
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;padding:16px 20px}
 .stat-card{background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px}
-.stat-card .label{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;font-weight:600}
-.stat-card .value{font-size:24px;font-weight:800;margin-top:6px;letter-spacing:-.02em}
-.stat-card .sub{font-size:12px;color:#64748b;margin-top:4px}
+.stat-card.label{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;font-weight:600}
+.stat-card.value{font-size:24px;font-weight:800;margin-top:6px;letter-spacing:-.02em}
+.stat-card.sub{font-size:12px;color:#64748b;margin-top:4px}
 .iframe-wrap{flex:1;background:#020617;padding:0;overflow:hidden;position:relative}
 iframe{width:100%;height:100%;border:0;background:#0f172a}
 .config-bar{background:#0b1220;border-top:1px solid rgba(255,255,255,.06);padding:10px 20px;font-size:11px;color:#64748b;display:flex;gap:16px;flex-wrap:wrap}
 .config-bar b{color:#94a3b8}
-@media(max-width:900px){.sidebar{width:72px;padding:12px 8px}.sidebar .label-text,.sidebar .badge{display:none}.logo{justify-content:center}.logo .text{display:none}}
+@media(max-width:900px){.sidebar{width:72px;padding:12px 8px}.sidebar.label-text,.sidebar.badge{display:none}.logo{justify-content:center}.logo.text{display:none}}
 </style>
 </head>
 <body>
@@ -42,9 +42,9 @@ iframe{width:100%;height:100%;border:0;background:#0f172a}
     <button class="nav-btn" data-page="inventory"><span>📦</span><span class="label-text">Gear Inventory</span></button>
     <button class="nav-btn" data-page="details"><span>📋</span><span class="label-text">Inventory Details</span></button>
     <button class="nav-btn" data-page="input"><span>➕</span><span class="label-text">New Product</span></button>
-    <button class="nav-btn" data-page="sales"><span>➕</span><span class="label-text">Sales</span></button>
+    <button class="nav-btn" data-page="sales"><span>💰</span><span class="label-text">Sales POS</span></button>
   </div>
-  <div style="font-size:11px;color:#475569;padding:10px">v2.0 • JSON backend<br>AKfycbzD…</div>
+  <div style="font-size:11px;color:#475569;padding:10px">v3.0 • JSON backend<br>AKfycbzD…</div>
 </div>
 
 <div class="main">
@@ -62,26 +62,24 @@ iframe{width:100%;height:100%;border:0;background:#0f172a}
     </div>
     <div style="padding:0 20px 20px;display:grid;grid-template-columns:1fr 1fr;gap:16px">
       <div style="background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px"><div style="font-weight:700;margin-bottom:10px">Recent Imports</div><div id="recentList" style="font-size:12px;color:#94a3b8;display:flex;flex-direction:column;gap:8px">Loading...</div></div>
-      <div style="background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px"><div style="font-weight:700;margin-bottom:10px">Backend</div><div style="font-size:12px;line-height:1.7;color:#cbd5e1"><b>API:</b> script.google.com<br><b>ID:</b> AKfycbzD...<br><b>Endpoints:</b><br>• ?action=read → JSON<br>• ?action=readCsv → legacy CSV<br>• ?action=create → POST<br>• ?action=categories<br>• ?action=setup<br><br><span style="color:#22c55e">● Live</span> 26 items imported</div></div>
+      <div style="background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px"><div style="font-weight:700;margin-bottom:10px">Backend</div><div style="font-size:12px;line-height:1.7;color:#cbd5e1"><b>API:</b> script.google.com<br><b>ID:</b> AKfycbzD...<br><b>Endpoints:</b><br>•?action=read → JSON<br>•?action=readCsv → legacy<br>•?action=create → POST<br>•?action=update → POST<br>•?action=delete → POST<br>•?action=categories<br><br><span style="color:#22c55e">● Live</span> 26 items</div></div>
     </div>
   </div>
 
   <div class="iframe-wrap" id="iframeWrap" style="display:none"><iframe id="pageFrame" src=""></iframe></div>
 
-  <div class="config-bar"><span><b>API_URL:</b> <span id="apiUrlText"></span></span><span><b>Mode:</b> JSON (was CSV)</span><span><b>Auth:</b> Anyone with link</span></div>
+  <div class="config-bar"><span><b>API_URL:</b> <span id="apiUrlText"></span></span><span><b>Mode:</b> JSON v3.0</span><span><b>Auth:</b> Anyone with link</span></div>
 </div>
 
 <script>
-// === CONFIG - CHANGE ONLY THIS ===
 const API_URL="https://script.google.com/macros/s/AKfycbzDCfZokdDHryVxtuVOuvTb6XUfnMR66_8Xwym3QzaSWgKooI0865_JPtTi0hJ_GDQr/exec";
 document.getElementById("apiUrlText").textContent=API_URL.slice(0,62)+"...";
 
-// Files must be in same folder as index.html
 const PAGES={
   front:"Front.html",
   inventory:"inventory.html",
   details:"inventorydetails.html",
-  input:"input_items.html"
+  input:"input_items.html",
   sales:"sales.html"
 };
 
@@ -123,8 +121,9 @@ function showPage(key){
     document.getElementById("dashboardView").style.display="none";
     document.getElementById("iframeWrap").style.display="block";
     document.getElementById("pageFrame").src=PAGES[key]||"";
-    document.getElementById("pageTitle").textContent=key==="front"?"For Sale":key==="inventory"?"Gear Inventory":key==="details"?"Inventory Details":"New Product Input";
-    document.getElementById("pageSub").textContent=PAGES[key];
+    const titles={front:"For Sale",inventory:"Gear Inventory",details:"Inventory Details (Editable)",input:"New Product Input",sales:"Sales POS"};
+    document.getElementById("pageTitle").textContent=titles[key]||key;
+    document.getElementById("pageSub").textContent=PAGES[key]||"";
   }
 }
 
