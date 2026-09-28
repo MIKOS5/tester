@@ -1,74 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gear & Tools Hub — Inventory Dashboard</title>
-<meta name="description" content="Manage inventory, sales, and equipment from one dashboard.">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gear Hub — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0b1220;--bg2:#111d33;--panel:rgba(17,24,39,.86);--panel2:rgba(255,255,255,.06);--border:rgba(255,255,255,.09);--text:#f8fafc;--muted:#94a3b8;--blue:#2563eb;--radius:18px;--sidebar:280px}
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:Inter,system-ui,sans-serif;background:radial-gradient(1200px 600px at 15% -10%,rgba(37,99,235,.22),transparent 60%),radial-gradient(900px 500px at 90% 10%,rgba(124,58,237,.18),transparent 60%),linear-gradient(180deg,var(--bg),var(--bg2) 40%,#0f172a);color:var(--text);display:flex;min-height:100vh;overflow:hidden}
-.sidebar{width:var(--sidebar);background:var(--panel);backdrop-filter:blur(20px);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:22px 16px;z-index:20;transition:transform.28s}
-.logo{display:flex;gap:12px;align-items:center;padding:6px 8px 22px;border-bottom:1px solid var(--border);margin-bottom:18px}
-.logo-icon{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--blue),#7c3aed);display:grid;place-items:center;font-weight:700;box-shadow:0 8px 20px rgba(37,99,235,.35)}
-.logo h2{font-size:18px;font-weight:700}.logo p{color:var(--muted);font-size:12.5px;margin-top:2px}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,sans-serif;background:#0f172a;color:white;display:flex;height:100vh;overflow:hidden}
+.sidebar{width:260px;background:#111827;border-right:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;padding:20px 14px;flex-shrink:0}
+.logo{font-size:20px;font-weight:800;letter-spacing:-.02em;display:flex;align-items:center;gap:10px;margin-bottom:20px}
+.logo span{width:32px;height:32px;background:#2563eb;border-radius:8px;display:grid;place-items:center}
 .nav{display:flex;flex-direction:column;gap:6px;flex:1}
-.nav a{text-decoration:none;color:#cbd5e1;padding:12px 14px;border-radius:12px;font-weight:600;font-size:14px;display:flex;align-items:center;gap:12px;border:1px solid transparent;transition:.2s}
-.nav a:hover{background:rgba(255,255,255,.06);color:white;transform:translateX(3px);border-color:var(--border)}
-.nav a.active{background:var(--blue);color:white;box-shadow:0 10px 24px rgba(37,99,235,.35);border-color:rgba(255,255,255,.15)}
-.sidebar-footer{margin-top:auto;padding-top:18px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:12px}
-.storage{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:14px;padding:12px 14px}
-.storage.bar{height:6px;background:rgba(255,255,255,.1);border-radius:999px;overflow:hidden;margin-top:8px}.storage.fill{height:100%;width:68%;background:linear-gradient(90deg,var(--blue),#22d3ee);border-radius:999px}
-.main{flex:1;display:flex;flex-direction:column;padding:22px;overflow:hidden;min-width:0}
-.header{background:var(--panel2);backdrop-filter:blur(18px);border:1px solid var(--border);border-radius:var(--radius);padding:18px 22px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:16px}
-.header h1{font-size:24px;font-weight:700;letter-spacing:-.02em}.header p{margin-top:4px;color:var(--muted);font-size:13.5px}
-.header-actions{display:flex;align-items:center;gap:10px}
-.badge{display:inline-flex;align-items:center;gap:8px;background:rgba(37,99,235,.15);border:1px solid rgba(37,99,235,.35);color:#bfdbfe;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:600}
-.badge i{width:8px;height:8px;background:#22c55e;border-radius:50%;box-shadow:0 0 0 4px rgba(34,197,94,.18);animation:pulse 2s infinite}
-@keyframes pulse{0%{box-shadow:0 0 0 4px rgba(34,197,94,.18)}50%{box-shadow:0 0 0 8px rgba(34,197,94,.08)}100%{box-shadow:0 0 0 4px rgba(34,197,94,.18)}}
-.icon-btn{background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:9px 11px;cursor:pointer;transition:.2s}.icon-btn:hover{background:rgba(255,255,255,.1)}
-.window{flex:1;background:rgba(255,255,255,.045);border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);box-shadow:0 20px 50px rgba(0,0,0,.45);display:flex;flex-direction:column;min-height:0}
-.window-bar{height:48px;background:#151d2f;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--border)}
-.dots{display:flex;gap:8px}.dot{width:11px;height:11px;border-radius:50%}.red{background:#ff5f57}.yellow{background:#ffbd2e}.green{background:#28c840}
-.file-pill{background:rgba(255,255,255,.07);border:1px solid var(--border);padding:6px 12px;border-radius:999px;font-size:12px;color:#cbd5e1;font-weight:500;max-width:50%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.iframe-wrap{position:relative;flex:1;background:white;min-height:0}.loader{position:absolute;inset:0;display:grid;place-items:center;background:white;color:#475569;font-size:14px;font-weight:500;z-index:2;transition:opacity.25s}.loader.hidden{opacity:0;pointer-events:none}
-iframe{width:100%;height:100%;border:none;display:block}
-.mobile-top{display:none;background:var(--panel);border-bottom:1px solid var(--border);padding:14px 16px;align-items:center;justify-content:space-between}
-.hamburger{background:transparent;border:1px solid var(--border);color:white;border-radius:10px;padding:9px 11px;cursor:pointer}
-@media(max-width:900px){body{flex-direction:column;overflow:auto;height:auto}.mobile-top{display:flex;position:sticky;top:0;z-index:30;backdrop-filter:blur(18px)}.sidebar{position:fixed;inset:0 auto 0 0;transform:translateX(-100%);width:min(300px,85vw);height:100dvh}.sidebar.open{transform:translateX(0);box-shadow:0 0 0 100vmax rgba(0,0,0,.5)}.main{padding:14px;height:auto}.header{flex-direction:column;align-items:flex-start}.window{height:72vh}}
+.nav-btn{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;border:1px solid transparent;background:transparent;color:#94a3b8;font-weight:600;font-size:13px;cursor:pointer;text-align:left;transition:.2s;width:100%}
+.nav-btn.active,.nav-btn:hover{background:rgba(37,99,235,.15);border-color:rgba(37,99,235,.25);color:white}
+.nav-btn.active{background:#2563eb;color:white}
+.badge{margin-left:auto;background:rgba(255,255,255,.1);padding:3px 8px;border-radius:999px;font-size:11px}
+.badge.blue{background:#2563eb;color:white}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 20px;background:rgba(255,255,255,.03);border-bottom:1px solid rgba(255,255,255,.08);backdrop-filter:blur(12px)}
+.topbar h2{margin:0;font-size:18px}.topbar p{margin:4px 0 0;color:#94a3b8;font-size:12px}
+.api-status{display:flex;align-items:center;gap:8px;background:#111827;border:1px solid rgba(255,255,255,.1);padding:8px 12px;border-radius:999px;font-size:11px}
+.dot{width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 4px rgba(34,197,94,.2);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;padding:16px 20px}
+.stat-card{background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px}
+.stat-card .label{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;font-weight:600}
+.stat-card .value{font-size:24px;font-weight:800;margin-top:6px;letter-spacing:-.02em}
+.stat-card .sub{font-size:12px;color:#64748b;margin-top:4px}
+.iframe-wrap{flex:1;background:#020617;padding:0;overflow:hidden;position:relative}
+iframe{width:100%;height:100%;border:0;background:#0f172a}
+.config-bar{background:#0b1220;border-top:1px solid rgba(255,255,255,.06);padding:10px 20px;font-size:11px;color:#64748b;display:flex;gap:16px;flex-wrap:wrap}
+.config-bar b{color:#94a3b8}
+@media(max-width:900px){.sidebar{width:72px;padding:12px 8px}.sidebar .label-text,.sidebar .badge{display:none}.logo{justify-content:center}.logo .text{display:none}}
 </style>
 </head>
 <body>
-<div class="mobile-top"><div style="display:flex;align-items:center;gap:10px"><div class="logo-icon">🧰</div><strong>Gear Hub</strong></div><button class="hamburger" id="hamburger" aria-label="Open menu">☰</button></div>
-<aside class="sidebar" id="sidebar">
-<div class="logo"><div class="logo-icon">🧰</div><div><h2>Gear Hub</h2><p>Inventory Dashboard</p></div></div>
-<nav class="nav">
-<a class="active" href="inventory.html" target="contentFrame" data-title="Gear Inventory" data-sub="Browse, search, and manage restored equipment">📦 Gear Inventory</a>
-<a href="Front.html" target="contentFrame" data-title="For Sale" data-sub="Manage listings and pricing">🏷️ For Sale</a>
-<a href="inventorydetails.html" target="contentFrame" data-title="Inventory Details" data-sub="Complete equipment database and history">📋 Inventory Details</a>
-<a href="input_items.html" target="contentFrame" data-title="Input Items" data-sub="Add new gear and tools">➕ Input Items</a>
-</nav>
-<div class="sidebar-footer"><div class="storage"><div style="display:flex;justify-content:space-between;font-size:12px;color:#cbd5e1;font-weight:600"><span>Storage</span><span>68%</span></div><div class="bar"><div class="fill"></div></div><div style="margin-top:8px;font-size:11px;color:var(--muted)">1.2k items · Updated now</div></div><div style="display:flex;gap:10px;align-items:center;padding:4px 2px"><div style="width:32px;height:32px;border-radius:50%;background:#1e293b;display:grid;place-items:center;font-weight:700;font-size:12px;border:1px solid var(--border)">HD</div><div><div style="font-size:13px;font-weight:600">Harvey Draper</div><div style="font-size:11px;color:var(--muted)">Admin</div></div></div></div>
-</aside>
-<main class="main">
-<div class="header"><div><h1 id="pageTitle">Gear Inventory</h1><p id="pageSub">Browse, search, and manage restored equipment</p></div><div class="header-actions"><div class="badge"><i></i>Online</div><button class="icon-btn" id="reloadBtn" title="Reload">↻</button><button class="icon-btn" id="fsBtn" title="Fullscreen">⤢</button></div></div>
-<div class="window" id="window"><div class="window-bar"><div class="dots"><div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div></div><div class="file-pill" id="filePill">inventory.html</div><div><button class="icon-btn" id="newTabBtn" title="Open in new tab">↗</button></div></div><div class="iframe-wrap"><div class="loader" id="loader">Loading…</div><iframe name="contentFrame" id="contentFrame" src="inventory.html" loading="lazy" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-downloads"></iframe></div></div>
-</main>
+<div class="sidebar">
+  <div class="logo"><span>⚙️</span><div class="text">Gear Hub</div></div>
+  <div class="nav">
+    <button class="nav-btn active" data-page="dashboard"><span>📊</span><span class="label-text">Dashboard</span><span class="badge blue" id="dashCount">—</span></button>
+    <button class="nav-btn" data-page="front"><span>🏷️</span><span class="label-text">For Sale</span></button>
+    <button class="nav-btn" data-page="inventory"><span>📦</span><span class="label-text">Gear Inventory</span></button>
+    <button class="nav-btn" data-page="details"><span>📋</span><span class="label-text">Inventory Details</span></button>
+    <button class="nav-btn" data-page="input"><span>➕</span><span class="label-text">New Product</span></button>
+  </div>
+  <div style="font-size:11px;color:#475569;padding:10px">v2.0 • JSON backend<br>AKfycbzD…</div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div><h2 id="pageTitle">Dashboard</h2><p id="pageSub">Live stats from new backend</p></div>
+    <div class="api-status"><div class="dot"></div><span id="apiStatus">Connected to new backend</span></div>
+  </div>
+
+  <div id="dashboardView">
+    <div class="stats">
+      <div class="stat-card"><div class="label">Total Items</div><div class="value" id="statTotal">—</div><div class="sub" id="statTotalSub">Loading...</div></div>
+      <div class="stat-card"><div class="label">Total Value</div><div class="value" id="statValue" style="color:#22c55e">$—</div><div class="sub">Sum of Purchase Price</div></div>
+      <div class="stat-card"><div class="label">In Stock</div><div class="value" id="statStock">—</div><div class="sub">Stock Level > 0</div></div>
+      <div class="stat-card"><div class="label">Categories</div><div class="value" id="statCats">—</div><div class="sub" id="statCatsSub">Unique groups</div></div>
+    </div>
+    <div style="padding:0 20px 20px;display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div style="background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px"><div style="font-weight:700;margin-bottom:10px">Recent Imports</div><div id="recentList" style="font-size:12px;color:#94a3b8;display:flex;flex-direction:column;gap:8px">Loading...</div></div>
+      <div style="background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px"><div style="font-weight:700;margin-bottom:10px">Backend</div><div style="font-size:12px;line-height:1.7;color:#cbd5e1"><b>API:</b> script.google.com<br><b>ID:</b> AKfycbzD...<br><b>Endpoints:</b><br>• ?action=read → JSON<br>• ?action=readCsv → legacy CSV<br>• ?action=create → POST<br>• ?action=categories<br>• ?action=setup<br><br><span style="color:#22c55e">● Live</span> 26 items imported</div></div>
+    </div>
+  </div>
+
+  <div class="iframe-wrap" id="iframeWrap" style="display:none"><iframe id="pageFrame" src=""></iframe></div>
+
+  <div class="config-bar"><span><b>API_URL:</b> <span id="apiUrlText"></span></span><span><b>Mode:</b> JSON (was CSV)</span><span><b>Auth:</b> Anyone with link</span></div>
+</div>
+
 <script>
-const links=document.querySelectorAll(".nav a"),titleEl=document.getElementById("pageTitle"),subEl=document.getElementById("pageSub"),filePill=document.getElementById("filePill"),iframe=document.getElementById("contentFrame"),loader=document.getElementById("loader"),sidebar=document.getElementById("sidebar"),hamburger=document.getElementById("hamburger");
-const last=localStorage.getItem("gearhub:lastPage");if(last){const m=[...links].find(l=>l.getAttribute("href")===last);if(m){setActive(m);iframe.src=last;}}
-links.forEach(l=>l.addEventListener("click",function(){setActive(this);localStorage.setItem("gearhub:lastPage",this.getAttribute("href"));loader.classList.remove("hidden");if(innerWidth<=900)sidebar.classList.remove("open");}));
-function setActive(el){links.forEach(a=>a.classList.remove("active"));el.classList.add("active");titleEl.textContent=el.dataset.title;subEl.textContent=el.dataset.sub;filePill.textContent=el.getAttribute("href");el.setAttribute("aria-current","page");}
-iframe.addEventListener("load",()=>{loader.classList.add("hidden");});
-document.getElementById("reloadBtn").onclick=()=>{loader.classList.remove("hidden");iframe.contentWindow.location.reload();};
-document.getElementById("newTabBtn").onclick=()=>window.open(iframe.src,"_blank");
-document.getElementById("fsBtn").onclick=()=>{const w=document.getElementById("window");if(!document.fullscreenElement)w.requestFullscreen().catch(()=>{});else document.exitFullscreen();};
-hamburger.onclick=()=>sidebar.classList.toggle("open");
-document.addEventListener("click",e=>{if(innerWidth<=900&&sidebar.classList.contains("open")&&!sidebar.contains(e.target)&&!hamburger.contains(e.target))sidebar.classList.remove("open");});
-document.addEventListener("keydown",e=>{if(e.key>="1"&&e.key<="4"&&!e.metaKey&&!e.ctrlKey){const i=parseInt(e.key)-1;if(links[i])links[i].click();}if(e.key==="Escape")sidebar.classList.remove("open");});
+// === CONFIG - CHANGE ONLY THIS ===
+const API_URL="https://script.google.com/macros/s/AKfycbzDCfZokdDHryVxtuVOuvTb6XUfnMR66_8Xwym3QzaSWgKooI0865_JPtTi0hJ_GDQr/exec";
+document.getElementById("apiUrlText").textContent=API_URL.slice(0,62)+"...";
+
+// Files must be in same folder as index.html
+const PAGES={
+  front:"Front.html",
+  inventory:"inventory.html",
+  details:"inventorydetails.html",
+  input:"input_items.html"
+};
+
+let allData=[];
+async function loadStats(){
+  try{
+    const res=await fetch(API_URL+"?action=read");
+    const json=await res.json();
+    allData=json.data||[];
+    const total=allData.length;
+    const totalValue=allData.reduce((s,p)=>s+Number(p["Purchase Price"]||0),0);
+    const inStock=allData.filter(p=>Number(p["Stock Level"]||0)>0).length;
+    const cats=[...new Set(allData.map(p=> (p.Category||"").split("//")[0] ))].length;
+    document.getElementById("statTotal").textContent=total;
+    document.getElementById("statTotalSub").textContent=total+" records in Inventory sheet";
+    document.getElementById("statValue").textContent="$"+totalValue.toLocaleString(undefined,{minimumFractionDigits:2});
+    document.getElementById("statStock").textContent=inStock;
+    document.getElementById("statCats").textContent=cats;
+    document.getElementById("statCatsSub").textContent=cats+" main groups";
+    document.getElementById("dashCount").textContent=total;
+    document.getElementById("apiStatus").textContent="Connected • "+total+" items";
+    const recent=allData.slice(0,6);
+    document.getElementById("recentList").innerHTML=recent.map(p=>`<div style="display:flex;justify-content:space-between;gap:10px"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p["Item Name"]}</span><span style="color:#22c55e">$${Number(p["Purchase Price"]||0).toFixed(0)}</span></div>`).join("");
+  }catch(e){
+    document.getElementById("apiStatus").textContent="Failed — check deployment as Anyone";
+    console.error(e);
+  }
+}
+
+function showPage(key){
+  document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("active", b.dataset.page===key));
+  if(key==="dashboard"){
+    document.getElementById("dashboardView").style.display="block";
+    document.getElementById("iframeWrap").style.display="none";
+    document.getElementById("pageTitle").textContent="Dashboard";
+    document.getElementById("pageSub").textContent="Live stats from new backend";
+    loadStats();
+  }else{
+    document.getElementById("dashboardView").style.display="none";
+    document.getElementById("iframeWrap").style.display="block";
+    document.getElementById("pageFrame").src=PAGES[key]||"";
+    document.getElementById("pageTitle").textContent=key==="front"?"For Sale":key==="inventory"?"Gear Inventory":key==="details"?"Inventory Details":"New Product Input";
+    document.getElementById("pageSub").textContent=PAGES[key];
+  }
+}
+
+document.querySelectorAll(".nav-btn").forEach(btn=>{
+  btn.addEventListener("click",()=>showPage(btn.dataset.page));
+});
+
+loadStats();
 </script>
 </body>
 </html>
